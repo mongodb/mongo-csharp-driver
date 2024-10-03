@@ -32,7 +32,7 @@ using MongoDB.Driver.Encryption;
 namespace MongoDB.Driver
 {
     /// <inheritdoc/>
-    public class MongoClient : MongoClientBase
+    public sealed class MongoClient : IMongoClient
     {
         // private fields
         private readonly IClusterInternal _cluster;
@@ -96,19 +96,11 @@ namespace MongoDB.Driver
         }
 
         // public properties
-        /// <summary>
-        /// Gets the cluster.
-        /// </summary>
-        public override ICluster Cluster
-        {
-            get { return _cluster; }
-        }
+        /// <inheritdoc/>
+        public ICluster Cluster => _cluster;
 
         /// <inheritdoc/>
-        public sealed override MongoClientSettings Settings
-        {
-            get { return _settings; }
-        }
+        public MongoClientSettings Settings => _settings;
 
         // internal properties
         internal IAutoEncryptionLibMongoCryptController LibMongoCryptController => _libMongoCryptController;
@@ -130,13 +122,13 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public sealed override void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
+        public void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             UsingImplicitSession(session => DropDatabase(session, name, cancellationToken), cancellationToken);
         }
 
         /// <inheritdoc/>
-        public sealed override void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
+        public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
             var messageEncoderSettings = GetMessageEncoderSettings();
@@ -148,13 +140,13 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+        public Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSessionAsync(session => DropDatabaseAsync(session, name, cancellationToken), cancellationToken);
         }
 
         /// <inheritdoc/>
-        public sealed override Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
+        public Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
             var messageEncoderSettings = GetMessageEncoderSettings();
@@ -166,7 +158,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
+        public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
         {
             settings = settings == null ?
                 new MongoDatabaseSettings() :
@@ -174,18 +166,18 @@ namespace MongoDB.Driver
 
             settings.ApplyDefaultValues(_settings);
 
-            return new MongoDatabaseImpl(this, new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
+            return new MongoDatabase(this, new DatabaseNamespace(name), settings, _cluster, _operationExecutor);
         }
 
         /// <inheritdoc />
-        public sealed override IAsyncCursor<string> ListDatabaseNames(
+        public IAsyncCursor<string> ListDatabaseNames(
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return ListDatabaseNames(options: null, cancellationToken);
         }
 
         /// <inheritdoc />
-        public sealed override IAsyncCursor<string> ListDatabaseNames(
+        public IAsyncCursor<string> ListDatabaseNames(
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -193,7 +185,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public sealed override IAsyncCursor<string> ListDatabaseNames(
+        public IAsyncCursor<string> ListDatabaseNames(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -201,7 +193,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public sealed override IAsyncCursor<string> ListDatabaseNames(
+        public IAsyncCursor<string> ListDatabaseNames(
             IClientSessionHandle session,
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -213,14 +205,14 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public sealed override Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return ListDatabaseNamesAsync(options: null, cancellationToken);
         }
 
         /// <inheritdoc />
-        public sealed override Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -228,7 +220,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public sealed override Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -236,7 +228,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public sealed override async Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+        public async Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             IClientSessionHandle session,
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -248,14 +240,14 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override IAsyncCursor<BsonDocument> ListDatabases(
+        public IAsyncCursor<BsonDocument> ListDatabases(
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSession(session => ListDatabases(session, cancellationToken), cancellationToken);
         }
 
         /// <inheritdoc/>
-        public sealed override IAsyncCursor<BsonDocument> ListDatabases(
+        public IAsyncCursor<BsonDocument> ListDatabases(
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -263,7 +255,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override IAsyncCursor<BsonDocument> ListDatabases(
+        public IAsyncCursor<BsonDocument> ListDatabases(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -271,7 +263,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override IAsyncCursor<BsonDocument> ListDatabases(
+        public IAsyncCursor<BsonDocument> ListDatabases(
             IClientSessionHandle session,
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -285,14 +277,14 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
+        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSessionAsync(session => ListDatabasesAsync(session, null, cancellationToken), cancellationToken);
         }
 
         /// <inheritdoc/>
-        public sealed override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
+        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -300,7 +292,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
+        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -308,7 +300,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
+        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             IClientSessionHandle session,
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -340,19 +332,19 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return StartSession(options);
         }
 
         /// <inheritdoc/>
-        public sealed override Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return Task.FromResult(StartSession(options));
         }
 
         /// <inheritdoc/>
-        public override IChangeStreamCursor<TResult> Watch<TResult>(
+        public IChangeStreamCursor<TResult> Watch<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -361,7 +353,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public override IChangeStreamCursor<TResult> Watch<TResult>(
+        public IChangeStreamCursor<TResult> Watch<TResult>(
             IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
@@ -375,7 +367,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public override Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
+        public Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -384,7 +376,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public override Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
+        public Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
             IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
@@ -398,7 +390,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public override IMongoClient WithReadConcern(ReadConcern readConcern)
+        public IMongoClient WithReadConcern(ReadConcern readConcern)
         {
             Ensure.IsNotNull(readConcern, nameof(readConcern));
             var newSettings = Settings.Clone();
@@ -407,7 +399,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public override IMongoClient WithReadPreference(ReadPreference readPreference)
+        public IMongoClient WithReadPreference(ReadPreference readPreference)
         {
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             var newSettings = Settings.Clone();
@@ -416,7 +408,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public override IMongoClient WithWriteConcern(WriteConcern writeConcern)
+        public IMongoClient WithWriteConcern(WriteConcern writeConcern)
         {
             Ensure.IsNotNull(writeConcern, nameof(writeConcern));
             var newSettings = Settings.Clone();

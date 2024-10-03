@@ -38,7 +38,7 @@ namespace MongoDB.Driver
     {
         private IMongoClient _client;
         private MockOperationExecutor _operationExecutor;
-        private MongoDatabaseImpl _subject;
+        private MongoDatabase _subject;
 
         public MongoDatabaseImplTests()
         {
@@ -1462,7 +1462,7 @@ namespace MongoDB.Driver
                     settings = settings ?? new MongoDatabaseSettings();
                     settings.ApplyDefaultValues(mockClient.Object.Settings);
                     var cluster = new Mock<IClusterInternal>().Object;
-                    return new MongoDatabaseImpl(mockClient.Object, databaseNamespace, settings, cluster, _operationExecutor);
+                    return new MongoDatabase(mockClient.Object, databaseNamespace, settings, cluster, _operationExecutor);
                 });
 
             return mockClient;
@@ -1485,11 +1485,11 @@ namespace MongoDB.Driver
             }
         }
 
-        private MongoDatabaseImpl CreateSubject(string databaseName = "foo", IOperationExecutor operationExecutor = null)
+        private MongoDatabase CreateSubject(string databaseName = "foo", IOperationExecutor operationExecutor = null)
         {
             var settings = new MongoDatabaseSettings();
             settings.ApplyDefaultValues(new MongoClientSettings());
-            return new MongoDatabaseImpl(
+            return new MongoDatabase(
                 _client,
                 new DatabaseNamespace(databaseName),
                 settings,

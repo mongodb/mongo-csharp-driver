@@ -3877,7 +3877,7 @@ namespace MongoDB.Driver
                     var settings = new MongoDatabaseSettings();
                     settings.ApplyDefaultValues(mockClient.Object.Settings);
                     var cluster = new Mock<IClusterInternal>().Object;
-                    return new MongoDatabaseImpl(mockClient.Object, databaseNamespace, settings, cluster, _operationExecutor);
+                    return new MongoDatabase(mockClient.Object, databaseNamespace, settings, cluster, _operationExecutor);
                 });
             return mockClient;
         }

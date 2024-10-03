@@ -25,158 +25,125 @@ using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
-    /// <summary>
-    /// Base class for implementors of <see cref="IMongoCollection{TDocument}"/>.
-    /// </summary>
-    /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public abstract class MongoCollectionBase<TDocument> : IMongoCollection<TDocument>
+    internal abstract class MongoCollectionBase<TDocument> : IMongoCollection<TDocument>
     {
-        /// <inheritdoc />
         public abstract CollectionNamespace CollectionNamespace { get; }
 
-        /// <inheritdoc />
         public abstract IMongoDatabase Database { get; }
 
-        /// <inheritdoc />
         public abstract IBsonSerializer<TDocument> DocumentSerializer { get; }
 
-        /// <inheritdoc />
         public abstract IMongoIndexManager<TDocument> Indexes { get; }
 
-        /// <inheritdoc />
         public abstract IMongoSearchIndexManager SearchIndexes { get; }
 
-        /// <inheritdoc />
         public abstract MongoCollectionSettings Settings { get; }
 
-        /// <inheritdoc />
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         public virtual Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual void AggregateToCollection<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual BulkWriteResult<TDocument> BulkWrite(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         public virtual Task<BulkWriteResult<TDocument>> BulkWriteAsync(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
         public virtual long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
         public virtual long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
         public abstract Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
         public virtual Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual long CountDocuments(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual Task<long> CountDocumentsAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual Task<long> CountDocumentsAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual DeleteResult DeleteMany(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteMany(filter, null, cancellationToken);
         }
 
-        /// <inheritdoc />
         public virtual DeleteResult DeleteMany(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteMany(filter, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual DeleteResult DeleteMany(IClientSessionHandle session, FilterDefinition<TDocument> filter, DeleteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteMany(filter, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
@@ -208,19 +175,16 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteManyAsync(filter, null, cancellationToken);
         }
 
-        /// <inheritdoc />
         public virtual Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteManyAsync(filter, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual Task<DeleteResult> DeleteManyAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, DeleteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteManyAsync(filter, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
@@ -252,19 +216,16 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual DeleteResult DeleteOne(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteOne(filter, null, cancellationToken);
         }
 
-        /// <inheritdoc />
         public virtual DeleteResult DeleteOne(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteOne(filter, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual DeleteResult DeleteOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, DeleteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteOne(filter, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
@@ -296,19 +257,16 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteOneAsync(filter, null, cancellationToken);
         }
 
-        /// <inheritdoc />
         public virtual Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteOneAsync(filter, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual Task<DeleteResult> DeleteOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, DeleteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return DeleteOneAsync(filter, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
@@ -340,156 +298,128 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual IAsyncCursor<TField> Distinct<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual IAsyncCursor<TField> Distinct<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         public virtual Task<IAsyncCursor<TField>> DistinctAsync<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual IAsyncCursor<TItem> DistinctMany<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual IAsyncCursor<TItem> DistinctMany<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual long EstimatedDocumentCount(EstimatedDocumentCountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual Task<long> EstimatedDocumentCountAsync(EstimatedDocumentCountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual IAsyncCursor<TProjection> FindSync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         public virtual Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual TProjection FindOneAndDelete<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual TProjection FindOneAndDelete<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         public virtual Task<TProjection> FindOneAndDeleteAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual TProjection FindOneAndReplace<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
 
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual TProjection FindOneAndReplace<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
 
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         public virtual Task<TProjection> FindOneAndReplaceAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual TProjection FindOneAndUpdate<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual TProjection FindOneAndUpdate<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         public virtual Task<TProjection> FindOneAndUpdateAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public virtual void InsertOne(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual void InsertOne(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
@@ -515,20 +445,17 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         [Obsolete("Use the new overload of InsertOneAsync with an InsertOneOptions parameter instead.")]
         public virtual Task InsertOneAsync(TDocument document, CancellationToken _cancellationToken)
         {
             return InsertOneAsync(document, null, _cancellationToken);
         }
 
-        /// <inheritdoc />
         public virtual Task InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertOneAsync(document, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual Task InsertOneAsync(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertOneAsync(document, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
@@ -554,13 +481,11 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual void InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual void InsertMany(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
@@ -580,13 +505,11 @@ namespace MongoDB.Driver
             bulkWrite(models, bulkWriteOptions);
         }
 
-        /// <inheritdoc />
         public virtual Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertManyAsync(documents, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual Task InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertManyAsync(documents, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
@@ -606,55 +529,45 @@ namespace MongoDB.Driver
             return bulkWriteAsync(models, bulkWriteOptions);
         }
 
-        /// <inheritdoc />
         [Obsolete("Use Aggregation pipeline instead.")]
         public virtual IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         [Obsolete("Use Aggregation pipeline instead.")]
         public virtual IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         [Obsolete("Use Aggregation pipeline instead.")]
         public abstract Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-        /// <inheritdoc />
         [Obsolete("Use Aggregation pipeline instead.")]
         public virtual Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>() where TDerivedDocument : TDocument;
 
-        /// <inheritdoc />
         public virtual ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOne(filter, replacement, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
         public virtual ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOne(filter, replacement, ReplaceOptions.From(options), (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-
-        /// <inheritdoc />
         public virtual ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOne(filter, replacement, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
         public virtual ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -691,26 +604,22 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOneAsync(filter, replacement, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
         public virtual Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOneAsync(filter, replacement, ReplaceOptions.From(options), (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOneAsync(filter, replacement, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
         public virtual Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -747,13 +656,11 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual UpdateResult UpdateMany(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateMany(filter, update, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual UpdateResult UpdateMany(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateMany(filter, update, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
@@ -790,13 +697,11 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateManyAsync(filter, update, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual Task<UpdateResult> UpdateManyAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateManyAsync(filter, update, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
@@ -833,13 +738,11 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual UpdateResult UpdateOne(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateOne(filter, update, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual UpdateResult UpdateOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateOne(filter, update, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
@@ -876,13 +779,11 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateOneAsync(filter, update, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        /// <inheritdoc />
         public virtual Task<UpdateResult> UpdateOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateOneAsync(filter, update, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
@@ -919,7 +820,6 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <inheritdoc />
         public virtual IChangeStreamCursor<TResult> Watch<TResult>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
@@ -928,7 +828,6 @@ namespace MongoDB.Driver
             throw new NotImplementedException(); // implemented by subclasses
         }
 
-        /// <inheritdoc />
         public virtual IChangeStreamCursor<TResult> Watch<TResult>(
             IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
@@ -938,7 +837,6 @@ namespace MongoDB.Driver
             throw new NotImplementedException(); // implemented by subclasses
         }
 
-        /// <inheritdoc />
         public virtual Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
@@ -947,7 +845,6 @@ namespace MongoDB.Driver
             throw new NotImplementedException(); // implemented by subclasses
         }
 
-        /// <inheritdoc />
         public virtual Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
             IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
@@ -957,16 +854,13 @@ namespace MongoDB.Driver
             throw new NotImplementedException(); // implemented by subclasses
         }
 
-        /// <inheritdoc />
         public virtual IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
         {
             throw new NotImplementedException();
         }
 
-        /// <inheritdoc />
         public abstract IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference);
 
-        /// <inheritdoc />
         public abstract IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern);
     }
 }
