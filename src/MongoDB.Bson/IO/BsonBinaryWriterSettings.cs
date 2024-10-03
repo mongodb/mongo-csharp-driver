@@ -21,7 +21,6 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents settings for a BsonBinaryWriter.
     /// </summary>
-    [Serializable]
     public class BsonBinaryWriterSettings : BsonWriterSettings
     {
         // private static fields

@@ -43,24 +43,5 @@ namespace MongoDB.Driver
             subject.Message.Should().BeSameAs(_message);
             subject.InnerException.Should().BeSameAs(_innerException);
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoConfigurationException(_message, _innerException);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoConfigurationException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
-            }
-        }
     }
 }

@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB exception.
     /// </summary>
-    [Serializable]
     public class MongoException : Exception
     {
         // private fields

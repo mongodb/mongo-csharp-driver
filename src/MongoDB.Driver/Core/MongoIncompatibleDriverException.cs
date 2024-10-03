@@ -25,7 +25,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB incompatible driver exception.
     /// </summary>
-    [Serializable]
     public class MongoIncompatibleDriverException : MongoClientException
     {
         #region static

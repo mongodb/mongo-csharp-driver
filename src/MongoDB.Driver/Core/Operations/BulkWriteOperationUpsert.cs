@@ -19,7 +19,6 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [Serializable]
     internal class BulkWriteOperationUpsert
     {
         private readonly BsonValue _id;

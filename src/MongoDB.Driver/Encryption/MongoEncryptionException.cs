@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     /// Represents an encryption exception.
     /// </summary>
-    [Serializable]
     public class MongoEncryptionException : MongoClientException
     {
         #region static

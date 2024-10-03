@@ -21,7 +21,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Server connection mode.
     /// </summary>
-    [Serializable]
     [Obsolete("Use DirectConnection instead.")]
     public enum ConnectionMode
     {

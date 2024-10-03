@@ -39,23 +39,5 @@ namespace MongoDB.Driver.Tests.GridFS
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new GridFSMD5Exception(123);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (GridFSMD5Exception)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.Message.Should().Be(subject.Message);
-            }
-        }
     }
 }

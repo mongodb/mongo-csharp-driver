@@ -22,7 +22,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON int value.
     /// </summary>
-    [Serializable]
     public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32>
     {
         #region static

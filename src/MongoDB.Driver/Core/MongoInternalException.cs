@@ -21,7 +21,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB internal exception (almost surely the result of a bug).
     /// </summary>
-    [Serializable]
     public class MongoInternalException : MongoException
     {
         // constructors

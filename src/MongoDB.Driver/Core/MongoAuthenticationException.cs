@@ -22,7 +22,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB authentication exception.
     /// </summary>
-    [Serializable]
     public class MongoAuthenticationException : MongoConnectionException
     {
         // constructors

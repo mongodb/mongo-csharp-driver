@@ -21,7 +21,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the BSON MinKey value.
     /// </summary>
-    [Serializable]
     public class BsonMinKey : BsonValue, IComparable<BsonMinKey>, IEquatable<BsonMinKey>
     {
         // private static fields

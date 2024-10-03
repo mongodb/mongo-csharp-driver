@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB query exception.
     /// </summary>
-    [Serializable]
     public class MongoQueryException : MongoServerException
     {
         // fields

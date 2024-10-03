@@ -22,7 +22,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
-    [Serializable]
     public abstract class BulkWriteResult
     {
         // fields
@@ -90,7 +89,6 @@ namespace MongoDB.Driver
     /// Represents the result of a bulk write operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    [Serializable]
     public abstract class BulkWriteResult<TDocument> : BulkWriteResult
     {
         // private fields

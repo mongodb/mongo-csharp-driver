@@ -23,7 +23,6 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFSMD5 exception.
     /// </summary>
-    [Serializable]
     public class GridFSMD5Exception : GridFSException
     {
         #region static

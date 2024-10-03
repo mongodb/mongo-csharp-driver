@@ -30,7 +30,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents an immutable URL style connection string. See also MongoUrlBuilder.
     /// </summary>
-    [Serializable]
     [TypeConverter(typeof(MongoUrlTypeConverter))]
     public class MongoUrl : IEquatable<MongoUrl>
     {

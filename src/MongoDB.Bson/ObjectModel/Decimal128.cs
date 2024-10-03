@@ -24,7 +24,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a Decimal128 value.
     /// </summary>
-    [Serializable]
     public struct Decimal128 : IConvertible, IComparable<Decimal128>, IEquatable<Decimal128>
     {
         #region static

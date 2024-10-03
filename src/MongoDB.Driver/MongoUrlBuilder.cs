@@ -32,7 +32,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents URL-style connection strings.
     /// </summary>
-    [Serializable]
     public class MongoUrlBuilder
     {
         // private fields
