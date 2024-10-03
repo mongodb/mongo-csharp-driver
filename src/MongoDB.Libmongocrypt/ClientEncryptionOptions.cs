@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// Client encryption options.
@@ -48,8 +50,8 @@ namespace MongoDB.Driver.Encryption
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
 
-            KmsProvidersHelper.EnsureKmsProvidersAreValid(_kmsProviders);
-            KmsProvidersHelper.EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
+            EnsureKmsProvidersAreValid(_kmsProviders);
+            EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
         }
 
         // public properties
@@ -104,6 +106,40 @@ namespace MongoDB.Driver.Encryption
                 keyVaultNamespace: keyVaultNamespace.WithDefault(_keyVaultNamespace),
                 kmsProviders: kmsProviders.WithDefault(_kmsProviders),
                 tlsOptions: Optional.Create(tlsOptions.WithDefault(_tlsOptions)));
+        }
+
+        private static void EnsureKmsProvidersAreValid(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders)
+        {
+            foreach (var kmsProvider in kmsProviders)
+            {
+                foreach (var option in Ensure.IsNotNull(kmsProvider.Value, nameof(kmsProvider)))
+                {
+                    var optionValue = Ensure.IsNotNull(option.Value, "kmsProviderOption");
+                    var isValid = optionValue is byte[] || optionValue is string;
+                    if (!isValid)
+                    {
+                        throw new ArgumentException($"Invalid kms provider option type: {optionValue.GetType().Name}.");
+                    }
+                }
+            }
+        }
+
+        private static void EnsureKmsProvidersTlsSettingsAreValid(IReadOnlyDictionary<string, SslSettings> kmsProviderTlsSettings)
+        {
+            if (kmsProviderTlsSettings == null)
+            {
+                return;
+            }
+
+            foreach (var kmsProviderTlsSetting in kmsProviderTlsSettings)
+            {
+                var kmsProviderTlsSettingValue = Ensure.IsNotNull(kmsProviderTlsSetting.Value, nameof(kmsProviderTlsSetting.Value));
+
+                if (kmsProviderTlsSettingValue.ServerCertificateValidationCallback != null) // tlsInsecure
+                {
+                    throw new ArgumentException("Insecure TLS options prohibited.");
+                }
+            }
         }
     }
 }

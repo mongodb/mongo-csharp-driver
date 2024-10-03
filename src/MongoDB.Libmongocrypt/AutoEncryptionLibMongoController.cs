@@ -296,6 +296,7 @@ namespace MongoDB.Libmongocrypt
 
         public void Dispose()
         {
+            // Dispose of the clients as well once rebased on the IDisposable mongoclient work.
             if (_internalClient != null)
             {
                 ClusterRegistry.Instance.UnregisterAndDisposeCluster(_internalClient.Cluster);

@@ -24,24 +24,24 @@ namespace MongoDB.Driver.Encryption
     {
         internal static AutoEncryptionProviderRegistry CreateDefaultInstance() => new AutoEncryptionProviderRegistry();
 
-        private static Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  s_autoCryptClientControllerFactory;
+        private Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  _autoCryptClientControllerFactory;
 
         public void Register(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> factory)
         {
-            if (s_autoCryptClientControllerFactory != null)
+            if (_autoCryptClientControllerFactory != null)
             {
                 throw new MongoConfigurationException("AutoEncryption Provider already registered.");
             }
-            s_autoCryptClientControllerFactory = factory;
+            _autoCryptClientControllerFactory = factory;
         }
 
         internal IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions)
         {
-            if (s_autoCryptClientControllerFactory == null)
+            if (_autoCryptClientControllerFactory == null)
             {
                 throw new MongoConfigurationException("No AutoEncryption provider has been registered.");
             }
-            return s_autoCryptClientControllerFactory(client, autoEncryptionOptions);
+            return _autoCryptClientControllerFactory(client, autoEncryptionOptions);
         }
     }
 }

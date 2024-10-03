@@ -15,13 +15,16 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Libmongocrypt
 {
     /// <summary>
     /// Represents an encryption exception.
     /// </summary>
+#pragma warning disable CA1032
     public class MongoEncryptionException : MongoClientException
+#pragma warning restore CA1032
     {
         #region static
         private static string FormatErrorMessage(string errorMessage)
