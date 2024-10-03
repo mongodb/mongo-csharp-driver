@@ -15,12 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -121,17 +118,6 @@ namespace MongoDB.Driver.GridFS
         public long Length
         {
             get { return GetValue<long>("Length"); }
-        }
-
-        /// <summary>
-        /// Gets the MD5 checksum.
-        /// </summary>
-        /// <value>
-        /// The MD5 checksum.
-        /// </value>
-        public string MD5
-        {
-            get { return GetValue<string>("MD5", null); }
         }
 
         /// <summary>

@@ -35,13 +35,11 @@ namespace MongoDB.Driver.GridFS
         // private fields
         private List<BsonDocument> _batch;
         private long _batchPosition;
-        private readonly bool _checkMD5;
         private IAsyncCursor<BsonDocument> _cursor;
         private bool _disposed;
         private readonly BsonValue _idAsBsonValue;
         private readonly int _lastChunkNumber;
         private readonly int _lastChunkSize;
-        private readonly IncrementalHash _md5;
         private int _nextChunkNumber;
         private long _position;
         private bool _retryReads;
@@ -50,16 +48,9 @@ namespace MongoDB.Driver.GridFS
         public GridFSForwardOnlyDownloadStream(
             GridFSBucket<TFileId> bucket,
             IReadBinding binding,
-            GridFSFileInfo<TFileId> fileInfo,
-            bool checkMD5)
+            GridFSFileInfo<TFileId> fileInfo)
             : base(bucket, binding, fileInfo)
         {
-            _checkMD5 = checkMD5;
-            if (_checkMD5)
-            {
-                _md5 = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
-            }
-
             _lastChunkNumber = (int)((fileInfo.Length - 1) / fileInfo.ChunkSizeBytes);
             _lastChunkSize = (int)(fileInfo.Length % fileInfo.ChunkSizeBytes);
 
@@ -152,20 +143,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         // protected methods
-        protected override void CloseImplementation(CancellationToken cancellationToken)
-        {
-            if (_checkMD5 && _position == FileInfo.Length)
-            {
-                var md5 = BsonUtils.ToHexString(_md5.GetHashAndReset());
-                if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
-                {
-#pragma warning disable 618
-                    throw new GridFSMD5Exception(_idAsBsonValue);
-#pragma warning restore
-                }
-            }
-        }
-
         protected override void Dispose(bool disposing)
         {
             CloseIfNotAlreadyClosedFromDispose(disposing);
@@ -177,10 +154,6 @@ namespace MongoDB.Driver.GridFS
                     if (_cursor != null)
                     {
                         _cursor.Dispose();
-                    }
-                    if (_md5 != null)
-                    {
-                        _md5.Dispose();
                     }
                 }
 
@@ -302,11 +275,6 @@ namespace MongoDB.Driver.GridFS
 #pragma warning disable 618
                     throw new GridFSChunkException(_idAsBsonValue, _nextChunkNumber, "the wrong size");
 #pragma warning restore
-                }
-
-                if (_checkMD5)
-                {
-                    _md5.AppendData(bytes, 0, bytes.Length);
                 }
             }
         }

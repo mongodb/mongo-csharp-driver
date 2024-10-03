@@ -579,12 +579,7 @@ namespace MongoDB.Driver.GridFS
 
         private GridFSDownloadStream<TFileId> CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var checkMD5 = options.CheckMD5 ?? false;
             var seekable = options.Seekable ?? false;
-            if (checkMD5 && seekable)
-            {
-                throw new ArgumentException("CheckMD5 can only be used when Seekable is false.");
-            }
 
             if (seekable)
             {
@@ -592,7 +587,7 @@ namespace MongoDB.Driver.GridFS
             }
             else
             {
-                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo, checkMD5);
+                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo);
             }
         }
 
@@ -744,8 +739,7 @@ namespace MongoDB.Driver.GridFS
                 options.Aliases,
                 options.ContentType,
                 chunkSizeBytes,
-                batchSize,
-                options.DisableMD5);
+                batchSize);
 #pragma warning restore
         }
 
@@ -781,10 +775,8 @@ namespace MongoDB.Driver.GridFS
 
         private void DownloadToStreamHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var checkMD5 = options.CheckMD5 ?? false;
-
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo, checkMD5) { RetryReads = retryReads })
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];
@@ -802,10 +794,8 @@ namespace MongoDB.Driver.GridFS
 
         private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var checkMD5 = options.CheckMD5 ?? false;
-
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo, checkMD5) { RetryReads = retryReads })
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];

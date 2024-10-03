@@ -44,7 +44,6 @@ namespace MongoDB.Driver.Tests.GridFS
             result.Database.Should().BeSameAs(database);
             result.Options.BucketName.Should().Be(options.BucketName);
             result.Options.ChunkSizeBytes.Should().Be(options.ChunkSizeBytes);
-            result.Options.DisableMD5.Should().Be(options.DisableMD5);
             result.Options.ReadPreference.Should().Be(options.ReadPreference);
             result.Options.WriteConcern.Should().Be(options.WriteConcern);
         }
@@ -472,7 +471,6 @@ namespace MongoDB.Driver.Tests.GridFS
 
             result.BucketName.Should().Be(options.BucketName);
             result.ChunkSizeBytes.Should().Be(options.ChunkSizeBytes);
-            result.DisableMD5.Should().Be(options.DisableMD5);
             result.ReadConcern.Should().Be(options.ReadConcern);
             result.ReadPreference.Should().Be(options.ReadPreference);
             result.WriteConcern.Should().Be(options.WriteConcern);

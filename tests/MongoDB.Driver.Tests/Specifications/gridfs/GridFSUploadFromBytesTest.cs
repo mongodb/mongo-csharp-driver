@@ -101,10 +101,6 @@ namespace MongoDB.Driver.Tests.Specifications.gridfs
 #pragma warning restore
                         break;
 
-                    case "disableMD5":
-                        _options.DisableMD5 = option.Value.AsBoolean;
-                        break;
-
                     case "metadata":
                         _options.Metadata = option.Value.AsBsonDocument;
                         break;

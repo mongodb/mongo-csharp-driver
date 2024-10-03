@@ -262,31 +262,6 @@ namespace MongoDB.Driver.Tests.GridFS
         }
 
         [Fact]
-        public void MD5_get_should_return_the_expected_result()
-        {
-            var value = "md5";
-            var subject = CreateSubject(md5: value);
-
-#pragma warning disable 
-            var result = subject.MD5;
-#pragma warning restore
-
-            result.Should().Be(value);
-        }
-
-        [Fact]
-        public void MD5_should_be_deserialized_correctly()
-        {
-            var document = CreateFilesCollectionDocument();
-
-            var subject = DeserializeFilesCollectionDocument(document);
-
-#pragma warning disable 618
-            subject.MD5.Should().Be(document["md5"].AsString);
-#pragma warning restore            
-        }
-
-        [Fact]
         public void Metadata_get_should_return_the_expected_result()
         {
             var value = new BsonDocument("x", 1);
@@ -346,7 +321,6 @@ namespace MongoDB.Driver.Tests.GridFS
                 { "length", 123 },
                 { "chunkSize", 1024 },
                 { "uploadDate", DateTime.UtcNow },
-                { "md5", "md5" },
                 { "filename", "name" }
             };
         }
@@ -359,7 +333,6 @@ namespace MongoDB.Driver.Tests.GridFS
             string filename = null,
             BsonValue idAsBsonValue = null,
             long? length = null,
-            string md5 = null,
             BsonDocument metadata = null,
             DateTime? uploadDateTime = null)
         {
@@ -369,7 +342,6 @@ namespace MongoDB.Driver.Tests.GridFS
                 { "length", length ?? 0 },
                 { "chunkSize", chunkSizeBytes ?? 255 * 1024 },
                 { "uploadDate", uploadDateTime ?? DateTime.UtcNow },
-                { "md5", md5 ?? "md5" },
                 { "filename", filename ?? "filename" },
                 { "contentType", contentType, contentType != null },
                 { "aliases", () => new BsonArray(aliases.Select(a => new BsonString(a))), aliases != null },

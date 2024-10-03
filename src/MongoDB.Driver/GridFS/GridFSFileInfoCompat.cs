@@ -133,18 +133,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets the MD5 checksum.
-        /// </summary>
-        /// <value>
-        /// The MD5 checksum.
-        /// </value>
-        [Obsolete("MD5 support will be removed soon.")]
-        public string MD5
-        {
-            get { return GetValue<string>("MD5", null); }
-        }
-
-        /// <summary>
         /// Gets the metadata.
         /// </summary>
         /// <value>
