@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("""{ "x" : "18" }""")]
         public void Deserialize_should_have_expected_result(string json)
         {
-            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(false, false));
             var expectedResult = (Half)18;
 
             TestDeserialize(subject, json, expectedResult);
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("""{ "x" : "18.5" }""")]
         public void Deserialize_with_floating_point_should_have_expected_result(string json)
         {
-            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(false, false));
             var expectedResult = (Half)18.5;
 
             TestDeserialize(subject, json, expectedResult);
@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("""{ "x" : "65500" }""")]
         public void Deserialize_of_max_value_should_have_expected_result(string json)
         {
-            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(true, true));
+            var subject = new HalfSerializer(BsonType.Decimal128, new RepresentationConverter(false, false));
             var expectedResult = Half.MaxValue;
 
             TestDeserialize(subject, json, expectedResult);
@@ -321,8 +321,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestSerialize(subject, halfValue, expectedResult);
         }
 
-        // Int32 and Int64 are not tested because the conversion between NaN values and integral values
-        // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "NaN" } }""")]
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "NaN" } }""")]
@@ -336,8 +334,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestSerialize(subject, halfValue, expectedResult);
         }
 
-        // Int32 and Int64 are not tested because the conversion between NaN values and integral values
-        // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "-Infinity" } }""")]
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "-Infinity" } }""")]
@@ -351,8 +347,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             TestSerialize(subject, halfValue, expectedResult);
         }
 
-        // Int32 and Int64 are not tested because the conversion between NaN/Infinite values and integral values
-        // gives an indefinite result, and as such we cannot guarantee correct deserialization
         [Theory]
         [InlineData(BsonType.Decimal128, """{ "x" : { "$numberDecimal" : "Infinity" } }""")]
         [InlineData(BsonType.Double, """{ "x" : { "$numberDouble" : "Infinity" } }""")]
@@ -369,9 +363,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [ParameterAttributeData]
         public void Serialize_of_positive_infinity_with_integer_representation_should_throw(
-            [Values(BsonType.Int64, BsonType.Int32)] BsonType representation)
+            [Values(BsonType.Int64, BsonType.Int32)] BsonType representation,
+            [Values(true, false)] bool allowOverflow, [Values(true, false)] bool allowTruncation)
         {
-            var subject = new HalfSerializer(representation, new RepresentationConverter(false, true));
+            var subject = new HalfSerializer(representation, new RepresentationConverter(allowOverflow, allowTruncation));
             var halfValue = Half.PositiveInfinity;
 
             TestSerializeWithException<OverflowException>(subject, halfValue);
@@ -380,10 +375,23 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [ParameterAttributeData]
         public void Serialize_of_negative_infinity_with_integer_representation_should_throw(
-            [Values(BsonType.Int64, BsonType.Int32)] BsonType representation)
+            [Values(BsonType.Int64, BsonType.Int32)] BsonType representation,
+            [Values(true, false)] bool allowOverflow, [Values(true, false)] bool allowTruncation)
         {
-            var subject = new HalfSerializer(representation, new RepresentationConverter(false, true));
+            var subject = new HalfSerializer(representation, new RepresentationConverter(allowOverflow, allowTruncation));
             var halfValue = Half.NegativeInfinity;
+
+            TestSerializeWithException<OverflowException>(subject, halfValue);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Serialize_of_nan_with_integer_representation_should_throw(
+            [Values(BsonType.Int64, BsonType.Int32)] BsonType representation,
+            [Values(true, false)] bool allowOverflow, [Values(true, false)] bool allowTruncation)
+        {
+            var subject = new HalfSerializer(representation, new RepresentationConverter(allowOverflow, allowTruncation));
+            var halfValue = Half.NaN;
 
             TestSerializeWithException<OverflowException>(subject, halfValue);
         }
