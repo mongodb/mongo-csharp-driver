@@ -23,7 +23,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -189,15 +188,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
-#pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.HintForDeleteOperations.IsSupported(CoreTestConfiguration.MaxWireVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                exception.Should().BeNull();
-            }
             else
             {
-                exception.Should().BeOfType<MongoCommandException>();
+                exception.Should().BeNull();
             }
         }
 
@@ -250,15 +243,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
-#pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.HintForUpdateAndReplaceOperations.IsSupported(CoreTestConfiguration.MaxWireVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                exception.Should().BeNull();
-            }
             else
             {
-                exception.Should().BeOfType<MongoCommandException>();
+                exception.Should().BeNull();
             }
         }
 
