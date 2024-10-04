@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         {
                             throw new ExpressionNotSupportedException(valueExpression, expression);
                         }
-                        SerializationHelper.EnsureRepresentationIsNumeric(valueExpression, timeSpanSerializer);
+                        SerializationHelper.EnsureRepresentationIsNumeric(expression, valueExpression, timeSpanSerializer);
 
                         var valueAst = ConvertHelper.RemoveWideningConvert(valueTranslation);
                         var serializerUnits = timeSpanSerializer.Units;
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 else
                 {
                     var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                    SerializationHelper.EnsureRepresentationIsNumeric(valueExpression, valueTranslation);
+                    SerializationHelper.EnsureRepresentationIsNumeric(expression, valueExpression, valueTranslation);
 
                     var valueAst = ConvertHelper.RemoveWideningConvert(valueTranslation);
                     (unit, amount) = method.Name switch

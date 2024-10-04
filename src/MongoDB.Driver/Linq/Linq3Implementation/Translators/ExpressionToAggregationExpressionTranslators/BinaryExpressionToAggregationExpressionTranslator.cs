@@ -79,16 +79,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var rightAst = rightTranslation.Ast;
             if (IsArithmeticExpression(expression))
             {
-                if (!leftTranslation.Serializer.Equals(rightTranslation.Serializer))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "operands are serialized differently");
-                }
-
-                var representation = SerializationHelper.GetRepresentation(leftTranslation.Serializer);
-                if (!SerializationHelper.IsNumericRepresentation(representation))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "operands are not serialized using a numeric representation");
-                }
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, leftExpression, leftTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, rightExpression, rightTranslation);
 
                 leftAst = ConvertHelper.RemoveWideningConvert(leftTranslation);
                 rightAst = ConvertHelper.RemoveWideningConvert(rightTranslation);

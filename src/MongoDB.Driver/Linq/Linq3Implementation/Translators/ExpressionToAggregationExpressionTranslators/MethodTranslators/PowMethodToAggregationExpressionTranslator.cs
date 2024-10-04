@@ -34,8 +34,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var yExpression = arguments[1];
                 var xTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, xExpression);
                 var yTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, yExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(xExpression, xTranslation);
-                SerializationHelper.EnsureRepresentationIsNumeric(yExpression, yTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, xExpression, xTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, yExpression, yTranslation);
 
                 var xAst = ConvertHelper.RemoveWideningConvert(xTranslation);
                 var yAst = ConvertHelper.RemoveWideningConvert(yTranslation);

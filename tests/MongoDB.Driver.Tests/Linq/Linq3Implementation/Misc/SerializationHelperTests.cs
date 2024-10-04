@@ -61,9 +61,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void EnsureRepresentationIsNumeric_should_work(BsonType type, bool shouldThrow)
         {
             var expression = Expression.Constant(1);
+            var subExpression = Expression.Constant(2);
             var serializer = new FakeSerializerWithRepresentation<C>(type);
 
-            var exception = Record.Exception(() => SerializationHelper.EnsureRepresentationIsNumeric(expression, serializer));
+            var exception = Record.Exception(() => SerializationHelper.EnsureRepresentationIsNumeric(expression, subExpression, serializer));
 
             if (shouldThrow)
             {

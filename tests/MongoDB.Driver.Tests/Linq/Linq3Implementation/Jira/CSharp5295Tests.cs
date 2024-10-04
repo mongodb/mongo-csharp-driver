@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void Subtract_two_decimals_with_different_representations_should_throw()
+        public void Subtract_two_decimals_with_left_string_representation_should_throw()
         {
             var collection = GetCollection();
 
@@ -49,20 +49,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var exception = Record.Exception(() => Translate(collection, queryable));
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Be("Expression not supported: (x.DS2 - x.D1) because operands are serialized differently.");
+            exception.Message.Should().Be("Expression not supported: (x.DS2 - x.D1) because x.DS2 uses a non-numeric representation: String.");
         }
 
         [Fact]
-        public void Subtract_two_decimals_with_string_representation_should_throw()
+        public void Subtract_two_decimals_with_right_string_representation_should_throw()
         {
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .Select(x => x.DS2 - x.DS1);
+                .Select(x => x.D2 - x.DS1);
 
             var exception = Record.Exception(() => Translate(collection, queryable));
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Be("Expression not supported: (x.DS2 - x.DS1) because operands are not serialized using a numeric representation.");
+            exception.Message.Should().Be("Expression not supported: (x.D2 - x.DS1) because x.DS1 uses a non-numeric representation: String.");
         }
 
         private IMongoCollection<C> GetCollection()
