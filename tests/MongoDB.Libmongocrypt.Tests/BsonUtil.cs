@@ -20,7 +20,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using System.IO;
 
-namespace MongoDB.Libmongocrypt.Test
+namespace MongoDB.Libmongocrypt.Tests
 {
     class BsonUtil
     {

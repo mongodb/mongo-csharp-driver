@@ -93,8 +93,7 @@ namespace MongoDB.Benchmarks
 
             // Create libmongocrypt binding that will be used for decryption
             _libMongoCryptController =
-                ((AutoEncryptionProviderRegistry)MongoClientSettings.Extensions.AutoEncryptionProvider)
-                .CreateAutoCryptClientController(_disposableKeyVaultClient, autoEncryptionOptions);
+                MongoClientSettings.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(_disposableKeyVaultClient, autoEncryptionOptions);
         }
 
         [Benchmark]

@@ -27,7 +27,6 @@ var testsDirectory = solutionDirectory.Combine("tests");
 var outputDirectory = solutionDirectory.Combine("build");
 var toolsDirectory = solutionDirectory.Combine("tools");
 var toolsHugoDirectory = toolsDirectory.Combine("Hugo");
-var artifactsPackagingTestsDirectory = artifactsDirectory.Combine("Packaging.Tests");
 var mongoDbDriverPackageName = "MongoDB.Driver";
 
 var solutionFile = solutionDirectory.CombineWithFilePath("CSharpDriver.sln");
@@ -223,7 +222,7 @@ Task("TestServerlessNet60").IsDependentOn("TestServerless");
 Task("TestLibMongoCrypt")
     .IsDependentOn("Build")
     .DoesForEach(
-        items: GetFiles("./**/MongoDB.Libmongocrypt.Test.csproj"),
+        items: GetFiles("./**/MongoDB.Libmongocrypt.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) => RunTests(buildConfig, testProject));
 
 Task("TestLoadBalanced")

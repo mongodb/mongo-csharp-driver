@@ -19,7 +19,7 @@ using System.Text;
 using FluentAssertions;
 using Xunit;
 
-namespace MongoDB.Libmongocrypt.Test
+namespace MongoDB.Libmongocrypt.Tests
 {
     public class SigningRSAESPKCSCallbackTests
     {

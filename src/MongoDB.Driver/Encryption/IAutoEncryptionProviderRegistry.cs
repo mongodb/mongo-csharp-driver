@@ -27,5 +27,13 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <param name="factory">Factory method.</param>
         void Register(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> factory);
+
+        /// <summary>
+        /// Creates an IAutoCryptClientController.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="autoEncryptionOptions">The AutoEncryptionOptions.</param>
+        /// <returns>The IAutoCryptClientController.</returns>
+        public IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions);
     }
 }

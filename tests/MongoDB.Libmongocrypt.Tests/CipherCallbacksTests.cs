@@ -18,7 +18,7 @@ using FluentAssertions;
 using System.Security.Cryptography;
 using Xunit;
 
-namespace MongoDB.Libmongocrypt.Test
+namespace MongoDB.Libmongocrypt.Tests
 {
     public class CipherCallbacksTests
     {

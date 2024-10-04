@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Encryption
             _autoCryptClientControllerFactory = factory;
         }
 
-        internal IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions)
+        public IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions)
         {
             if (_autoCryptClientControllerFactory == null)
             {

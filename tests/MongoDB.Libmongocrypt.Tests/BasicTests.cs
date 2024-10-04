@@ -26,7 +26,7 @@ using FluentAssertions;
 using Xunit.Abstractions;
 using MongoDB.TestHelpers.XunitExtensions;
 
-namespace MongoDB.Libmongocrypt.Test
+namespace MongoDB.Libmongocrypt.Tests
 {
     public class BasicTests
     {

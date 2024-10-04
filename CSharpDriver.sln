@@ -56,7 +56,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.LambdaTest",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt", "src\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj", "{642518BC-D28A-4ABC-851C-BC18CC34EEDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Test", "tests\MongoDB.Libmongocrypt.Test\MongoDB.Libmongocrypt.Test.csproj", "{AB4AD0CB-756C-444F-9F37-26DA35148934}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Libmongocrypt.Tests", "tests\MongoDB.Libmongocrypt.Tests\MongoDB.Libmongocrypt.Tests.csproj", "{AB4AD0CB-756C-444F-9F37-26DA35148934}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Authentication.AWS", "src\MongoDB.Driver.Authentication.AWS\MongoDB.Driver.Authentication.AWS.csproj", "{A0CAC199-457E-4862-AF9E-971C7A77CBF9}"
 EndProject
