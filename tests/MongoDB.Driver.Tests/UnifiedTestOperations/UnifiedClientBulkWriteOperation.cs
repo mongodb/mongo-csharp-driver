@@ -111,9 +111,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         ConvertResults(results.UpdateResults,
                             item => new BsonDocument
                             {
-                                { "matchedCount", item.MatchedCount },
-                                { "modifiedCount", item.ModifiedCount },
-                                { "upsertedId", item.UpsertedId }
+                                { "matchedCount", (int)item.MatchedCount },
+                                { "modifiedCount", (int)item.ModifiedCount },
+                                { "upsertedId", item.UpsertedId, item.UpsertedId != null}
                             })
                     },
                     {

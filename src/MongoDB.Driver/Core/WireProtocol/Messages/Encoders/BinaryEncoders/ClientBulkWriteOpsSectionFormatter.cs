@@ -153,8 +153,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
                 WriteFilter(context, model.Filter, documentSerializer);
                 WriteUpdate(context, model.Replacement, documentSerializer, UpdateType.Replacement);
+                if (model.IsUpsert)
+                {
+                    WriteBoolean(context, "upsert", true);
+                }
                 WriteBoolean(context, "multi", false);
-                WriteBoolean(context, "upsert", model.IsUpsert);
                 WriteHint(context, model.Hint);
                 WriteCollation(context, model.Collation);
             });
@@ -166,8 +169,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
                 WriteFilter(context, model.Filter, documentSerializer);
                 WriteUpdate(context, model.Update, documentSerializer);
+                if (model.IsUpsert)
+                {
+                    WriteBoolean(context, "upsert", true);
+                }
                 WriteBoolean(context, "multi", true);
-                WriteBoolean(context, "upsert", model.IsUpsert);
                 WriteArrayFilters(context, model.ArrayFilters);
                 WriteHint(context, model.Hint);
                 WriteCollation(context, model.Collation);
@@ -180,7 +186,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
                 WriteFilter(context, model.Filter, documentSerializer);
                 WriteUpdate(context, model.Update, documentSerializer);
-                WriteBoolean(context, "upsert", model.IsUpsert);
+                if (model.IsUpsert)
+                {
+                    WriteBoolean(context, "upsert", true);
+                }
+                WriteBoolean(context, "multi", false);
                 WriteArrayFilters(context, model.ArrayFilters);
                 WriteHint(context, model.Hint);
                 WriteCollation(context, model.Collation);

@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Core.Operations
                         {
                             MatchedCount = operationResponse["n"].AsInt32,
                             ModifiedCount = operationResponse["nModified"].AsInt32,
-                            UpsertedId = upsertedId
+                            UpsertedId = upsertedId?.AsBsonDocument["_id"],
                         });
                     }
                     else if (writeModelType == typeof(BulkWriteDeleteOneModel<>) || writeModelType == typeof(BulkWriteDeleteManyModel<>))
