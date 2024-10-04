@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
-        private static readonly Feature __csfle2Qev2RangePreviewAlgorithm = new Feature("csfle2Qev2RangePreviewAlgorithm", WireVersion.Server70, WireVersion.Server80);
+        private static readonly Feature __csfle2Qev2RangeAlgorithm = new Feature("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
         private static readonly Feature __csfle2Qev2 = new Feature("Csfle2Qev2", WireVersion.Server70, notSupportedMessage: "Driver support of Queryable Encryption is incompatible with server. Upgrade server to use Queryable Encryption.");
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
@@ -375,9 +375,9 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature Csfle2QEv2 => __csfle2Qev2;
 
         /// <summary>
-        /// Gets the csfle2 range preview algorithm feature.
+        /// Gets the csfle2 range algorithm feature.
         /// </summary>
-        public static Feature Csfle2QEv2RangePreviewAlgorithm => __csfle2Qev2RangePreviewAlgorithm;
+        public static Feature Csfle2QEv2RangeAlgorithm => __csfle2Qev2RangeAlgorithm;
 
         /// <summary>
         /// Gets the current op command feature.
@@ -867,7 +867,7 @@ namespace MongoDB.Driver.Core.Misc
                 ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
             }
         }
-        
+
         internal bool IsSupported(int wireVersion)
         {
             return _supportRemovedWireVersion.HasValue
@@ -882,7 +882,7 @@ namespace MongoDB.Driver.Core.Misc
                 string errorMessage;
                 if (_notSupportedMessage != null)
                 {
-                    errorMessage = _notSupportedMessage; ;
+                    errorMessage = _notSupportedMessage;
                 }
                 else
                 {
