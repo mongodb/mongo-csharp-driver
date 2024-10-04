@@ -92,18 +92,6 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
-        /// Gets the hello result.
-        /// </summary>
-        /// <value>
-        /// The hello result.
-        /// </value>
-        [Obsolete("Use HelloResult instead.")]
-        public IsMasterResult IsMasterResult
-        {
-            get { return new IsMasterResult(_helloResult.Wrapped); }
-        }
-
-        /// <summary>
         /// Gets the maximum number of documents in a batch.
         /// </summary>
         /// <value>
