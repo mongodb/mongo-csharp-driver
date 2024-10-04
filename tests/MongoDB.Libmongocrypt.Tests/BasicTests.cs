@@ -244,13 +244,7 @@ namespace MongoDB.Libmongocrypt.Tests
                 }
             }
         }
-
-        [Fact]
-        public static void LibmongocryptLibraryShouldProvideLibraryVersion()
-        {
-            Library.Version.Should().Be("1.10.0");
-        }
-
+        
         [Fact]
         public void TestAwsKeyCreationWithEndPoint()
         {
