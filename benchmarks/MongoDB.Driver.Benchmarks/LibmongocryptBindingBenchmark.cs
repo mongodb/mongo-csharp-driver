@@ -20,7 +20,6 @@ using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Libmongocrypt;
@@ -34,15 +33,16 @@ namespace MongoDB.Benchmarks
 
         private byte[] _encryptedValuesDocumentBytes;
         private DisposableMongoClient _disposableKeyVaultClient;
-        private AutoEncryptionLibMongoCryptController _libMongoCryptController;
-        private CryptClient _cryptClient;
+        private IAutoEncryptionLibMongoCryptController _libMongoCryptController;
 
-        [Params(1, 2, 8, 64)]
+        [Params(1)]
         public int ThreadsCount { get; set; }
 
         [GlobalSetup]
         public void Setup()
         {
+            MongoClientSettings.Extensions.AddAutoEncryption();
+
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
@@ -92,8 +92,8 @@ namespace MongoDB.Benchmarks
             _encryptedValuesDocumentBytes = encryptedValuesDocument.ToBson();
 
             // Create libmongocrypt binding that will be used for decryption
-            _cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings());
-            _libMongoCryptController = AutoEncryptionLibMongoCryptController.Create(_disposableKeyVaultClient, _cryptClient, autoEncryptionOptions);
+            _libMongoCryptController =
+                MongoClientSettings.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(_disposableKeyVaultClient, autoEncryptionOptions);
         }
 
         [Benchmark]
@@ -111,7 +111,7 @@ namespace MongoDB.Benchmarks
         [GlobalCleanup]
         public void Cleanup()
         {
-            _cryptClient.Dispose();
+            _libMongoCryptController.Dispose();
             _disposableKeyVaultClient.Dispose();
         }
     }

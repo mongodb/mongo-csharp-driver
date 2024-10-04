@@ -186,7 +186,11 @@ namespace MongoDB.Driver
             set { _validationLevel = value; }
         }
 
-        internal virtual CreateCollectionOptions Clone() =>
+        /// <summary>
+        /// Clones the CreateCollectionOptions.
+        /// </summary>
+        /// <returns>The cloned CreateCollectionOptions.</returns>
+        public virtual CreateCollectionOptions Clone() =>
             new CreateCollectionOptions
             {
                 _capped = _capped,
@@ -289,7 +293,11 @@ namespace MongoDB.Driver
             set { _validator = value; }
         }
 
-        internal override CreateCollectionOptions Clone() =>
+        /// <summary>
+        /// Clones the CreateCollectionOptions.
+        /// </summary>
+        /// <returns>The cloned CreateCollectionOptions.</returns>
+        public override CreateCollectionOptions Clone() =>
             new CreateCollectionOptions<TDocument>
             {
                 Capped = base.Capped,

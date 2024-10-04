@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Encryption;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -30,7 +28,7 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     /// Auto encryption options.
     /// </summary>
-    public class AutoEncryptionOptions : IEncryptionOptions
+    public sealed class AutoEncryptionOptions
     {
         // private fields
         private readonly bool _bypassAutoEncryption;

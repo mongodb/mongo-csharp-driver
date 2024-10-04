@@ -11,15 +11,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(SmokeTestsPackageSha)' != ''">
-    <RestoreAdditionalProjectSources>
-      $(MSBuildThisFileDirectory)..\..\..\artifacts\packages
-    </RestoreAdditionalProjectSources>
-    <ReferenceDriverAsPackage>true</ReferenceDriverAsPackage>
+    <UsePackageReferences>true</UsePackageReferences>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="[0.0.0.0]" Condition="'$(ReferenceDriverAsPackage)' == 'true'" />
-    <ProjectReference Include="..\..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" Condition="'$(ReferenceDriverAsPackage)' != 'true'" />
+    <PackageReference Include="MongoDB.Driver" Version="[0.0.0.0]" Condition="'$(UsePackageReferences)' == 'true'" />
+    <PackageReference Include="MongoDB.Libmongocrypt" Version="[0.0.0.0]" Condition="'$(UsePackageReferences)' == 'true'" />
+    <ProjectReference Include="..\..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" Condition="'$(UsePackageReferences)' != 'true'" />
+    <ProjectReference Include="..\..\..\src\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" Condition="'$(UsePackageReferences)' != 'true'" />
   </ItemGroup>
 
   <ItemGroup>

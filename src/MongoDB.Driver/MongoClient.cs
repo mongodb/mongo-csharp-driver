@@ -21,14 +21,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Encryption;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -37,7 +36,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly IClusterInternal _cluster;
-        private readonly AutoEncryptionLibMongoCryptController _libMongoCryptController;
+        private readonly IAutoEncryptionLibMongoCryptController _libMongoCryptController;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
 
@@ -61,10 +60,14 @@ namespace MongoDB.Driver
             _operationExecutor = new OperationExecutor(this);
             if (settings.AutoEncryptionOptions != null)
             {
-                _libMongoCryptController = AutoEncryptionLibMongoCryptController.Create(
-                    this,
-                    _cluster.CryptClient,
-                    settings.AutoEncryptionOptions);
+                _libMongoCryptController =
+                    MongoClientSettings.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(this, settings.AutoEncryptionOptions);
+
+                _settings.LoggingSettings?.CreateLogger<LogCategories.Client>()?.LogTrace(
+                    StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
+                    _cluster.ClusterId,
+                    "CryptClient created. Configured shared library version: ",
+                    _libMongoCryptController.CryptSharedLibraryVersion() ?? "None");
             }
         }
 
@@ -108,7 +111,7 @@ namespace MongoDB.Driver
         }
 
         // internal properties
-        internal AutoEncryptionLibMongoCryptController LibMongoCryptController => _libMongoCryptController;
+        internal IAutoEncryptionLibMongoCryptController LibMongoCryptController => _libMongoCryptController;
         internal IOperationExecutor OperationExecutor => _operationExecutor;
 
         // internal methods

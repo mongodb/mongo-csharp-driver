@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Logging;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.TestHelpers
 {
@@ -250,14 +251,7 @@ namespace MongoDB.Driver.TestHelpers
 
             if (wrapped is MongoClient mongoClient)
             {
-                var controller = mongoClient.LibMongoCryptController;
-                foreach (var clientToDispose in new[] { controller?.InternalClient, controller?.MongoCryptdClient })
-                {
-                    if (clientToDispose != null)
-                    {
-                        ClusterRegistry.Instance.UnregisterAndDisposeCluster(clientToDispose.Cluster);
-                    }
-                }
+                mongoClient.LibMongoCryptController?.Dispose();
             }
 
             _logger?.LogDebug(wrapped.Cluster.ClusterId, "Disposed");

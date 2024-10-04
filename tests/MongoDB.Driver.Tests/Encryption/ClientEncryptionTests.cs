@@ -14,26 +14,26 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using MongoDB.Libmongocrypt;
-using Xunit;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
-using System.Collections.Generic;
-using System.Threading;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Servers;
-using System.Net;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Encryption
 {
@@ -387,6 +387,8 @@ namespace MongoDB.Driver.Tests.Encryption
         // private methods
         private ClientEncryption CreateSubject(IMongoClient client = null)
         {
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
+
             var clientEncryptionOptions = new ClientEncryptionOptions(
                 client ?? DriverTestConfiguration.Client,
                 __keyVaultCollectionNamespace,
@@ -406,9 +408,9 @@ namespace MongoDB.Driver.Tests.Encryption
 
     internal static class ClientEncryptionReflector
     {
-        public static CryptClient _cryptClient(this ClientEncryption clientEncryption)
+        public static object _cryptClient(this ClientEncryption clientEncryption)
         {
-            return (CryptClient)Reflector.GetFieldValue(clientEncryption, nameof(_cryptClient));
+            return Reflector.GetFieldValue(clientEncryption, nameof(_cryptClient));
         }
 
         public static ExplicitEncryptionLibMongoCryptController _libMongoCryptController(this ClientEncryption clientEncryption)

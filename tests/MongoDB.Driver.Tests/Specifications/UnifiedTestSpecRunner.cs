@@ -58,6 +58,8 @@ namespace MongoDB.Driver.Tests.Specifications
                 RequireKmsMock();
             }
 
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH");
+
             Run(testCase);
         }
 

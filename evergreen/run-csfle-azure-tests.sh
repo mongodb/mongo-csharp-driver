@@ -22,4 +22,6 @@ echo "Running Azure Credential Acquisition Test"
 export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 export CSFLE_AZURE_KMS_TESTS_ENABLED=true
 
+. ./evergreen/export-libmongocrypt-path.sh
+
 ./build.sh --target=TestCsfleWithAzureKms

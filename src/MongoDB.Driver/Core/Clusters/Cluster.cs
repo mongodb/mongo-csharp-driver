@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -47,7 +46,6 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
-        private CryptClient _cryptClient = null;
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
@@ -103,11 +101,6 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterId ClusterId
         {
             get { return _clusterId; }
-        }
-
-        public CryptClient CryptClient
-        {
-            get { return _cryptClient; }
         }
 
         public ClusterDescription Description
@@ -167,7 +160,6 @@ namespace MongoDB.Driver.Core.Clusters
                 UpdateClusterDescription(newClusterDescription);
 
                 _rapidHeartbeatTimer.Dispose();
-                _cryptClient?.Dispose();
 
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposed");
             }
@@ -213,17 +205,6 @@ namespace MongoDB.Driver.Core.Clusters
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster initialized");
-
-                if (_settings.CryptClientSettings != null)
-                {
-                    _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
-
-                    _clusterEventLogger.Logger?.LogTrace(
-                        StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
-                        _clusterId,
-                        "CryptClient created. Configured shared library version: ",
-                        _cryptClient.CryptSharedLibraryVersion ?? "None");
-                }
             }
         }
 

@@ -18,7 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly ClientEncryption _clientEncryption;
         private readonly BsonBinaryData _value;
-        
+
         public UnifiedDecryptOperation(ClientEncryption clientEncryption, BsonBinaryData value)
         {
             _clientEncryption = Ensure.IsNotNull(clientEncryption, nameof(clientEncryption));
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         throw new FormatException($"Invalid {nameof(UnifiedDecryptOperation)} argument name: '{argument.Name}'.");
                 }
             }
-            
+
             return new UnifiedDecryptOperation(clientEncryption, value);
         }
     }

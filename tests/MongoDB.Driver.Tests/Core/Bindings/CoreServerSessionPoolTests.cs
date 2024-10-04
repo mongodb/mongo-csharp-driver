@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 using Moq;
 using Xunit;
 
@@ -299,8 +299,6 @@ namespace MongoDB.Driver.Tests
             public ClusterDescription Description { get; }
 
             public ClusterSettings Settings => throw new NotImplementedException();
-
-            public CryptClient CryptClient => throw new NotImplementedException();
 
             public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 

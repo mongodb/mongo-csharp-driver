@@ -18,7 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {

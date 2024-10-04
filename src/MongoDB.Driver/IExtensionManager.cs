@@ -32,6 +32,11 @@ namespace MongoDB.Driver
         /// Kms Providers Registry.
         /// </summary>
         IKmsProviderRegistry KmsProviders { get; }
+
+        /// <summary>
+        /// AutoEncryption Provider Registry.
+        /// </summary>
+        IAutoEncryptionProviderRegistry AutoEncryptionProvider { get; }
     }
 }
 
