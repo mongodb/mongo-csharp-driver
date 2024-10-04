@@ -13,7 +13,13 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
@@ -82,6 +88,30 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
+        }
+
+        public static IEnumerable<object[]> SerializeSpecialValuesData()
+        {
+            return from bsonType in new[] { BsonType.Int64, BsonType.Int32 }
+                from val in new [] { double.PositiveInfinity, double.NegativeInfinity, double.NaN }
+                select new object[] { bsonType, val };
+        }
+
+        [Theory]
+        [MemberData(nameof(SerializeSpecialValuesData))]
+        public void Serialize_NaN_or_Infinity_to_integral_should_throw(BsonType representation, double value)
+        {
+            var subject = new DoubleSerializer(representation);
+
+            using var textWriter = new StringWriter();
+            using var writer = new JsonWriter(textWriter);
+
+            var context = BsonSerializationContext.CreateRoot(writer);
+            writer.WriteStartDocument();
+            writer.WriteName("x");
+
+            var exception = Record.Exception(() => subject.Serialize(context, value));
+            exception.Should().BeOfType<OverflowException>();
         }
     }
 }
