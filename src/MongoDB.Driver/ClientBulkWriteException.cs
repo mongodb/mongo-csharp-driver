@@ -23,10 +23,10 @@ namespace MongoDB.Driver
     /// Represents a bulk write exception.
     /// </summary>
     [Serializable]
-    public class BulkWriteException : MongoServerException
+    public class ClientBulkWriteException : MongoServerException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BulkWriteException"/> class.
+        /// Initializes a new instance of the <see cref="ClientBulkWriteException"/> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
@@ -34,7 +34,7 @@ namespace MongoDB.Driver
         /// <param name="writeConcernErrors">Write concern errors that occurred while executing the bulk write.</param>
         /// <param name="innerException">The inner exception.</param>
         /// <param name="writeErrors">Errors that occurred during the execution of individual write operations.</param>
-        public BulkWriteException(
+        public ClientBulkWriteException(
             ConnectionId connectionId,
             string message,
             IReadOnlyDictionary<int, WriteError> writeErrors,

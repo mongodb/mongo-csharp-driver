@@ -19,7 +19,7 @@ namespace MongoDB.Driver
 {
     internal static class BsonSerializerExtensions
     {
-        public static void EnsureIdAssigned<TDocument>(this IBsonSerializer<TDocument> serializer, object container, TDocument document)
+        public static object EnsureIdAssigned<TDocument>(this IBsonSerializer<TDocument> serializer, object container, TDocument document)
         {
             var idProvider = serializer as IBsonIdProvider;
             if (idProvider != null)
@@ -34,7 +34,11 @@ namespace MongoDB.Driver
                         idProvider.SetDocumentId(document, id);
                     }
                 }
+
+                return id;
             }
+
+            return null;
         }
     }
 }

@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 actualResult.Exception.Should().NotBeNull();
                 actualResult.Result.Should().BeNull();
 
-                new UnifiedErrorMatcher().AssertErrorsMatch(actualResult.Exception, expectedError.AsBsonDocument);
+                new UnifiedErrorMatcher(entityMap).AssertErrorsMatch(actualResult.Exception, expectedError.AsBsonDocument);
             }
             else
             {

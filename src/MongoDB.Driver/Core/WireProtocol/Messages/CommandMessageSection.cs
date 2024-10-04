@@ -142,15 +142,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     {
         public ClientBulkWriteOpsCommandMessageSection(
             IBatchableSource<BulkWriteModel> operations,
+            Dictionary<BulkWriteModel, BsonValue> idsMap,
             int? maxBatchCount,
             int? maxDocumentSize,
             RenderArgs<BsonDocument> renderArgs)
         : base(operations, maxBatchCount, maxDocumentSize)
         {
             Documents = operations;
+            IdsMap = idsMap;
             RenderArgs = renderArgs;
         }
 
+        public Dictionary<BulkWriteModel, BsonValue> IdsMap { get; }
         public new IBatchableSource<BulkWriteModel> Documents { get; }
         public RenderArgs<BsonDocument> RenderArgs { get; }
     }

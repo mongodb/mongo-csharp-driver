@@ -58,31 +58,31 @@ namespace MongoDB.Driver
         /// <summary>
         /// Bypass document validation.
         /// </summary>
-        public bool? BypassDocumentValidation { get; init; }
+        public bool? BypassDocumentValidation { get; set; }
 
         /// <summary>
         /// Comment.
         /// </summary>
-        public BsonValue Comment { get; init; }
+        public BsonValue Comment { get; set; }
 
         /// <summary>
         /// Is bulk requests are fulfilled in order.
         /// </summary>
-        public bool IsOrdered { get; init; }
+        public bool IsOrdered { get; set; }
 
         /// <summary>
         /// Let document.
         /// </summary>
-        public BsonDocument Let { get; init; }
+        public BsonDocument Let { get; set; }
 
         /// <summary>
         /// Whether detailed results for each successful operation should be included in the returned results.
         /// </summary>
-        public bool VerboseResult { get; init; }
+        public bool VerboseResult { get; set; }
 
         /// <summary>
         /// The write concern to use for this bulk write.
         /// </summary>
-        public WriteConcern WriteConcern { get; init; }
+        public WriteConcern WriteConcern { get; set; }
     }
 }

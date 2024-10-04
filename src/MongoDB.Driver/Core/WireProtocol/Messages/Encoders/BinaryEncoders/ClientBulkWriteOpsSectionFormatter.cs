@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private BsonSerializationContext _serializationContext;
         private IBsonSerializerRegistry _serializerRegistry;
         private RenderArgs<BsonDocument> _renderArgs;
+        private Dictionary<BulkWriteModel, BsonValue> _idsMap;
 
         public ClientBulkWriteOpsSectionFormatter(long? maxSize)
         {
@@ -58,6 +59,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             _renderArgs = section.RenderArgs;
             _serializerRegistry = BsonSerializer.SerializerRegistry;
             _serializationContext = BsonSerializationContext.CreateRoot(binaryWriter);
+            _idsMap = section.IdsMap;
             var stream = binaryWriter.BsonStream;
             var startPosition = stream.Position;
 
@@ -128,6 +130,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
                 WriteFilter(context, model.Filter, documentSerializer);
+                WriteBoolean(context, "multi", false);
                 WriteHint(context, model.Hint);
                 WriteCollation(context, model.Collation);
             });
@@ -137,7 +140,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             => WriteOperation("insert", insertOneModel, (context, model) =>
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
-                documentSerializer.EnsureIdAssigned(null, model.Document);
+                var objectId = documentSerializer.EnsureIdAssigned(null, model.Document);
+                _idsMap.Add(insertOneModel, BsonValue.Create(objectId));
                 context.Writer.WriteName("document");
                 documentSerializer.Serialize(_serializationContext, model.Document);
             });
@@ -149,6 +153,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
                 WriteFilter(context, model.Filter, documentSerializer);
                 WriteUpdate(context, model.Replacement, documentSerializer, UpdateType.Replacement);
+                WriteBoolean(context, "multi", false);
                 WriteBoolean(context, "upsert", model.IsUpsert);
                 WriteHint(context, model.Hint);
                 WriteCollation(context, model.Collation);

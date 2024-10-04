@@ -30,6 +30,8 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class ClientBulkWriteOperation : RetryableWriteCommandOperationBase, IWriteOperation<BulkWriteResults>
     {
+        private readonly Dictionary<BulkWriteModel, BsonValue> _idsMap = new();
+
         public ClientBulkWriteOperation(
             IReadOnlyList<BulkWriteModel> writeModels,
             ClientBulkWriteOptions options,
@@ -87,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
             var maxDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
-            var payload = new ClientBulkWriteOpsCommandMessageSection(operations, maxBatchCount, maxDocumentSize, RenderArgs);
+            var payload = new ClientBulkWriteOpsCommandMessageSection(operations, _idsMap, maxBatchCount, maxDocumentSize, RenderArgs);
             return new[] { payload };
         }
 
@@ -214,7 +216,7 @@ namespace MongoDB.Driver.Core.Operations
             if (bulkWriteResults.TopLevelException != null)
             {
                 var partialResults = ToBulkResults(bulkWriteResults);
-                throw new BulkWriteException(
+                throw new ClientBulkWriteException(
                     connectionId,
                     "An error occured while bulkWrite operation. See InnerException for more details.",
                     bulkWriteResults.Errors,
@@ -226,7 +228,7 @@ namespace MongoDB.Driver.Core.Operations
             if (bulkWriteResults.Errors.Count > 0 && IsOrdered)
             {
                 var partialResults = ToBulkResults(bulkWriteResults);
-                throw new BulkWriteException(
+                throw new ClientBulkWriteException(
                     connectionId,
                     "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
                     bulkWriteResults.Errors,
@@ -241,7 +243,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (bulkWriteResults.Errors.Count > 0)
             {
-                throw new BulkWriteException(
+                throw new ClientBulkWriteException(
                     connectionId,
                     "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
                     bulkWriteResults.Errors,
@@ -251,7 +253,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (bulkWriteResults.ConcernErrors.Count > 0)
             {
-                throw new BulkWriteException(
+                throw new ClientBulkWriteException(
                     connectionId,
                     "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
                     bulkWriteResults.Errors,
@@ -332,8 +334,10 @@ namespace MongoDB.Driver.Core.Operations
 
                     if (writeModelType == typeof(BulkWriteInsertOneModel<>))
                     {
+                        _idsMap.TryGetValue(writeModel, out var insertedId);
                         bulkWriteResults.InsertResults.Add(operationIndex, new BulkWriteInsertOneResult
                         {
+                            InsertedId = insertedId
                         });
                     }
                     else if (writeModelType == typeof(BulkWriteUpdateOneModel<>) || writeModelType == typeof(BulkWriteUpdateManyModel<>) || writeModelType == typeof(BulkWriteReplaceOneModel<>))
