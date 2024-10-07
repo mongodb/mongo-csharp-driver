@@ -386,6 +386,11 @@ namespace MongoDB.Driver.Core.Operations
                 return null;
             }
 
+            if (rawResults.InsertedCount + rawResults.UpsertedCount + rawResults.DeletedCount == 0)
+            {
+                return null;
+            }
+
             return new BulkWriteResults.Acknowledged
             {
                 InsertedCount = rawResults.InsertedCount,

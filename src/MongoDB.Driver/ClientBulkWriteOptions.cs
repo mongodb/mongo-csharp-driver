@@ -83,6 +83,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// The write concern to use for this bulk write.
         /// </summary>
-        public WriteConcern WriteConcern { get; set; } = WriteConcern.WMajority;
+        public WriteConcern WriteConcern { get; set; }
     }
 }
