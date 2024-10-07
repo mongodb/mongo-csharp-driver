@@ -69,6 +69,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     case "expectResult":
                         AssertExpectResult(actualException, element.Value.AsBsonDocument);
                         break;
+                    case "writeConcernErrors":
+                        AssertWriteConcernErrors(actualException, element.Value.AsBsonArray);
+                        break;
+                    case "writeErrors":
+                        AssertWriteErrors(actualException, element.Value.AsBsonDocument);
+                        break;
                     default:
                         throw new FormatException($"Unrecognized error assertion: '{element.Name}'.");
                 }
@@ -167,6 +173,34 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             }
 
             actualException.Should().NotBeNull();
+        }
+
+        private void AssertWriteConcernErrors(Exception actualException, BsonArray expectedWriteConcernErrors)
+        {
+            var clientBulkWriteException = actualException.Should().BeAssignableTo<ClientBulkWriteException>().Subject;
+            var actualErrors = new BsonArray(
+                clientBulkWriteException.WriteConcernErrors.Select(
+                    e => new BsonDocument
+                    {
+                        { "code", e.Code },
+                        { "message", e.Message }
+                    }));
+
+            new UnifiedValueMatcher(_entityMap).AssertValuesMatch(actualErrors, expectedWriteConcernErrors);
+        }
+
+        private void AssertWriteErrors(Exception actualException, BsonDocument expectedWriteErrors)
+        {
+            var clientBulkWriteException = actualException.Should().BeAssignableTo<ClientBulkWriteException>().Subject;
+            var actualErrors = new BsonDocument(
+                clientBulkWriteException.WriteErrors.ToDictionary(
+                    k => k.Key.ToString(),
+                    v => new BsonDocument
+                    {
+                        { "code", v.Value.Code }
+                    }));
+
+            new UnifiedValueMatcher(_entityMap).AssertValuesMatch(actualErrors, expectedWriteErrors);
         }
 
         private static Exception UnwrapCommandException(Exception ex)

@@ -39,7 +39,7 @@ namespace MongoDB.Driver
             string message,
             IReadOnlyDictionary<int, WriteError> writeErrors,
             BulkWriteResults partialResult,
-            IReadOnlyList<WriteConcernResult> writeConcernErrors = null,
+            IReadOnlyList<MongoWriteConcernException> writeConcernErrors = null,
             Exception innerException = null)
             : base(connectionId, message, innerException)
         {
@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Write concern errors that occurred while executing the bulk write.
         /// </summary>
-        public IReadOnlyList<WriteConcernResult> WriteConcernErrors { get; }
+        public IReadOnlyList<MongoWriteConcernException> WriteConcernErrors { get; }
 
         /// <summary>
         /// Errors that occurred during the execution of individual write operations.

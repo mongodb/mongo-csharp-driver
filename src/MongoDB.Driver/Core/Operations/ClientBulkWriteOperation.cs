@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (MongoWriteConcernException concernException)
                 {
-                    bulkWriteResults.ConcernErrors.Add(concernException.WriteConcernResult);
+                    bulkWriteResults.ConcernErrors.Add(concernException);
                     serverResponse = concernException.WriteConcernResult.Response;
                 }
                 catch (MongoCommandException commandException) when (commandException.Result != null)
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 catch (MongoWriteConcernException concernException)
                 {
-                    bulkWriteResults.ConcernErrors.Add(concernException.WriteConcernResult);
+                    bulkWriteResults.ConcernErrors.Add(concernException);
                     serverResponse = concernException.WriteConcernResult.Response;
                 }
                 catch (MongoCommandException commandException) when (commandException.Result != null)
@@ -408,7 +408,7 @@ namespace MongoDB.Driver.Core.Operations
             public long ModifiedCount { get; set; }
             public long UpsertedCount { get; set; }
             public Exception TopLevelException { get; set; }
-            public List<WriteConcernResult> ConcernErrors { get; set; } = new();
+            public List<MongoWriteConcernException> ConcernErrors { get; set; } = new();
             public Dictionary<int, BulkWriteDeleteResult> DeleteResults { get; } = new();
             public Dictionary<int, WriteError> Errors { get; } = new();
             public Dictionary<int, BulkWriteInsertOneResult> InsertResults { get; } = new();
