@@ -285,9 +285,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private void WriteUpdate<TDocument>(BsonSerializationContext serializationContext, UpdateDefinition<TDocument> updateDefinition, IBsonSerializer<TDocument> documentSerializer)
         {
             var renderArgs = _renderArgs.WithNewDocumentType(documentSerializer);
-            var filterDocument = updateDefinition.Render(renderArgs).AsBsonDocument;
+            var filterDocument = updateDefinition.Render(renderArgs);
 
-            WriteUpdate(serializationContext, filterDocument, BsonDocumentSerializer.Instance, UpdateType.Update);
+            WriteUpdate(serializationContext, filterDocument, BsonValueSerializer.Instance, UpdateType.Update);
         }
 
         private void WriteUpdate<TDocument>(BsonSerializationContext serializationContext, TDocument updateDefinition, IBsonSerializer<TDocument> documentSerializer, UpdateType updateType)

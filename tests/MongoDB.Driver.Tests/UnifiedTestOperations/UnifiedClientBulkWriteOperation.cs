@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     result = _mongoClient.BulkWrite(_session, _models, _options);
                 }
 
-                return ConvertResults(result);
+                return OperationResult.FromResult(ConvertResults(result));
             }
             catch (Exception exception)
             {
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     result = await _mongoClient.BulkWriteAsync(_session, _models, _options, cancellationToken);
                 }
 
-                return ConvertResults(result);
+                return OperationResult.FromResult(ConvertResults(result));
             }
             catch (Exception exception)
             {
@@ -81,17 +81,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        public OperationResult ConvertResults(BulkWriteResults results)
+        public static BsonDocument ConvertResults(BulkWriteResults results)
         {
-            BsonDocument ConvertResults<TResultModel>(IReadOnlyDictionary<int,TResultModel> results, Func<TResultModel, BsonDocument> converter)
+            BsonDocument ConvertResults<TResultModel>(IReadOnlyDictionary<int, TResultModel> results, Func<TResultModel, BsonDocument> converter)
                 => new BsonDocument(results.ToDictionary(
                     i => i.Key.ToString(),
                     i => converter(i.Value)));
 
-            BsonDocument document;
             if (results is BulkWriteResults.Acknowledged)
             {
-                document = new BsonDocument
+                return new BsonDocument
                 {
                     { "insertedCount", (int)results.InsertedCount },
                     { "upsertedCount", (int)results.UpsertedCount },
@@ -99,39 +98,21 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     { "modifiedCount", (int)results.ModifiedCount },
                     { "deletedCount", (int)results.DeletedCount },
                     {
-                        "insertResults",
-                        ConvertResults(results.InsertResults,
-                            item => new BsonDocument
-                            {
-                                { "insertedId", item.InsertedId }
-                            })
+                        "insertResults", ConvertResults(results.InsertResults,
+                            item => new BsonDocument { { "insertedId", item.InsertedId } })
                     },
                     {
-                        "updateResults",
-                        ConvertResults(results.UpdateResults,
-                            item => new BsonDocument
-                            {
-                                { "matchedCount", (int)item.MatchedCount },
-                                { "modifiedCount", (int)item.ModifiedCount },
-                                { "upsertedId", item.UpsertedId, item.UpsertedId != null}
-                            })
+                        "updateResults", ConvertResults(results.UpdateResults,
+                            item => new BsonDocument { { "matchedCount", (int)item.MatchedCount }, { "modifiedCount", (int)item.ModifiedCount }, { "upsertedId", item.UpsertedId, item.UpsertedId != null } })
                     },
                     {
-                        "deleteResults",
-                        ConvertResults(results.DeleteResults,
-                            item => new BsonDocument
-                            {
-                                { "deletedCount", (int)item.DeletedCount }
-                            })
+                        "deleteResults", ConvertResults(results.DeleteResults,
+                            item => new BsonDocument { { "deletedCount", (int)item.DeletedCount } })
                     }
                 };
             }
-            else
-            {
-                document = new BsonDocument();
-            }
 
-            return OperationResult.FromResult(document);
+            return new BsonDocument();
         }
     }
 
