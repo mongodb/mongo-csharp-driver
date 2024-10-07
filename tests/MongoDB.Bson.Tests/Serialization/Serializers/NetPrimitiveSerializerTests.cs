@@ -15,7 +15,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
@@ -24,6 +26,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
@@ -1290,6 +1293,23 @@ namespace MongoDB.Bson.Tests.Serialization
 
             result.Should().Be(0);
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
+        {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
+            var subject = new Int16Serializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<OverflowException>();
+        }
     }
 
     public class Int32SerializerTests
@@ -1367,6 +1387,23 @@ namespace MongoDB.Bson.Tests.Serialization
 
             result.Should().Be(0);
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
+        {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
+            var subject = new Int32Serializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<OverflowException>();
+        }
     }
 
     public class Int64SerializerTests
@@ -1443,6 +1480,23 @@ namespace MongoDB.Bson.Tests.Serialization
             var result = x.GetHashCode();
 
             result.Should().Be(0);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
+        {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
+            var subject = new Int64Serializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<OverflowException>();
         }
     }
 
@@ -2108,6 +2162,24 @@ namespace MongoDB.Bson.Tests.Serialization
 
             result.Should().Be(0);
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Serialize_NaN_or_Infinity_to_integral_should_throw([Values(BsonType.Int64, BsonType.Int32)] BsonType representation,
+            [Values(float.PositiveInfinity, float.NegativeInfinity, float.NaN)] float value)
+        {
+            var subject = new SingleSerializer(representation);
+
+            using var textWriter = new StringWriter();
+            using var writer = new JsonWriter(textWriter);
+
+            var context = BsonSerializationContext.CreateRoot(writer);
+            writer.WriteStartDocument();
+            writer.WriteName("x");
+
+            var exception = Record.Exception(() => subject.Serialize(context, value));
+            exception.Should().BeOfType<OverflowException>();
+        }
     }
 
     public class TimeSpanSerializerTests
@@ -2493,6 +2565,23 @@ namespace MongoDB.Bson.Tests.Serialization
 
             result.Should().Be(0);
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
+        {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
+            var subject = new UInt16Serializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<OverflowException>();
+        }
     }
 
     public class UInt32SerializerTests
@@ -2664,6 +2753,23 @@ namespace MongoDB.Bson.Tests.Serialization
 
             result.Should().Be(0);
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
+        {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
+            var subject = new UInt32Serializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<OverflowException>();
+        }
     }
 
     public class UInt64SerializerTests
@@ -2834,6 +2940,23 @@ namespace MongoDB.Bson.Tests.Serialization
             var result = x.GetHashCode();
 
             result.Should().Be(0);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
+        {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
+            var subject = new UInt64Serializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<OverflowException>();
         }
     }
 
