@@ -25,7 +25,6 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
-using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {

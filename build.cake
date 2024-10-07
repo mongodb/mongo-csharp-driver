@@ -285,7 +285,7 @@ Task("PackageNugetPackages")
         {
             "MongoDB.Bson",
             "MongoDB.Driver",
-            "MongoDB.Libmongocrypt"
+            "MongoDB.Driver.Encryption"
         };
 
         foreach (var project in projects)
@@ -365,7 +365,7 @@ Task("SmokeTests")
 
         DotNetTool(
             testProject.FullPath,
-            "add package MongoDB.Libmongocrypt",
+            "add package MongoDB.Driver.Encryption",
             $"--no-restore --version [{buildConfig.PackageVersion}]",
             toolSettings);
 

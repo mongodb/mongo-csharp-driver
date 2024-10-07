@@ -1,0 +1,129 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MongoDB.Driver.Encryption.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>MongoDB.Driver.Encryption</AssemblyTitle>
+    <Description>Libmongocrypt wrapper for the .NET driver.</Description>
+    <PackageDescription>Libmongocrypt wrapper for the .NET driver.</PackageDescription>
+    <BuildInParallel>false</BuildInParallel>
+    <NoWarn>CA1060;CA2101;CA1307;SYSLIB0022;SYSLIB0004</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LibMongoCryptMacOsSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/macos/r1.11/9a88ac5698e8e3ffcd6580b98c247f0126f26c40/libmongocrypt.tar.gz</LibMongoCryptMacOsSourceUrl>
+    <LibMongoCryptUbuntuX64SourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-64/r1.11/9a88ac5698e8e3ffcd6580b98c247f0126f26c40/libmongocrypt.tar.gz</LibMongoCryptUbuntuX64SourceUrl>
+    <LibMongoCryptUbuntuARM64SourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-arm64/r1.11/9a88ac5698e8e3ffcd6580b98c247f0126f26c40/libmongocrypt.tar.gz</LibMongoCryptUbuntuARM64SourceUrl>
+    <LibMongoCryptAlpineSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/alpine-arm64-earthly/r1.11/9a88ac5698e8e3ffcd6580b98c247f0126f26c40/libmongocrypt.tar.gz</LibMongoCryptAlpineSourceUrl>
+    <LibMongoCryptWindowsSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/windows-test/r1.11/9a88ac5698e8e3ffcd6580b98c247f0126f26c40/libmongocrypt.tar.gz</LibMongoCryptWindowsSourceUrl>
+  </PropertyGroup>
+
+  <Target Name="DownloadNativeBinaries_linux_x64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/linux/x64/libmongocrypt.so')">
+    <PropertyGroup>
+      <IntermediateOutputPathLSF>$(IntermediateOutputPath.Replace('\', '/'))</IntermediateOutputPathLSF>
+    </PropertyGroup>
+    <DownloadFile
+      SourceUrl="$(LibMongoCryptUbuntuX64SourceUrl)"
+      DestinationFolder="$(IntermediateOutputPathLSF)linux/x64"/>
+    <Exec Command="tar -zxvf $(IntermediateOutputPathLSF)linux/x64/libmongocrypt.tar.gz --strip-components=2 -C $(IntermediateOutputPathLSF)linux/x64 nocrypto/lib/libmongocrypt.so" />
+    <Copy SourceFiles="$(IntermediateOutputPathLSF)linux/x64/libmongocrypt.so" DestinationFolder="$(MSBuildProjectDirectory)/linux/x64" Retries="5" RetryDelayMilliseconds="100"/>
+  </Target>
+
+  <Target Name="DownloadNativeBinaries_linux_arm64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/linux/arm64/libmongocrypt.so')">
+    <PropertyGroup>
+      <IntermediateOutputPathLSF>$(IntermediateOutputPath.Replace('\', '/'))</IntermediateOutputPathLSF>
+    </PropertyGroup>
+    <DownloadFile
+      SourceUrl="$(LibMongoCryptUbuntuARM64SourceUrl)"
+      DestinationFolder="$(IntermediateOutputPathLSF)linux/arm64"/>
+    <Exec Command="tar -zxvf $(IntermediateOutputPathLSF)linux/arm64/libmongocrypt.tar.gz --strip-components=2 -C $(IntermediateOutputPathLSF)linux/arm64 nocrypto/lib/libmongocrypt.so" />
+    <Copy SourceFiles="$(IntermediateOutputPathLSF)linux/arm64/libmongocrypt.so" DestinationFolder="$(MSBuildProjectDirectory)/linux/arm64" Retries="5" RetryDelayMilliseconds="100"/>
+  </Target>
+
+  <Target Name="DownloadNativeBinaries_macos" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/macos/libmongocrypt.dylib')">
+    <PropertyGroup>
+      <IntermediateOutputPathLSF>$(IntermediateOutputPath.Replace('\', '/'))</IntermediateOutputPathLSF>
+    </PropertyGroup>
+    <DownloadFile
+      SourceUrl="$(LibMongoCryptMacOsSourceUrl)"
+      DestinationFolder="$(IntermediateOutputPathLSF)macos"/>
+    <Exec Command="tar -zxvf $(IntermediateOutputPathLSF)macos/libmongocrypt.tar.gz --strip-components=1 -C $(IntermediateOutputPathLSF)macos lib/libmongocrypt.dylib" />
+    <Copy SourceFiles="$(IntermediateOutputPathLSF)macos/libmongocrypt.dylib" DestinationFolder="$(MSBuildProjectDirectory)/macos" Retries="5" RetryDelayMilliseconds="100"/>
+  </Target>
+
+  <Target Name="DownloadNativeBinaries_windows" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/windows/mongocrypt.dll')">
+    <PropertyGroup>
+      <IntermediateOutputPathLSF>$(IntermediateOutputPath.Replace('\', '/'))</IntermediateOutputPathLSF>
+    </PropertyGroup>
+    <DownloadFile
+      SourceUrl="$(LibMongoCryptWindowsSourceUrl)"
+      DestinationFolder="$(IntermediateOutputPathLSF)windows"/>
+    <Exec Command="tar -zxvf $(IntermediateOutputPathLSF)windows/libmongocrypt.tar.gz --strip-components=1 -C $(IntermediateOutputPathLSF)windows bin/mongocrypt.dll" />
+    <Copy SourceFiles="$(IntermediateOutputPathLSF)windows/mongocrypt.dll" DestinationFolder="$(MSBuildProjectDirectory)/windows" Retries="5" RetryDelayMilliseconds="100"/>
+  </Target>
+
+  <Target Name="DownloadNativeBinaries_Alpine" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/linux/alpine/libmongocrypt.so')">
+    <PropertyGroup>
+      <IntermediateOutputPathLSF>$(IntermediateOutputPath.Replace('\', '/'))</IntermediateOutputPathLSF>
+    </PropertyGroup>
+    <DownloadFile
+      SourceUrl="$(LibMongoCryptAlpineSourceUrl)"
+      DestinationFolder="$(IntermediateOutputPathLSF)linux/alpine"/>
+    <Exec Command="tar -zxvf $(IntermediateOutputPathLSF)linux/alpine/libmongocrypt.tar.gz --strip-components=2 -C $(IntermediateOutputPathLSF)linux/alpine nocrypto/lib/libmongocrypt.so" />
+    <Copy SourceFiles="$(IntermediateOutputPathLSF)linux/alpine/libmongocrypt.so" DestinationFolder="$(MSBuildProjectDirectory)/linux/alpine" Retries="5" RetryDelayMilliseconds="100"/>
+  </Target>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildProjectDirectory)/linux/x64/libmongocrypt.so">
+      <Link>libmongocrypt\linux-x64\libmongocrypt.so</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes\linux\native\x64</PackagePath>
+    </Content>
+
+    <Content Include="$(MSBuildProjectDirectory)/linux/arm64/libmongocrypt.so">
+      <Link>libmongocrypt\linux-arm64\libmongocrypt.so</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes\linux\native\arm64</PackagePath>
+    </Content>
+
+    <Content Include="$(MSBuildProjectDirectory)/linux/alpine/libmongocrypt.so">
+      <Link>libmongocrypt\linux-alpine\libmongocrypt.so</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes\linux\native\alpine</PackagePath>
+    </Content>
+
+    <Content Include="$(MSBuildProjectDirectory)/macos/libmongocrypt.dylib">
+      <Link>libmongocrypt\macos\libmongocrypt.dylib</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes\osx\native</PackagePath>
+    </Content>
+
+    <Content Include="$(MSBuildProjectDirectory)/windows/mongocrypt.dll">
+      <Link>libmongocrypt\windows\mongocrypt.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes\win\native</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="MongoDB.Driver.Encryption.targets">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <Import Project="Package.csproj.include" Condition="Exists('Package.csproj.include')" />
+
+</Project>

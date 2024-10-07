@@ -5,7 +5,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 # Environment variables used as input:
 #   OS                                               The current operating system
 
-LIBMONGOCRYPT_DIR="$(pwd)/src/MongoDB.Libmongocrypt"
+LIBMONGOCRYPT_DIR="$(pwd)/src/MongoDB.Driver.Encryption"
 
 # export the LIBMONGOCRYPT_PATH variable based on OS
 if [[ "$OS" =~ Ubuntu|ubuntu ]]; then

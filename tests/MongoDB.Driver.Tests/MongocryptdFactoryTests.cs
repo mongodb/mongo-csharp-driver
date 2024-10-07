@@ -19,7 +19,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 using Xunit;
 
 namespace MongoDB.Driver.Tests

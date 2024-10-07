@@ -20,7 +20,6 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Encryption;
-using MongoDB.Libmongocrypt;
 using Xunit;
 using Xunit.Abstractions;
 

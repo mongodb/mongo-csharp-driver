@@ -944,8 +944,8 @@ functions:
           - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.${PACKAGE_VERSION}.snupkg"
           - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.nupkg"
           - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.snupkg"
-          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Libmongocrypt.${PACKAGE_VERSION}.nupkg"
-          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Libmongocrypt.${PACKAGE_VERSION}.snupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.nupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.snupkg"
 
   cleanup:
     - command: shell.exec
@@ -1111,15 +1111,15 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Libmongocrypt.${PACKAGE_VERSION}.nupkg
-        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Libmongocrypt.${PACKAGE_VERSION}.nupkg
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.nupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.nupkg
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Libmongocrypt.${PACKAGE_VERSION}.snupkg
-        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Libmongocrypt.${PACKAGE_VERSION}.snupkg
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.snupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.snupkg
         bucket: mciuploads
 
   build-apidocs:

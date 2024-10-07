@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;

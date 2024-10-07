@@ -21,7 +21,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.SmokeTests.Sdk
 {

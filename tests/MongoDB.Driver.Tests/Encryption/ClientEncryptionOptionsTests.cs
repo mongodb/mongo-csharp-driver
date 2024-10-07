@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Driver.Encryption;
-using MongoDB.Libmongocrypt;
 using Moq;
 using Xunit;
 
