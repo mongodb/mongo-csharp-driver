@@ -114,7 +114,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         public void VisitDeleteMany<TDocument>(BulkWriteDeleteManyModel<TDocument> deleteManyModel)
-            where TDocument: class
             => WriteOperation("delete", deleteManyModel, (context, model) =>
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
@@ -125,7 +124,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             });
 
         public void VisitDeleteOne<TDocument>(BulkWriteDeleteOneModel<TDocument> deleteOneModel)
-            where TDocument: class
             => WriteOperation("delete", deleteOneModel, (context, model) =>
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
@@ -136,7 +134,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             });
 
         public void VisitInsertOne<TDocument>(BulkWriteInsertOneModel<TDocument> insertOneModel)
-            where TDocument: class
             => WriteOperation("insert", insertOneModel, (context, model) =>
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
@@ -147,7 +144,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             });
 
         public void VisitReplaceOne<TDocument>(BulkWriteReplaceOneModel<TDocument> replaceOneModel)
-            where TDocument: class
             => WriteOperation("update", replaceOneModel, (context, model) =>
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
@@ -163,7 +159,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             });
 
         public void VisitUpdateMany<TDocument>(BulkWriteUpdateManyModel<TDocument> updateOneModel)
-            where TDocument: class
             => WriteOperation("update", updateOneModel, (context, model) =>
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
@@ -180,7 +175,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             });
 
         public void VisitUpdateOne<TDocument>(BulkWriteUpdateOneModel<TDocument> updateManyModel)
-            where TDocument: class
             => WriteOperation("update", updateManyModel, (context, model) =>
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();

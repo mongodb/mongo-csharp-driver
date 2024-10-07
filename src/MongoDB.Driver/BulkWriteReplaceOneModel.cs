@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteReplaceOneModel<TDocument> : BulkWriteModel
-        where TDocument : class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteReplaceOneModel{TDocument}"/> class.
@@ -64,7 +63,7 @@ namespace MongoDB.Driver
             : base(collectionNamespace)
         {
             Filter = Ensure.IsNotNull(filter, nameof(filter));
-            Replacement = Ensure.IsNotNull(replacement, nameof(replacement));
+            Replacement = replacement;
             Collation = collation;
             Hint = hint;
             IsUpsert = isUpsert;

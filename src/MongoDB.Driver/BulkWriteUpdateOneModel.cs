@@ -24,7 +24,6 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteUpdateOneModel<TDocument> : BulkWriteModel
-        where TDocument : class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteUpdateOneModel{TDocument}"/> class.

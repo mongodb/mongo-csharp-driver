@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -24,7 +23,6 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteDeleteOneModel<TDocument> : BulkWriteModel
-        where TDocument : class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteDeleteOneModel{TDocument}"/> class.
