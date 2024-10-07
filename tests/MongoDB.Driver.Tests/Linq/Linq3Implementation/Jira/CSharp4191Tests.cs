@@ -158,17 +158,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void AsDateTime_should_work()
-        {
-            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsDateTime == utc);
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
-        }
-
-        [Fact]
         public void AsDecimal_should_work()
         {
             var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsDecimal == 1.3M);
@@ -218,34 +207,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void AsLocalTime_should_work()
-        {
-            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
-            var local = utc.ToLocalTime();
-#pragma warning disable CS0618 // Type or member is obsolete
-            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsLocalTime == local);
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
-        }
-
-        [Fact]
         public void AsNullableBoolean_should_work()
         {
             var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsNullableBoolean == true);
 
             Assert(filter, "{ x : true }");
-        }
-
-        [Fact]
-        public void AsNullableDateTime_should_work()
-        {
-            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsNullableDateTime == utc);
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
         }
 
         [Fact]
@@ -332,12 +298,29 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void AsUniversalTime_should_work()
+        public void ToLocalTime_should_work()
         {
             var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsUniversalTime == utc);
-#pragma warning restore CS0618 // Type or member is obsolete
+            var local = utc.ToLocalTime();
+            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].ToLocalTime() == local);
+
+            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
+        }
+
+        [Fact]
+        public void ToNullableUniversalTime_should_work()
+        {
+            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
+            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].ToNullableUniversalTime() == utc);
+
+            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
+        }
+
+        [Fact]
+        public void ToUniversalTime_should_work()
+        {
+            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
+            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].ToUniversalTime() == utc);
 
             Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
         }
