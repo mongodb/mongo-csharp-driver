@@ -605,7 +605,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Creates the instance.
         /// </summary>
         /// <returns>The instance.</returns>
-        [Obsolete("CreateInstance is deprecated. Please use CreateAccumulator instead.")]
+        [Obsolete("CreateInstance is deprecated. Please use CreateAccumulator instead.")]  //TODO Not sure what we want to do with this, it's used by the CreateAccumulator method
         protected virtual TDictionary CreateInstance()
         {
             throw new NotImplementedException();

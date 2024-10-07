@@ -25,7 +25,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Output strict JSON (an obsolete output mode that is similar to canonical extended JSON).
         /// </summary>
-        [Obsolete("Use CanonicalExtendedJson instead.")]
+        [Obsolete("Use CanonicalExtendedJson instead.")]  //TODO Should we remove this?
         Strict,
 
         /// <summary>
@@ -42,17 +42,5 @@ namespace MongoDB.Bson.IO
         /// Output relaxed extended JSON.
         /// </summary>
         RelaxedExtendedJson,
-
-        /// <summary>
-        /// Use JavaScript data types for some values.
-        /// </summary>
-        [Obsolete("Use Shell instead.")]
-        JavaScript = Shell,
-
-        /// <summary>
-        /// Use JavaScript and MongoDB data types for some values.
-        /// </summary>
-        [Obsolete("Use Shell instead.")]
-        TenGen = Shell
     }
 }

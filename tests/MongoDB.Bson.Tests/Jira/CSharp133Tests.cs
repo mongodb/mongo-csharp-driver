@@ -29,10 +29,9 @@ namespace MongoDB.Bson.Tests.Jira.CSharp133
         public string S;
         [BsonIgnoreIfNull]
         public string I;
-#pragma warning disable 618 // SerializeDefaultValue is obsolete
-        [BsonDefaultValue(null, SerializeDefaultValue = false)] // works the same as [BsonIgnoreIfNull]
+        [BsonIgnoreIfDefault]
+        [BsonDefaultValue(null)]
         public string D;
-#pragma warning restore 618
         [BsonIgnoreIfDefault]
         public DateTime I2;
     }

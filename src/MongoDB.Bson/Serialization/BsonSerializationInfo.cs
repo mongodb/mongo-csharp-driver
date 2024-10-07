@@ -145,34 +145,6 @@ namespace MongoDB.Bson.Serialization
         public override int GetHashCode() => 0;
 
         /// <summary>
-        /// Merges the new BsonSerializationInfo by taking its properties and concatenating its ElementName.
-        /// </summary>
-        /// <param name="newSerializationInfo">The new info.</param>
-        /// <returns>A new BsonSerializationInfo.</returns>
-        [Obsolete("This method is no longer relevant because field names are now allowed to contain dots.")]
-        public BsonSerializationInfo Merge(BsonSerializationInfo newSerializationInfo)
-        {
-            string elementName = null;
-            if (ElementName != null && newSerializationInfo.ElementName != null)
-            {
-                elementName = ElementName + "." + newSerializationInfo.ElementName;
-            }
-            else if (ElementName != null)
-            {
-                elementName = ElementName;
-            }
-            else if (newSerializationInfo.ElementName != null)
-            {
-                elementName = newSerializationInfo.ElementName;
-            }
-
-            return new BsonSerializationInfo(
-                elementName,
-                newSerializationInfo._serializer,
-                newSerializationInfo._nominalType);
-        }
-
-        /// <summary>
         /// Serializes the value.
         /// </summary>
         /// <param name="value">The value.</param>
