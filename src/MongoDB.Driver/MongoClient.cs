@@ -36,7 +36,10 @@ namespace MongoDB.Driver
     public sealed class MongoClient : IMongoClient
     {
         // private fields
+        private bool _disposed;
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IClusterInternal _cluster;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private readonly IAutoEncryptionLibMongoCryptController _libMongoCryptController;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
@@ -141,15 +144,7 @@ namespace MongoDB.Driver
                     _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposing");
 
                     _settings.ClusterSource.Return(_cluster);
-
-                    // TODO BEFORE MERGE Rebase onto CSFLE PR
-                    //foreach (var clientToDispose in new[] { _libMongoCryptController?.InternalClient, _libMongoCryptController?.MongoCryptdClient })
-                    //{
-                    //    if (clientToDispose != null)
-                    //    {
-                    //        _settings.ClusterSource.ReturnCluster(clientToDispose.GetClusterInternal());
-                    //    }
-                    //}
+                    _libMongoCryptController?.Dispose();
 
                     _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposed");
                 }
