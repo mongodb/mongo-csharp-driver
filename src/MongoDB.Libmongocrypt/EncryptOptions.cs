@@ -26,31 +26,39 @@ namespace MongoDB.Libmongocrypt
     /// </summary>
     /// <remarks>
     /// The Range algorithm is experimental only. It is not intended for public use.
-    /// RangeOpts specifies index options for a Queryable Encryption field supporting "rangePreview" queries.
+    /// RangeOpts specifies index options for a Queryable Encryption field supporting "range" queries.
     /// min, max, sparsity, and range must match the values set in the encryptedFields of the destination collection.
     /// For double and decimal128, min/max/precision must all be set, or all be unset.
-    /// RangeOptions only applies when algorithm is "rangePreview".
+    /// RangeOptions only applies when algorithm is "range".
     /// </remarks>
     public sealed class RangeOptions
     {
         private readonly BsonValue _max;
         private readonly BsonValue _min;
         private readonly int? _precision;
-        private readonly long _sparsity;
+        private readonly long? _sparsity;
+        private readonly int? _trimFactor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RangeOptions"/> class.
         /// </summary>
-        /// <param name="sparsity">The sparsity.</param>
         /// <param name="min">The min range.</param>
         /// <param name="max">The max range.</param>
         /// <param name="precision">The precision range.</param>
-        public RangeOptions(long sparsity, Optional<BsonValue> min = default, Optional<BsonValue> max = default, Optional<int?> precision = default)
+        /// <param name="sparsity">The sparsity.</param>
+        /// <param name="trimFactor">The trim factor.</param>
+        public RangeOptions(
+            Optional<BsonValue> min = default,
+            Optional<BsonValue> max = default,
+            Optional<int?> precision = default,
+            Optional<long?> sparsity = default,
+            Optional<int?> trimFactor = default)
         {
-            _sparsity = sparsity;
             _min = min.WithDefault(null);
             _max = max.WithDefault(null);
             _precision = precision.WithDefault(null);
+            _sparsity = sparsity.WithDefault(null);
+            _trimFactor = trimFactor.WithDefault(null);
         }
 
         // public properties
@@ -59,11 +67,18 @@ namespace MongoDB.Libmongocrypt
         /// </summary>
         /// <remarks>Min is required if precision is set.</remarks>
         public BsonValue Min => _min;
+
         /// <summary>
         /// Maximum value.
         /// </summary>
         /// <remarks>Max is required if precision is set.</remarks>
         public BsonValue Max => _max;
+
+        /// <summary>
+        /// Gets the trim factor.
+        /// </summary>
+        public int? TrimFactor => _trimFactor;
+
         /// <summary>
         /// Gets the precision.
         /// </summary>
@@ -71,10 +86,11 @@ namespace MongoDB.Libmongocrypt
         /// Precision may only be set for double or decimal128.
         /// </remarks>
         public int? Precision => _precision;
+
         /// <summary>
         /// Gets the sparsity.
         /// </summary>
-        public long Sparsity => _sparsity;
+        public long? Sparsity => _sparsity;
     }
 
     /// <summary>
@@ -211,8 +227,8 @@ namespace MongoDB.Libmongocrypt
         /// </value>
         /// <remarks>
         /// The Range algorithm is experimental only. It is not intended for public use.
-        /// RangeOpts specifies index options for a Queryable Encryption field supporting "rangePreview" queries.
-        /// RangeOptions only applies when algorithm is "rangePreview".
+        /// RangeOpts specifies index options for a Queryable Encryption field supporting "range" queries.
+        /// RangeOptions only applies when algorithm is "range".
         /// </remarks>
         public RangeOptions RangeOptions => _rangeOptions;
 
@@ -248,9 +264,9 @@ namespace MongoDB.Libmongocrypt
         {
             Ensure.That(!(!_keyId.HasValue && _alternateKeyName == null), "Key Id and AlternateKeyName may not both be null.");
             Ensure.That(!(_keyId.HasValue && _alternateKeyName != null), "Key Id and AlternateKeyName may not both be set.");
-            Ensure.That(!(_contentionFactor.HasValue && (_algorithm != EncryptionAlgorithm.Indexed.ToString() && _algorithm != EncryptionAlgorithm.RangePreview.ToString())), "ContentionFactor only applies for Indexed or RangePreview algorithm.");
-            Ensure.That(!(_queryType != null && (_algorithm != EncryptionAlgorithm.Indexed.ToString() && _algorithm != EncryptionAlgorithm.RangePreview.ToString())), "QueryType only applies for Indexed or RangePreview algorithm.");
-            Ensure.That(!(_rangeOptions != null && _algorithm != EncryptionAlgorithm.RangePreview.ToString()), "RangeOptions only applies for RangePreview algorithm.");
+            Ensure.That(!(_contentionFactor.HasValue && (_algorithm != EncryptionAlgorithm.Indexed.ToString() && _algorithm != EncryptionAlgorithm.Range.ToString())), "ContentionFactor only applies for Indexed or Range algorithm.");
+            Ensure.That(!(_queryType != null && (_algorithm != EncryptionAlgorithm.Indexed.ToString() && _algorithm != EncryptionAlgorithm.Range.ToString())), "QueryType only applies for Indexed or Range algorithm.");
+            Ensure.That(!(_rangeOptions != null && _algorithm != EncryptionAlgorithm.Range.ToString()), "RangeOptions only applies for Range algorithm.");
         }
     }
 }

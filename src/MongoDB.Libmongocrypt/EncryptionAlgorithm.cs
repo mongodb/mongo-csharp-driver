@@ -40,18 +40,15 @@ namespace MongoDB.Libmongocrypt
         /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
         /// </remarks>
         Indexed,
+
         /// <summary>
         /// Unindexed algorithm.
         /// </summary>
         Unindexed,
+
         /// <summary>
-        /// RangePreview algorithm.
+        /// Range algorithm.
         /// </summary>
-        /// <remarks>
-        /// The Range algorithm is experimental only. It is not intended for public use.
-        /// To insert or query with an "Indexed" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
-        /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
-        /// </remarks>
-        RangePreview
+        Range
     }
 }

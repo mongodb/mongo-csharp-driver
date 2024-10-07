@@ -31,7 +31,8 @@ namespace MongoDB.Libmongocrypt
                 { "min", rangeOptions.Min, rangeOptions.Min != null },
                 { "max", rangeOptions.Max, rangeOptions.Max != null },
                 { "precision", rangeOptions.Precision, rangeOptions.Precision != null },
-                { "sparsity", rangeOptions.Sparsity }
+                { "sparsity", rangeOptions.Sparsity, rangeOptions.Sparsity != null },
+                { "trimFactor", rangeOptions.TrimFactor, rangeOptions.TrimFactor != null }
             };
         }
 
