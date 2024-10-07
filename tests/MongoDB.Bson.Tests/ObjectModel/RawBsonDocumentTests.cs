@@ -236,22 +236,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
-        public void TestRawValues()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                var rawValues = rawBsonDocument.RawValues.ToArray();
-#pragma warning restore
-                Assert.Equal(2, rawValues.Length);
-                Assert.Equal(1, rawValues[0]);
-                Assert.Equal(2, rawValues[1]);
-            }
-        }
-
-        [Fact]
         public void TestValues()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };

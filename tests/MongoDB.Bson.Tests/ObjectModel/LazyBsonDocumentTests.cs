@@ -39,123 +39,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
-        public void TestAddBsonElementsArray()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                lazyBsonDocument.Add(new[] { new BsonElement("z", 3), new BsonElement("q", 4) });
-#pragma warning restore
-                Assert.Equal(3, lazyBsonDocument["z"].AsInt32);
-                Assert.Equal(4, lazyBsonDocument["q"].AsInt32);
-            }
-        }
-
-        [Fact]
-        public void TestAddBsonElementsIEnumerable()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                lazyBsonDocument.Add((IEnumerable<BsonElement>)new[] { new BsonElement("z", 3), new BsonElement("q", 4) });
-#pragma warning restore
-                Assert.Equal(3, lazyBsonDocument["z"].AsInt32);
-                Assert.Equal(4, lazyBsonDocument["q"].AsInt32);
-            }
-        }
-
-        [Fact]
-        public void TestAddDictionary()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                lazyBsonDocument.Add(new Dictionary<string, object> { { "z", 3 } });
-#pragma warning restore
-                Assert.Equal(3, lazyBsonDocument["z"].AsInt32);
-            }
-        }
-
-        [Fact]
-        public void TestAddDictionaryWithKeys()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                lazyBsonDocument.Add(new Dictionary<string, object> { { "z", 3 }, { "q", 4 } }, new[] { "z" });
-#pragma warning restore
-                Assert.Equal(3, lazyBsonDocument["z"].AsInt32);
-                Assert.False(lazyBsonDocument.Contains("q"));
-            }
-        }
-
-        [Fact]
-        public void TestAddGenericIDictionary()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                lazyBsonDocument.Add((IDictionary<string, object>)new Dictionary<string, object> { { "z", 3 } });
-#pragma warning restore
-                Assert.Equal(3, lazyBsonDocument["z"].AsInt32);
-            }
-        }
-
-        [Fact]
-        public void TestAddGenericIDictionaryWithKeys()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                lazyBsonDocument.Add((IDictionary<string, object>)new Dictionary<string, object> { { "z", 3 }, { "q", 4 } }, new[] { "z" });
-#pragma warning restore
-                Assert.Equal(3, lazyBsonDocument["z"].AsInt32);
-                Assert.False(lazyBsonDocument.Contains("q"));
-            }
-        }
-
-        [Fact]
-        public void TestAddIDictionary()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                lazyBsonDocument.Add((IDictionary)new Dictionary<string, object> { { "z", 3 } });
-#pragma warning restore
-                Assert.Equal(3, lazyBsonDocument["z"].AsInt32);
-            }
-        }
-
-        [Fact]
-        public void TestAddIDictionaryWithKeys()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                lazyBsonDocument.Add((IDictionary)new Dictionary<string, object> { { "z", 3 }, { "q", 4 } }, new[] { "z" });
-#pragma warning restore
-                Assert.Equal(3, lazyBsonDocument["z"].AsInt32);
-                Assert.False(lazyBsonDocument.Contains("q"));
-            }
-        }
-
-        [Fact]
         public void TestAddNameValue()
         {
             var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
@@ -551,12 +434,10 @@ namespace MongoDB.Bson.Tests
             using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
             {
                 lazyBsonDocument["z"] = 3;
-#pragma warning disable 618
-                Assert.Equal(1, lazyBsonDocument["x", 4].AsInt32);
-                Assert.Equal(2, lazyBsonDocument["y", 4].AsInt32);
-                Assert.Equal(3, lazyBsonDocument["z", 4].AsInt32);
-                Assert.Equal(4, lazyBsonDocument["q", 4].AsInt32);
-#pragma warning restore
+                Assert.Equal(1, lazyBsonDocument.GetValue("x", 4).AsInt32);
+                Assert.Equal(2, lazyBsonDocument.GetValue("y", 4).AsInt32);
+                Assert.Equal(3, lazyBsonDocument.GetValue("z", 4).AsInt32);
+                Assert.Equal(4, lazyBsonDocument.GetValue("q", 4).AsInt32);
             }
         }
 
@@ -658,22 +539,6 @@ namespace MongoDB.Bson.Tests
                 Assert.Equal(1, nestedElements[0].Value.AsInt32);
                 Assert.Equal("y", nestedElements[1].Name);
                 Assert.Equal(2, nestedElements[1].Value.AsInt32);
-            }
-        }
-
-        [Fact]
-        public void TestRawValues()
-        {
-            var bsonDocument = new BsonDocument { { "x", 1 }, { "y", 2 } };
-            var bson = bsonDocument.ToBson();
-            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                var lazyValues = lazyBsonDocument.RawValues.ToArray();
-#pragma warning restore
-                Assert.Equal(2, lazyValues.Length);
-                Assert.Equal(1, lazyValues[0]);
-                Assert.Equal(2, lazyValues[1]);
             }
         }
 

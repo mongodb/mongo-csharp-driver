@@ -261,21 +261,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
-        public void TestConstructorDictionaryGenericWithKeys()
-        {
-            var dictionary = new Dictionary<string, object> { { "x", 1 }, { "y", 2 } };
-            var keys = new string[] { "x" };
-#pragma warning disable 618
-            var document = new BsonDocument(dictionary, keys);
-#pragma warning restore
-            Assert.False(document.AllowDuplicateNames);
-            Assert.Equal(1, document.ElementCount);
-            Assert.Equal(1, document["x"].AsInt32);
-            Assert.Equal(true, document.Contains("x"));
-            Assert.Equal(true, document.ContainsValue(1));
-        }
-
-        [Fact]
         public void TestConstructorIDictionary()
         {
             var hashtable = (IDictionary)new Hashtable { { "x", 1 } };
@@ -292,36 +277,6 @@ namespace MongoDB.Bson.Tests
         {
             var dictionary = (IDictionary<string, object>)new Dictionary<string, object> { { "x", 1 } };
             var document = new BsonDocument(dictionary);
-            Assert.False(document.AllowDuplicateNames);
-            Assert.Equal(1, document.ElementCount);
-            Assert.Equal(1, document["x"].AsInt32);
-            Assert.Equal(true, document.Contains("x"));
-            Assert.Equal(true, document.ContainsValue(1));
-        }
-
-        [Fact]
-        public void TestConstructorIDictionaryGenericWithKeys()
-        {
-            var dictionary = (IDictionary<string, object>)new Dictionary<string, object> { { "x", 1 }, { "y", 2 } };
-            var keys = new string[] { "x" };
-#pragma warning disable 618
-            var document = new BsonDocument(dictionary, keys);
-#pragma warning restore
-            Assert.False(document.AllowDuplicateNames);
-            Assert.Equal(1, document.ElementCount);
-            Assert.Equal(1, document["x"].AsInt32);
-            Assert.Equal(true, document.Contains("x"));
-            Assert.Equal(true, document.ContainsValue(1));
-        }
-
-        [Fact]
-        public void TestConstructorIDictionaryWithKeys()
-        {
-            var hashtable = (IDictionary)new Hashtable { { "x", 1 }, { "y", 2 } };
-            var keys = new string[] { "x" };
-#pragma warning disable 618
-            var document = new BsonDocument(hashtable, keys);
-#pragma warning restore
             Assert.False(document.AllowDuplicateNames);
             Assert.Equal(1, document.ElementCount);
             Assert.Equal(1, document["x"].AsInt32);
@@ -354,10 +309,6 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(false, document.IsBsonArray);
             Assert.Equal(true, document.IsBsonDocument);
             Assert.Equal(0, document.Names.Count());
-#pragma warning disable 618
-            Assert.Equal(null, document.RawValue);
-            Assert.Equal(0, document.RawValues.Count());
-#pragma warning restore
             Assert.Equal(true, document.ToBoolean());
             Assert.Same(document, document.ToBsonDocument());
             Assert.Equal("{ }", document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
@@ -551,12 +502,10 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void TestIndexerWithDefaultValue()
         {
-#pragma warning disable 618
             var document = new BsonDocument();
-            Assert.Equal(0, document["x", 0].AsInt32);
+            Assert.Equal(0, document.GetValue("x", 0).AsInt32);
             document["x"] = 1;
-            Assert.Equal(1, document["x", 1].AsInt32);
-#pragma warning restore
+            Assert.Equal(1, document.GetValue("x", 1).AsInt32);
         }
 
         [Theory]
@@ -617,21 +566,15 @@ namespace MongoDB.Bson.Tests
             var document = new BsonDocument { { "v", true }, { "n", BsonNull.Value }, { "s", "" } };
             Assert.Equal(true, (bool?)document["v"]);
             Assert.Equal(null, (bool?)document["n"]);
-#pragma warning disable 618
-            Assert.Equal(null, (bool?)document["x", null]);
-            Assert.Equal(null, (bool?)document["x", (bool?)null]);
-            Assert.Equal(null, (bool?)document["x", BsonNull.Value]);
-#pragma warning restore
+            Assert.Equal(null, (bool?)document.GetValue("x", null));
+            Assert.Equal(null, (bool?)document.GetValue("x", (bool?)null));
+            Assert.Equal(null, (bool?)document.GetValue("x", BsonNull.Value));
             Assert.Equal(true, document["v"].AsNullableBoolean);
             Assert.Equal(null, document["n"].AsNullableBoolean);
-#pragma warning disable 618
-            Assert.Equal(null, document["x", (bool?)null].AsNullableBoolean);
-            Assert.Equal(null, document["x", BsonNull.Value].AsNullableBoolean);
-#pragma warning restore
-#pragma warning disable 219
+            Assert.Equal(null, document.GetValue("x", (bool?)null).AsNullableBoolean);
+            Assert.Equal(null, document.GetValue("x", BsonNull.Value).AsNullableBoolean);
             Assert.Throws<InvalidCastException>(() => { var v = (bool?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableBoolean; });
-#pragma warning restore
         }
 
         [Fact]
@@ -642,22 +585,15 @@ namespace MongoDB.Bson.Tests
             var document = new BsonDocument { { "v", utcNow }, { "n", BsonNull.Value }, { "s", "" } };
             Assert.Equal(utcNowTruncated, (DateTime?)document["v"]);
             Assert.Equal(null, (DateTime?)document["n"]);
-#pragma warning disable 618
-            Assert.Equal(null, (DateTime?)document["x", null]);
-            Assert.Equal(null, (DateTime?)document["x", (DateTime?)null]);
-            Assert.Equal(null, (DateTime?)document["x", BsonNull.Value]);
-#pragma warning restore
+            Assert.Equal(null, (DateTime?)document.GetValue("x", null));
+            Assert.Equal(null, (DateTime?)document.GetValue("x", (DateTime?)null));
+            Assert.Equal(null, (DateTime?)document.GetValue("x", BsonNull.Value));
             Assert.Equal(utcNowTruncated, document["v"].ToNullableUniversalTime());
             Assert.Equal(null, document["n"].ToNullableUniversalTime());
-#pragma warning disable 618
-            Assert.Equal(null, document["x", (DateTime?)null].ToNullableUniversalTime());
-            Assert.Equal(null, document["x", BsonNull.Value].ToNullableUniversalTime());
-#pragma warning restore
-#pragma warning disable 618, 219
+            Assert.Equal(null, document.GetValue("x", (DateTime?)null).ToNullableUniversalTime());
+            Assert.Equal(null, document.GetValue("x", BsonNull.Value).ToNullableUniversalTime());
             Assert.Throws<InvalidCastException>(() => { var v = (DateTime?)document["s"]; });
-            Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDateTime; });
             Assert.Throws<NotSupportedException>(() => { var v = document["s"].ToNullableUniversalTime(); });
-#pragma warning restore
         }
 
         [Fact]
@@ -666,21 +602,15 @@ namespace MongoDB.Bson.Tests
             var document = new BsonDocument { { "v", 1.5 }, { "n", BsonNull.Value }, { "s", "" } };
             Assert.Equal(1.5, (double?)document["v"]);
             Assert.Equal(null, (double?)document["n"]);
-#pragma warning disable 618
-            Assert.Equal(null, (double?)document["x", null]);
-            Assert.Equal(null, (double?)document["x", (double?)null]);
-            Assert.Equal(null, (double?)document["x", BsonNull.Value]);
-#pragma warning restore
+            Assert.Equal(null, (double?)document.GetValue("x", null));
+            Assert.Equal(null, (double?)document.GetValue("x", (double?)null));
+            Assert.Equal(null, (double?)document.GetValue("x", BsonNull.Value));
             Assert.Equal(1.5, document["v"].AsNullableDouble);
             Assert.Equal(null, document["n"].AsNullableDouble);
-#pragma warning disable 618
-            Assert.Equal(null, document["x", (double?)null].AsNullableDouble);
-            Assert.Equal(null, document["x", BsonNull.Value].AsNullableDouble);
-#pragma warning restore
-#pragma warning disable 219
+            Assert.Equal(null, document.GetValue("x", (double?)null).AsNullableDouble);
+            Assert.Equal(null, document.GetValue("x", BsonNull.Value).AsNullableDouble);
             Assert.Throws<InvalidCastException>(() => { var v = (double?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDouble; });
-#pragma warning restore
         }
 
         [Fact]
@@ -689,21 +619,15 @@ namespace MongoDB.Bson.Tests
             var document = new BsonDocument { { "v", 1 }, { "n", BsonNull.Value }, { "s", "" } };
             Assert.Equal(1, (int?)document["v"]);
             Assert.Equal(null, (int?)document["n"]);
-#pragma warning disable 618
-            Assert.Equal(null, (int?)document["x", null]);
-            Assert.Equal(null, (int?)document["x", (int?)null]);
-            Assert.Equal(null, (int?)document["x", BsonNull.Value]);
-#pragma warning restore
+            Assert.Equal(null, (int?)document.GetValue("x", null));
+            Assert.Equal(null, (int?)document.GetValue("x", (int?)null));
+            Assert.Equal(null, (int?)document.GetValue("x", BsonNull.Value));
             Assert.Equal(1, document["v"].AsNullableInt32);
             Assert.Equal(null, document["n"].AsNullableInt32);
-#pragma warning disable 618
-            Assert.Equal(null, document["x", (int?)null].AsNullableInt32);
-            Assert.Equal(null, document["x", BsonNull.Value].AsNullableInt32);
-#pragma warning restore
-#pragma warning disable 219
+            Assert.Equal(null, document.GetValue("x", (int?)null).AsNullableInt32);
+            Assert.Equal(null, document.GetValue("x", BsonNull.Value).AsNullableInt32);
             Assert.Throws<InvalidCastException>(() => { var v = (int?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableInt32; });
-#pragma warning restore
         }
 
         [Fact]
@@ -712,21 +636,15 @@ namespace MongoDB.Bson.Tests
             var document = new BsonDocument { { "v", 1L }, { "n", BsonNull.Value }, { "s", "" } };
             Assert.Equal(1L, (long?)document["v"]);
             Assert.Equal(null, (long?)document["n"]);
-#pragma warning disable 618
-            Assert.Equal(null, (long?)document["x", null]);
-            Assert.Equal(null, (long?)document["x", (long?)null]);
-            Assert.Equal(null, (long?)document["x", BsonNull.Value]);
-#pragma warning restore
+            Assert.Equal(null, (long?)document.GetValue("x", null));
+            Assert.Equal(null, (long?)document.GetValue("x", (long?)null));
+            Assert.Equal(null, (long?)document.GetValue("x", BsonNull.Value));
             Assert.Equal(1L, document["v"].AsNullableInt64);
             Assert.Equal(null, document["n"].AsNullableInt64);
-#pragma warning disable 618
-            Assert.Equal(null, document["x", (long?)null].AsNullableInt64);
-            Assert.Equal(null, document["x", BsonNull.Value].AsNullableInt64);
-#pragma warning restore
-#pragma warning disable 219
+            Assert.Equal(null, document.GetValue("x", (long?)null).AsNullableInt64);
+            Assert.Equal(null, document.GetValue("x", BsonNull.Value).AsNullableInt64);
             Assert.Throws<InvalidCastException>(() => { var v = (long?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableInt64; });
-#pragma warning restore
         }
 
         [Fact]
@@ -736,21 +654,15 @@ namespace MongoDB.Bson.Tests
             var document = new BsonDocument { { "v", objectId }, { "n", BsonNull.Value }, { "s", "" } };
             Assert.Equal(objectId, (ObjectId?)document["v"]);
             Assert.Equal(null, (ObjectId?)document["n"]);
-#pragma warning disable 618
-            Assert.Equal(null, (ObjectId?)document["x", null]);
-            Assert.Equal(null, (ObjectId?)document["x", (ObjectId?)null]);
-            Assert.Equal(null, (ObjectId?)document["x", BsonNull.Value]);
-#pragma warning restore
+            Assert.Equal(null, (ObjectId?)document.GetValue("x", null));
+            Assert.Equal(null, (ObjectId?)document.GetValue("x", (ObjectId?)null));
+            Assert.Equal(null, (ObjectId?)document.GetValue("x", BsonNull.Value));
             Assert.Equal(objectId, document["v"].AsNullableObjectId);
             Assert.Equal(null, document["n"].AsNullableObjectId);
-#pragma warning disable 618
-            Assert.Equal(null, document["x", (ObjectId?)null].AsNullableObjectId);
-            Assert.Equal(null, document["x", BsonNull.Value].AsNullableObjectId);
-#pragma warning restore
-#pragma warning disable 219
+            Assert.Equal(null, document.GetValue("x", (ObjectId?)null).AsNullableObjectId);
+            Assert.Equal(null, document.GetValue("x", BsonNull.Value).AsNullableObjectId);
             Assert.Throws<InvalidCastException>(() => { var v = (ObjectId?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableObjectId; });
-#pragma warning restore
         }
 
         [Fact]
