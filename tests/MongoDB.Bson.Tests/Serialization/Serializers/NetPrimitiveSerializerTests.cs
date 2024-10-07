@@ -26,6 +26,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
@@ -1293,17 +1294,12 @@ namespace MongoDB.Bson.Tests.Serialization
             result.Should().Be(0);
         }
 
-        public static IEnumerable<object[]> DeserializeSpecialValuesData()
-        {
-            return from edgeValue in new[] { "Infinity", "-Infinity", "NaN" }
-                from typeIndicator in new [] { "numberDecimal", "numberDouble" }
-                select new object[] { $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""" };
-        }
-
         [Theory]
-        [MemberData(nameof(DeserializeSpecialValuesData))]
-        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw(string json)
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
         {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
             var subject = new Int16Serializer();
 
             using var reader = new JsonReader(json);
@@ -1392,17 +1388,12 @@ namespace MongoDB.Bson.Tests.Serialization
             result.Should().Be(0);
         }
 
-        public static IEnumerable<object[]> DeserializeSpecialValuesData()
-        {
-            return from edgeValue in new[] { "Infinity", "-Infinity", "NaN" }
-                from typeIndicator in new [] { "numberDecimal", "numberDouble" }
-                select new object[] { $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""" };
-        }
-
         [Theory]
-        [MemberData(nameof(DeserializeSpecialValuesData))]
-        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw(string json)
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
         {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
             var subject = new Int32Serializer();
 
             using var reader = new JsonReader(json);
@@ -1491,17 +1482,12 @@ namespace MongoDB.Bson.Tests.Serialization
             result.Should().Be(0);
         }
 
-        public static IEnumerable<object[]> DeserializeSpecialValuesData()
-        {
-            return from edgeValue in new[] { "Infinity", "-Infinity", "NaN" }
-                from typeIndicator in new [] { "numberDecimal", "numberDouble" }
-                select new object[] { $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""" };
-        }
-
         [Theory]
-        [MemberData(nameof(DeserializeSpecialValuesData))]
-        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw(string json)
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
         {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
             var subject = new Int64Serializer();
 
             using var reader = new JsonReader(json);
@@ -2177,16 +2163,10 @@ namespace MongoDB.Bson.Tests.Serialization
             result.Should().Be(0);
         }
 
-        public static IEnumerable<object[]> SerializeSpecialValuesData()
-        {
-            return from bsonType in new[] { BsonType.Int64, BsonType.Int32 }
-                from val in new [] { float.PositiveInfinity, float.NegativeInfinity, float.NaN }
-                select new object[] { bsonType, val };
-        }
-
         [Theory]
-        [MemberData(nameof(SerializeSpecialValuesData))]
-        public void Serialize_NaN_or_Infinity_to_integral_should_throw(BsonType representation, float value)
+        [ParameterAttributeData]
+        public void Serialize_NaN_or_Infinity_to_integral_should_throw([Values(BsonType.Int64, BsonType.Int32)] BsonType representation,
+            [Values(float.PositiveInfinity, float.NegativeInfinity, float.NaN)] float value)
         {
             var subject = new SingleSerializer(representation);
 
@@ -2586,17 +2566,12 @@ namespace MongoDB.Bson.Tests.Serialization
             result.Should().Be(0);
         }
 
-        public static IEnumerable<object[]> DeserializeSpecialValuesData()
-        {
-            return from edgeValue in new[] { "Infinity", "-Infinity", "NaN" }
-                from typeIndicator in new [] { "numberDecimal", "numberDouble" }
-                select new object[] { $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""" };
-        }
-
         [Theory]
-        [MemberData(nameof(DeserializeSpecialValuesData))]
-        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw(string json)
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
         {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
             var subject = new UInt16Serializer();
 
             using var reader = new JsonReader(json);
@@ -2779,17 +2754,12 @@ namespace MongoDB.Bson.Tests.Serialization
             result.Should().Be(0);
         }
 
-        public static IEnumerable<object[]> DeserializeSpecialValuesData()
-        {
-            return from edgeValue in new[] { "Infinity", "-Infinity", "NaN" }
-                from typeIndicator in new [] { "numberDecimal", "numberDouble" }
-                select new object[] { $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""" };
-        }
-
         [Theory]
-        [MemberData(nameof(DeserializeSpecialValuesData))]
-        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw(string json)
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
         {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
             var subject = new UInt32Serializer();
 
             using var reader = new JsonReader(json);
@@ -2972,17 +2942,12 @@ namespace MongoDB.Bson.Tests.Serialization
             result.Should().Be(0);
         }
 
-        public static IEnumerable<object[]> DeserializeSpecialValuesData()
-        {
-            return from edgeValue in new[] { "Infinity", "-Infinity", "NaN" }
-                from typeIndicator in new [] { "numberDecimal", "numberDouble" }
-                select new object[] { $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""" };
-        }
-
         [Theory]
-        [MemberData(nameof(DeserializeSpecialValuesData))]
-        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw(string json)
+        [ParameterAttributeData]
+        public void Deserialize_NaN_or_Infinity_from_floating_point_should_throw([Values("Infinity", "-Infinity", "NaN")] string edgeValue,
+            [Values("numberDecimal", "numberDouble")] string typeIndicator)
         {
+            var json = $$"""{ "x" : { "${{typeIndicator}}" : "{{edgeValue}}" } }""";
             var subject = new UInt64Serializer();
 
             using var reader = new JsonReader(json);

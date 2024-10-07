@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
@@ -90,16 +91,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result.Should().Be(0);
         }
 
-        public static IEnumerable<object[]> SerializeSpecialValuesData()
-        {
-            return from bsonType in new[] { BsonType.Int64, BsonType.Int32 }
-                from val in new [] { double.PositiveInfinity, double.NegativeInfinity, double.NaN }
-                select new object[] { bsonType, val };
-        }
-
         [Theory]
-        [MemberData(nameof(SerializeSpecialValuesData))]
-        public void Serialize_NaN_or_Infinity_to_integral_should_throw(BsonType representation, double value)
+        [ParameterAttributeData]
+        public void Serialize_NaN_or_Infinity_to_integral_should_throw([Values(BsonType.Int64, BsonType.Int32)] BsonType representation,
+            [Values(double.PositiveInfinity, double.NegativeInfinity, double.NaN)] double value)
         {
             var subject = new DoubleSerializer(representation);
 
