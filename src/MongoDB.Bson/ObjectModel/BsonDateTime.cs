@@ -76,18 +76,6 @@ namespace MongoDB.Bson
             get { return _millisecondsSinceEpoch; }
         }
 
-        /// <summary>
-        /// Gets the DateTime value.
-        /// </summary>
-        [Obsolete("Use ToUniversalTime instead.")]
-        public DateTime Value
-        {
-            get
-            {
-                return BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch);
-            }
-        }
-
         // public operators
         /// <summary>
         /// Converts a DateTime to a BsonDateTime.
