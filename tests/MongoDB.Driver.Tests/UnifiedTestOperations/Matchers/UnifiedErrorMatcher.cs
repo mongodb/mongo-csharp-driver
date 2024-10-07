@@ -149,11 +149,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         {
             bool IsClientError(Exception exception)
                 => exception is
-                MongoClientException or
-                BsonException or
-                MongoConnectionException or
-                NotSupportedException or
-                TimeoutException;
+                    ArgumentException or
+                    MongoClientException or
+                    BsonException or
+                    MongoConnectionException or
+                    NotSupportedException or
+                    TimeoutException;
 
             var actualIsClientError = IsClientError(actualException) ||
                 (actualException is ClientBulkWriteException bulkWriteException && IsClientError(bulkWriteException.InnerException));
