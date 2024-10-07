@@ -386,7 +386,7 @@ namespace MongoDB.Driver.Core.Operations
                 return null;
             }
 
-            if (rawResults.InsertedCount + rawResults.UpsertedCount + rawResults.DeletedCount == 0)
+            if (rawResults.InsertedCount + rawResults.UpsertedCount + rawResults.DeletedCount + rawResults.ModifiedCount == 0)
             {
                 return null;
             }
