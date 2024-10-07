@@ -17,8 +17,8 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -54,9 +54,15 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
-            else
+#pragma warning disable CS0618 // Type or member is obsolete
+            else if (Feature.HintForUpdateAndReplaceOperations.IsSupported(CoreTestConfiguration.MaxWireVersion))
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 exception.Should().BeNull();
+            }
+            else
+            {
+                exception.Should().BeOfType<MongoCommandException>();
             }
         }
 

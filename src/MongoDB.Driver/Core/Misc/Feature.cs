@@ -50,7 +50,6 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __dateOperatorsNewIn50 = new Feature("DateOperatorsNewIn50", WireVersion.Server50);
         private static readonly Feature __densifyStage = new Feature("DensifyStage", WireVersion.Server51);
         private static readonly Feature __documentsStage = new Feature("DocumentsStage", WireVersion.Server51);
-        private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __electionIdPriorityInSDAM = new Feature("ElectionIdPriorityInSDAM ", WireVersion.Server60);
         private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
@@ -268,6 +267,12 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature FilterLimit => __filterLimit;
 
         /// <summary>
+        /// Gets the find allowDiskUse feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature FindAllowDiskUse => __findAllowDiskUse;
+
+        /// <summary>
         /// Gets the find projection expressions feature.
         /// </summary>
         public static Feature FindProjectionExpressions => __findProjectionExpressions;
@@ -303,9 +308,21 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature HiddenIndex => __hiddenIndex;
 
         /// <summary>
+        /// Gets the hint for delete operations feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature HintForDeleteOperations => __hintForDeleteOperations;
+
+        /// <summary>
         /// Gets the hint for find and modify operations feature.
         /// </summary>
         public static HintForFindAndModifyFeature HintForFindAndModifyFeature => __hintForFindAndModifyFeature;
+
+        /// <summary>
+        /// Gets the hint for update and replace operations feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
 
         /// <summary>
         /// Gets the keep connection pool when NotPrimary connection exception feature.
