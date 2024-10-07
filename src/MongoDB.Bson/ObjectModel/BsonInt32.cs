@@ -109,15 +109,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the BsonInt32 as an int.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonInt32.
         /// </summary>
         public int Value

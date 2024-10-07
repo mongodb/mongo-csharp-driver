@@ -95,19 +95,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the array elements as raw values (see BsonValue.RawValue).
-        /// </summary>
-        [Obsolete("Use ToArray to ToList instead.")]
-        public override IEnumerable<object> RawValues
-        {
-            get
-            {
-                EnsureIsMaterialized();
-                return base.RawValues;
-            }
-        }
-
-        /// <summary>
         /// Gets the array elements.
         /// </summary>
         public override IEnumerable<BsonValue> Values
@@ -310,18 +297,6 @@ namespace MongoDB.Bson
         /// <param name="array">The other array.</param>
         /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
         public override void CopyTo(BsonValue[] array, int arrayIndex)
-        {
-            EnsureIsMaterialized();
-            base.CopyTo(array, arrayIndex);
-        }
-
-        /// <summary>
-        /// Copies elements from this array to another array as raw values (see BsonValue.RawValue).
-        /// </summary>
-        /// <param name="array">The other array.</param>
-        /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
-        [Obsolete("Use ToArray or ToList instead.")]
-        public override void CopyTo(object[] array, int arrayIndex)
         {
             EnsureIsMaterialized();
             base.CopyTo(array, arrayIndex);

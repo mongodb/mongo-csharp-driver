@@ -107,31 +107,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the array elements as raw values (see BsonValue.RawValue).
-        /// </summary>
-        [Obsolete("Use ToArray to ToList instead.")]
-        public override IEnumerable<object> RawValues
-        {
-            get
-            {
-                ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-                using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
-                {
-                    var context = BsonDeserializationContext.CreateRoot(bsonReader);
-
-                    bsonReader.ReadStartDocument();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        bsonReader.SkipName();
-                        yield return DeserializeBsonValue(context).RawValue;
-                    }
-                    bsonReader.ReadEndDocument();
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets the slice.
         /// </summary>
         /// <value>
@@ -374,30 +349,6 @@ namespace MongoDB.Bson
                 {
                     bsonReader.SkipName();
                     array[arrayIndex++] = DeserializeBsonValue(context);
-                }
-                bsonReader.ReadEndDocument();
-            }
-        }
-
-        /// <summary>
-        /// Copies elements from this array to another array as raw values (see BsonValue.RawValue).
-        /// </summary>
-        /// <param name="array">The other array.</param>
-        /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
-        [Obsolete("Use ToArray or ToList instead.")]
-        public override void CopyTo(object[] array, int arrayIndex)
-        {
-            ThrowIfDisposed();
-            using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
-            {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
-
-                bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    bsonReader.SkipName();
-                    array[arrayIndex++] = DeserializeBsonValue(context).RawValue;
                 }
                 bsonReader.ReadEndDocument();
             }

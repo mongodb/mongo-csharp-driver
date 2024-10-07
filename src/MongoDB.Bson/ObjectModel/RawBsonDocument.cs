@@ -139,31 +139,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the raw values (see BsonValue.RawValue).
-        /// </summary>
-        [Obsolete("Use Values instead.")]
-        public override IEnumerable<object> RawValues
-        {
-            get
-            {
-                ThrowIfDisposed();
-                using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
-                using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
-                {
-                    var context = BsonDeserializationContext.CreateRoot(bsonReader);
-
-                    bsonReader.ReadStartDocument();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        bsonReader.SkipName();
-                        yield return DeserializeBsonValue(context).RawValue;
-                    }
-                    bsonReader.ReadEndDocument();
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets the slice.
         /// </summary>
         /// <value>
@@ -215,18 +190,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the value of an element or a default value if the element is not found.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="defaultValue">The default value to return if the element is not found.</param>
-        /// <returns>Teh value of the element or a default value if the element is not found.</returns>
-        [Obsolete("Use GetValue(string name, BsonValue defaultValue) instead.")]
-        public override BsonValue this[string name, BsonValue defaultValue]
-        {
-            get { return GetValue(name, defaultValue); }
-        }
-
-        /// <summary>
         /// Gets or sets a value by name.
         /// </summary>
         /// <param name="name">The name.</param>
@@ -246,97 +209,6 @@ namespace MongoDB.Bson
         /// The document (so method calls can be chained).
         /// </returns>
         public override BsonDocument Add(BsonElement element)
-        {
-            throw new NotSupportedException("RawBsonDocument instances are immutable.");
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(Dictionary<string, object> dictionary)
-        {
-            throw new NotSupportedException("RawBsonDocument instances are immutable.");
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(Dictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            throw new NotSupportedException("RawBsonDocument instances are immutable.");
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IDictionary<string, object> dictionary)
-        {
-            throw new NotSupportedException("RawBsonDocument instances are immutable.");
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(IDictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            throw new NotSupportedException("RawBsonDocument instances are immutable.");
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IDictionary dictionary)
-        {
-            throw new NotSupportedException("RawBsonDocument instances are immutable.");
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(IDictionary dictionary, IEnumerable keys)
-        {
-            throw new NotSupportedException("RawBsonDocument instances are immutable.");
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IEnumerable<BsonElement> elements)
-        {
-            throw new NotSupportedException("RawBsonDocument instances are immutable.");
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(params BsonElement[] elements)
         {
             throw new NotSupportedException("RawBsonDocument instances are immutable.");
         }

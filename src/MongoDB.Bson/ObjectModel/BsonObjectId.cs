@@ -149,15 +149,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the BsonObjectId as an ObjectId.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonObjectId.
         /// </summary>
         public ObjectId Value

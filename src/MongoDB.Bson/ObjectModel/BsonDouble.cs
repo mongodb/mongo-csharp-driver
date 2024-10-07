@@ -61,13 +61,6 @@ namespace MongoDB.Bson
             get { return BsonType.Double; }
         }
 
-        /// <inheritdoc />
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
         /// <summary>
         /// Gets the value of this BsonDouble.
         /// </summary>

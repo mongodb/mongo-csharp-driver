@@ -63,15 +63,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the BsonString as a string.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonString.
         /// </summary>
         public string Value
