@@ -15,14 +15,11 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
@@ -1200,9 +1197,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void TestSerializer()
         {
-#pragma warning disable 618
-            var objectId = new ObjectId(1, 2, 3, 4);
-#pragma warning restore 618
+            var objectId = new ObjectId("000000010000020003000004");
             var obj = new TestClass
             {
                 ObjectId = objectId,
@@ -1223,9 +1218,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void TestPrivateFieldWithBsonRepresentation()
         {
-#pragma warning disable 618
-            var testValue = new ObjectId(1, 2, 3, 4);
-#pragma warning restore 618
+            var testValue = new ObjectId("000000010000020003000004");
             var json = "{ '_o' : '000000010000020003000004' }";
 
             var deserialized = BsonSerializer.Deserialize<TestClassWithPrivate>(json);
