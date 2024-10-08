@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -121,6 +122,28 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        /// <inheritdoc/>
+        public BulkWriteResults BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+            => UsingImplicitSession(session => BulkWrite(session, models, options, cancellationToken), cancellationToken);
+
+        /// <inheritdoc/>
+        public BulkWriteResults BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+        {
+            var operation = CreateClientBulkWriteOperation(models, options);
+            return ExecuteWriteOperation<BulkWriteResults>(session, operation, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public Task<BulkWriteResults> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+            => UsingImplicitSession(session => BulkWriteAsync(session, models, options, cancellationToken), cancellationToken);
+
+        /// <inheritdoc/>
+        public Task<BulkWriteResults> BulkWriteAsync(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+        {
+            var operation = CreateClientBulkWriteOperation(models, options);
+            return ExecuteWriteOperationAsync<BulkWriteResults>(session, operation, cancellationToken);
+        }
+
         /// <inheritdoc/>
         public void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -417,6 +440,24 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private ClientBulkWriteOperation CreateClientBulkWriteOperation(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null)
+        {
+            if (_settings.AutoEncryptionOptions != null)
+            {
+                throw new NotSupportedException("bulkWrite does not currently support automatic encryption.");
+            }
+
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var renderArgs = GetRenderArgs();
+            var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs);
+            if (options?.WriteConcern == null)
+            {
+                operation.WriteConcern = _settings.WriteConcern;
+            }
+
+            return operation;
+        }
+
         private IAsyncCursor<string> CreateDatabaseNamesCursor(IAsyncCursor<BsonDocument> cursor)
         {
             return new BatchTransformingAsyncCursor<BsonDocument, string>(
@@ -527,6 +568,13 @@ namespace MongoDB.Driver
             ConfigureAutoEncryptionMessageEncoderSettings(messageEncoderSettings);
 
             return messageEncoderSettings;
+        }
+
+        private RenderArgs<BsonDocument> GetRenderArgs()
+        {
+            var translationOptions = Settings.TranslationOptions;
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, serializerRegistry, translationOptions: translationOptions);
         }
 
         private IClientSessionHandle StartImplicitSession()
