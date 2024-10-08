@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -906,8 +905,6 @@ namespace MongoDB.Driver
             clone._compressors = _compressors;
             clone._clusterConfigurator = _clusterConfigurator;
             clone._clusterSource = _clusterSource;
-            clone._connectionMode = _connectionMode;
-            clone._connectionModeSwitch = _connectionModeSwitch;
             clone._connectTimeout = _connectTimeout;
             clone._credential = _credential;
             clone._directConnection = _directConnection;

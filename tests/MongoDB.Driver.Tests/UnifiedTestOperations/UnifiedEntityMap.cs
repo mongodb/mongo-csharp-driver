@@ -28,9 +28,9 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Encryption;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
-using MongoDB.Driver.Encryption;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
@@ -54,6 +54,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, IMongoClient> _clients;
         private readonly Dictionary<string, ClientEncryption> _clientEncryptions;
         private readonly Dictionary<string, EventCapturer> _clientEventCapturers;
+        private readonly Dictionary<string, ClusterId> _clientIdToClusterId;
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collections;
         private readonly Dictionary<string, IEnumerator<BsonDocument>> _cursors;
         private readonly Dictionary<string, IMongoDatabase> _databases;
@@ -111,6 +112,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _topologyDescriptions = topologyDescriptions ?? new();
 
             _async = async;
+            _clientIdToClusterId = _clients.ToDictionary(kv => kv.Key, kv => kv.Value.Cluster.ClusterId);
             _creator = Ensure.IsNotNull(creator, nameof(creator));
         }
 
@@ -150,6 +152,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 ThrowIfDisposed();
                 return _clientEncryptions;
+            }
+        }
+
+        public Dictionary<string, ClusterId> ClientIdToClusterId
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _clientIdToClusterId;
             }
         }
 
@@ -318,6 +329,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _clients.AddRange(entityMap._clients);
             _clientEncryptions.AddRange(entityMap._clientEncryptions);
             _clientEventCapturers.AddRange(entityMap._clientEventCapturers);
+            _clientIdToClusterId.AddRange(entityMap._clientIdToClusterId);
             _collections.AddRange(entityMap._collections);
             _cursors.AddRange(entityMap._cursors);
             _databases.AddRange(entityMap._databases);

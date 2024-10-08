@@ -104,7 +104,7 @@ namespace MongoDB.Driver
 
         // public properties
         /// <inheritdoc/>
-        public ICluster Cluster => _cluster;
+        public ICluster Cluster => GetCluster();
 
         /// <inheritdoc/>
         public MongoClientSettings Settings => _settings;
@@ -134,8 +134,18 @@ namespace MongoDB.Driver
             UsingImplicitSession(session => DropDatabase(session, name, cancellationToken), cancellationToken);
         }
 
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        public void Dispose(bool disposing)
         {
             if (!_disposed)
             {
@@ -151,8 +161,6 @@ namespace MongoDB.Driver
 
                 _disposed = true;
             }
-
-            base.Dispose(disposing);
         }
 
         /// <inheritdoc/>
@@ -194,7 +202,7 @@ namespace MongoDB.Driver
 
             settings.ApplyDefaultValues(_settings);
 
-            return new MongoDatabaseImpl(this, new DatabaseNamespace(name), settings, GetCluster(), _operationExecutor);
+            return new MongoDatabase(this, new DatabaseNamespace(name), settings, GetCluster(), _operationExecutor);
         }
 
         /// <inheritdoc />
