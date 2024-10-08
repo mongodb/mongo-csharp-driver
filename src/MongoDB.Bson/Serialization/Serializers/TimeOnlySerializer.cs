@@ -33,7 +33,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         public static TimeOnlySerializer Instance => __instance;
 
         // private fields
-        private readonly RepresentationConverter _converter;
         private readonly BsonType _representation;
         private readonly TimeOnlyUnits _units;
 
@@ -75,7 +74,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
-            _converter = new RepresentationConverter(false, false);
             _units = units;
         }
 
