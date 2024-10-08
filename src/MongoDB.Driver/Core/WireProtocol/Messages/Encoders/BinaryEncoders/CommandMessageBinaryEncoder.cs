@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
+        private const int EncriptedMaxBatchSize = 2 * 1024 * 1024; // 2 MiB
         private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter();
 
         // constructors
@@ -243,19 +244,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         private void WriteSection(BsonBinaryWriter writer, CommandMessageSection section, long messageStartPosition)
         {
-            writer.BsonStream.WriteByte((byte)section.PayloadType);
-
-            if (section is Type0CommandMessageSection type0Section)
-            {
-                __type0SectionFormatter.FormatSection(type0Section, writer);
-            }
-            else if(section is BatchableCommandMessageSection batchableSection)
+            long? GetSectionMaxSize()
             {
                 int? maxMessageSize;
                 if (IsEncryptionConfigured)
                 {
-                    var maxBatchSize = 2 * 1024 * 1024; // 2 MiB
-                    var maxMessageEndPosition = writer.BsonStream.Position + maxBatchSize;
+                    var maxMessageEndPosition = writer.BsonStream.Position + EncriptedMaxBatchSize;
                     maxMessageSize = (int)(maxMessageEndPosition - messageStartPosition);
                 }
                 else
@@ -263,30 +257,29 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     maxMessageSize = MaxMessageSize;
                 }
 
-                var sectionMaxSize = messageStartPosition + maxMessageSize - writer.BsonStream.Position;
-
-                switch (batchableSection)
-                {
-                    case Type1CommandMessageSection type1Section:
-                        var type1SectionFormatter = new Type1SectionFormatter(sectionMaxSize);
-                        type1SectionFormatter.FormatSection(type1Section, writer);
-                        break;
-                    case ClientBulkWriteOpsCommandMessageSection bulkWriteOpsSection:
-                        using (var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(sectionMaxSize))
-                        {
-                            bulkWriteOpsSectionFormatter.FormatSection(bulkWriteOpsSection, writer);
-                        }
-
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-
-
+                return messageStartPosition + maxMessageSize - writer.BsonStream.Position;
             }
-            else
+
+            writer.BsonStream.WriteByte((byte)section.PayloadType);
+
+            switch (section)
             {
-                throw new NotSupportedException($"Cannot format command message section of type '{section.GetType().FullName}'.");
+                case Type0CommandMessageSection type0Section:
+                    __type0SectionFormatter.FormatSection(type0Section, writer);
+                    break;
+                case Type1CommandMessageSection type1Section:
+                    var type1SectionFormatter = new Type1SectionFormatter(GetSectionMaxSize());
+                    type1SectionFormatter.FormatSection(type1Section, writer);
+                    break;
+                case ClientBulkWriteOpsCommandMessageSection bulkWriteOpsSection:
+                    using (var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(GetSectionMaxSize()))
+                    {
+                        bulkWriteOpsSectionFormatter.FormatSection(bulkWriteOpsSection, writer);
+                    }
+
+                    break;
+                default:
+                    throw new NotSupportedException($"Cannot format command message section of type '{section.GetType().FullName}'.");
             }
         }
 

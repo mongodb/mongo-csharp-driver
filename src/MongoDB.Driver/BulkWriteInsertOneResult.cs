@@ -18,12 +18,12 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents BulkWriteInsertOne operation result.
+    /// Represents result of <see cref="BulkWriteInsertOneModel{TDocument}"/> operation.
     /// </summary>
     public class BulkWriteInsertOneResult
     {
         /// <summary>
-        /// The _id of the inserted document.
+        /// The id of the inserted document.
         /// </summary>
         public BsonValue InsertedId { get; init; }
     }

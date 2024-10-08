@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace MongoDB.Driver
 {
@@ -77,46 +78,61 @@ namespace MongoDB.Driver
             /// <inheritdoc/>
             public override long InsertedCount
             {
-                get { throw new NotSupportedException("Only acknowledged writes support the InsertedCount property."); }
-                init { throw new NotSupportedException("Only acknowledged writes support the InsertedCount property."); }
+                get { throw CreateNotSupportedException(); }
+                init { throw CreateNotSupportedException(); }
             }
 
             /// <inheritdoc/>
             public override long UpsertedCount
             {
-                get { throw new NotSupportedException("Only acknowledged writes support the UpsertedCount property."); }
-                init { throw new NotSupportedException("Only acknowledged writes support the UpsertedCount property."); }
+                get { throw CreateNotSupportedException(); }
+                init { throw CreateNotSupportedException(); }
             }
 
             /// <inheritdoc/>
             public override long MatchedCount
             {
-                get { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
-                init { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
+                get { throw CreateNotSupportedException(); }
+                init { throw CreateNotSupportedException(); }
             }
 
             /// <inheritdoc/>
             public override long ModifiedCount
             {
-                get { throw new NotSupportedException("Only acknowledged writes support the ModifiedCount property."); }
-                init { throw new NotSupportedException("Only acknowledged writes support the ModifiedCount property."); }
+                get { throw CreateNotSupportedException(); }
+                init { throw CreateNotSupportedException(); }
             }
 
             /// <inheritdoc/>
             public override long DeletedCount
             {
-                get { throw new NotSupportedException("Only acknowledged writes support the DeletedCount property."); }
-                init { throw new NotSupportedException("Only acknowledged writes support the DeletedCount property."); }
+                get { throw CreateNotSupportedException(); }
+                init { throw CreateNotSupportedException(); }
             }
 
             /// <inheritdoc/>
-            public override IReadOnlyDictionary<int, BulkWriteInsertOneResult> InsertResults { get; init; }
+            public override IReadOnlyDictionary<int, BulkWriteInsertOneResult> InsertResults
+            {
+                get { throw CreateNotSupportedException(); }
+                init { throw CreateNotSupportedException(); }
+            }
 
             /// <inheritdoc/>
-            public override IReadOnlyDictionary<int, BulkWriteUpdateResult> UpdateResults { get; init; }
+            public override IReadOnlyDictionary<int, BulkWriteUpdateResult> UpdateResults
+            {
+                get { throw CreateNotSupportedException(); }
+                init { throw CreateNotSupportedException(); }
+            }
 
             /// <inheritdoc/>
-            public override IReadOnlyDictionary<int, BulkWriteDeleteResult> DeleteResults { get; init; }
+            public override IReadOnlyDictionary<int, BulkWriteDeleteResult> DeleteResults
+            {
+                get { throw CreateNotSupportedException(); }
+                init { throw CreateNotSupportedException(); }
+            }
+
+            private NotSupportedException CreateNotSupportedException([CallerMemberName] string callerMethod = null)
+                => throw new NotSupportedException($"Only acknowledged writes support the {callerMethod} property.");
         }
     }
 }

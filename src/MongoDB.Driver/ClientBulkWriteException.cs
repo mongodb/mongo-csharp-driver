@@ -22,7 +22,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a bulk write exception.
     /// </summary>
-    [Serializable]
     public class ClientBulkWriteException : MongoServerException
     {
         /// <summary>
@@ -30,10 +29,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
+        /// <param name="writeErrors">Errors that occurred during the execution of individual write operations.</param>
         /// <param name="partialResult">The results of any successful operations that were performed before the error was encountered.</param>
         /// <param name="writeConcernErrors">Write concern errors that occurred while executing the bulk write.</param>
         /// <param name="innerException">The inner exception.</param>
-        /// <param name="writeErrors">Errors that occurred during the execution of individual write operations.</param>
         public ClientBulkWriteException(
             ConnectionId connectionId,
             string message,
@@ -49,6 +48,10 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// The results of any successful operations that were performed before the error was encountered.
+        /// </summary>
+        public BulkWriteResults PartialResult { get; init; }
+        /// <summary>
         /// Write concern errors that occurred while executing the bulk write.
         /// </summary>
         public IReadOnlyList<MongoWriteConcernException> WriteConcernErrors { get; }
@@ -57,10 +60,5 @@ namespace MongoDB.Driver
         /// Errors that occurred during the execution of individual write operations.
         /// </summary>
         public IReadOnlyDictionary<int, WriteError> WriteErrors { get; }
-
-        /// <summary>
-        /// The results of any successful operations that were performed before the error was encountered.
-        /// </summary>
-        public BulkWriteResults PartialResult { get; init; }
     }
 }

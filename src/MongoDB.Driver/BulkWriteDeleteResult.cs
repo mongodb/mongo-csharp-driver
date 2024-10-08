@@ -16,7 +16,7 @@
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents BulkWriteDelete operation result.
+    /// Represents result <see cref="BulkWriteDeleteOneModel{TDocument}"/> or <see cref="BulkWriteDeleteManyModel{TDocument}"/> operation.
     /// </summary>
     public class BulkWriteDeleteResult
     {

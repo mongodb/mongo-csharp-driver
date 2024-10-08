@@ -20,7 +20,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for a bulk write operation.
     /// </summary>
-    public class ClientBulkWriteOptions
+    public sealed class ClientBulkWriteOptions
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteOptions"/> class.
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         public BsonValue Comment { get; set; }
 
         /// <summary>
-        /// Is bulk requests are fulfilled in order.
+        /// A value indicating is bulk requests are fulfilled in order.
         /// </summary>
         public bool IsOrdered { get; set; }
 

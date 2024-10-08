@@ -16,7 +16,7 @@
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents insert one operation in scope of BulkWrite operation.
+    /// Represents insert one operation in the scope of BulkWrite operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteInsertOneModel<TDocument> : BulkWriteModel

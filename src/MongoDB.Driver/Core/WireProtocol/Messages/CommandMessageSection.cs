@@ -104,7 +104,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             Identifier = Ensure.IsNotNull(identifier, nameof(identifier));
             DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
             ElementNameValidator = Ensure.IsNotNull(elementNameValidator, nameof(elementNameValidator));
-
         }
 
         // public properties
@@ -142,18 +141,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     {
         public ClientBulkWriteOpsCommandMessageSection(
             IBatchableSource<BulkWriteModel> operations,
-            Dictionary<BulkWriteModel, BsonValue> idsMap,
+            Dictionary<int, BsonValue> idsMap,
             int? maxBatchCount,
             int? maxDocumentSize,
             RenderArgs<BsonDocument> renderArgs)
         : base(operations, maxBatchCount, maxDocumentSize)
-        {
-            Documents = operations;
-            IdsMap = idsMap;
-            RenderArgs = renderArgs;
-        }
+            {
+                Documents = operations;
+                IdsMap = idsMap;
+                RenderArgs = renderArgs;
+            }
 
-        public Dictionary<BulkWriteModel, BsonValue> IdsMap { get; }
+        public Dictionary<int, BsonValue> IdsMap { get; }
         public new IBatchableSource<BulkWriteModel> Documents { get; }
         public RenderArgs<BsonDocument> RenderArgs { get; }
     }

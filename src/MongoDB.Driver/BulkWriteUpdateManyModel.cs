@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents update many operation in scope of BulkWrite operation.
+    /// Represents update many operation in the scope of BulkWrite operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteUpdateManyModel<TDocument> : BulkWriteModel

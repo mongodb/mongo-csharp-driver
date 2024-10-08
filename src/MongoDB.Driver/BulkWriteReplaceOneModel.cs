@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents replace one operation in scope of BulkWrite operation.
+    /// Represents replace one operation in the scope of BulkWrite operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteReplaceOneModel<TDocument> : BulkWriteModel
@@ -32,7 +32,7 @@ namespace MongoDB.Driver
         /// <param name="replacement">Update definition.</param>
         /// <param name="collation">Specifies a collation.</param>
         /// <param name="hint">The index to use.</param>
-        /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
+        /// <param name="isUpsert">A value indicating whether to insert the document if it doesn't already exist.</param>
         public BulkWriteReplaceOneModel(
             string collectionNamespace,
             FilterDefinition<TDocument> filter,

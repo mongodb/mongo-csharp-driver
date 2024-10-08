@@ -33,7 +33,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private BsonSerializationContext _serializationContext;
         private IBsonSerializerRegistry _serializerRegistry;
         private RenderArgs<BsonDocument> _renderArgs;
-        private Dictionary<BulkWriteModel, BsonValue> _idsMap;
+        private Dictionary<int, BsonValue> _idsMap;
+        private int _currentIndex;
 
         public ClientBulkWriteOpsSectionFormatter(long? maxSize)
         {
@@ -78,6 +79,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 {
                     var documentStartPosition = stream.Position;
                     var document = batch.Items[batch.Offset + i];
+                    _currentIndex = batch.Offset + i;
 
                     document.Visit(this);
 
@@ -138,7 +140,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
                 var objectId = documentSerializer.EnsureIdAssigned(null, model.Document);
-                _idsMap.Add(insertOneModel, BsonValue.Create(objectId));
+                _idsMap.Add(_currentIndex, BsonValue.Create(objectId));
                 context.Writer.WriteName("document");
                 documentSerializer.Serialize(_serializationContext, model.Document);
             });

@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class ClientBulkWriteOperation : RetryableWriteCommandOperationBase, IWriteOperation<BulkWriteResults>
     {
-        private readonly Dictionary<BulkWriteModel, BsonValue> _idsMap = new();
+        private readonly Dictionary<int, BsonValue> _idsMap = new();
 
         public ClientBulkWriteOperation(
             IReadOnlyList<BulkWriteModel> writeModels,
@@ -121,24 +121,14 @@ namespace MongoDB.Driver.Core.Operations
 
                 if (serverResponse != null)
                 {
-                    IAsyncCursor<BsonDocument> individualResultsCursor = null;
-                    try
+                    PopulateBulkWriteResponse(serverResponse, bulkWriteResults);
+                    using var individualResults = GetIndividualResultsCursor(context, serverResponse);
+                    if (individualResults != null && bulkWriteResults.TopLevelException == null)
                     {
-                        PopulateBulkWriteResponse(serverResponse, bulkWriteResults);
-                        if (TryGetIndividualResults(context, serverResponse, out individualResultsCursor))
+                        while (individualResults.MoveNext(cancellationToken))
                         {
-                            if (bulkWriteResults.TopLevelException == null)
-                            {
-                                while (individualResultsCursor.MoveNext(cancellationToken))
-                                {
-                                    PopulateIndividualResponses(individualResultsCursor.Current, bulkWriteResults);
-                                }
-                            }
+                            PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
                         }
-                    }
-                    finally
-                    {
-                        individualResultsCursor?.Dispose();
                     }
                 }
 
@@ -180,24 +170,14 @@ namespace MongoDB.Driver.Core.Operations
 
                 if (serverResponse != null)
                 {
-                    IAsyncCursor<BsonDocument> individualResultsCursor = null;
-                    try
+                    PopulateBulkWriteResponse(serverResponse, bulkWriteResults);
+                    using var individualResults = GetIndividualResultsCursor(context, serverResponse);
+                    if (individualResults != null && bulkWriteResults.TopLevelException == null)
                     {
-                        PopulateBulkWriteResponse(serverResponse, bulkWriteResults);
-                        if (TryGetIndividualResults(context, serverResponse, out individualResultsCursor))
+                        while (await individualResults.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                         {
-                            if (bulkWriteResults.TopLevelException == null)
-                            {
-                                while (await individualResultsCursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-                                {
-                                    PopulateIndividualResponses(individualResultsCursor.Current, bulkWriteResults);
-                                }
-                            }
+                            PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
                         }
-                    }
-                    finally
-                    {
-                        individualResultsCursor?.Dispose();
                     }
                 }
 
@@ -218,7 +198,7 @@ namespace MongoDB.Driver.Core.Operations
                 var partialResults = ToBulkResults(bulkWriteResults);
                 throw new ClientBulkWriteException(
                     connectionId,
-                    "An error occured while bulkWrite operation. See InnerException for more details.",
+                    "An error occurred during bulkWrite operation. See InnerException for more details.",
                     bulkWriteResults.Errors,
                     partialResults,
                     bulkWriteResults.ConcernErrors,
@@ -230,7 +210,7 @@ namespace MongoDB.Driver.Core.Operations
                 var partialResults = ToBulkResults(bulkWriteResults);
                 throw new ClientBulkWriteException(
                     connectionId,
-                    "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
+                    "An error occurred during ordered bulkWrite operation. See WriteErrors for more details.",
                     bulkWriteResults.Errors,
                     partialResults,
                     bulkWriteResults.ConcernErrors);
@@ -245,7 +225,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new ClientBulkWriteException(
                     connectionId,
-                    "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
+                    "An error occurred during bulkWrite operation. See WriteErrors for more details.",
                     bulkWriteResults.Errors,
                     results,
                     bulkWriteResults.ConcernErrors);
@@ -255,7 +235,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new ClientBulkWriteException(
                     connectionId,
-                    "An error occured while ordered bulkWrite operation. See WriteErrors for more details.",
+                    "An error occurred during bulkWrite operation. See WriteConcernErrors for more details.",
                     bulkWriteResults.Errors,
                     results,
                     bulkWriteResults.ConcernErrors);
@@ -264,27 +244,24 @@ namespace MongoDB.Driver.Core.Operations
             return results;
         }
 
-        private bool TryGetIndividualResults(RetryableWriteContext context, BsonDocument bulkWriteResponse, out IAsyncCursor<BsonDocument> cursor)
+        private IAsyncCursor<BsonDocument> GetIndividualResultsCursor(RetryableWriteContext context, BsonDocument bulkWriteResponse)
         {
             if (!bulkWriteResponse.TryGetElement("cursor", out var cursorElement))
             {
-                cursor = null;
-                return false;
+                return null;
             }
 
             var cursorDocument = cursorElement.Value.AsBsonDocument;
-
-            cursor = new AsyncCursor<BsonDocument>(
+            return new AsyncCursor<BsonDocument>(
                 context.ChannelSource,
                 CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
                 null,
-                cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
+                cursorDocument["firstBatch"].AsBsonArray.Cast<BsonDocument>().ToList(),
                 cursorDocument["id"].AsInt64,
                 0,
                 0,
                 BsonDocumentSerializer.Instance,
                 MessageEncoderSettings);
-            return true;
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResults bulkWriteResults)
@@ -334,8 +311,8 @@ namespace MongoDB.Driver.Core.Operations
 
                     if (writeModelType == typeof(BulkWriteInsertOneModel<>))
                     {
-                        _idsMap.TryGetValue(writeModel, out var insertedId);
-                        bulkWriteResults.InsertResults.Add(operationIndex, new BulkWriteInsertOneResult
+                        _idsMap.TryGetValue(operationIndex, out var insertedId);
+                        bulkWriteResults.InsertResults.Add(operationIndex, new()
                         {
                             InsertedId = insertedId
                         });
@@ -343,7 +320,7 @@ namespace MongoDB.Driver.Core.Operations
                     else if (writeModelType == typeof(BulkWriteUpdateOneModel<>) || writeModelType == typeof(BulkWriteUpdateManyModel<>) || writeModelType == typeof(BulkWriteReplaceOneModel<>))
                     {
                         operationResponse.TryGetValue("upserted", out var upsertedId);
-                        bulkWriteResults.UpdateResults.Add(operationIndex, new BulkWriteUpdateResult
+                        bulkWriteResults.UpdateResults.Add(operationIndex, new()
                         {
                             MatchedCount = operationResponse["n"].AsInt32,
                             ModifiedCount = operationResponse["nModified"].AsInt32,
@@ -352,7 +329,7 @@ namespace MongoDB.Driver.Core.Operations
                     }
                     else if (writeModelType == typeof(BulkWriteDeleteOneModel<>) || writeModelType == typeof(BulkWriteDeleteManyModel<>))
                     {
-                        bulkWriteResults.DeleteResults.Add(operationIndex, new BulkWriteDeleteResult
+                        bulkWriteResults.DeleteResults.Add(operationIndex, new()
                         {
                             DeletedCount = operationResponse["n"].AsInt32,
                         });
@@ -383,7 +360,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (WriteConcern?.Equals(WriteConcern.Unacknowledged) == true)
             {
-                return null;
+                return new BulkWriteResults.Unacknowledged();
             }
 
             if (rawResults.InsertedCount + rawResults.UpsertedCount + rawResults.DeletedCount + rawResults.ModifiedCount == 0)

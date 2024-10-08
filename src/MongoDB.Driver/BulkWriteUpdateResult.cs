@@ -18,7 +18,7 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents BulkWriteUpdate operation result.
+    /// Represents update operation result in the scope of BulkWrite.
     /// </summary>
     public class BulkWriteUpdateResult
     {
