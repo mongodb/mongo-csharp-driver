@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
@@ -109,6 +110,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// Whether MD5 checksum computation is disabled when uploading a GridFS file.
         /// </value>
+        [Obsolete("MD5 support will be removed in a later release")]
         public bool DisableMD5
         {
             get { return _disableMD5; }
@@ -236,6 +238,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// Whether MD5 checksum computation is disabled when uploading a GridFS file.
         /// </value>
+        [Obsolete("MD5 support will be removed in a later release")]
         public bool DisableMD5
         {
             get { return _disableMD5; }

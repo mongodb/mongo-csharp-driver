@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.GridFS
 {
     /// <summary>
@@ -31,6 +33,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         ///   <c>true</c> if the MD5 value should be checked; otherwise, <c>false</c>.
         /// </value>
+        [Obsolete("MD5 support will be removed in a later release")]
         public bool? CheckMD5
         {
             get { return _checkMD5; }

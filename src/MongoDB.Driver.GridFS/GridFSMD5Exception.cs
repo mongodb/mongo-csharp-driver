@@ -24,6 +24,7 @@ namespace MongoDB.Driver.GridFS
     /// Represents a GridFSMD5 exception.
     /// </summary>
     [Serializable]
+    [Obsolete("MD5 support will be removed in a later release")]
     public class GridFSMD5Exception : GridFSException
     {
         #region static
