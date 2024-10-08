@@ -22,7 +22,6 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
-using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Benchmarks
 {

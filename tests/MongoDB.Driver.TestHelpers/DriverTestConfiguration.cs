@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.TestHelpers;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.Tests
 {

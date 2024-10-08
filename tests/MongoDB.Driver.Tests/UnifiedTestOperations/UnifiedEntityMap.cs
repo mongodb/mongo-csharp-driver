@@ -28,11 +28,10 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Encryption;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
-using MongoDB.Libmongocrypt;
+using MongoDB.Driver.Encryption;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations

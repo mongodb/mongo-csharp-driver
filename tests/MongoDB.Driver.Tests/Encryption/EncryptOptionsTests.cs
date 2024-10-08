@@ -16,7 +16,6 @@
 using System;
 using FluentAssertions;
 using MongoDB.Driver.Encryption;
-using MongoDB.Libmongocrypt;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Encryption
