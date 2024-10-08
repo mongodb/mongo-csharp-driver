@@ -91,17 +91,10 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Theory]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData(ClusterConnectionMode.Automatic, ClusterType.Unknown)]
-        [InlineData(ClusterConnectionMode.Direct, ClusterType.Unknown)]
-        [InlineData(ClusterConnectionMode.ReplicaSet, ClusterType.ReplicaSet)]
-        [InlineData(ClusterConnectionMode.Sharded, ClusterType.Sharded)]
-        [InlineData(ClusterConnectionMode.Standalone, ClusterType.Standalone)]
-        public void Description_should_return_correct_description_when_not_initialized(ClusterConnectionMode connectionMode, ClusterType clusterType)
-#pragma warning restore CS0618 // Type or member is obsolete
+        [Fact]
+        public void Description_should_return_correct_description_when_not_initialized()
         {
-            var subject = CreateSubject(connectionMode);
+            var subject = CreateSubject();
             var description = subject.Description;
 
             description.Servers.Should().BeEmpty();
@@ -419,10 +412,7 @@ namespace MongoDB.Driver.Core.Clusters
             [Values(false, true)]
             bool async)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var subject = CreateSubject(ClusterConnectionMode.Sharded);
-#pragma warning restore CS0618 // Type or member is obsolete
-
+            var subject = CreateSubject(clusterType: ClusterType.Sharded);
             subject.Initialize();
 
             var connected1 = ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27017));
@@ -465,9 +455,7 @@ namespace MongoDB.Driver.Core.Clusters
             [Values(false, true)] bool async,
             [Values(false, true)] bool isSharded)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            StubCluster subject = isSharded ? CreateSubject(ClusterConnectionMode.Sharded) : CreateSubject();
-#pragma warning restore CS0618 // Type or member is obsolete
+            StubCluster subject = isSharded ? CreateSubject(null, ClusterType.Sharded) : CreateSubject();
 
             subject.Initialize();
 
@@ -638,17 +626,14 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // private methods
-#pragma warning disable CS0618 // Type or member is obsolete
-        private StubCluster CreateSubject(ClusterConnectionMode connectionMode = ClusterConnectionMode.Automatic, ConnectionModeSwitch connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode, TimeSpan? serverSelectionTimeout = null)
-#pragma warning restore CS0618 // Type or member is obsolete
+        private StubCluster CreateSubject(TimeSpan? serverSelectionTimeout = null, ClusterType? clusterType = null)
         {
-            _settings = _settings.With(connectionMode: connectionMode, connectionModeSwitch: connectionModeSwitch);
             if (serverSelectionTimeout != null)
             {
                 _settings = _settings.With(serverSelectionTimeout: serverSelectionTimeout.Value);
             }
 
-            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory);
+            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory, clusterType);
         }
 
         private IServer SelectServerAttempt(Cluster cluster, IServerSelector operationSelector, bool async)
@@ -670,19 +655,23 @@ namespace MongoDB.Driver.Core.Clusters
         private class StubCluster : Cluster
         {
             private Dictionary<EndPoint, IClusterableServer> _servers = new Dictionary<EndPoint, IClusterableServer>();
+            private ClusterType? _clusterType;
 
             public StubCluster(ClusterSettings settings,
                 IClusterableServerFactory serverFactory,
                 IEventSubscriber eventSubscriber,
-                ILoggerFactory loggerFactory)
+                ILoggerFactory loggerFactory,
+                ClusterType? clusterType = null)
                 : base(settings, serverFactory, eventSubscriber, loggerFactory)
             {
+                _clusterType = clusterType;
             }
 
             public override void Initialize()
             {
                 base.Initialize();
-                UpdateClusterDescription(Description.WithType(Settings.GetInitialClusterType()));
+
+                UpdateClusterDescription(Description.WithType(_clusterType ?? Settings.GetInitialClusterType()));
             }
 
             public void RemoveServer(EndPoint endPoint)

@@ -160,13 +160,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             var settings = DriverTestConfiguration.GetClientSettings();
             var serverAddress = settings.Servers.First();
-            settings.Servers = new[] { serverAddress };
-
-            // set settings.DirectConnection = true after removing obsolete ConnectionMode
-#pragma warning disable CS0618 // Type or member is obsolete
-            settings.ConnectionMode = ConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
-
+            settings.Servers = [serverAddress];
+            settings.DirectConnection = true;
             settings.ApplicationName = appName;
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
 
@@ -258,13 +253,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             var settings = DriverTestConfiguration.GetClientSettings();
             var serverAddress = settings.Servers.First();
-            settings.Servers = new[] { serverAddress };
-
-            // set settings.DirectConnection = true after removing obsolete ConnectionMode
-#pragma warning disable CS0618 // Type or member is obsolete
-            settings.ConnectionMode = ConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
-
+            settings.Servers = [serverAddress];
+            settings.DirectConnection = true;
             settings.ApplicationName = appName;
 
             var eventCapturer = new EventCapturer()

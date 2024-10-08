@@ -90,28 +90,24 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
 
             var topologyDescription = BsonSerializer.Deserialize<TopologyDescription>(topologyDescriptionDocument);
 
-            var (clusterType, clusterConnectionMode) = GetClusterType(topologyDescription);
+            var clusterType = GetClusterType(topologyDescription);
             var servers = topologyDescription.servers.Select(x => BuildServerDescription(x, clusterId, heartbeatInterval.Value)).ToArray();
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            return new ClusterDescription(clusterId, clusterConnectionMode, clusterType, servers);
-#pragma warning restore CS0618 // Type or member is obsolete
+            return new ClusterDescription(clusterId, false, null, clusterType, servers);
         }
 
         // private methods
-#pragma warning disable CS0618 // Type or member is obsolete
-        private static (ClusterType, ClusterConnectionMode) GetClusterType(TopologyDescription topologyDescription) =>
+        private static ClusterType GetClusterType(TopologyDescription topologyDescription) =>
             topologyDescription.type switch
             {
-                ClusterTypeTest.ReplicaSetNoPrimary => (ClusterType.ReplicaSet, ClusterConnectionMode.ReplicaSet),
-                ClusterTypeTest.ReplicaSetWithPrimary => (ClusterType.ReplicaSet, ClusterConnectionMode.ReplicaSet),
-                ClusterTypeTest.Sharded => (ClusterType.Sharded, ClusterConnectionMode.Sharded),
-                ClusterTypeTest.Single => (ClusterType.Standalone, ClusterConnectionMode.Standalone),
-                ClusterTypeTest.Unknown => (ClusterType.Unknown, ClusterConnectionMode.Automatic),
-                ClusterTypeTest.LoadBalanced => (ClusterType.LoadBalanced, ClusterConnectionMode.Automatic),
+                ClusterTypeTest.ReplicaSetNoPrimary or
+                ClusterTypeTest.ReplicaSetWithPrimary => ClusterType.ReplicaSet,
+                ClusterTypeTest.Sharded => ClusterType.Sharded,
+                ClusterTypeTest.Single => ClusterType.Standalone,
+                ClusterTypeTest.Unknown => ClusterType.Unknown,
+                ClusterTypeTest.LoadBalanced => ClusterType.LoadBalanced,
                 _ => throw new NotSupportedException($"Unknown topology type: {topologyDescription.type}")
             };
-#pragma warning restore CS0618 // Type or member is obsolete
 
         public static List<ServerDescription> BuildServerDescriptions(BsonArray bsonArray, ClusterId clusterId, TimeSpan heartbeatInterval) =>
             bsonArray.Select(x => BuildServerDescription(BsonSerializer.Deserialize<ServerData>((BsonDocument)x), clusterId, heartbeatInterval))

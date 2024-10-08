@@ -39,12 +39,8 @@ namespace MongoDB.Driver.Core.Servers
     internal abstract class Server : IClusterableServer, IConnectionExceptionHandler
     {
         private readonly IClusterClock _clusterClock;
-#pragma warning disable CS0618 // Type or member is obsolete
-        private readonly ClusterConnectionMode _clusterConnectionMode;
-        private readonly ConnectionModeSwitch _connectionModeSwitch;
-#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IConnectionPool _connectionPool;
-        private readonly bool? _directConnection;
+        private readonly bool _directConnection;
         private readonly EndPoint _endPoint;
         private readonly ServerId _serverId;
         private readonly ServerSettings _settings;
@@ -57,22 +53,15 @@ namespace MongoDB.Driver.Core.Servers
         public Server(
             ClusterId clusterId,
             IClusterClock clusterClock,
-#pragma warning disable CS0618 // Type or member is obsolete
-            ClusterConnectionMode clusterConnectionMode,
-            ConnectionModeSwitch connectionModeSwitch,
-#pragma warning restore CS0618 // Type or member is obsolete
-            bool? directConnection,
+            bool directConnection,
             ServerSettings settings,
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
             ServerApi serverApi,
             EventLogger<LogCategories.SDAM> eventLogger)
         {
-            ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
 
             _clusterClock = Ensure.IsNotNull(clusterClock, nameof(clusterClock));
-            _clusterConnectionMode = clusterConnectionMode;
-            _connectionModeSwitch = connectionModeSwitch;
             _directConnection = directConnection;
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -194,19 +183,7 @@ namespace MongoDB.Driver.Core.Servers
 
         protected abstract void InitializeSubClass();
 
-        protected bool IsDirectConnection()
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-            {
-                return _directConnection.GetValueOrDefault();
-            }
-            else
-            {
-                return _clusterConnectionMode == ClusterConnectionMode.Direct;
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
+        protected bool DirectConnection => _directConnection;
 
         protected bool IsStateChangeException(Exception ex) => ex is MongoNotPrimaryException || ex is MongoNodeIsRecoveringException;
 
@@ -622,7 +599,7 @@ namespace MongoDB.Driver.Core.Servers
 
             private bool GetEffectiveSecondaryOk(bool secondaryOk)
             {
-                if (_server.IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
+                if (_server.DirectConnection && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return true;
                 }

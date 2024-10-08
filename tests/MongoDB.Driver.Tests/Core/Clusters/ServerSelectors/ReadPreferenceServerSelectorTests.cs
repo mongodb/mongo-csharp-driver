@@ -36,13 +36,12 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             _secondary1 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary, new TagSet(new[] { new Tag("a", "1") }));
             _secondary2 = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27019), ServerType.ReplicaSetSecondary, new TagSet(new[] { new Tag("a", "2") }));
 
-#pragma warning disable CS0618 // Type or member is obsolete
             _description = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.ReplicaSet,
+                false,
+                null,
                 ClusterType.ReplicaSet,
-                new[] { _primary, _secondary1, _secondary2 });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [_primary, _secondary1, _secondary2]);
         }
 
         [Fact]
@@ -212,13 +211,12 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             var primary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), ServerType.ReplicaSetPrimary);
             var secondary = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary);
 
-#pragma warning disable CS0618 // Type or member is obsolete
             var description = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.ReplicaSet,
+                false,
+                null,
                 ClusterType.ReplicaSet,
-                new[] { primary, secondary });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [primary, secondary]);
 
             var subject = new ReadPreferenceServerSelector(new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("a", "1") }) }));
 
@@ -235,13 +233,12 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             var clusterId = new ClusterId();
             var server = ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), ServerType.ReplicaSetSecondary);
 
-#pragma warning disable CS0618 // Type or member is obsolete
             var description = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.Direct,
+                true,
+                null,
                 ClusterType.ReplicaSet,
-                new[] { server });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [server]);
 
             var result = subject.SelectServers(description, description.Servers).ToList();
 

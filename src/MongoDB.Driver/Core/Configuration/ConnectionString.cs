@@ -21,9 +21,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -68,13 +66,9 @@ namespace MongoDB.Driver.Core.Configuration
         private string _applicationName;
         private string _authMechanism;
         private string _authSource;
-#pragma warning disable CS0618 // Type or member is obsolete
-        private ClusterConnectionMode? _connect;
-        private ConnectionModeSwitch _connectionModeSwitch = ConnectionModeSwitch.NotSet;
-#pragma warning restore CS0618 // Type or member is obsolete
         private TimeSpan? _connectTimeout;
         private string _databaseName;
-        private bool? _directConnection;
+        private bool _directConnection;
         private bool? _fsync;
         private TimeSpan? _heartbeatInterval;
         private TimeSpan? _heartbeatTimeout;
@@ -214,32 +208,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the connection mode.
-        /// </summary>
-        [Obsolete("Use DirectConnection instead.")]
-        public ClusterConnectionMode Connect
-        {
-            get
-            {
-                if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-                {
-                    throw new InvalidOperationException("ConnectionMode cannot be used when ConnectionModeSwitch is set to UseDirectConnection.");
-                }
-
-                return _connect.GetValueOrDefault();
-            }
-        }
-
-        /// <summary>
-        /// Gets the connection mode switch.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public ConnectionModeSwitch ConnectionModeSwitch
-        {
-            get { return _connectionModeSwitch; }
-        }
-
-        /// <summary>
         /// Gets the connect timeout.
         /// </summary>
         public TimeSpan? ConnectTimeout
@@ -258,17 +226,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the directConnection.
         /// </summary>
-        public bool? DirectConnection
+        public bool DirectConnection
         {
-            get
-            {
-                if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-                {
-                    throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
-                }
-
-                return _directConnection;
-            }
+            get { return _directConnection; }
         }
 
         /// <summary>
@@ -877,26 +837,6 @@ namespace MongoDB.Driver.Core.Configuration
             ExtractScheme(match);
             ExtractHosts(match);
 
-            if (_connect.HasValue && _directConnection.HasValue)
-            {
-                throw new MongoConfigurationException("Connect and directConnection cannot both be specified.");
-            }
-            else
-            {
-                if (_connect.HasValue)
-                {
-                    _connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
-                }
-                else if (_directConnection.HasValue)
-                {
-                    _connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection;
-                }
-                else
-                {
-                    _connectionModeSwitch = ConnectionModeSwitch.NotSet;
-                }
-            }
-
             if (_journal.HasValue && _journal.Value && _w != null && _w.Equals(0))
             {
                 throw new MongoConfigurationException("This is an invalid w and journal pair.");
@@ -908,12 +848,12 @@ namespace MongoDB.Driver.Core.Configuration
                     "Specifying both tlsInsecure and tlsDisableCertificateRevocationCheck is invalid.");
             }
 
-            if (_scheme == ConnectionStringScheme.MongoDBPlusSrv && IsDirectConnection())
+            if (_scheme == ConnectionStringScheme.MongoDBPlusSrv && _directConnection)
             {
                 throw new MongoConfigurationException("Direct connect cannot be used with SRV.");
             }
 
-            if (_hosts.Count > 1 && IsDirectConnection())
+            if (_hosts.Count > 1 && _directConnection)
             {
                 throw new MongoConfigurationException("Direct connect cannot be used with multiple host names.");
             }
@@ -950,17 +890,11 @@ namespace MongoDB.Driver.Core.Configuration
                     throw new MongoConfigurationException("srvMaxHosts cannot be used with load balanced mode.");
                 }
 
-                if (IsDirectConnection())
+                if (_directConnection)
                 {
                     throw new MongoConfigurationException("Load balanced mode cannot be used with direct connection.");
                 }
             }
-
-            bool IsDirectConnection() =>
-                _directConnection.GetValueOrDefault() ||
-#pragma warning disable CS0618 // Type or member is obsolete
-                _connect == ClusterConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
 
             string ProtectConnectionString(string connectionString)
             {
@@ -1001,9 +935,6 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "compressors":
                     _compressorsOptions.SaveCompressors(name, value.Split(','));
-                    break;
-                case "connect":
-                    _connect = ParseClusterConnectionMode(name, value);
                     break;
                 case "connecttimeout":
                 case "connecttimeoutms":
@@ -1251,17 +1182,6 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException(string.Format("{0} has an invalid {1} value of {2}.", name, typeof(TEnum), value), ex);
             }
         }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        private static ClusterConnectionMode ParseClusterConnectionMode(string name, string value)
-        {
-            if (value.Equals("shardrouter", StringComparison.OrdinalIgnoreCase))
-            {
-                value = "sharded";
-            }
-            return ParseEnum<ClusterConnectionMode>(name, value);
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
 
         private static int ParseInt32(string name, string value)
         {

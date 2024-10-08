@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -30,6 +29,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
@@ -67,12 +67,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded)
             {
                 var serverAddress = settings.Servers.First();
-                settings.Servers = new[] { serverAddress };
-
-                // set settings.DirectConnection = true after removing obsolete ConnectionMode
-#pragma warning disable CS0618 // Type or member is obsolete
-                settings.ConnectionMode = ConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
+                settings.Servers = [serverAddress];
+                settings.DirectConnection = true;
 
                 failPointSelector = new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port));
             }

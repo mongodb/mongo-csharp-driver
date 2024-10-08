@@ -25,23 +25,21 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
     public class LatencyLimitingServerSelectorTests
     {
-        private ClusterDescription _description;
+        private readonly ClusterDescription _description;
 
         public LatencyLimitingServerSelectorTests()
         {
             var clusterId = new ClusterId();
-#pragma warning disable CS0618 // Type or member is obsolete
             _description = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.Unknown,
-                new[]
-                {
+                [
                     ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27017), averageRoundTripTime: TimeSpan.FromMilliseconds(10)),
                     ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27018), averageRoundTripTime: TimeSpan.FromMilliseconds(30)),
                     ServerDescriptionHelper.Connected(clusterId, new DnsEndPoint("localhost", 27019), averageRoundTripTime: TimeSpan.FromMilliseconds(20))
-                });
-#pragma warning restore CS0618 // Type or member is obsolete
+                ]);
         }
 
         [Fact]

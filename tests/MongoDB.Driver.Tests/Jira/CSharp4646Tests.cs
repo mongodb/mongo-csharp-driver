@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
         private void CreateDatabase(IMongoDatabase database)
         {
             // the easiest way to create a database is to create a collection by inserting a document
+            database.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             collection.InsertOne(new BsonDocument("_id", 1));
         }

@@ -99,30 +99,47 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
 
         private MultiServerCluster CreateAndSetupCluster(ClusterDescription clusterDescription, OperationsCount[] operationsCounts)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
+            var endpoints = clusterDescription.Servers.Select(s => s.EndPoint).ToArray();
             var clusterSettings = new ClusterSettings(
-                connectionMode: clusterDescription.ConnectionMode,
-                connectionModeSwitch: clusterDescription.ConnectionModeSwitch,
+                directConnection: clusterDescription.DirectConnection,
                 serverSelectionTimeout: TimeSpan.FromSeconds(30),
-                endPoints: new Optional<IEnumerable<EndPoint>>(clusterDescription.Servers.Select(s => s.EndPoint)));
-#pragma warning restore CS0618 // Type or member is obsolete
+                endPoints: endpoints);
+
+            var replicaSetConfig = new ReplicaSetConfig(
+                endpoints,
+                "rs_test",
+                clusterDescription.Servers.SingleOrDefault(s => s.Type == ServerType.ReplicaSetPrimary)?.EndPoint,
+                null);
 
             var mockServerFactory = new Mock<IClusterableServerFactory>();
             mockServerFactory
                 .Setup(s => s.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
                 .Returns<ClusterType, ClusterId, IClusterClock, EndPoint>((_, _, _, endpoint) =>
                 {
-                    var serverDescription = clusterDescription.Servers
-                        .Single(s => s.EndPoint == endpoint).
-                        With(state: ServerState.Connected);
+                    var serverDescriptionDisconnected = clusterDescription.Servers
+                        .Single(s => s.EndPoint == endpoint)
+                        .With(state: ServerState.Disconnected);
+
+                    if (serverDescriptionDisconnected.Type.IsReplicaSetMember())
+                    {
+                        serverDescriptionDisconnected = serverDescriptionDisconnected.With(replicaSetConfig: replicaSetConfig);
+                    }
+                    var serverDescriptionConnected = serverDescriptionDisconnected.With(state: ServerState.Connected);
+                    
 
                     var operationsCount = operationsCounts.Single(o => endpoint.ToString().EndsWith(o.address));
 
                     var server = new Mock<IClusterableServer>();
-                    server.Setup(s => s.ServerId).Returns(serverDescription.ServerId);
-                    server.Setup(s => s.Description).Returns(serverDescription);
+                    server.Setup(s => s.ServerId).Returns(serverDescriptionDisconnected.ServerId);
+                    server.Setup(s => s.Description).Returns(serverDescriptionDisconnected);
                     server.Setup(s => s.EndPoint).Returns(endpoint);
                     server.Setup(s => s.OutstandingOperationsCount).Returns(operationsCount.operation_count);
+
+                    server.Setup(s => s.Initialize()).Callback(() =>
+                        {
+                            server.Setup(s => s.Description).Returns(serverDescriptionConnected);
+                            server.Raise(m => m.DescriptionChanged += null, new ServerDescriptionChangedEventArgs(serverDescriptionDisconnected, serverDescriptionConnected));
+                        });
 
                     return server.Object;
                 });

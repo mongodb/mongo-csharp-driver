@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Diagnostics;
 using System.Net;
 using Microsoft.Extensions.Logging;
@@ -33,10 +32,11 @@ namespace MongoDB.Driver.Core.Clusters
         public SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
             : base(settings, serverFactory, eventSubscriber, loggerFactory)
         {
+            Ensure.That(settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(SingleServerCluster)}.");
             Ensure.That(settings.SrvMaxHosts == 0, "srvMaxHosts cannot be used with a single server cluster.");
-            Ensure.IsEqualTo(settings.EndPoints.Count, 1, "settings.EndPoints.Count");
-            _replicaSetName = settings.ReplicaSetName;  // can be null
+            Ensure.IsEqualTo(settings.EndPoints.Count, 1, nameof(settings.EndPoints.Count));
 
+            _replicaSetName = settings.ReplicaSetName;
             _state = new InterlockedInt32(State.Initial);
         }
 
@@ -100,58 +100,6 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private bool IsServerValidForCluster(ClusterType clusterType, ClusterSettings clusterSettings, ServerType serverType)
-        {
-            switch (clusterType)
-            {
-                case ClusterType.ReplicaSet:
-                    return serverType.IsReplicaSetMember();
-
-                case ClusterType.Sharded:
-                    return serverType == ServerType.ShardRouter;
-
-                case ClusterType.Standalone:
-                    return IsStandaloneServerValidForCluster();
-
-                case ClusterType.Unknown:
-                    return IsUnknownServerValidForCluster();
-
-                default:
-                    throw new MongoInternalException("Unexpected cluster type.");
-            }
-
-            bool IsStandaloneServerValidForCluster()
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (clusterSettings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-#pragma warning restore CS0618 // Type or member is obsolete
-                {
-                    return clusterSettings.DirectConnection.GetValueOrDefault();
-                }
-                else
-                {
-                    return serverType == ServerType.Standalone;
-                }
-            }
-
-            bool IsUnknownServerValidForCluster()
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (clusterSettings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-                {
-                    return clusterSettings.DirectConnection.GetValueOrDefault();
-                }
-                else
-                {
-                    var connectionMode = clusterSettings.ConnectionMode;
-                    return
-                        connectionMode == ClusterConnectionMode.Automatic ||
-                        connectionMode == ClusterConnectionMode.Direct;
-                }
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
-        }
-
         protected override void RequestHeartbeat()
         {
             _server.RequestHeartbeat();
@@ -172,26 +120,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
 
-            if (newServerDescription.State == ServerState.Disconnected)
-            {
-                newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
-            }
-            else
-            {
-                if (IsServerValidForCluster(newClusterDescription.Type, Settings, newServerDescription.Type))
-                {
-                    if (newClusterDescription.Type == ClusterType.Unknown)
-                    {
-                        newClusterDescription = newClusterDescription.WithType(newServerDescription.Type.ToClusterType());
-                    }
-
-                    newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
-                }
-                else
-                {
-                    newClusterDescription = newClusterDescription.WithoutServerDescription(newServerDescription.EndPoint);
-                }
-            }
+            newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
 
             var shouldClusterDescriptionChangedEventBePublished = !args.OldServerDescription.SdamEquals(args.NewServerDescription);
             UpdateClusterDescription(newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
@@ -208,14 +137,6 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 server = null;
                 return false;
-            }
-        }
-
-        private void ThrowIfDisposed()
-        {
-            if (_state.Value == State.Disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
             }
         }
 

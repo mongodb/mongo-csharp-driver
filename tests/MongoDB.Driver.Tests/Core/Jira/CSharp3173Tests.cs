@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -35,6 +34,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
@@ -43,12 +43,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
 {
     public class CSharp3173Tests : LoggableTestClass
     {
-#pragma warning disable CS0618 // Type or member is obsolete
-        private readonly static ClusterConnectionMode __clusterConnectionMode = ClusterConnectionMode.Sharded;
-        private readonly static ConnectionModeSwitch __connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
-#pragma warning restore CS0618 // Type or member is obsolete
         private readonly static ClusterId __clusterId = new ClusterId();
-        private readonly static bool? __directConnection = null;
+        private readonly static bool __directConnection = false;
         private readonly static EndPoint __endPoint1 = new DnsEndPoint("localhost", 27017);
         private readonly static EndPoint __endPoint2 = new DnsEndPoint("localhost", 27018);
         private readonly static TimeSpan __heartbeatInterval = TimeSpan.FromMilliseconds(200);
@@ -61,7 +57,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
         [Theory]
         [ParameterAttributeData]
-        public void Ensure_command_network_error_before_hadnshake_is_correctly_handled([Values(false, true)] bool async, [Values(false, true)] bool streamable)
+        public void Ensure_command_network_error_before_handshake_is_correctly_handled([Values(false, true)] bool async, [Values(false, true)] bool streamable)
         {
             var eventCapturer = new EventCapturer().Capture<ServerDescriptionChangedEvent>();
 
@@ -252,8 +248,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
             };
 
             var clusterSettings = new ClusterSettings(
-                connectionMode: __clusterConnectionMode,
-                connectionModeSwitch: __connectionModeSwitch,
                 serverSelectionTimeout: TimeSpan.FromSeconds(30),
                 endPoints: serverInfoCollection.Select(c => c.Endpoint).ToArray(),
                 serverApi: null);
@@ -271,7 +265,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             var serverMonitorConnectionFactory = CreateAndSetupServerMonitorConnectionFactory(hasNetworkErrorBeenTriggered, hasClusterBeenDisposed, streamable, serverInfoCollection);
             var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer, serverApi: null, LoggerFactory);
 
-            var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer, serverApi: null, loggerFactory: null);
+            var serverFactory = new ServerFactory(__directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer, serverApi: null, loggerFactory: null);
 
             return cluster = new MultiServerCluster(clusterSettings, serverFactory, eventCapturer, LoggerFactory);
         }
@@ -295,7 +289,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private void ForceClusterId(MultiServerCluster cluster, ClusterId clusterId)
         {
             Reflector.SetFieldValue(cluster, "_clusterId", clusterId);
-            Reflector.SetFieldValue(cluster, "_description", ClusterDescription.CreateInitial(clusterId, __clusterConnectionMode, __connectionModeSwitch, __directConnection));
+            Reflector.SetFieldValue(cluster, "_description", ClusterDescription.CreateInitial(clusterId, __directConnection));
         }
 
         private void SetupServerMonitorConnection(

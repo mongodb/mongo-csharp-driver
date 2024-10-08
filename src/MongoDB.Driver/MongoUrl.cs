@@ -19,8 +19,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -44,13 +42,9 @@ namespace MongoDB.Driver
         private readonly IEnumerable<KeyValuePair<string, string>> _authenticationMechanismProperties;
         private readonly string _authenticationSource;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
-#pragma warning disable CS0618 // Type or member is obsolete
-        private readonly ConnectionMode _connectionMode;
-        private readonly ConnectionModeSwitch _connectionModeSwitch;
-#pragma warning restore CS0618 // Type or member is obsolete
         private readonly TimeSpan _connectTimeout;
         private readonly string _databaseName;
-        private readonly bool? _directConnection;
+        private readonly bool _directConnection;
         private readonly bool? _fsync;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
@@ -106,21 +100,9 @@ namespace MongoDB.Driver
             _authenticationMechanismProperties = builder.AuthenticationMechanismProperties;
             _authenticationSource = builder.AuthenticationSource;
             _compressors = builder.Compressors;
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (builder.ConnectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-            {
-                _connectionMode = builder.ConnectionMode;
-            }
-            _connectionModeSwitch = builder.ConnectionModeSwitch;
-#pragma warning restore CS0618 // Type or member is obsolete
+            _directConnection = builder.DirectConnection;
             _connectTimeout = builder.ConnectTimeout;
             _databaseName = builder.DatabaseName;
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (builder.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-            {
-                _directConnection = builder.DirectConnection;
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
             _fsync = builder.FSync;
             _heartbeatInterval = builder.HeartbeatInterval;
             _heartbeatTimeout = builder.HeartbeatTimeout;
@@ -227,31 +209,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the connection mode.
-        /// </summary>
-        [Obsolete("Use DirectConnection instead.")]
-        public ConnectionMode ConnectionMode
-        {
-            get
-            {
-                if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-                {
-                    throw new InvalidOperationException("ConnectionMode cannot be used when ConnectionModeSwitch is set to UseDirectConnection.");
-                }
-                return _connectionMode;
-            }
-        }
-
-        /// <summary>
-        /// Gets the connection mode switch.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public ConnectionModeSwitch ConnectionModeSwitch
-        {
-            get { return _connectionModeSwitch; }
-        }
-
-        /// <summary>
         /// Gets the connect timeout.
         /// </summary>
         public TimeSpan ConnectTimeout
@@ -270,18 +227,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the direct connection.
         /// </summary>
-        public bool? DirectConnection
+        public bool DirectConnection
         {
-            get
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-#pragma warning restore CS0618 // Type or member is obsolete
-                {
-                    throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
-                }
-                return _directConnection;
-            }
+            get { return _directConnection; }
         }
 
         /// <summary>

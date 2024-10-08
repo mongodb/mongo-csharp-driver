@@ -76,22 +76,6 @@ namespace MongoDB.Driver.Core.Clusters
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
-        [Theory]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData(ClusterConnectionMode.Direct)]
-        [InlineData(ClusterConnectionMode.Standalone)]
-        public void Constructor_should_throw_if_cluster_connection_mode_is_not_supported(ClusterConnectionMode mode)
-        {
-            var settings = new ClusterSettings(
-                endPoints: new[] { new DnsEndPoint("localhost", 27017) },
-                connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
-                connectionMode: mode);
-            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents, loggerFactory: null);
-
-            act.ShouldThrow<ArgumentException>();
-        }
-
         [Fact]
         public void constructor_should_use_default_DnsMonitorFactory_when_dnsMonitorFactory_is_null()
         {
@@ -295,75 +279,56 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Theory]
-        [InlineData(-1, -1, ClusterType.Standalone, ServerType.ReplicaSetArbiter, false)]
-        [InlineData(-1, -1, ClusterType.Standalone, ServerType.ReplicaSetGhost, false)]
-        [InlineData(-1, -1, ClusterType.Standalone, ServerType.ReplicaSetOther, false)]
-        [InlineData(-1, -1, ClusterType.Standalone, ServerType.ReplicaSetPrimary, false)]
-        [InlineData(-1, -1, ClusterType.Standalone, ServerType.ReplicaSetSecondary, false)]
-        [InlineData(-1, -1, ClusterType.Standalone, ServerType.ShardRouter, false)]
-        [InlineData(-1, -1, ClusterType.Standalone, ServerType.Standalone, true)]
-        [InlineData(-1, -1, ClusterType.Standalone, ServerType.Unknown, false)]
-        [InlineData(-1, -1, ClusterType.ReplicaSet, ServerType.ReplicaSetArbiter, true)]
-        [InlineData(-1, -1, ClusterType.ReplicaSet, ServerType.ReplicaSetGhost, true)]
-        [InlineData(-1, -1, ClusterType.ReplicaSet, ServerType.ReplicaSetOther, true)]
-        [InlineData(-1, -1, ClusterType.ReplicaSet, ServerType.ReplicaSetPrimary, true)]
-        [InlineData(-1, -1, ClusterType.ReplicaSet, ServerType.ReplicaSetSecondary, true)]
-        [InlineData(-1, -1, ClusterType.ReplicaSet, ServerType.ShardRouter, false)]
-        [InlineData(-1, -1, ClusterType.ReplicaSet, ServerType.Standalone, false)]
-        [InlineData(-1, -1, ClusterType.ReplicaSet, ServerType.Unknown, false)]
-        [InlineData(-1, -1, ClusterType.Sharded, ServerType.ReplicaSetArbiter, false)]
-        [InlineData(-1, -1, ClusterType.Sharded, ServerType.ReplicaSetGhost, false)]
-        [InlineData(-1, -1, ClusterType.Sharded, ServerType.ReplicaSetOther, false)]
-        [InlineData(-1, -1, ClusterType.Sharded, ServerType.ReplicaSetPrimary, false)]
-        [InlineData(-1, -1, ClusterType.Sharded, ServerType.ReplicaSetSecondary, false)]
-        [InlineData(-1, -1, ClusterType.Sharded, ServerType.ShardRouter, true)]
-        [InlineData(-1, -1, ClusterType.Sharded, ServerType.Standalone, false)]
-        [InlineData(-1, -1, ClusterType.Sharded, ServerType.Unknown, false)]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData(-1, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.ReplicaSetArbiter, true)]
-        [InlineData(-1, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.ReplicaSetGhost, true)]
-        [InlineData(-1, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.ReplicaSetOther, true)]
-        [InlineData(-1, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.ReplicaSetPrimary, true)]
-        [InlineData(-1, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.ReplicaSetSecondary, true)]
-        [InlineData(-1, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.ShardRouter, true)]
-        [InlineData(ConnectionStringScheme.MongoDB, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.Standalone, false)]
-        [InlineData(ConnectionStringScheme.MongoDBPlusSrv, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.Standalone, true)]
-        [InlineData(-1, ClusterConnectionMode.Automatic, ClusterType.Unknown, ServerType.Unknown, false)]
-        public void IsServerValidForCluster_should_return_expected_result(ConnectionStringScheme scheme, ClusterConnectionMode connectionMode, ClusterType clusterType, ServerType serverType, bool expectedResult)
-#pragma warning restore CS0618 // Type or member is obsolete
+        [InlineData(-1, ClusterType.Standalone, ServerType.ReplicaSetArbiter, false)]
+        [InlineData(-1, ClusterType.Standalone, ServerType.ReplicaSetGhost, false)]
+        [InlineData(-1, ClusterType.Standalone, ServerType.ReplicaSetOther, false)]
+        [InlineData(-1, ClusterType.Standalone, ServerType.ReplicaSetPrimary, false)]
+        [InlineData(-1, ClusterType.Standalone, ServerType.ReplicaSetSecondary, false)]
+        [InlineData(-1, ClusterType.Standalone, ServerType.ShardRouter, false)]
+        [InlineData(-1, ClusterType.Standalone, ServerType.Standalone, true)]
+        [InlineData(-1, ClusterType.Standalone, ServerType.Unknown, false)]
+        [InlineData(-1, ClusterType.ReplicaSet, ServerType.ReplicaSetArbiter, true)]
+        [InlineData(-1, ClusterType.ReplicaSet, ServerType.ReplicaSetGhost, true)]
+        [InlineData(-1, ClusterType.ReplicaSet, ServerType.ReplicaSetOther, true)]
+        [InlineData(-1, ClusterType.ReplicaSet, ServerType.ReplicaSetPrimary, true)]
+        [InlineData(-1, ClusterType.ReplicaSet, ServerType.ReplicaSetSecondary, true)]
+        [InlineData(-1, ClusterType.ReplicaSet, ServerType.ShardRouter, false)]
+        [InlineData(-1, ClusterType.ReplicaSet, ServerType.Standalone, false)]
+        [InlineData(-1, ClusterType.ReplicaSet, ServerType.Unknown, false)]
+        [InlineData(-1, ClusterType.Sharded, ServerType.ReplicaSetArbiter, false)]
+        [InlineData(-1, ClusterType.Sharded, ServerType.ReplicaSetGhost, false)]
+        [InlineData(-1, ClusterType.Sharded, ServerType.ReplicaSetOther, false)]
+        [InlineData(-1, ClusterType.Sharded, ServerType.ReplicaSetPrimary, false)]
+        [InlineData(-1, ClusterType.Sharded, ServerType.ReplicaSetSecondary, false)]
+        [InlineData(-1, ClusterType.Sharded, ServerType.ShardRouter, true)]
+        [InlineData(-1, ClusterType.Sharded, ServerType.Standalone, false)]
+        [InlineData(-1, ClusterType.Sharded, ServerType.Unknown, false)]
+        [InlineData(-1, ClusterType.Unknown, ServerType.ReplicaSetArbiter, true)]
+        [InlineData(-1, ClusterType.Unknown, ServerType.ReplicaSetGhost, true)]
+        [InlineData(-1, ClusterType.Unknown, ServerType.ReplicaSetOther, true)]
+        [InlineData(-1, ClusterType.Unknown, ServerType.ReplicaSetPrimary, true)]
+        [InlineData(-1, ClusterType.Unknown, ServerType.ReplicaSetSecondary, true)]
+        [InlineData(-1, ClusterType.Unknown, ServerType.ShardRouter, true)]
+        [InlineData(ConnectionStringScheme.MongoDB, ClusterType.Unknown, ServerType.Standalone, false)]
+        [InlineData(ConnectionStringScheme.MongoDBPlusSrv, ClusterType.Unknown, ServerType.Standalone, true)]
+        public void IsServerValidForCluster_should_return_expected_result(ConnectionStringScheme scheme, ClusterType clusterType, ServerType serverType, bool expectedResult)
         {
-            var settings = new ClusterSettings(scheme: scheme);
-            using (var subject = CreateSubject(settings: settings))
-            {
-                var clusterSettings = new ClusterSettings(
-#pragma warning disable CS0618 // Type or member is obsolete
-                    connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
-                    connectionMode: connectionMode);
-                var result = subject.IsServerValidForCluster(clusterType, clusterSettings, serverType);
+            using var subject = CreateSubject(new ClusterSettings(scheme: scheme));
+            var result = subject.IsServerValidForCluster(clusterType, serverType);
 
-                result.Should().Be(expectedResult);
-            }
+            result.Should().Be(expectedResult);
         }
 
         [Theory]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData(-1, ClusterConnectionMode.Automatic)]
-        [InlineData(ClusterType.Unknown, -1)]
-        public void IsServerValidForCluster_should_throw_when_any_argument_value_is_unexpected(ClusterType clusterType, ClusterConnectionMode connectionMode)
-#pragma warning restore CS0618 // Type or member is obsolete
+        [InlineData(-1)]
+        [InlineData(ClusterType.LoadBalanced)]
+        public void IsServerValidForCluster_should_throw_when_any_argument_value_is_unexpected(ClusterType clusterType)
         {
-            using (var subject = CreateSubject())
-            {
-                var clusterSettings = new ClusterSettings(
-#pragma warning disable CS0618 // Type or member is obsolete
-                    connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
-                    connectionMode: connectionMode);
-                var exception = Record.Exception(() => subject.IsServerValidForCluster(clusterType, clusterSettings, ServerType.Unknown));
+            using var subject = CreateSubject();
 
-                exception.Should().BeOfType<MongoInternalException>();
-            }
+            var exception = Record.Exception(() => subject.IsServerValidForCluster(clusterType, ServerType.Unknown));
+
+            exception.Should().BeOfType<MongoInternalException>();
         }
 
         [Fact]
@@ -778,27 +743,35 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Theory]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData(ClusterConnectionMode.ReplicaSet, ServerType.ShardRouter)]
-        [InlineData(ClusterConnectionMode.ReplicaSet, ServerType.Standalone)]
-        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetArbiter)]
-        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetGhost)]
-        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetOther)]
-        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetPrimary)]
-        [InlineData(ClusterConnectionMode.Sharded, ServerType.ReplicaSetSecondary)]
-        [InlineData(ClusterConnectionMode.Sharded, ServerType.Standalone)]
-        public void Should_hide_a_seedlist_server_of_the_wrong_type(ClusterConnectionMode connectionMode, ServerType wrongType)
+        [InlineData(ServerType.ReplicaSetPrimary, ServerType.ShardRouter)]
+        [InlineData(ServerType.ReplicaSetPrimary, ServerType.Standalone)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetArbiter)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetGhost)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetOther)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetPrimary)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetSecondary)]
+        [InlineData(ServerType.ShardRouter, ServerType.Standalone)]
+        [InlineData(ServerType.ReplicaSetPrimary, ServerType.ShardRouter)]
+        [InlineData(ServerType.ReplicaSetPrimary, ServerType.Standalone)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetArbiter)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetGhost)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetOther)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetPrimary)]
+        [InlineData(ServerType.ShardRouter, ServerType.ReplicaSetSecondary)]
+        [InlineData(ServerType.ShardRouter, ServerType.Standalone)]
+        public void Should_hide_a_seedlist_server_of_the_wrong_type(ServerType initialType, ServerType wrongType)
         {
             _settings = _settings.With(
-                endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint },
-                connectionMode: connectionMode,
-                connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode);
-#pragma warning restore CS0618 // Type or member is obsolete
+                endPoints: new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint });
 
             var subject = CreateSubject();
             subject.Initialize();
+
+            // Set cluster to its initial type
+            PublishDescription(subject, _firstEndPoint, initialType);
             _capturedEvents.Clear();
 
+            // Publish non compatible server description
             PublishDescription(subject, _secondEndPoint, wrongType);
 
             var description = subject.Description;
@@ -1192,11 +1165,8 @@ namespace MongoDB.Driver.Core.Clusters
             return mockDnsMonitorFactory;
         }
 
-        private MultiServerCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null)
-        {
-            settings = settings ?? _settings;
-            return new MultiServerCluster(settings, _serverFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory);
-        }
+        private MultiServerCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null) =>
+            new(settings ?? _settings, _serverFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory);
 
         private void TimeSpanShouldBeShort(TimeSpan value)
         {
@@ -1230,7 +1200,7 @@ namespace MongoDB.Driver.Core.Clusters
             var current = _serverFactory.GetServerDescription(endPoint);
 
             var config = new ReplicaSetConfig(
-                hosts ?? new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint },
+                hosts ?? [_firstEndPoint, _secondEndPoint, _thirdEndPoint],
                 setName ?? "test",
                 primary,
                 setVersion);
@@ -1278,8 +1248,8 @@ namespace MongoDB.Driver.Core.Clusters
         public static List<IClusterableServer> _servers(this MultiServerCluster cluster) => (List<IClusterableServer>)Reflector.GetFieldValue(cluster, nameof(_servers));
         public static InterlockedInt32 _state(this MultiServerCluster cluster) => (InterlockedInt32)Reflector.GetFieldValue(cluster, nameof(_state));
 
-        public static bool IsServerValidForCluster(this MultiServerCluster cluster, ClusterType clusterType, ClusterSettings clusterSettings, ServerType serverType)
-            => (bool)Reflector.Invoke(cluster, nameof(IsServerValidForCluster), clusterType, clusterSettings, serverType);
+        public static bool IsServerValidForCluster(this MultiServerCluster cluster, ClusterType clusterType, ServerType serverType)
+            => (bool)Reflector.Invoke(cluster, nameof(IsServerValidForCluster), clusterType, serverType);
         public static void ProcessServerDescriptionChanged(this MultiServerCluster cluster, ServerDescriptionChangedEventArgs args)
             => Reflector.Invoke(cluster, nameof(ProcessServerDescriptionChanged), args);
     }

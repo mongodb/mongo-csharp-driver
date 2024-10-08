@@ -18,7 +18,6 @@ using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -28,6 +27,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -130,9 +130,7 @@ namespace MongoDB.Driver.Tests
             {
                 var secondarySettings = primaryClient.Settings.Clone();
                 secondarySettings.ClusterConfigurator = null;
-#pragma warning disable CS0618 // Type or member is obsolete
-                secondarySettings.ConnectionMode = ConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
+                secondarySettings.DirectConnection = true;
                 var secondaryDnsEndpoint = (DnsEndPoint)secondaryEndpoint;
                 secondarySettings.Server = new MongoServerAddress(secondaryDnsEndpoint.Host, secondaryDnsEndpoint.Port);
                 using (var secondaryClient = DriverTestConfiguration.CreateDisposableClient(secondarySettings))

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,19 +47,8 @@ namespace MongoDB.Driver.Core.Clusters
             IDnsMonitorFactory dnsMonitorFactory = null)
             : base(settings, serverFactory, eventSubscriber, loggerFactory)
         {
-            Ensure.IsGreaterThanZero(settings.EndPoints.Count, "settings.EndPoints.Count");
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-            {
-                Ensure.That(!settings.DirectConnection.GetValueOrDefault(), "DirectConnection is not supported for a MultiServerCluster.");
-            }
-            else
-            {
-                Ensure.That(settings.ConnectionMode != ClusterConnectionMode.Standalone, $"{nameof(ClusterConnectionMode.Standalone)} is not supported for a {nameof(MultiServerCluster)}.");
-                Ensure.That(settings.ConnectionMode != ClusterConnectionMode.Direct, $"{nameof(ClusterConnectionMode.Direct)} is not supported for a {nameof(MultiServerCluster)}.");
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
+            Ensure.IsGreaterThanZero(settings.EndPoints.Count, nameof(settings.EndPoints.Count));
+            Ensure.That(!settings.DirectConnection, $"DirectConnection is not supported for a {nameof(MultiServerCluster)}.");
 
             _dnsMonitorFactory = dnsMonitorFactory ?? new DnsMonitorFactory(eventSubscriber, loggerFactory);
             _monitorServersCancellationTokenSource = new CancellationTokenSource();
@@ -151,42 +140,22 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private bool IsServerValidForCluster(ClusterType clusterType, ClusterSettings clusterSettings, ServerType serverType)
+        private bool IsServerValidForCluster(ClusterType clusterType, ServerType serverType)
         {
             switch (clusterType)
             {
                 case ClusterType.Standalone:
                     return serverType == ServerType.Standalone;
-
                 case ClusterType.ReplicaSet:
                     return serverType.IsReplicaSetMember();
-
                 case ClusterType.Sharded:
                     return serverType == ServerType.ShardRouter;
-
                 case ClusterType.Unknown:
-#pragma warning disable CS0618 // Type or member is obsolete
-                    if (clusterSettings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+                    if (serverType == ServerType.Standalone)
                     {
-                        return true;
+                        return _servers.Count == 1 || Settings.Scheme == ConnectionStringScheme.MongoDBPlusSrv; // Standalone is only valid in MultiServerCluster when using MongoDBPlusSrv scheme
                     }
-                    else
-                    {
-                        switch (clusterSettings.ConnectionMode)
-                        {
-                            case ClusterConnectionMode.Automatic:
-                                if (serverType == ServerType.Standalone)
-                                {
-                                    return _servers.Count == 1 || Settings.Scheme == ConnectionStringScheme.MongoDBPlusSrv; // Standalone is only valid in MultiServerCluster when using MongoDBPlusSrv scheme
-                                }
-                                return serverType.IsReplicaSetMember() || serverType == ServerType.ShardRouter;
-
-                            default:
-                                throw new MongoInternalException("Unexpected connection mode.");
-                        }
-                    }
-#pragma warning restore CS0618 // Type or member is obsolete
-
+                    return serverType.IsReplicaSetMember() || serverType == ServerType.ShardRouter;
                 default:
                     throw new MongoInternalException("Unexpected cluster type.");
             }
@@ -256,7 +225,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
                 else
                 {
-                    if (IsServerValidForCluster(newClusterDescription.Type, Settings, newServerDescription.Type))
+                    if (IsServerValidForCluster(newClusterDescription.Type, newServerDescription.Type))
                     {
                         if (newClusterDescription.Type == ClusterType.Unknown)
                         {

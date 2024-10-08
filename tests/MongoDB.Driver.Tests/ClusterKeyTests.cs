@@ -19,7 +19,6 @@ using System.Linq;
 using System.Security.Authentication;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
@@ -49,7 +48,6 @@ namespace MongoDB.Driver.Tests
         [InlineData("BypassQueryAnalysis", true)]
         [InlineData("ClusterConfigurator", true)]
         [InlineData("Compressors", true)]
-        [InlineData("ConnectionMode", true)]
         [InlineData("ConnectTimeout", true)]
         [InlineData("Credential", false)]
         [InlineData("DirectConnection", true)]
@@ -147,39 +145,6 @@ namespace MongoDB.Driver.Tests
             subject1.Should().Be(subject2);
         }
 
-        [Theory]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData(ConnectionModeSwitch.NotSet, "directConnection", false)]
-        [InlineData(ConnectionModeSwitch.NotSet, "connect", false)]
-        [InlineData(ConnectionModeSwitch.UseConnectionMode, "directConnection", true)]
-        [InlineData(ConnectionModeSwitch.UseConnectionMode, "connect", false)]
-        [InlineData(ConnectionModeSwitch.UseDirectConnection, "directConnection", false)]
-        [InlineData(ConnectionModeSwitch.UseDirectConnection, "connect", true)]
-        public void Property_getter_shoud_throw_when_connectionModeSwitch_is_unexpected(ConnectionModeSwitch connectionModeSwitch, string property, bool shouldFail)
-#pragma warning restore CS0618 // Type or member is obsolete
-        {
-            var subject = CreateSubjectWith(connectionModeSwitch: connectionModeSwitch);
-
-            Exception exception;
-            switch (property)
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                case "connect": exception = Record.Exception(() => subject.ConnectionMode); break;
-#pragma warning restore CS0618 // Type or member is obsolete
-                case "directConnection": exception = Record.Exception(() => subject.DirectConnection); break;
-                default: throw new Exception($"Unexpected property {property}.");
-            }
-
-            if (shouldFail)
-            {
-                exception.Should().BeOfType<InvalidOperationException>();
-            }
-            else
-            {
-                exception.Should().BeNull();
-            }
-        }
-
         // private methods
         private ClusterKey CreateSubject(string notEqualFieldName = null)
         {
@@ -187,16 +152,10 @@ namespace MongoDB.Driver.Tests
             var applicationName = "app1";
             var bypassQueryAnalysis = false;
             var clusterConfigurator = new Action<ClusterBuilder>(b => { });
-#pragma warning disable CS0618 // Type or member is obsolete
-            var connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
-#pragma warning restore CS0618 // Type or member is obsolete
             var compressors = new CompressorConfiguration[0];
-#pragma warning disable CS0618 // Type or member is obsolete
-            var connectionMode = ConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
             var connectTimeout = TimeSpan.FromSeconds(1);
             var credential = MongoCredential.CreateCredential("source", "username", "password");
-            bool? directConnection = null;
+            var directConnection = false;
             var libraryInfo = new LibraryInfo("name", "1.0.0");
             var encryptedFieldsMap = new Dictionary<string, BsonDocument>();
             var heartbeatInterval = TimeSpan.FromSeconds(7);
@@ -241,25 +200,10 @@ namespace MongoDB.Driver.Tests
                     case "BypassQueryAnalysis": bypassQueryAnalysis = true; break;
                     case "ClusterConfigurator": clusterConfigurator = new Action<ClusterBuilder>(b => { }); break;
                     case "Compressors": compressors = new[] { new CompressorConfiguration(CompressorType.Zlib) }; break;
-#pragma warning disable CS0618 // Type or member is obsolete
-                    case "ConnectionMode":
-                        {
-                            connectionMode = ConnectionMode.ReplicaSet;
-                            connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
-                            directConnection = null; // reset
-                        }
-                        break;
-#pragma warning restore CS0618 // Type or member is obsolete
                     case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
                     case "Credential": credential = MongoCredential.CreateCredential("different", "different", "different"); break;
 #pragma warning disable CS0618 // Type or member is obsolete
-                    case "DirectConnection":
-                        {
-                            directConnection = true;
-                            connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection;
-                            connectionMode = ConnectionMode.Automatic; // reset
-                        }
-                        break;
+                    case "DirectConnection": directConnection = true; break;
 #pragma warning restore CS0618 // Type or member is obsolete
                     case "libraryInfo": libraryInfo = new LibraryInfo("name", "1.0.1"); break;
                     case "EncryptedFieldsMap": encryptedFieldsMap.Add("k1", new BsonDocument()); break;
@@ -299,8 +243,6 @@ namespace MongoDB.Driver.Tests
                 applicationName,
                 clusterConfigurator,
                 compressors,
-                connectionMode,
-                connectionModeSwitch,
                 connectTimeout,
                 credential,
                 new CryptClientSettings(bypassQueryAnalysis, null, null, encryptedFieldsMap, false, kmsProviders, schemaMap),
@@ -337,9 +279,6 @@ namespace MongoDB.Driver.Tests
         internal ClusterKey CreateSubjectWith(
             Dictionary<string, IReadOnlyDictionary<string, object>> kmsProvidersValue = null,
             Dictionary<string, BsonDocument> schemaMapValue = null,
-#pragma warning disable CS0618 // Type or member is obsolete
-            ConnectionModeSwitch connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
             Dictionary<string, BsonDocument> encryptedFieldsMap = null)
         {
             var allowInsecureTls = true;
@@ -347,12 +286,9 @@ namespace MongoDB.Driver.Tests
             var bypassQueryAnalysis = false;
             var clusterConfigurator = new Action<ClusterBuilder>(b => { });
             var compressors = new CompressorConfiguration[0];
-#pragma warning disable CS0618 // Type or member is obsolete
-            var connectionMode = connectionModeSwitch != ConnectionModeSwitch.UseConnectionMode ? ConnectionMode.Automatic : ConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
             var connectTimeout = TimeSpan.FromSeconds(1);
             var credential = MongoCredential.CreateCredential("source", "username", "password");
-            bool? directConnection = null;
+            var directConnection = false;
             var libraryInfo = new LibraryInfo("my_lib");
             var heartbeatInterval = TimeSpan.FromSeconds(7);
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
@@ -392,8 +328,6 @@ namespace MongoDB.Driver.Tests
                 applicationName,
                 clusterConfigurator,
                 compressors,
-                connectionMode,
-                connectionModeSwitch,
                 connectTimeout,
                 credential,
                 new CryptClientSettings(bypassQueryAnalysis, null, null, encryptedFieldsMap, false, kmsProviders, schemaMap),

@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -70,15 +70,8 @@ namespace MongoDB.Driver.Core.Clusters
             ILoggerFactory loggerFactory,
             IDnsMonitorFactory dnsMonitorFactory)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            Ensure.That(settings.ConnectionModeSwitch != ConnectionModeSwitch.UseConnectionMode, $"{nameof(ConnectionModeSwitch.UseConnectionMode)} must not be used for a {nameof(LoadBalancedCluster)}.");
-            if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-            {
-                Ensure.That(!settings.DirectConnection.GetValueOrDefault(), $"DirectConnection mode is not supported for {nameof(LoadBalancedCluster)}.");
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
+            Ensure.That(!settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(LoadBalancedCluster)}.");
             Ensure.That(settings.LoadBalanced, $"Only Load balanced mode is supported for a {nameof(LoadBalancedCluster)}.");
-
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, nameof(settings.EndPoints.Count));
             Ensure.IsNull(settings.ReplicaSetName, nameof(settings.ReplicaSetName));
             Ensure.That(settings.SrvMaxHosts == 0, "srvMaxHosts cannot be used with load balanced mode.");
@@ -97,13 +90,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             _state = new InterlockedInt32(State.Initial);
 
-            _description = ClusterDescription.CreateInitial(
-                _clusterId,
-#pragma warning disable CS0618 // Type or member is obsolete
-                ClusterConnectionMode.Automatic,
-                ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
-                null);
+            _description = ClusterDescription.CreateInitial(_clusterId, directConnection: false);
 
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);

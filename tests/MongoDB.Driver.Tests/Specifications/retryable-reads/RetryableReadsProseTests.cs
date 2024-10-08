@@ -65,11 +65,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             {
                 var serverAddress = settings.Servers.First();
                 settings.Servers = new[] { serverAddress };
-
-                // set settings.DirectConnection = true after removing obsolete ConnectionMode
-#pragma warning disable CS0618 // Type or member is obsolete
-                settings.ConnectionMode = ConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
+                settings.DirectConnection = true;
 
                 failPointSelector = new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port));
             }
