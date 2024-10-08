@@ -42,6 +42,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 Milliseconds = timeOnly,
                 Microseconds = timeOnly,
                 Ticks = timeOnly,
+                Nanoseconds = timeOnly,
             };
 
             var json = testObj.ToJson();
@@ -51,7 +52,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                            + "\"Seconds\" : NumberLong(48293), "
                            + "\"Milliseconds\" : NumberLong(48293000), "
                            + "\"Microseconds\" : NumberLong(\"48293000000\"), "
-                           + "\"Ticks\" : NumberLong(\"482930000000\") }";
+                           + "\"Ticks\" : NumberLong(\"482930000000\"), "
+                           + "\"Nanoseconds\" : NumberLong(\"48293000000000\") }";
             Assert.Equal(expected, json);
         }
 
@@ -70,7 +72,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double)]
             BsonType representation,
             [Values(TimeOnlyUnits.Ticks, TimeOnlyUnits.Hours, TimeOnlyUnits.Minutes, TimeOnlyUnits.Seconds,
-                TimeOnlyUnits.Milliseconds, TimeOnlyUnits.Microseconds, TimeOnlyUnits.Ticks)]
+                TimeOnlyUnits.Milliseconds, TimeOnlyUnits.Microseconds, TimeOnlyUnits.Ticks, TimeOnlyUnits.Nanoseconds)]
             TimeOnlyUnits units)
         {
             var subject = new TimeOnlySerializer(representation, units);
@@ -175,6 +177,22 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_with_microseconds_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Microseconds);
+            TestDeserialize(subject, json, expectedResult);
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "8700000000000" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700000000000" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700000000000.5" } }""","02:25:00.0000000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "870000000" } }""","00:00:00.8700000" )]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        public void Deserialize_with_nanoseconds_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Nanoseconds);
             TestDeserialize(subject, json, expectedResult);
         }
 
@@ -330,6 +348,23 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
         [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
+        [InlineData(BsonType.Int64, "02:25:00.2504305", """{ "x" : { "$numberLong" : "8700250430500" } }""")]
+        [InlineData(BsonType.Int64, "00:00:00.0000000", """{ "x" : { "$numberLong" : "0" } }""")]
+        [InlineData(BsonType.Double, "02:25:00.2504305", """{ "x" : { "$numberDouble" : "8700250430500.0" } }""")]
+        [InlineData(BsonType.Double, "00:00:00.0000000", """{ "x" : { "$numberDouble" : "0.0" } }""")]
+        [InlineData(BsonType.Int32, "00:00:00.8700000", """{ "x" : { "$numberInt" : "870000000" } }""")]
+        [InlineData(BsonType.Int32, "00:00:00.0000000", """{ "x" : { "$numberInt" : "0" } }""")]
+        public void Serialize_with_nanoseconds_should_have_expected_result(BsonType representation, string valueString,
+            string expectedResult)
+        {
+            var subject = new TimeOnlySerializer(representation, TimeOnlyUnits.Nanoseconds);
+
+            TestSerialize(subject, valueString, expectedResult);
+        }
+
+        [Theory]
+        [InlineData(BsonType.String, "08:32:05.5946583", """{ "x" : "08:32:05.5946583" }""")]
+        [InlineData(BsonType.String, "00:00:00.0000000", """{ "x" : "00:00:00.0000000" }""")]
         [InlineData(BsonType.Int64, "02:25:00.2504300", """{ "x" : { "$numberLong" : "8700250" } }""")]
         [InlineData(BsonType.Int64, "00:00:00.0000000", """{ "x" : { "$numberLong" : "0" } }""")]
         [InlineData(BsonType.Double, "02:25:00.2504300", """{ "x" : { "$numberDouble" : "8700250.4299999997" } }""")]
@@ -435,6 +470,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Ticks )]
             public TimeOnly Ticks { get; set; }
+
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Nanoseconds )]
+            public TimeOnly Nanoseconds { get; set; }
         }
     }
 #endif

@@ -179,17 +179,23 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private methods
         private TimeOnly FromDouble(double value, TimeOnlyUnits units)
         {
-            return new TimeOnly((long)(value * TicksPerUnit(units)));
+            return units is TimeOnlyUnits.Nanoseconds
+                ? new TimeOnly((long)(value / 100.0))
+                : new TimeOnly((long)(value * TicksPerUnit(units)));
         }
 
         private TimeOnly FromInt32(int value, TimeOnlyUnits units)
         {
-            return new TimeOnly(value * TicksPerUnit(units));
+            return units is TimeOnlyUnits.Nanoseconds
+                ? new TimeOnly(value / 100)
+                : new TimeOnly(value * TicksPerUnit(units));
         }
 
         private TimeOnly FromInt64(long value, TimeOnlyUnits units)
         {
-            return new TimeOnly(value * TicksPerUnit(units));
+            return units is TimeOnlyUnits.Nanoseconds
+                ? new TimeOnly(value / 100)
+                : new TimeOnly(value * TicksPerUnit(units));
         }
 
         private long TicksPerUnit(TimeOnlyUnits units)
@@ -208,17 +214,23 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         private double ToDouble(TimeOnly timeOnly, TimeOnlyUnits units)
         {
-            return timeOnly.Ticks / (double)TicksPerUnit(units);
+            return units is TimeOnlyUnits.Nanoseconds
+                ? timeOnly.Ticks * 100
+                : timeOnly.Ticks / (double)TicksPerUnit(units);
         }
 
         private int ToInt32(TimeOnly timeOnly, TimeOnlyUnits units)
         {
-            return (int)(timeOnly.Ticks / TicksPerUnit(units));
+            return units is TimeOnlyUnits.Nanoseconds
+                ? (int)(timeOnly.Ticks * 100)
+                : (int)(timeOnly.Ticks / TicksPerUnit(units));
         }
 
         private long ToInt64(TimeOnly timeOnly, TimeOnlyUnits units)
         {
-            return timeOnly.Ticks / TicksPerUnit(units);
+            return units is TimeOnlyUnits.Nanoseconds
+                ? timeOnly.Ticks * 100
+                : timeOnly.Ticks / TicksPerUnit(units);
         }
 
         // explicit interface implementations

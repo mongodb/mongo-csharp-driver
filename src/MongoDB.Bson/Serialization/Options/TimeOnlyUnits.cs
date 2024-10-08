@@ -43,6 +43,10 @@ namespace MongoDB.Bson.Serialization.Options
         /// <summary>
         /// Use microseconds as the units.
         /// </summary>
-        Microseconds
+        Microseconds,
+        /// <summary>
+        /// Use nanoseconds as the units.
+        /// </summary>
+        Nanoseconds
     }
 }
