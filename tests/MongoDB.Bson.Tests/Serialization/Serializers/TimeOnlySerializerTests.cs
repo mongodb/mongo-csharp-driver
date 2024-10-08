@@ -47,13 +47,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = testObj.ToJson();
 
-            var expected = "{ \"Hours\" : NumberLong(13), "
-                           + "\"Minutes\" : NumberLong(804), "
-                           + "\"Seconds\" : NumberLong(48293), "
-                           + "\"Milliseconds\" : NumberLong(48293000), "
-                           + "\"Microseconds\" : NumberLong(\"48293000000\"), "
-                           + "\"Ticks\" : NumberLong(\"482930000000\"), "
-                           + "\"Nanoseconds\" : NumberLong(\"48293000000000\") }";
+            var expected = "{ \"Hours\" : 13, "
+                           + "\"Minutes\" : 804, "
+                           + "\"Seconds\" : 48293, "
+                           + "\"Milliseconds\" : 48293000, "
+                           + "\"Microseconds\" : 48293000000, "
+                           + "\"Ticks\" : 482930000000, "
+                           + "\"Nanoseconds\" : 48293000000000 }";
             Assert.Equal(expected, json);
         }
 
