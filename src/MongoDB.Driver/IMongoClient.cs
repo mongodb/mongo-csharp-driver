@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,17 +17,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// The client interface to MongoDB.
     /// </summary>
-    /// <remarks>
-    /// This interface is not guaranteed to remain stable. Implementors should use
-    /// <see cref="MongoClientBase"/>.
-    /// </remarks>
     public interface IMongoClient
     {
         /// <summary>
