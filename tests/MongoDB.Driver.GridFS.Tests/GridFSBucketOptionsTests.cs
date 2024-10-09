@@ -144,9 +144,11 @@ namespace MongoDB.Driver.GridFS.Tests
         public void DisableMD5_get_and_set_should_return_expected_result(
             [Values(false, true)] bool disabled)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new GridFSBucketOptions { DisableMD5 = disabled };
 
             var result = subject.DisableMD5;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             result.Should().Be(disabled);
         }
@@ -241,7 +243,9 @@ namespace MongoDB.Driver.GridFS.Tests
             {
                 BucketName = "bucket",
                 ChunkSizeBytes = 123,
+#pragma warning disable CS0618 // Type or member is obsolete
                 DisableMD5 = true,
+#pragma warning restore CS0618 // Type or member is obsolete
                 ReadConcern = ReadConcern.Majority,
                 ReadPreference = ReadPreference.Secondary,
                 WriteConcern = WriteConcern.WMajority
@@ -251,7 +255,9 @@ namespace MongoDB.Driver.GridFS.Tests
 
             result.BucketName.Should().Be("bucket");
             result.ChunkSizeBytes.Should().Be(123);
+#pragma warning disable CS0618 // Type or member is obsolete
             result.DisableMD5.Should().Be(true);
+#pragma warning restore CS0618 // Type or member is obsolete
             result.ReadConcern.Should().Be(ReadConcern.Majority);
             result.ReadPreference.Should().Be(ReadPreference.Secondary);
             result.WriteConcern.Should().Be(WriteConcern.WMajority);
@@ -264,7 +270,9 @@ namespace MongoDB.Driver.GridFS.Tests
 
             result.BucketName.Should().Be("fs");
             result.ChunkSizeBytes.Should().Be(255 * 1024);
+#pragma warning disable CS0618 // Type or member is obsolete
             result.DisableMD5.Should().Be(false);
+#pragma warning restore CS0618 // Type or member is obsolete
             result.ReadConcern.Should().BeNull();
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
@@ -286,7 +294,9 @@ namespace MongoDB.Driver.GridFS.Tests
 
             result.BucketName.Should().Be("fs");
             result.ChunkSizeBytes.Should().Be(255 * 1024);
+#pragma warning disable CS0618 // Type or member is obsolete
             result.DisableMD5.Should().Be(false);
+#pragma warning restore CS0618 // Type or member is obsolete
             result.ReadConcern.Should().BeNull();
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
@@ -297,9 +307,11 @@ namespace MongoDB.Driver.GridFS.Tests
         public void DisableMD5_get_and_set_should_return_expected_result(
             [Values(false, true)] bool disabled)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { DisableMD5 = disabled });
 
             var result = subject.DisableMD5;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             result.Should().Be(disabled);
         }

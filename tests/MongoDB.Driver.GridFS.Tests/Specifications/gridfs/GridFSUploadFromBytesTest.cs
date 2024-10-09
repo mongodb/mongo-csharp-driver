@@ -101,7 +101,9 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
                         break;
 
                     case "disableMD5":
+#pragma warning disable CS0618 // Type or member is obsolete
                         _options.DisableMD5 = option.Value.AsBoolean;
+#pragma warning restore CS0618 // Type or member is obsolete
                         break;
 
                     case "metadata":

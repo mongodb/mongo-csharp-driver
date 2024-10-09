@@ -157,12 +157,12 @@ namespace MongoDB.Driver.GridFS
             if (_checkMD5 && _position == FileInfo.Length)
             {
                 var md5 = BsonUtils.ToHexString(_md5.GetHashAndReset());
+#pragma warning disable CS0618 // Type or member is obsolete
                 if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
                 {
-#pragma warning disable 618
                     throw new GridFSMD5Exception(_idAsBsonValue);
-#pragma warning restore
                 }
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 

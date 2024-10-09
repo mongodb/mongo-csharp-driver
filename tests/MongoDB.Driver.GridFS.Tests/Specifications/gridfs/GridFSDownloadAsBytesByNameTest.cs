@@ -79,7 +79,9 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
                 switch (option.Name)
                 {
                     case "checkMD5":
+#pragma warning disable CS0618 // Type or member is obsolete
                         _options.CheckMD5 = option.Value.ToBoolean();
+#pragma warning restore CS0618 // Type or member is obsolete
                         break;
 
                     case "revision":

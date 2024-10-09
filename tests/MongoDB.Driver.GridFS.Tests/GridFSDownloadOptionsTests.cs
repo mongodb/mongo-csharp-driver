@@ -28,9 +28,11 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void CheckMD5_get_should_return_expected_result()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new GridFSDownloadOptions { CheckMD5 = true };
 
             var result = subject.CheckMD5;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             result.Should().Be(true);
         }
@@ -40,9 +42,11 @@ namespace MongoDB.Driver.GridFS.Tests
         {
             var subject = new GridFSDownloadOptions();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             subject.CheckMD5 = true;
 
             subject.CheckMD5.Should().Be(true);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -50,7 +54,9 @@ namespace MongoDB.Driver.GridFS.Tests
         {
             var result = new GridFSDownloadOptions();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             result.CheckMD5.Should().NotHaveValue();
+#pragma warning restore CS0618 // Type or member is obsolete
             result.Seekable.Should().NotHaveValue();
         }
 
