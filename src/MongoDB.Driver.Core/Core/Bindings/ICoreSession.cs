@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// The interface for a session in Core.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface ICoreSession : IDisposable
     {
         // properties
@@ -199,6 +200,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// A handle to a reference counted core session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface ICoreSessionHandle : ICoreSession
     {
         /// <summary>

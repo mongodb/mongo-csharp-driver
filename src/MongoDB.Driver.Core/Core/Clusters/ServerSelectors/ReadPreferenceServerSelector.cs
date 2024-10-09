@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects servers based on a read preference.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class ReadPreferenceServerSelector : IServerSelector
     {
         #region static

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using MongoDB.Driver.Core.Servers;
 
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects servers.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IServerSelector
     {
         /// <summary>
