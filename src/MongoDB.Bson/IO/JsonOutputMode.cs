@@ -23,12 +23,6 @@ namespace MongoDB.Bson.IO
     public enum JsonOutputMode
     {
         /// <summary>
-        /// Output strict JSON (an obsolete output mode that is similar to canonical extended JSON).
-        /// </summary>
-        [Obsolete("Use CanonicalExtendedJson instead.")]  //TODO Should we remove this?
-        Strict,
-
-        /// <summary>
         /// Use a format that can be pasted in to the MongoDB shell.
         /// </summary>
         Shell,

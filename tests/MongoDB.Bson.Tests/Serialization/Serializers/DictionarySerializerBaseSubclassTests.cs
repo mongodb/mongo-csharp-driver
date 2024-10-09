@@ -29,8 +29,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         private class CustomDictionarySerializer<TKey, TValue>
             : DictionarySerializerBase<Dictionary<TKey, TValue>, TKey, TValue>
         {
-            [Obsolete]
-            protected override Dictionary<TKey, TValue> CreateInstance()
+            protected override ICollection<KeyValuePair<TKey, TValue>> CreateAccumulator()
             {
                 return new Dictionary<TKey, TValue>();
             }
