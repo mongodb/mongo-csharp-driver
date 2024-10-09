@@ -44,21 +44,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.IsOneOf(__roundMethods))
             {
-                var argumentExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
+                var argumentExpression = arguments[0];
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(argumentExpression, argumentTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, argumentExpression, argumentTranslation);
 
+                var argumentAst = ConvertHelper.RemoveWideningConvert(argumentTranslation);
                 AstExpression ast;
                 if (method.IsOneOf(__roundWithPlaceMethods))
                 {
                     var placeExpression = arguments[1];
                     var placeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, placeExpression);
-                    SerializationHelper.EnsureRepresentationIsNumeric(placeExpression, placeTranslation);
-                    ast = AstExpression.Round(argumentTranslation.Ast, placeTranslation.Ast);
+                    SerializationHelper.EnsureRepresentationIsNumeric(expression, placeExpression, placeTranslation);
+                    ast = AstExpression.Round(argumentAst, placeTranslation.Ast);
                 }
                 else
                 {
-                    ast = AstExpression.Round(argumentTranslation.Ast);
+                    ast = AstExpression.Round(argumentAst);
                 }
 
                 return new AggregationExpression(expression, ast, argumentTranslation.Serializer);

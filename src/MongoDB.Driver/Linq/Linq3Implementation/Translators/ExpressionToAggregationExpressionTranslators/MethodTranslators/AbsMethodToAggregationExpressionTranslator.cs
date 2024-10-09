@@ -41,10 +41,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.IsOneOf(__absMethods))
             {
-                var valueExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
+                var valueExpression = arguments[0];
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(valueExpression, valueTranslation);
-                var ast = AstExpression.Abs(valueTranslation.Ast);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, valueExpression, valueTranslation);
+
+                var valueAst = ConvertHelper.RemoveWideningConvert(valueTranslation);
+                var ast = AstExpression.Abs(valueAst);
+
                 return new AggregationExpression(expression, ast, valueTranslation.Serializer);
             }
 

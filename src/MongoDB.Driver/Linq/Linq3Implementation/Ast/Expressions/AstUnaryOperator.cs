@@ -102,6 +102,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             }
         }
 
+        public static bool IsConvertOperator(this AstUnaryOperator @operator)
+        {
+            switch (@operator)
+            {
+                case AstUnaryOperator.ToBool:
+                case AstUnaryOperator.ToDate:
+                case AstUnaryOperator.ToDecimal:
+                case AstUnaryOperator.ToDouble:
+                case AstUnaryOperator.ToInt:
+                case AstUnaryOperator.ToLong:
+                case AstUnaryOperator.ToObjectId:
+                case AstUnaryOperator.ToString:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
         public static string Render(this AstUnaryOperator @operator)
         {
             return @operator switch
