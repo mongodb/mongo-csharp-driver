@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Authentication.AWS;
 using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core;
@@ -25,7 +24,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.Tests
@@ -36,8 +34,8 @@ namespace MongoDB.Driver.Tests
     public static class DriverTestConfiguration
     {
         // private static fields
-        private static Lazy<MongoClient> __client;
-        private static Lazy<MongoClient> __clientWithMultipleShardRouters;
+        private static Lazy<IMongoClient> __client;
+        private static Lazy<IMongoClient> __clientWithMultipleShardRouters;
         private static CollectionNamespace __collectionNamespace;
         private static DatabaseNamespace __databaseNamespace;
         private static Lazy<IReadOnlyList<IMongoClient>> __directClientsToShardRouters;
@@ -45,8 +43,8 @@ namespace MongoDB.Driver.Tests
         // static constructor
         static DriverTestConfiguration()
         {
-            __client = new Lazy<MongoClient>(CreateClient, isThreadSafe: true);
-            __clientWithMultipleShardRouters = new Lazy<MongoClient>(() => CreateClient(useMultipleShardRouters: true), true);
+            __client = new Lazy<IMongoClient>(CreateMongoClient, isThreadSafe: true);
+            __clientWithMultipleShardRouters = new Lazy<IMongoClient>(() => CreateMongoClient(useMultipleShardRouters: true), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __directClientsToShardRouters = new Lazy<IReadOnlyList<IMongoClient>>(
                 () => CreateDirectClientsToHostsInConnectionString(CoreTestConfiguration.ConnectionStringWithMultipleShardRouters).ToList().AsReadOnly(),
@@ -61,7 +59,7 @@ namespace MongoDB.Driver.Tests
         /// <summary>
         /// Gets the test client.
         /// </summary>
-        public static MongoClient Client
+        public static IMongoClient Client
         {
             get { return __client.Value; }
         }
@@ -69,7 +67,7 @@ namespace MongoDB.Driver.Tests
         /// <summary>
         /// Gets the test client with multiple shard routers.
         /// </summary>
-        public static MongoClient ClientWithMultipleShardRouters
+        public static IMongoClient ClientWithMultipleShardRouters
         {
             get { return __clientWithMultipleShardRouters.Value; }
         }
@@ -120,17 +118,13 @@ namespace MongoDB.Driver.Tests
             return CreateDirectClientsToServersInClientSettings(MongoClientSettings.FromConnectionString(connectionString.ToString()));
         }
 
-        public static DisposableMongoClient CreateDisposableClient(LoggingSettings loggingSettings = null)
-        {
-            return CreateDisposableClient((MongoClientSettings s) => { }, loggingSettings);
-        }
+        public static IMongoClient CreateMongoClient(LoggingSettings loggingSettings) =>
+            CreateMongoClient((MongoClientSettings s) => { s.LoggingSettings = loggingSettings; });
 
-        public static DisposableMongoClient CreateDisposableClient(Action<ClusterBuilder> clusterConfigurator, LoggingSettings loggingSettings = null)
-        {
-            return CreateDisposableClient((MongoClientSettings s) => s.ClusterConfigurator = clusterConfigurator, loggingSettings);
-        }
+        public static IMongoClient CreateMongoClient(Action<ClusterBuilder> clusterConfigurator) =>
+            CreateMongoClient((MongoClientSettings s) => s.ClusterConfigurator = clusterConfigurator);
 
-        public static MongoClient CreateClient(
+        public static IMongoClient CreateMongoClient(
             Action<MongoClientSettings> clientSettingsConfigurator = null,
             bool useMultipleShardRouters = false)
         {
@@ -146,6 +140,9 @@ namespace MongoDB.Driver.Tests
                 : CoreTestConfiguration.ConnectionString.ToString();
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
+            clientSettings.ClusterSource = DisposingClusterSource.Instance;
+
+            EnsureUniqueCluster(clientSettings);
             clientSettingsConfigurator?.Invoke(clientSettings);
 
             if (clientSettings.Credential?.Mechanism == OidcSaslMechanism.MechanismName)
@@ -156,41 +153,23 @@ namespace MongoDB.Driver.Tests
             return new MongoClient(clientSettings);
         }
 
-        public static DisposableMongoClient CreateDisposableClient(
-            Action<MongoClientSettings> clientSettingsConfigurator,
-            LoggingSettings loggingSettings,
-            bool useMultipleShardRouters = false)
-        {
-            Action<MongoClientSettings> compositeClientSettingsConfigurator = s =>
-            {
-                EnsureUniqueCluster(s);
-                s.LoggingSettings = loggingSettings;
+        public static IMongoClient CreateMongoClient(EventCapturer capturer, LoggingSettings loggingSettings = null) =>
+            CreateMongoClient((ClusterBuilder c) =>
+                {
+                    c.Subscribe(capturer);
+                    c.ConfigureLoggingSettings(_ => loggingSettings);
+                });
 
-                clientSettingsConfigurator?.Invoke(s);
-            };
-
-            var client = CreateClient(compositeClientSettingsConfigurator, useMultipleShardRouters);
-
-            return new DisposableMongoClient(client, loggingSettings.ToInternalLoggerFactory()?.CreateLogger<DisposableMongoClient>());
-        }
-
-        public static DisposableMongoClient CreateDisposableClient(EventCapturer capturer, LoggingSettings loggingSettings = null)
-        {
-            return CreateDisposableClient((ClusterBuilder c) => c.Subscribe(capturer), loggingSettings);
-        }
-
-        public static DisposableMongoClient CreateDisposableClient(MongoClientSettings settings)
+        public static IMongoClient CreateMongoClient(MongoClientSettings settings)
         {
             EnsureUniqueCluster(settings);
+            settings.ClusterSource = DisposingClusterSource.Instance;
 
-            return new DisposableMongoClient(new MongoClient(settings), settings.LoggingSettings.ToInternalLoggerFactory()?.CreateLogger<DisposableMongoClient>());
+            return new MongoClient(settings);
         }
 
-        private static MongoClient CreateClient()
-        {
-            var clientSettings = GetClientSettings();
-            return new MongoClient(clientSettings);
-        }
+        private static IMongoClient CreateMongoClient() =>
+            CreateMongoClient(GetClientSettings());
 
         public static MongoClientSettings GetClientSettings()
         {
@@ -205,6 +184,7 @@ namespace MongoDB.Driver.Tests
             clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
             clientSettings.ClusterConfigurator = cb => CoreTestConfiguration.ConfigureLogging(cb);
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
+            clientSettings.ClusterSource = DisposingClusterSource.Instance;
 
             return clientSettings;
         }

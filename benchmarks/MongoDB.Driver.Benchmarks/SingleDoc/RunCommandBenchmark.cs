@@ -24,7 +24,7 @@ namespace MongoDB.Benchmarks.SingleDoc
     [BenchmarkCategory("RunBench")]
     public class RunCommandBenchmark
     {
-        private DisposableMongoClient _client;
+        private IMongoClient _client;
         private IMongoDatabase _database;
 
         [Params(130_000)]
@@ -33,7 +33,7 @@ namespace MongoDB.Benchmarks.SingleDoc
         [GlobalSetup]
         public void Setup()
         {
-            _client = BenchmarkHelper.MongoConfiguration.CreateDisposableClient();
+            _client = BenchmarkHelper.MongoConfiguration.CreateClient();
             _database = _client.GetDatabase("admin");
         }
 

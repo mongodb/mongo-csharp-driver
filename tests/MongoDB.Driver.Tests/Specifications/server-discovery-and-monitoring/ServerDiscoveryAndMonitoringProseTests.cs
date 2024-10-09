@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 .Subscribe(eventCapturer)
                 .RegisterStreamFactory(f => mockStreamFactory.Object);
 
-            using var client = DriverTestConfiguration.CreateDisposableClient(settings);
+            using var client = DriverTestConfiguration.CreateMongoClient(settings);
 
             eventCapturer.WaitForEventOrThrowIfTimeout<ServerHeartbeatFailedEvent>(TimeSpan.FromSeconds(5));
 
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             var server = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)), default);
             using var failPoint = FailPoint.Configure(server, NoCoreSession.NewHandle(), failPointCommand);
-            using var client = DriverTestConfiguration.CreateDisposableClient(settings);
+            using var client = DriverTestConfiguration.CreateMongoClient(settings);
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var sw = Stopwatch.StartNew();
@@ -293,7 +293,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         }
 
         // private methods
-        private DisposableMongoClient CreateClient(MongoClientSettings mongoClientSettings, EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
+        private IMongoClient CreateClient(MongoClientSettings mongoClientSettings, EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
         {
             var clonedClientSettings = mongoClientSettings ?? DriverTestConfiguration.Client.Settings.Clone();
             clonedClientSettings.ApplicationName = applicationName;
@@ -301,7 +301,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             clonedClientSettings.ServerMonitoringMode = ServerMonitoringMode.Poll;
             clonedClientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);
 
-            return DriverTestConfiguration.CreateDisposableClient(clonedClientSettings);
+            return DriverTestConfiguration.CreateMongoClient(clonedClientSettings);
         }
     }
 

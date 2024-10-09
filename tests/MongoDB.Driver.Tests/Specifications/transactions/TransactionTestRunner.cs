@@ -33,7 +33,6 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
 using Xunit;
 using Xunit.Abstractions;
@@ -133,7 +132,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 .Capture<CommandStartedEvent>(e => !__commandsToNotCapture.Contains(e.CommandName));
 
             var async = test["async"].AsBoolean;
-            using (var client = CreateDisposableClient(test, eventCapturer, useMultipleShardRouters))
+            using (var client = CreateMongoClient(test, eventCapturer, useMultipleShardRouters))
             using (ConfigureFailPointOnPrimaryOrShardRoutersIfNeeded(client, test, async))
             {
                 Dictionary<string, BsonValue> sessionIdMap;
@@ -223,16 +222,16 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             }
         }
 
-        private DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer, bool useMultipleShardRouters)
+        private IMongoClient CreateMongoClient(BsonDocument test, EventCapturer eventCapturer, bool useMultipleShardRouters)
         {
-            return DriverTestConfiguration.CreateDisposableClient(
+            return DriverTestConfiguration.CreateMongoClient(
                 (MongoClientSettings settings) =>
                 {
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                     ConfigureClientSettings(settings, test);
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                    settings.LoggingSettings = LoggingSettings;
                 },
-                LoggingSettings,
                 useMultipleShardRouters);
         }
 

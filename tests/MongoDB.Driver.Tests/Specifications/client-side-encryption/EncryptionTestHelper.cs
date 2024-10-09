@@ -376,12 +376,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
                 var mongoClientSettings = new MongoClientSettings
                 {
-                    AutoEncryptionOptions = autoEncryptionOptions
+                    AutoEncryptionOptions = autoEncryptionOptions,
+                    ClusterSource = DisposingClusterSource.Instance
                 };
 
-                using var client = new DisposableMongoClient(new MongoClient(mongoClientSettings), null);
+                using var client = new MongoClient(mongoClientSettings);
 
-                if (((MongoClient)client.Wrapped).LibMongoCryptController.CryptSharedLibraryVersion() != null)
+                if (client.LibMongoCryptController.CryptSharedLibraryVersion() != null)
                 {
                     // csfle shared library code path
                     return (IsValid: true, MongocryptdVersion: null);

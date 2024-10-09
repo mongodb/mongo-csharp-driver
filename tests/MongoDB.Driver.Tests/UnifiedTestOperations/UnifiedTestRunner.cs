@@ -22,7 +22,6 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
@@ -256,7 +255,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             foreach (var logItem in expectedLogs.Cast<BsonDocument>())
             {
                 var clientId = logItem["client"].AsString;
-                var clusterId = entityMap.Clients[clientId].Cluster.ClusterId.Value;
+                var clusterId = entityMap.ClientIdToClusterId[clientId].Value;
                 var logs = logItem.GetValue("messages", false).AsBsonArray;
                 var loggingMessagesToIgnore = logItem.GetValue("ignoreMessages", null)?.AsBsonArray;
                 var ignoreExtraLogs = logItem.GetValue("ignoreExtraMessages", false).AsBoolean;

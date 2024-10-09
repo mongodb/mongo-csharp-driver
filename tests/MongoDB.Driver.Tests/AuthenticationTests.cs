@@ -19,10 +19,10 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Tests
         {
             // If we don't use a DisposableClient, the second run of AuthenticationSucceedsWithMongoDB_X509_mechanism
             // will fail because the backing Cluster's connections will be associated with a dropped user
-            using (var client = DriverTestConfiguration.CreateDisposableClient(settings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(settings))
             {
                 // The first command executed with the MongoClient triggers either the sync or async variation of the
                 // MongoClient's IAuthenticator
@@ -348,7 +348,7 @@ namespace MongoDB.Driver.Tests
 
         private void AssertAuthenticationFails(MongoClientSettings settings, bool async)
         {
-            using (var client = DriverTestConfiguration.CreateDisposableClient(settings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(settings))
             {
                 Exception exception;
                 if (async)
@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Tests
         }
 
         private BsonDocument CreateAdminDatabaseReadWriteUser(
-            MongoClient client,
+            IMongoClient client,
             string userName,
             string password,
             params string[] mechanisms)
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Tests
         }
 
         private BsonDocument CreateAdminDatabaseUser(
-            MongoClient client,
+            IMongoClient client,
             string userName,
             string password,
             string role,
@@ -385,7 +385,7 @@ namespace MongoDB.Driver.Tests
         }
 
         private BsonDocument CreateDatabaseUser(
-            MongoClient client,
+            IMongoClient client,
             string source,
             string userName,
             string password,
@@ -398,7 +398,7 @@ namespace MongoDB.Driver.Tests
             return client.GetDatabase(source).RunCommand<BsonDocument>(createUserCommand);
         }
 
-        private void CreateX509DatabaseUser(MongoClient client, string userName)
+        private void CreateX509DatabaseUser(IMongoClient client, string userName)
         {
             var createUserCommand =
                 $"{{ createUser : '{userName}'," +
@@ -409,7 +409,7 @@ namespace MongoDB.Driver.Tests
             _ = client.GetDatabase("$external").RunCommand<BsonDocument>(createUserCommand);
         }
 
-        private void DropDatabaseUser(MongoClient client, string database, string userName)
+        private void DropDatabaseUser(IMongoClient client, string database, string userName)
         {
             var dropUserCommand = $"{{ dropUser : '{userName}' }}";
 

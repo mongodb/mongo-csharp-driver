@@ -637,7 +637,7 @@ namespace MongoDB.Driver.Tests.GridFS
             var settings = DriverTestConfiguration.GetClientSettings();
             settings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true, deprecationErrors: true);
 
-            using var client = DriverTestConfiguration.CreateDisposableClient(settings);
+            using var client = DriverTestConfiguration.CreateMongoClient(settings);
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var subject = new GridFSBucket<ObjectId>(database);
 

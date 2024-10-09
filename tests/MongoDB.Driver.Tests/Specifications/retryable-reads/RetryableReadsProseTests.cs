@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -138,13 +137,13 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
 
-            using var client = DriverTestConfiguration.CreateDisposableClient(
+            using var client = DriverTestConfiguration.CreateMongoClient(
                 s =>
                 {
                     s.RetryReads = true;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
-                }
-                , null, useMultipleShardRouters: true);
+                },
+                useMultipleShardRouters: true);
 
             var failPointServer1 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
             var failPointServer2 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
@@ -187,14 +186,14 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             var eventCapturer = new EventCapturer().CaptureCommandEvents("find");
 
-            using var client = DriverTestConfiguration.CreateDisposableClient(
+            using var client = DriverTestConfiguration.CreateMongoClient(
                 s =>
                 {
                     s.RetryReads = true;
                     s.DirectConnection = false;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
-                }
-                , null, useMultipleShardRouters: false);
+                },
+                useMultipleShardRouters: false);
 
             var failPointServer = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
 
@@ -216,14 +215,14 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         }
 
         // private methods
-        private DisposableMongoClient CreateClient(MongoClientSettings mongoClientSettings, EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
+        private IMongoClient CreateClient(MongoClientSettings mongoClientSettings, EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
         {
             var clonedClientSettings = mongoClientSettings ?? DriverTestConfiguration.Client.Settings.Clone();
             clonedClientSettings.ApplicationName = applicationName;
             clonedClientSettings.HeartbeatInterval = heartbeatInterval;
             clonedClientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);
 
-            return DriverTestConfiguration.CreateDisposableClient(clonedClientSettings);
+            return DriverTestConfiguration.CreateMongoClient(clonedClientSettings);
         }
     }
 }

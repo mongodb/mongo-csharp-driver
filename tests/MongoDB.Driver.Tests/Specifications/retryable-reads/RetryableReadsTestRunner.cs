@@ -30,7 +30,6 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -119,7 +118,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
                 Dictionary<string, BsonValue> sessionIdMap;
 
-                using (var client = CreateDisposableClient(test, eventCapturer))
+                using (var client = CreateMongoClient(test, eventCapturer))
                 using (var session0 = StartSession(client, test, "session0"))
                 using (var session1 = StartSession(client, test, "session1"))
                 {
@@ -209,16 +208,14 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 .InsertMany(chunksDocuments);
         }
 
-        private DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer)
-        {
-            return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+        private IMongoClient CreateMongoClient(BsonDocument test, EventCapturer eventCapturer) =>
+            DriverTestConfiguration.CreateMongoClient((MongoClientSettings settings) =>
             {
                 settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                 ConfigureClientSettings(settings, test);
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-            },
-            LoggingSettings);
-        }
+                settings.LoggingSettings = LoggingSettings;
+            });
 
         private void ConfigureClientSettings(MongoClientSettings settings, BsonDocument test)
         {
@@ -237,17 +234,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                     }
                 }
             }
-        }
-
-        private ReadPreference ReadPreferenceFromBsonValue(BsonValue value)
-        {
-            if (value.BsonType == BsonType.String)
-            {
-                var mode = (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), value.AsString, ignoreCase: true);
-                return new ReadPreference(mode);
-            }
-
-            return ReadPreference.FromBsonDocument(value.AsBsonDocument);
         }
 
         private IClientSessionHandle StartSession(IMongoClient client, BsonDocument test, string sessionKey)

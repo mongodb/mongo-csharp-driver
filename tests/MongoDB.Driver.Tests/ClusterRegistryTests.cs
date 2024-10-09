@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -36,6 +37,40 @@ namespace MongoDB.Driver.Tests
     {
         public ClusterRegistryTests(ITestOutputHelper output) : base(output)
         {
+        }
+
+        [Fact]
+        public void DefaultClusterSource_should_use_cluster_registry_and_not_return_cluster()
+        {
+            var settings = new MongoClientSettings();
+            var clusterKey = settings.ToClusterKey();
+
+            var clusterSource = DefaultClusterSource.Instance;
+
+            var cluster = clusterSource.Get(clusterKey);
+
+            var clusterInRegistry = ClusterRegistry.Instance._registry()[clusterKey];
+            clusterInRegistry.Should().BeSameAs(cluster);
+
+            clusterSource.Return(cluster);
+            ClusterRegistry.Instance._registry().Keys.Should().Contain(clusterKey);
+        }
+
+        [Fact]
+        public void DisposingClusterSource_should_use_cluster_registry_and_return_cluster()
+        {
+            var settings = new MongoClientSettings();
+            var clusterKey = settings.ToClusterKey();
+
+            var clusterSource = DisposingClusterSource.Instance;
+
+            var cluster = clusterSource.Get(clusterKey);
+
+            var clusterInRegistry = ClusterRegistry.Instance._registry()[clusterKey];
+            clusterInRegistry.Should().BeSameAs(cluster);
+
+            clusterSource.Return(cluster);
+            ClusterRegistry.Instance._registry().Keys.Should().NotContain(clusterKey);
         }
 
 #if WINDOWS

@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -35,7 +34,7 @@ namespace MongoDB.Driver.Tests.Search
 
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly IMongoDatabase _database;
-        private readonly DisposableMongoClient _disposableMongoClient;
+        private readonly IMongoClient _mongoClient;
         private readonly BsonDocument _indexDefinition = BsonDocument.Parse("{ mappings: { dynamic: false } }");
 
         public AtlasSearchIndexManagementTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
@@ -44,8 +43,8 @@ namespace MongoDB.Driver.Tests.Search
 
             var atlasSearchUri = CoreTestConfiguration.ConnectionString.ToString();
 
-            _disposableMongoClient = new(new MongoClient(atlasSearchUri), CreateLogger<DisposableMongoClient>());
-            _database = _disposableMongoClient.GetDatabase("dotnet-test");
+            _mongoClient = new MongoClient(atlasSearchUri);
+            _database = _mongoClient.GetDatabase("dotnet-test");
             var collectionName = GetRandomName();
 
             _database.CreateCollection(collectionName);
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Tests.Search
         protected override void DisposeInternal()
         {
             _collection.Database.DropCollection(_collection.CollectionNamespace.CollectionName);
-            _disposableMongoClient.Dispose();
+            _mongoClient.Dispose();
         }
 
         [Fact(Timeout = Timeout)]

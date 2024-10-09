@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        private void CreateListDatabasesRole(MongoClient client, string roleName)
+        private void CreateListDatabasesRole(IMongoClient client, string roleName)
         {
             var privileges = new BsonArray
             {
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests
             client.GetDatabase("admin").RunCommand<BsonDocument>(command);
         }
 
-        private void CreateListDatabasesUser(MongoClient client, string username, string password, string databaseName, string roleName)
+        private void CreateListDatabasesUser(IMongoClient client, string username, string password, string databaseName, string roleName)
         {
             var roles = new BsonArray
             {

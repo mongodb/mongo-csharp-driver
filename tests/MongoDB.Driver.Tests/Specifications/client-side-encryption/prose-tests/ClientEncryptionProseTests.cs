@@ -439,7 +439,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             using (var clientEncrypted = EnsureEnvironmentAndConfigureTestClientEncrypted())
-            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=1000"), CreateLogger<DisposableMongoClient>()))
+            using (var mongocryptdClient = new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=1000"))
             {
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 Insert(coll, async, new BsonDocument("unencrypted", "test"));
@@ -452,7 +452,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server").And.Contain("localhost:27021");
             }
 
-            DisposableMongoClient EnsureEnvironmentAndConfigureTestClientEncrypted()
+            IMongoClient EnsureEnvironmentAndConfigureTestClientEncrypted()
             {
                 var extraOptions = new Dictionary<string, object>
                 {
@@ -2556,7 +2556,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return (TMostInnerException)AssertInnerEncryptionException(ex, typeof(TMostInnerException), innerExceptionErrorMessage);
         }
 
-        private DisposableMongoClient ConfigureClient(
+        private IMongoClient ConfigureClient(
             bool clearCollections = true,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
@@ -2578,7 +2578,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return client;
         }
 
-        private DisposableMongoClient ConfigureClientEncrypted(
+        private IMongoClient ConfigureClientEncrypted(
             BsonDocument schemaMap = null,
             IMongoClient externalKeyVaultClient = null,
             string kmsProviderFilter = null,
@@ -2606,7 +2606,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 configuredSettings.AutoEncryptionOptions = autoEncryptionOptionsConfigurator.Invoke(configuredSettings.AutoEncryptionOptions);
             }
 
-            return DriverTestConfiguration.CreateDisposableClient(configuredSettings);
+            return DriverTestConfiguration.CreateMongoClient(configuredSettings);
         }
 
         private MongoClientSettings ConfigureClientEncryptedSettings(
@@ -2648,7 +2648,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         private ClientEncryption ConfigureClientEncryption(
-            DisposableMongoClient client,
+            IMongoClient client,
             Action<string, Dictionary<string, object>> kmsProviderConfigurator = null,
             Func<string, bool> allowClientCertificateFunc = null,
             Action<ClientEncryptionOptions> clientEncryptionOptionsConfigurator = null,
@@ -2685,7 +2685,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
             var clientEncryptionOptions = new ClientEncryptionOptions(
-                keyVaultClient: client.Settings.AutoEncryptionOptions?.KeyVaultClient ?? client.Wrapped,
+                keyVaultClient: client.Settings.AutoEncryptionOptions?.KeyVaultClient ?? client,
                 keyVaultNamespace: __keyVaultCollectionNamespace,
                 kmsProviders: kmsProviders);
 
@@ -2778,7 +2778,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return new RewrapManyDataKeyOptions(kmsProvider, masterKey: masterKey);
         }
 
-        private DisposableMongoClient CreateMongoClient(
+        private IMongoClient CreateMongoClient(
             CollectionNamespace keyVaultNamespace = null,
             BsonDocument schemaMapDocument = null,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null,
@@ -2804,7 +2804,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 writeConcern,
                 readConcern);
 
-            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings);
+            return DriverTestConfiguration.CreateMongoClient(mongoClientSettings);
         }
 
         private MongoClientSettings CreateMongoClientSettings(
@@ -2884,6 +2884,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
 
             mongoClientSettings.LoggingSettings = LoggingSettings;
+            mongoClientSettings.ClusterSource = DisposingClusterSource.Instance;
 
             return mongoClientSettings;
         }

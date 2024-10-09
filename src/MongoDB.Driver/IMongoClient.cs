@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -23,7 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The client interface to MongoDB.
     /// </summary>
-    public interface IMongoClient
+    public interface IMongoClient : IDisposable
     {
         /// <summary>
         /// Gets the cluster.

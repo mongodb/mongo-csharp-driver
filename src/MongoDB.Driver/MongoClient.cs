@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -35,10 +36,14 @@ namespace MongoDB.Driver
     public sealed class MongoClient : IMongoClient
     {
         // private fields
+        private bool _disposed;
+#pragma warning disable CA2213 // Disposable fields should be disposed
         private readonly IClusterInternal _cluster;
+#pragma warning restore CA2213 // Disposable fields should be disposed
         private readonly IAutoEncryptionLibMongoCryptController _libMongoCryptController;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
+        private readonly ILogger<LogCategories.Client> _logger;
 
         // constructors
         /// <summary>
@@ -56,7 +61,9 @@ namespace MongoDB.Driver
         public MongoClient(MongoClientSettings settings)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
-            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
+            _logger = _settings.LoggingSettings?.CreateLogger<LogCategories.Client>();
+
+            _cluster = _settings.ClusterSource.Get(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor(this);
             if (settings.AutoEncryptionOptions != null)
             {
@@ -97,18 +104,20 @@ namespace MongoDB.Driver
 
         // public properties
         /// <inheritdoc/>
-        public ICluster Cluster => _cluster;
+        public ICluster Cluster => ThrowIfDisposed(_cluster);
 
         /// <inheritdoc/>
-        public MongoClientSettings Settings => _settings;
+        public MongoClientSettings Settings => ThrowIfDisposed(_settings);
 
         // internal properties
-        internal IAutoEncryptionLibMongoCryptController LibMongoCryptController => _libMongoCryptController;
-        internal IOperationExecutor OperationExecutor => _operationExecutor;
+        internal IAutoEncryptionLibMongoCryptController LibMongoCryptController => ThrowIfDisposed(_libMongoCryptController);
+        internal IOperationExecutor OperationExecutor => ThrowIfDisposed(_operationExecutor);
 
         // internal methods
         internal void ConfigureAutoEncryptionMessageEncoderSettings(MessageEncoderSettings messageEncoderSettings)
         {
+            ThrowIfDisposed();
+
             var autoEncryptionOptions = _settings.AutoEncryptionOptions;
             if (autoEncryptionOptions != null)
             {
@@ -124,13 +133,46 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             UsingImplicitSession(session => DropDatabase(session, name, cancellationToken), cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        public void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposing");
+
+                    _settings.ClusterSource.Return(_cluster);
+                    _libMongoCryptController?.Dispose();
+
+                    _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposed");
+                }
+
+                _disposed = true;
+            }
         }
 
         /// <inheritdoc/>
         public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
+
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
             {
@@ -142,12 +184,16 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSessionAsync(session => DropDatabaseAsync(session, name, cancellationToken), cancellationToken);
         }
 
         /// <inheritdoc/>
         public Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             Ensure.IsNotNull(session, nameof(session));
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropDatabaseOperation(new DatabaseNamespace(name), messageEncoderSettings)
@@ -160,6 +206,8 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
         {
+            ThrowIfDisposed();
+
             settings = settings == null ?
                 new MongoDatabaseSettings() :
                 settings.Clone();
@@ -173,6 +221,8 @@ namespace MongoDB.Driver
         public IAsyncCursor<string> ListDatabaseNames(
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return ListDatabaseNames(options: null, cancellationToken);
         }
 
@@ -181,6 +231,8 @@ namespace MongoDB.Driver
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSession(session => ListDatabaseNames(session, options, cancellationToken), cancellationToken);
         }
 
@@ -189,6 +241,8 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return ListDatabaseNames(session, options: null, cancellationToken);
         }
 
@@ -198,6 +252,8 @@ namespace MongoDB.Driver
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             var listDatabasesOptions = CreateListDatabasesOptionsFromListDatabaseNamesOptions(options);
             var databases = ListDatabases(session, listDatabasesOptions, cancellationToken);
 
@@ -208,6 +264,8 @@ namespace MongoDB.Driver
         public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return ListDatabaseNamesAsync(options: null, cancellationToken);
         }
 
@@ -216,6 +274,8 @@ namespace MongoDB.Driver
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSessionAsync(session => ListDatabaseNamesAsync(session, options, cancellationToken), cancellationToken);
         }
 
@@ -224,6 +284,8 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return ListDatabaseNamesAsync(session, options: null, cancellationToken);
         }
 
@@ -233,6 +295,8 @@ namespace MongoDB.Driver
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             var listDatabasesOptions = CreateListDatabasesOptionsFromListDatabaseNamesOptions(options);
             var databases = await ListDatabasesAsync(session, listDatabasesOptions, cancellationToken).ConfigureAwait(false);
 
@@ -243,6 +307,8 @@ namespace MongoDB.Driver
         public IAsyncCursor<BsonDocument> ListDatabases(
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSession(session => ListDatabases(session, cancellationToken), cancellationToken);
         }
 
@@ -251,6 +317,8 @@ namespace MongoDB.Driver
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSession(session => ListDatabases(session, options, cancellationToken), cancellationToken);
         }
 
@@ -259,6 +327,8 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return ListDatabases(session, null, cancellationToken);
         }
 
@@ -268,6 +338,8 @@ namespace MongoDB.Driver
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             Ensure.IsNotNull(session, nameof(session));
             options = options ?? new ListDatabasesOptions();
             var messageEncoderSettings = GetMessageEncoderSettings();
@@ -280,6 +352,8 @@ namespace MongoDB.Driver
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSessionAsync(session => ListDatabasesAsync(session, null, cancellationToken), cancellationToken);
         }
 
@@ -288,6 +362,8 @@ namespace MongoDB.Driver
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSessionAsync(session => ListDatabasesAsync(session, options, cancellationToken), cancellationToken);
         }
 
@@ -296,6 +372,8 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return ListDatabasesAsync(session, null, cancellationToken);
         }
 
@@ -306,6 +384,8 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
+
             options = options ?? new ListDatabasesOptions();
             var messageEncoderSettings = GetMessageEncoderSettings();
             var translationOptions = _settings.TranslationOptions;
@@ -319,6 +399,8 @@ namespace MongoDB.Driver
         /// <returns>A session.</returns>
         internal IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
         {
+            ThrowIfDisposed();
+
             return StartImplicitSession();
         }
 
@@ -328,18 +410,24 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is a session.</returns>
         internal Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
         {
+            ThrowIfDisposed();
+
             return Task.FromResult(StartImplicitSession());
         }
 
         /// <inheritdoc/>
         public IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return StartSession(options);
         }
 
         /// <inheritdoc/>
         public Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return Task.FromResult(StartSession(options));
         }
 
@@ -349,6 +437,8 @@ namespace MongoDB.Driver
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSession(session => Watch(session, pipeline, options, cancellationToken), cancellationToken);
         }
 
@@ -361,6 +451,8 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
+            ThrowIfDisposed();
+
             var translationOptions = _settings.TranslationOptions;
             var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
             return ExecuteReadOperation(session, operation, cancellationToken);
@@ -372,6 +464,8 @@ namespace MongoDB.Driver
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            ThrowIfDisposed();
+
             return UsingImplicitSessionAsync(session => WatchAsync(session, pipeline, options, cancellationToken), cancellationToken);
         }
 
@@ -384,6 +478,9 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
+
+            ThrowIfDisposed();
+
             var translationOptions = _settings.TranslationOptions;
             var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
@@ -393,6 +490,9 @@ namespace MongoDB.Driver
         public IMongoClient WithReadConcern(ReadConcern readConcern)
         {
             Ensure.IsNotNull(readConcern, nameof(readConcern));
+
+            ThrowIfDisposed();
+
             var newSettings = Settings.Clone();
             newSettings.ReadConcern = readConcern;
             return new MongoClient(_operationExecutor, newSettings);
@@ -402,6 +502,9 @@ namespace MongoDB.Driver
         public IMongoClient WithReadPreference(ReadPreference readPreference)
         {
             Ensure.IsNotNull(readPreference, nameof(readPreference));
+
+            ThrowIfDisposed();
+
             var newSettings = Settings.Clone();
             newSettings.ReadPreference = readPreference;
             return new MongoClient(_operationExecutor, newSettings);
@@ -411,6 +514,9 @@ namespace MongoDB.Driver
         public IMongoClient WithWriteConcern(WriteConcern writeConcern)
         {
             Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+
+            ThrowIfDisposed();
+
             var newSettings = Settings.Clone();
             newSettings.WriteConcern = writeConcern;
             return new MongoClient(_operationExecutor, newSettings);
@@ -548,6 +654,9 @@ namespace MongoDB.Driver
 
             return new ClientSessionHandle(this, options, coreSession);
         }
+
+        private void ThrowIfDisposed() => ThrowIfDisposed(string.Empty);
+        private T ThrowIfDisposed<T>(T value) => _disposed ? throw new ObjectDisposedException(GetType().Name) : value;
 
         private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken)
         {

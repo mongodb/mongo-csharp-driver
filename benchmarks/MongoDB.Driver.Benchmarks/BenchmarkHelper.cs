@@ -20,7 +20,6 @@ using System.IO;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Benchmarks
 {
@@ -79,13 +78,16 @@ namespace MongoDB.Benchmarks
             public const string PerfTestDatabaseName = "perftest";
             public const string PerfTestCollectionName = "corpus";
 
-            public static DisposableMongoClient CreateDisposableClient()
+            public static IMongoClient CreateClient()
             {
                 var mongoUri = Environment.GetEnvironmentVariable("MONGODB_URI");
-                var client = mongoUri != null ? new MongoClient(mongoUri) : new MongoClient();
+                var settings = mongoUri != null ? MongoClientSettings.FromConnectionString(mongoUri) : new();
+                settings.ClusterSource = DisposingClusterSource.Instance;
+
+                var client = new MongoClient(settings);
                 client.DropDatabase(PerfTestDatabaseName);
 
-                return new DisposableMongoClient(client, null);
+                return client;
             }
         }
     }

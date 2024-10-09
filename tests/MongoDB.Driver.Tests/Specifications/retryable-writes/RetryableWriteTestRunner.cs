@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             var operation = test["operation"].AsBsonDocument;
             var outcome = test["outcome"].AsBsonDocument;
 
-            using (var client = CreateDisposableClient(test, useMultipleShardRouters))
+            using (var client = CreateMongoClient(test, useMultipleShardRouters))
             {
                 var database = client.GetDatabase(_databaseName);
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
@@ -129,17 +129,17 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             }
         }
 
-        private DisposableMongoClient CreateDisposableClient(BsonDocument test, bool useMultipleShardRouters)
+        private IMongoClient CreateMongoClient(BsonDocument test, bool useMultipleShardRouters)
         {
             var clientOptions = (BsonDocument)test.GetValue("clientOptions", null);
 
-            return DriverTestConfiguration.CreateDisposableClient(
+            return DriverTestConfiguration.CreateMongoClient(
                 settings =>
                 {
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
+                    settings.LoggingSettings = LoggingSettings;
                     ParseClientOptions(settings, clientOptions);
                 },
-                LoggingSettings,
                 useMultipleShardRouters);
         }
 

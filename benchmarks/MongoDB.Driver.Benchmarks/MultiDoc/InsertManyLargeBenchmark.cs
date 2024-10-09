@@ -27,7 +27,7 @@ namespace MongoDB.Benchmarks.MultiDoc
     [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class InsertManyLargeBenchmark
     {
-        private DisposableMongoClient _client;
+        private IMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
         private IEnumerable<BsonDocument> _largeDocuments;
@@ -38,7 +38,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         [GlobalSetup]
         public void Setup()
         {
-            _client = MongoConfiguration.CreateDisposableClient();
+            _client = MongoConfiguration.CreateClient();
             _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
 
             var largeDocument = ReadExtendedJson("single_and_multi_document/large_doc.json");

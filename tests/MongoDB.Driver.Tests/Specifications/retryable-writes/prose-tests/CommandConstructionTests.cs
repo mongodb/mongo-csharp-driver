@@ -20,14 +20,13 @@ using System.Threading;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName);
                 var collection = database.GetCollection<BsonDocument>(_collectionName).WithWriteConcern(WriteConcern.Unacknowledged);
@@ -119,7 +118,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName);
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
@@ -169,7 +168,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName);
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
@@ -223,7 +222,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             DropAndCreateCollection();
 
             var eventCapturer = CreateEventCapturer();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName);
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
@@ -267,7 +266,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName);
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
@@ -381,7 +380,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName);
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
@@ -437,15 +436,13 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             command.Should().Contain("txnNumber");
         }
 
-        private DisposableMongoClient CreateDisposableClient(EventCapturer eventCapturer)
-        {
-            return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+        private IMongoClient CreateMongoClient(EventCapturer eventCapturer) =>
+            DriverTestConfiguration.CreateMongoClient((MongoClientSettings settings) =>
             {
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 settings.RetryWrites = true;
-            },
-            LoggingSettings);
-        }
+                settings.LoggingSettings = LoggingSettings;
+            });
 
         private EventCapturer CreateEventCapturer()
         {

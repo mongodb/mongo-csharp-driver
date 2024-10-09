@@ -52,13 +52,13 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             var eventCapturer = new EventCapturer().CaptureCommandEvents("insert");
 
-            using var client = DriverTestConfiguration.CreateDisposableClient(
+            using var client = DriverTestConfiguration.CreateMongoClient(
                 s =>
                 {
                     s.RetryWrites = true;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
-                }
-                , null, useMultipleShardRouters: true);
+                },
+                useMultipleShardRouters: true);
 
             var failPointServer1 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
             var failPointServer2 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), default);
@@ -102,14 +102,14 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 
             var eventCapturer = new EventCapturer().CaptureCommandEvents("insert");
 
-            using var client = DriverTestConfiguration.CreateDisposableClient(
+            using var client = DriverTestConfiguration.CreateMongoClient(
                 s =>
                 {
                     s.RetryWrites = true;
                     s.DirectConnection = false;
                     s.ClusterConfigurator = b => b.Subscribe(eventCapturer);
-                }
-                , null, useMultipleShardRouters: false);
+                },
+                useMultipleShardRouters: false);
 
             var failPointServer = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), default);
 

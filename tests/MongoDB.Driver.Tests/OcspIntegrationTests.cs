@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Tests
 
             void Ping(bool tlsInsecure)
             {
-                using (var client = CreateDisposableMongoClient(tlsInsecure))
+                using (var client = CreateMongoClient(tlsInsecure))
                 {
                     client.GetDatabase("admin").RunCommand<BsonDocument>(new BsonDocument("ping", 1));
                 }
@@ -88,10 +88,10 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
-        /* We can't use DriverTestConfiguration.CreateDisposableClient because that results in a call to check
+        /* We can't use DriverTestConfiguration.CreateMongoClient because that results in a call to check
          * the cluster type, which fails because a connection cannot be established to the mongod when testing
          * the revoked certificate case */
-        private DisposableMongoClient CreateDisposableMongoClient(bool tlsInsecure)
+        private IMongoClient CreateMongoClient(bool tlsInsecure)
         {
             var settings = DriverTestConfiguration.GetClientSettings().Clone();
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = true };
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Tests
 
             settings.LoggingSettings = LoggingSettings;
 
-            return new DisposableMongoClient(new MongoClient(settings), CreateLogger<DisposableMongoClient>());
+            return new MongoClient(settings);
         }
 
         private bool GetShouldSucceed()
