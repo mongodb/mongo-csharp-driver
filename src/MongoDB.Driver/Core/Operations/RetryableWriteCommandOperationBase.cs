@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                return Execute(context, cancellationToken);
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber);
 
-        protected abstract IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
+        protected abstract IEnumerable<BatchableCommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
 
         private MessageEncoderSettings CreateMessageEncoderSettings(IChannelHandle channel)
         {
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
             return args;
         }
 
-        private Action<IMessageEncoderPostProcessor> GetPostWriteAction(List<Type1CommandMessageSection> commandPayloads)
+        private Action<IMessageEncoderPostProcessor> GetPostWriteAction(List<BatchableCommandMessageSection> commandPayloads)
         {
             if (!_writeConcern.IsAcknowledged && _isOrdered)
             {
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Core.Operations
         private class CommandArgs
         {
             public BsonDocument Command { get; set; }
-            public List<Type1CommandMessageSection> CommandPayloads { get; set; }
+            public List<BatchableCommandMessageSection> CommandPayloads { get; set; }
             public Action<IMessageEncoderPostProcessor> PostWriteAction { get; set; }
             public CommandResponseHandling ResponseHandling { get; set; }
             public MessageEncoderSettings MessageEncoderSettings { get; set; }

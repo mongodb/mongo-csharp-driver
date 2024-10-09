@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     result = _collection.BulkWrite(_session, _requests, _options);
                 }
 
-                return new UnifiedBulkWriteOperationResultConverter().Convert(result);
+                return OperationResult.FromResult(UnifiedBulkWriteOperationResultConverter.Convert(result));
             }
             catch (Exception exception)
             {
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     result = await _collection.BulkWriteAsync(_session, _requests, _options);
                 }
 
-                return new UnifiedBulkWriteOperationResultConverter().Convert(result);
+                return OperationResult.FromResult(UnifiedBulkWriteOperationResultConverter.Convert(result));
             }
             catch (Exception exception)
             {
@@ -338,14 +338,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedBulkWriteOperationResultConverter
+    public static class UnifiedBulkWriteOperationResultConverter
     {
-        public OperationResult Convert(BulkWriteResult<BsonDocument> result)
+        public static BsonDocument Convert(BulkWriteResult<BsonDocument> result)
         {
-            BsonDocument document;
             if (result is not BulkWriteResult<BsonDocument>.Unacknowledged)
             {
-                document = new BsonDocument
+                return new BsonDocument
                 {
                     { "deletedCount", result.DeletedCount },
                     { "insertedCount", result.InsertedCount },
@@ -356,15 +355,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     { "upsertedIds", PrepareUpsertedIds(result.Upserts) }
                 };
             }
-            else
-            {
-                document = new BsonDocument();
-            }
 
-            return OperationResult.FromResult(document);
+            return new BsonDocument();
         }
 
-        private BsonDocument PrepareInsertedIds(IReadOnlyList<WriteModel<BsonDocument>> processedRequests)
+        private static BsonDocument PrepareInsertedIds(IReadOnlyList<WriteModel<BsonDocument>> processedRequests)
         {
             var result = new BsonDocument();
 
@@ -379,7 +374,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return result;
         }
 
-        private BsonDocument PrepareUpsertedIds(IReadOnlyList<BulkWriteUpsert> upserts)
+        private static BsonDocument PrepareUpsertedIds(IReadOnlyList<BulkWriteUpsert> upserts)
         {
             return new BsonDocument(upserts.Select(x => new BsonElement(x.Index.ToString(), x.Id)));
         }
