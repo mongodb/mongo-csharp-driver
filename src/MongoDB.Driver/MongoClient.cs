@@ -655,7 +655,7 @@ namespace MongoDB.Driver
             return new ClientSessionHandle(this, options, coreSession);
         }
 
-        private void ThrowIfDisposed() => ThrowIfDisposed("dummy");
+        private void ThrowIfDisposed() => ThrowIfDisposed(string.Empty);
         private T ThrowIfDisposed<T>(T value) => _disposed ? throw new ObjectDisposedException(GetType().Name) : value;
 
         private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken)
