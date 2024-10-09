@@ -160,7 +160,9 @@ namespace MongoDB.Driver.Core.Configuration
             // Connection
             if (connectionString.Username != null)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var authenticatorFactory = new AuthenticatorFactory(() => CreateAuthenticator(connectionString, serverApi));
+#pragma warning restore CS0618 // Type or member is obsolete
                 builder = builder.ConfigureConnection(s => s.With(authenticatorFactories: new[] { authenticatorFactory }));
             }
             if (connectionString.ApplicationName != null)
@@ -262,6 +264,7 @@ namespace MongoDB.Driver.Core.Configuration
             return true;
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private static string GetAuthSource(ConnectionString connectionString)
         {
             var defaultSource = GetDefaultAuthSource(connectionString);
@@ -301,11 +304,9 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new DefaultAuthenticator(credential, serverApi);
                 }
-#pragma warning disable 618
                 else if (connectionString.AuthMechanism == MongoDBCRAuthenticator.MechanismName)
                 {
                     return new MongoDBCRAuthenticator(credential, serverApi);
-#pragma warning restore 618
                 }
                 else if (connectionString.AuthMechanism == ScramSha1Authenticator.MechanismName)
                 {
@@ -359,6 +360,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             throw new NotSupportedException("Unable to create an authenticator.");
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
 #if NET472
         /// <summary>

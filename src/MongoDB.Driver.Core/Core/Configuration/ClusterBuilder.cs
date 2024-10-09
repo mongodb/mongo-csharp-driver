@@ -289,7 +289,9 @@ namespace MongoDB.Driver.Core.Configuration
         private IServerMonitorFactory CreateServerMonitorFactory()
         {
             var serverMonitorConnectionSettings = _connectionSettings
+#pragma warning disable CS0618 // Type or member is obsolete
                 .With(authenticatorFactories: new IAuthenticatorFactory[] { });
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var heartbeatConnectTimeout = _tcpStreamSettings.ConnectTimeout;
             if (heartbeatConnectTimeout == TimeSpan.Zero || heartbeatConnectTimeout == Timeout.InfiniteTimeSpan)
