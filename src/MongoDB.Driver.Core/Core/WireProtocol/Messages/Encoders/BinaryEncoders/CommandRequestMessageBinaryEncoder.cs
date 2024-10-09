@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// Represents a binary encoder for a CommandRequestMessage.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
+    [Obsolete("This class will be made internal in a later release.")]
     public class CommandRequestMessageBinaryEncoder : IMessageEncoder
     {
         // private fields

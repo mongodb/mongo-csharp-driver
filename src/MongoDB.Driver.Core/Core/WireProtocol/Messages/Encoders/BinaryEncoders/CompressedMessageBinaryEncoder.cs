@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a binary encoder for a compressed message.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class CompressedMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         private readonly ICompressorSource _compressorSource;

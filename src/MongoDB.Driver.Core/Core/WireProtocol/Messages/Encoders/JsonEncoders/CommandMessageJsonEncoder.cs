@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders.MessageJsonEncoderBase" />
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Encoders.IMessageEncoder" />
+    [Obsolete("This class will be made internal in a later release.")]
     public class CommandMessageJsonEncoder : MessageJsonEncoderBase, IMessageEncoder
     {
         /// <summary>
