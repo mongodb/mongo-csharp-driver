@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Bindings;
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a server selector that selects writable servers.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class WritableServerSelector : IServerSelector
     {
         #region static

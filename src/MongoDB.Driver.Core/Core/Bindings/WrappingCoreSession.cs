@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// An abstract base class for a core session that wraps another core session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
+    [Obsolete("This class will be made internal in a later release.")]
     public abstract class WrappingCoreSession : ICoreSession
     {
         // private fields

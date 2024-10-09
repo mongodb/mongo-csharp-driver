@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// A handle to a reference counted core session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSessionHandle" />
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class CoreSessionHandle : WrappingCoreSession, ICoreSessionHandle
     {
         // private fields
