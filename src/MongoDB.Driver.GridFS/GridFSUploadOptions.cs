@@ -94,7 +94,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// Whether or not MD5 checksum computation is disabled when uploading a GridFS file.
         /// </value>
-        [Obsolete("MD5 support will be removed in a later release")]
+        [Obsolete("MD5 support will be removed in a later release.")]
         public bool DisableMD5
         {
             get { return _disableMD5; }
