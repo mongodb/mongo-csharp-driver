@@ -50,7 +50,9 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+#pragma warning disable CS0618 // Type or member is obsolete
             _disableMD5 = other.DisableMD5;
+#pragma warning restore CS0618 // Type or member is obsolete
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
@@ -65,7 +67,9 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+#pragma warning disable CS0618 // Type or member is obsolete
             _disableMD5 = other.DisableMD5;
+#pragma warning restore CS0618 // Type or member is obsolete
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
@@ -203,7 +207,9 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+#pragma warning disable CS0618 // Type or member is obsolete
             _disableMD5 = other.DisableMD5;
+#pragma warning restore CS0618 // Type or member is obsolete
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;

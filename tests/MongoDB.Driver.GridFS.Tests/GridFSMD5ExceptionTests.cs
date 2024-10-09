@@ -26,7 +26,9 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void constructor_should_initialize_instance()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var result = new GridFSMD5Exception(123);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             result.Message.Should().Contain("id 123");
         }
@@ -34,7 +36,9 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void constructor_should_throw_when_id_is_null()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             Action action = () => new GridFSMD5Exception(null);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
@@ -42,7 +46,9 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void Serialization_should_work()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new GridFSMD5Exception(123);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -50,7 +56,9 @@ namespace MongoDB.Driver.GridFS.Tests
 #pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
+#pragma warning disable CS0618 // Type or member is obsolete
                 var rehydrated = (GridFSMD5Exception)formatter.Deserialize(stream);
+#pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
 
                 rehydrated.Message.Should().Be(subject.Message);

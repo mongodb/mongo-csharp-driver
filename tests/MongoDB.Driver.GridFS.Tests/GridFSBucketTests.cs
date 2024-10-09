@@ -45,7 +45,9 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Database.Should().BeSameAs(database);
             result.Options.BucketName.Should().Be(options.BucketName);
             result.Options.ChunkSizeBytes.Should().Be(options.ChunkSizeBytes);
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Options.DisableMD5.Should().Be(options.DisableMD5);
+#pragma warning restore CS0618 // Type or member is obsolete
             result.Options.ReadPreference.Should().Be(options.ReadPreference);
             result.Options.WriteConcern.Should().Be(options.WriteConcern);
         }
@@ -473,7 +475,9 @@ namespace MongoDB.Driver.GridFS.Tests
 
             result.BucketName.Should().Be(options.BucketName);
             result.ChunkSizeBytes.Should().Be(options.ChunkSizeBytes);
+#pragma warning disable CS0618 // Type or member is obsolete
             result.DisableMD5.Should().Be(options.DisableMD5);
+#pragma warning restore CS0618 // Type or member is obsolete
             result.ReadConcern.Should().Be(options.ReadConcern);
             result.ReadPreference.Should().Be(options.ReadPreference);
             result.WriteConcern.Should().Be(options.WriteConcern);

@@ -577,7 +577,9 @@ namespace MongoDB.Driver.GridFS
 
         private GridFSDownloadStream<TFileId> CreateDownloadStream(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var checkMD5 = options.CheckMD5 ?? false;
+#pragma warning restore CS0618 // Type or member is obsolete
             var seekable = options.Seekable ?? false;
             if (checkMD5 && seekable)
             {
@@ -777,7 +779,9 @@ namespace MongoDB.Driver.GridFS
 
         private void DownloadToStreamHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var checkMD5 = options.CheckMD5 ?? false;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var retryReads = _database.Client.Settings.RetryReads;
             using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo, checkMD5) { RetryReads = retryReads })
@@ -798,7 +802,9 @@ namespace MongoDB.Driver.GridFS
 
         private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var checkMD5 = options.CheckMD5 ?? false;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var retryReads = _database.Client.Settings.RetryReads;
             using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo, checkMD5) { RetryReads = retryReads })
