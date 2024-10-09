@@ -287,7 +287,7 @@ namespace MongoDB.Bson.Tests
             BsonValue s = "";
             var dt = v.ToUniversalTime();
             Assert.Equal(utcNowTruncated, dt);
-            Assert.Throws<InvalidCastException>(() => { var x = s.ToUniversalTime(); });
+            Assert.Throws<NotSupportedException>(() => { var x = s.ToUniversalTime(); });
             Assert.Throws<NotSupportedException>(() => s.ToUniversalTime());
         }
 
@@ -362,7 +362,7 @@ namespace MongoDB.Bson.Tests
             BsonValue s = "";
             Assert.Equal(utcNowTruncated, v.ToNullableUniversalTime());
             Assert.Equal(null, n.ToNullableUniversalTime());
-            Assert.Throws<InvalidCastException>(() => { var x = s.ToNullableUniversalTime(); });
+            Assert.Throws<NotSupportedException>(() => { var x = s.ToNullableUniversalTime(); });
             Assert.Throws<NotSupportedException>(() => s.ToNullableUniversalTime());
         }
 
