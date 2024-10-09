@@ -33,7 +33,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Obsolete binary data subtype (use Binary instead).
         /// </summary>
-        [Obsolete("Use Binary instead")]  //TODO Should we remove this?
+        [Obsolete("Use Binary instead")]
         OldBinary = 0x02,
         /// <summary>
         /// A UUID in a driver dependent legacy byte order.
