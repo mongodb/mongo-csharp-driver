@@ -18,6 +18,7 @@
   <PropertyGroup>
     <LangVersion>12</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Version)'==''">
