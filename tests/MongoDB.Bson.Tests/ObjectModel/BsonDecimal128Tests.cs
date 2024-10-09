@@ -380,21 +380,6 @@ namespace MongoDB.Bson.Tests.ObjectModel
         }
 
         [Theory]
-        [InlineData(0.0)]
-        [InlineData(1.0)]
-        public void RawValue_should_return_expected_result(double doubleValue)
-        {
-            var value = (Decimal128)(decimal)doubleValue;
-            var subject = new BsonDecimal128(value);
-
-#pragma warning disable 0618
-            var result = subject.RawValue;
-#pragma warning restore
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
         [InlineData(0.0, false)]
         [InlineData(double.NaN, false)]
         [InlineData(1.0, true)]

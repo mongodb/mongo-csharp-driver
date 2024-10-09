@@ -23,12 +23,6 @@ namespace MongoDB.Bson.IO
     public enum JsonOutputMode
     {
         /// <summary>
-        /// Output strict JSON (an obsolete output mode that is similar to canonical extended JSON).
-        /// </summary>
-        [Obsolete("Use CanonicalExtendedJson instead.")]
-        Strict,
-
-        /// <summary>
         /// Use a format that can be pasted in to the MongoDB shell.
         /// </summary>
         Shell,
@@ -42,17 +36,5 @@ namespace MongoDB.Bson.IO
         /// Output relaxed extended JSON.
         /// </summary>
         RelaxedExtendedJson,
-
-        /// <summary>
-        /// Use JavaScript data types for some values.
-        /// </summary>
-        [Obsolete("Use Shell instead.")]
-        JavaScript = Shell,
-
-        /// <summary>
-        /// Use JavaScript and MongoDB data types for some values.
-        /// </summary>
-        [Obsolete("Use Shell instead.")]
-        TenGen = Shell
     }
 }

@@ -53,52 +53,6 @@ namespace MongoDB.Bson
             _value = value;
         }
 
-        // public static properties
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents -1.
-        /// </summary>
-        [Obsolete("Use (BsonInt32)(-1) instead.")]
-        public static BsonInt32 MinusOne
-        {
-            get { return (BsonInt32)(-1); }
-        }
-
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents -0.
-        /// </summary>
-        [Obsolete("Use (BsonInt32)0 instead.")]
-        public static BsonInt32 Zero
-        {
-            get { return (BsonInt32)0; }
-        }
-
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents 1.
-        /// </summary>
-        [Obsolete("Use (BsonInt32)1 instead.")]
-        public static BsonInt32 One
-        {
-            get { return (BsonInt32)1; }
-        }
-
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents 2.
-        /// </summary>
-        [Obsolete("Use (BsonInt32)2 instead.")]
-        public static BsonInt32 Two
-        {
-            get { return (BsonInt32)2; }
-        }
-
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents 3.
-        /// </summary>
-        [Obsolete("Use (BsonInt32)3 instead.")]
-        public static BsonInt32 Three
-        {
-            get { return (BsonInt32)3; }
-        }
-
         // public properties
         /// <summary>
         /// Gets the BsonType of this BsonValue.
@@ -106,15 +60,6 @@ namespace MongoDB.Bson
         public override BsonType BsonType
         {
             get { return BsonType.Int32; }
-        }
-
-        /// <summary>
-        /// Gets the BsonInt32 as an int.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
         }
 
         /// <summary>

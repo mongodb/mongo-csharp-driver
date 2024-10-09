@@ -67,43 +67,6 @@ namespace MongoDB.Bson
         /// <summary>
         /// Initializes a new instance of the ObjectId class.
         /// </summary>
-        /// <param name="timestamp">The timestamp (expressed as a DateTime).</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        [Obsolete("This constructor will be removed in a later release.")]
-        public ObjectId(DateTime timestamp, int machine, short pid, int increment)
-            : this(GetTimestampFromDateTime(timestamp), machine, pid, increment)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the ObjectId class.
-        /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        [Obsolete("This constructor will be removed in a later release.")]
-        public ObjectId(int timestamp, int machine, short pid, int increment)
-        {
-            if ((machine & 0xff000000) != 0)
-            {
-                throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
-            }
-            if ((increment & 0xff000000) != 0)
-            {
-                throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
-            }
-
-            _a = timestamp;
-            _b = (machine << 8) | (((int)pid >> 8) & 0xff);
-            _c = ((int)pid << 24) | increment;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the ObjectId class.
-        /// </summary>
         /// <param name="value">The value.</param>
         public ObjectId(string value)
         {
@@ -139,33 +102,6 @@ namespace MongoDB.Bson
         public int Timestamp
         {
             get { return _a; }
-        }
-
-        /// <summary>
-        /// Gets the machine.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public int Machine
-        {
-            get { return (_b >> 8) & 0xffffff; }
-        }
-
-        /// <summary>
-        /// Gets the PID.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public short Pid
-        {
-            get { return (short)(((_b << 8) & 0xff00) | ((_c >> 24) & 0x00ff)); }
-        }
-
-        /// <summary>
-        /// Gets the increment.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public int Increment
-        {
-            get { return _c & 0xffffff; }
         }
 
         /// <summary>
@@ -275,42 +211,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Packs the components of an ObjectId into a byte array.
-        /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        /// <returns>A byte array.</returns>
-        [Obsolete("This method will be removed in a later release.")]
-        public static byte[] Pack(int timestamp, int machine, short pid, int increment)
-        {
-            if ((machine & 0xff000000) != 0)
-            {
-                throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
-            }
-            if ((increment & 0xff000000) != 0)
-            {
-                throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
-            }
-
-            byte[] bytes = new byte[12];
-            bytes[0] = (byte)(timestamp >> 24);
-            bytes[1] = (byte)(timestamp >> 16);
-            bytes[2] = (byte)(timestamp >> 8);
-            bytes[3] = (byte)(timestamp);
-            bytes[4] = (byte)(machine >> 16);
-            bytes[5] = (byte)(machine >> 8);
-            bytes[6] = (byte)(machine);
-            bytes[7] = (byte)(pid >> 8);
-            bytes[8] = (byte)(pid);
-            bytes[9] = (byte)(increment >> 16);
-            bytes[10] = (byte)(increment >> 8);
-            bytes[11] = (byte)(increment);
-            return bytes;
-        }
-
-        /// <summary>
         /// Parses a string and creates a new ObjectId.
         /// </summary>
         /// <param name="s">The string value.</param>
@@ -355,32 +255,6 @@ namespace MongoDB.Bson
 
             objectId = default(ObjectId);
             return false;
-        }
-
-        /// <summary>
-        /// Unpacks a byte array into the components of an ObjectId.
-        /// </summary>
-        /// <param name="bytes">A byte array.</param>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        [Obsolete("This method will be removed in a later release.")]
-        public static void Unpack(byte[] bytes, out int timestamp, out int machine, out short pid, out int increment)
-        {
-            if (bytes == null)
-            {
-                throw new ArgumentNullException("bytes");
-            }
-            if (bytes.Length != 12)
-            {
-                throw new ArgumentOutOfRangeException("bytes", "Byte array must be 12 bytes long.");
-            }
-
-            timestamp = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
-            machine = (bytes[4] << 16) + (bytes[5] << 8) + bytes[6];
-            pid = (short)((bytes[7] << 8) + bytes[8]);
-            increment = (bytes[9] << 16) + (bytes[10] << 8) + bytes[11];
         }
 
         // internal static methods

@@ -76,27 +76,6 @@ namespace MongoDB.Bson
             get { return _millisecondsSinceEpoch; }
         }
 
-        /// <summary>
-        /// Gets the number of milliseconds since the Unix Epoch.
-        /// </summary>
-        [Obsolete("Use MillisecondsSinceEpoch instead.")]
-        public override object RawValue
-        {
-            get { return _millisecondsSinceEpoch; }
-        }
-
-        /// <summary>
-        /// Gets the DateTime value.
-        /// </summary>
-        [Obsolete("Use ToUniversalTime instead.")]
-        public DateTime Value
-        {
-            get
-            {
-                return BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch);
-            }
-        }
-
         // public operators
         /// <summary>
         /// Converts a DateTime to a BsonDateTime.

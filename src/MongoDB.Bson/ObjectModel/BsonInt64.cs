@@ -63,15 +63,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the BsonInt64 as a long.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonInt64.
         /// </summary>
         public long Value

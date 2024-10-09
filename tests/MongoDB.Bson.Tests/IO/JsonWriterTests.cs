@@ -155,36 +155,6 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
-        public void TestDecimal128Strict()
-        {
-            var tests = new TestData<Decimal128>[]
-            {
-                new TestData<Decimal128>(Decimal128.Parse("0"), "{ \"$numberDecimal\" : \"0\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("0.0"), "{ \"$numberDecimal\" : \"0.0\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("0.0005"), "{ \"$numberDecimal\" : \"0.0005\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("0.5"), "{ \"$numberDecimal\" : \"0.5\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("1.0"), "{ \"$numberDecimal\" : \"1.0\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("1.5"), "{ \"$numberDecimal\" : \"1.5\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("1.5E+40"), "{ \"$numberDecimal\" : \"1.5E+40\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("1.5E-40"), "{ \"$numberDecimal\" : \"1.5E-40\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("1234567890.1234568E+123"), "{ \"$numberDecimal\" : \"1.2345678901234568E+132\" }"),
-
-
-                new TestData<Decimal128>(Decimal128.Parse("NaN"), "{ \"$numberDecimal\" : \"NaN\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("-Infinity"), "{ \"$numberDecimal\" : \"-Infinity\" }"),
-                new TestData<Decimal128>(Decimal128.Parse("Infinity"), "{ \"$numberDecimal\" : \"Infinity\" }")
-            };
-            foreach (var test in tests)
-            {
-#pragma warning disable 618
-                var json = new BsonDecimal128(test.Value).ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
-#pragma warning restore 618
-                Assert.Equal(test.Expected, json);
-                Assert.Equal(test.Value, BsonSerializer.Deserialize<Decimal128>(json));
-            }
-        }
-
-        [Fact]
         public void TestDouble()
         {
             var tests = new TestData<double>[]
@@ -256,30 +226,6 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
-        public void TestInt64Strict()
-        {
-            var tests = new TestData<long>[]
-            {
-                new TestData<long>(long.MinValue, "-9223372036854775808"),
-                new TestData<long>(int.MinValue - 1L, "-2147483649"),
-                new TestData<long>(int.MinValue, "-2147483648"),
-                new TestData<long>(0, "0"),
-                new TestData<long>(int.MaxValue, "2147483647"),
-                new TestData<long>(int.MaxValue + 1L, "2147483648"),
-                new TestData<long>(long.MaxValue, "9223372036854775807")
-            };
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            foreach (var test in tests)
-            {
-                var json = test.Value.ToJson(jsonSettings);
-                Assert.Equal(test.Expected, json);
-                Assert.Equal(test.Value, BsonSerializer.Deserialize<long>(json));
-            }
-        }
-
-        [Fact]
         public void TestEmbeddedDocument()
         {
             BsonDocument document = new BsonDocument
@@ -338,28 +284,6 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
-        public void TestBinaryStrict()
-        {
-#pragma warning disable 618
-            var guid = Guid.Parse("00112233-4455-6677-8899-aabbccddeeff");
-            var tests = new List<TestData<BsonBinaryData>>
-            {
-                new TestData<BsonBinaryData>(new byte[] { }, "{ \"$binary\" : \"\", \"$type\" : \"00\" }"),
-                new TestData<BsonBinaryData>(new byte[] { 1 }, "{ \"$binary\" : \"AQ==\", \"$type\" : \"00\" }"),
-                new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "{ \"$binary\" : \"AQI=\", \"$type\" : \"00\" }"),
-                new TestData<BsonBinaryData>(new byte[] { 1, 2, 3 }, "{ \"$binary\" : \"AQID\", \"$type\" : \"00\" }")
-            };
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-            foreach (var test in tests)
-            {
-                var json = test.Value.ToJson(jsonSettings);
-                Assert.Equal(test.Expected, json);
-                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonBinaryData>(new JsonReader(json, new JsonReaderSettings())));
-            }
-#pragma warning restore 618
-        }
-
-        [Fact]
         public void TestDateTimeShell()
         {
             var utcNow = DateTime.UtcNow;
@@ -378,34 +302,6 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-                Assert.Equal(test.Expected, json);
-                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
-            }
-        }
-
-        [Fact]
-        public void TestDateTimeStrict()
-        {
-            var utcNow = DateTime.UtcNow;
-            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
-            var ms = BsonUtils.ToMillisecondsSinceEpoch(utcNowTruncated);
-            var strictDate = string.Format("{{ \"$date\" : {0} }}", ms);
-            var tests = new TestData<BsonDateTime>[]
-            {
-                new TestData<BsonDateTime>(new BsonDateTime(long.MinValue), "{ \"$date\" : -9223372036854775808 }"),
-                new TestData<BsonDateTime>(new BsonDateTime(0), "{ \"$date\" : 0 }"),
-                new TestData<BsonDateTime>(new BsonDateTime(long.MaxValue), "{ \"$date\" : 9223372036854775807 }"),
-                new TestData<BsonDateTime>(new BsonDateTime(DateTime.MinValue), "{ \"$date\" : -62135596800000 }"),
-                new TestData<BsonDateTime>(new BsonDateTime(BsonConstants.UnixEpoch), "{ \"$date\" : 0 }"),
-                new TestData<BsonDateTime>(new BsonDateTime(utcNowTruncated), strictDate),
-                new TestData<BsonDateTime>(new BsonDateTime(DateTime.MaxValue), "{ \"$date\" : 253402300799999 }"),
-            };
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            foreach (var test in tests)
-            {
-                var json = test.Value.ToJson(jsonSettings);
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
             }
@@ -493,19 +389,6 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
-        public void TestObjectIdStrict()
-        {
-            var objectId = new ObjectId("4d0ce088e447ad08b4721a37");
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            var json = objectId.ToJson(jsonSettings);
-            var expected = "{ \"$oid\" : \"4d0ce088e447ad08b4721a37\" }";
-            Assert.Equal(expected, json);
-            Assert.Equal(objectId, BsonSerializer.Deserialize<ObjectId>(json));
-        }
-
-        [Fact]
         public void TestRegularExpressionShell()
         {
             var tests = new TestData<BsonRegularExpression>[]
@@ -523,32 +406,6 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var test in tests)
             {
                 var json = test.Value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-                Assert.Equal(test.Expected, json);
-                Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
-            }
-        }
-
-        [Fact]
-        public void TestRegularExpressionStrict()
-        {
-            var tests = new TestData<BsonRegularExpression>[]
-            {
-                new TestData<BsonRegularExpression>(new BsonRegularExpression(""), "{ \"$regex\" : \"\", \"$options\" : \"\" }"),
-                new TestData<BsonRegularExpression>(new BsonRegularExpression("a"), "{ \"$regex\" : \"a\", \"$options\" : \"\" }"),
-                new TestData<BsonRegularExpression>(new BsonRegularExpression("a/b"), "{ \"$regex\" : \"a/b\", \"$options\" : \"\" }"),
-                new TestData<BsonRegularExpression>(new BsonRegularExpression("a\\b"), "{ \"$regex\" : \"a\\\\b\", \"$options\" : \"\" }"),
-                new TestData<BsonRegularExpression>(new BsonRegularExpression("a", "i"), "{ \"$regex\" : \"a\", \"$options\" : \"i\" }"),
-                new TestData<BsonRegularExpression>(new BsonRegularExpression("a", "m"), "{ \"$regex\" : \"a\", \"$options\" : \"m\" }"),
-                new TestData<BsonRegularExpression>(new BsonRegularExpression("a", "x"), "{ \"$regex\" : \"a\", \"$options\" : \"x\" }"),
-                new TestData<BsonRegularExpression>(new BsonRegularExpression("a", "s"), "{ \"$regex\" : \"a\", \"$options\" : \"s\" }"),
-                new TestData<BsonRegularExpression>(new BsonRegularExpression("a", "imxs"), "{ \"$regex\" : \"a\", \"$options\" : \"imsx\" }"),
-            };
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            foreach (var test in tests)
-            {
-                var json = test.Value.ToJson(jsonSettings);
                 Assert.Equal(test.Expected, json);
                 Assert.Equal(test.Value, BsonSerializer.Deserialize<BsonRegularExpression>(json));
             }

@@ -103,19 +103,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the raw values (see BsonValue.RawValue).
-        /// </summary>
-        [Obsolete("Use Values instead.")]
-        public override IEnumerable<object> RawValues
-        {
-            get
-            {
-                EnsureIsMaterialized();
-                return base.RawValues;
-            }
-        }
-
-        /// <summary>
         /// Gets the values.
         /// </summary>
         public override IEnumerable<BsonValue> Values
@@ -144,22 +131,6 @@ namespace MongoDB.Bson
             {
                 EnsureIsMaterialized();
                 base[index] = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the value of an element or a default value if the element is not found.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="defaultValue">The default value to return if the element is not found.</param>
-        /// <returns>Teh value of the element or a default value if the element is not found.</returns>
-        [Obsolete("Use GetValue(string name, BsonValue defaultValue) instead.")]
-        public override BsonValue this[string name, BsonValue defaultValue]
-        {
-            get
-            {
-                EnsureIsMaterialized();
-                return base[name, defaultValue];
             }
         }
 
@@ -194,105 +165,6 @@ namespace MongoDB.Bson
         {
             EnsureIsMaterialized();
             return base.Add(element);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(Dictionary<string, object> dictionary)
-        {
-            EnsureIsMaterialized();
-            return base.Add(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(Dictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            EnsureIsMaterialized();
-            return base.Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IDictionary<string, object> dictionary)
-        {
-            EnsureIsMaterialized();
-            return base.Add(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(IDictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            EnsureIsMaterialized();
-            return base.Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IDictionary dictionary)
-        {
-            EnsureIsMaterialized();
-            return base.Add(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(IDictionary dictionary, IEnumerable keys)
-        {
-            EnsureIsMaterialized();
-            return base.Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IEnumerable<BsonElement> elements)
-        {
-            EnsureIsMaterialized();
-            return base.Add(elements);
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(params BsonElement[] elements)
-        {
-            EnsureIsMaterialized();
-            return base.Add(elements);
         }
 
         /// <summary>

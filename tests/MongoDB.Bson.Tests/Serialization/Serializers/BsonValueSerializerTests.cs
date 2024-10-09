@@ -1914,9 +1914,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void TestNotNull()
         {
-#pragma warning disable 618
-            var obj = new TestClass(new ObjectId(1, 2, 3, 4));
-#pragma warning restore 618
+            var obj = new TestClass(new ObjectId("000000010000020003000004"));
             var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "ObjectId('000000010000020003000004')").Replace("'", "\"");
             Assert.Equal(expected, json);

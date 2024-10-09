@@ -69,23 +69,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
-        public void TestCopyToObjectArray()
-        {
-            var bsonDocument = new BsonDocument("a", new BsonArray { 1, 2 });
-            var bson = bsonDocument.ToBson();
-            using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
-            {
-                var rawBsonArray = rawBsonDocument["a"].AsBsonArray;
-                var array = new object[2];
-#pragma warning disable 618
-                rawBsonArray.CopyTo(array, 0);
-#pragma warning restore
-                Assert.Equal(1, array[0]);
-                Assert.Equal(2, array[1]);
-            }
-        }
-
-        [Fact]
         public void TestCount()
         {
             var bsonDocument = new BsonDocument("a", new BsonArray { 1, 2 });
@@ -240,22 +223,6 @@ namespace MongoDB.Bson.Tests
                 Assert.Equal(1, elements[0].Value.AsInt32);
                 Assert.Equal("y", elements[1].Name);
                 Assert.Equal(2, elements[1].Value.AsInt32);
-            }
-        }
-
-        [Fact]
-        public void TestRawValues()
-        {
-            var bsonDocument = new BsonDocument("a", new BsonArray { 1, 2 });
-            var bson = bsonDocument.ToBson();
-            using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
-            {
-#pragma warning disable 618
-                var rawValues = rawBsonDocument["a"].AsBsonArray.RawValues.ToArray();
-#pragma warning restore
-                Assert.Equal(2, rawValues.Length);
-                Assert.Equal(1, rawValues[0]);
-                Assert.Equal(2, rawValues[1]);
             }
         }
 

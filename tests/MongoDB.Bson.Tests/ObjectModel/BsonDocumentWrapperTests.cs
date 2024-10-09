@@ -587,25 +587,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
-        public void TestRawValues()
-        {
-#pragma warning disable 618
-            var wrapper = new BsonDocumentWrapper(new BsonDocument());
-            Assert.Equal(false, wrapper.IsMaterialized);
-            var values = wrapper.RawValues.ToArray();
-            Assert.Equal(true, wrapper.IsMaterialized);
-            Assert.Equal(0, values.Length);
-
-            wrapper = new BsonDocumentWrapper(new BsonDocument("x", 1));
-            Assert.Equal(false, wrapper.IsMaterialized);
-            values = wrapper.RawValues.ToArray();
-            Assert.Equal(true, wrapper.IsMaterialized);
-            Assert.Equal(1, values.Length);
-            Assert.Equal(1, values[0]);
-#pragma warning restore
-        }
-
-        [Fact]
         public void TestRemove()
         {
             var wrapper = new BsonDocumentWrapper(new BsonDocument { { "x", 1 }, { "y", 2 } });

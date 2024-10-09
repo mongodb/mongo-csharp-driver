@@ -68,15 +68,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the BsonBoolean as a bool.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonBoolean.
         /// </summary>
         public bool Value

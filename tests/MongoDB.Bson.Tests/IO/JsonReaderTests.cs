@@ -441,41 +441,6 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(canonicalJson, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
         }
 
-        [Fact]
-        public void TestDateTimeStrict()
-        {
-            var json = "{ \"$date\" : 0 }";
-            using (_bsonReader = new JsonReader(json))
-            {
-                Assert.Equal(BsonType.DateTime, _bsonReader.ReadBsonType());
-                Assert.Equal(0, _bsonReader.ReadDateTime());
-                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
-                Assert.True(_bsonReader.IsAtEndOfFile());
-            }
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            Assert.Equal(json, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
-        }
-
-        [Fact]
-        public void TestDateTimeStrictIso8601()
-        {
-            var json = "{ \"$date\" : \"1970-01-01T00:00:00Z\" }";
-            using (_bsonReader = new JsonReader(json))
-            {
-                Assert.Equal(BsonType.DateTime, _bsonReader.ReadBsonType());
-                Assert.Equal(0, _bsonReader.ReadDateTime());
-                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
-                Assert.True(_bsonReader.IsAtEndOfFile());
-            }
-            var expected = "{ \"$date\" : 0 }"; // it's still not ISO8601 on the way out
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            Assert.Equal(expected, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
-        }
-
         [Theory]
         [InlineData("{ $date: { \"$numberLong\": \"1552949630483\" } }", 1552949630483L)]
         [InlineData("{ $date: { $numberLong: \"1552949630483\" } }", 1552949630483L)]
@@ -1125,24 +1090,6 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(json, BsonSerializer.Deserialize<ObjectId>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
-        [Fact]
-        public void TestObjectIdStrict()
-        {
-            var json = "{ \"$oid\" : \"4d0ce088e447ad08b4721a37\" }";
-            using (_bsonReader = new JsonReader(json))
-            {
-                Assert.Equal(BsonType.ObjectId, _bsonReader.ReadBsonType());
-                var objectId = _bsonReader.ReadObjectId();
-                Assert.Equal("4d0ce088e447ad08b4721a37", objectId.ToString());
-                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
-                Assert.True(_bsonReader.IsAtEndOfFile());
-            }
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            Assert.Equal(json, BsonSerializer.Deserialize<ObjectId>(json).ToJson(jsonSettings));
-        }
-
         [Theory]
         [InlineData("{ $regex : \"\", $options : \"\" }", "", "")]
         [InlineData("{ $regex : \"abc\", $options : \"i\" }", "abc", "i")]
@@ -1268,25 +1215,6 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             Assert.Equal(json, BsonSerializer.Deserialize<BsonRegularExpression>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
-        }
-
-        [Fact]
-        public void TestRegularExpressionStrict()
-        {
-            var json = "{ \"$regex\" : \"pattern\", \"$options\" : \"imsx\" }";
-            using (_bsonReader = new JsonReader(json))
-            {
-                Assert.Equal(BsonType.RegularExpression, _bsonReader.ReadBsonType());
-                var regex = _bsonReader.ReadRegularExpression();
-                Assert.Equal("pattern", regex.Pattern);
-                Assert.Equal("imsx", regex.Options);
-                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
-                Assert.True(_bsonReader.IsAtEndOfFile());
-            }
-#pragma warning disable 618
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonRegularExpression>(json).ToJson(settings));
         }
 
         [Fact]
