@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     /// Represents a cursor for an operation that is not actually executed until MoveNextAsync is called for the first time.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class DeferredAsyncCursor<TDocument> : IAsyncCursor<TDocument>
     {
         // fields

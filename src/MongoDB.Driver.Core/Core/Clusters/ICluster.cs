@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <summary>
         /// Occurs when the cluster description has changed.
         /// </summary>
+        [Obsolete("This event will be removed in a later release.")]
         event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
@@ -65,6 +66,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// Acquires a core server session.
         /// </summary>
         /// <returns>A core server session.</returns>
+        [Obsolete("This method will be removed in a later release.")]
         ICoreServerSession AcquireServerSession();
 
         /// <summary>
@@ -72,12 +74,14 @@ namespace MongoDB.Driver.Core.Clusters
         /// </summary>
         /// <returns>A crypt client.</returns>
 #pragma warning disable CS3003
+        [Obsolete("This property will be removed in a later release.")]
         CryptClient CryptClient { get; }
 #pragma warning restore
 
         /// <summary>
         /// Initializes the cluster.
         /// </summary>
+        [Obsolete("This method will be removed in a later release.")]
         void Initialize();
 
         /// <summary>
@@ -86,6 +90,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <param name="selector">The server selector.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The selected server.</returns>
+        [Obsolete("This method will be removed in a later release.")]
         IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken);
 
         /// <summary>
@@ -94,6 +99,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <param name="selector">The server selector.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task representing the operation. The result of the Task is the selected server.</returns>
+        [Obsolete("This method will be removed in a later release.")]
         Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
 
         /// <summary>
@@ -103,6 +109,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <returns>
         /// A session.
         /// </returns>
+        [Obsolete("This method will be removed in a later release.")]
         ICoreSessionHandle StartSession(CoreSessionOptions options = null);
     }
 }

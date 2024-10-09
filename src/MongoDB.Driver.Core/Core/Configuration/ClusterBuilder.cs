@@ -196,6 +196,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="wrapper">The stream factory wrapper.</param>
         /// <returns>A reconfigured cluster builder.</returns>
+        [Obsolete("This method will be made internal in a later release.")]
         public ClusterBuilder RegisterStreamFactory(Func<IStreamFactory, IStreamFactory> wrapper)
         {
             Ensure.IsNotNull(wrapper, nameof(wrapper));
