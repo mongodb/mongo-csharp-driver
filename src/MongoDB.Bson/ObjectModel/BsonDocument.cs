@@ -123,7 +123,6 @@ namespace MongoDB.Bson
             AddRange(elements);
         }
 
-        //TODO Are we sure we want to remove this? Having a constructor with params is useful
         /// <summary>
         /// Initializes a new instance of the BsonDocument class and adds one or more elements.
         /// </summary>
