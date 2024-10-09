@@ -179,6 +179,15 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        [Obsolete("Use ToUniversalTime instead.")]
+        public DateTime AsDateTime
+        {
+            get { return AsUniversalTime; }
+        }
+
+        /// <summary>
         /// Casts the BsonValue to a <see cref="decimal"/> (throws an InvalidCastException if the cast is not valid).
         /// </summary>
         public decimal AsDecimal
@@ -219,6 +228,15 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Casts the BsonValue to a DateTime in the local timezone (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        [Obsolete("Use ToLocalTime instead.")]
+        public DateTime AsLocalTime
+        {
+            get { return ((BsonDateTime)this).ToLocalTime(); }
+        }
+
+        /// <summary>
         /// Casts the BsonValue to a Int64 (throws an InvalidCastException if the cast is not valid).
         /// </summary>
         public long AsInt64
@@ -232,6 +250,15 @@ namespace MongoDB.Bson
         public bool? AsNullableBoolean
         {
             get { return (BsonType == BsonType.Null) ? null : (bool?)AsBoolean; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a Nullable{DateTime} (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        [Obsolete("Use ToNullableUniversalTime instead.")]
+        public DateTime? AsNullableDateTime
+        {
+            get { return (BsonType == BsonType.Null) ? null : (DateTime?)AsDateTime; }
         }
 
         /// <summary>
@@ -312,6 +339,15 @@ namespace MongoDB.Bson
         public string AsString
         {
             get { return ((BsonString)this).Value; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        [Obsolete("Use ToUniversalTime instead.")]
+        public DateTime AsUniversalTime
+        {
+            get { return ((BsonDateTime)this).ToUniversalTime(); }
         }
 
         /// <summary>
@@ -429,6 +465,15 @@ namespace MongoDB.Bson
         public bool IsBsonUndefined
         {
             get { return BsonType == BsonType.Undefined; }
+        }
+
+        /// <summary>
+        /// Tests whether this BsonValue is a DateTime.
+        /// </summary>
+        [Obsolete("Use IsValidDateTime instead.")]
+        public bool IsDateTime
+        {
+            get { return IsValidDateTime; }
         }
 
         /// <summary>
