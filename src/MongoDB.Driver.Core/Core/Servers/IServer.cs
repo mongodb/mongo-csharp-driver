@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a MongoDB server.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IServer
     {
         // events
@@ -77,6 +78,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server that can be part of a cluster.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IClusterableServer : IServer, IDisposable
     {
         // properties
