@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a database read operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IReadOperation<TResult>
     {
         // methods
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a database write operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IWriteOperation<TResult>
     {
         // methods

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -27,6 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an update search indexes operation.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     internal sealed class UpdateSearchIndexOperation : IWriteOperation<BsonDocument>
     {
         // fields

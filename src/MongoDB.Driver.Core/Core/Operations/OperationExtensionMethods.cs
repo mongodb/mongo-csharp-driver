@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents extension methods for operations.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public static class OperationExtensionMethods
     {
         /// <summary>

@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a bulk write operation exception.
     /// </summary>
     [Serializable]
+    [Obsolete("This class will be made internal in a later release.")]
     public class MongoBulkWriteOperationException : MongoServerException
     {
         // fields

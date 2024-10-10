@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -29,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents the base class for a command operation.
     /// </summary>
     /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public abstract class CommandOperationBase<TCommandResult>
     {
         // fields

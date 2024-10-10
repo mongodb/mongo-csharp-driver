@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a delete command operation.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class RetryableDeleteCommandOperation : RetryableWriteCommandOperationBase
     {
         // private fields

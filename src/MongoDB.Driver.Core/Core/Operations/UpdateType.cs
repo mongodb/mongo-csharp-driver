@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
 namespace MongoDB.Driver.Core.Operations
@@ -20,6 +21,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the update type.
     /// </summary>
+    [Obsolete("This enum will be made internal in a later release.")]
     public enum UpdateType
     {
         /// <summary>

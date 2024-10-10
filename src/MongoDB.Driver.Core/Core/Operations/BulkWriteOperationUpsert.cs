@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents the information about one Upsert.
     /// </summary>
     [Serializable]
+    [Obsolete("This class will be made internal in a later release.")]
     public class BulkWriteOperationUpsert
     {
         // fields

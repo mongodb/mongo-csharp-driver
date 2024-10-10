@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents the result of a bulk write operation.
     /// </summary>
     [Serializable]
+    [Obsolete("This class will be made internal in a later release.")]
     public abstract class BulkWriteOperationResult
     {
         // fields
