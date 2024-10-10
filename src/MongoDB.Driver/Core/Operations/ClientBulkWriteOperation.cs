@@ -374,7 +374,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (WriteConcern?.Equals(WriteConcern.Unacknowledged) == true)
             {
-                return new BulkWriteResults.Unacknowledged();
+                return new BulkWriteResults
+                {
+                    Acknowledged = false
+                };
             }
 
             if (IsOrdered && (rawResults.Errors.Count > 0 && rawResults.Errors.First().Key == 0))
@@ -387,8 +390,9 @@ namespace MongoDB.Driver.Core.Operations
                 return null;
             }
 
-            return new BulkWriteResults.Acknowledged
+            return new BulkWriteResults
             {
+                Acknowledged = true,
                 InsertedCount = rawResults.InsertedCount,
                 DeletedCount = rawResults.DeletedCount,
                 MatchedCount = rawResults.MatchedCount,

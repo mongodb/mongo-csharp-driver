@@ -83,31 +83,31 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public static BsonDocument ConvertResults(BulkWriteResults results)
         {
-            if (results is BulkWriteResults.Acknowledged)
+            if (!results.Acknowledged)
             {
-                return new BsonDocument
-                {
-                    { "insertedCount", (int)results.InsertedCount },
-                    { "upsertedCount", (int)results.UpsertedCount },
-                    { "matchedCount", (int)results.MatchedCount },
-                    { "modifiedCount", (int)results.ModifiedCount },
-                    { "deletedCount", (int)results.DeletedCount },
-                    {
-                        "insertResults", ConvertResults(results.InsertResults,
-                            item => new() { { "insertedId", item.InsertedId } })
-                    },
-                    {
-                        "updateResults", ConvertResults(results.UpdateResults,
-                            item => new() { { "matchedCount", (int)item.MatchedCount }, { "modifiedCount", (int)item.ModifiedCount }, { "upsertedId", item.UpsertedId, item.UpsertedId != null } })
-                    },
-                    {
-                        "deleteResults", ConvertResults(results.DeleteResults,
-                            item => new() { { "deletedCount", (int)item.DeletedCount } })
-                    }
-                };
+                return new BsonDocument();
             }
 
-            return new BsonDocument();
+            return new BsonDocument
+            {
+                { "insertedCount", (int)results.InsertedCount },
+                { "upsertedCount", (int)results.UpsertedCount },
+                { "matchedCount", (int)results.MatchedCount },
+                { "modifiedCount", (int)results.ModifiedCount },
+                { "deletedCount", (int)results.DeletedCount },
+                {
+                    "insertResults", ConvertResults(results.InsertResults,
+                        item => new() { { "insertedId", item.InsertedId } })
+                },
+                {
+                    "updateResults", ConvertResults(results.UpdateResults,
+                        item => new() { { "matchedCount", (int)item.MatchedCount }, { "modifiedCount", (int)item.ModifiedCount }, { "upsertedId", item.UpsertedId, item.UpsertedId != null } })
+                },
+                {
+                    "deleteResults", ConvertResults(results.DeleteResults,
+                        item => new() { { "deletedCount", (int)item.DeletedCount } })
+                }
+            };
 
             BsonDocument ConvertResults<TResultModel>(IReadOnlyDictionary<int, TResultModel> results, Func<TResultModel, BsonDocument> converter)
                 => new BsonDocument(results.ToDictionary(

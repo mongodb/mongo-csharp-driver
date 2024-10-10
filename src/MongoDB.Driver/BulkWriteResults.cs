@@ -22,117 +22,100 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents BulkWrite operation results.
     /// </summary>
-    public abstract class BulkWriteResults
+    public sealed class BulkWriteResults
     {
+        private readonly bool _acknowledged;
+        private readonly long _insertedCount;
+        private readonly long _upsertedCount;
+        private readonly long _matchedCount;
+        private readonly long _modifiedCount;
+        private readonly long _deletedCount;
+        private readonly IReadOnlyDictionary<int, BulkWriteInsertOneResult> _insertResults;
+        private readonly IReadOnlyDictionary<int, BulkWriteUpdateResult> _updateResults;
+        private readonly IReadOnlyDictionary<int, BulkWriteDeleteResult> _deleteResults;
+
+        /// <summary>
+        /// Indicates whether this bulk write result was acknowledged.
+        /// </summary>
+        public bool Acknowledged
+        {
+            get => _acknowledged;
+            init => _acknowledged = value;
+        }
+
         /// <summary>
         /// The total number of documents inserted across all insert operations.
         /// </summary>
-        public virtual long InsertedCount { get; init; }
+        public long InsertedCount
+        {
+            get => ThrowIfNotAcknowledged(_insertedCount);
+            init => _insertedCount = value;
+        }
 
         /// <summary>
         /// The total number of documents upserted across all update operations.
         /// </summary>
-        public virtual long UpsertedCount { get; init; }
+        public long UpsertedCount
+        {
+            get => ThrowIfNotAcknowledged(_upsertedCount);
+            init => _upsertedCount = value;
+        }
 
         /// <summary>
         /// The total number of documents matched across all update operations.
         /// </summary>
-        public virtual long MatchedCount { get; init; }
+        public long MatchedCount
+        {
+            get => ThrowIfNotAcknowledged(_matchedCount);
+            init => _matchedCount = value;
+        }
 
         /// <summary>
         /// The total number of documents modified across all update operations.
         /// </summary>
-        public virtual long ModifiedCount { get; init; }
+        public long ModifiedCount
+        {
+            get => ThrowIfNotAcknowledged(_modifiedCount);
+            init => _modifiedCount = value;
+        }
 
         /// <summary>
         /// The total number of documents deleted across all delete operations.
         /// </summary>
-        public virtual long DeletedCount { get; init; }
+        public long DeletedCount
+        {
+            get => ThrowIfNotAcknowledged(_deletedCount);
+            init => _deletedCount = value;
+        }
 
         /// <summary>
         /// The results of each individual insert operation that was successfully performed.
         /// </summary>
-        public virtual IReadOnlyDictionary<int, BulkWriteInsertOneResult> InsertResults { get; init; }
+        public IReadOnlyDictionary<int, BulkWriteInsertOneResult> InsertResults
+        {
+            get => ThrowIfNotAcknowledged(_insertResults);
+            init => _insertResults = value;
+        }
 
         /// <summary>
         /// The results of each individual update operation that was successfully performed.
         /// </summary>
-        public virtual IReadOnlyDictionary<int, BulkWriteUpdateResult> UpdateResults { get; init; }
+        public IReadOnlyDictionary<int, BulkWriteUpdateResult> UpdateResults
+        {
+            get => ThrowIfNotAcknowledged(_updateResults);
+            init => _updateResults = value;
+        }
 
         /// <summary>
         /// The results of each individual delete operation that was successfully performed.
         /// </summary>
-        public virtual IReadOnlyDictionary<int, BulkWriteDeleteResult> DeleteResults { get; init; }
-
-        /// <summary>
-        /// Represents BulkWrite operation acknowledged results.
-        /// </summary>
-        public sealed class Acknowledged : BulkWriteResults
-        {}
-
-        /// <summary>
-        /// Represents BulkWrite operation unacknowledged results.
-        /// </summary>
-        public sealed class Unacknowledged : BulkWriteResults
+        public IReadOnlyDictionary<int, BulkWriteDeleteResult> DeleteResults
         {
-            /// <inheritdoc/>
-            public override long InsertedCount
-            {
-                get { throw CreateNotSupportedException(); }
-                init { throw CreateNotSupportedException(); }
-            }
-
-            /// <inheritdoc/>
-            public override long UpsertedCount
-            {
-                get { throw CreateNotSupportedException(); }
-                init { throw CreateNotSupportedException(); }
-            }
-
-            /// <inheritdoc/>
-            public override long MatchedCount
-            {
-                get { throw CreateNotSupportedException(); }
-                init { throw CreateNotSupportedException(); }
-            }
-
-            /// <inheritdoc/>
-            public override long ModifiedCount
-            {
-                get { throw CreateNotSupportedException(); }
-                init { throw CreateNotSupportedException(); }
-            }
-
-            /// <inheritdoc/>
-            public override long DeletedCount
-            {
-                get { throw CreateNotSupportedException(); }
-                init { throw CreateNotSupportedException(); }
-            }
-
-            /// <inheritdoc/>
-            public override IReadOnlyDictionary<int, BulkWriteInsertOneResult> InsertResults
-            {
-                get { throw CreateNotSupportedException(); }
-                init { throw CreateNotSupportedException(); }
-            }
-
-            /// <inheritdoc/>
-            public override IReadOnlyDictionary<int, BulkWriteUpdateResult> UpdateResults
-            {
-                get { throw CreateNotSupportedException(); }
-                init { throw CreateNotSupportedException(); }
-            }
-
-            /// <inheritdoc/>
-            public override IReadOnlyDictionary<int, BulkWriteDeleteResult> DeleteResults
-            {
-                get { throw CreateNotSupportedException(); }
-                init { throw CreateNotSupportedException(); }
-            }
-
-            private NotSupportedException CreateNotSupportedException([CallerMemberName] string callerMethod = null)
-                => throw new NotSupportedException($"Only acknowledged writes support the {callerMethod} property.");
+            get => ThrowIfNotAcknowledged(_deleteResults);
+            init => _deleteResults = value;
         }
+
+        private TValue ThrowIfNotAcknowledged<TValue>(TValue value, [CallerMemberName] string callerMethod = null)
+            => _acknowledged ? value : throw new NotSupportedException($"Only acknowledged writes support the {callerMethod} property.");
     }
 }
