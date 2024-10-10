@@ -26,25 +26,9 @@ namespace MongoDB.Driver.GridFS
     public class GridFSUploadOptions
     {
         // fields
-        private IEnumerable<string> _aliases;
         private int? _batchSize;
         private int? _chunkSizeBytes;
-        private string _contentType;
         private BsonDocument _metadata;
-
-        // properties
-        /// <summary>
-        /// Gets or sets the aliases.
-        /// </summary>
-        /// <value>
-        /// The aliases.
-        /// </value>
-        [Obsolete("Place aliases inside metadata instead.")]
-        public IEnumerable<string> Aliases
-        {
-            get { return _aliases; }
-            set { _aliases = value; }
-        }
 
         /// <summary>
         /// Gets or sets the batch size.
@@ -71,19 +55,6 @@ namespace MongoDB.Driver.GridFS
         {
             get { return _chunkSizeBytes; }
             set { _chunkSizeBytes = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
-        }
-
-        /// <summary>
-        /// Gets or sets the type of the content.
-        /// </summary>
-        /// <value>
-        /// The type of the content.
-        /// </value>
-        [Obsolete("Place contentType inside metadata instead.")]
-        public string ContentType
-        {
-            get { return _contentType; }
-            set { _contentType = Ensure.IsNullOrNotEmpty(value, nameof(value)); }
         }
 
         /// <summary>

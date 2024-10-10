@@ -25,32 +25,6 @@ namespace MongoDB.Driver.Tests.GridFS
     public class GridFSUploadOptionsTests
     {
         [Fact]
-        public void Aliases_get_should_return_expected_result()
-        {
-#pragma warning disable 618
-            var value = new[] { "alias" };
-            var subject = new GridFSUploadOptions { Aliases = value };
-
-            var result = subject.Aliases;
-#pragma warning restore
-
-            result.Should().BeSameAs(value);
-        }
-
-        [Fact]
-        public void Aliases_set_should_have_expected_result()
-        {
-            var subject = new GridFSUploadOptions();
-            var value = new[] { "alias" };
-
-#pragma warning disable 618
-            subject.Aliases = value;
-
-            subject.Aliases.Should().BeSameAs(value);
-#pragma warning restore
-        }
-
-        [Fact]
         public void BatchSize_get_should_return_expected_result()
         {
             var subject = new GridFSUploadOptions { BatchSize = 123 };
@@ -117,51 +91,13 @@ namespace MongoDB.Driver.Tests.GridFS
         }
 
         [Fact]
-        public void ContentType_get_should_return_expected_result()
-        {
-#pragma warning disable 618
-            var subject = new GridFSUploadOptions { ContentType = "type" };
-
-            var result = subject.ContentType;
-
-            result.Should().Be("type");
-#pragma warning restore
-        }
-
-        [Fact]
-        public void ContentType_set_should_have_expected_result()
-        {
-#pragma warning disable 618
-            var subject = new GridFSUploadOptions();
-
-            subject.ContentType = "type";
-
-            subject.ContentType.Should().Be("type");
-#pragma warning restore
-        }
-
-        [Fact]
-        public void ContentType_set_should_throw_when_value_is_invalid()
-        {
-#pragma warning disable 618
-            var subject = new GridFSUploadOptions();
-
-            Action action = () => subject.ContentType = "";
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
-#pragma warning restore
-        }
-
-        [Fact]
         public void default_constructor_should_return_expected_result()
         {
             var result = new GridFSUploadOptions();
 
 #pragma warning disable 618
-            result.Aliases.Should().BeNull();
             result.BatchSize.Should().NotHaveValue();
             result.ChunkSizeBytes.Should().NotHaveValue();
-            result.ContentType.Should().BeNull();
             result.Metadata.Should().BeNull();
 #pragma warning restore
         }

@@ -85,20 +85,8 @@ namespace MongoDB.Driver.Tests.Specifications.gridfs
                 _options = _options ?? new GridFSUploadOptions();
                 switch (option.Name)
                 {
-                    case "aliases":
-#pragma warning disable 618
-                        _options.Aliases = option.Value.AsBsonArray.Select(v => v.AsString);
-#pragma warning restore
-                        break;
-
                     case "chunkSizeBytes":
                         _options.ChunkSizeBytes = option.Value.ToInt32();
-                        break;
-
-                    case "contentType":
-#pragma warning disable 618
-                        _options.ContentType = option.Value.AsString;
-#pragma warning restore
                         break;
 
                     case "metadata":
