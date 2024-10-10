@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 
 namespace MongoDB.Driver.Core.Compression
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.Compression
     /// <summary>
     /// Represents a compressor.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface ICompressor
     {
         /// <summary>

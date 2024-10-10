@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
     /// <summary>
     /// Handler for connections related exceptions raised in <see cref="IConnectionPool"/>.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IConnectionExceptionHandler
     {
         /// <summary>
@@ -34,6 +35,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
     /// <summary>
     /// Represents a connection pool factory.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IConnectionPoolFactory
     {
         // methods

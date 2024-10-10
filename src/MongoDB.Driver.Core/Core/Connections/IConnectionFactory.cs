@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Net;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
@@ -22,6 +23,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection factory.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public interface IConnectionFactory
     {
         // properties
