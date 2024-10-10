@@ -24,7 +24,9 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.Oidc
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     internal sealed class MongoOidcAuthenticator : SaslAuthenticator
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         #region static
         public const string MechanismName = "MONGODB-OIDC";

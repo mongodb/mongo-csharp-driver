@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// Else, uses SCRAM-SHA-256 if present in the list of mechanisms. Otherwise, uses
     /// SCRAM-SHA-1 the default, regardless of whether SCRAM-SHA-1 is in the list.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class DefaultAuthenticator : IAuthenticator
     {
         // fields

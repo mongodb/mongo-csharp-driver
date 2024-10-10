@@ -29,7 +29,9 @@ namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public static void Authenticate(IConnection connection, ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators, CancellationToken cancellationToken)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -45,7 +47,9 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators, CancellationToken cancellationToken)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));

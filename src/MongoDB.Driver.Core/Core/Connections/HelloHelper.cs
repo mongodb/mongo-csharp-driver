@@ -61,7 +61,9 @@ namespace MongoDB.Driver.Core.Connections
             };
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         internal static BsonDocument CustomizeCommand(BsonDocument command, IReadOnlyList<IAuthenticator> authenticators, CancellationToken cancellationToken)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             return authenticators.Count == 1 ? authenticators[0].CustomizeInitialHelloCommand(command, cancellationToken) : command;
         }

@@ -23,13 +23,17 @@ namespace MongoDB.Driver.Core.Connections
 {
     internal sealed class ConnectionInitializerContext
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public ConnectionInitializerContext(ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             Description = Ensure.IsNotNull(description, nameof(description));
             Authenticators = Ensure.IsNotNull(authenticators, nameof(authenticators));
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         public IReadOnlyList<IAuthenticator> Authenticators { get; }
+#pragma warning restore CS0618 // Type or member is obsolete
         public ConnectionDescription Description { get; }
     }
 

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// Represents a connection authenticator.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IAuthenticator
     {
         /// <summary>

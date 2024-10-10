@@ -94,8 +94,10 @@ namespace MongoDB.Driver.Core.Operations
 
             __saslCommands = new HashSet<string>
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 SaslAuthenticator.SaslStartCommand,
                 SaslAuthenticator.SaslContinueCommand
+#pragma warning restore CS0618 // Type or member is obsolete
             };
         }
 
