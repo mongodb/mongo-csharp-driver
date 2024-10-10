@@ -83,6 +83,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public static BsonDocument ConvertResults(BulkWriteResults results)
         {
+            if (results == null)
+            {
+                return null;
+            }
+
             if (!results.Acknowledged)
             {
                 return new BsonDocument();
