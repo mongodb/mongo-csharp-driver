@@ -71,6 +71,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var maxDocumentSize = section.MaxDocumentSize ?? binaryWriter.Settings.MaxDocumentSize;
             binaryWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
             binaryWriter.PushElementNameValidator(NoOpElementNameValidator.Instance);
+            _nsInfoWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
             try
             {
                 var maxBatchCount = Math.Min(batch.Count, section.MaxBatchCount ?? int.MaxValue);
@@ -84,7 +85,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     document.Visit(this);
 
                     var writtenSize = stream.Position - startPosition;
-                    if (writtenSize > (_maxSize - _nsInfoWriter.Position) && batch.CanBeSplit && i > 0)
+                    if (writtenSize > (_maxSize - _nsInfoWriter.Position))
                     {
                         stream.Position = documentStartPosition;
                         stream.SetLength(documentStartPosition);
@@ -140,7 +141,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
                 var objectId = documentSerializer.EnsureIdAssigned(null, model.Document);
-                _idsMap.Add(_currentIndex, BsonValue.Create(objectId));
+                _idsMap[_currentIndex] = BsonValue.Create(objectId);
                 context.Writer.WriteName("document");
                 documentSerializer.Serialize(_serializationContext, model.Document);
             });

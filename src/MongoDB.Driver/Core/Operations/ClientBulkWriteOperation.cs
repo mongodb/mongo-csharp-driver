@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
                 operations = new BatchableSource<BulkWriteModel>(WriteModels.Items, WriteModels.Offset, WriteModels.ProcessedCount, canBeSplit: false);
             }
             var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
-            var maxDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
+            var maxDocumentSize = channel.ConnectionDescription.MaxDocumentSize;
             var payload = new ClientBulkWriteOpsCommandMessageSection(operations, _idsMap, maxBatchCount, maxDocumentSize, RenderArgs);
             return new[] { payload };
         }
@@ -125,9 +125,16 @@ namespace MongoDB.Driver.Core.Operations
                     using var individualResults = GetIndividualResultsCursor(context, serverResponse);
                     if (individualResults != null && bulkWriteResults.TopLevelException == null)
                     {
-                        while (individualResults.MoveNext(cancellationToken))
+                        try
                         {
-                            PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
+                            while (individualResults.MoveNext(cancellationToken))
+                            {
+                                PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            bulkWriteResults.TopLevelException = e;
                         }
                     }
                 }
@@ -174,9 +181,16 @@ namespace MongoDB.Driver.Core.Operations
                     using var individualResults = GetIndividualResultsCursor(context, serverResponse);
                     if (individualResults != null && bulkWriteResults.TopLevelException == null)
                     {
-                        while (await individualResults.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                        try
                         {
-                            PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
+                            while (await individualResults.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                            {
+                                PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            bulkWriteResults.TopLevelException = e;
                         }
                     }
                 }
