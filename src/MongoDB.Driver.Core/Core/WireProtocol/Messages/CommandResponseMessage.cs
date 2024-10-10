@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// Represents a command response message.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.RequestMessage" />
+    [Obsolete("This class will be made internal in a later release.")]
     public class CommandResponseMessage : ResponseMessage
     {
         // private fields

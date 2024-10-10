@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.WireProtocol
     /// Represents one result batch (returned from either a Query or a GetMore message)
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This struct will be made internal in a later release.")]
     public struct CursorBatch<TDocument>
     {
         // fields

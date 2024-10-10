@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents the payload type.
     /// </summary>
+    [Obsolete("This enum will be made internal in a later release.")]
     public enum PayloadType
     {
         /// <summary>
@@ -38,6 +39,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a CommandMessage section.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public abstract class CommandMessageSection
     {
         /// <summary>
@@ -53,6 +55,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// Represents a Type 0 CommandMessage section.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.CommandMessageSection" />
+    [Obsolete("This class will be made internal in a later release.")]
     public abstract class Type0CommandMessageSection : CommandMessageSection
     {
         // private fields
@@ -98,6 +101,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.Type0CommandMessageSection" />
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class Type0CommandMessageSection<TDocument> : Type0CommandMessageSection
     {
         // private fields
@@ -139,6 +143,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a Type 1 CommandMessage section.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public abstract class Type1CommandMessageSection : CommandMessageSection
     {
         // private fields
@@ -241,6 +246,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.CommandMessageSection" />
+    [Obsolete("This class will be made internal in a later release.")]
     public class Type1CommandMessageSection<TDocument> : Type1CommandMessageSection where TDocument : class
     {
         // private fields

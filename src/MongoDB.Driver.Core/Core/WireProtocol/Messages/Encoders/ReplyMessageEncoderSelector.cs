@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
@@ -22,6 +23,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     /// Represents a message encoder selector for ReplyMessages.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public class ReplyMessageEncoderSelector<TDocument> : IMessageEncoderSelector
     {
         // fields

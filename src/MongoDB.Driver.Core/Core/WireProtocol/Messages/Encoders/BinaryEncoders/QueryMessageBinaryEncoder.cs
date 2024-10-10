@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// <summary>
     /// Represents a binary encoder for a Query message.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class QueryMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         // constructors

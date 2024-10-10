@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a channel (similar to a connection but operates at the level of protocols rather than messages).
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IChannel : IDisposable
     {
         /// <summary>
@@ -264,6 +265,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a handle to a channel.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IChannelHandle : IChannel
     {
         /// <summary>

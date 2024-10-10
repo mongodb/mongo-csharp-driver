@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// Represents a command message.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage" />
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class CommandMessage : MongoDBMessage
     {
         // static

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -22,6 +23,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     /// <summary>
     /// Represents a factory for JSON message encoders.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class JsonMessageEncoderFactory : IMessageEncoderFactory
     {
         // fields

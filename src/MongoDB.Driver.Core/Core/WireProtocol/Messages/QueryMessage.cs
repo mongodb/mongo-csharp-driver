@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a Query message.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class QueryMessage : RequestMessage
     {
         // fields
