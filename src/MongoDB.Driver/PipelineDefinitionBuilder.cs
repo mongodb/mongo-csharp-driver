@@ -269,6 +269,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options (optional).</param>
         /// <param name="translationOptions">The translation options.</param>
         /// <returns>A new pipeline with an additional stage.</returns>
+        [Obsolete("This method will be removed in a later release.")]
         public static PipelineDefinition<TInput, TOutput> BucketAutoForLinq2<TInput, TIntermediate, TValue, TOutput>(
             this PipelineDefinition<TInput, TIntermediate> pipeline,
             Expression<Func<TIntermediate, TValue>> groupBy,

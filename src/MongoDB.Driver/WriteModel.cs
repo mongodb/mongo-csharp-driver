@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
+    [Obsolete("This class will be made internal in a later release.")] //TODO This is marked in the doc but it's still public on main (same for the derived classes)
     public abstract class WriteModel<TDocument>
     {
         // static methods

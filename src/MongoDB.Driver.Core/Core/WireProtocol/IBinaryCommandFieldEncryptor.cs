@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.WireProtocol
     /// <summary>
     /// Interface for decrypting fields in a binary document.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IBinaryCommandFieldEncryptor
     {
         /// <summary>

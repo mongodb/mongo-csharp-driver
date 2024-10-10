@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -22,6 +23,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a request to delete one or more documents.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class DeleteRequest : WriteRequest
     {
         // fields
