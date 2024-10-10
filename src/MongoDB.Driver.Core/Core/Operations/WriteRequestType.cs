@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
     /// Represents the type of a write request.
     /// </summary>
+    [Obsolete("This enum will be made internal in a later release.")]
     public enum WriteRequestType
     {
         /// <summary>

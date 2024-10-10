@@ -434,6 +434,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the LINQ provider.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public LinqProvider LinqProvider
         {
             get { return _linqProvider; }

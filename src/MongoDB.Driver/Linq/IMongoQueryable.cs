@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using MongoDB.Bson;
 
@@ -21,7 +22,7 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// Provides functionality to evaluate queries against MongoDB.
     /// </summary>
-    public interface IMongoQueryable : IQueryable
+    public interface IMongoQueryable : IQueryable  //TODO It seems this whole interface does not exist anymore on main
     {
         /// <summary>
         /// Gets the pipeline stages that were logged when the queryable was executed.
@@ -39,6 +40,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// The execution model.
         /// </returns>
+        [Obsolete("This method will be removed in a later release.")]
         QueryableExecutionModel GetExecutionModel();
     }
 

@@ -121,6 +121,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A <see cref="System.String" /> that represents this instance.
         /// </returns>
+        [Obsolete("This method will be removed in a later release.")]
         public string ToString(LinqProvider linqProvider)
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
