@@ -35,8 +35,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
     internal abstract class Type0CommandMessageSection : CommandMessageSection
     {
-        // private fields
-
         // constructors
         public Type0CommandMessageSection(object document, IBsonSerializer documentSerializer)
         {
@@ -53,8 +51,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
     internal sealed class Type0CommandMessageSection<TDocument> : Type0CommandMessageSection
     {
-        // private fields
-
         // constructors
         public Type0CommandMessageSection(TDocument document, IBsonSerializer<TDocument> documentSerializer)
             : base(document, documentSerializer)
@@ -89,8 +85,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
     internal abstract class Type1CommandMessageSection : BatchableCommandMessageSection
     {
-        // private fields
-
         // constructors
         public Type1CommandMessageSection(
             string identifier,
@@ -115,8 +109,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
     internal sealed class Type1CommandMessageSection<TDocument> : Type1CommandMessageSection where TDocument : class
     {
-        // private fields
-
         // constructors
         public Type1CommandMessageSection(
             string identifier,

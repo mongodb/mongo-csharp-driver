@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
-        private const int EncriptedMaxBatchSize = 2 * 1024 * 1024; // 2 MiB
+        private const int EncryptedMaxBatchSize = 2 * 1024 * 1024; // 2 MiB
         private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter();
 
         // constructors
@@ -244,22 +244,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         private void WriteSection(BsonBinaryWriter writer, CommandMessageSection section, long messageStartPosition)
         {
-            long? GetSectionMaxSize()
-            {
-                int? maxMessageSize;
-                if (IsEncryptionConfigured)
-                {
-                    var maxMessageEndPosition = writer.BsonStream.Position + EncriptedMaxBatchSize;
-                    maxMessageSize = (int)(maxMessageEndPosition - messageStartPosition);
-                }
-                else
-                {
-                    maxMessageSize = MaxMessageSize;
-                }
-
-                return messageStartPosition + maxMessageSize - writer.BsonStream.Position;
-            }
-
             writer.BsonStream.WriteByte((byte)section.PayloadType);
 
             switch (section)
@@ -280,6 +264,22 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     break;
                 default:
                     throw new NotSupportedException($"Cannot format command message section of type '{section.GetType().FullName}'.");
+            }
+
+            long? GetSectionMaxSize()
+            {
+                int? maxMessageSize;
+                if (IsEncryptionConfigured)
+                {
+                    var maxMessageEndPosition = writer.BsonStream.Position + EncryptedMaxBatchSize;
+                    maxMessageSize = (int)(maxMessageEndPosition - messageStartPosition);
+                }
+                else
+                {
+                    maxMessageSize = MaxMessageSize;
+                }
+
+                return messageStartPosition + maxMessageSize - writer.BsonStream.Position;
             }
         }
 

@@ -29,7 +29,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     {
         private readonly long? _maxSize;
         private readonly Dictionary<string, int> _nsInfos;
-        private readonly BsonBinaryWriter _nsInfoWriter;
+        private MemoryStream _nsInfoMemoryStream;
+        private BsonBinaryWriter _nsInfoWriter;
         private IBsonSerializerRegistry _serializerRegistry;
         private Dictionary<int, BsonValue> _idsMap;
         private int _currentIndex;
@@ -43,10 +44,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
 
             _nsInfos = new Dictionary<string, int>();
+            _nsInfoMemoryStream = new MemoryStream();
             _nsInfoWriter = new BsonBinaryWriter(new MemoryStream());
         }
 
-        public void Dispose() => _nsInfoWriter?.Dispose();
+        public void Dispose()
+        {
+            _nsInfoMemoryStream?.Dispose();
+            _nsInfoMemoryStream = null;
+            _nsInfoWriter?.Dispose();
+            _nsInfoWriter = null;
+        }
 
         public void FormatSection(ClientBulkWriteOpsCommandMessageSection section, IBsonWriter writer)
         {

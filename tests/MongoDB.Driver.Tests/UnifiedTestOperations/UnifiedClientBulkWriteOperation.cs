@@ -83,11 +83,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public static BsonDocument ConvertResults(BulkWriteResults results)
         {
-            BsonDocument ConvertResults<TResultModel>(IReadOnlyDictionary<int, TResultModel> results, Func<TResultModel, BsonDocument> converter)
-                => new BsonDocument(results.ToDictionary(
-                    i => i.Key.ToString(),
-                    i => converter(i.Value)));
-
             if (results is BulkWriteResults.Acknowledged)
             {
                 return new BsonDocument
@@ -99,20 +94,25 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     { "deletedCount", (int)results.DeletedCount },
                     {
                         "insertResults", ConvertResults(results.InsertResults,
-                            item => new BsonDocument { { "insertedId", item.InsertedId } })
+                            item => new() { { "insertedId", item.InsertedId } })
                     },
                     {
                         "updateResults", ConvertResults(results.UpdateResults,
-                            item => new BsonDocument { { "matchedCount", (int)item.MatchedCount }, { "modifiedCount", (int)item.ModifiedCount }, { "upsertedId", item.UpsertedId, item.UpsertedId != null } })
+                            item => new() { { "matchedCount", (int)item.MatchedCount }, { "modifiedCount", (int)item.ModifiedCount }, { "upsertedId", item.UpsertedId, item.UpsertedId != null } })
                     },
                     {
                         "deleteResults", ConvertResults(results.DeleteResults,
-                            item => new BsonDocument { { "deletedCount", (int)item.DeletedCount } })
+                            item => new() { { "deletedCount", (int)item.DeletedCount } })
                     }
                 };
             }
 
             return new BsonDocument();
+
+            BsonDocument ConvertResults<TResultModel>(IReadOnlyDictionary<int, TResultModel> results, Func<TResultModel, BsonDocument> converter)
+                => new BsonDocument(results.ToDictionary(
+                    i => i.Key.ToString(),
+                    i => converter(i.Value)));
         }
     }
 
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var client = _entityMap.Clients[targetClientId];
             ClientBulkWriteOptions options = null;
-            List<BulkWriteModel> models = null;
+            BulkWriteModel[] models = null;
             IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options.IsOrdered = argument.Value.AsBoolean;
                         break;
                     case "models":
-                        models = argument.Value.AsBsonArray.Cast<BsonDocument>().Select(ParseWriteModel).ToList();
+                        models = argument.Value.AsBsonArray.Cast<BsonDocument>().Select(ParseWriteModel).ToArray();
                         break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];

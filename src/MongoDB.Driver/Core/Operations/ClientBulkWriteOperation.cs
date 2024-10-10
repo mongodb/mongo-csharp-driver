@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Operations
             ClientBulkWriteOptions options,
             MessageEncoderSettings messageEncoderSettings,
             RenderArgs<BsonDocument> renderArgs)
-        : base(DatabaseNamespace.Admin, messageEncoderSettings)
+            : base(DatabaseNamespace.Admin, messageEncoderSettings)
         {
             Ensure.IsNotNullOrEmpty(writeModels, nameof(writeModels));
             WriteModels = new BatchableSource<BulkWriteModel>(writeModels, true);
@@ -377,7 +377,12 @@ namespace MongoDB.Driver.Core.Operations
                 return new BulkWriteResults.Unacknowledged();
             }
 
-            if (rawResults.InsertedCount + rawResults.UpsertedCount + rawResults.DeletedCount + rawResults.ModifiedCount == 0)
+            if (IsOrdered && (rawResults.Errors.Count > 0 && rawResults.Errors.First().Key == 0))
+            {
+                return null;
+            }
+
+            if (!IsOrdered && rawResults.Errors.Count == WriteModels.Items.Count)
             {
                 return null;
             }

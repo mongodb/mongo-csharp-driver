@@ -147,15 +147,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private void AssertIsClientError(Exception actualException, bool expectedIsClientError)
         {
-            bool IsClientError(Exception exception)
-                => exception is
-                    ArgumentException or
-                    MongoClientException or
-                    BsonException or
-                    MongoConnectionException or
-                    NotSupportedException or
-                    TimeoutException;
-
             var actualIsClientError = IsClientError(actualException) ||
                 (actualException is ClientBulkWriteException bulkWriteException && IsClientError(bulkWriteException.InnerException));
 
@@ -164,6 +155,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 var message = $"Expected exception to {(expectedIsClientError ? "" : "not ")}be a client exception, but found {actualException}.";
                 throw new AssertionException(message);
             }
+
+            bool IsClientError(Exception exception)
+                => exception is
+                    ArgumentException or
+                    MongoClientException or
+                    BsonException or
+                    MongoConnectionException or
+                    NotSupportedException or
+                    TimeoutException;
         }
 
         private void AssertIsError(Exception actualException, bool expectedIsError)

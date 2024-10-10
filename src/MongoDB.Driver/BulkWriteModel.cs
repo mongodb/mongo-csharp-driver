@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents base class for all operations in scope of bulk write.
+    /// Represents base class for all operations in the scope of bulk write.
     /// </summary>
     public abstract class BulkWriteModel
     {

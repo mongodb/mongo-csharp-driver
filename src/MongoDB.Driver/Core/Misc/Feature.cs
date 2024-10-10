@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", WireVersion.Server40);
         private static readonly Feature __changeStreamPrePostImages = new Feature("ChangeStreamPrePostImages", WireVersion.Server60);
         private static readonly Feature __changeStreamSplitEventStage = new Feature("ChangeStreamSplitEventStage", WireVersion.Server70);
+        private static readonly Feature __clientBulkWrite = new Feature("ClientBulkWrite", WireVersion.Server80);
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
         private static readonly Feature __clusteredIndexes = new Feature("ClusteredIndexes", WireVersion.Server53);
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
@@ -173,6 +174,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the change stream splitEvent stage feature.
         /// </summary>
         public static Feature ChangeStreamSplitEventStage => __changeStreamSplitEventStage;
+
+        /// <summary>
+        /// Gets the client bulk write feature.
+        /// </summary>
+        public static Feature ClientBulkWrite => __clientBulkWrite;
 
         /// <summary>
         /// Gets the client side encryption feature.

@@ -24,7 +24,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -163,7 +162,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_splits_batches_on_maxWriteBatchSize([Values(true, false)]bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxBatchCount = DriverTestConfiguration.GetConnectionDescription().MaxBatchCount;
             var models = Enumerable
                 .Range(0, maxBatchCount + 1)
@@ -177,7 +176,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             result.InsertedCount.Should().Be(models.Length);
             eventCapturer.Count.Should().Be(2);
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
-                .Subject.Should().Match(c => ((CommandStartedEvent)c).Command["ops"].AsBsonArray.Count == models.Length - 1);
+                .Subject.Should().Match(c => ((CommandStartedEvent)c).Command["ops"].AsBsonArray.Count == maxBatchCount);
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
                 .Subject.Should().Match(c => ((CommandStartedEvent)c).Command["ops"].AsBsonArray.Count == 1);
         }
@@ -187,7 +186,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_splits_batches_on_maxMessageSizeBytes([Values(true, false)]bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var connectionDescription = DriverTestConfiguration.GetConnectionDescription();
             var maxDocumentSize = connectionDescription.MaxDocumentSize;
             var maxMessageSize = connectionDescription.MaxMessageSize;
@@ -202,10 +201,10 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             using var client = CreateDisposableClient(eventCapturer);
             var result = async ? await client.BulkWriteAsync(models) : client.BulkWrite(models);
 
-            result.InsertedCount.Should().Be(models.Length);
+            result.InsertedCount.Should().Be(numModels);
             eventCapturer.Count.Should().Be(2);
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
-                .Subject.Should().Match(c => ((CommandStartedEvent)c).Command["ops"].AsBsonArray.Count == models.Length - 1);
+                .Subject.Should().Match(c => ((CommandStartedEvent)c).Command["ops"].AsBsonArray.Count == numModels - 1);
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
                 .Subject.Should().Match(c => ((CommandStartedEvent)c).Command["ops"].AsBsonArray.Count == 1);
         }
@@ -215,9 +214,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_collects_WriteConcernError_across_batches([Values(true, false)]bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxBatchCount = DriverTestConfiguration.GetConnectionDescription().MaxBatchCount;
-            var failPointCommand = @"
+            const string failPointCommand = @"
             {
               configureFailPoint: 'failCommand',
               mode: { times: 2 },
@@ -257,7 +256,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             [Values(true, false)] bool async,
             [Values(true, false)] bool ordered)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxBatchCount = DriverTestConfiguration.GetConnectionDescription().MaxBatchCount;
             var model = new BsonDocument { { "_id", 1 } };
             var models = Enumerable
@@ -291,7 +290,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             [Values(true, false)] bool async,
             [Values(true, false)] bool isInTransaction)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             if (isInTransaction)
             {
                 RequireServer.Check()
@@ -353,10 +352,10 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_handles_getMore_error([Values(true, false)] bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxDocumentSize = DriverTestConfiguration.GetConnectionDescription().MaxDocumentSize;
 
-            var failPointCommand = @"
+            const string failPointCommand = @"
                 {
                   configureFailPoint: 'failCommand',
                   mode: { times: 1 },
@@ -412,7 +411,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             [Values(true, false)] bool async,
             [Values(true, false)] bool isReplace)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxDocumentSize = DriverTestConfiguration.GetConnectionDescription().MaxDocumentSize;
 
             var document = new BsonDocument() { { "a", new string('b', maxDocumentSize) } };
@@ -442,7 +441,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         //     [Values(true, false)] bool async,
         //     [Values(true, false)] bool isBatchSplit)
         // {
-        //     RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+        //     RequireServer.Check().Supports(Feature.ClientBulkWrite);
         //     var connectionDescription = DriverTestConfiguration.GetConnectionDescription();
         //     var maxDocumentSize = connectionDescription.MaxDocumentSize;
         //     var maxMessageSize = connectionDescription.MaxMessageSize;
@@ -499,7 +498,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_throws_if_no_operations_can_be_added_big_document([Values(true, false)]bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxMessageSize = DriverTestConfiguration.GetConnectionDescription().MaxMessageSize;
 
             var models = new[]
@@ -525,7 +524,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_throws_if_no_operations_can_be_added_big_namespace([Values(true, false)]bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxMessageSize = DriverTestConfiguration.GetConnectionDescription().MaxMessageSize;
 
             var models = new[]
@@ -551,7 +550,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         [ParameterAttributeData]
         public async Task MongoClient_bulkWrite_throws_if_auto_encryption_configured([Values(true, false)]bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 0, 0, ""));
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
 
             var models = new[]
             {
@@ -561,7 +560,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 )
             };
 
-            var client = DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+            using var client = DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
                 {
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5);
                     var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
