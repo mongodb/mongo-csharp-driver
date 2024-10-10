@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a context for retryable writes.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class RetryableWriteContext : IDisposable
     {
         #region static

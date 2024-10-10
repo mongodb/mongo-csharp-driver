@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a read binding to a single server;
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class SingleServerReadBinding : IReadBinding
     {
         // private constants

@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a handle to a read-write binding.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class ReadWriteBindingHandle : IReadWriteBindingHandle
     {
         // fields
