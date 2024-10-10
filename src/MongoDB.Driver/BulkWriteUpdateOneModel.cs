@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -105,7 +106,7 @@ namespace MongoDB.Driver
         /// </summary>
         public UpdateDefinition<TDocument> Update { get; init; }
 
-        internal override void Visit(IBulkWriteModelVisitor visitor)
-            => visitor.VisitUpdateOne(this);
+        internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
+            => renderer.RenderUpdateOne(renderArgs, serializationContext, this);
     }
 }

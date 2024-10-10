@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -37,6 +38,6 @@ namespace MongoDB.Driver
         /// </summary>
         public CollectionNamespace Namespace { get; }
 
-        internal abstract void Visit(IBulkWriteModelVisitor visitor);
+        internal abstract void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer);
     }
 }

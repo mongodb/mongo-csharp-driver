@@ -25,14 +25,12 @@ using MongoDB.Driver.Core.Operations.ElementNameValidators;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    internal sealed class ClientBulkWriteOpsSectionFormatter : ICommandMessageSectionFormatter<ClientBulkWriteOpsCommandMessageSection>, IBulkWriteModelVisitor, IDisposable
+    internal sealed class ClientBulkWriteOpsSectionFormatter : ICommandMessageSectionFormatter<ClientBulkWriteOpsCommandMessageSection>, IBulkWriteModelRenderer, IDisposable
     {
         private readonly long? _maxSize;
         private readonly Dictionary<string, int> _nsInfos;
         private readonly BsonBinaryWriter _nsInfoWriter;
-        private BsonSerializationContext _serializationContext;
         private IBsonSerializerRegistry _serializerRegistry;
-        private RenderArgs<BsonDocument> _renderArgs;
         private Dictionary<int, BsonValue> _idsMap;
         private int _currentIndex;
 
@@ -57,9 +55,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 throw new ArgumentException("Writer must be an instance of BsonBinaryWriter.");
             }
 
-            _renderArgs = section.RenderArgs;
             _serializerRegistry = BsonSerializer.SerializerRegistry;
-            _serializationContext = BsonSerializationContext.CreateRoot(binaryWriter);
+            var serializationContext = BsonSerializationContext.CreateRoot(binaryWriter);
             _idsMap = section.IdsMap;
             var stream = binaryWriter.BsonStream;
             var startPosition = stream.Position;
@@ -79,10 +76,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 for (var i = 0; i < maxBatchCount; i++)
                 {
                     var documentStartPosition = stream.Position;
-                    var document = batch.Items[batch.Offset + i];
+                    var model = batch.Items[batch.Offset + i];
                     _currentIndex = batch.Offset + i;
 
-                    document.Visit(this);
+                    model.Render(section.RenderArgs, serializationContext, this);
 
                     var writtenSize = stream.Position - startPosition;
                     if (writtenSize > (_maxSize - _nsInfoWriter.Position))
@@ -112,86 +109,91 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        public void Visit(BulkWriteModel bulkWriteModel)
+        public void RenderDeleteMany<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteDeleteManyModel<TDocument> model)
         {
+            WriteStartModel(serializationContext, "delete", model);
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
+            WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
+            WriteBoolean(serializationContext, "multi", true);
+            WriteHint(serializationContext, model.Hint);
+            WriteCollation(serializationContext, model.Collation);
+            WriteEndModel(serializationContext);
         }
 
-        public void VisitDeleteMany<TDocument>(BulkWriteDeleteManyModel<TDocument> deleteManyModel)
-            => WriteOperation("delete", deleteManyModel, (context, model) =>
-            {
-                var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
-                WriteFilter(context, model.Filter, documentSerializer);
-                WriteBoolean(context, "multi", true);
-                WriteHint(context, model.Hint);
-                WriteCollation(context, model.Collation);
-            });
+        public void RenderDeleteOne<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteDeleteOneModel<TDocument> model)
+        {
+            WriteStartModel(serializationContext, "delete", model);
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
+            WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
+            WriteBoolean(serializationContext, "multi", false);
+            WriteHint(serializationContext, model.Hint);
+            WriteCollation(serializationContext, model.Collation);
+            WriteEndModel(serializationContext);
+        }
 
-        public void VisitDeleteOne<TDocument>(BulkWriteDeleteOneModel<TDocument> deleteOneModel)
-            => WriteOperation("delete", deleteOneModel, (context, model) =>
-            {
-                var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
-                WriteFilter(context, model.Filter, documentSerializer);
-                WriteBoolean(context, "multi", false);
-                WriteHint(context, model.Hint);
-                WriteCollation(context, model.Collation);
-            });
+        public void RenderInsertOne<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteInsertOneModel<TDocument> model)
+        {
+            WriteStartModel(serializationContext, "insert", model);
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
+            var objectId = documentSerializer.EnsureIdAssigned(null, model.Document);
+            _idsMap[_currentIndex] = BsonValue.Create(objectId);
+            serializationContext.Writer.WriteName("document");
+            documentSerializer.Serialize(serializationContext, model.Document);
+            WriteEndModel(serializationContext);
+        }
 
-        public void VisitInsertOne<TDocument>(BulkWriteInsertOneModel<TDocument> insertOneModel)
-            => WriteOperation("insert", insertOneModel, (context, model) =>
+        public void RenderReplaceOne<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteReplaceOneModel<TDocument> model)
+        {
+            WriteStartModel(serializationContext, "update", model);
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
+            WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
+            WriteUpdate(serializationContext, model.Replacement, documentSerializer, UpdateType.Replacement);
+            if (model.IsUpsert)
             {
-                var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
-                var objectId = documentSerializer.EnsureIdAssigned(null, model.Document);
-                _idsMap[_currentIndex] = BsonValue.Create(objectId);
-                context.Writer.WriteName("document");
-                documentSerializer.Serialize(_serializationContext, model.Document);
-            });
+                WriteBoolean(serializationContext, "upsert", true);
+            }
 
-        public void VisitReplaceOne<TDocument>(BulkWriteReplaceOneModel<TDocument> replaceOneModel)
-            => WriteOperation("update", replaceOneModel, (context, model) =>
-            {
-                var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
-                WriteFilter(context, model.Filter, documentSerializer);
-                WriteUpdate(context, model.Replacement, documentSerializer, UpdateType.Replacement);
-                if (model.IsUpsert)
-                {
-                    WriteBoolean(context, "upsert", true);
-                }
-                WriteBoolean(context, "multi", false);
-                WriteHint(context, model.Hint);
-                WriteCollation(context, model.Collation);
-            });
+            WriteBoolean(serializationContext, "multi", false);
+            WriteHint(serializationContext, model.Hint);
+            WriteCollation(serializationContext, model.Collation);
+            WriteEndModel(serializationContext);
+        }
 
-        public void VisitUpdateMany<TDocument>(BulkWriteUpdateManyModel<TDocument> updateOneModel)
-            => WriteOperation("update", updateOneModel, (context, model) =>
+        public void RenderUpdateMany<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteUpdateManyModel<TDocument> model)
+        {
+            WriteStartModel(serializationContext, "update", model);
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
+            WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
+            WriteUpdate(serializationContext, renderArgs, model.Update, documentSerializer);
+            if (model.IsUpsert)
             {
-                var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
-                WriteFilter(context, model.Filter, documentSerializer);
-                WriteUpdate(context, model.Update, documentSerializer);
-                if (model.IsUpsert)
-                {
-                    WriteBoolean(context, "upsert", true);
-                }
-                WriteBoolean(context, "multi", true);
-                WriteArrayFilters(context, model.ArrayFilters);
-                WriteHint(context, model.Hint);
-                WriteCollation(context, model.Collation);
-            });
+                WriteBoolean(serializationContext, "upsert", true);
+            }
 
-        public void VisitUpdateOne<TDocument>(BulkWriteUpdateOneModel<TDocument> updateManyModel)
-            => WriteOperation("update", updateManyModel, (context, model) =>
+            WriteBoolean(serializationContext, "multi", true);
+            WriteArrayFilters(serializationContext, model.ArrayFilters);
+            WriteHint(serializationContext, model.Hint);
+            WriteCollation(serializationContext, model.Collation);
+            WriteEndModel(serializationContext);
+        }
+
+        public void RenderUpdateOne<TDocument>(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, BulkWriteUpdateOneModel<TDocument> model)
+        {
+            WriteStartModel(serializationContext, "update", model);
+            var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
+            WriteFilter(serializationContext, renderArgs, model.Filter, documentSerializer);
+            WriteUpdate(serializationContext, renderArgs, model.Update, documentSerializer);
+            if (model.IsUpsert)
             {
-                var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
-                WriteFilter(context, model.Filter, documentSerializer);
-                WriteUpdate(context, model.Update, documentSerializer);
-                if (model.IsUpsert)
-                {
-                    WriteBoolean(context, "upsert", true);
-                }
-                WriteBoolean(context, "multi", false);
-                WriteArrayFilters(context, model.ArrayFilters);
-                WriteHint(context, model.Hint);
-                WriteCollation(context, model.Collation);
-            });
+                WriteBoolean(serializationContext, "upsert", true);
+            }
+
+            WriteBoolean(serializationContext, "multi", false);
+            WriteArrayFilters(serializationContext, model.ArrayFilters);
+            WriteHint(serializationContext, model.Hint);
+            WriteCollation(serializationContext, model.Collation);
+            WriteEndModel(serializationContext);
+        }
 
         private int EnsureNsInfo(string nsName)
         {
@@ -245,11 +247,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             BsonDocumentSerializer.Instance.Serialize(serializationContext, collationDocument);
         }
 
-        private void WriteFilter<TDocument>(BsonSerializationContext serializationContext, FilterDefinition<TDocument> filterDefinition, IBsonSerializer<TDocument> documentSerializer)
+        private void WriteFilter<TDocument>(BsonSerializationContext serializationContext, RenderArgs<BsonDocument> renderArgs, FilterDefinition<TDocument> filterDefinition, IBsonSerializer<TDocument> documentSerializer)
         {
             serializationContext.Writer.WriteName("filter");
-            var renderArgs = _renderArgs.WithNewDocumentType(documentSerializer);
-            var filterDocument = filterDefinition.Render(renderArgs);
+            var typedRenderArgs = renderArgs.WithNewDocumentType(documentSerializer);
+            var filterDocument = filterDefinition.Render(typedRenderArgs);
             BsonDocumentSerializer.Instance.Serialize(serializationContext, filterDocument);
         }
 
@@ -264,25 +266,25 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             BsonValueSerializer.Instance.Serialize(serializationContext, hint);
         }
 
-        private void WriteOperation<TOperation>(string operationName, TOperation operation, Action<BsonSerializationContext, TOperation> operationBodyWriter)
-            where TOperation : BulkWriteModel
+        private void WriteStartModel(BsonSerializationContext serializationContext, string operationName, BulkWriteModel model)
         {
-            var nsInfoIndex = EnsureNsInfo(operation.Namespace.FullName);
+            var nsInfoIndex = EnsureNsInfo(model.Namespace.FullName);
 
-            var writer = _serializationContext.Writer;
+            var writer = serializationContext.Writer;
             writer.WriteStartDocument();
             writer.WriteName(operationName);
             writer.WriteInt32(nsInfoIndex);
-            operationBodyWriter(_serializationContext, operation);
-            writer.WriteEndDocument();
         }
 
-
-
-        private void WriteUpdate<TDocument>(BsonSerializationContext serializationContext, UpdateDefinition<TDocument> updateDefinition, IBsonSerializer<TDocument> documentSerializer)
+        private void WriteEndModel(BsonSerializationContext serializationContext)
         {
-            var renderArgs = _renderArgs.WithNewDocumentType(documentSerializer);
-            var filterDocument = updateDefinition.Render(renderArgs);
+            serializationContext.Writer.WriteEndDocument();
+        }
+
+        private void WriteUpdate<TDocument>(BsonSerializationContext serializationContext, RenderArgs<BsonDocument> renderArgs, UpdateDefinition<TDocument> updateDefinition, IBsonSerializer<TDocument> documentSerializer)
+        {
+            var typedRenderArgs = renderArgs.WithNewDocumentType(documentSerializer);
+            var filterDocument = updateDefinition.Render(typedRenderArgs);
 
             WriteUpdate(serializationContext, filterDocument, BsonValueSerializer.Instance, UpdateType.Update);
         }

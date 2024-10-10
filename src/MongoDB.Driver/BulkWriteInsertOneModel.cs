@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -51,7 +54,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TDocument Document { get; }
 
-        internal override void Visit(IBulkWriteModelVisitor visitor)
-            => visitor.VisitInsertOne(this);
+        internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
+            => renderer.RenderInsertOne(renderArgs, serializationContext, this);
     }
 }

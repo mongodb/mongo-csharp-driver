@@ -597,7 +597,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         {
             return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
             {
-                settings.HeartbeatInterval = TimeSpan.FromMinutes(5);
+                settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5);
                 if (eventCapturer != null)
                 {
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
