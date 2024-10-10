@@ -302,7 +302,7 @@
                 "length": 1,
                 "chunkSize": 4,
                 "uploadDate": "*actual",
-                "filename": "filename",
+                "filename": "filename"
               }
             ]
           },
