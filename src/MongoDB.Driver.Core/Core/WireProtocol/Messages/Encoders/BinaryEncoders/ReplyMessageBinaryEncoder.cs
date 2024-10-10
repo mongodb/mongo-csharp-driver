@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     /// Represents a binary encoder for a Reply message.
     /// </summary>
     /// <typeparam name="TDocument">The type of the documents.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public class ReplyMessageBinaryEncoder<TDocument> : MessageBinaryEncoderBase, IMessageEncoder
     {
         // fields
