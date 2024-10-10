@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a find one and delete operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public class FindOneAndDeleteOperation<TResult> : FindAndModifyOperationBase<TResult>
     {
         // fields

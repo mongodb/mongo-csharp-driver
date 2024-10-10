@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a mixed write bulk operation.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class BulkMixedWriteOperation : IWriteOperation<BulkWriteOperationResult>
     {
         // fields

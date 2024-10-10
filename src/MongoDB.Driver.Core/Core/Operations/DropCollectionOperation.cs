@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a drop collection operation.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class DropCollectionOperation : IWriteOperation<BsonDocument>
     {
         #region static

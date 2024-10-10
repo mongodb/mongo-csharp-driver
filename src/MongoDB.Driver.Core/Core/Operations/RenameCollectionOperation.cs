@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a rename collection operation.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class RenameCollectionOperation : IWriteOperation<BsonDocument>
     {
         // fields

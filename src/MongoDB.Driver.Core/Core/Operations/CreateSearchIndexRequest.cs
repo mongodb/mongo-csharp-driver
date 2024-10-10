@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a create search index request.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class CreateSearchIndexRequest
     {
         /// <summary>Gets the index name.</summary>
