@@ -40,7 +40,8 @@ namespace MongoDB.Driver.Core.Misc
             {
                 return OperatingSystemPlatform.Linux;
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                     || RuntimeInformation.IsOSPlatform(OSPlatform.Create("MACCATALYST")))
             {
                 return OperatingSystemPlatform.MacOS;
             }
