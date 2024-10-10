@@ -287,8 +287,7 @@
             "$hex": "11"
           },
           "options": {
-            "chunkSizeBytes": 4,
-            "contentType": "image/jpeg"
+            "chunkSizeBytes": 4
           }
         }
       },
@@ -303,8 +302,7 @@
                 "length": 1,
                 "chunkSize": 4,
                 "uploadDate": "*actual",
-                "filename": "filename",
-                "contentType": "image/jpeg"
+                "filename": "filename"
               }
             ]
           },

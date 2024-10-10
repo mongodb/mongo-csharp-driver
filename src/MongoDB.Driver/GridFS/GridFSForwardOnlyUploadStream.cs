@@ -35,7 +35,6 @@ namespace MongoDB.Driver.GridFS
 
         // fields
         private bool _aborted;
-        private readonly List<string> _aliases;
         private List<byte[]> _batch;
         private long _batchPosition;
         private int _batchSize;
@@ -43,7 +42,6 @@ namespace MongoDB.Driver.GridFS
         private readonly GridFSBucket<TFileId> _bucket;
         private readonly int _chunkSizeBytes;
         private bool _closed;
-        private readonly string _contentType;
         private bool _disposed;
         private readonly string _filename;
         private readonly TFileId _id;
@@ -58,8 +56,6 @@ namespace MongoDB.Driver.GridFS
             TFileId id,
             string filename,
             BsonDocument metadata,
-            IEnumerable<string> aliases,
-            string contentType,
             int chunkSizeBytes,
             int batchSize)
         {
@@ -68,8 +64,6 @@ namespace MongoDB.Driver.GridFS
             _id = id;
             _filename = filename;
             _metadata = metadata; // can be null
-            _aliases = aliases == null ? null : aliases.ToList(); // can be null
-            _contentType = contentType; // can be null
             _chunkSizeBytes = chunkSizeBytes;
             _batchSize = batchSize;
             _batch = new List<byte[]>();
@@ -315,8 +309,6 @@ namespace MongoDB.Driver.GridFS
                 { "chunkSize", _chunkSizeBytes },
                 { "uploadDate", uploadDateTime },
                 { "filename", _filename },
-                { "contentType", _contentType, _contentType != null },
-                { "aliases", () => new BsonArray(_aliases.Select(a => new BsonString(a))), _aliases != null },
                 { "metadata", _metadata, _metadata != null }
             };
         }

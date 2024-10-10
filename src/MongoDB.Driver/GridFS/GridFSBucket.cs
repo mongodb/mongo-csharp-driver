@@ -736,8 +736,6 @@ namespace MongoDB.Driver.GridFS
                 id,
                 filename,
                 options.Metadata,
-                options.Aliases,
-                options.ContentType,
                 chunkSizeBytes,
                 batchSize);
 #pragma warning restore

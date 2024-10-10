@@ -28,38 +28,6 @@ namespace MongoDB.Driver.Tests.GridFS
     public class GridFSFileInfoTests
     {
         [Fact]
-        public void Aliases_get_should_return_the_expected_result()
-        {
-            var value = new[] { "alias" };
-            var subject = CreateSubject(aliases: value);
-
-#pragma warning disable 618
-            var result = subject.Aliases;
-#pragma warning restore
-
-            result.Should().Equal(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Aliases_should_be_deserialized_correctly(
-            [Values(null, new string[0], new string[] { null }, new[] { "a" }, new[] { "a", "b" })]
-            string[] value)
-        {
-            var document = CreateFilesCollectionDocument();
-            if (value != null)
-            {
-                document["aliases"] = new BsonArray(value);
-            }
-
-            var subject = DeserializeFilesCollectionDocument(document);
-
-#pragma warning disable 618
-            subject.Aliases.Should().Equal(value);
-#pragma warning restore
-        }
-
-        [Fact]
         public void BackingDocument_get_should_return_the_expected_result()
         {
             var backingDocument = new BsonDocument("x", 1);
@@ -99,38 +67,6 @@ namespace MongoDB.Driver.Tests.GridFS
             var result = new GridFSFileInfo(backdocument);
 
             result.BackingDocument.Should().BeSameAs(backdocument);
-        }
-
-        [Fact]
-        public void ContentType_get_should_return_the_expected_result()
-        {
-            var value = "application/image";
-            var subject = CreateSubject(contentType: value);
-
-#pragma warning disable 618
-            var result = subject.ContentType;
-#pragma warning restore
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void ContentType_should_be_deserialized_correctly(
-            [Values(null, "type")]
-            string value)
-        {
-            var document = CreateFilesCollectionDocument();
-            if (value != null)
-            {
-                document["contentType"] = value;
-            }
-
-            var subject = DeserializeFilesCollectionDocument(document);
-
-#pragma warning disable 618
-            subject.ContentType.Should().Be(value);
-#pragma warning restore
         }
 
         [Theory]
