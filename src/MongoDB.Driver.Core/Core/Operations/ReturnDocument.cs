@@ -24,7 +24,6 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// The document to return when executing a FindAndModify command.
     /// </summary>
-    [Obsolete("This enum will be removed in a later release.")]
     public enum ReturnDocument
     {
         /// <summary>

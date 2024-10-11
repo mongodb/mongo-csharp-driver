@@ -24,7 +24,6 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// The cursor type.
     /// </summary>
-    [Obsolete("This enum will be removed in a later release.")]
     public enum CursorType
     {
         /// <summary>

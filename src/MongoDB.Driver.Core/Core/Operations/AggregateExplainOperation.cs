@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an aggregate explain operations.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
+    [Obsolete("This class will be removed in a later release.")]
     public class AggregateExplainOperation : IReadOperation<BsonDocument>
     {
         // fields
