@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 clientBulkWriteException.WriteConcernErrors.Select(
                     e => new BsonDocument
                     {
-                        { "code", e.Code },
+                        { "code", ((MongoCommandException)e.MappedWriteConcernResultException).Code },
                         { "message", e.Message }
                     }));
 
