@@ -2,3 +2,4 @@
   - href: MongoDB.Bson/toc.yml
   - href: MongoDB.Driver/toc.yml
   - href: MongoDB.Driver.Authentication.Aws/toc.yml
+  - href: MongoDB.Driver.Encryption/toc.yml
