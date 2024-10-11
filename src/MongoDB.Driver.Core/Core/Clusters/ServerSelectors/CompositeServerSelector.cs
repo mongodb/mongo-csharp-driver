@@ -24,7 +24,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects servers based on multiple partial selectors
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class CompositeServerSelector : IServerSelector
     {
         // fields

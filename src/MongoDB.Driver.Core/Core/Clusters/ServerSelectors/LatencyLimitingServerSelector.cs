@@ -25,7 +25,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects servers within an acceptable latency range.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class LatencyLimitingServerSelector : IServerSelector
     {
         // fields

@@ -25,7 +25,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects servers based on an end point.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class EndPointServerSelector : IServerSelector
     {
         // fields

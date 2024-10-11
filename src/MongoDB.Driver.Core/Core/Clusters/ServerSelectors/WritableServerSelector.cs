@@ -24,7 +24,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a server selector that selects writable servers.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class WritableServerSelector : IServerSelector
     {
         #region static

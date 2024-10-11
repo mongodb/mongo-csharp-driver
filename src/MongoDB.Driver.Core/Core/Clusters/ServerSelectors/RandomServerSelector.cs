@@ -24,7 +24,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a selector that selects a random server.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class RandomServerSelector : IServerSelector
     {
         // constructors

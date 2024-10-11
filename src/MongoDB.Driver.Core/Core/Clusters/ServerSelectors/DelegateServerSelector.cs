@@ -23,7 +23,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     /// <summary>
     /// Represents a server selector that wraps a delegate.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class DelegateServerSelector : IServerSelector
     {
         // fields
