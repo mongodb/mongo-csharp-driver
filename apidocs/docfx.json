@@ -31,7 +31,8 @@
                     ],
                     "exclude": [
                         "**/bin/**",
-                        "**/obj/**"
+                        "**/obj/**",
+                        "MongoDB.Driver/Encryption/**"
                     ],
                     "src": "../src"
                 }
@@ -68,6 +69,29 @@
             "memberLayout": "separatePages",
             "EnumSortOrder": "declaringOrder",
             "allowCompilationErrors": false
+        },
+        {
+            "src": [
+                {
+                    "files": [
+                        "MongoDB.Driver.Encryption/*.csproj"
+                    ],
+                    "exclude": [
+                        "**/bin/**",
+                        "**/obj/**"
+                    ],
+                    "src": "../src"
+                }
+            ],
+            "dest": "api/MongoDB.Driver.Encryption",
+            "includePrivateMembers": false,
+            "disableGitFeatures": false,
+            "disableDefaultFilter": false,
+            "noRestore": false,
+            "namespaceLayout": "flattened",
+            "memberLayout": "separatePages",
+            "EnumSortOrder": "declaringOrder",
+            "allowCompilationErrors": false
         }
     ],
     "build": {
@@ -77,6 +101,7 @@
                     "api/MongoDB.Bson/**.yml",
                     "api/MongoDB.Driver/**.yml",
                     "api/MongoDB.Driver.Authentication.Aws/**.yml",
+                    "api/MongoDB.Driver.Encryption/**.yml",
                     "api/toc.yml",
                     "api/index.md"
                 ]
