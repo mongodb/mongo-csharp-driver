@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -33,54 +35,56 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
     internal abstract class Type0CommandMessageSection : CommandMessageSection
     {
-        // private fields
-        private readonly object _document;
-        private readonly IBsonSerializer _documentSerializer;
-
         // constructors
         public Type0CommandMessageSection(object document, IBsonSerializer documentSerializer)
         {
             Ensure.IsNotNull((object)document, nameof(document));
-            _document = document;
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            Document = document;
+            DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
         // public properties
-        public object Document => _document;
-        public IBsonSerializer DocumentSerializer => _documentSerializer;
+        public object Document { get; }
+        public IBsonSerializer DocumentSerializer { get; }
         public override PayloadType PayloadType => PayloadType.Type0;
     }
 
     internal sealed class Type0CommandMessageSection<TDocument> : Type0CommandMessageSection
     {
-        // private fields
-        private readonly TDocument _document;
-        private readonly IBsonSerializer<TDocument> _documentSerializer;
-
         // constructors
         public Type0CommandMessageSection(TDocument document, IBsonSerializer<TDocument> documentSerializer)
             : base(document, documentSerializer)
         {
             Ensure.IsNotNull((object)document, nameof(document));
-            _document = document;
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            Document = document;
+            DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
         // public properties
-        public new TDocument Document => _document;
-        public new IBsonSerializer<TDocument> DocumentSerializer => _documentSerializer;
+        public new TDocument Document { get; }
+        public new IBsonSerializer<TDocument> DocumentSerializer { get; }
     }
 
-    internal abstract class Type1CommandMessageSection : CommandMessageSection
+    internal abstract class BatchableCommandMessageSection : CommandMessageSection
     {
-        // private fields
-        private readonly IBatchableSource<object> _documents;
-        private readonly IBsonSerializer _documentSerializer;
-        private readonly IElementNameValidator _elementNameValidator;
-        private readonly string _identifier;
-        private readonly int? _maxBatchCount;
-        private readonly int? _maxDocumentSize;
+        protected BatchableCommandMessageSection(
+            IBatchableSource<object> documents,
+            int? maxBatchCount,
+            int? maxDocumentSize)
+        {
+            Documents = Ensure.IsNotNull(documents, nameof(documents));
+            MaxBatchCount = Ensure.IsNullOrGreaterThanZero(maxBatchCount, nameof(maxBatchCount));
+            MaxDocumentSize = Ensure.IsNullOrGreaterThanZero(maxDocumentSize, nameof(maxDocumentSize));
+        }
 
+        public IBatchableSource<object> Documents { get; }
+        public int? MaxBatchCount { get; }
+        public int? MaxDocumentSize { get; }
+        public override PayloadType PayloadType => PayloadType.Type1;
+    }
+
+    internal abstract class Type1CommandMessageSection : BatchableCommandMessageSection
+    {
         // constructors
         public Type1CommandMessageSection(
             string identifier,
@@ -89,32 +93,22 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             IElementNameValidator elementNameValidator,
             int? maxBatchCount,
             int? maxDocumentSize)
+        : base(documents, maxBatchCount, maxDocumentSize)
         {
-            _identifier = Ensure.IsNotNull(identifier, nameof(identifier));
-            _documents = Ensure.IsNotNull(documents, nameof(documents));
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
-            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, nameof(elementNameValidator));
-            _maxBatchCount = Ensure.IsNullOrGreaterThanZero(maxBatchCount, nameof(maxBatchCount));
-            _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(maxDocumentSize, nameof(maxDocumentSize));
+            Identifier = Ensure.IsNotNull(identifier, nameof(identifier));
+            DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            ElementNameValidator = Ensure.IsNotNull(elementNameValidator, nameof(elementNameValidator));
         }
 
         // public properties
-        public IBatchableSource<object> Documents => _documents;
-        public IBsonSerializer DocumentSerializer => _documentSerializer;
+        public IBsonSerializer DocumentSerializer { get; }
         public abstract Type DocumentType { get; }
-        public IElementNameValidator ElementNameValidator => _elementNameValidator;
-        public string Identifier => _identifier;
-        public int? MaxBatchCount => _maxBatchCount;
-        public int? MaxDocumentSize => _maxDocumentSize;
-        public override PayloadType PayloadType => PayloadType.Type1;
+        public IElementNameValidator ElementNameValidator { get; }
+        public string Identifier { get; }
     }
 
     internal sealed class Type1CommandMessageSection<TDocument> : Type1CommandMessageSection where TDocument : class
     {
-        // private fields
-        private readonly IBatchableSource<TDocument> _documents;
-        private readonly IBsonSerializer<TDocument> _documentSerializer;
-
         // constructors
         public Type1CommandMessageSection(
             string identifier,
@@ -125,13 +119,33 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             int? maxDocumentSize)
             : base(identifier, documents, documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize)
         {
-            _documents = Ensure.IsNotNull(documents, nameof(documents));
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            Documents = Ensure.IsNotNull(documents, nameof(documents));
+            DocumentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
         }
 
         // public properties
-        public new IBatchableSource<TDocument> Documents => _documents;
-        public new IBsonSerializer<TDocument> DocumentSerializer => _documentSerializer;
+        public new IBatchableSource<TDocument> Documents { get; }
+        public new IBsonSerializer<TDocument> DocumentSerializer { get; }
         public override Type DocumentType => typeof(TDocument);
+    }
+
+    internal sealed class ClientBulkWriteOpsCommandMessageSection : BatchableCommandMessageSection
+    {
+        public ClientBulkWriteOpsCommandMessageSection(
+            IBatchableSource<BulkWriteModel> operations,
+            Dictionary<int, BsonValue> idsMap,
+            int? maxBatchCount,
+            int? maxDocumentSize,
+            RenderArgs<BsonDocument> renderArgs)
+        : base(operations, maxBatchCount, maxDocumentSize)
+            {
+                Documents = operations;
+                IdsMap = idsMap;
+                RenderArgs = renderArgs;
+            }
+
+        public Dictionary<int, BsonValue> IdsMap { get; }
+        public new IBatchableSource<BulkWriteModel> Documents { get; }
+        public RenderArgs<BsonDocument> RenderArgs { get; }
     }
 }

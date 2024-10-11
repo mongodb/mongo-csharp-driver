@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // fields
         private readonly BsonDocument _additionalOptions;
         private readonly BsonDocument _command;
-        private readonly List<Type1CommandMessageSection> _commandPayloads;
+        private readonly List<BatchableCommandMessageSection> _commandPayloads;
         private readonly IElementNameValidator _commandValidator;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly Action<IMessageEncoderPostProcessor> _postWriteAction;
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
-            IEnumerable<Type1CommandMessageSection> commandPayloads,
+            IEnumerable<BatchableCommandMessageSection> commandPayloads,
             IElementNameValidator commandValidator,
             BsonDocument additionalOptions,
             CommandResponseHandling responseHandling,
@@ -169,8 +169,13 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
 
             var extraElements = new List<BsonElement>();
-            foreach (var type1Section in _commandPayloads)
+            foreach (var payloadSection in _commandPayloads)
             {
+                if (payloadSection is not Type1CommandMessageSection type1Section)
+                {
+                    throw new NotSupportedException("Query protocol supports only Type1CommandMessageSection payload sections.");
+                }
+
                 var name = type1Section.Identifier;
                 var value = CreatePayloadArray(type1Section, connectionDescription);
                 var element = new BsonElement(name, value);
