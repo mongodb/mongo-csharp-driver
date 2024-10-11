@@ -21,9 +21,10 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Encryption;
 using MongoDB.Shared;
 
-namespace MongoDB.Driver.Encryption
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Auto encryption options.
