@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Servers;
 
@@ -22,7 +21,6 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// The state of a transaction.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class CoreTransaction
     {
         // private fields

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -22,7 +21,6 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
     /// <summary>
     /// Represents an element name validator for replace operations.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class ReplacementElementNameValidator : IElementNameValidator
     {
         // private static fields

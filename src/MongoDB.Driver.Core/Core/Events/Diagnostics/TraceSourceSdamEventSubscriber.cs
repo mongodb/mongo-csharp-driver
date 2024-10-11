@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
     /// <summary>
     /// An event subscriber that writes SDAM events to a trace source.
     /// </summary>
-    public sealed class TraceSourceSdamEventSubscriber : IEventSubscriber  //TODO This is still public on main
+    public sealed class TraceSourceSdamEventSubscriber : IEventSubscriber
     {
         private readonly TraceSource _traceSource;
         private readonly ReflectionEventSubscriber _subscriber;
