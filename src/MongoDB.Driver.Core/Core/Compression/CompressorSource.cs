@@ -25,7 +25,6 @@ namespace MongoDB.Driver.Core.Compression
     /// <summary>
     /// Represents a compressor source.
     /// </summary>
-    [Obsolete("This interface will be made internal in a later release.")]
     public interface ICompressorSource
     {
         /// <summary>
