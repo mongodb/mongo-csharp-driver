@@ -22,7 +22,8 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// Provides functionality to evaluate queries against MongoDB.
     /// </summary>
-    public interface IMongoQueryable : IQueryable  //TODO It seems this whole interface does not exist anymore on main
+    [Obsolete("This interface will be removed in a later release.")]
+    public interface IMongoQueryable : IQueryable
     {
         /// <summary>
         /// Gets the pipeline stages that were logged when the queryable was executed.
