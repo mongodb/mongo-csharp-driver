@@ -13,12 +13,15 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Bson
 {
     /// <summary>
     /// Whether to handle GuidRepresentation using the v2.x mode of the v3.x mode.
     /// See the reference documentation for details.
     /// </summary>
+    [Obsolete("This enum will be made removed in a later release, with V3 being the only representation mode.")]
     public enum GuidRepresentationMode
     {
         /// <summary>
