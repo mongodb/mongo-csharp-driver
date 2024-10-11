@@ -13,14 +13,11 @@
 * limitations under the License.
 */
 
-using System;
-
 namespace MongoDB.Driver.Core.Bindings
 {
     /// <summary>
     /// Core session options.
     /// </summary>
-    [Obsolete("This class will be made internal in a later release.")]
     public class CoreSessionOptions
     {
         // private fields

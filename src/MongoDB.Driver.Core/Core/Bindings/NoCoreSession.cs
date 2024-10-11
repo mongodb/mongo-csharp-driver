@@ -24,7 +24,6 @@ namespace MongoDB.Driver.Core.Bindings
     /// An object that represents no core session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
-    [Obsolete("This class will be made internal in a later release.")]
     public sealed class NoCoreSession : ICoreSession
     {
         #region static

@@ -29,7 +29,6 @@ namespace MongoDB.Driver.Core.Bindings
     /// Represents a session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
-    [Obsolete("This class will be made internal in a later release.")]
     public sealed class CoreSession : ICoreSession
     {
         // private fields
