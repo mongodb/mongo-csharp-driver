@@ -90,7 +90,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The error code.
         /// </value>
-        public virtual int Code
+        public int Code
         {
             get { return _result.GetValue("code", -1).ToInt32(); }
         }
