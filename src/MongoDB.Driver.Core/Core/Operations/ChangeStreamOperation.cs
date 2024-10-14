@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     /// A change stream operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IChangeStreamOperation<TResult> : IReadOperation<IChangeStreamCursor<TResult>>
     {
         // properties
@@ -88,6 +89,7 @@ namespace MongoDB.Driver.Core.Operations
     /// A change stream operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result values.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public class ChangeStreamOperation<TResult> : IChangeStreamOperation<TResult>
     {
         // private fields

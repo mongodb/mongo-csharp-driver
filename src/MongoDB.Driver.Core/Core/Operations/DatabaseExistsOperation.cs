@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a database exists operation.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class DatabaseExistsOperation : IReadOperation<bool>
     {
         // fields

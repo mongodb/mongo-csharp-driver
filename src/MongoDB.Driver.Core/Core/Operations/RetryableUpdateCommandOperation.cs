@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an update command operation.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class RetryableUpdateCommandOperation : RetryableWriteCommandOperationBase
     {
         // private fields

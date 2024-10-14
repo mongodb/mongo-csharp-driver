@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the listDatabases command.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public class ListDatabasesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
         // fields

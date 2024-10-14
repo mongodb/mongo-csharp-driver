@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a write command operation.
     /// </summary>
     /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
         private ReadPreference _readPreference = ReadPreference.Primary;

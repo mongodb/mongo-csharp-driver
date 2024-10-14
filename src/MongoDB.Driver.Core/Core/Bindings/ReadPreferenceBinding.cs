@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// <summary>
     /// Represents a read binding to a cluster using a ReadPreference to select the server.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class ReadPreferenceBinding : IReadBinding
     {
         // fields
