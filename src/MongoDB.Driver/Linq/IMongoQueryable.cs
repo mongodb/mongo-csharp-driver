@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using MongoDB.Bson;
 
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// Provides functionality to evaluate queries against MongoDB.
     /// </summary>
+    [Obsolete("This interface will be removed in a later release.")]
     public interface IMongoQueryable : IQueryable
     {
         /// <summary>
@@ -39,6 +41,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>
         /// The execution model.
         /// </returns>
+        [Obsolete("This method will be removed in a later release.")]
         QueryableExecutionModel GetExecutionModel();
     }
 

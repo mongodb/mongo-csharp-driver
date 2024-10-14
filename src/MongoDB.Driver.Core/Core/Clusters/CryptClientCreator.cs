@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Clusters
     /// <summary>
     /// Represents a creator for CryptClient.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class CryptClientCreator
     {
         #region static
