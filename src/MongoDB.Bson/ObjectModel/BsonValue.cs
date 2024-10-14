@@ -227,6 +227,14 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Casts the BsonValue to a DateTime in the local timezone (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public DateTime AsLocalTime
+        {
+            get { return ((BsonDateTime)this).ToLocalTime(); }
+        }
+
+        /// <summary>
         /// Casts the BsonValue to a Nullable{Boolean} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
         public bool? AsNullableBoolean
@@ -283,11 +291,27 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Casts the BsonValue to a Nullable{DateTime} in the local timezone (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public DateTime? AsNullableLocalTime
+        {
+            get { return (BsonType == BsonType.Null) ? null : ((BsonDateTime)this).ToLocalTime(); }
+        }
+
+        /// <summary>
         /// Casts the BsonValue to a Nullable{ObjectId} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
         public ObjectId? AsNullableObjectId
         {
             get { return (BsonType == BsonType.Null) ? null : (ObjectId?)AsObjectId; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a Nullable{DateTime} in UTC (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public DateTime? AsNullableUniversalTime
+        {
+            get { return (BsonType == BsonType.Null) ? null : ((BsonDateTime)this).ToUniversalTime(); }
         }
 
         /// <summary>
@@ -312,6 +336,14 @@ namespace MongoDB.Bson
         public string AsString
         {
             get { return ((BsonString)this).Value; }
+        }
+
+        /// <summary>
+        /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
+        /// </summary>
+        public DateTime AsUniversalTime
+        {
+            get { return ((BsonDateTime)this).ToUniversalTime(); }
         }
 
         /// <summary>
@@ -1203,7 +1235,7 @@ namespace MongoDB.Bson
         public virtual bool ToBoolean()
         {
             // some subclasses override as appropriate
-            return true; // everything else is true        
+            return true; // everything else is true
         }
 
         /// <summary>

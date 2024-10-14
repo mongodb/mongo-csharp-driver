@@ -19,6 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -207,6 +208,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
+        public void AsLocalTime_should_throw()
+        {
+            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
+            var local = utc.ToLocalTime();
+            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsLocalTime == local);
+
+            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
+        }
+
+        [Fact]
         public void AsNullableBoolean_should_work()
         {
             var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsNullableBoolean == true);
@@ -264,6 +275,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
+        public void AsNullableLocalTime_should_throw()
+        {
+            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
+            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsNullableLocalTime == utc);
+
+            AssertThrows<ExpressionNotSupportedException>(filter);
+        }
+
+        [Fact]
+        public void AsNullableUniversalTime_should_work()
+        {
+            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
+            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsNullableUniversalTime == utc);
+
+            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
+        }
+
+        [Fact]
         public void AsNullableObjectId_should_work()
         {
             var value = ObjectId.Parse("0102030405060708090a0b0c");
@@ -298,31 +327,49 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void ToLocalTime_should_work()
+        public void AsUniversalTime_should_work()
+        {
+            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
+            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].AsUniversalTime == utc);
+
+            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
+        }
+
+        [Fact]
+        public void ToLocalTime_should_throw()
         {
             var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
             var local = utc.ToLocalTime();
             var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].ToLocalTime() == local);
 
-            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
+            AssertThrows<ExpressionNotSupportedException>(filter);
         }
 
         [Fact]
-        public void ToNullableUniversalTime_should_work()
+        public void ToNullableLocalTime_should_throw()
+        {
+            var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
+            var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].ToNullableLocalTime() == utc);
+
+            AssertThrows<ExpressionNotSupportedException>(filter);
+        }
+
+        [Fact]
+        public void ToNullableUniversalTime_should_throw()
         {
             var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
             var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].ToNullableUniversalTime() == utc);
 
-            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
+            AssertThrows<ExpressionNotSupportedException>(filter);
         }
 
         [Fact]
-        public void ToUniversalTime_should_work()
+        public void ToUniversalTime_should_throw()
         {
             var utc = new DateTime(2022, 1, 2, 4, 5, 6, DateTimeKind.Utc);
             var filter = Builders<BsonDocument>.Filter.Where(x => x["x"].ToUniversalTime() == utc);
 
-            Assert(filter, "{ x : ISODate('2022-01-02T04:05:06Z') }");
+            AssertThrows<ExpressionNotSupportedException>(filter);
         }
 
         private void Assert(FilterDefinition<BsonDocument> filter, string expectedFilter)
@@ -332,6 +379,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var rendered = filter.Render(new(documentSerializer, serializerRegistry));
 
             rendered.Should().Be(expectedFilter);
+        }
+
+        private void AssertThrows<TExpectedException>(FilterDefinition<BsonDocument> filter) where TExpectedException : Exception
+        {
+            var documentSerializer = BsonDocumentSerializer.Instance;
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var exception = Record.Exception(() =>filter.Render(new(documentSerializer, serializerRegistry)));
+
+            exception.Should().BeOfType<TExpectedException>();
         }
     }
 }
