@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson
@@ -229,6 +230,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a DateTime in the local timezone (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public DateTime AsLocalTime
         {
             get { return ((BsonDateTime)this).ToLocalTime(); }
@@ -293,6 +295,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{DateTime} in the local timezone (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public DateTime? AsNullableLocalTime
         {
             get { return (BsonType == BsonType.Null) ? null : ((BsonDateTime)this).ToLocalTime(); }
@@ -309,6 +312,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{DateTime} in UTC (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public DateTime? AsNullableUniversalTime
         {
             get { return (BsonType == BsonType.Null) ? null : ((BsonDateTime)this).ToUniversalTime(); }
@@ -341,6 +345,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public DateTime AsUniversalTime
         {
             get { return ((BsonDateTime)this).ToUniversalTime(); }
