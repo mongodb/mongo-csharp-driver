@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Net;
 using MongoDB.Driver.Core.Clusters;
 
@@ -21,6 +22,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server factory.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IClusterableServerFactory
     {
         // methods
