@@ -89,7 +89,6 @@ namespace MongoDB.Driver
         /// <value>
         /// The wrapped core session.
         /// </value>
-        [Obsolete("This property will be removed in a later release.")]
         ICoreSessionHandle WrappedCoreSession { get; }
 
         // methods
