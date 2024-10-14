@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// Represents a Reply message.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public class ReplyMessage<TDocument> : ResponseMessage
     {
         // fields
