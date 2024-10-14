@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Base class for implementors of <see cref="IMongoClient"/>.
     /// </summary>
+    [Obsolete("This class will be removed in a later release.")]
     public abstract class MongoClientBase : IMongoClient
     {
         /// <inheritdoc />
