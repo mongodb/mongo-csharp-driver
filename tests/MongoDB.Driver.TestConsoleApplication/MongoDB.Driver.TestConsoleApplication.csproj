@@ -22,7 +22,8 @@
       CA1801;
       CA1812;
       CA1822;
-      CA2007
+      CA2007;
+      CS0618
     </NoWarn>
   </PropertyGroup>
 
