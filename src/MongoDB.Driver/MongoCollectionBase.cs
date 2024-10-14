@@ -29,6 +29,7 @@ namespace MongoDB.Driver
     /// Base class for implementors of <see cref="IMongoCollection{TDocument}"/>.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("This class will be made internal in a later release.")]
     public abstract class MongoCollectionBase<TDocument> : IMongoCollection<TDocument>
     {
         /// <inheritdoc />
