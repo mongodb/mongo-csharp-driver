@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson
@@ -54,6 +55,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Boolean (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public bool AsBoolean
         {
             get { return ((BsonBoolean)this).Value; }
@@ -62,6 +64,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonArray (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonArray AsBsonArray
         {
             get { return (BsonArray)this; }
@@ -70,6 +73,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonBinaryData (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonBinaryData AsBsonBinaryData
         {
             get { return (BsonBinaryData)this; }
@@ -78,6 +82,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonDateTime (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonDateTime AsBsonDateTime
         {
             get { return (BsonDateTime)this; }
@@ -94,6 +99,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonJavaScript (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonJavaScript AsBsonJavaScript
         {
             get { return (BsonJavaScript)this; }
@@ -102,6 +108,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonJavaScriptWithScope (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonJavaScriptWithScope AsBsonJavaScriptWithScope
         {
             get { return (BsonJavaScriptWithScope)this; }
@@ -110,6 +117,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonMaxKey (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonMaxKey AsBsonMaxKey
         {
             get { return (BsonMaxKey)this; }
@@ -118,6 +126,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonMinKey (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonMinKey AsBsonMinKey
         {
             get { return (BsonMinKey)this; }
@@ -126,6 +135,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonNull (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonNull AsBsonNull
         {
             get { return (BsonNull)this; }
@@ -134,6 +144,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonRegularExpression (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonRegularExpression AsBsonRegularExpression
         {
             get { return (BsonRegularExpression)this; }
@@ -142,6 +153,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonSymbol (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonSymbol AsBsonSymbol
         {
             get { return (BsonSymbol)this; }
@@ -150,6 +162,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonTimestamp (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonTimestamp AsBsonTimestamp
         {
             get { return (BsonTimestamp)this; }
@@ -158,6 +171,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonUndefined (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonUndefined AsBsonUndefined
         {
             get { return (BsonUndefined)this; }
@@ -166,6 +180,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonValue (a way of upcasting subclasses of BsonValue to BsonValue at compile time).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonValue AsBsonValue
         {
             get { return this; }
@@ -182,6 +197,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a <see cref="decimal"/> (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public decimal AsDecimal
         {
             get { return (decimal)((BsonDecimal128)this).Value; }
@@ -190,6 +206,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a <see cref="Decimal128"/> (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Decimal128 AsDecimal128
         {
             get { return ((BsonDecimal128)this).Value; }
@@ -198,6 +215,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Double (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public double AsDouble
         {
             get { return ((BsonDouble)this).Value; }
@@ -206,6 +224,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Guid (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Guid AsGuid
         {
             get { return ((BsonBinaryData)this).ToGuid(); }
@@ -214,6 +233,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to an Int32 (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public int AsInt32
         {
             get { return ((BsonInt32)this).Value; }
@@ -222,6 +242,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Int64 (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public long AsInt64
         {
             get { return ((BsonInt64)this).Value; }
@@ -230,7 +251,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a DateTime in the local timezone (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public DateTime AsLocalTime
         {
             get { return ((BsonDateTime)this).ToLocalTime(); }
@@ -239,6 +260,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{Boolean} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public bool? AsNullableBoolean
         {
             get { return (BsonType == BsonType.Null) ? null : (bool?)AsBoolean; }
@@ -247,6 +269,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{Decimal} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public decimal? AsNullableDecimal
         {
             get { return (BsonType == BsonType.Null) ? null : (decimal?)AsDecimal128; }
@@ -255,6 +278,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{Decimal128} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Decimal128? AsNullableDecimal128
         {
             get { return (BsonType == BsonType.Null) ? null : (Decimal128?)AsDecimal128; }
@@ -263,6 +287,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{Double} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public double? AsNullableDouble
         {
             get { return (BsonType == BsonType.Null) ? null : (double?)AsDouble; }
@@ -271,6 +296,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{Guid} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Guid? AsNullableGuid
         {
             get { return (BsonType == BsonType.Null) ? null : (Guid?)AsGuid; }
@@ -279,6 +305,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{Int32} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public int? AsNullableInt32
         {
             get { return (BsonType == BsonType.Null) ? null : (int?)AsInt32; }
@@ -287,6 +314,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{Int64} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public long? AsNullableInt64
         {
             get { return (BsonType == BsonType.Null) ? null : (long?)AsInt64; }
@@ -295,7 +323,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{DateTime} in the local timezone (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public DateTime? AsNullableLocalTime
         {
             get { return (BsonType == BsonType.Null) ? null : ((BsonDateTime)this).ToLocalTime(); }
@@ -304,6 +332,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{ObjectId} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ObjectId? AsNullableObjectId
         {
             get { return (BsonType == BsonType.Null) ? null : (ObjectId?)AsObjectId; }
@@ -312,7 +341,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{DateTime} in UTC (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public DateTime? AsNullableUniversalTime
         {
             get { return (BsonType == BsonType.Null) ? null : ((BsonDateTime)this).ToUniversalTime(); }
@@ -321,6 +350,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to an ObjectId (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ObjectId AsObjectId
         {
             get { return ((BsonObjectId)this).Value; }
@@ -329,6 +359,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Regex (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public Regex AsRegex
         {
             get { return ((BsonRegularExpression)this).ToRegex(); }
@@ -337,6 +368,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a String (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public string AsString
         {
             get { return ((BsonString)this).Value; }
@@ -345,7 +377,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public DateTime AsUniversalTime
         {
             get { return ((BsonDateTime)this).ToUniversalTime(); }
