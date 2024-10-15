@@ -91,6 +91,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a BsonDocument (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public BsonDocument AsBsonDocument
         {
             get { return (BsonDocument)this; }
@@ -189,6 +190,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Byte[] (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public byte[] AsByteArray
         {
             get { return ((BsonBinaryData)this).Bytes; }
