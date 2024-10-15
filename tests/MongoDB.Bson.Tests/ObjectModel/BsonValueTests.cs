@@ -279,7 +279,7 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
-        public void TestAsDateTime()
+        public void TestToUniversalTime()
         {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
@@ -353,7 +353,7 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
-        public void TestAsNullableDateTime()
+        public void TestToNullableDateTime()
         {
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
