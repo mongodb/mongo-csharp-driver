@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// A GSSAPI SASL authenticator.
     /// </summary>
+    [Obsolete("This class will be made internal in a later release.")]
     public sealed class GssapiAuthenticator : SaslAuthenticator
     {
         // constants

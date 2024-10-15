@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.Authentication
 {
     /// <summary>
     /// Represents an authenticator factory.
     /// </summary>
+    [Obsolete("This interface will be made internal in a later release.")]
     public interface IAuthenticatorFactory
     {
         /// <summary>

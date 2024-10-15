@@ -119,6 +119,7 @@ namespace MongoDB.Driver
         private ConnectionSettings ConfigureConnection(ConnectionSettings settings, ClusterKey clusterKey)
         {
             var endPoints = clusterKey.Servers.Select(s => new DnsEndPoint(s.Host, s.Port)).ToArray();
+#pragma warning disable CS0618 // Type or member is obsolete
             var authenticatorFactories = clusterKey.Credentials.Select(c => new AuthenticatorFactory(() => c.ToAuthenticator(endPoints, clusterKey.ServerApi)));
             return settings.With(
                 authenticatorFactories: Optional.Enumerable<IAuthenticatorFactory>(authenticatorFactories),
@@ -128,6 +129,7 @@ namespace MongoDB.Driver
                 maxIdleTime: clusterKey.MaxConnectionIdleTime,
                 maxLifeTime: clusterKey.MaxConnectionLifeTime,
                 applicationName: clusterKey.ApplicationName);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
 #pragma warning disable CS0618 // Type or member is obsolete

@@ -165,7 +165,9 @@ namespace MongoDB.Driver.Core.Connections
             return getLastErrorProtocol;
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private BsonDocument CreateInitialHelloCommand(IReadOnlyList<IAuthenticator> authenticators, bool loadBalanced = false, CancellationToken cancellationToken = default)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             var command = HelloHelper.CreateCommand(_serverApi, loadBalanced: loadBalanced);
             HelloHelper.AddClientDocumentToCommand(command, _clientDocument);
@@ -173,7 +175,9 @@ namespace MongoDB.Driver.Core.Connections
             return HelloHelper.CustomizeCommand(command, authenticators, cancellationToken);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private List<IAuthenticator> CreateAuthenticators(IConnection connection)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             if (connection.Description.IsInitialized())
             {
