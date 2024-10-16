@@ -26,6 +26,7 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteUpdateOneModel<TDocument> : BulkWriteModel
     {
+        //TODO Maybe we need to pass the sort argument also to the constructors...?
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteUpdateOneModel{TDocument}"/> class.
         /// </summary>
@@ -100,6 +101,11 @@ namespace MongoDB.Driver
         /// Indicating whether to insert the document if it doesn't already exist.
         /// </summary>
         public bool IsUpsert { get; init; }
+
+        /// <summary>
+        /// The sort document to use.
+        /// </summary>
+        public BsonDocument Sort { get; init; }
 
         /// <summary>
         /// Update definition.
