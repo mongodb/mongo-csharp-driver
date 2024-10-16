@@ -107,6 +107,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;
+                    case "sort":
+                        options ??= new ReplaceOptions();
+                        options.Sort = argument.Value.AsBsonDocument;
+                        break;
                     case "upsert":
                         options ??= new ReplaceOptions();
                         options.IsUpsert = argument.Value.AsBoolean;

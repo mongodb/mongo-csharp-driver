@@ -787,7 +787,8 @@ namespace MongoDB.Driver
                         CorrelationId = index,
                         Hint = replaceOneModel.Hint,
                         IsMulti = false,
-                        IsUpsert = replaceOneModel.IsUpsert
+                        IsUpsert = replaceOneModel.IsUpsert,
+                        Sort = replaceOneModel.Sort
                     };
                 case WriteModelType.UpdateMany:
                     var updateManyModel = (UpdateManyModel<TDocument>)model;
