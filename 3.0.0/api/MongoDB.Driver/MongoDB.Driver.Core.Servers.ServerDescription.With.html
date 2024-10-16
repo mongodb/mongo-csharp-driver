@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Method With
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Method With
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_Core_Servers_ServerDescription_With_.md&amp;value=---%0Auid%3A%20MongoDB.Driver.Core.Servers.ServerDescription.With*%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Core.Servers.ServerDescription.With*">
+
+
+
+
+
+<h1 id="MongoDB_Driver_Core_Servers_ServerDescription_With_" data-uid="MongoDB.Driver.Core.Servers.ServerDescription.With*" class="text-break">
+  Method With
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Core/Servers/ServerDescription.cs/#L621"><i class="bi bi-code-slash"></i></a>
+</h1>
+
+<div class="facts text-secondary">
+  <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a>.<a class="xref" href="MongoDB.Driver.Core.html">Core</a>.<a class="xref" href="MongoDB.Driver.Core.Servers.html">Servers</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+</div>
+
+<div class="markdown summary"></div>
+<div class="markdown conceptual"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_Core_Servers_ServerDescription_With_" data-uid="MongoDB.Driver.Core.Servers.ServerDescription.With*"></a>
+
+<h3 id="MongoDB_Driver_Core_Servers_ServerDescription_With_MongoDB_Driver_Optional_System_String__MongoDB_Driver_Optional_System_TimeSpan__MongoDB_Driver_Optional_System_Net_EndPoint__MongoDB_Driver_Optional_System_Boolean__MongoDB_Driver_Optional_MongoDB_Driver_Core_Clusters_ElectionId__MongoDB_Driver_Optional_System_Exception__MongoDB_Driver_Optional_System_TimeSpan__MongoDB_Driver_Optional_System_Nullable_System_DateTime___MongoDB_Driver_Optional_System_DateTime__MongoDB_Driver_Optional_System_Nullable_System_DateTime___MongoDB_Driver_Optional_System_Nullable_System_TimeSpan___MongoDB_Driver_Optional_System_Int32__MongoDB_Driver_Optional_System_Int32__MongoDB_Driver_Optional_System_Int32__MongoDB_Driver_Optional_System_Int32__MongoDB_Driver_Optional_MongoDB_Driver_Core_Clusters_ReplicaSetConfig__MongoDB_Driver_Optional_MongoDB_Driver_Core_Servers_ServerState__MongoDB_Driver_Optional_MongoDB_Driver_TagSet__MongoDB_Driver_Optional_MongoDB_Driver_Core_Servers_TopologyVersion__MongoDB_Driver_Optional_MongoDB_Driver_Core_Servers_ServerType__MongoDB_Driver_Optional_MongoDB_Driver_Core_Misc_SemanticVersion__MongoDB_Driver_Optional_MongoDB_Driver_Core_Misc_Range_System_Int32___" data-uid="MongoDB.Driver.Core.Servers.ServerDescription.With(MongoDB.Driver.Optional{System.String},MongoDB.Driver.Optional{System.TimeSpan},MongoDB.Driver.Optional{System.Net.EndPoint},MongoDB.Driver.Optional{System.Boolean},MongoDB.Driver.Optional{MongoDB.Driver.Core.Clusters.ElectionId},MongoDB.Driver.Optional{System.Exception},MongoDB.Driver.Optional{System.TimeSpan},MongoDB.Driver.Optional{System.Nullable{System.DateTime}},MongoDB.Driver.Optional{System.DateTime},MongoDB.Driver.Optional{System.Nullable{System.DateTime}},MongoDB.Driver.Optional{System.Nullable{System.TimeSpan}},MongoDB.Driver.Optional{System.Int32},MongoDB.Driver.Optional{System.Int32},MongoDB.Driver.Optional{System.Int32},MongoDB.Driver.Optional{System.Int32},MongoDB.Driver.Optional{MongoDB.Driver.Core.Clusters.ReplicaSetConfig},MongoDB.Driver.Optional{MongoDB.Driver.Core.Servers.ServerState},MongoDB.Driver.Optional{MongoDB.Driver.TagSet},MongoDB.Driver.Optional{MongoDB.Driver.Core.Servers.TopologyVersion},MongoDB.Driver.Optional{MongoDB.Driver.Core.Servers.ServerType},MongoDB.Driver.Optional{MongoDB.Driver.Core.Misc.SemanticVersion},MongoDB.Driver.Optional{MongoDB.Driver.Core.Misc.Range{System.Int32}})">
+  With(Optional&lt;string&gt;, Optional&lt;TimeSpan&gt;, Optional&lt;EndPoint&gt;, Optional&lt;bool&gt;, Optional&lt;ElectionId&gt;, Optional&lt;Exception&gt;, Optional&lt;TimeSpan&gt;, Optional&lt;DateTime?&gt;, Optional&lt;DateTime&gt;, Optional&lt;DateTime?&gt;, Optional&lt;TimeSpan?&gt;, Optional&lt;int&gt;, Optional&lt;int&gt;, Optional&lt;int&gt;, Optional&lt;int&gt;, Optional&lt;ReplicaSetConfig&gt;, Optional&lt;ServerState&gt;, Optional&lt;TagSet&gt;, Optional&lt;TopologyVersion&gt;, Optional&lt;ServerType&gt;, Optional&lt;SemanticVersion&gt;, Optional&lt;Range&lt;int&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/Core/Servers/ServerDescription.cs/#L621"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Returns a new instance of ServerDescription with some values changed.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public ServerDescription With(Optional&lt;string&gt; reasonChanged = default, Optional&lt;TimeSpan&gt; averageRoundTripTime = default, Optional&lt;EndPoint&gt; canonicalEndPoint = default, Optional&lt;bool&gt; helloOk = default, Optional&lt;ElectionId&gt; electionId = default, Optional&lt;Exception&gt; heartbeatException = default, Optional&lt;TimeSpan&gt; heartbeatInterval = default, Optional&lt;DateTime?&gt; lastHeartbeatTimestamp = default, Optional&lt;DateTime&gt; lastUpdateTimestamp = default, Optional&lt;DateTime?&gt; lastWriteTimestamp = default, Optional&lt;TimeSpan?&gt; logicalSessionTimeout = default, Optional&lt;int&gt; maxBatchCount = default, Optional&lt;int&gt; maxDocumentSize = default, Optional&lt;int&gt; maxMessageSize = default, Optional&lt;int&gt; maxWireDocumentSize = default, Optional&lt;ReplicaSetConfig&gt; replicaSetConfig = default, Optional&lt;ServerState&gt; state = default, Optional&lt;TagSet&gt; tags = default, Optional&lt;TopologyVersion&gt; topologyVersion = default, Optional&lt;ServerType&gt; type = default, Optional&lt;SemanticVersion&gt; version = default, Optional&lt;Range&lt;int&gt;&gt; wireVersionRange = default)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>reasonChanged</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a>&gt;</dt>
+  <dd><p>The reason the server description changed.</p>
+</dd>
+  <dt><code>averageRoundTripTime</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a>&gt;</dt>
+  <dd><p>The average round trip time.</p>
+</dd>
+  <dt><code>canonicalEndPoint</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.net.endpoint">EndPoint</a>&gt;</dt>
+  <dd><p>The canonical end point.</p>
+</dd>
+  <dt><code>helloOk</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a>&gt;</dt>
+  <dd><p>Whether the server supports the hello command.</p>
+</dd>
+  <dt><code>electionId</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Clusters.ElectionId.html">ElectionId</a>&gt;</dt>
+  <dd><p>The election identifier.</p>
+</dd>
+  <dt><code>heartbeatException</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.exception">Exception</a>&gt;</dt>
+  <dd><p>The heartbeat exception.</p>
+</dd>
+  <dt><code>heartbeatInterval</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a>&gt;</dt>
+  <dd><p>The heartbeat interval.</p>
+</dd>
+  <dt><code>lastHeartbeatTimestamp</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>?&gt;</dt>
+  <dd><p>The last heartbeat timestamp.</p>
+</dd>
+  <dt><code>lastUpdateTimestamp</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>&gt;</dt>
+  <dd><p>The last update timestamp.</p>
+</dd>
+  <dt><code>lastWriteTimestamp</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetime">DateTime</a>?&gt;</dt>
+  <dd><p>The last write timestamp.</p>
+</dd>
+  <dt><code>logicalSessionTimeout</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a>?&gt;</dt>
+  <dd><p>The logical session timeout.</p>
+</dd>
+  <dt><code>maxBatchCount</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+  <dd><p>The maximum batch count.</p>
+</dd>
+  <dt><code>maxDocumentSize</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+  <dd><p>The maximum size of a document.</p>
+</dd>
+  <dt><code>maxMessageSize</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+  <dd><p>The maximum size of a message.</p>
+</dd>
+  <dt><code>maxWireDocumentSize</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;</dt>
+  <dd><p>The maximum size of a wire document.</p>
+</dd>
+  <dt><code>replicaSetConfig</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Clusters.ReplicaSetConfig.html">ReplicaSetConfig</a>&gt;</dt>
+  <dd><p>The replica set configuration.</p>
+</dd>
+  <dt><code>state</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Servers.ServerState.html">ServerState</a>&gt;</dt>
+  <dd><p>The server state.</p>
+</dd>
+  <dt><code>tags</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.TagSet.html">TagSet</a>&gt;</dt>
+  <dd><p>The replica set tags.</p>
+</dd>
+  <dt><code>topologyVersion</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Servers.TopologyVersion.html">TopologyVersion</a>&gt;</dt>
+  <dd><p>The topology version.</p>
+</dd>
+  <dt><code>type</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Servers.ServerType.html">ServerType</a>&gt;</dt>
+  <dd><p>The server type.</p>
+</dd>
+  <dt><code>version</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Misc.SemanticVersion.html">SemanticVersion</a>&gt;</dt>
+  <dd><p>The server version.</p>
+</dd>
+  <dt><code>wireVersionRange</code> <a class="xref" href="MongoDB.Driver.Optional-1.html">Optional</a>&lt;<a class="xref" href="MongoDB.Driver.Core.Misc.Range-1.html">Range</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">int</a>&gt;&gt;</dt>
+  <dd><p>The wire version range.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.Core.Servers.ServerDescription.html">ServerDescription</a></dt>
+  <dd><p>A new instance of ServerDescription.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
