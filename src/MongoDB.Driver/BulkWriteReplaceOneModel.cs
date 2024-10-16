@@ -95,6 +95,11 @@ namespace MongoDB.Driver
         /// </summary>
         public TDocument Replacement { get; }
 
+        /// <summary>
+        /// The sort document to use.
+        /// </summary>
+        public BsonDocument Sort { get; init; }
+
         internal override bool IsMulti => false;
 
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
