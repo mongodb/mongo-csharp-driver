@@ -12,11 +12,11 @@ The main new features in 3.0.0 include:
 - [CSHARP-3899](https://jira.mongodb.org/browse/CSHARP-3899): Removing `MongoDB.Driver.Legacy` package
 - [CSHARP-4917](https://jira.mongodb.org/browse/CSHARP-4917): Removing `MongoDB.Driver.Core` package
 - [CSHARP-5232](https://jira.mongodb.org/browse/CSHARP-5232): Embedding MongoDB.Driver.GridFS package into `MongoDB.Driver` package.
-- [CSHARP-4912](https://jira.mongodb.org/browse/CSHARP-4912): Refactoring the Client Side field level descrption to an optional `MongoDB.Driver.Encryption` package.
+- [CSHARP-4912](https://jira.mongodb.org/browse/CSHARP-4912): Refactoring the Client Side field level description to an optional `MongoDB.Driver.Encryption` package. `MongoDB.Libmongocrypt` package is not in use anymore and will not get any updates anymore.
 - [CSHARP-4911](https://jira.mongodb.org/browse/CSHARP-4911): Refactoring the AWS authentication to an optional `MongoDB.Driver.Authentication.AWS` package.
 - [CSHARP-5291](https://jira.mongodb.org/browse/CSHARP-5291): Removing MONGODB-CR support
 - [CSHARP-5263](https://jira.mongodb.org/browse/CSHARP-5263): Removing support for TLS1.0 and 1.1
-- Removal of various not user facing APIs from `MongoDB.Driver.Core` (see v2.30.0 for deprecations messages)
+- Removal of various not user facing APIs from `MongoDB.Driver.Core` (see [v2.30.0](https://www.nuget.org/packages/MongoDB.Driver/2.30.0) for deprecations messages)
 - [CSHARP-2930](https://jira.mongodb.org/browse/CSHARP-2930): Changing default GUID serialization mode and removing GuidRepresentationMode
 - [CSHARP-3717](https://jira.mongodb.org/browse/CSHARP-3717): Adding DateOnly/TimeOnly support
 
