@@ -1,5 +1,5 @@
 {
-  "description": "updateOne-sort",
+  "description": "BulkWrite updateOne-sort",
   "schemaVersion": "1.0",
   "createEntities": [
     {
@@ -48,7 +48,7 @@
   ],
   "tests": [
     {
-      "description": "UpdateOne with sort option",
+      "description": "BulkWrite updateOne with sort option",
       "runOnRequirements": [
         {
           "minServerVersion": "8.0"
@@ -56,27 +56,30 @@
       ],
       "operations": [
         {
-          "name": "updateOne",
           "object": "collection0",
+          "name": "bulkWrite",
           "arguments": {
-            "filter": {
-              "_id": {
-                "$gt": 1
+            "requests": [
+              {
+                "updateOne": {
+                  "filter": {
+                    "_id": {
+                      "$gt": 1
+                    }
+                  },
+                  "sort": {
+                    "_id": -1
+                  },
+                  "update": [
+                    {
+                      "$set": {
+                        "x": 1
+                      }
+                    }
+                  ]
+                }
               }
-            },
-            "sort": {
-              "_id": -1
-            },
-            "update": {
-              "$inc": {
-                "x": 1
-              }
-            }
-          },
-          "expectResult": {
-            "matchedCount": 1,
-            "modifiedCount": 1,
-            "upsertedCount": 0
+            ]
           }
         }
       ],
@@ -95,11 +98,13 @@
                           "$gt": 1
                         }
                       },
-                      "u": {
-                        "$inc": {
-                          "x": 1
+                      "u": [
+                        {
+                          "$set": {
+                            "x": 1
+                          }
                         }
-                      },
+                      ],
                       "sort": {
                         "_id": -1
                       },
@@ -141,14 +146,14 @@
             },
             {
               "_id": 3,
-              "x": 34
+              "x": 1
             }
           ]
         }
       ]
     },
     {
-      "description": "updateOne with sort option unsupported (server-side error)",
+      "description": "BulkWrite updateOne with sort option unsupported (server-side error)",
       "runOnRequirements": [
         {
           "maxServerVersion": "7.99"
@@ -156,22 +161,30 @@
       ],
       "operations": [
         {
-          "name": "updateOne",
           "object": "collection0",
+          "name": "bulkWrite",
           "arguments": {
-            "filter": {
-              "_id": {
-                "$gt": 1
+            "requests": [
+              {
+                "updateOne": {
+                  "filter": {
+                    "_id": {
+                      "$gt": 1
+                    }
+                  },
+                  "sort": {
+                    "_id": -1
+                  },
+                  "update": [
+                    {
+                      "$set": {
+                        "x": 1
+                      }
+                    }
+                  ]
+                }
               }
-            },
-            "sort": {
-              "_id": -1
-            },
-            "update": {
-              "$inc": {
-                "x": 1
-              }
-            }
+            ]
           },
           "expectError": {
             "isClientError": false
@@ -193,11 +206,13 @@
                           "$gt": 1
                         }
                       },
-                      "u": {
-                        "$inc": {
-                          "x": 1
+                      "u": [
+                        {
+                          "$set": {
+                            "x": 1
+                          }
                         }
-                      },
+                      ],
                       "sort": {
                         "_id": -1
                       },

@@ -1,13 +1,11 @@
-description: updateOne-sort
+description: BulkWrite updateOne-sort
 
 schemaVersion: "1.0"
 
 createEntities:
   - client:
       id: &client0 client0
-      observeEvents:
-        - commandStartedEvent
-        - commandSucceededEvent
+      observeEvents: [ commandStartedEvent, commandSucceededEvent ]
   - database:
       id: &database0 database0
       client: *client0
@@ -26,20 +24,18 @@ initialData:
       - { _id: 3, x: 33 }
 
 tests:
-  - description: UpdateOne with sort option
+  - description: BulkWrite updateOne with sort option
     runOnRequirements:
       - minServerVersion: "8.0"
     operations:
-      - name: updateOne
-        object: *collection0
+      - object: *collection0
+        name: bulkWrite
         arguments:
-          filter: { _id: { $gt: 1 } }
-          sort: { _id: -1 }
-          update: { $inc: { x: 1 } }
-        expectResult:
-          matchedCount: 1
-          modifiedCount: 1
-          upsertedCount: 0
+          requests:
+            - updateOne:
+                filter: { _id: { $gt: 1 } }
+                sort: { _id: -1 }
+                update: [ $set: { x: 1 } ]
     expectEvents:
       - client: *client0
         events:
@@ -48,7 +44,7 @@ tests:
                 update: *collection0Name
                 updates:
                   - q: { _id: { $gt: 1 } }
-                    u: { $inc: { x: 1 } }
+                    u: [ $set: { x: 1 } ]
                     sort: { _id: -1 }
                     multi: { $$unsetOrMatches: false }
                     upsert: { $$unsetOrMatches: false }
@@ -61,18 +57,20 @@ tests:
         documents:
           - { _id: 1, x: 11 }
           - { _id: 2, x: 22 }
-          - { _id: 3, x: 34 }
+          - { _id: 3, x: 1 }
 
-  - description: updateOne with sort option unsupported (server-side error)
+  - description: BulkWrite updateOne with sort option unsupported (server-side error)
     runOnRequirements:
       - maxServerVersion: "7.99"
     operations:
-      - name: updateOne
-        object: *collection0
+      - object: *collection0
+        name: bulkWrite
         arguments:
-          filter: { _id: { $gt: 1 } }
-          sort: { _id: -1 }
-          update: { $inc: { x: 1 } }
+          requests:
+            - updateOne:
+                filter: { _id: { $gt: 1 } }
+                sort: { _id: -1 }
+                update: [ $set: { x: 1 } ]
         expectError:
           isClientError: false
     expectEvents:
@@ -83,7 +81,7 @@ tests:
                 update: *collection0Name
                 updates:
                   - q: { _id: { $gt: 1 } }
-                    u: { $inc: { x: 1 } }
+                    u: [ $set: { x: 1 } ]
                     sort: { _id: -1 }
                     multi: { $$unsetOrMatches: false }
                     upsert: { $$unsetOrMatches: false }
