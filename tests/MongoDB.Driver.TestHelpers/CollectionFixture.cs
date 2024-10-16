@@ -15,26 +15,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests;
 
 namespace MongoDB.Driver.TestHelpers
 {
-    public abstract class TemporaryCollectionFixture<TDocument> : IDisposable
+    public abstract class CollectionFixture<TDocument> : DatabaseFixture
     {
-        private readonly TemporaryDatabaseFixture _temporaryDatabaseFixture;
         private readonly string _collectionName;
-        private readonly Lazy<bool> _collectionInitializer;
+        private bool _collectionInitialized;
 
-        protected TemporaryCollectionFixture(string collectionName = null)
+        protected CollectionFixture(string collectionName = null)
         {
-            _temporaryDatabaseFixture = new TemporaryDatabaseFixture();
-            _collectionInitializer = new Lazy<bool>(() =>
-            {
-                InitializeCollection();
-                return true;
-            }, LazyThreadSafetyMode.ExecutionAndPublication);
             _collectionName = collectionName ?? GetCollectionName();
             if (string.IsNullOrEmpty(_collectionName))
             {
@@ -42,40 +33,38 @@ namespace MongoDB.Driver.TestHelpers
             }
         }
 
-        public void Dispose()
-        {
-            _temporaryDatabaseFixture.Dispose();
-        }
-
         public string CollectionName => _collectionName;
 
-        public IMongoClient GetClient(LinqProvider provider)
-            => _temporaryDatabaseFixture.GetClient(provider);
+        public virtual bool ResetOnEachGet => false;
 
-        public IMongoCollection<TDocument> GetCollection(LinqProvider provider = LinqProvider.V3)
+        public override IMongoCollection<T> GetCollection<T>(Action<MongoClientSettings> configure = null, string collectionName = null)
         {
-            EnsureCollectionInitialized();
-            return GetDatabase(provider).GetCollection<TDocument>(CollectionName);
-        }
+            if (!string.IsNullOrEmpty(collectionName))
+            {
+                throw new NotSupportedException("CollectionFixture does not support explicit collection name.");
+            }
 
-        public IMongoDatabase GetDatabase(LinqProvider provider = LinqProvider.V3)
-            => _temporaryDatabaseFixture.GetDatabase(provider);
+            if (ResetOnEachGet || !_collectionInitialized)
+            {
+                InitializeCollection();
+            }
+
+            var db = GetDatabase(configure);
+            return db.GetCollection<T>(CollectionName);
+        }
 
         protected abstract IEnumerable<TDocument> GetInitialData();
 
-        protected virtual void InitializeCollection()
+        private void InitializeCollection()
         {
             var initialData = GetInitialData();
             if (initialData != null)
             {
-                var collection = _temporaryDatabaseFixture.GetCollection<TDocument>(CollectionName);
+                var collection = base.GetCollection<TDocument>(null, CollectionName);
                 collection.InsertMany(initialData);
             }
-        }
 
-        private void EnsureCollectionInitialized()
-        {
-            _ = _collectionInitializer.Value;
+            _collectionInitialized = true;
         }
 
         private string GetCollectionName()

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -22,7 +23,7 @@ namespace MongoDB.Driver.Tests
 {
     [IntegrationTest]
     public abstract class IntegrationTest<TFixture> : LoggableTestClass, IClassFixture<TFixture>
-        where TFixture : class
+        where TFixture : DatabaseFixture
     {
         protected IntegrationTest(ITestOutputHelper testOutputHelper, TFixture fixture)
             : base(testOutputHelper)
@@ -31,5 +32,32 @@ namespace MongoDB.Driver.Tests
         }
 
         protected TFixture Fixture { get; }
+
+        public IMongoClient GetMongoClient(Action<MongoClientSettings> configure = null)
+        {
+            return Fixture.GetMongoClient(settings =>
+            {
+                settings.LoggingSettings = LoggingSettings;
+                configure?.Invoke(settings);
+            });
+        }
+
+        public IMongoDatabase GetDatabase(Action<MongoClientSettings> configure = null)
+        {
+            return Fixture.GetDatabase(settings =>
+            {
+                settings.LoggingSettings = LoggingSettings;
+                configure?.Invoke(settings);
+            });
+        }
+
+        public IMongoCollection<T> GetCollection<T>(Action<MongoClientSettings> configure = null, string collectionName = null)
+        {
+            return Fixture.GetCollection<T>(settings =>
+            {
+                settings.LoggingSettings = LoggingSettings;
+                configure?.Invoke(settings);
+            }, collectionName);
+        }
     }
 }
