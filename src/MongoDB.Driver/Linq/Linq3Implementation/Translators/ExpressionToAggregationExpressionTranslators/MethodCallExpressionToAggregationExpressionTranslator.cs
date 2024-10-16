@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Exists": return ExistsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Exp": return ExpMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ExponentialMovingAverage": return ExponentialMovingAverageMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Field": return FieldMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Floor": return FloorMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "get_Item": return GetItemMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Integral": return IntegralMethodToAggregationExpressionTranslator.Translate(context, expression);
