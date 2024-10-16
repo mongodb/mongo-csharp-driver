@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         public BsonValue Hint { get; init; }
         public bool IsMulti { get; init; }
         public bool IsUpsert { get; init; }
+        public BsonDocument Sort { get; init; }
         public BsonValue Update { get; init; }
         public UpdateType UpdateType { get; init; }
 

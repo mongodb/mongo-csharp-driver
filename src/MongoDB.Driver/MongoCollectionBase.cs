@@ -584,7 +584,8 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort
             };
 
             try
@@ -636,7 +637,8 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort
             };
 
             try
@@ -759,9 +761,11 @@ namespace MongoDB.Driver
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort
             };
-
+            //TODO Why don't UpdateOne and UpdateOneAsync have a common path for creating the UpdateOneModel and BulkWriteOptions (if not more)?
+            //TODO Remember to add ticket about this.
             try
             {
                 var bulkWriteOptions = new BulkWriteOptions
@@ -800,7 +804,8 @@ namespace MongoDB.Driver
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort,
             };
 
             try
