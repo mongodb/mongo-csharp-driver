@@ -36,17 +36,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static void EnsureRepresentationIsNumeric(Expression expression, AggregationExpression translation)
+        public static void EnsureRepresentationIsNumeric(Expression expression, Expression argumentExpression, AggregationExpression argumentTranslation)
         {
-            EnsureRepresentationIsNumeric(expression, translation.Serializer);
+            EnsureRepresentationIsNumeric(expression, argumentExpression, argumentTranslation.Serializer);
         }
 
-        public static void EnsureRepresentationIsNumeric(Expression expression, IBsonSerializer serializer)
+        public static void EnsureRepresentationIsNumeric(Expression expression, Expression argumentExpression, IBsonSerializer argumentSerializer)
         {
-            var representation = GetRepresentation(serializer);
-            if (!IsNumericRepresentation(representation))
+            var argumentRepresentation = GetRepresentation(argumentSerializer);
+            if (!IsNumericRepresentation(argumentRepresentation))
             {
-                throw new ExpressionNotSupportedException(expression, because: $"serializer for type {serializer.ValueType} uses a non-numeric representation: {representation}");
+                throw new ExpressionNotSupportedException(expression, because: $"{argumentExpression} uses a non-numeric representation: {argumentRepresentation}");
             }
         }
 
