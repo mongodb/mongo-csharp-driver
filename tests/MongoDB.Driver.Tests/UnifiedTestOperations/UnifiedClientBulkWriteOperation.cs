@@ -407,7 +407,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 case "updateMany":
                     {
-                        ParseUpdateModel(model, out var ns, out var filter, out var update, out var arrayFilters, out var hint, out var collation, out var isUpsert, out var _);
+                        ParseUpdateModel(model, out var ns, out var filter, out var update, out var arrayFilters, out var hint, out var collation, out var isUpsert, out _);
 
                         return new BulkWriteUpdateManyModel<BsonDocument>(ns, filter, update)
                         {

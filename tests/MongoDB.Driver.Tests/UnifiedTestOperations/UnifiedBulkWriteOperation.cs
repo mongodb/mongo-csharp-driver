@@ -323,7 +323,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 case "updateMany":
                     {
-                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert, out _); //TODO Decide if we should create two methods or just keep it like this
+                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert, out _);
 
                         return new UpdateManyModel<BsonDocument>(filter, update)
                         {
