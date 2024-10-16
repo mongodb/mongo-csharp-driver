@@ -1,6 +1,6 @@
 ﻿# .NET Driver Version 3.0.0 Release Notes
 The MongoDB .NET/C# driver team is pleased to announce our v3.0.0 release! The 3.0.0 release incorporates many user-requested fixes and improvements that have been deferred as backwards-incompatible, as well as internal improvements to pay down technical debt and improve maintainability. Additional major changes include removal of a large area of the public API (mainly from MongoDB.Driver.Core), which was not intended for public use. Removed APIs are marked as deprecated in [v2.30.0](https://www.nuget.org/packages/MongoDB.Driver/2.30.0) version.
-For all the breaking changes and for the upgrade guidlines, please see the upgrade guide is here: https://www.mongodb.com/docs/drivers/csharp/v3.0/upgrade/v3/
+For all the breaking changes and for the upgrade guidlines, please see the [upgrade guide](https://www.mongodb.com/docs/drivers/csharp/v3.0/upgrade/v3/).
 
 The main new features in 3.0.0 include:
 - [CSHARP-4904](https://jira.mongodb.org/browse/CSHARP-4904): Adding .NET 6 target framework
