@@ -1,0 +1,645 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class MongoCollection&lt;TDefaultDocument&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class MongoCollection&lt;TDefaultDocument&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/v2.x/apiSpec/new?filename=MongoDB_Driver_MongoCollection_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.MongoCollection%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.MongoCollection`1">
+
+
+
+  <h1 id="MongoDB_Driver_MongoCollection_1" data-uid="MongoDB.Driver.MongoCollection`1" class="text-break">
+    Class MongoCollection&lt;TDefaultDocument&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/v2.x/src/MongoDB.Driver.Legacy/MongoCollection.cs/#L2330"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.Legacy.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a MongoDB collection and the settings used to access it as well as a default document type. This class is thread-safe.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class MongoCollection&lt;TDefaultDocument&gt; : MongoCollection</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDefaultDocument</code></dt>
+    <dd><p>The default document type of the collection.</p>
+</dd>
+  </dl>
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="MongoDB.Driver.MongoCollection.html">MongoCollection</a></div>
+      <div><span class="xref">MongoCollection&lt;TDefaultDocument&gt;</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Database.html#MongoDB_Driver_MongoCollection_Database">MongoCollection.Database</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FullName.html#MongoDB_Driver_MongoCollection_FullName">MongoCollection.FullName</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Name.html#MongoDB_Driver_MongoCollection_Name">MongoCollection.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Settings.html#MongoDB_Driver_MongoCollection_Settings">MongoCollection.Settings</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Aggregate.html#MongoDB_Driver_MongoCollection_Aggregate_MongoDB_Driver_AggregateArgs_">MongoCollection.Aggregate(AggregateArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.AggregateExplain.html#MongoDB_Driver_MongoCollection_AggregateExplain_MongoDB_Driver_AggregateArgs_">MongoCollection.AggregateExplain(AggregateArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Count.html#MongoDB_Driver_MongoCollection_Count">MongoCollection.Count()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Count.html#MongoDB_Driver_MongoCollection_Count_MongoDB_Driver_CountArgs_">MongoCollection.Count(CountArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Count.html#MongoDB_Driver_MongoCollection_Count_MongoDB_Driver_IMongoQuery_">MongoCollection.Count(IMongoQuery)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.CreateIndex.html#MongoDB_Driver_MongoCollection_CreateIndex_MongoDB_Driver_IMongoIndexKeys_MongoDB_Driver_IMongoIndexOptions_">MongoCollection.CreateIndex(IMongoIndexKeys, IMongoIndexOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.CreateIndex.html#MongoDB_Driver_MongoCollection_CreateIndex_MongoDB_Driver_IMongoIndexKeys_">MongoCollection.CreateIndex(IMongoIndexKeys)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.CreateIndex.html#MongoDB_Driver_MongoCollection_CreateIndex_System_String___">MongoCollection.CreateIndex(params string[])</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Distinct.html#MongoDB_Driver_MongoCollection_Distinct__1_MongoDB_Driver_DistinctArgs_">MongoCollection.Distinct&lt;TValue&gt;(DistinctArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Distinct.html#MongoDB_Driver_MongoCollection_Distinct_System_String_">MongoCollection.Distinct(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Distinct.html#MongoDB_Driver_MongoCollection_Distinct_System_String_MongoDB_Driver_IMongoQuery_">MongoCollection.Distinct(string, IMongoQuery)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Distinct.html#MongoDB_Driver_MongoCollection_Distinct__1_System_String_">MongoCollection.Distinct&lt;TValue&gt;(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Distinct.html#MongoDB_Driver_MongoCollection_Distinct__1_System_String_MongoDB_Driver_IMongoQuery_">MongoCollection.Distinct&lt;TValue&gt;(string, IMongoQuery)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Drop.html#MongoDB_Driver_MongoCollection_Drop">MongoCollection.Drop()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.DropAllIndexes.html#MongoDB_Driver_MongoCollection_DropAllIndexes">MongoCollection.DropAllIndexes()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.DropIndex.html#MongoDB_Driver_MongoCollection_DropIndex_MongoDB_Driver_IMongoIndexKeys_">MongoCollection.DropIndex(IMongoIndexKeys)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.DropIndex.html#MongoDB_Driver_MongoCollection_DropIndex_System_String___">MongoCollection.DropIndex(params string[])</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.DropIndexByName.html#MongoDB_Driver_MongoCollection_DropIndexByName_System_String_">MongoCollection.DropIndexByName(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.EnsureIndex.html#MongoDB_Driver_MongoCollection_EnsureIndex_MongoDB_Driver_IMongoIndexKeys_MongoDB_Driver_IMongoIndexOptions_">MongoCollection.EnsureIndex(IMongoIndexKeys, IMongoIndexOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.EnsureIndex.html#MongoDB_Driver_MongoCollection_EnsureIndex_MongoDB_Driver_IMongoIndexKeys_">MongoCollection.EnsureIndex(IMongoIndexKeys)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.EnsureIndex.html#MongoDB_Driver_MongoCollection_EnsureIndex_System_String___">MongoCollection.EnsureIndex(params string[])</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Exists.html#MongoDB_Driver_MongoCollection_Exists">MongoCollection.Exists()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAllAs.html#MongoDB_Driver_MongoCollection_FindAllAs__1">MongoCollection.FindAllAs&lt;TDocument&gt;()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAllAs.html#MongoDB_Driver_MongoCollection_FindAllAs_System_Type_">MongoCollection.FindAllAs(Type)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAndModify.html#MongoDB_Driver_MongoCollection_FindAndModify_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoSortBy_MongoDB_Driver_IMongoUpdate_">MongoCollection.FindAndModify(IMongoQuery, IMongoSortBy, IMongoUpdate)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAndModify.html#MongoDB_Driver_MongoCollection_FindAndModify_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoSortBy_MongoDB_Driver_IMongoUpdate_System_Boolean_">MongoCollection.FindAndModify(IMongoQuery, IMongoSortBy, IMongoUpdate, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAndModify.html#MongoDB_Driver_MongoCollection_FindAndModify_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoSortBy_MongoDB_Driver_IMongoUpdate_System_Boolean_System_Boolean_">MongoCollection.FindAndModify(IMongoQuery, IMongoSortBy, IMongoUpdate, bool, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAndModify.html#MongoDB_Driver_MongoCollection_FindAndModify_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoSortBy_MongoDB_Driver_IMongoUpdate_MongoDB_Driver_IMongoFields_System_Boolean_System_Boolean_">MongoCollection.FindAndModify(IMongoQuery, IMongoSortBy, IMongoUpdate, IMongoFields, bool, bool)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAndModify.html#MongoDB_Driver_MongoCollection_FindAndModify_MongoDB_Driver_FindAndModifyArgs_">MongoCollection.FindAndModify(FindAndModifyArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAndRemove.html#MongoDB_Driver_MongoCollection_FindAndRemove_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoSortBy_">MongoCollection.FindAndRemove(IMongoQuery, IMongoSortBy)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAndRemove.html#MongoDB_Driver_MongoCollection_FindAndRemove_MongoDB_Driver_FindAndRemoveArgs_">MongoCollection.FindAndRemove(FindAndRemoveArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAs.html#MongoDB_Driver_MongoCollection_FindAs__1_MongoDB_Driver_IMongoQuery_">MongoCollection.FindAs&lt;TDocument&gt;(IMongoQuery)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindAs.html#MongoDB_Driver_MongoCollection_FindAs_System_Type_MongoDB_Driver_IMongoQuery_">MongoCollection.FindAs(Type, IMongoQuery)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindOneAs.html#MongoDB_Driver_MongoCollection_FindOneAs__1">MongoCollection.FindOneAs&lt;TDocument&gt;()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindOneAs.html#MongoDB_Driver_MongoCollection_FindOneAs__1_MongoDB_Driver_FindOneArgs_">MongoCollection.FindOneAs&lt;TDocument&gt;(FindOneArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindOneAs.html#MongoDB_Driver_MongoCollection_FindOneAs__1_MongoDB_Driver_IMongoQuery_">MongoCollection.FindOneAs&lt;TDocument&gt;(IMongoQuery)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindOneAs.html#MongoDB_Driver_MongoCollection_FindOneAs_System_Type_">MongoCollection.FindOneAs(Type)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindOneAs.html#MongoDB_Driver_MongoCollection_FindOneAs_System_Type_MongoDB_Driver_FindOneArgs_">MongoCollection.FindOneAs(Type, FindOneArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindOneAs.html#MongoDB_Driver_MongoCollection_FindOneAs_System_Type_MongoDB_Driver_IMongoQuery_">MongoCollection.FindOneAs(Type, IMongoQuery)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindOneByIdAs.html#MongoDB_Driver_MongoCollection_FindOneByIdAs__1_MongoDB_Bson_BsonValue_">MongoCollection.FindOneByIdAs&lt;TDocument&gt;(BsonValue)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.FindOneByIdAs.html#MongoDB_Driver_MongoCollection_FindOneByIdAs_System_Type_MongoDB_Bson_BsonValue_">MongoCollection.FindOneByIdAs(Type, BsonValue)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoHaystackSearchAs.html#MongoDB_Driver_MongoCollection_GeoHaystackSearchAs__1_System_Double_System_Double_MongoDB_Driver_IMongoGeoHaystackSearchOptions_">MongoCollection.GeoHaystackSearchAs&lt;TDocument&gt;(double, double, IMongoGeoHaystackSearchOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoHaystackSearchAs.html#MongoDB_Driver_MongoCollection_GeoHaystackSearchAs__1_MongoDB_Driver_GeoHaystackSearchArgs_">MongoCollection.GeoHaystackSearchAs&lt;TDocument&gt;(GeoHaystackSearchArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoHaystackSearchAs.html#MongoDB_Driver_MongoCollection_GeoHaystackSearchAs_System_Type_System_Double_System_Double_MongoDB_Driver_IMongoGeoHaystackSearchOptions_">MongoCollection.GeoHaystackSearchAs(Type, double, double, IMongoGeoHaystackSearchOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoHaystackSearchAs.html#MongoDB_Driver_MongoCollection_GeoHaystackSearchAs_System_Type_MongoDB_Driver_GeoHaystackSearchArgs_">MongoCollection.GeoHaystackSearchAs(Type, GeoHaystackSearchArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoNearAs.html#MongoDB_Driver_MongoCollection_GeoNearAs__1_MongoDB_Driver_GeoNearArgs_">MongoCollection.GeoNearAs&lt;TDocument&gt;(GeoNearArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoNearAs.html#MongoDB_Driver_MongoCollection_GeoNearAs__1_MongoDB_Driver_IMongoQuery_System_Double_System_Double_System_Int32_">MongoCollection.GeoNearAs&lt;TDocument&gt;(IMongoQuery, double, double, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoNearAs.html#MongoDB_Driver_MongoCollection_GeoNearAs__1_MongoDB_Driver_IMongoQuery_System_Double_System_Double_System_Int32_MongoDB_Driver_IMongoGeoNearOptions_">MongoCollection.GeoNearAs&lt;TDocument&gt;(IMongoQuery, double, double, int, IMongoGeoNearOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoNearAs.html#MongoDB_Driver_MongoCollection_GeoNearAs_System_Type_MongoDB_Driver_GeoNearArgs_">MongoCollection.GeoNearAs(Type, GeoNearArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoNearAs.html#MongoDB_Driver_MongoCollection_GeoNearAs_System_Type_MongoDB_Driver_IMongoQuery_System_Double_System_Double_System_Int32_">MongoCollection.GeoNearAs(Type, IMongoQuery, double, double, int)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GeoNearAs.html#MongoDB_Driver_MongoCollection_GeoNearAs_System_Type_MongoDB_Driver_IMongoQuery_System_Double_System_Double_System_Int32_MongoDB_Driver_IMongoGeoNearOptions_">MongoCollection.GeoNearAs(Type, IMongoQuery, double, double, int, IMongoGeoNearOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GetIndexes.html#MongoDB_Driver_MongoCollection_GetIndexes">MongoCollection.GetIndexes()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GetStats.html#MongoDB_Driver_MongoCollection_GetStats">MongoCollection.GetStats()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.GetStats.html#MongoDB_Driver_MongoCollection_GetStats_MongoDB_Driver_GetStatsArgs_">MongoCollection.GetStats(GetStatsArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Group.html#MongoDB_Driver_MongoCollection_Group_MongoDB_Driver_GroupArgs_">MongoCollection.Group(GroupArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Group.html#MongoDB_Driver_MongoCollection_Group_MongoDB_Driver_IMongoQuery_MongoDB_Bson_BsonJavaScript_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonJavaScript_MongoDB_Bson_BsonJavaScript_">MongoCollection.Group(IMongoQuery, BsonJavaScript, BsonDocument, BsonJavaScript, BsonJavaScript)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Group.html#MongoDB_Driver_MongoCollection_Group_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoGroupBy_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonJavaScript_MongoDB_Bson_BsonJavaScript_">MongoCollection.Group(IMongoQuery, IMongoGroupBy, BsonDocument, BsonJavaScript, BsonJavaScript)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Group.html#MongoDB_Driver_MongoCollection_Group_MongoDB_Driver_IMongoQuery_System_String_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonJavaScript_MongoDB_Bson_BsonJavaScript_">MongoCollection.Group(IMongoQuery, string, BsonDocument, BsonJavaScript, BsonJavaScript)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.IndexExists.html#MongoDB_Driver_MongoCollection_IndexExists_MongoDB_Driver_IMongoIndexKeys_">MongoCollection.IndexExists(IMongoIndexKeys)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.IndexExists.html#MongoDB_Driver_MongoCollection_IndexExists_System_String___">MongoCollection.IndexExists(params string[])</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.IndexExistsByName.html#MongoDB_Driver_MongoCollection_IndexExistsByName_System_String_">MongoCollection.IndexExistsByName(string)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.InitializeOrderedBulkOperationAs.html#MongoDB_Driver_MongoCollection_InitializeOrderedBulkOperationAs__1">MongoCollection.InitializeOrderedBulkOperationAs&lt;TDocument&gt;()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.InitializeUnorderedBulkOperationAs.html#MongoDB_Driver_MongoCollection_InitializeUnorderedBulkOperationAs__1">MongoCollection.InitializeUnorderedBulkOperationAs&lt;TDocument&gt;()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Insert.html#MongoDB_Driver_MongoCollection_Insert__1___0_">MongoCollection.Insert&lt;TNominalType&gt;(TNominalType)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Insert.html#MongoDB_Driver_MongoCollection_Insert__1___0_MongoDB_Driver_MongoInsertOptions_">MongoCollection.Insert&lt;TNominalType&gt;(TNominalType, MongoInsertOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Insert.html#MongoDB_Driver_MongoCollection_Insert__1___0_MongoDB_Driver_WriteConcern_">MongoCollection.Insert&lt;TNominalType&gt;(TNominalType, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Insert.html#MongoDB_Driver_MongoCollection_Insert_System_Type_System_Object_">MongoCollection.Insert(Type, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Insert.html#MongoDB_Driver_MongoCollection_Insert_System_Type_System_Object_MongoDB_Driver_MongoInsertOptions_">MongoCollection.Insert(Type, object, MongoInsertOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Insert.html#MongoDB_Driver_MongoCollection_Insert_System_Type_System_Object_MongoDB_Driver_WriteConcern_">MongoCollection.Insert(Type, object, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.InsertBatch.html#MongoDB_Driver_MongoCollection_InsertBatch__1_System_Collections_Generic_IEnumerable___0__">MongoCollection.InsertBatch&lt;TNominalType&gt;(IEnumerable&lt;TNominalType&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.InsertBatch.html#MongoDB_Driver_MongoCollection_InsertBatch__1_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_MongoInsertOptions_">MongoCollection.InsertBatch&lt;TNominalType&gt;(IEnumerable&lt;TNominalType&gt;, MongoInsertOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.InsertBatch.html#MongoDB_Driver_MongoCollection_InsertBatch__1_System_Collections_Generic_IEnumerable___0__MongoDB_Driver_WriteConcern_">MongoCollection.InsertBatch&lt;TNominalType&gt;(IEnumerable&lt;TNominalType&gt;, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.InsertBatch.html#MongoDB_Driver_MongoCollection_InsertBatch_System_Type_System_Collections_IEnumerable_">MongoCollection.InsertBatch(Type, IEnumerable)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.InsertBatch.html#MongoDB_Driver_MongoCollection_InsertBatch_System_Type_System_Collections_IEnumerable_MongoDB_Driver_WriteConcern_">MongoCollection.InsertBatch(Type, IEnumerable, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.InsertBatch.html#MongoDB_Driver_MongoCollection_InsertBatch_System_Type_System_Collections_IEnumerable_MongoDB_Driver_MongoInsertOptions_">MongoCollection.InsertBatch(Type, IEnumerable, MongoInsertOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.IsCapped.html#MongoDB_Driver_MongoCollection_IsCapped">MongoCollection.IsCapped()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.MapReduce.html#MongoDB_Driver_MongoCollection_MapReduce_MongoDB_Driver_MapReduceArgs_">MongoCollection.MapReduce(MapReduceArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.ParallelScanAs.html#MongoDB_Driver_MongoCollection_ParallelScanAs__1_MongoDB_Driver_ParallelScanArgs___0__">MongoCollection.ParallelScanAs&lt;TDocument&gt;(ParallelScanArgs&lt;TDocument&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.ParallelScanAs.html#MongoDB_Driver_MongoCollection_ParallelScanAs_System_Type_MongoDB_Driver_ParallelScanArgs_">MongoCollection.ParallelScanAs(Type, ParallelScanArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.ReIndex.html#MongoDB_Driver_MongoCollection_ReIndex">MongoCollection.ReIndex()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Remove.html#MongoDB_Driver_MongoCollection_Remove_MongoDB_Driver_IMongoQuery_">MongoCollection.Remove(IMongoQuery)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Remove.html#MongoDB_Driver_MongoCollection_Remove_MongoDB_Driver_IMongoQuery_MongoDB_Driver_WriteConcern_">MongoCollection.Remove(IMongoQuery, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Remove.html#MongoDB_Driver_MongoCollection_Remove_MongoDB_Driver_IMongoQuery_MongoDB_Driver_RemoveFlags_">MongoCollection.Remove(IMongoQuery, RemoveFlags)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Remove.html#MongoDB_Driver_MongoCollection_Remove_MongoDB_Driver_IMongoQuery_MongoDB_Driver_RemoveFlags_MongoDB_Driver_WriteConcern_">MongoCollection.Remove(IMongoQuery, RemoveFlags, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Remove.html#MongoDB_Driver_MongoCollection_Remove_MongoDB_Driver_RemoveArgs_">MongoCollection.Remove(RemoveArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.RemoveAll.html#MongoDB_Driver_MongoCollection_RemoveAll">MongoCollection.RemoveAll()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.RemoveAll.html#MongoDB_Driver_MongoCollection_RemoveAll_MongoDB_Driver_WriteConcern_">MongoCollection.RemoveAll(WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Save.html#MongoDB_Driver_MongoCollection_Save__1___0_">MongoCollection.Save&lt;TNominalType&gt;(TNominalType)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Save.html#MongoDB_Driver_MongoCollection_Save__1___0_MongoDB_Driver_MongoInsertOptions_">MongoCollection.Save&lt;TNominalType&gt;(TNominalType, MongoInsertOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Save.html#MongoDB_Driver_MongoCollection_Save__1___0_MongoDB_Driver_WriteConcern_">MongoCollection.Save&lt;TNominalType&gt;(TNominalType, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Save.html#MongoDB_Driver_MongoCollection_Save_System_Type_System_Object_">MongoCollection.Save(Type, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Save.html#MongoDB_Driver_MongoCollection_Save_System_Type_System_Object_MongoDB_Driver_MongoInsertOptions_">MongoCollection.Save(Type, object, MongoInsertOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Save.html#MongoDB_Driver_MongoCollection_Save_System_Type_System_Object_MongoDB_Driver_WriteConcern_">MongoCollection.Save(Type, object, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.ToString.html#MongoDB_Driver_MongoCollection_ToString">MongoCollection.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Update.html#MongoDB_Driver_MongoCollection_Update_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoUpdate_">MongoCollection.Update(IMongoQuery, IMongoUpdate)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Update.html#MongoDB_Driver_MongoCollection_Update_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoUpdate_MongoDB_Driver_MongoUpdateOptions_">MongoCollection.Update(IMongoQuery, IMongoUpdate, MongoUpdateOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Update.html#MongoDB_Driver_MongoCollection_Update_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoUpdate_MongoDB_Driver_WriteConcern_">MongoCollection.Update(IMongoQuery, IMongoUpdate, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Update.html#MongoDB_Driver_MongoCollection_Update_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoUpdate_MongoDB_Driver_UpdateFlags_">MongoCollection.Update(IMongoQuery, IMongoUpdate, UpdateFlags)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Update.html#MongoDB_Driver_MongoCollection_Update_MongoDB_Driver_IMongoQuery_MongoDB_Driver_IMongoUpdate_MongoDB_Driver_UpdateFlags_MongoDB_Driver_WriteConcern_">MongoCollection.Update(IMongoQuery, IMongoUpdate, UpdateFlags, WriteConcern)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Validate.html#MongoDB_Driver_MongoCollection_Validate">MongoCollection.Validate()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Driver.MongoCollection.Validate.html#MongoDB_Driver_MongoCollection_Validate_MongoDB_Driver_ValidateCollectionArgs_">MongoCollection.Validate(ValidateCollectionArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqExtensionMethods.AsQueryable.html#MongoDB_Driver_Linq_LinqExtensionMethods_AsQueryable__1_MongoDB_Driver_MongoCollection_">LinqExtensionMethods.AsQueryable&lt;T&gt;(MongoCollection)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqExtensionMethods.AsQueryable.html#MongoDB_Driver_Linq_LinqExtensionMethods_AsQueryable__1_MongoDB_Driver_MongoCollection___0__">LinqExtensionMethods.AsQueryable&lt;T&gt;(MongoCollection&lt;T&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Driver.Linq.LinqToMongo.In.html#MongoDB_Driver_Linq_LinqToMongo_In__1___0_System_Collections_Generic_IEnumerable___0__">LinqToMongo.In&lt;TSource&gt;(TSource, IEnumerable&lt;TSource&gt;)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.-ctor.html#MongoDB_Driver_MongoCollection_1__ctor_MongoDB_Driver_MongoDatabase_System_String_MongoDB_Driver_MongoCollectionSettings_">MongoCollection(MongoDatabase, string, MongoCollectionSettings)</a></dt>
+    <dd><p>Creates a new instance of MongoCollection. Normally you would call one of the indexers or GetCollection methods
+of MongoDatabase instead.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.Find.html#MongoDB_Driver_MongoCollection_1_Find_MongoDB_Driver_IMongoQuery_">Find(IMongoQuery)</a></dt>
+    <dd><p>Returns a cursor that can be used to find all documents in this collection that match the query as TDefaultDocuments.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.FindAll.html#MongoDB_Driver_MongoCollection_1_FindAll">FindAll()</a></dt>
+    <dd><p>Returns a cursor that can be used to find all documents in this collection as TDefaultDocuments.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.FindOne.html#MongoDB_Driver_MongoCollection_1_FindOne">FindOne()</a></dt>
+    <dd><p>Returns one document in this collection as a TDefaultDocument.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.FindOne.html#MongoDB_Driver_MongoCollection_1_FindOne_MongoDB_Driver_IMongoQuery_">FindOne(IMongoQuery)</a></dt>
+    <dd><p>Returns one document in this collection that matches a query as a TDefaultDocument.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.FindOneById.html#MongoDB_Driver_MongoCollection_1_FindOneById_MongoDB_Bson_BsonValue_">FindOneById(BsonValue)</a></dt>
+    <dd><p>Returns a cursor that can be used to find one document in this collection by its _id value as a TDefaultDocument.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.GeoHaystackSearch.html#MongoDB_Driver_MongoCollection_1_GeoHaystackSearch_MongoDB_Driver_GeoHaystackSearchArgs_">GeoHaystackSearch(GeoHaystackSearchArgs)</a></dt>
+    <dd><p>Runs a geoHaystack search command on this collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.GeoHaystackSearch.html#MongoDB_Driver_MongoCollection_1_GeoHaystackSearch_System_Double_System_Double_MongoDB_Driver_IMongoGeoHaystackSearchOptions_">GeoHaystackSearch(double, double, IMongoGeoHaystackSearchOptions)</a></dt>
+    <dd><p>Runs a geoHaystack search command on this collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.GeoNear.html#MongoDB_Driver_MongoCollection_1_GeoNear_MongoDB_Driver_GeoNearArgs_">GeoNear(GeoNearArgs)</a></dt>
+    <dd><p>Runs a GeoNear command on this collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.GeoNear.html#MongoDB_Driver_MongoCollection_1_GeoNear_MongoDB_Driver_IMongoQuery_System_Double_System_Double_System_Int32_">GeoNear(IMongoQuery, double, double, int)</a></dt>
+    <dd><p>Runs a GeoNear command on this collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.GeoNear.html#MongoDB_Driver_MongoCollection_1_GeoNear_MongoDB_Driver_IMongoQuery_System_Double_System_Double_System_Int32_MongoDB_Driver_IMongoGeoNearOptions_">GeoNear(IMongoQuery, double, double, int, IMongoGeoNearOptions)</a></dt>
+    <dd><p>Runs a GeoNear command on this collection.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.InitializeOrderedBulkOperation.html#MongoDB_Driver_MongoCollection_1_InitializeOrderedBulkOperation">InitializeOrderedBulkOperation()</a></dt>
+    <dd><p>Creates a fluent builder for an ordered bulk operation.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.InitializeUnorderedBulkOperation.html#MongoDB_Driver_MongoCollection_1_InitializeUnorderedBulkOperation">InitializeUnorderedBulkOperation()</a></dt>
+    <dd><p>Creates a fluent builder for an unordered bulk operation.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.Insert.html#MongoDB_Driver_MongoCollection_1_Insert__0_">Insert(TDefaultDocument)</a></dt>
+    <dd><p>Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.Insert.html#MongoDB_Driver_MongoCollection_1_Insert__0_MongoDB_Driver_MongoInsertOptions_">Insert(TDefaultDocument, MongoInsertOptions)</a></dt>
+    <dd><p>Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.Insert.html#MongoDB_Driver_MongoCollection_1_Insert__0_MongoDB_Driver_WriteConcern_">Insert(TDefaultDocument, WriteConcern)</a></dt>
+    <dd><p>Inserts a document into this collection (see also InsertBatch to insert multiple documents at once).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.InsertBatch.html#MongoDB_Driver_MongoCollection_1_InsertBatch_System_Collections_Generic_IEnumerable__0__">InsertBatch(IEnumerable&lt;TDefaultDocument&gt;)</a></dt>
+    <dd><p>Inserts multiple documents at once into this collection (see also Insert to insert a single document).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.InsertBatch.html#MongoDB_Driver_MongoCollection_1_InsertBatch_System_Collections_Generic_IEnumerable__0__MongoDB_Driver_MongoInsertOptions_">InsertBatch(IEnumerable&lt;TDefaultDocument&gt;, MongoInsertOptions)</a></dt>
+    <dd><p>Inserts multiple documents at once into this collection (see also Insert to insert a single document).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.InsertBatch.html#MongoDB_Driver_MongoCollection_1_InsertBatch_System_Collections_Generic_IEnumerable__0__MongoDB_Driver_WriteConcern_">InsertBatch(IEnumerable&lt;TDefaultDocument&gt;, WriteConcern)</a></dt>
+    <dd><p>Inserts multiple documents at once into this collection (see also Insert to insert a single document).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.ParallelScan.html#MongoDB_Driver_MongoCollection_1_ParallelScan_MongoDB_Driver_ParallelScanArgs__0__">ParallelScan(ParallelScanArgs&lt;TDefaultDocument&gt;)</a></dt>
+    <dd><p>Scans an entire collection in parallel using multiple cursors.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.Save.html#MongoDB_Driver_MongoCollection_1_Save__0_">Save(TDefaultDocument)</a></dt>
+    <dd><p>Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+of the Id field Save will perform either an Insert or an Update.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.Save.html#MongoDB_Driver_MongoCollection_1_Save__0_MongoDB_Driver_MongoInsertOptions_">Save(TDefaultDocument, MongoInsertOptions)</a></dt>
+    <dd><p>Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+of the Id field Save will perform either an Insert or an Update.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.Save.html#MongoDB_Driver_MongoCollection_1_Save__0_MongoDB_Driver_WriteConcern_">Save(TDefaultDocument, WriteConcern)</a></dt>
+    <dd><p>Saves a document to this collection. The document must have an identifiable Id field. Based on the value
+of the Id field Save will perform either an Insert or an Update.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.WithReadConcern.html#MongoDB_Driver_MongoCollection_1_WithReadConcern_MongoDB_Driver_ReadConcern_">WithReadConcern(ReadConcern)</a></dt>
+    <dd><p>Returns a new MongoCollection instance with a different read concern setting.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.WithReadPreference.html#MongoDB_Driver_MongoCollection_1_WithReadPreference_MongoDB_Driver_ReadPreference_">WithReadPreference(ReadPreference)</a></dt>
+    <dd><p>Returns a new MongoCollection instance with a different read preference setting.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.MongoCollection-1.WithWriteConcern.html#MongoDB_Driver_MongoCollection_1_WithWriteConcern_MongoDB_Driver_WriteConcern_">WithWriteConcern(WriteConcern)</a></dt>
+    <dd><p>Returns a new MongoCollection instance with a different write concern setting.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
