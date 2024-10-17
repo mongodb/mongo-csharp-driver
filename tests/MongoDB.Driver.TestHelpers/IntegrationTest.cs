@@ -25,17 +25,17 @@ namespace MongoDB.Driver.Tests
     public abstract class IntegrationTest<TFixture> : LoggableTestClass, IClassFixture<TFixture>
         where TFixture : DatabaseFixture
     {
+        private readonly TFixture _fixture;
+
         protected IntegrationTest(ITestOutputHelper testOutputHelper, TFixture fixture)
             : base(testOutputHelper)
         {
-            Fixture = fixture;
+            _fixture = fixture;
         }
-
-        protected TFixture Fixture { get; }
 
         public IMongoClient GetMongoClient(Action<MongoClientSettings> configure = null)
         {
-            return Fixture.GetMongoClient(settings =>
+            return _fixture.GetMongoClient(settings =>
             {
                 settings.LoggingSettings = LoggingSettings;
                 configure?.Invoke(settings);
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests
 
         public IMongoDatabase GetDatabase(Action<MongoClientSettings> configure = null)
         {
-            return Fixture.GetDatabase(settings =>
+            return _fixture.GetDatabase(settings =>
             {
                 settings.LoggingSettings = LoggingSettings;
                 configure?.Invoke(settings);
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests
 
         public IMongoCollection<T> GetCollection<T>(Action<MongoClientSettings> configure = null, string collectionName = null)
         {
-            return Fixture.GetCollection<T>(settings =>
+            return _fixture.GetCollection<T>(settings =>
             {
                 settings.LoggingSettings = LoggingSettings;
                 configure?.Invoke(settings);

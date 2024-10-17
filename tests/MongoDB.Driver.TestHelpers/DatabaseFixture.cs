@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests
             if (string.IsNullOrEmpty(collectionName))
             {
                 var stack = new System.Diagnostics.StackTrace();
-                var frame = stack.GetFrame(1); // skip 1 frame to get the calling method info
+                var frame = stack.GetFrame(2); // skip 2 frame to get the calling method info (this method and IntegrationTest method)
                 var method = frame.GetMethod();
                 collectionName = $"{method.DeclaringType.Name}.{method.Name}";
             }
