@@ -587,6 +587,62 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             exception.Should().BeOfType<NotSupportedException>();
         }
 
+        // https://github.com/mongodb/specifications/blob/d1bdb68b7b4aec9681ea56d41c8b9a6c1a97d365/source/crud/tests/README.md?plain=1#L699
+        [Theory]
+        [ParameterAttributeData]
+        public async Task MongoClient_bulkWrite_unacknowledged_write_concern_uses_w0_all_batches([Values(true, false)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientBulkWrite);
+
+            var connectionDescription = DriverTestConfiguration.GetConnectionDescription();
+            var maxDocumentSize = connectionDescription.MaxDocumentSize;
+            var maxMessageSize = connectionDescription.MaxMessageSize;
+            var numModels = maxMessageSize / maxDocumentSize + 1;
+
+            var models = Enumerable
+                .Range(0, numModels)
+                .Select(_ => new BulkWriteInsertOneModel<BsonDocument>("db.coll", new BsonDocument { { "a", new string('b', maxDocumentSize - 500) } }))
+                .ToArray();
+
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "bulkWrite");
+            using var client = DriverTestConfiguration.CreateMongoClient(settings =>
+            {
+                settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5);
+                settings.LoggingSettings = LoggingSettings;
+                settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded)
+                {
+                    var serverAddress = settings.Servers.First();
+                    settings.Servers = new[] { serverAddress };
+                    settings.DirectConnection = true;
+                }
+            });
+
+            var db = client.GetDatabase("db");
+            db.DropCollection("coll");
+            db.CreateCollection("coll");
+
+            var bulkWriteOptions = new ClientBulkWriteOptions
+            {
+                WriteConcern = WriteConcern.Unacknowledged,
+                IsOrdered = false
+            };
+            var result = async ? await client.BulkWriteAsync(models, bulkWriteOptions) : client.BulkWrite(models, bulkWriteOptions);
+
+            result.Acknowledged.Should().BeFalse();
+
+            eventCapturer.Count.Should().Be(2);
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
+                .Subject.Should().Match(c => ((CommandStartedEvent)c).Command["ops"].AsBsonArray.Count == numModels - 1)
+                .And.Subject.Should().Match(c => ((CommandStartedEvent)c).Command["writeConcern"]["w"] == 0);
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
+                .Subject.Should().Match(c => ((CommandStartedEvent)c).Command["ops"].AsBsonArray.Count == 1)
+                .And.Subject.Should().Match(c => ((CommandStartedEvent)c).Command["writeConcern"]["w"] == 0);
+
+            var documentCount = db.GetCollection<BsonDocument>("coll").CountDocuments(Builders<BsonDocument>.Filter.Empty);
+            documentCount.Should().Be(numModels);
+        }
+
         // private methods
         private FailPoint ConfigureFailPoint(string failpointCommand)
         {
