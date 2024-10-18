@@ -80,22 +80,59 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("regex");
             }
             _pattern = regex.ToString();
-            _options = "";
-            if ((regex.Options & RegexOptions.IgnoreCase) != 0)
+            switch (regex.Options & (RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace))
             {
-                _options += "i";
-            }
-            if ((regex.Options & RegexOptions.Multiline) != 0)
-            {
-                _options += "m";
-            }
-            if ((regex.Options & RegexOptions.Singleline) != 0)
-            {
-                _options += "s";
-            }
-            if ((regex.Options & RegexOptions.IgnorePatternWhitespace) != 0)
-            {
-                _options += "x";
+                case RegexOptions.None:
+                    _options = string.Empty;
+                    break;
+                case RegexOptions.IgnoreCase:
+                    _options = "i";
+                    break;
+                case RegexOptions.Multiline:
+                    _options = "m";
+                    break;
+                case RegexOptions.Singleline:
+                    _options = "s";
+                    break;
+                case RegexOptions.IgnorePatternWhitespace:
+                    _options = "x";
+                    break;
+                case RegexOptions.IgnoreCase | RegexOptions.Multiline:
+                    _options = "im";
+                    break;
+                case RegexOptions.IgnoreCase | RegexOptions.Singleline:
+                    _options = "is";
+                    break;
+                case RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace:
+                    _options = "ix";
+                    break;
+                case RegexOptions.Multiline | RegexOptions.Singleline:
+                    _options = "ms";
+                    break;
+                case RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace:
+                    _options = "mx";
+                    break;
+                case RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace:
+                    _options = "sx";
+                    break;
+                case RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline:
+                    _options = "ims";
+                    break;
+                case RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace:
+                    _options = "imx";
+                    break;
+                case RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace:
+                    _options = "isx";
+                    break;
+                case RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace:
+                    _options = "msx";
+                    break;
+                case RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace:
+                    _options = "imsx";
+                    break;
+                default:
+                    _options = string.Empty;
+                    break;
             }
         }
 
