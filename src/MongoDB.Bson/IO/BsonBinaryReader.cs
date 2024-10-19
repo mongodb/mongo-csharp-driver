@@ -432,7 +432,7 @@ namespace MongoDB.Bson.IO
 
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
-            _context = new BsonBinaryReaderContext(_context, ContextType.JavaScriptWithScope, startPosition, size);
+            _context = _context.PushContext(ContextType.JavaScriptWithScope, startPosition, size);
             var code = _bsonStream.ReadString(Settings.Encoding);
 
             State = BsonReaderState.ScopeDocument;
@@ -590,7 +590,7 @@ namespace MongoDB.Bson.IO
 
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
-            _context = new BsonBinaryReaderContext(_context, ContextType.Array, startPosition, size);
+            _context = _context.PushContext(ContextType.Array, startPosition, size);
             State = BsonReaderState.Type;
         }
 
@@ -605,7 +605,7 @@ namespace MongoDB.Bson.IO
             var contextType = (State == BsonReaderState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
             var startPosition = _bsonStream.Position; // position of size field
             var size = ReadSize();
-            _context = new BsonBinaryReaderContext(_context, contextType, startPosition, size);
+            _context = _context.PushContext(contextType, startPosition, size);
             State = BsonReaderState.Type;
         }
 

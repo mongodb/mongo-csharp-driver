@@ -627,7 +627,7 @@ namespace MongoDB.Bson.IO
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScriptWithScope", BsonType.JavaScriptWithScope);
-            _context = new JsonReaderContext(_context, ContextType.JavaScriptWithScope);
+            _context = _context.PushContext(ContextType.JavaScriptWithScope);
             State = BsonReaderState.ScopeDocument;
             return _currentValue.AsString;
         }
@@ -723,7 +723,7 @@ namespace MongoDB.Bson.IO
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadStartArray", BsonType.Array);
 
-            _context = new JsonReaderContext(_context, ContextType.Array);
+            _context = _context.PushContext(ContextType.Array);
             State = BsonReaderState.Type;
         }
 
@@ -735,7 +735,7 @@ namespace MongoDB.Bson.IO
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadStartDocument", BsonType.Document);
 
-            _context = new JsonReaderContext(_context, ContextType.Document);
+            _context = _context.PushContext(ContextType.Document);
             State = BsonReaderState.Type;
         }
 

@@ -13,7 +13,7 @@ This suite implements the benchmarks described in this [spec](https://github.com
    (e.g `dotnet run -c Release -- --driverBenchmarks --envVars MONGODB_URI:"ConnectionString"`)
 
 You can also select the benchmarks to run directly on the command for running the benchmarks as such
-`dotnet run -c Release -- --driverBenchmarks --fitler "*BenchmarkClassName*"`. The benchmarks are also grouped into categories namely: BSONBench, WriteBench
+`dotnet run -c Release -- --driverBenchmarks --filter "*BenchmarkClassName*"`. The benchmarks are also grouped into categories namely: BSONBench, WriteBench
 ReadBench, ParallelBench, SingleBench, MultiBench and DriverBench. So if you wanted to only run the WriteBench benchmarks, you can do so
 as follows: `dotnet run -c Release -- --driverBenchmarks --anyCategories "WriteBench"`.
 

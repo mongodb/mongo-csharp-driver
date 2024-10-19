@@ -413,7 +413,7 @@ namespace MongoDB.Bson.IO
             VerifyBsonType("ReadStartArray", BsonType.Array);
 
             var array = _currentValue.AsBsonArray;
-            _context = new BsonDocumentReaderContext(_context, ContextType.Array, array);
+            _context = _context.PushContext(ContextType.Array, array);
             State = BsonReaderState.Type;
         }
 
@@ -435,7 +435,7 @@ namespace MongoDB.Bson.IO
             {
                 document = _currentValue.AsBsonDocument;
             }
-            _context = new BsonDocumentReaderContext(_context, ContextType.Document, document);
+            _context = _context.PushContext(ContextType.Document, document);
             State = BsonReaderState.Type;
         }
 

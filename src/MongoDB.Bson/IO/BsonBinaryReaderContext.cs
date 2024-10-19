@@ -83,5 +83,10 @@ namespace MongoDB.Bson.IO
             }
             return _parentContext;
         }
+
+        internal BsonBinaryReaderContext PushContext(ContextType contextType, long startPosition, long size)
+        {
+            return new BsonBinaryReaderContext(this, contextType, startPosition, size);
+        }
     }
 }
