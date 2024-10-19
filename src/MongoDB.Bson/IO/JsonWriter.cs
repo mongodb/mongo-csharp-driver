@@ -312,7 +312,7 @@ namespace MongoDB.Bson.IO
             base.WriteEndArray();
             _textWriter.Write("]");
 
-            _context = _context.ParentContext;
+            _context = _context.PopContext();
             State = GetNextState();
         }
 
@@ -344,12 +344,12 @@ namespace MongoDB.Bson.IO
 
             if (_context.ContextType == ContextType.ScopeDocument)
             {
-                _context = _context.ParentContext;
+                _context = _context.PopContext();
                 WriteEndDocument();
             }
             else
             {
-                _context = _context.ParentContext;
+                _context = _context.PopContext();
             }
 
             if (_context == null)

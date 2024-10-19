@@ -87,5 +87,10 @@ namespace MongoDB.Bson.IO
         {
             get { return _code; }
         }
+
+        internal BsonDocumentWriterContext PopContext()
+        {
+            return _parentContext;
+        }
     }
 }

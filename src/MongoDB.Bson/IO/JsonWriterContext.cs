@@ -52,5 +52,10 @@ namespace MongoDB.Bson.IO
             get { return _hasElements; }
             set { _hasElements = value; }
         }
+
+        internal JsonWriterContext PopContext()
+        {
+            return _parentContext;
+        }
     }
 }
