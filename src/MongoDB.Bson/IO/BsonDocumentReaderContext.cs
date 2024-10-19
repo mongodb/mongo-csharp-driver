@@ -18,20 +18,23 @@ namespace MongoDB.Bson.IO
     internal class BsonDocumentReaderContext
     {
         // private fields
-        private BsonDocumentReaderContext _parentContext;
+        private readonly BsonDocumentReaderContext _parentContext;
+        private BsonDocumentReaderContext _cachedPushContext;
         private ContextType _contextType;
         private BsonDocument _document;
         private BsonArray _array;
         private int _index;
 
         // constructors
-        internal BsonDocumentReaderContext(
+        private BsonDocumentReaderContext(
             BsonDocumentReaderContext parentContext,
             ContextType contextType,
+            BsonDocument document,
             BsonArray array)
         {
             _parentContext = parentContext;
             _contextType = contextType;
+            _document = document;
             _array = array;
         }
 
@@ -127,12 +130,26 @@ namespace MongoDB.Bson.IO
 
         internal BsonDocumentReaderContext PushContext(ContextType contextType, BsonArray array)
         {
-            return new BsonDocumentReaderContext(this, contextType, array);
+            return PushContext(contextType, null, array);
         }
 
         internal BsonDocumentReaderContext PushContext(ContextType contextType, BsonDocument document)
         {
-            return new BsonDocumentReaderContext(this, contextType, document);
+            return PushContext(contextType, document, null);
+        }
+
+        private BsonDocumentReaderContext PushContext(ContextType contextType, BsonDocument document, BsonArray array)
+        {
+            if (_cachedPushContext == null)
+                _cachedPushContext = new BsonDocumentReaderContext(this, contextType, document, array);
+            else
+            {
+                _cachedPushContext._contextType = contextType;
+                _cachedPushContext._document = document;
+                _cachedPushContext._array = array;
+                _cachedPushContext._index = 0;
+            }
+            return _cachedPushContext;
         }
     }
 }
