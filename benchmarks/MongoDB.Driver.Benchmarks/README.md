@@ -1,6 +1,6 @@
 # C# Driver Benchmark Suite
 
-This suite implements the benchmarks described in this [spec](https://github.com/mongodb/specifications/blob/master/source/benchmarking/benchmarking.rst).
+This suite implements the benchmarks described in this [spec](https://github.com/mongodb/specifications/blob/master/source/benchmarking/benchmarking.md).
 
 ## Running the Driver Benchmarks
 

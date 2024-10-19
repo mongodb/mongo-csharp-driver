@@ -18,7 +18,8 @@ namespace MongoDB.Bson.IO
     internal class JsonWriterContext
     {
         // private fields
-        private JsonWriterContext _parentContext;
+        private readonly JsonWriterContext _parentContext;
+        private JsonWriterContext _cachedPushContext;
         private ContextType _contextType;
         private string _indentation;
         private bool _hasElements = false;
@@ -60,7 +61,14 @@ namespace MongoDB.Bson.IO
 
         internal JsonWriterContext PushContext(ContextType contextType, string indentChars)
         {
-            return new JsonWriterContext(this, contextType, indentChars);
+            if (_cachedPushContext == null)
+                _cachedPushContext = new JsonWriterContext(this, contextType, indentChars);
+            else
+            {
+                _cachedPushContext._contextType = contextType;
+                _cachedPushContext._hasElements = false;
+            }
+            return _cachedPushContext;
         }
     }
 }
