@@ -36,7 +36,7 @@ namespace MongoDB.Bson.IO
             _document = document;
         }
 
-        internal BsonDocumentWriterContext(
+        private BsonDocumentWriterContext(
             BsonDocumentWriterContext parentContext,
             ContextType contextType,
             BsonArray array)
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.IO
             _array = array;
         }
 
-        internal BsonDocumentWriterContext(
+        private BsonDocumentWriterContext(
             BsonDocumentWriterContext parentContext,
             ContextType contextType,
             string code)
@@ -91,6 +91,21 @@ namespace MongoDB.Bson.IO
         internal BsonDocumentWriterContext PopContext()
         {
             return _parentContext;
+        }
+
+        internal BsonDocumentWriterContext PushContext(ContextType contextType, BsonDocument document)
+        {
+            return new BsonDocumentWriterContext(this, contextType, document);
+        }
+
+        internal BsonDocumentWriterContext PushContext(ContextType contextType, BsonArray array)
+        {
+            return new BsonDocumentWriterContext(this, contextType, array);
+        }
+
+        internal BsonDocumentWriterContext PushContext(ContextType contextType, string code)
+        {
+            return new BsonDocumentWriterContext(this, contextType, code);
         }
     }
 }

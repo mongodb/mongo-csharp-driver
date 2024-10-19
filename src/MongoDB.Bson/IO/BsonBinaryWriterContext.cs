@@ -60,5 +60,10 @@ namespace MongoDB.Bson.IO
         {
             return _parentContext;
         }
+
+        internal BsonBinaryWriterContext PushContext(ContextType contextType, long startPosition)
+        {
+            return new BsonBinaryWriterContext(this, contextType, startPosition);
+        }
     }
 }

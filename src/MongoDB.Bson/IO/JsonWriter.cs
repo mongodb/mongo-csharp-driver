@@ -641,7 +641,7 @@ namespace MongoDB.Bson.IO
             WriteNameHelper(Name);
             _textWriter.Write("[");
 
-            _context = new JsonWriterContext(_context, ContextType.Array, Settings.IndentChars);
+            _context = _context.PushContext(ContextType.Array, Settings.IndentChars);
             State = BsonWriterState.Value;
         }
 
@@ -664,7 +664,7 @@ namespace MongoDB.Bson.IO
             _textWriter.Write("{");
 
             var contextType = (State == BsonWriterState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
-            _context = new JsonWriterContext(_context, contextType, Settings.IndentChars);
+            _context = _context.PushContext(contextType, Settings.IndentChars);
             State = BsonWriterState.Name;
         }
 

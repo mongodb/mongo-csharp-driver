@@ -57,5 +57,10 @@ namespace MongoDB.Bson.IO
         {
             return _parentContext;
         }
+
+        internal JsonWriterContext PushContext(ContextType contextType, string indentChars)
+        {
+            return new JsonWriterContext(this, contextType, indentChars);
+        }
     }
 }

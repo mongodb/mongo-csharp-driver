@@ -53,5 +53,10 @@ namespace MongoDB.Bson.IO
         {
             return _parentContext;
         }
+
+        internal JsonReaderContext PushContext(ContextType contextType)
+        {
+            return new JsonReaderContext(this, contextType);
+        }
     }
 }

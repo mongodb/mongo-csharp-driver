@@ -124,5 +124,15 @@ namespace MongoDB.Bson.IO
         {
             return _parentContext;
         }
+
+        internal BsonDocumentReaderContext PushContext(ContextType contextType, BsonArray array)
+        {
+            return new BsonDocumentReaderContext(this, contextType, array);
+        }
+
+        internal BsonDocumentReaderContext PushContext(ContextType contextType, BsonDocument document)
+        {
+            return new BsonDocumentReaderContext(this, contextType, document);
+        }
     }
 }

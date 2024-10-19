@@ -400,7 +400,7 @@ namespace MongoDB.Bson.IO
 
             _bsonStream.WriteBsonType(BsonType.JavaScriptWithScope);
             WriteNameHelper();
-            _context = new BsonBinaryWriterContext(_context, ContextType.JavaScriptWithScope, _bsonStream.Position);
+            _context = _context.PushContext(ContextType.JavaScriptWithScope, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size of JavaScript with scope value
             _bsonStream.WriteString(code, Settings.Encoding);
 
@@ -564,7 +564,7 @@ namespace MongoDB.Bson.IO
             base.WriteStartArray();
             _bsonStream.WriteBsonType(BsonType.Array);
             WriteNameHelper();
-            _context = new BsonBinaryWriterContext(_context, ContextType.Array, _bsonStream.Position);
+            _context = _context.PushContext(ContextType.Array, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Value;
@@ -588,7 +588,10 @@ namespace MongoDB.Bson.IO
                 WriteNameHelper();
             }
             var contextType = (State == BsonWriterState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
-            _context = new BsonBinaryWriterContext(_context, contextType, _bsonStream.Position);
+            if (_context == null)
+                _context = new BsonBinaryWriterContext(null, contextType, _bsonStream.Position);
+            else
+                _context = _context.PushContext(contextType, _bsonStream.Position);
             _bsonStream.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Name;
