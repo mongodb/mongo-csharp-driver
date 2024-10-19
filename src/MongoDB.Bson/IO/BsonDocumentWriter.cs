@@ -195,7 +195,7 @@ namespace MongoDB.Bson.IO
 
             base.WriteEndArray();
             var array = _context.Array;
-            _context = _context.ParentContext;
+            _context = _context.PopContext();
             WriteValue(array);
             State = GetNextState();
         }
@@ -219,15 +219,15 @@ namespace MongoDB.Bson.IO
             if (_context.ContextType == ContextType.ScopeDocument)
             {
                 var scope = _context.Document;
-                _context = _context.ParentContext;
+                _context = _context.PopContext();
                 var code = _context.Code;
-                _context = _context.ParentContext;
+                _context = _context.PopContext();
                 WriteValue(new BsonJavaScriptWithScope(code, scope));
             }
             else
             {
                 var document = _context.Document;
-                _context = _context.ParentContext;
+                _context = _context.PopContext();
                 if (_context != null)
                 {
                     WriteValue(document);

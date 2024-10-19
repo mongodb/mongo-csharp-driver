@@ -290,7 +290,7 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteByte(0);
             BackpatchSize(); // size of document
 
-            _context = _context.ParentContext;
+            _context = _context.PopContext();
             State = GetNextState();
         }
 
@@ -313,7 +313,7 @@ namespace MongoDB.Bson.IO
             _bsonStream.WriteByte(0);
             BackpatchSize(); // size of document
 
-            _context = _context.ParentContext;
+            _context = _context.PopContext();
             if (_context == null)
             {
                 State = BsonWriterState.Done;
@@ -323,7 +323,7 @@ namespace MongoDB.Bson.IO
                 if (_context.ContextType == ContextType.JavaScriptWithScope)
                 {
                     BackpatchSize(); // size of the JavaScript with scope value
-                    _context = _context.ParentContext;
+                    _context = _context.PopContext();
                 }
                 State = GetNextState();
             }

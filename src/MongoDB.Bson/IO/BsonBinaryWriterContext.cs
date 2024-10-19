@@ -55,5 +55,10 @@ namespace MongoDB.Bson.IO
             get { return _index; }
             set { _index = value; }
         }
+
+        internal BsonBinaryWriterContext PopContext()
+        {
+            return _parentContext;
+        }
     }
 }
