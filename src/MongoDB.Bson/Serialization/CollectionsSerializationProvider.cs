@@ -16,6 +16,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if NETCOREAPP1_0_OR_GREATER
+using System.Collections.Immutable;
+#endif
 using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.Linq;
@@ -43,7 +46,10 @@ namespace MongoDB.Bson.Serialization
                 { typeof(ReadOnlyCollection<>), typeof(ReadOnlyCollectionSerializer<>) },
                 { typeof(Stack<>), typeof(StackSerializer<>) },
                 { typeof(Memory<>), typeof(MemorySerializer<>) },
-                { typeof(ReadOnlyMemory<>), typeof(ReadonlyMemorySerializer<>) }
+                { typeof(ReadOnlyMemory<>), typeof(ReadonlyMemorySerializer<>) },
+#if NETCOREAPP1_0_OR_GREATER
+                { typeof(ImmutableArray<>), typeof(ImmutableArraySerializer<>) }
+#endif
             };
         }
 
