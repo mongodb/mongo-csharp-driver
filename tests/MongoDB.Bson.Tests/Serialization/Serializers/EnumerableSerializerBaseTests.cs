@@ -16,7 +16,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
@@ -27,6 +29,22 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     {
         private static readonly IBsonSerializer __itemSerializer1 = new Int32Serializer(BsonType.Int32);
         private static readonly IBsonSerializer __itemSerializer2 = new Int32Serializer(BsonType.String);
+
+        [Fact]
+        public void Deserialize_a_null_value_into_a_value_type_should_throw()
+        {
+            const string json = """{ "x" : null }""";
+            var subject = new DerivedFromConcreteEnumerableSerializerBase<ImmutableArray<int>>(__itemSerializer1);
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<FormatException>();
+            exception.Message.Should().Be("Cannot deserialize a null value into a value type.");
+        }
 
         [Fact]
         public void Equals_derived_should_return_false()
@@ -103,7 +121,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         public class ConcreteEnumerableSerializerBase<TValue> : EnumerableSerializerBase<TValue>
-            where TValue : class, IList, new()
+            where TValue : IList, new()
         {
             public ConcreteEnumerableSerializerBase(IBsonSerializer itemSerializer)
                 : base(itemSerializer)
@@ -117,7 +135,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         public class DerivedFromConcreteEnumerableSerializerBase<TValue> : ConcreteEnumerableSerializerBase<TValue>
-            where TValue : class, IList, new()
+            where TValue : IList, new()
         {
             public DerivedFromConcreteEnumerableSerializerBase(IBsonSerializer itemSerializer)
                 : base(itemSerializer)
@@ -130,6 +148,22 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     {
         private static readonly IBsonSerializer<int> __itemSerializer1 = new Int32Serializer(BsonType.Int32);
         private static readonly IBsonSerializer<int> __itemSerializer2 = new Int32Serializer(BsonType.String);
+
+        [Fact]
+        public void Deserialize_a_null_value_into_a_value_type_should_throw()
+        {
+            const string json = """{ "x" : null }""";
+            var subject = new ConcreteEnumerableSerializerBase<ImmutableArray<int>, int>(__itemSerializer1);
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<FormatException>();
+            exception.Message.Should().Be("Cannot deserialize a null value into a value type.");
+        }
 
         [Fact]
         public void Equals_derived_should_return_false()
@@ -206,7 +240,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         public class ConcreteEnumerableSerializerBase<TValue, TItem> : EnumerableSerializerBase<TValue, TItem>
-            where TValue : class, IEnumerable<TItem>
+            where TValue : IEnumerable<TItem>
         {
             public ConcreteEnumerableSerializerBase(IBsonSerializer<TItem> itemSerializer)
                 : base(itemSerializer)
