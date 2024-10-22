@@ -48,7 +48,12 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Memory<>), typeof(MemorySerializer<>) },
                 { typeof(ReadOnlyMemory<>), typeof(ReadonlyMemorySerializer<>) },
 #if NETCOREAPP1_0_OR_GREATER
-                { typeof(ImmutableArray<>), typeof(ImmutableArraySerializer<>) }
+                { typeof(ImmutableArray<>), typeof(ImmutableArraySerializer<>) },
+                { typeof(ImmutableList<>), typeof(ImmutableListSerializer<>) },
+                { typeof(ImmutableHashSet<>), typeof(ImmutableHashSetSerializer<>) },
+                { typeof(ImmutableSortedSet<>), typeof(ImmutableSortedSetSerializer<>) },
+                { typeof(ImmutableQueue<>), typeof(ImmutableQueueSerializer<>) },
+                { typeof(ImmutableStack<>), typeof(ImmutableStackSerializer<>) }
 #endif
             };
         }
