@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#if NET6_0_OR_GREATER
 using System.Collections.Immutable;
 using System.IO;
 using FluentAssertions;
@@ -21,7 +22,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
-#if NET6_0_OR_GREATER
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     public class ImmutableArraySerializerTests

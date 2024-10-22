@@ -16,7 +16,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if NET6_0_OR_GREATER
 using System.Collections.Immutable;
+#endif
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
