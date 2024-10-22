@@ -269,6 +269,51 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        internal static IDiscriminatorConvention GetOrRegisterDiscriminatorConvention(Type type, IDiscriminatorConvention discriminatorConvention)
+        {
+            __configLock.EnterReadLock();
+            try
+            {
+                if (__discriminatorConventions.TryGetValue(type, out var registeredDiscriminatorConvention))
+                {
+                    return registeredDiscriminatorConvention;
+                }
+            }
+            finally
+            {
+                __configLock.ExitReadLock();
+            }
+
+            __configLock.EnterWriteLock();
+            try
+            {
+                if (__discriminatorConventions.TryGetValue(type, out var registeredDiscrimantorConvention))
+                {
+                    return registeredDiscrimantorConvention;
+                }
+
+                RegisterDiscriminatorConvention(type, discriminatorConvention);
+                return discriminatorConvention;
+            }
+            finally
+            {
+                __configLock.ExitWriteLock();
+            }
+        }
+
+        internal static bool IsDiscriminatorConventionRegisteredAtThisLevel(Type type)
+        {
+            __configLock.EnterReadLock();
+            try
+            {
+                return __discriminatorConventions.ContainsKey(type);
+            }
+            finally
+            {
+                __configLock.ExitReadLock();
+            }
+        }
+
         /// <summary>
         /// Returns whether the given type has any discriminators registered for any of its subclasses.
         /// </summary>
