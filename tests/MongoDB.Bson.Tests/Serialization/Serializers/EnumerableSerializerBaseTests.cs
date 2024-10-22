@@ -30,6 +30,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         private static readonly IBsonSerializer __itemSerializer1 = new Int32Serializer(BsonType.Int32);
         private static readonly IBsonSerializer __itemSerializer2 = new Int32Serializer(BsonType.String);
 
+#if NET6_0_OR_GREATER
         [Fact]
         public void Deserialize_a_null_value_into_a_value_type_should_throw()
         {
@@ -43,8 +44,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context));
             exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Be("Cannot deserialize a null value into a value type.");
+            exception.Message.Should().Be("Cannot deserialize a null value into a value type (type: ImmutableArray`1).");
         }
+#endif
 
         [Fact]
         public void Equals_derived_should_return_false()
@@ -149,6 +151,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         private static readonly IBsonSerializer<int> __itemSerializer1 = new Int32Serializer(BsonType.Int32);
         private static readonly IBsonSerializer<int> __itemSerializer2 = new Int32Serializer(BsonType.String);
 
+#if NET6_0_OR_GREATER
         [Fact]
         public void Deserialize_a_null_value_into_a_value_type_should_throw()
         {
@@ -162,8 +165,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context));
             exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Be("Cannot deserialize a null value into a value type.");
+            exception.Message.Should().Be("Cannot deserialize a null value into a value type (type: ImmutableArray`1).");
         }
+#endif
 
         [Fact]
         public void Equals_derived_should_return_false()

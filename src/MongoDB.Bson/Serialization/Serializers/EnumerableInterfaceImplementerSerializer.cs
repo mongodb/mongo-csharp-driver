@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class EnumerableInterfaceImplementerSerializer<TValue> :
         EnumerableInterfaceImplementerSerializerBase<TValue>,
         IChildSerializerConfigurable
-            where TValue : IList, new()  //TODO Why this one uses IList instead of IEnumerable?
+            where TValue : IEnumerable, new()
     {
         // constructors
         /// <summary>

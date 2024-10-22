@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Null:
                     if (typeof(TValue).IsValueType)
                     {
-                        throw new FormatException("Cannot deserialize a null value into a value type.");
+                        throw new FormatException($"Cannot deserialize a null value into a value type (type: {typeof(TValue).Name}).");
                     }
                     bsonReader.ReadNull();
                     return default;
@@ -295,7 +295,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Null:
                     if (typeof(TValue).IsValueType)
                     {
-                        throw new FormatException("Cannot deserialize a null value into a value type.");
+                        throw new FormatException($"Cannot deserialize a null value into a value type (type: {typeof(TValue).Name}).");
                     }
                     bsonReader.ReadNull();
                     return default;
