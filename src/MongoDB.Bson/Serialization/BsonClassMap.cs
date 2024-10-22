@@ -1324,10 +1324,31 @@ namespace MongoDB.Bson.Serialization
             if (discriminatorConvention == null)
             {
                 // it's possible but harmless for multiple threads to do the field initialization at the same time
-                discriminatorConvention = _hasRootClass ? StandardDiscriminatorConvention.Hierarchical : StandardDiscriminatorConvention.Scalar;
+                discriminatorConvention = LookupDiscriminatorConvention();
                 _discriminatorConvention = discriminatorConvention;
             }
             return discriminatorConvention;
+
+            IDiscriminatorConvention LookupDiscriminatorConvention()
+            {
+                var classMap = this;
+                while (classMap != null)
+                {
+                    if (classMap._discriminatorConvention != null)
+                    {
+                        return classMap._discriminatorConvention;
+                    }
+
+                    if (classMap._isRootClass)
+                    {
+                        return StandardDiscriminatorConvention.Hierarchical;
+                    }
+
+                    classMap = classMap._baseClassMap;
+                }
+
+                return BsonSerializer.LookupDiscriminatorConvention(_classType);
+            }
         }
 
         // private methods
