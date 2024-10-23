@@ -974,7 +974,6 @@ namespace MongoDB.Driver
         /// </returns>
         ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
-
         /// <summary>
         /// Replaces a single document.
         /// </summary>
