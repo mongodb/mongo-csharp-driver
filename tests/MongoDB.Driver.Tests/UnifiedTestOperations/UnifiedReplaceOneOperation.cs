@@ -97,22 +97,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
                     case "hint":
-                        options ??= new ReplaceOptions();
+                        options ??= new ReplaceOptions<BsonDocument>();
                         options.Hint = argument.Value;
                         break;
                     case "let":
-                        options ??= new ReplaceOptions();
+                        options ??= new ReplaceOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;
                     case "sort":
-                        options ??= new ReplaceOptions();
+                        options ??= new ReplaceOptions<BsonDocument>();
                         options.Sort = argument.Value.AsBsonDocument;
                         break;
                     case "upsert":
-                        options ??= new ReplaceOptions();
+                        options ??= new ReplaceOptions<BsonDocument>();
                         options.IsUpsert = argument.Value.AsBoolean;
                         break;
                     default:
