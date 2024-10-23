@@ -788,7 +788,7 @@ namespace MongoDB.Driver
                         Hint = replaceOneModel.Hint,
                         IsMulti = false,
                         IsUpsert = replaceOneModel.IsUpsert,
-                        Sort = replaceOneModel.Sort
+                        Sort = replaceOneModel.Sort?.Render(renderArgs)
                     };
                 case WriteModelType.UpdateMany:
                     var updateManyModel = (UpdateManyModel<TDocument>)model;

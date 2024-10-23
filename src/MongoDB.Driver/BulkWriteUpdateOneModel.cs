@@ -26,7 +26,6 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class BulkWriteUpdateOneModel<TDocument> : BulkWriteModel
     {
-        //TODO Maybe we need to pass the sort argument also to the constructors...?
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteUpdateOneModel{TDocument}"/> class.
         /// </summary>
@@ -37,6 +36,7 @@ namespace MongoDB.Driver
         /// <param name="hint">The index to use.</param>
         /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
         /// <param name="arrayFilters">A set of filters specifying to which array elements an update should apply.</param>
+        /// <param name="sort">The sort definition to use.</param>
         public BulkWriteUpdateOneModel(
             string collectionNamespace,
             FilterDefinition<TDocument> filter,
@@ -44,8 +44,9 @@ namespace MongoDB.Driver
             Collation collation = null,
             BsonValue hint = null,
             bool isUpsert = false,
-            IEnumerable<ArrayFilterDefinition> arrayFilters = null)
-            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, update, collation, hint, isUpsert, arrayFilters)
+            IEnumerable<ArrayFilterDefinition> arrayFilters = null,
+            SortDefinition<TDocument> sort = null)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, update, collation, hint, isUpsert, arrayFilters, sort)
         {
         }
 
@@ -59,6 +60,7 @@ namespace MongoDB.Driver
         /// <param name="hint">The index to use.</param>
         /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
         /// <param name="arrayFilters">A set of filters specifying to which array elements an update should apply.</param>
+        /// <param name="sort">The sort definition to use.</param>
         public BulkWriteUpdateOneModel(
             CollectionNamespace collectionNamespace,
             FilterDefinition<TDocument> filter,
@@ -66,7 +68,8 @@ namespace MongoDB.Driver
             Collation collation = null,
             BsonValue hint = null,
             bool isUpsert = false,
-            IEnumerable<ArrayFilterDefinition> arrayFilters = null)
+            IEnumerable<ArrayFilterDefinition> arrayFilters = null,
+            SortDefinition<TDocument> sort = null)
             : base(collectionNamespace)
         {
             Filter = Ensure.IsNotNull(filter, nameof(filter));
@@ -75,6 +78,7 @@ namespace MongoDB.Driver
             Hint = hint;
             IsUpsert = isUpsert;
             ArrayFilters = arrayFilters;
+            Sort = sort;
         }
 
         /// <summary>
