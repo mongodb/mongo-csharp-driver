@@ -105,7 +105,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// The sort document to use.
         /// </summary>
-        public BsonDocument Sort { get; init; }
+        public SortDefinition<TDocument> Sort { get; init; }
 
         /// <summary>
         /// Update definition.

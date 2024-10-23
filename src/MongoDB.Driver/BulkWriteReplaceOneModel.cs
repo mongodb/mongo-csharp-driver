@@ -96,9 +96,9 @@ namespace MongoDB.Driver
         public TDocument Replacement { get; }
 
         /// <summary>
-        /// The sort document to use.
+        /// The sort definition to use.
         /// </summary>
-        public BsonDocument Sort { get; init; }
+        public SortDefinition<TDocument> Sort { get; init; }
 
         internal override bool IsMulti => false;
 
