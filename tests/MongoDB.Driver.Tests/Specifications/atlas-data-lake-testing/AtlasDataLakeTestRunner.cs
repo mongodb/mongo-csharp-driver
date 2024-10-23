@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing
             // do nothing
         }
 
-        protected override void DropCollection(MongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
+        protected override void DropCollection(IMongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
         {
             // do nothing
         }

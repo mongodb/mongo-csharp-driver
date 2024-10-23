@@ -16,6 +16,7 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
@@ -118,6 +119,105 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Equal((long)(ulong)int.MaxValue, converter.ToInt64(int.MaxValue));
             Assert.Equal(1UL, converter.ToUInt64((long)1));
             Assert.Equal((long)(ulong)long.MaxValue, converter.ToInt64(long.MaxValue));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestConversionOfDoubleInfinityOrNanToIntegralShouldThrow(
+            [Values(true, false)] bool allowOverflow,
+            [Values(true, false)] bool allowTruncation)
+        {
+            var converter = new RepresentationConverter(allowOverflow, allowTruncation);
+
+            Assert.Throws<OverflowException>(() => converter.ToInt16(double.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt16(double.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt16(double.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToInt32(double.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt32(double.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt32(double.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToInt64(double.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt64(double.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt64(double.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(double.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(double.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(double.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(double.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(double.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(double.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(double.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(double.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(double.NaN));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestConversionOfDecimal128InfinityOrNanToIntegralShouldThrow(
+            [Values(true, false)] bool allowOverflow,
+            [Values(true, false)] bool allowTruncation)
+        {
+            var converter = new RepresentationConverter(allowOverflow, allowTruncation);
+
+            Assert.Throws<OverflowException>(() => converter.ToInt16(Decimal128.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt16(Decimal128.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt16(Decimal128.QNaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToInt32(Decimal128.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt32(Decimal128.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt32(Decimal128.QNaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToInt64(Decimal128.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt64(Decimal128.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt64(Decimal128.QNaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(Decimal128.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(Decimal128.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(Decimal128.QNaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(Decimal128.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(Decimal128.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(Decimal128.QNaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(Decimal128.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(Decimal128.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(Decimal128.QNaN));
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestConversionOfSingleInfinityOrNanToIntegralShouldThrow(
+            [Values(true, false)] bool allowOverflow,
+            [Values(true, false)] bool allowTruncation)
+        {
+            var converter = new RepresentationConverter(allowOverflow, allowTruncation);
+
+            Assert.Throws<OverflowException>(() => converter.ToInt16(float.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt16(float.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt16(float.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToInt32(float.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt32(float.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt32(float.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToInt64(float.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt64(float.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToInt64(float.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(float.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(float.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt16(float.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(float.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(float.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt32(float.NaN));
+
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(float.PositiveInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(float.NegativeInfinity));
+            Assert.Throws<OverflowException>(() => converter.ToUInt64(float.NaN));
         }
 
         [Fact]

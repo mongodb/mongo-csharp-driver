@@ -15,7 +15,9 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
@@ -42,37 +44,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var nominalType = field.Serializer.ValueType;
             var actualType = typeConstantExpression.GetConstantValue<Type>(expression);
 
-            var discriminatorConvention = field.Serializer is ObjectSerializer objectSerializer ?
-                objectSerializer.DiscriminatorConvention :
-                BsonSerializer.LookupDiscriminatorConvention(nominalType);
+            var discriminatorConvention = field.Serializer.GetDiscriminatorConvention();
             var discriminatorField = field.SubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
-            var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
 
-            if (discriminatorValue == null)
+            return discriminatorConvention switch
             {
-                return AstFilter.NotExists(discriminatorField);
-            }
-            else if (discriminatorValue.IsBsonArray)
-            {
-                var discriminatorValues = discriminatorValue.AsBsonArray;
-                var filters = new AstFilter[discriminatorValues.Count + 1];
-                filters[0] = AstFilter.Size(discriminatorField, discriminatorValues.Count); // don't match subclasses
-                for (var i = 0; i < discriminatorValues.Count; i++)
-                {
-                    var discriminatorItemField = discriminatorField.SubField(i.ToString(), BsonValueSerializer.Instance);
-                    filters[i + 1] = AstFilter.Eq(discriminatorItemField, discriminatorValues[i]);
-                }
-
-                return AstFilter.And(filters);
-
-            }
-            else
-            {
-                var discriminatorFieldElementZero = discriminatorField.SubField("0", BsonValueSerializer.Instance);
-                return AstFilter.And(
-                    AstFilter.NotExists(discriminatorFieldElementZero), // required to avoid false matches on subclasses with hierarchical discriminators
-                    AstFilter.Eq(discriminatorField, discriminatorValue));
-            }
+                IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeEquals(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                _ => DiscriminatorAstFilter.TypeEquals(discriminatorField, discriminatorConvention, nominalType, actualType),
+            };
         }
     }
 }

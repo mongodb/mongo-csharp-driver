@@ -140,18 +140,6 @@ namespace MongoDB.Driver.Tests.GridFS
             result.WriteConcern.Should().BeNull();
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void DisableMD5_get_and_set_should_return_expected_result(
-            [Values(false, true)] bool disabled)
-        {
-            var subject = new GridFSBucketOptions { DisableMD5 = disabled };
-
-            var result = subject.DisableMD5;
-
-            result.Should().Be(disabled);
-        }
-
         [Fact]
         public void ReadPreference_get_should_return_expected_result()
         {
@@ -242,7 +230,6 @@ namespace MongoDB.Driver.Tests.GridFS
             {
                 BucketName = "bucket",
                 ChunkSizeBytes = 123,
-                DisableMD5 = true,
                 ReadConcern = ReadConcern.Majority,
                 ReadPreference = ReadPreference.Secondary,
                 WriteConcern = WriteConcern.WMajority
@@ -252,7 +239,6 @@ namespace MongoDB.Driver.Tests.GridFS
 
             result.BucketName.Should().Be("bucket");
             result.ChunkSizeBytes.Should().Be(123);
-            result.DisableMD5.Should().Be(true);
             result.ReadConcern.Should().Be(ReadConcern.Majority);
             result.ReadPreference.Should().Be(ReadPreference.Secondary);
             result.WriteConcern.Should().Be(WriteConcern.WMajority);
@@ -265,7 +251,6 @@ namespace MongoDB.Driver.Tests.GridFS
 
             result.BucketName.Should().Be("fs");
             result.ChunkSizeBytes.Should().Be(255 * 1024);
-            result.DisableMD5.Should().Be(false);
             result.ReadConcern.Should().BeNull();
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
@@ -287,22 +272,9 @@ namespace MongoDB.Driver.Tests.GridFS
 
             result.BucketName.Should().Be("fs");
             result.ChunkSizeBytes.Should().Be(255 * 1024);
-            result.DisableMD5.Should().Be(false);
             result.ReadConcern.Should().BeNull();
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void DisableMD5_get_and_set_should_return_expected_result(
-            [Values(false, true)] bool disabled)
-        {
-            var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { DisableMD5 = disabled });
-
-            var result = subject.DisableMD5;
-
-            result.Should().Be(disabled);
         }
 
         [Fact]

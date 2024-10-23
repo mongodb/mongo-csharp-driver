@@ -15,7 +15,7 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Encryption;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.Core.Configuration
 {

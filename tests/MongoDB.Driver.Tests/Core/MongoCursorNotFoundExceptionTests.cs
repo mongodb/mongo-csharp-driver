@@ -45,28 +45,5 @@ namespace MongoDB.Driver
             subject.Query.Should().BeSameAs(_query);
             subject.QueryResult.Should().BeNull();
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoCursorNotFoundException(_connectionId, _cursorId, _query);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoCursorNotFoundException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
-                rehydrated.CursorId.Should().Be(subject.CursorId);
-                rehydrated.InnerException.Should().BeNull();
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Query.Should().Be(subject.Query);
-                rehydrated.QueryResult.Should().Be(subject.QueryResult);
-            }
-        }
     }
 }

@@ -118,8 +118,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             { 
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
-                var sourceSerializer = pipeline.OutputSerializer;
+                ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
+                var sourceSerializer = pipeline.OutputSerializer;
                 AstExpression valueAst;
                 if (method.IsOneOf(__sumWithSelectorMethods))
                 {

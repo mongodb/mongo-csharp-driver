@@ -394,6 +394,7 @@ functions:
       type: test
       params:
         working_dir: "mongo-csharp-driver"
+        shell: "bash"
         include_expansions_in_env:
           - "FLE_AWS_ACCESS_KEY_ID"
           - "FLE_AWS_SECRET_ACCESS_KEY"
@@ -429,6 +430,7 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        shell: "bash"
         include_expansions_in_env:
           - "FLE_AWS_ACCESS_KEY_ID"
           - "FLE_AWS_SECRET_ACCESS_KEY"
@@ -942,6 +944,8 @@ functions:
           - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.${PACKAGE_VERSION}.snupkg"
           - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.nupkg"
           - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.snupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.nupkg"
+          - "mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.snupkg"
 
   cleanup:
     - command: shell.exec
@@ -1043,6 +1047,7 @@ functions:
           PACKAGES_SOURCE_KEY: ${PACKAGES_SOURCE_KEY}
         script: |
           ${PREPARE_SHELL}
+          OS=${OS} \
           . ./evergreen/push-packages.sh
 
   upload-packages:
@@ -1101,6 +1106,20 @@ functions:
         aws_secret: ${aws_secret}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.snupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.nupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.nupkg
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.snupkg
+        remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.snupkg
         bucket: mciuploads
 
   build-apidocs:
@@ -1539,40 +1558,10 @@ tasks:
             OCSP_ALGORITHM: "rsa"
             OCSP_TLS_SHOULD_SUCCEED: "false"
 
-    - name: test-smoke-tests-net472
+    - name: test-smoke-tests
       commands:
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
-          vars:
-            FRAMEWORK: net472
-
-    - name: test-smoke-tests-netcoreapp31
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: netcoreapp31
-
-    - name: test-smoke-tests-net50
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: net50
-
-    - name: test-smoke-tests-net60
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: net60
-
-    - name: test-smoke-tests-net80
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-          vars:
-            FRAMEWORK: net80
 
     - name: performance-tests-net80-server-v6.0
       commands:
@@ -1797,7 +1786,7 @@ tasks:
               export AZUREKMS_RESOURCEGROUP=${testazurekms_resourcegroup}
               export AZUREKMS_VMNAME=${AZUREKMS_VMNAME}
               export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
-              AZUREKMS_CMD="MONGODB_URI='mongodb://localhost:27017' KEY_NAME='${testazurekms_keyname}' KEY_VAULT_ENDPOINT='${testazurekms_keyvaultendpoint}' ./evergreen/run-csfle-azure-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
+              AZUREKMS_CMD="MONGODB_URI='mongodb://localhost:27017' KEY_NAME='${testazurekms_keyname}' KEY_VAULT_ENDPOINT='${testazurekms_keyvaultendpoint}' OS='${OS}' ./evergreen/run-csfle-azure-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
 
     - name: test-csfle-with-gcp-kms
       commands:
@@ -1831,7 +1820,7 @@ tasks:
               export GCPKMS_PROJECT=${GCPKMS_PROJECT}
               export GCPKMS_ZONE=${GCPKMS_ZONE}
               export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
-              GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
+              GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' OS='${OS}' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
 
     - name: test-SK
       commands:
@@ -2084,6 +2073,25 @@ axes:
         display_name: net60
         variables:
           FRAMEWORK: net60
+
+  - id: runtime_framework
+    display_name: Runtime .net
+    values:
+      - id: "net472"
+        variables:
+          FRAMEWORK: net472
+      - id: "netcoreapp31"
+        variables:
+          FRAMEWORK: netcoreapp31
+      - id: "net50"
+        variables:
+          FRAMEWORK: net50
+      - id: "net60"
+        variables:
+          FRAMEWORK: net60
+      - id: "net80"
+        variables:
+          FRAMEWORK: net80
 
   - id: serverless
     display_name: Serverless
@@ -2411,7 +2419,7 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-netstandard21
-    - name: test-net60    
+    - name: test-net60
 
 # Unsecure tests
 - matrix_name: "unsecure-tests-windows"
@@ -2421,7 +2429,7 @@ buildvariants:
   tasks:
     - name: test-net472
     - name: test-netstandard21
-    - name: test-net60    
+    - name: test-net60
 
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
@@ -2686,36 +2694,27 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 # Smoke tests
-- matrix_name: "smoke-tests-windows"
-  matrix_spec: { os: "windows-64", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "latest"], topology: ["replicaset"] }
-  display_name: "smoke-tests ${version} ${os}"
+- matrix_name: "smoke-tests"
+  matrix_spec:
+    os: ["ubuntu-2004", "macos-14", "windows-64"]
+    ssl: "nossl"
+    version: ["5.0", "6.0", "7.0", "8.0", "latest"]
+    topology: ["replicaset"]
+    runtime_framework: "*"
+  exclude_spec:
+    # We do not support net472 for non-Windows platforms
+    - os: ["ubuntu-2004", "macos-14"]
+      ssl: "*"
+      version: "*"
+      topology: "*"
+      runtime_framework: "net472"
+  display_name: "smoke-tests ${version} on ${os} ${runtime_framework}"
   batchtime: 1440 # 1 day
   tasks:
-    - name: test-smoke-tests-net472
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
-    - name: test-smoke-tests-net60
-    - name: test-smoke-tests-net80
-
-- matrix_name: "smoke-tests-linux"
-  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "latest"], topology: ["replicaset"] }
-  display_name: "smoke-tests ${version} ${os}"
-  batchtime: 1440 # 1 day
-  tasks:
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
-    - name: test-smoke-tests-net60
-    - name: test-smoke-tests-net80
-
-- matrix_name: "smoke-tests-macOS"
-  matrix_spec: { os: "macos-14", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "latest"], topology: ["replicaset"] }
-  display_name: "smoke-tests ${version} ${os}"
-  batchtime: 1440 # 1 day
-  tasks:
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
-    - name: test-smoke-tests-net60
-    - name: test-smoke-tests-net80
+    - name: test-smoke-tests
+      depends_on:
+        - name: push-packages-myget
+          variant: ".push-packages-myget"
 
 # Package release variants
 - matrix_name: build-packages

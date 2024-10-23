@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.Jira
             var clientSettings = DriverTestConfiguration.GetClientSettings().Clone();
             clientSettings.SocketTimeout = socketTimeout;
 
-            using (var client = DriverTestConfiguration.CreateDisposableClient(clientSettings))
+            using (var client = DriverTestConfiguration.CreateMongoClient(clientSettings))
             {
                 var database = client.GetDatabase("db");
                 var collection = database.GetCollection<BsonDocument>("coll");

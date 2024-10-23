@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
+                ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 IBsonSerializer valueSerializer;
                 if (pipeline.OutputSerializer is IWrappedValueSerializer wrappedValueSerializer)

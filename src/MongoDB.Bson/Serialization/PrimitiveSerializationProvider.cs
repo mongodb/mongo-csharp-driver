@@ -40,11 +40,17 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Char), typeof(CharSerializer) },
                 { typeof(CultureInfo), typeof(CultureInfoSerializer) },
                 { typeof(DateTime), typeof(DateTimeSerializer) },
+#if NET6_0_OR_GREATER
+                { typeof(DateOnly), typeof(DateOnlySerializer) },
+#endif
                 { typeof(DateTimeOffset), typeof(DateTimeOffsetSerializer) },
                 { typeof(Decimal), typeof(DecimalSerializer) },
                 { typeof(Decimal128), typeof(Decimal128Serializer) },
                 { typeof(Double), typeof(DoubleSerializer) },
                 { typeof(Guid), typeof(GuidSerializer) },
+#if NET6_0_OR_GREATER
+                { typeof(Half), typeof(HalfSerializer) },
+#endif
                 { typeof(Int16), typeof(Int16Serializer) },
                 { typeof(Int32), typeof(Int32Serializer) },
                 { typeof(Int64), typeof(Int64Serializer) },
@@ -58,6 +64,9 @@ namespace MongoDB.Bson.Serialization
                 { typeof(SByte), typeof(SByteSerializer) },
                 { typeof(Single), typeof(SingleSerializer) },
                 { typeof(String), typeof(StringSerializer) },
+#if NET6_0_OR_GREATER
+                { typeof(TimeOnly), typeof(TimeOnlySerializer) },
+#endif
                 { typeof(TimeSpan), typeof(TimeSpanSerializer) },
                 { typeof(Tuple<>), typeof(TupleSerializer<>) },
                 { typeof(Tuple<,>), typeof(TupleSerializer<,>) },

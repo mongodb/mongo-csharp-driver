@@ -31,45 +31,21 @@ namespace MongoDB.Driver
         public MongoIncompatibleDriverExceptionTests()
         {
             var clusterId = new ClusterId(1);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var connectionMode = ClusterConnectionMode.Standalone;
-#pragma warning restore CS0618 // Type or member is obsolete
             var clusterType = ClusterType.Standalone;
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
             var server = new ServerDescription(serverId, endPoint, wireVersionRange: new Range<int>(0, 0), type: ServerType.Standalone);
-            var servers = new[] { server };
-#pragma warning disable CS0618 // Type or member is obsolete
-            _clusterDescription = new ClusterDescription(clusterId, connectionMode, clusterType, servers);
-#pragma warning restore CS0618 // Type or member is obsolete
+
+            _clusterDescription = new ClusterDescription(clusterId, false, null, clusterType, [server]);
         }
 
         [Fact]
-        public void constructor_should_initalize_subject()
+        public void constructor_should_initialize_subject()
         {
             var subject = new MongoIncompatibleDriverException(_clusterDescription);
 
             subject.Message.Should().StartWith("Server at localhost:27017 reports wire version 0");
             subject.InnerException.Should().BeNull();
-        }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoIncompatibleDriverException(_clusterDescription);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoIncompatibleDriverException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.InnerException.Should().BeNull();
-            }
         }
     }
 }

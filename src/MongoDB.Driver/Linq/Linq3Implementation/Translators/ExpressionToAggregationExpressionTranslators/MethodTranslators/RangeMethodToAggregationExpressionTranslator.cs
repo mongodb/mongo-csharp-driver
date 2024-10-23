@@ -34,10 +34,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var startExpression = arguments[0];
                 var startTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(startExpression, startTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, startExpression, startTranslation);
                 var countExpression = arguments[1];
                 var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(countExpression, countTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, countExpression, countTranslation);
 
                 var (startVar, startAst) = AstExpression.UseVarIfNotSimple("start", startTranslation.Ast);
                 var (countVar, countAst) = AstExpression.UseVarIfNotSimple("count", countTranslation.Ast);

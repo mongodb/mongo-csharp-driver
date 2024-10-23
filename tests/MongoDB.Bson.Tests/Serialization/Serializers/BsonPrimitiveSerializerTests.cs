@@ -15,14 +15,11 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
@@ -72,7 +69,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = false,
                 S = false
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'N' : false, 'B' : false, 'D128' : NumberDecimal('0'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : 'false' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -94,7 +91,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = true,
                 S = true
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'N' : true, 'B' : true, 'D128' : NumberDecimal('1'), 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : 'true' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -166,7 +163,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = minLocal.Date,
                 Document = minLocal
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             expected = expected.Replace("#Default", "ISODate('0001-01-01T00:00:00Z')");
             expected = expected.Replace("#Local", "ISODate('0001-01-01T00:00:00Z')");
@@ -214,7 +211,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = minUnspecified.Date,
                 Document = minUnspecified
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             expected = expected.Replace("#Default", "ISODate('0001-01-01T00:00:00Z')");
             expected = expected.Replace("#Local", "ISODate('0001-01-01T00:00:00Z')");
@@ -262,7 +259,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = minUtc.Date,
                 Document = minUtc
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             expected = expected.Replace("#Default", "ISODate('0001-01-01T00:00:00Z')");
             expected = expected.Replace("#Local", "ISODate('0001-01-01T00:00:00Z')");
@@ -310,7 +307,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = maxLocal.Date,
                 Document = maxLocal
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             expected = expected.Replace("#Default", "ISODate('9999-12-31T23:59:59.999Z')");
             expected = expected.Replace("#Local", "ISODate('9999-12-31T23:59:59.999Z')");
@@ -358,7 +355,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = maxUnspecified.Date,
                 Document = maxUnspecified
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             expected = expected.Replace("#Default", "ISODate('9999-12-31T23:59:59.999Z')");
             expected = expected.Replace("#Local", "ISODate('9999-12-31T23:59:59.999Z')");
@@ -406,7 +403,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = maxUtc.Date,
                 Document = maxUtc
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             expected = expected.Replace("#Default", "ISODate('9999-12-31T23:59:59.999Z')");
             expected = expected.Replace("#Local", "ISODate('9999-12-31T23:59:59.999Z')");
@@ -455,7 +452,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = local.Date,
                 Document = local
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
             var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
@@ -508,7 +505,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = unspecified.Date,
                 Document = unspecified
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
             var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
@@ -560,7 +557,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateOnlyString = utc.Date,
                 Document = utc
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = __expectedTemplate;
             var milliseconds = (utc.Ticks - BsonConstants.UnixEpoch.Ticks) / 10000;
             var utcJson = string.Format("ISODate(\"{0}\")", utc.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture));
@@ -645,7 +642,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 0,
                 S = double.MinValue
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : #, 'I' : 0, 'L' : NumberLong(0), 'S' : '#' }";
             expected = expected.Replace("#", "-1.7976931348623157E+308");
             expected = expected.Replace("'", "\"");
@@ -666,7 +663,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = -1.0,
                 S = -1.0
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : -1.0, 'I' : -1, 'L' : NumberLong(-1), 'S' : '-1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -685,7 +682,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 0.0,
                 S = 0.0
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -704,7 +701,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 1.0,
                 S = 1.0
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : '1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -723,7 +720,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 1.5,
                 S = 1.5
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : 1.5, 'I' : 1, 'L' : NumberLong(1), 'S' : '1.5' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -742,7 +739,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 0,
                 S = double.MaxValue
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : #, 'I' : 0, 'L' : NumberLong(0), 'S' : '#' }";
             expected = expected.Replace("#", "1.7976931348623157E+308");
             expected = expected.Replace("'", "\"");
@@ -763,7 +760,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 0,
                 S = double.NaN
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : #, 'I' : 0, 'L' : NumberLong(0), 'S' : '#' }";
             expected = expected.Replace("#", "NaN");
             expected = expected.Replace("'", "\"");
@@ -784,7 +781,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 0,
                 S = double.NegativeInfinity
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : #, 'I' : 0, 'L' : NumberLong(0), 'S' : '#' }";
             expected = expected.Replace("#", "-Infinity");
             expected = expected.Replace("'", "\"");
@@ -805,7 +802,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 0,
                 S = double.PositiveInfinity
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : #, 'I' : 0, 'L' : NumberLong(0), 'S' : '#' }";
             expected = expected.Replace("#", "Infinity");
             expected = expected.Replace("'", "\"");
@@ -927,7 +924,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = int.MinValue,
                 S = int.MinValue
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('#'), 'D' : #.0, 'I' : #, 'L' : NumberLong(#), 'S' : '#' }";
             expected = expected.Replace("#", int.MinValue.ToString());
             expected = expected.Replace("'", "\"");
@@ -949,7 +946,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = -1,
                 S = -1
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('-1'), 'D' : -1.0, 'I' : -1, 'L' : NumberLong(-1), 'S' : '-1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -969,7 +966,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 0,
                 S = 0
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('0'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -989,7 +986,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 1,
                 S = 1
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('1'), 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : '1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -1009,7 +1006,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = int.MaxValue,
                 S = int.MaxValue
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('#'), 'D' : #.0, 'I' : #, 'L' : NumberLong(#), 'S' : '#' }";
             expected = expected.Replace("#", int.MaxValue.ToString());
             expected = expected.Replace("'", "\"");
@@ -1071,7 +1068,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = long.MinValue,
                 S = long.MinValue
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('#'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong('#'), 'S' : '#' }";
             expected = expected.Replace("#", long.MinValue.ToString());
             expected = expected.Replace("'", "\"");
@@ -1093,7 +1090,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = -1,
                 S = -1
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('-1'), 'D' : -1.0, 'I' : -1, 'L' : NumberLong(-1), 'S' : '-1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -1113,7 +1110,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 0,
                 S = 0
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('0'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : '0' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -1133,7 +1130,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = 1,
                 S = 1
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('1'), 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : '1' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -1153,7 +1150,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 L = long.MaxValue,
                 S = long.MaxValue
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D128' : NumberDecimal('#'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong('#'), 'S' : '#' }";
             expected = expected.Replace("#", long.MaxValue.ToString());
             expected = expected.Replace("'", "\"");
@@ -1200,15 +1197,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void TestSerializer()
         {
-#pragma warning disable 618
-            var objectId = new ObjectId(1, 2, 3, 4);
-#pragma warning restore 618
+            var objectId = new ObjectId("000000010000020003000004");
             var obj = new TestClass
             {
                 ObjectId = objectId,
                 String = objectId
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'ObjectId' : #O, 'String' : #S }");
             expected = expected.Replace("#O", "ObjectId('000000010000020003000004')");
             expected = expected.Replace("#S", "'000000010000020003000004'");
@@ -1223,9 +1218,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void TestPrivateFieldWithBsonRepresentation()
         {
-#pragma warning disable 618
-            var testValue = new ObjectId(1, 2, 3, 4);
-#pragma warning restore 618
+            var testValue = new ObjectId("000000010000020003000004");
             var json = "{ '_o' : '000000010000020003000004' }";
 
             var deserialized = BsonSerializer.Deserialize<TestClassWithPrivate>(json);
@@ -1260,7 +1253,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 String = null
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'String' : null }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -1276,7 +1269,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 String = String.Empty
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'String' : '' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -1292,7 +1285,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 String = "Hello World"
             };
-            var json = obj.ToJson();
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'String' : 'Hello World' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 

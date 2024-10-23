@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Where(x => x.GetType() == typeof(D));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { _t : { $size : 2 }, '_t.0' : 'C', '_t.1' : 'D' } }"); // don't match subclasses!
+            AssertStages(stages, "{ $match : { _t : ['C', 'D'] } }"); // don't match subclasses!
 
             var result = (D)queryable.Single();
             result.Id.Should().Be(2);
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Where(x => x.GetType() == typeof(E));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { _t : { $size : 3 }, '_t.0' : 'C', '_t.1' : 'D', '_t.2' : 'E' } }"); // don't match subclasses!
+            AssertStages(stages, "{ $match : { _t : ['C', 'D', 'E'] } }"); // don't match subclasses!
 
             var result = (E)queryable.Single();
             result.Id.Should().Be(3);
@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Where(x => x.GetType() == typeof(G));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { '_t.0' : { $exists : false }, '_t' : 'G' } }");
+            AssertStages(stages, "{ $match : { '_t' : 'G' } }");
 
             var result = (G)queryable.Single();
             result.Id.Should().Be(2);
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Where(x => x.GetType() == typeof(H));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { '_t.0' : { $exists : false }, '_t' : 'H' } }");
+            AssertStages(stages, "{ $match : { '_t' : 'H' } }");
 
             var result = (H)queryable.Single();
             result.Id.Should().Be(3);

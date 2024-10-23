@@ -17,7 +17,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -117,7 +116,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -132,7 +131,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -147,7 +146,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -162,7 +161,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -177,7 +176,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -192,7 +191,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -207,7 +206,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = BsonConstants.UnixEpoch };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('1970-01-01T00:00:00Z'), 'D' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -222,7 +221,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.Now };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
@@ -240,7 +239,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.UtcNow };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
@@ -268,7 +267,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : '9999-12-31T23:59:59.9999999', 'D' : '9999-12-31' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -283,7 +282,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : '9999-12-31T23:59:59.9999999', 'D' : '9999-12-31' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -298,7 +297,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : '9999-12-31T23:59:59.9999999', 'D' : '9999-12-31' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -313,7 +312,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : '0001-01-01T00:00:00', 'D' : '0001-01-01' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -328,7 +327,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : '0001-01-01T00:00:00', 'D' : '0001-01-01' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -343,7 +342,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : '0001-01-01T00:00:00', 'D' : '0001-01-01' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -358,7 +357,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = BsonConstants.UnixEpoch };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : '1970-01-01T00:00:00Z', 'D' : '1970-01-01' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -373,7 +372,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.Now };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep1 = JsonConvert.ToString(c.DT);
             var rep2 = c.D.ToString("yyyy-MM-dd");
             var expected = "{ 'DT' : '#1', 'D' : '#2' }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
@@ -391,7 +390,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.UtcNow };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep1 = JsonConvert.ToString(c.DT);
             var rep2 = c.D.ToString("yyyy-MM-dd");
             var expected = "{ 'DT' : '#1', 'D' : '#2' }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
@@ -419,7 +418,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -434,7 +433,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -449,7 +448,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -464,7 +463,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -479,7 +478,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -494,7 +493,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -509,7 +508,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = BsonConstants.UnixEpoch };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('1970-01-01T00:00:00Z'), 'D' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -524,7 +523,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.Now };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
@@ -541,7 +540,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.UtcNow };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var rep2 = c.D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
@@ -569,7 +568,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -584,7 +583,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -599,7 +598,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('9999-12-31T23:59:59.999Z'), 'D' : ISODate('9999-12-31T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -614,7 +613,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -629,7 +628,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Unspecified) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -644,7 +643,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc) };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('0001-01-01T00:00:00Z'), 'D' : ISODate('0001-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -659,7 +658,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = BsonConstants.UnixEpoch };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'DT' : ISODate('1970-01-01T00:00:00Z'), 'D' : ISODate('1970-01-01T00:00:00Z') }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -674,7 +673,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.Now };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var rep2 = c.D.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");
@@ -692,7 +691,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var c = new C { DT = DateTime.UtcNow };
             c.D = c.DT.Date;
 
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rep1 = c.DT.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var rep2 = c.D.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
             var expected = "{ 'DT' : ISODate('#1'), 'D' : ISODate('#2') }".Replace("#1", rep1).Replace("#2", rep2).Replace("'", "\"");

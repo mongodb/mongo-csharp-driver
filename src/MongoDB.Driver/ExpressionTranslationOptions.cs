@@ -11,7 +11,7 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-* 
+*
 */
 
 namespace MongoDB.Driver
@@ -26,30 +26,51 @@ namespace MongoDB.Driver
         /// </summary>
         public ServerVersion? CompatibilityLevel { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether client side projections are enabled.
+        /// </summary>
+        public bool? EnableClientSideProjections { get; set; }
+
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             if (object.ReferenceEquals(obj, null)) { return false; }
             if (object.ReferenceEquals(this, obj)) { return true; }
             return
-                base.Equals(obj) &&
+                GetType().Equals(obj.GetType()) &&
                 obj is ExpressionTranslationOptions other &&
-                CompatibilityLevel.Equals(other.CompatibilityLevel);
+                CompatibilityLevel.Equals(other.CompatibilityLevel) &&
+                EnableClientSideProjections.Equals(other.EnableClientSideProjections);
         }
 
         /// <inheritdoc/>
         public override int GetHashCode() => 0;
 
         /// <inheritdoc/>
-        public override string ToString() => $"{{ CompatibilityLevel = {CompatibilityLevel} }}";
+        public override string ToString()
+        {
+            var compatibilityLevel = CompatibilityLevel.HasValue ? CompatibilityLevel.ToString() : "null";
+            var enableClientSideProjections = EnableClientSideProjections.HasValue ? EnableClientSideProjections.ToString() : "null";
+            return $"{{ CompatibilityLevel = {compatibilityLevel}, EnableClientSideProjections = {enableClientSideProjections} }}";
+        }
     }
 
     internal static class ExpressionTranslationOptionsExtensions
     {
         public static ExpressionTranslationOptions AddMissingOptionsFrom(this ExpressionTranslationOptions translationOptions, ExpressionTranslationOptions from)
         {
-            // in the future ExpressionTranslationOptions might have more properties
-            return (translationOptions?.CompatibilityLevel).HasValue ? translationOptions : from;
+            if (translationOptions == null || from == null)
+            {
+                return translationOptions ?? from;
+            }
+            else
+            {
+                return new ExpressionTranslationOptions
+                {
+                    CompatibilityLevel = translationOptions.CompatibilityLevel ?? from.CompatibilityLevel,
+                    EnableClientSideProjections = translationOptions.EnableClientSideProjections ?? from.EnableClientSideProjections
+                };
+            }
         }
     }
 }

@@ -63,6 +63,66 @@ namespace MongoDB.Driver.Tests
             Assert.Same(cluster1, cluster2);
         }
 
+        [Fact]
+        public void DefaultMongoClient_should_not_dispose_cluster()
+        {
+            var client = new MongoClient(new MongoClientSettings());
+            var clusterId = client.Cluster.ClusterId;
+            client.Dispose();
+
+            ClusterRegistry.Instance._registry().Values.Should().Contain(c => c.ClusterId == clusterId);
+        }
+
+        [Fact]
+        public void Dispose_should_return_cluster()
+        {
+            var cluster = new Mock<IClusterInternal>();
+            var clusterSource = new Mock<IClusterSource>();
+            clusterSource.Setup(c => c.Get(It.IsAny<ClusterKey>())).Returns(cluster.Object);
+
+            var settings = new MongoClientSettings()
+            {
+                ClusterSource = clusterSource.Object
+            };
+
+            var client = new MongoClient(settings);
+            client.Dispose();
+
+            clusterSource.Verify(c => c.Return(cluster.Object));
+        }
+
+        [Fact]
+        public void Dispose_twice_should_return_cluster_only_once()
+        {
+            var cluster = new Mock<IClusterInternal>();
+            var clusterSource = new Mock<IClusterSource>();
+            clusterSource.Setup(c => c.Get(It.IsAny<ClusterKey>())).Returns(cluster.Object);
+
+            var settings = new MongoClientSettings()
+            {
+                ClusterSource = clusterSource.Object
+            };
+
+            var client = new MongoClient(settings);
+            client.Dispose();
+            client.Dispose();
+
+            clusterSource.Verify(c => c.Return(cluster.Object), Times.Once);
+        }
+
+        [Fact]
+        public void Disposed_client_should_throw_on_member_access()
+        {
+            var client = new MongoClient(new MongoClientSettings());
+            client.Dispose();
+
+            var exception = Record.Exception(() => client.Cluster);
+            exception.Should().BeOfType<ObjectDisposedException>();
+
+            exception = Record.Exception(() => client.StartImplicitSession(default));
+            exception.Should().BeOfType<ObjectDisposedException>();
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void DropDatabase_should_invoke_the_correct_operation(

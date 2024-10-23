@@ -21,7 +21,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB configuration exception.
     /// </summary>
-    [Serializable]
     public class MongoConfigurationException : MongoClientException
     {
         // constructors

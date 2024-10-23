@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests
             DropCollection();
             var eventCapturer = CreateEventCapturer();
             var listOfFindResults = new List<List<BsonDocument>>();
-            using (var client = CreateDisposableClient(eventCapturer, useMultipleShardRouters: true))
+            using (var client = CreateMongoClient(eventCapturer, useMultipleShardRouters: true))
             using (var session = client.StartSession())
             {
                 // Session is pinned to mongos.
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Tests
             DropCollection();
             var eventCapturer = CreateEventCapturer();
             var listOfFindResults = new List<List<BsonDocument>>();
-            using (var client = CreateDisposableClient(eventCapturer, useMultipleShardRouters: true))
+            using (var client = CreateMongoClient(eventCapturer, useMultipleShardRouters: true))
             using (var session = client.StartSession())
             {
                 CreateCollection();
@@ -178,15 +178,15 @@ namespace MongoDB.Driver.Tests
             database.GetCollection<BsonDocument>(_collectionName).InsertOne(new BsonDocument());
         }
 
-        private DisposableMongoClient CreateDisposableClient(EventCapturer eventCapturer, bool useMultipleShardRouters)
+        private IMongoClient CreateMongoClient(EventCapturer eventCapturer, bool useMultipleShardRouters)
         {
             // Increase localThresholdMS and wait until all nodes are discovered to avoid false positives.
-            var client = DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings settings) =>
                 {
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.LocalThreshold = TimeSpan.FromMilliseconds(1000);
+                    settings.LoggingSettings = LoggingSettings;
                 },
-                LoggingSettings,
                 useMultipleShardRouters);
             var timeOut = TimeSpan.FromSeconds(60);
             bool AllServersConnected() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected);

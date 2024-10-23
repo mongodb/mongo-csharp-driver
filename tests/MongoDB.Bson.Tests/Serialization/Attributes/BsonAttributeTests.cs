@@ -30,12 +30,11 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             [BsonDefaultValue("default1")]
             public string SerializedDefaultValue1 { get; set; }
-#pragma warning disable 618 // SerializeDefaultValue is obsolete
-            [BsonDefaultValue("default2", SerializeDefaultValue = true)]
+            [BsonDefaultValue("default2")]
             public string SerializedDefaultValue2 { get; set; }
-            [BsonDefaultValue("default3", SerializeDefaultValue = false)]
+            [BsonIgnoreIfDefault]
+            [BsonDefaultValue("default3")]
             public string NotSerializedDefaultValue { get; set; }
-#pragma warning restore 618
             public string NoDefaultValue { get; set; }
 
             [BsonId(IdGenerator = typeof(ObjectIdGenerator))]

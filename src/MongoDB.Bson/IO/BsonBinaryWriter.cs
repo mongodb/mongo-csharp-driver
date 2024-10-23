@@ -137,25 +137,6 @@ namespace MongoDB.Bson.IO
             _bsonStream.Flush();
         }
 
-        /// <summary>
-        /// Pops the max document size stack, restoring the previous max document size.
-        /// </summary>
-        [Obsolete("Use PopSettings instead.")]
-        public void PopMaxDocumentSize()
-        {
-            PopSettings();
-        }
-
-        /// <summary>
-        /// Pushes a new max document size onto the max document size stack.
-        /// </summary>
-        /// <param name="maxDocumentSize">The maximum size of the document.</param>
-        [Obsolete("Use PushSettings instead.")]
-        public void PushMaxDocumentSize(int maxDocumentSize)
-        {
-            PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
-        }
-
 #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         /// <summary>
         /// Writes BSON binary data to the writer.

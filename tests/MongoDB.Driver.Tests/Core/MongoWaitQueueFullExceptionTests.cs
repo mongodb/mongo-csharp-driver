@@ -48,24 +48,5 @@ namespace MongoDB.Driver
 
             subject.Message.Should().Be("The wait queue for server selection is full.");
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoWaitQueueFullException("message");
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoWaitQueueFullException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.InnerException.Should().BeNull();
-            }
-        }
     }
 }

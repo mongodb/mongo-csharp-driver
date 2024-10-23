@@ -17,13 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -72,9 +70,7 @@ namespace MongoDB.Driver.Tests
                 AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
                 Compressors = new[] { zlibCompressor },
-#pragma warning disable CS0618 // Type or member is obsolete
-                ConnectionMode = ConnectionMode.ReplicaSet,
-#pragma warning restore CS0618 // Type or member is obsolete
+                DirectConnection = true,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 FSync = true,
@@ -124,7 +120,7 @@ namespace MongoDB.Driver.Tests
                 "tlsInsecure=true",
                 "compressors=zlib",
                 "zlibCompressionLevel=4",
-                "connect=replicaSet",
+                "directConnection=true",
                 "replicaSet=name",
                 "readConcernLevel=majority",
                 "readPreference=secondary&readPreferenceTags=dc:1&maxStaleness=11s",
@@ -163,12 +159,9 @@ namespace MongoDB.Driver.Tests
                 Assert.Contains(
                     builder.Compressors,
                     x => x.Type == CompressorType.Zlib && x.Properties.ContainsKey("Level") && (int)x.Properties["Level"] == 4);
-#pragma warning disable CS0618 // Type or member is obsolete
-                Assert.Equal(ConnectionMode.ReplicaSet, builder.ConnectionMode);
-                Assert.Equal(ConnectionModeSwitch.UseConnectionMode, builder.ConnectionModeSwitch);
-#pragma warning restore CS0618 // Type or member is obsolete
                 Assert.Equal(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.Equal("database", builder.DatabaseName);
+                Assert.Equal(true, builder.DirectConnection);
                 Assert.Equal(true, builder.FSync);
                 Assert.Equal(TimeSpan.FromMinutes(1), builder.HeartbeatInterval);
                 Assert.Equal(TimeSpan.FromMinutes(2), builder.HeartbeatTimeout);
@@ -256,7 +249,6 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost")]
-        [InlineData("MONGODB-CR", "mongodb://localhost/?authMechanism=MONGODB-CR")]
         [InlineData("SCRAM-SHA-1", "mongodb://localhost/?authMechanism=SCRAM-SHA-1")]
         [InlineData("MONGODB-X509", "mongodb://localhost/?authMechanism=MONGODB-X509")]
         [InlineData("GSSAPI", "mongodb://localhost/?authMechanism=GSSAPI")]
@@ -351,29 +343,6 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData(ConnectionMode.Automatic, "mongodb://localhost{0}", new[] { "", "/?connect=automatic", "/?connect=Automatic" })]
-        [InlineData(ConnectionMode.Direct, "mongodb://localhost/?connect={0}", new[] { "direct", "Direct" })]
-        [InlineData(ConnectionMode.ReplicaSet, "mongodb://localhost/?connect={0}", new[] { "replicaSet", "ReplicaSet" })]
-        [InlineData(ConnectionMode.ShardRouter, "mongodb://localhost/?connect={0}", new[] { "shardRouter", "ShardRouter" })]
-        public void TestConnectionMode(ConnectionMode? connectionMode, string formatString, string[] values)
-        {
-            var built = new MongoUrlBuilder { Server = _localhost };
-            if (connectionMode != null) { built.ConnectionMode = connectionMode.Value; }
-
-            var canonicalConnectionString = string.Format(formatString, values[0]);
-            foreach (var builderInfo in EnumerateBuiltAndParsedBuildersWithValue(built, formatString, values))
-            {
-                var builder = builderInfo.Builder;
-                Assert.Equal(connectionMode ?? ConnectionMode.Automatic, builder.ConnectionMode);
-                Assert.Equal(connectionMode.HasValue && builderInfo.Value != string.Empty ? ConnectionModeSwitch.UseConnectionMode : ConnectionModeSwitch.NotSet, builder.ConnectionModeSwitch);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
-            }
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
-
-        [Theory]
-        [InlineData(null, "mongodb://localhost", new[] { "" })]
         [InlineData(500, "mongodb://localhost/?connectTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
         [InlineData(30000, "mongodb://localhost/?connectTimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
         [InlineData(1800000, "mongodb://localhost/?connectTimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
@@ -451,12 +420,10 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(new CompressorConfiguration[0], builder.Compressors);
 #pragma warning disable CS0618 // Type or member is obsolete
                 Assert.Equal(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
-                Assert.Equal(ConnectionMode.Automatic, builder.ConnectionMode);
-                Assert.Equal(ConnectionModeSwitch.NotSet, builder.ConnectionModeSwitch);
 #pragma warning restore CS0618 // Type or member is obsolete
                 Assert.Equal(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
                 Assert.Equal(null, builder.DatabaseName);
-                Assert.Equal(null, builder.DirectConnection);
+                Assert.Equal(false, builder.DirectConnection);
                 Assert.Equal(null, builder.FSync);
                 Assert.Equal(ServerSettings.DefaultHeartbeatInterval, builder.HeartbeatInterval);
                 Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, builder.HeartbeatTimeout);
@@ -499,94 +466,13 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(true, "mongodb://localhost/?directConnection=true")]
-        [InlineData(false, "mongodb://localhost/?directConnection=false")]
-        [InlineData(null, "mongodb://localhost")]
-        public void TestDirectConnection(bool? directConnection, string connectionString)
+        [InlineData(false, "mongodb://localhost")]
+        public void TestDirectConnection(bool directConnection, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost, DirectConnection = directConnection };
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            built.ConnectionModeSwitch.Should().Be(ConnectionModeSwitch.UseDirectConnection);
-#pragma warning restore CS0618 // Type or member is obsolete
             directConnection.Should().Be(built.DirectConnection);
             built.ToString().Should().Be(connectionString);
-        }
-
-        [Theory]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData("connect", ConnectionMode.Automatic, "directConnection", true, true)]
-        [InlineData("connect", ConnectionMode.Direct, "directConnection", false, true)]
-        [InlineData("connect", ConnectionMode.Direct, "directConnection", null, true)]
-        [InlineData("connect", ConnectionMode.ReplicaSet, "connect", ConnectionMode.ReplicaSet, false)]
-        [InlineData("directConnection", false, "connect", ConnectionMode.Automatic, true)]
-        [InlineData("directConnection", true, "connect", ConnectionMode.Direct, true)]
-        [InlineData("directConnection", null, "connect", ConnectionMode.ReplicaSet, true)]
-        [InlineData("directConnection", null, "directConnection", null, false)]
-        [InlineData("directConnection", true, "directConnection", true, false)]
-#pragma warning restore CS0618 // Type or member is obsolete
-        public void TestThatUsingPropertyPairsWorksAsExpected(string property1, object value1, string property2, object value2, bool shouldFailOnSecondAttempt)
-        {
-            var built = new MongoUrlBuilder { Server = _localhost };
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            built.ConnectionModeSwitch.Should().Be(ConnectionModeSwitch.NotSet);
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            var testSteps = new (string Property, object Value, bool ShouldFail)[]
-            {
-                (property1, value1, false),
-                (property2, value2, shouldFailOnSecondAttempt)
-            };
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            ConnectionModeSwitch? firstConnectionModeSwitch = null;
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            foreach (var propertySet in testSteps)
-            {
-                switch (propertySet.Property)
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    case "connect":
-                        {
-                            // get
-                            AssertException(Record.Exception(() => _ = built.ConnectionMode), propertySet.ShouldFail);
-                            // set
-                            AssertException(Record.Exception(() => built.ConnectionMode = (ConnectionMode)propertySet.Value), propertySet.ShouldFail);
-                        }
-                        break;
-#pragma warning restore CS0618 // Type or member is obsolete
-                    case "directConnection":
-                        {
-                            // get
-                            AssertException(Record.Exception(() => _ = built.DirectConnection), propertySet.ShouldFail);
-                            // set
-                            AssertException(Record.Exception(() => built.DirectConnection = (bool?)propertySet.Value), propertySet.ShouldFail);
-                        }
-                        break;
-                    default: throw new Exception($"Unexpected property {propertySet.Property}.");
-                }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (!firstConnectionModeSwitch.HasValue)
-                {
-                    firstConnectionModeSwitch = built.ConnectionModeSwitch;
-                }
-                built.ConnectionModeSwitch.Should().Be(firstConnectionModeSwitch); // the exception won't change it
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
-
-            void AssertException(Exception ex, bool shouldFail)
-            {
-                if (shouldFail)
-                {
-                    ex.Should().BeOfType<InvalidOperationException>();
-                }
-                else
-                {
-                    ex.Should().BeNull();
-                }
-            }
         }
 
         [Theory]

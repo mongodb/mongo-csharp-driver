@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
             var startIndexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
-            SerializationHelper.EnsureRepresentationIsNumeric(startIndexExpression, startIndexTranslation);
+            SerializationHelper.EnsureRepresentationIsNumeric(expression, startIndexExpression, startIndexTranslation);
 
             AstExpression ast;
             if (lengthExpression == null)

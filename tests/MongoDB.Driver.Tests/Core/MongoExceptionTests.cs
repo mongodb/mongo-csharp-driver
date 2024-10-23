@@ -139,26 +139,5 @@ namespace MongoDB.Driver
 
             subject.ErrorLabels.Should().Equal(errorLabels.Where(x => x != removeErrorLabel));
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoException(_message, _innerException);
-            subject.AddErrorLabel("one");
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
-                rehydrated.ErrorLabels.Should().Equal(subject.ErrorLabels);
-            }
-        }
     }
 }

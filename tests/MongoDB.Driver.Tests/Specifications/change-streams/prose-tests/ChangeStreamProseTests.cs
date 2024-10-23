@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams.prose_tests
             const int dataLength = 10 * 1024 * 1024;
 
             var collectionName = DriverTestConfiguration.CollectionNamespace.CollectionName;
-            using var client = DriverTestConfiguration.CreateDisposableClient();
+            using var client = DriverTestConfiguration.CreateMongoClient();
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(collectionName);
             db.CreateCollection(collectionName, new() { ChangeStreamPreAndPostImagesOptions = new ChangeStreamPreAndPostImagesOptions() { Enabled = true } });

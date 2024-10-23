@@ -21,18 +21,16 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents settings for a JsonWriter.
     /// </summary>
-    [Serializable]
     public class JsonWriterSettings : BsonWriterSettings
     {
         // private static fields
         private static JsonWriterSettings __defaults = null; // delay creation to pick up the latest default values
 
         // private fields
-        private Encoding _encoding = Encoding.UTF8;
         private bool _indent = false;
         private string _indentChars = "  ";
         private string _newLineChars = "\r\n";
-        private JsonOutputMode _outputMode = JsonOutputMode.Shell;
+        private JsonOutputMode _outputMode = JsonOutputMode.RelaxedExtendedJson;
         private Version _shellVersion;
 
         // constructors
@@ -58,21 +56,6 @@ namespace MongoDB.Bson.IO
                 return __defaults;
             }
             set { __defaults = value; }
-        }
-
-        // public properties
-        /// <summary>
-        /// Gets or sets the output Encoding.
-        /// </summary>
-        [Obsolete("Set the Encoding when you create a StreamWriter instead (this property is ignored).")]
-        public Encoding Encoding
-        {
-            get { return _encoding; }
-            set
-            {
-                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                _encoding = value;
-            }
         }
 
         /// <summary>
@@ -159,9 +142,6 @@ namespace MongoDB.Bson.IO
         {
             var clone = new JsonWriterSettings
             {
-#pragma warning disable 618
-                Encoding = _encoding,
-#pragma warning restore 618
                 Indent = _indent,
                 IndentChars = _indentChars,
                 MaxSerializationDepth = MaxSerializationDepth,

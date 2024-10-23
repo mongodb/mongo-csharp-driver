@@ -25,7 +25,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -250,22 +249,22 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
-        private DisposableMongoClient GetClient(bool retryWrites = true)
+        private IMongoClient GetClient(bool retryWrites = true)
         {
             return GetClient(cb => { }, retryWrites);
         }
 
-        private DisposableMongoClient GetClient(Action<ClusterBuilder> clusterConfigurator, bool retryWrites = true)
+        private IMongoClient GetClient(Action<ClusterBuilder> clusterConfigurator, bool retryWrites = true)
         {
-            return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings clientSettings) =>
+            return DriverTestConfiguration.CreateMongoClient((MongoClientSettings clientSettings) =>
             {
                 clientSettings.ClusterConfigurator = clusterConfigurator;
                 clientSettings.RetryWrites = retryWrites;
-            },
-            LoggingSettings);
+                clientSettings.LoggingSettings = LoggingSettings;
+            });
         }
 
-        private DisposableMongoClient GetClient(EventCapturer capturer)
+        private IMongoClient GetClient(EventCapturer capturer)
         {
             return GetClient(cb => cb.Subscribe(capturer));
         }

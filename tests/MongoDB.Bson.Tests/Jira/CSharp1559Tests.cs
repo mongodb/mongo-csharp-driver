@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers;
@@ -48,7 +49,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var testCase = Activator.CreateInstance(testCaseType, arguments.Select(a => (object)a).ToArray());
 
-            var json = testCase.ToJson();
+            var json = testCase.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var actualBsonDocument = BsonDocument.Parse(json);
             actualBsonDocument["_t"].ToString().Should().Be(testCaseType.Name);
             actualBsonDocument.Remove("_t");
@@ -67,7 +68,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var testCase = new DerivedWithMismatchedXTypeComparingWithBase(1, 2);
 
-            var exception = Record.Exception(() => testCase.ToJson());
+            var exception = Record.Exception(() => testCase.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
             var e = exception.Should().BeOfType<BsonSerializationException>().Subject;
 
             e.Message.Should().Be("Creator map for class MongoDB.Bson.Tests.Jira.CSharp1559Tests+DerivedWithMismatchedXTypeComparingWithBase has 2 arguments, but none are configured.");
@@ -78,7 +79,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var testCase = new DerivedWithoutSetter_IntermediateBaseAndWithProtectedConstructor(1, 2, 3);
 
-            var json = testCase.ToJson();
+            var json = testCase.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var result = BsonSerializer.Deserialize<DerivedWithoutSetter_IntermediateBaseAndWithProtectedConstructor>(json);
 
             result.X.Should().Be(1);

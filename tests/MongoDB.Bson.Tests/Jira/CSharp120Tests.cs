@@ -15,6 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -37,7 +38,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp120
         public void TestGuidStringRepresentation()
         {
             var c = new C { X = 1, Y = 2 };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'X' : 1, 'Y' : 2 }".Replace("'", "\"");
             Assert.Equal(expected, json);
 

@@ -21,21 +21,7 @@ namespace MongoDB.Driver.GridFS
     public class GridFSDownloadOptions
     {
         // fields
-        private bool? _checkMD5;
         private bool? _seekable;
-
-        // properties
-        /// <summary>
-        /// Gets or sets a value indicating whether to check the MD5 value.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the MD5 value should be checked; otherwise, <c>false</c>.
-        /// </value>
-        public bool? CheckMD5
-        {
-            get { return _checkMD5; }
-            set { _checkMD5 = value; }
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the returned Stream supports seeking.

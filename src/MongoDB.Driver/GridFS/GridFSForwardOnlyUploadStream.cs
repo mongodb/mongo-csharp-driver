@@ -35,7 +35,6 @@ namespace MongoDB.Driver.GridFS
 
         // fields
         private bool _aborted;
-        private readonly List<string> _aliases;
         private List<byte[]> _batch;
         private long _batchPosition;
         private int _batchSize;
@@ -43,14 +42,11 @@ namespace MongoDB.Driver.GridFS
         private readonly GridFSBucket<TFileId> _bucket;
         private readonly int _chunkSizeBytes;
         private bool _closed;
-        private readonly string _contentType;
-        private readonly bool _disableMD5;
         private bool _disposed;
         private readonly string _filename;
         private readonly TFileId _id;
         private readonly BsonValue _idAsBsonValue;
         private long _length;
-        private readonly IncrementalHash _md5;
         private readonly BsonDocument _metadata;
 
         // constructors
@@ -60,25 +56,17 @@ namespace MongoDB.Driver.GridFS
             TFileId id,
             string filename,
             BsonDocument metadata,
-            IEnumerable<string> aliases,
-            string contentType,
             int chunkSizeBytes,
-            int batchSize,
-            bool disableMD5)
+            int batchSize)
         {
             _bucket = bucket;
             _binding = binding;
             _id = id;
             _filename = filename;
             _metadata = metadata; // can be null
-            _aliases = aliases == null ? null : aliases.ToList(); // can be null
-            _contentType = contentType; // can be null
             _chunkSizeBytes = chunkSizeBytes;
             _batchSize = batchSize;
-
             _batch = new List<byte[]>();
-            _md5 = disableMD5 ? null : IncrementalHash.CreateHash(HashAlgorithmName.MD5);
-            _disableMD5 = disableMD5;
 
             var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();
             var idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
@@ -320,10 +308,7 @@ namespace MongoDB.Driver.GridFS
                 { "length", _length },
                 { "chunkSize", _chunkSizeBytes },
                 { "uploadDate", uploadDateTime },
-                { "md5", () => BsonUtils.ToHexString(_md5.GetHashAndReset()), !_disableMD5 },
                 { "filename", _filename },
-                { "contentType", _contentType, _contentType != null },
-                { "aliases", () => new BsonArray(_aliases.Select(a => new BsonString(a))), _aliases != null },
                 { "metadata", _metadata, _metadata != null }
             };
         }
@@ -345,7 +330,6 @@ namespace MongoDB.Driver.GridFS
                 chunkDocuments.Add(chunkDocument);
 
                 _batchPosition += chunk.Length;
-                _md5?.AppendData(chunk, 0, chunk.Length);
             }
 
             return chunkDocuments;
@@ -361,11 +345,6 @@ namespace MongoDB.Driver.GridFS
 
                 if (disposing)
                 {
-                    if (_md5 != null)
-                    {
-                        _md5.Dispose();
-                    }
-
                     _binding.Dispose();
                 }
             }

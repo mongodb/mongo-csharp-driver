@@ -61,9 +61,9 @@ namespace MongoDB.Driver
 
             if (isUpsert)
             {
-                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDerivedDocument));
+                var discriminatorConvention = _rootDocumentCollection.DocumentSerializer.GetDiscriminatorConvention();
                 var discriminatorConventionElementName = discriminatorConvention.ElementName;
-                var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TRootDocument), typeof(TDerivedDocument));
+                var discriminator = discriminatorConvention.GetDiscriminator(typeof(TRootDocument), typeof(TDerivedDocument));
 
                 if (result is PipelineUpdateDefinition<TDerivedDocument> pipeline)
                 {
@@ -82,7 +82,7 @@ namespace MongoDB.Driver
                                             new BsonArray
                                             {
                                                 new BsonDocument("$eq", new BsonArray { new BsonDocument("$type", "$_id"), "missing" }), // if "_id" is missed
-                                                discriminatorValue, // then set targetField to discriminatorValue
+                                                discriminator, // then set targetField to discriminatorValue
                                                 $"${discriminatorConventionElementName}" // else set targetField from the value in the document
                                             }
                                         }
@@ -96,7 +96,7 @@ namespace MongoDB.Driver
                 else
                 {
                     var builder = new UpdateDefinitionBuilder<TDerivedDocument>();
-                    var setOnInsertDiscriminator = builder.SetOnInsert(discriminatorConventionElementName, discriminatorValue);
+                    var setOnInsertDiscriminator = builder.SetOnInsert(discriminatorConventionElementName, discriminator);
                     result = builder.Combine(result, setOnInsertDiscriminator);
                 }
             }

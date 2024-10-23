@@ -43,7 +43,14 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             // TODO: this isn't quite right, not all classes are serialized using a class map serializer
             var classMap = BsonClassMap.LookupClassMap(actualType);
-            return classMap.Discriminator;
+            if (actualType != nominalType || classMap.DiscriminatorIsRequired)
+            {
+                return classMap.Discriminator;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

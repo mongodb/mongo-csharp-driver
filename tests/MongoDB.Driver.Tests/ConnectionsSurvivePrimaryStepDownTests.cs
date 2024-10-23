@@ -18,7 +18,6 @@ using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -27,7 +26,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -50,7 +49,7 @@ namespace MongoDB.Driver.Tests
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolClearedEvent>()
                 .Capture<ConnectionCreatedEvent>();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName, new MongoDatabaseSettings { WriteConcern = WriteConcern.WMajority });
                 database.DropCollection(_databaseName);
@@ -81,7 +80,7 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().Supports(Feature.KeepConnectionPoolWhenReplSetStepDown).ClusterType(ClusterType.ReplicaSet);
 
             var eventCapturer = new EventCapturer().Capture<ConnectionPoolClearedEvent>();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName, new MongoDatabaseSettings { WriteConcern = WriteConcern.WMajority });
                 database.DropCollection(_databaseName);
@@ -130,12 +129,10 @@ namespace MongoDB.Driver.Tests
             {
                 var secondarySettings = primaryClient.Settings.Clone();
                 secondarySettings.ClusterConfigurator = null;
-#pragma warning disable CS0618 // Type or member is obsolete
-                secondarySettings.ConnectionMode = ConnectionMode.Direct;
-#pragma warning restore CS0618 // Type or member is obsolete
+                secondarySettings.DirectConnection = true;
                 var secondaryDnsEndpoint = (DnsEndPoint)secondaryEndpoint;
                 secondarySettings.Server = new MongoServerAddress(secondaryDnsEndpoint.Host, secondaryDnsEndpoint.Port);
-                using (var secondaryClient = DriverTestConfiguration.CreateDisposableClient(secondarySettings))
+                using (var secondaryClient = DriverTestConfiguration.CreateMongoClient(secondarySettings))
                 {
                     var adminDatabase = secondaryClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
                     adminDatabase.RunCommand<BsonDocument>(command);
@@ -153,7 +150,7 @@ namespace MongoDB.Driver.Tests
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolClearedEvent>()
                 .Capture<ConnectionCreatedEvent>();
-            using (var client = CreateDisposableClient(eventCapturer))
+            using (var client = CreateMongoClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName, new MongoDatabaseSettings { WriteConcern = WriteConcern.WMajority });
                 database.DropCollection(_databaseName);
@@ -196,16 +193,13 @@ namespace MongoDB.Driver.Tests
             return FailPoint.Configure(client.GetClusterInternal(), session, "failCommand", args);
         }
 
-        private DisposableMongoClient CreateDisposableClient(EventCapturer capturedEvents)
-        {
-            return DriverTestConfiguration.CreateDisposableClient(
+        private IMongoClient CreateMongoClient(EventCapturer capturedEvents) =>
+            DriverTestConfiguration.CreateMongoClient(
                 settings =>
                 {
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                     settings.RetryWrites = false;
                     settings.ClusterConfigurator = c => { c.Subscribe(capturedEvents); };
-                },
-                null);
-        }
+                });
     }
 }

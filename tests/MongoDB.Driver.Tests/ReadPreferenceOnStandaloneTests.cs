@@ -18,13 +18,12 @@ using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Tests
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e =>
                 e.CommandName.Equals("find") || e.CommandName.Equals("$query"));
-            using (var client = CreateDisposableClient(eventCapturer, ReadPreference.PrimaryPreferred))
+            using (var client = CreateMongoClient(eventCapturer, ReadPreference.PrimaryPreferred))
             {
                 var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -72,14 +71,12 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
-        private DisposableMongoClient CreateDisposableClient(EventCapturer eventCapturer, ReadPreference readPreference)
-        {
-            return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+        private IMongoClient CreateMongoClient(EventCapturer eventCapturer, ReadPreference readPreference) =>
+            DriverTestConfiguration.CreateMongoClient((MongoClientSettings settings) =>
             {
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 settings.ReadPreference = readPreference;
-            },
-            LoggingSettings);
-        }
+                settings.LoggingSettings = LoggingSettings;
+            });
     }
 }

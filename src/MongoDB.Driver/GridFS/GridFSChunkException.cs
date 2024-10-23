@@ -23,7 +23,6 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFSChunk exception.
     /// </summary>
-    [Serializable]
     public class GridFSChunkException : GridFSException
     {
         #region static

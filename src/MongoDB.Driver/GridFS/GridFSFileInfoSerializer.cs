@@ -49,7 +49,6 @@ namespace MongoDB.Driver.GridFS
             RegisterMember("Filename", "filename", new StringSerializer());
             RegisterMember("Id", "_id", idSerializer);
             RegisterMember("Length", "length", new Int64Serializer());
-            RegisterMember("MD5", "md5", new StringSerializer());
             RegisterMember("Metadata", "metadata", BsonDocumentSerializer.Instance);
             RegisterMember("UploadDateTime", "uploadDate", new DateTimeSerializer());
         }

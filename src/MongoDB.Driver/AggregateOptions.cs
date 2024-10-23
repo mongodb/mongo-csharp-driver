@@ -37,6 +37,15 @@ namespace MongoDB.Driver
         private ExpressionTranslationOptions _translationOptions;
         private bool? _useCursor;
 
+        // implicit conversions
+        /// <summary>
+        /// Creates an AggregateOptions instance with the specified translation options.
+        /// </summary>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>An AggregateOptions instance.</returns>
+        public static implicit operator AggregateOptions(ExpressionTranslationOptions translationOptions) =>
+            new AggregateOptions { TranslationOptions = translationOptions };
+
         // properties
         /// <summary>
         /// Gets or sets a value indicating whether to allow disk use.

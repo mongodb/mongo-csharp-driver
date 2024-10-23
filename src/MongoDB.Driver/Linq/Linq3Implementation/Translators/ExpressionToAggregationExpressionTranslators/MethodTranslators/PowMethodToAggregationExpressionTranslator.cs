@@ -30,13 +30,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.IsOneOf(MathMethod.Pow))
             {
-                var xExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
+                var xExpression = arguments[0];
+                var yExpression = arguments[1];
                 var xTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, xExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(xExpression, xTranslation);
-                var yExpression = ConvertHelper.RemoveWideningConvert(arguments[1]);
                 var yTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, yExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(yExpression, yTranslation);
-                var ast = AstExpression.Pow(xTranslation.Ast, yTranslation.Ast);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, xExpression, xTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, yExpression, yTranslation);
+
+                var xAst = ConvertHelper.RemoveWideningConvert(xTranslation);
+                var yAst = ConvertHelper.RemoveWideningConvert(yTranslation);
+                var ast = AstExpression.Pow(xAst, yAst);
+
                 return new AggregationExpression(expression, ast, new DoubleSerializer());
             }
 

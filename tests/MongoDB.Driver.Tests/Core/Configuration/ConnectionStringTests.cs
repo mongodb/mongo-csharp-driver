@@ -21,12 +21,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -361,13 +359,9 @@ namespace MongoDB.Driver.Core.Configuration
             subject.AuthMechanism.Should().BeNull();
             subject.AuthSource.Should().BeNull();
             subject.Compressors.Should().BeEmpty();
-#pragma warning disable CS0618 // Type or member is obsolete
-            subject.Connect.Should().Be(ClusterConnectionMode.Automatic);
-            subject.ConnectionModeSwitch.Should().Be(ConnectionModeSwitch.NotSet);
-#pragma warning restore CS0618 // Type or member is obsolete
             subject.ConnectTimeout.Should().Be(null);
             subject.DatabaseName.Should().BeNull();
-            subject.DirectConnection.Should().NotHaveValue();
+            subject.DirectConnection.Should().BeFalse();
             subject.FSync.Should().Be(null);
             subject.HeartbeatInterval.Should().NotHaveValue();
             subject.HeartbeatTimeout.Should().NotHaveValue();
@@ -413,8 +407,8 @@ namespace MongoDB.Driver.Core.Configuration
                 "authSource=admin;" +
                 "compressors=snappy,zlib;" +
                 "zlibCompressionLevel=4;" +
-                "connect=replicaSet;" +
                 "connectTimeout=15ms;" +
+                "directConnection=false;" +
                 "fsync=true;" +
                 "heartbeatInterval=1m;" +
                 "heartbeatTimeout=2m;" +
@@ -454,12 +448,9 @@ namespace MongoDB.Driver.Core.Configuration
             var expectedCompressorTypes = new[] { CompressorType.Snappy, CompressorType.Zlib };
             subject.Compressors.Select(x => x.Type).Should().Equal(expectedCompressorTypes);
             subject.Compressors.Single(x => x.Type == CompressorType.Zlib).Properties["Level"].Should().Be(4);
-#pragma warning disable CS0618 // Type or member is obsolete
-            subject.Connect.Should().Be(ClusterConnectionMode.ReplicaSet);
-            subject.ConnectionModeSwitch.Should().Be(ConnectionModeSwitch.UseConnectionMode);
-#pragma warning restore CS0618 // Type or member is obsolete
             subject.ConnectTimeout.Should().Be(TimeSpan.FromMilliseconds(15));
             subject.DatabaseName.Should().Be("test");
+            subject.DirectConnection.Should().Be(false);
             subject.FSync.Should().BeTrue();
             subject.HeartbeatInterval.Should().Be(TimeSpan.FromMinutes(1));
             subject.HeartbeatTimeout.Should().Be(TimeSpan.FromMinutes(2));
@@ -519,7 +510,6 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [InlineData("mongodb://localhost?authMechanism=GSSAPI", "GSSAPI")]
-        [InlineData("mongodb://localhost?authMechanism=MONGODB-CR", "MONGODB-CR")]
         [InlineData("mongodb://localhost?authMechanism=PLAIN", "PLAIN")]
         [InlineData("mongodb://localhost?authMechanism=MONGODB-X509", "MONGODB-X509")]
         public void When_authMechanism_is_specified(string connectionString, string authMechanism)
@@ -590,23 +580,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
-#pragma warning disable CS0618 // Type or member is obsolete
-        [InlineData("mongodb://localhost?connect=automatic", ClusterConnectionMode.Automatic)]
-        [InlineData("mongodb://localhost?connect=direct", ClusterConnectionMode.Direct)]
-        [InlineData("mongodb://localhost?connect=replicaSet", ClusterConnectionMode.ReplicaSet)]
-        [InlineData("mongodb://localhost?connect=sharded", ClusterConnectionMode.Sharded)]
-        [InlineData("mongodb://localhost?connect=ShardRouter", ClusterConnectionMode.Sharded)]
-        [InlineData("mongodb://localhost?connect=sTaNdAlOnE", ClusterConnectionMode.Standalone)]
-        public void When_connect_is_specified(string connectionString, ClusterConnectionMode connect)
-        {
-            var subject = new ConnectionString(connectionString);
-
-            subject.Connect.Should().Be(connect);
-            subject.ConnectionModeSwitch.Should().Be(ConnectionModeSwitch.UseConnectionMode);
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
-
-        [Theory]
         [InlineData("mongodb://localhost?connectTimeout=15ms", 15)]
         [InlineData("mongodb://localhost?connectTimeoutMS=15", 15)]
         [InlineData("mongodb://localhost?connectTimeout=15", 1000 * 15)]
@@ -631,16 +604,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
-        [InlineData("mongodb://localhost/?directConnection=true&connect=automatic")]
-        [InlineData("mongodb://localhost/?directConnection=false&connect=direct")]
-        public void When_a_directConnection_and_connect_are_both_specified(string connectionString)
-        {
-            var exception = Record.Exception(() => new ConnectionString(connectionString));
-
-            exception.Should().BeOfType<MongoConfigurationException>();
-        }
-
-        [Theory]
         [InlineData("mongodb://localhost/?directConnection=true&replicaSet=yeah", true)]
         [InlineData("mongodb://localhost/?directConnection=true", true)]
         [InlineData("mongodb://localhost/?directConnection=false&replicaSet=yeah", false)]
@@ -649,9 +612,6 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            subject.ConnectionModeSwitch.Should().Be(ConnectionModeSwitch.UseDirectConnection);
-#pragma warning restore CS0618 // Type or member is obsolete
             subject.DirectConnection.Should().Be(directConnection);
         }
 
@@ -689,27 +649,6 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 exception.Should().BeNull();
             }
-        }
-
-        [Theory]
-        [InlineData("mongodb://localhost/?directConnection=true", "connect")]
-        [InlineData("mongodb://localhost/?directConnection=false", "connect")]
-        [InlineData("mongodb://localhost/?connect=direct", "directConnection")]
-        [InlineData("mongodb://localhost/?connect=automatic", "directConnection")]
-        public void When_not_expected_property_is_used(string connectionString, string propertyToCheck)
-        {
-            var subject = new ConnectionString(connectionString);
-
-            Exception exception;
-#pragma warning disable CS0618 // Type or member is obsolete
-            switch (propertyToCheck)
-            {
-                case "connect": exception = Record.Exception(() => subject.Connect); break;
-                case "directConnection": exception = Record.Exception(() => subject.DirectConnection); break;
-                default: throw new Exception($"Not expected property {propertyToCheck}.");
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
-            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Theory]

@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Authentication.Gssapi.Sspi
     /// <summary>
     /// Thrown from a win32 wrapped operation.
     /// </summary>
-    [Serializable]
     public class Win32Exception : GssapiException
     {
         /// <summary>

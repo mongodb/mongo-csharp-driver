@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
@@ -52,7 +53,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             var c = new C { Id = 1, R = null, S = null, RS = null, OR = null, OS = null };
 
             var json = "{ '_id' : 1, 'R' : null, 'S' : null, 'RS' : null, 'OR' : null, 'OS' : null }".Replace("'", "\"");
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
 
             var rehydrated = BsonSerializer.Deserialize<C>(c.ToBson());
             Assert.Equal(c.Id, rehydrated.Id);
@@ -72,7 +73,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             var c = new C { Id = 1, R = r, S = s, RS = s, OR = r, OS = s };
 
             var json = _jsonTemplate.Replace("#V", "[]");
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
 
             var rehydrated = BsonSerializer.Deserialize<C>(c.ToBson());
             Assert.Equal(c.Id, rehydrated.Id);
@@ -97,7 +98,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             var c = new C { Id = 1, R = r, S = s, RS = s, OR = r, OS = s };
 
             var json = _jsonTemplate.Replace("#V", "[1]");
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
 
             var rehydrated = BsonSerializer.Deserialize<C>(c.ToBson());
             Assert.IsType<ReadOnlyCollection<int>>(rehydrated.R);
@@ -127,7 +128,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             var c = new C { Id = 1, R = r, S = s, RS = s, OR = r, OS = s };
 
             var json = _jsonTemplate.Replace("#V", "[1, 2]");
-            Assert.Equal(json, c.ToJson());
+            Assert.Equal(json, c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
 
             var rehydrated = BsonSerializer.Deserialize<C>(c.ToBson());
             Assert.Equal(c.Id, rehydrated.Id);

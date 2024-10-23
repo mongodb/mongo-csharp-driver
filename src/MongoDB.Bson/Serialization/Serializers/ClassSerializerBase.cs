@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The actual type.</returns>
         protected virtual Type GetActualType(BsonDeserializationContext context)
         {
-            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TValue));
+            var discriminatorConvention = this.GetDiscriminatorConvention();
             return discriminatorConvention.GetActualType(context.Reader, typeof(TValue));
         }
 

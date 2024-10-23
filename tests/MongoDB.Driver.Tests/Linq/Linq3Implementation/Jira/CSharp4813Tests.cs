@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -167,17 +169,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        [Fact]
-        public void Select_BitArray_Count_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Select_BitArray_Count_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
-            var queryable = collection.AsQueryable()
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => x.BitArray.Count);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("is not represented as an array");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var results = queryable.ToList();
+                results.Should().Equal(1, 2);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("is not represented as an array");
+            }
         }
 
         [Fact]
@@ -195,17 +212,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(1, 2);
         }
 
-        [Fact]
-        public void Select_Dictionary_Count_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Select_Dictionary_Count_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
-            var queryable = collection.AsQueryable()
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => x.Dictionary.Count);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("is not represented as an array");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var results = queryable.ToList();
+                results.Should().Equal(1, 2);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("is not represented as an array");
+            }
         }
 
         [Fact]
@@ -238,17 +270,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(1, 2);
         }
 
-        [Fact]
-        public void Select_DictionaryInterface_Count_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Select_DictionaryInterface_Count_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
-            var queryable = collection.AsQueryable()
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => x.DictionaryInterface.Count);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("is not represented as an array");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var results = queryable.ToList();
+                results.Should().Equal(1, 2);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("is not represented as an array");
+            }
         }
 
         [Fact]

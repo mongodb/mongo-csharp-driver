@@ -62,7 +62,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     case "AsBsonUndefined": return AstFilter.Field(field.Path, BsonUndefinedSerializer.Instance);
                     case "AsBsonValue": return AstFilter.Field(field.Path, fieldSerializer);
                     case "AsByteArray": return AstFilter.Field(field.Path, ByteArraySerializer.Instance);
-                    case "AsDateTime": return AstFilter.Field(field.Path, DateTimeSerializer.UtcInstance);
                     case "AsDecimal": return AstFilter.Field(field.Path, DecimalSerializer.Instance);
                     case "AsDecimal128": return AstFilter.Field(field.Path, Decimal128Serializer.Instance);
                     case "AsDouble": return AstFilter.Field(field.Path, DoubleSerializer.Instance);
@@ -71,7 +70,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     case "AsInt64": return AstFilter.Field(field.Path, Int64Serializer.Instance);
                     case "AsLocalTime": return AstFilter.Field(field.Path, DateTimeSerializer.LocalInstance);
                     case "AsNullableBoolean": return AstFilter.Field(field.Path, __nullableBooleanSerializer);
-                    case "AsNullableDateTime": return AstFilter.Field(field.Path, __nullableDateTimeSerializer);
                     case "AsNullableDecimal": return AstFilter.Field(field.Path, __nullableDecimalSerializer);
                     case "AsNullableDecimal128": return AstFilter.Field(field.Path, __nullableDecimal128Serializer);
                     case "AsNullableDouble": return AstFilter.Field(field.Path, __nullableDoubleSerializer);
@@ -79,6 +77,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     case "AsNullableInt32": return AstFilter.Field(field.Path, __nullableInt32Serializer);
                     case "AsNullableInt64": return AstFilter.Field(field.Path, __nullableInt64Serializer);
                     case "AsNullableObjectId": return AstFilter.Field(field.Path, __nullableObjectIdSerializer);
+                    case "AsNullableUniversalTime": return AstFilter.Field(field.Path, __nullableDateTimeSerializer);
                     case "AsObjectId": return AstFilter.Field(field.Path, ObjectIdSerializer.Instance);
                     case "AsRegex": return AstFilter.Field(field.Path, RegexSerializer.RegularExpressionInstance);
                     case "AsString": return AstFilter.Field(field.Path, StringSerializer.Instance);

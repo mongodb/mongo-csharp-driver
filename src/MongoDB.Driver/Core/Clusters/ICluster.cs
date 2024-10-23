@@ -20,7 +20,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -60,8 +59,6 @@ namespace MongoDB.Driver.Core.Clusters
         event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         ICoreServerSession AcquireServerSession();
-
-        CryptClient CryptClient { get; }
 
         void Initialize();
 

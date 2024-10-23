@@ -43,7 +43,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public static void TestValue(long ticks, string jsonValue)
         {
             var c = new C { Id = 1, T = TimeSpan.FromTicks(ticks) };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ '_id' : 1, 'T' : # }".Replace("#", jsonValue).Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public static void TestUnderflow(long ticks, string jsonValue)
         {
             var c = new C { Id = 1, T = TimeSpan.FromTicks(ticks) };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ '_id' : 1, 'T' : # }".Replace("#", jsonValue).Replace("'", "\"");
             Assert.Equal(expected, json);
         }

@@ -22,7 +22,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON string value.
     /// </summary>
-    [Serializable]
     public class BsonString : BsonValue, IComparable<BsonString>, IEquatable<BsonString>
     {
         // private static fields
@@ -61,15 +60,6 @@ namespace MongoDB.Bson
         public override BsonType BsonType
         {
             get { return BsonType.String; }
-        }
-
-        /// <summary>
-        /// Gets the BsonString as a string.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
         }
 
         /// <summary>

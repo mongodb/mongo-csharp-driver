@@ -25,7 +25,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON array.
     /// </summary>
-    [Serializable]
     public class BsonArray : BsonValue, IComparable<BsonArray>, IEquatable<BsonArray>, IList<BsonValue>
     {
         // private fields
@@ -204,15 +203,6 @@ namespace MongoDB.Bson
         public virtual bool IsReadOnly
         {
             get { return false; }
-        }
-
-        /// <summary>
-        /// Gets the array elements as raw values (see BsonValue.RawValue).
-        /// </summary>
-        [Obsolete("Use ToArray to ToList instead.")]
-        public virtual IEnumerable<object> RawValues
-        {
-            get { return _values.Select(v => v.RawValue); }
         }
 
         /// <summary>
@@ -545,20 +535,6 @@ namespace MongoDB.Bson
             for (int i = 0, j = arrayIndex; i < _values.Count; i++, j++)
             {
                 array[j] = _values[i];
-            }
-        }
-
-        /// <summary>
-        /// Copies elements from this array to another array as raw values (see BsonValue.RawValue).
-        /// </summary>
-        /// <param name="array">The other array.</param>
-        /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
-        [Obsolete("Use ToArray or ToList instead.")]
-        public virtual void CopyTo(object[] array, int arrayIndex)
-        {
-            for (int i = 0, j = arrayIndex; i < _values.Count; i++, j++)
-            {
-                array[j] = _values[i].RawValue;
             }
         }
 

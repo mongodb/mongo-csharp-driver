@@ -213,6 +213,49 @@ namespace MongoDB.Bson.Serialization.Options
             return decimal128Value;
         }
 
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a Half to a Decimal128.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>A Decimal128.</returns>
+        public Decimal128 ToDecimal128(Half value)
+        {
+            if (value == Half.MaxValue)
+            {
+                return Decimal128.MaxValue;
+            }
+
+            if (value == Half.MinValue)
+            {
+                return Decimal128.MinValue;
+            }
+
+            if (Half.IsPositiveInfinity(value))
+            {
+                return Decimal128.PositiveInfinity;
+            }
+
+            if (Half.IsNegativeInfinity(value))
+            {
+                return Decimal128.NegativeInfinity;
+            }
+
+            if (Half.IsNaN(value))
+            {
+                return Decimal128.QNaN;
+            }
+
+            var decimal128Value = (Decimal128)value;
+            if (value != (Half)decimal128Value && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+
+            return decimal128Value;
+        }
+#endif
+
         /// <summary>
         /// Converts an Int32 to a Decimal128.
         /// </summary>
@@ -354,6 +397,43 @@ namespace MongoDB.Bson.Serialization.Options
             return value;
         }
 
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a Half to a Double.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>A Double.</returns>
+        public double ToDouble(Half value)
+        {
+            if (value == Half.MinValue)
+            {
+                return double.MinValue;
+            }
+
+            if (value == Half.MaxValue)
+            {
+                return double.MaxValue;
+            }
+
+            if (Half.IsNegativeInfinity(value))
+            {
+                return double.NegativeInfinity;
+            }
+
+            if (Half.IsPositiveInfinity(value))
+            {
+                return double.PositiveInfinity;
+            }
+
+            if (Half.IsNaN(value))
+            {
+                return double.NaN;
+            }
+
+            return (double)value;
+        }
+#endif
+
         /// <summary>
         /// Converts an Int32 to a Double.
         /// </summary>
@@ -427,6 +507,130 @@ namespace MongoDB.Bson.Serialization.Options
             return value;
         }
 
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a Decimal128 to a Half.
+        /// </summary>
+        /// <param name="value">A Decimal128.</param>
+        /// <returns>A Half to.</returns>
+        public Half ToHalf(Decimal128 value)
+        {
+            if (value == Decimal128.MinValue)
+            {
+                return Half.MinValue;
+            }
+
+            if (value == Decimal128.MaxValue)
+            {
+                return Half.MaxValue;
+            }
+
+            if (Decimal128.IsNegativeInfinity(value))
+            {
+                return Half.NegativeInfinity;
+            }
+
+            if (Decimal128.IsPositiveInfinity(value))
+            {
+                return Half.PositiveInfinity;
+            }
+
+            if (Decimal128.IsNaN(value))
+            {
+                return Half.NaN;
+            }
+
+            var halfValue = (Half)value;
+            if ((value < (Decimal128)Half.MinValue || value > (Decimal128)Half.MaxValue) && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
+
+            if (value != (Decimal128)halfValue && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+
+            return halfValue;
+        }
+
+        /// <summary>
+        /// Converts a Double to a Half.
+        /// </summary>
+        /// <param name="value">A double.</param>
+        /// <returns>A Half.</returns>
+        public Half ToHalf(double value)
+        {
+            if (value == double.MinValue)
+            {
+                return Half.MinValue;
+            }
+
+            if (value == double.MaxValue)
+            {
+                return Half.MaxValue;
+            }
+
+            if (double.IsNegativeInfinity(value))
+            {
+                return Half.NegativeInfinity;
+            }
+
+            if (double.IsPositiveInfinity(value))
+            {
+                return Half.PositiveInfinity;
+            }
+
+            if (double.IsNaN(value))
+            {
+                return Half.NaN;
+            }
+
+            var halfValue = (Half)value;
+            if ((value < (double)Half.MinValue || value > (double)Half.MaxValue) && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
+
+            if (value != (double)halfValue && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+
+            return halfValue;
+        }
+
+        /// <summary>
+        /// Converts an Int32 to a Half.
+        /// </summary>
+        /// <param name="value">An Int32.</param>
+        /// <returns>A Half.</returns>
+        public Half ToHalf(int value)
+        {
+            if ((value > (int)Half.MaxValue || value < (int)Half.MinValue) && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
+
+            return (Half)value;
+        }
+
+        /// <summary>
+        /// Converts an Int64 to a Half.
+        /// </summary>
+        /// <param name="value">An Int64.</param>
+        /// <returns>A Half to.</returns>
+        public Half ToHalf(long value)
+        {
+            if ((value > (long)Half.MaxValue || value < (long)Half.MinValue) && !_allowOverflow)
+            {
+                throw new OverflowException();
+            }
+
+            return (Half)value;
+        }
+#endif
+
         /// <summary>
         /// Converts a Decimal128 to an Int16.
         /// </summary>
@@ -434,6 +638,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int16.</returns>
         public short ToInt16(Decimal128 value)
         {
+            if (Decimal128.IsInfinity(value) || Decimal128.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             short shortValue;
             if (_allowOverflow)
             {
@@ -459,6 +668,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int16.</returns>
         public short ToInt16(double value)
         {
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             var int16Value = (short)value;
             if (value < short.MinValue || value > short.MaxValue)
             {
@@ -534,6 +748,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int32.</returns>
         public int ToInt32(Decimal128 value)
         {
+            if (Decimal128.IsInfinity(value) || Decimal128.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             int intValue;
             if (_allowOverflow)
             {
@@ -557,6 +776,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int32.</returns>
         public int ToInt32(double value)
         {
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             var int32Value = (int)value;
             if (value < int.MinValue || value > int.MaxValue)
             {
@@ -576,6 +800,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int32.</returns>
         public int ToInt32(float value)
         {
+            if (float.IsInfinity(value) || float.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             var int32Value = (int)value;
             if (value < int.MinValue || value > int.MaxValue)
             {
@@ -587,6 +816,28 @@ namespace MongoDB.Bson.Serialization.Options
             }
             return int32Value;
         }
+
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a Half to an Int32.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>An Int32.</returns>
+        public int ToInt32(Half value)
+        {
+            if (Half.IsInfinity(value) || Half.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
+            var int32Value = (int)value;
+            if (value != (Half)int32Value && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+            return int32Value;
+        }
+#endif
 
         /// <summary>
         /// Converts an Int32 to an Int32.
@@ -698,6 +949,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int64.</returns>
         public long ToInt64(Decimal128 value)
         {
+            if (Decimal128.IsInfinity(value) || Decimal128.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             long longValue;
             if (_allowOverflow)
             {
@@ -721,6 +977,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int64.</returns>
         public long ToInt64(double value)
         {
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             var int64Value = (long)value;
             if (value < long.MinValue || value > long.MaxValue)
             {
@@ -740,6 +1001,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>An Int64.</returns>
         public long ToInt64(float value)
         {
+            if (float.IsInfinity(value) || float.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             var int64Value = (long)value;
             if (value < long.MinValue || value > long.MaxValue)
             {
@@ -751,6 +1017,29 @@ namespace MongoDB.Bson.Serialization.Options
             }
             return int64Value;
         }
+
+
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts a Half to an Int64.
+        /// </summary>
+        /// <param name="value">A Half.</param>
+        /// <returns>An Int64.</returns>
+        public long ToInt64(Half value)
+        {
+            if (Half.IsInfinity(value) || Half.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
+            var int64Value = (long)value;
+            if (value != (Half)int64Value && !_allowTruncation)
+            {
+                throw new TruncationException();
+            }
+            return int64Value;
+        }
+#endif
 
         /// <summary>
         /// Converts an Int32 to an Int64.
@@ -943,6 +1232,11 @@ namespace MongoDB.Bson.Serialization.Options
         [CLSCompliant(false)]
         public ushort ToUInt16(Decimal128 value)
         {
+            if (Decimal128.IsInfinity(value) || Decimal128.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             ushort ushortValue;
             if (_allowOverflow)
             {
@@ -969,6 +1263,11 @@ namespace MongoDB.Bson.Serialization.Options
         [CLSCompliant(false)]
         public ushort ToUInt16(double value)
         {
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             var uint16Value = (ushort)value;
             if (value < ushort.MinValue || value > ushort.MaxValue)
             {
@@ -1019,6 +1318,11 @@ namespace MongoDB.Bson.Serialization.Options
         [CLSCompliant(false)]
         public uint ToUInt32(Decimal128 value)
         {
+            if (Decimal128.IsInfinity(value) || Decimal128.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             uint uintValue;
             if (_allowOverflow)
             {
@@ -1045,6 +1349,11 @@ namespace MongoDB.Bson.Serialization.Options
         [CLSCompliant(false)]
         public uint ToUInt32(double value)
         {
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             var uint32Value = (uint)value;
             if (value < uint.MinValue || value > uint.MaxValue)
             {
@@ -1095,6 +1404,11 @@ namespace MongoDB.Bson.Serialization.Options
         [CLSCompliant(false)]
         public ulong ToUInt64(Decimal128 value)
         {
+            if (Decimal128.IsInfinity(value) || Decimal128.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             ulong ulongValue;
             if (_allowOverflow)
             {
@@ -1121,6 +1435,11 @@ namespace MongoDB.Bson.Serialization.Options
         [CLSCompliant(false)]
         public ulong ToUInt64(double value)
         {
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                throw new OverflowException();
+            }
+
             var uint64Value = (ulong)value;
             if (value < ulong.MinValue || value > ulong.MaxValue)
             {

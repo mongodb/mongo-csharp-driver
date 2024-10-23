@@ -13,13 +13,14 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -31,6 +32,8 @@ namespace MongoDB.Driver.Examples
 
         private readonly ITestOutputHelper _output;
 
+        static ClientEncryptionExamples() => MongoClientSettings.Extensions.AddAutoEncryption();
+
         public ClientEncryptionExamples(ITestOutputHelper output)
         {
             _output = output;
@@ -40,6 +43,7 @@ namespace MongoDB.Driver.Examples
         public void ClientSideEncryptionSimpleTour()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
@@ -57,6 +61,7 @@ namespace MongoDB.Driver.Examples
             {
                 AutoEncryptionOptions = autoEncryptionOptions
             };
+
             var client = new MongoClient(mongoClientSettings);
             var database = client.GetDatabase("test");
             database.DropCollection("coll");
@@ -72,6 +77,7 @@ namespace MongoDB.Driver.Examples
         public void ClientSideEncryptionAutoEncryptionSettingsTour()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
@@ -124,6 +130,7 @@ namespace MongoDB.Driver.Examples
             {
                 AutoEncryptionOptions = autoEncryptionSettings
             };
+
             var client = new MongoClient(clientSettings);
             var database = client.GetDatabase("test");
             database.DropCollection("coll");

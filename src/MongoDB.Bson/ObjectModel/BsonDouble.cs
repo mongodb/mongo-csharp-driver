@@ -23,7 +23,6 @@ namespace MongoDB.Bson
     /// Represents a BSON double value.
     /// </summary>
     /// <seealso cref="MongoDB.Bson.BsonValue" />
-    [Serializable]
     public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble>
     {
         #region static
@@ -60,13 +59,6 @@ namespace MongoDB.Bson
         public override BsonType BsonType
         {
             get { return BsonType.Double; }
-        }
-
-        /// <inheritdoc />
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
         }
 
         /// <summary>

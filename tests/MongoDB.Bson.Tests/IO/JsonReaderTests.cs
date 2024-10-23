@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Tests.IO
             int numberOfDocuments)
         {
             var document = new BsonDocument("x", 1);
-            var json = document.ToJson();
+            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var input = Enumerable.Repeat(json, numberOfDocuments).Aggregate("", (a, j) => a + j);
             var expectedResult = Enumerable.Repeat(document, numberOfDocuments);
 
@@ -76,7 +76,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonArray>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonArray>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonArray>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonArray>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonArray>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonArray>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -297,7 +297,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -311,7 +311,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<bool>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<bool>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -325,7 +325,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<bool>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<bool>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -374,7 +374,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDateTime>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDateTime>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -388,7 +388,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDateTime>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDateTime>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -441,41 +441,6 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(canonicalJson, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
         }
 
-        [Fact]
-        public void TestDateTimeStrict()
-        {
-            var json = "{ \"$date\" : 0 }";
-            using (_bsonReader = new JsonReader(json))
-            {
-                Assert.Equal(BsonType.DateTime, _bsonReader.ReadBsonType());
-                Assert.Equal(0, _bsonReader.ReadDateTime());
-                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
-                Assert.True(_bsonReader.IsAtEndOfFile());
-            }
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            Assert.Equal(json, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
-        }
-
-        [Fact]
-        public void TestDateTimeStrictIso8601()
-        {
-            var json = "{ \"$date\" : \"1970-01-01T00:00:00Z\" }";
-            using (_bsonReader = new JsonReader(json))
-            {
-                Assert.Equal(BsonType.DateTime, _bsonReader.ReadBsonType());
-                Assert.Equal(0, _bsonReader.ReadDateTime());
-                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
-                Assert.True(_bsonReader.IsAtEndOfFile());
-            }
-            var expected = "{ \"$date\" : 0 }"; // it's still not ISO8601 on the way out
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            Assert.Equal(expected, BsonSerializer.Deserialize<DateTime>(json).ToJson(jsonSettings));
-        }
-
         [Theory]
         [InlineData("{ $date: { \"$numberLong\": \"1552949630483\" } }", 1552949630483L)]
         [InlineData("{ $date: { $numberLong: \"1552949630483\" } }", 1552949630483L)]
@@ -504,7 +469,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(expectedJson, BsonSerializer.Deserialize<BsonDecimal128>(json).ToJson());
+            Assert.Equal(expectedJson, BsonSerializer.Deserialize<BsonDecimal128>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -523,7 +488,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(expectedJson, BsonSerializer.Deserialize<BsonDecimal128>(json).ToJson());
+            Assert.Equal(expectedJson, BsonSerializer.Deserialize<BsonDecimal128>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -539,7 +504,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -566,7 +531,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -585,7 +550,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -607,7 +572,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -672,7 +637,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<double>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<double>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -707,7 +672,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var expectedJson = "new BinData(0, \"ASM=\")";
-            Assert.Equal(expectedJson, BsonSerializer.Deserialize<byte[]>(json).ToJson());
+            Assert.Equal(expectedJson, BsonSerializer.Deserialize<byte[]>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -721,7 +686,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<int>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<int>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -775,7 +740,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "123";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<int>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<int>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -814,7 +779,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<long>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<long>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -828,7 +793,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<long>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<long>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -885,7 +850,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "NumberLong(123)";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<long>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<long>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -899,7 +864,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonJavaScript>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonJavaScript>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -918,7 +883,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonJavaScriptWithScope>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonJavaScriptWithScope>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -947,7 +912,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "MaxKey";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -962,7 +927,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "MaxKey";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -976,7 +941,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -1005,7 +970,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "MinKey";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1020,7 +985,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "MinKey";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1034,7 +999,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1055,7 +1020,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1078,7 +1043,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonDocument>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1092,7 +1057,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonNull>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonNull>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -1122,25 +1087,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<ObjectId>(json).ToJson());
-        }
-
-        [Fact]
-        public void TestObjectIdStrict()
-        {
-            var json = "{ \"$oid\" : \"4d0ce088e447ad08b4721a37\" }";
-            using (_bsonReader = new JsonReader(json))
-            {
-                Assert.Equal(BsonType.ObjectId, _bsonReader.ReadBsonType());
-                var objectId = _bsonReader.ReadObjectId();
-                Assert.Equal("4d0ce088e447ad08b4721a37", objectId.ToString());
-                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
-                Assert.True(_bsonReader.IsAtEndOfFile());
-            }
-#pragma warning disable 618
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            Assert.Equal(json, BsonSerializer.Deserialize<ObjectId>(json).ToJson(jsonSettings));
+            Assert.Equal(json, BsonSerializer.Deserialize<ObjectId>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -1267,26 +1214,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonRegularExpression>(json).ToJson());
-        }
-
-        [Fact]
-        public void TestRegularExpressionStrict()
-        {
-            var json = "{ \"$regex\" : \"pattern\", \"$options\" : \"imsx\" }";
-            using (_bsonReader = new JsonReader(json))
-            {
-                Assert.Equal(BsonType.RegularExpression, _bsonReader.ReadBsonType());
-                var regex = _bsonReader.ReadRegularExpression();
-                Assert.Equal("pattern", regex.Pattern);
-                Assert.Equal("imsx", regex.Options);
-                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
-                Assert.True(_bsonReader.IsAtEndOfFile());
-            }
-#pragma warning disable 618
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-#pragma warning restore 618
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonRegularExpression>(json).ToJson(settings));
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonRegularExpression>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1300,7 +1228,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<string>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<string>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1314,7 +1242,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<string>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<string>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1328,7 +1256,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonSymbol>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonSymbol>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -1364,7 +1292,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -1400,7 +1328,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "Timestamp(1, 2)";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -1444,7 +1372,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "Timestamp(0, 1234)";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Theory]
@@ -1473,7 +1401,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var canonicalJson = "undefined";
-            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonUndefined>(new StringReader(json)).ToJson());
+            Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonUndefined>(new StringReader(json)).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]
@@ -1487,7 +1415,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            Assert.Equal(json, BsonSerializer.Deserialize<BsonUndefined>(json).ToJson());
+            Assert.Equal(json, BsonSerializer.Deserialize<BsonUndefined>(json).ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
         }
 
         [Fact]

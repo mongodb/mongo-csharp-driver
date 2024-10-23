@@ -87,13 +87,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (startIndexExpression != null)
                 {
                     startIndexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
-                    SerializationHelper.EnsureRepresentationIsNumeric(startIndexExpression, startIndexTranslation);
+                    SerializationHelper.EnsureRepresentationIsNumeric(expression, startIndexExpression, startIndexTranslation);
                 }
                 AggregationExpression countTranslation = null;
                 if (countExpression != null)
                 {
                     countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                    SerializationHelper.EnsureRepresentationIsNumeric(countExpression, countTranslation);
+                    SerializationHelper.EnsureRepresentationIsNumeric(expression, countExpression, countTranslation);
                 }
                 var ordinal = GetOrdinalFromComparisonType();
 

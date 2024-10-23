@@ -18,7 +18,6 @@ using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    [Serializable]
     internal abstract class WriteRequest
     {
         // constructors

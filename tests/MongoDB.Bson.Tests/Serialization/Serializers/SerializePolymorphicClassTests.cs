@@ -15,6 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -58,7 +59,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeCasA()
         {
             A a = new C { FA = "a", FC = "c" };
-            var json = a.ToJson();
+            var json = a.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'C', 'FA' : 'a', 'FC' : 'c' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -71,7 +72,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeCasC()
         {
             C c = new C { FA = "a", FC = "c" };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'FA' : 'a', 'FC' : 'c' }").Replace("'", "\""); // no discriminator
             Assert.Equal(expected, json);
 
@@ -84,7 +85,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeDasA()
         {
             A a = new D { FA = "a", FB = "b", FD = "d" };
-            var json = a.ToJson();
+            var json = a.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -97,7 +98,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeDasB()
         {
             B b = new D { FA = "a", FB = "b", FD = "d" };
-            var json = b.ToJson();
+            var json = b.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -110,7 +111,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeDasD()
         {
             D d = new D { FA = "a", FB = "b", FD = "d" };
-            var json = d.ToJson();
+            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' }").Replace("'", "\""); // has discriminator because B has DiscriminatorIsRequired true
             Assert.Equal(expected, json);
 
@@ -123,7 +124,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeEasA()
         {
             A a = new E { FA = "a", FB = "b", FE = "e" };
-            var json = a.ToJson();
+            var json = a.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -136,7 +137,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeEasB()
         {
             B b = new E { FA = "a", FB = "b", FE = "e" };
-            var json = b.ToJson();
+            var json = b.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -149,7 +150,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeEasE()
         {
             E e = new E { FA = "a", FB = "b", FE = "e" };
-            var json = e.ToJson();
+            var json = e.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' }").Replace("'", "\""); // has discriminator because B has DiscriminatorIsRequired true
             Assert.Equal(expected, json);
 
@@ -162,7 +163,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeTNull()
         {
             T t = new T { FT = null };
-            var json = t.ToJson();
+            var json = t.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'FT' : null }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -176,7 +177,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeTC()
         {
             T t = new T { FT = new C { FA = "a", FC = "c" } };
-            var json = t.ToJson();
+            var json = t.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'FT' : { '_t' : 'C', 'FA' : 'a', 'FC' : 'c' } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -190,7 +191,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeTD()
         {
             T t = new T { FT = new D { FA = "a", FB = "b", FD = "d" } };
-            var json = t.ToJson();
+            var json = t.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'FT' : { '_t' : 'D', 'FA' : 'a', 'FB' : 'b', 'FD' : 'd' } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -204,7 +205,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeTE()
         {
             T t = new T { FT = new E { FA = "a", FB = "b", FE = "e" } };
-            var json = t.ToJson();
+            var json = t.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'FT' : { '_t' : 'E', 'FA' : 'a', 'FB' : 'b', 'FE' : 'e' } }").Replace("'", "\"");
             Assert.Equal(expected, json);
 

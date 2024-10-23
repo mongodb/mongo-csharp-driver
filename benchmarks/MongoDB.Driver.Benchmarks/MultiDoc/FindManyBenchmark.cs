@@ -26,7 +26,7 @@ namespace MongoDB.Benchmarks.MultiDoc
     [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.ReadBench, DriverBenchmarkCategory.DriverBench)]
     public class FindManyBenchmark
     {
-        private DisposableMongoClient _client;
+        private IMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private BsonDocument _tweetDocument;
 
@@ -36,7 +36,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         [GlobalSetup]
         public void Setup()
         {
-            _client = MongoConfiguration.CreateDisposableClient();
+            _client = MongoConfiguration.CreateClient();
             _tweetDocument = ReadExtendedJson("single_and_multi_document/tweet.json");
             _collection = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName).GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
 

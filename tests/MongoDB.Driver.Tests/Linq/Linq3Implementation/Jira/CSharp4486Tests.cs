@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -99,17 +101,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(true);
         }
 
-        [Fact]
-        public void Xor_with_two_arguments_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Xor_with_two_arguments_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
-            var queryable = collection.AsQueryable()
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => x.P ^ x.Q);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because MongoDB does not have an $xor operator");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var results = queryable.ToList();
+                results.Should().Equal(false);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because MongoDB does not have an $xor operator");
+            }
         }
 
         [Fact]

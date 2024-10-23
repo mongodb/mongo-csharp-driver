@@ -135,11 +135,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                         return new DefaultServer(
                             clusterId,
                             clusterClock,
-#pragma warning disable CS0618 // Type or member is obsolete
-                            ClusterConnectionMode.Automatic,
-                            ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
-                            directConnection: null,
+                            directConnection: false,
                             new ServerSettings(),
                             endPoint,
                             connectionPoolFactory,

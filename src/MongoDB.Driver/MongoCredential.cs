@@ -28,7 +28,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Credential to access a MongoDB database.
     /// </summary>
-    [Serializable]
     public class MongoCredential : IEquatable<MongoCredential>
     {
         // private fields
@@ -224,42 +223,6 @@ namespace MongoDB.Driver
                 mechanism: "GSSAPI",
                 source: "$external",
                 databaseName: null,
-                username,
-                new PasswordEvidence(password));
-        }
-
-        /// <summary>
-        /// Creates a credential used with MONGODB-CR.
-        /// </summary>
-        /// <param name="databaseName">Name of the database.</param>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <returns>A credential for MONGODB-CR.</returns>
-        [Obsolete("MONGODB-CR was replaced by SCRAM-SHA-1 in MongoDB 3.0, and is now deprecated.")]
-        public static MongoCredential CreateMongoCRCredential(string databaseName, string username, string password)
-        {
-            return FromComponents(
-                mechanism: "MONGODB-CR",
-                source: null,
-                databaseName,
-                username,
-                new PasswordEvidence(password));
-        }
-
-        /// <summary>
-        /// Creates a credential used with MONGODB-CR.
-        /// </summary>
-        /// <param name="databaseName">Name of the database.</param>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <returns>A credential for MONGODB-CR.</returns>
-        [Obsolete("MONGODB-CR was replaced by SCRAM-SHA-1 in MongoDB 3.0, and is now deprecated.")]
-        public static MongoCredential CreateMongoCRCredential(string databaseName, string username, SecureString password)
-        {
-            return FromComponents(
-                mechanism: "MONGODB-CR",
-                source: null,
-                databaseName,
                 username,
                 new PasswordEvidence(password));
         }
@@ -473,7 +436,6 @@ namespace MongoDB.Driver
             switch (defaultedMechanism)
             {
                 case "DEFAULT":
-                case "MONGODB-CR":
                 case "SCRAM-SHA-1":
                 case "SCRAM-SHA-256":
                     // it is allowed for a password to be an empty string, but not a username

@@ -14,17 +14,15 @@
 */
 
 using System;
-using System.ComponentModel;
 using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -110,13 +108,14 @@ namespace MongoDB.Driver.Core.Bindings
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
-#pragma warning disable CS0618 // Type or member is obsolete
+
             var initialClusterDescription = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.Unknown,
-                new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [new ServerDescription(new ServerId(clusterId, endPoint), endPoint)]);
+
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
 
@@ -172,13 +171,14 @@ namespace MongoDB.Driver.Core.Bindings
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
-#pragma warning disable CS0618 // Type or member is obsolete
+
             var initialClusterDescription = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.Unknown,
-                new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [new ServerDescription(new ServerId(clusterId, endPoint), endPoint)]);
+
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
 
@@ -212,13 +212,12 @@ namespace MongoDB.Driver.Core.Bindings
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
             var server = new ServerDescription(new ServerId(clusterId, endPoint), endPoint);
-#pragma warning disable CS0618 // Type or member is obsolete
             var initialClusterDescription = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.Sharded,
+                false,
+                null,
                 ClusterType.Unknown,
                 new[] { server });
-#pragma warning restore CS0618 // Type or member is obsolete
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Sharded);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
 
@@ -253,13 +252,13 @@ namespace MongoDB.Driver.Core.Bindings
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
-#pragma warning disable CS0618 // Type or member is obsolete
             var initialClusterDescription = new ClusterDescription(
                 clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.Unknown,
-                new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [new ServerDescription(new ServerId(clusterId, endPoint), endPoint)]);
+
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
 

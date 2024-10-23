@@ -69,6 +69,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
                 if (method.IsOneOf(__firstWithPredicateMethods))
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method, "with a predicate");
+
                     var predicateLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var predicateFilter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer, asRoot: true);
 

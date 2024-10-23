@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -48,6 +49,16 @@ namespace MongoDB.Bson.Serialization
             var args = new BsonDeserializationArgs { NominalType = serializer.ValueType };
             return serializer.Deserialize(context, args);
         }
+
+        /// <summary>
+        /// Gets the discriminator convention for a serializer.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>The discriminator convention.</returns>
+        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer) =>
+            serializer is IHasDiscriminatorConvention hasDiscriminatorConvention
+                ? hasDiscriminatorConvention.DiscriminatorConvention
+                : BsonSerializer.LookupDiscriminatorConvention(serializer.ValueType);
 
         /// <summary>
         /// Serializes a value.

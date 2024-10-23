@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         }
 
         // protected methods
-        protected override void TestInitialize(MongoClient client, BsonDocument test, BsonDocument shared)
+        protected override void TestInitialize(IMongoClient client, BsonDocument test, BsonDocument shared)
         {
             base.TestInitialize(client, test, shared);
             KillAllSessions();

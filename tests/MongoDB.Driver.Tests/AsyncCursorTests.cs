@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
             var eventCapturer = new EventCapturer().Capture<CommandSucceededEvent>(x => x.CommandName.Equals("killCursors"));
-            using (var client = DriverTestConfiguration.CreateDisposableClient(eventCapturer))
+            using (var client = DriverTestConfiguration.CreateMongoClient(eventCapturer))
             {
                 IAsyncCursor<BsonDocument> cursor;
                 var database = client.GetDatabase("test");

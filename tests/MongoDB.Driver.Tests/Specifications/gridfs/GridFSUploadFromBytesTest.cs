@@ -85,24 +85,8 @@ namespace MongoDB.Driver.Tests.Specifications.gridfs
                 _options = _options ?? new GridFSUploadOptions();
                 switch (option.Name)
                 {
-                    case "aliases":
-#pragma warning disable 618
-                        _options.Aliases = option.Value.AsBsonArray.Select(v => v.AsString);
-#pragma warning restore
-                        break;
-
                     case "chunkSizeBytes":
                         _options.ChunkSizeBytes = option.Value.ToInt32();
-                        break;
-
-                    case "contentType":
-#pragma warning disable 618
-                        _options.ContentType = option.Value.AsString;
-#pragma warning restore
-                        break;
-
-                    case "disableMD5":
-                        _options.DisableMD5 = option.Value.AsBoolean;
                         break;
 
                     case "metadata":
@@ -159,13 +143,9 @@ namespace MongoDB.Driver.Tests.Specifications.gridfs
 
         protected override void Assert(GridFSBucket bucket)
         {
-#pragma warning disable 618
-            var expectedTimestampMin = new ObjectId(_startTime, 0, 0, 0).Timestamp;
-            var expectedTimestampMax = new ObjectId(_endTime, 0, 0, 0).Timestamp;
+            var expectedTimestampMin = ObjectId.GenerateNewId(_startTime).Timestamp;
+            var expectedTimestampMax = ObjectId.GenerateNewId(_endTime).Timestamp;
             _result.Timestamp.Should().BeInRange(expectedTimestampMin, expectedTimestampMax);
-            _result.Machine.Should().Be(_referenceObjectId.Machine);
-            _result.Pid.Should().Be(_referenceObjectId.Pid);
-#pragma warning restore 618
 
             base.Assert(bucket);
         }

@@ -51,9 +51,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (method.IsOneOf(DateTimeMethod.TruncateWithBinSize, DateTimeMethod.TruncateWithBinSizeAndTimezone))
                 {
                     var binSizeExpression = arguments[2];
-                    binSizeExpression = ConvertHelper.RemoveWideningConvert(binSizeExpression);
                     var binSizeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, binSizeExpression);
-                    binSize = binSizeTranslation.Ast;
+                    binSize = ConvertHelper.RemoveWideningConvert(binSizeTranslation);
                 }
 
                 AstExpression timezone = null;
@@ -71,10 +70,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.IsOneOf(MathMethod.TruncateDecimal, MathMethod.TruncateDouble))
             {
-                var argumentExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
+                var argumentExpression = arguments[0];
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(argumentExpression, argumentTranslation);
-                var ast = AstExpression.Trunc(argumentTranslation.Ast);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, argumentExpression, argumentTranslation);
+
+                var argumentAst = ConvertHelper.RemoveWideningConvert(argumentTranslation);
+                var ast = AstExpression.Trunc(argumentAst);
                 return new AggregationExpression(expression, ast, argumentTranslation.Serializer);
             }
 

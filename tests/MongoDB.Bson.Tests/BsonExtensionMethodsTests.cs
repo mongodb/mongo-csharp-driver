@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -121,7 +122,7 @@ namespace MongoDB.Bson.Tests
         public void TestToJsonEmptyDocument()
         {
             var document = new BsonDocument();
-            var json = document.ToJson();
+            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ }";
             Assert.Equal(expected, json);
         }
@@ -130,7 +131,7 @@ namespace MongoDB.Bson.Tests
         public void TestToJson()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'N' : 1, '_id' : ObjectId('000000000000000000000000') }".Replace("'", "\"");
             Assert.Equal(expected, json);
         }
@@ -139,7 +140,7 @@ namespace MongoDB.Bson.Tests
         public void TestToJsonIdFirst()
         {
             var c = new C { N = 1, Id = ObjectId.Empty };
-            var json = c.ToJson(args: new BsonSerializationArgs { SerializeIdFirst = true });
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }, args: new BsonSerializationArgs { SerializeIdFirst = true });
             var expected = "{ '_id' : ObjectId('000000000000000000000000'), 'N' : 1 }".Replace("'", "\"");
             Assert.Equal(expected, json);
         }

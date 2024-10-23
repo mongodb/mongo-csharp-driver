@@ -25,12 +25,20 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    internal sealed class SslStreamFactory : IStreamFactory
+    /// <summary>
+    /// Represents a factory for an ssl stream.
+    /// </summary>
+    public class SslStreamFactory : IStreamFactory
     {
         // fields
         private readonly SslStreamSettings _settings;
         private readonly IStreamFactory _wrapped;
 
+        /// <summary>
+        /// Constructs an Ssl Stream Factory.
+        /// </summary>
+        /// <param name="settings">The SslStreamSettings.</param>
+        /// <param name="wrapped">The underlying stream factory.</param>
         public SslStreamFactory(SslStreamSettings settings, IStreamFactory wrapped)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
@@ -38,6 +46,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // public methods
+        /// <inheritdoc />
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
             var stream = _wrapped.CreateStream(endPoint, cancellationToken);
@@ -56,6 +65,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <inheritdoc />
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
             var stream = await _wrapped.CreateStreamAsync(endPoint, cancellationToken).ConfigureAwait(false);

@@ -20,9 +20,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Search;
@@ -56,6 +61,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var valueSerializer = args.SerializerRegistry.GetSerializer<TValue>();
                     var renderedGroupBy = groupBy.Render(args);
                     var serializedBoundaries = boundaries.Select(b => valueSerializer.ToBsonValue(b));
@@ -105,6 +111,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var valueSerializer = args.SerializerRegistry.GetSerializer<TValue>();
                     var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
                     var renderedGroupBy = groupBy.Render(args);
@@ -196,6 +203,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedGroupBy = groupBy.Render(args);
                     var document = new BsonDocument
                     {
@@ -242,6 +250,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
                     var renderedGroupBy = groupBy.Render(args);
                     var renderedOutput = output.Render(args);
@@ -327,6 +336,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedOptions = new BsonDocument
                     {
                         { "fullDocument", () => MongoUtils.ToCamelCase(options.FullDocument.ToString()), options.FullDocument != ChangeStreamFullDocumentOption.Default },
@@ -396,6 +406,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedPartitionByFields = partitionByFields?.Select(f => f.Render(args).FieldName).ToList();
                     var document = new BsonDocument
                     {
@@ -537,6 +548,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var facetsDocument = new BsonDocument();
                     foreach (var facet in materializedFacets)
                     {
@@ -635,6 +647,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var inputSerializer = args.DocumentSerializer;
                     var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
                     var fromSerializer = options?.FromSerializer ?? args.SerializerRegistry.GetSerializer<TFrom>();
@@ -819,6 +832,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedProjection = group.Render(args);
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, new BsonDocument(operatorName, renderedProjection.Document), renderedProjection.ProjectionSerializer);
                 });
@@ -900,6 +914,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var foreignSerializer = options.ForeignSerializer ?? args.GetSerializer<TForeignDocument>();
                     var outputSerializer = options.ResultSerializer ?? args.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(
@@ -978,6 +993,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var foreignSerializer = options.ForeignSerializer ?? args.GetSerializer<TForeignDocument>();
                     var outputSerializer = options.ResultSerializer ?? args.GetSerializer<TOutput>();
                     var lookupPipelineDocuments = new BsonArray(lookupPipeline.Render(args.WithNewDocumentType(foreignSerializer)).Documents);
@@ -1043,7 +1059,11 @@ namespace MongoDB.Driver
             const string operatorName = "$match";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
-                args => new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, filter.Render(args)), args.DocumentSerializer));
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, filter.Render(args)), args.DocumentSerializer);
+                });
 
             return stage;
         }
@@ -1101,6 +1121,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var outputSerializer = mergeOptions.OutputSerializer ?? args.GetSerializer<TOutput>();
 
                     var outputCollectionNamespace = outputCollection.CollectionNamespace;
@@ -1174,24 +1195,43 @@ namespace MongoDB.Driver
             IBsonSerializer<TOutput> outputSerializer = null)
                 where TOutput : TInput
         {
-            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TOutput));
-            if (discriminatorConvention == null)
-            {
-                var message = string.Format("OfType requires that a discriminator convention exist for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TOutput)));
-                throw new NotSupportedException(message);
-            }
-
-            var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TInput), typeof(TOutput));
-            var ofTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
-
             const string operatorName = "$match";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var nominalType = typeof(TInput);
+                    var actualType = typeof(TOutput);
+
+                    AstFilter ofTypeFilter;
+                    if (nominalType == actualType)
+                    {
+                        ofTypeFilter = AstFilter.MatchesEverything();
+                    }
+                    else
+                    {
+                        var inputSerializer = args.DocumentSerializer;
+                        var discriminatorConvention = inputSerializer.GetDiscriminatorConvention();
+                        if (discriminatorConvention == null)
+                        {
+                            var message = string.Format("OfType requires that a discriminator convention exist for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TOutput)));
+                            throw new NotSupportedException(message);
+                        }
+
+                        var discriminatorField = new AstFilterField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                        ofTypeFilter = discriminatorConvention switch
+                        {
+                            IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                            IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                            _ => throw new NotSupportedException( "OfType is not supported with the configured discriminator convention.")
+                        };
+                    }
+                    ofTypeFilter = AstSimplifier.SimplifyAndConvert(ofTypeFilter);
+
                     return new RenderedPipelineStageDefinition<TOutput>(
                         operatorName,
-                        new BsonDocument(operatorName, ofTypeFilter),
+                        new BsonDocument(operatorName, ofTypeFilter.Render()),
                         outputSerializer ?? args.GetSerializer<TOutput>());
                 });
 
@@ -1238,6 +1278,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedProjection = projection.Render(args);
                     IEnumerable<BsonDocument> documents;
                     if (renderedProjection.Document == null)
@@ -1336,6 +1377,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedSearchDefinition = searchDefinition.Render(args);
                     renderedSearchDefinition.Add("highlight", () => searchOptions.Highlight.Render(args), searchOptions.Highlight != null);
                     renderedSearchDefinition.Add("count", () => searchOptions.CountOptions.Render(), searchOptions.CountOptions != null);
@@ -1372,6 +1414,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedSearchDefinition = searchDefinition.Render(args);
                     renderedSearchDefinition.Add("count", () => count.Render(), count != null);
                     renderedSearchDefinition.Add("index", indexName, indexName != null);
@@ -1403,6 +1446,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var document = new BsonDocument(operatorName, new BsonDocument("newRoot", newRoot.Render(args)));
                     var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
@@ -1442,6 +1486,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var document = new BsonDocument(operatorName, newRoot.Render(args));
                     var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
@@ -1480,6 +1525,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var renderedFields = fields.Render(args);
                     var stage = new BsonDocument(operatorName, renderedFields);
                     return new RenderedPipelineStageDefinition<TInput>(operatorName, stage, args.DocumentSerializer);
@@ -1519,6 +1565,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(args.DocumentSerializer);
                     var document = new BsonDocument
                     {
@@ -1556,6 +1603,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(args.DocumentSerializer);
                     var document = new BsonDocument
                     {
@@ -1597,6 +1645,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(args.DocumentSerializer);
                     var document = new BsonDocument
                     {
@@ -1733,6 +1782,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var outputSerializer = args.SerializerRegistry.GetSerializer<AggregateSortByCountResult<TValue>>();
                     return new RenderedPipelineStageDefinition<AggregateSortByCountResult<TValue>>(operatorName, new BsonDocument(operatorName, value.Render(args)), outputSerializer);
                 });
@@ -1777,6 +1827,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     BsonArray withPipelineDocuments;
                     if (withPipeline != null)
                     {
@@ -1820,6 +1871,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var outputSerializer = options.ResultSerializer ?? args.GetSerializer<TOutput>();
 
                     var fieldName = "$" + field.Render(args).FieldName;
@@ -1938,6 +1990,7 @@ namespace MongoDB.Driver
                 operatorName,
                 args =>
                 {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var vectorSearchOperator = new BsonDocument
                     {
                         { "queryVector", queryVector.Array },

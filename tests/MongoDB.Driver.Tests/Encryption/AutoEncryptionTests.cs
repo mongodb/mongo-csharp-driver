@@ -20,14 +20,12 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
-using MongoDB.Libmongocrypt;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -52,10 +50,11 @@ namespace MongoDB.Driver.Tests.Encryption
         public void CryptClient_should_be_initialized([Values(false, true)] bool withAutoEncryption)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             using (var client = GetClient(withAutoEncryption))
             {
-                var libMongoCryptController = ((MongoClient)client.Wrapped).LibMongoCryptController;
+                var libMongoCryptController = client.LibMongoCryptController;
                 if (withAutoEncryption)
                 {
                     var cryptClient = libMongoCryptController._cryptClient();
@@ -73,12 +72,12 @@ namespace MongoDB.Driver.Tests.Encryption
         public async Task Mongocryptd_should_be_initialized_when_auto_encryption([Values(false, true)] bool withAutoEncryption, [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
-            using (var disposableClient = GetClient(
+            using (var client = GetClient(
                 withAutoEncryption,
                 new Dictionary<string, object> { { "cryptSharedLibPath", "non_existing_path_to_use_mongocryptd" } }))
             {
-                var client = (MongoClient)disposableClient.Wrapped;
                 if (withAutoEncryption)
                 {
                     client.LibMongoCryptController.Should().NotBeNull();
@@ -112,26 +111,27 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true, allowEmpty: false);
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             Ensure.That(File.Exists(Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH")), "CRYPT_SHARED_LIB_PATH should exist.");
 
             using (var client = GetClient(withAutoEncryption: true))
             {
-                var libMongoCryptController = ((MongoClient)client.Wrapped).LibMongoCryptController;
-                var cryptClient = libMongoCryptController._cryptClient();
-                cryptClient.CryptSharedLibraryVersion.Should().NotBeNull();
+                var libMongoCryptController = client.LibMongoCryptController;
+                libMongoCryptController.CryptSharedLibraryVersion().Should().NotBeNull();
             }
         }
 
-        private DisposableMongoClient GetClient(bool withAutoEncryption = false, Dictionary<string, object> extraOptions = null)
+        private MongoClient GetClient(bool withAutoEncryption = false, Dictionary<string, object> extraOptions = null)
         {
             var mongoClientSettings = DriverTestConfiguration.GetClientSettings();
             var configurator = mongoClientSettings.ClusterConfigurator;  // ensure client is unique
             mongoClientSettings.ClusterConfigurator = b => { configurator?.Invoke(b); };
+            mongoClientSettings.ClusterSource = DisposingClusterSource.Instance;
 
             if (withAutoEncryption)
             {
-                extraOptions = extraOptions ?? new Dictionary<string, object>();
+                extraOptions ??= [];
 
                 EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions);
 
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Tests.Encryption
                 mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             }
 
-            return new DisposableMongoClient(new MongoClient(mongoClientSettings), CreateLogger<DisposableMongoClient>());
+            return new(mongoClientSettings);
         }
 
         // private methods
@@ -153,15 +153,15 @@ namespace MongoDB.Driver.Tests.Encryption
 
     internal static class LibMongoCryptControllerBaseReflector
     {
-        public static CryptClient _cryptClient(this LibMongoCryptControllerBase libMongoCryptController)
+        public static object _cryptClient(this IAutoEncryptionLibMongoCryptController libMongoCryptController)
         {
-            return (CryptClient)Reflector.GetFieldValue(libMongoCryptController, nameof(_cryptClient));
+            return Reflector.GetFieldValue(libMongoCryptController, nameof(_cryptClient));
         }
     }
 
     internal static class AutoEncryptionLibMongoCryptControllerReflector
     {
-        public static Lazy<IMongoClient> _mongocryptdClient(this AutoEncryptionLibMongoCryptController libMongoCryptController)
+        public static Lazy<IMongoClient> _mongocryptdClient(this IAutoEncryptionLibMongoCryptController libMongoCryptController)
         {
             return (Lazy<IMongoClient>)Reflector.GetFieldValue(libMongoCryptController, nameof(_mongocryptdClient));
         }

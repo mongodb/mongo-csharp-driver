@@ -48,42 +48,11 @@ namespace MongoDB.Driver.Core.Clusters
 
             ProcessClusterEnvironment(settings);
 
-            bool createLoadBalancedCluster = settings.LoadBalanced;
-            if (createLoadBalancedCluster)
+            if (settings.LoadBalanced)
             {
                 return CreateLoadBalancedCluster(settings);
             }
-
-            bool createSingleServerCluster;
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-            {
-                createSingleServerCluster = settings.DirectConnection.GetValueOrDefault();
-            }
-            else
-            {
-                var connectionMode = settings.ConnectionMode;
-                if (connectionMode == ClusterConnectionMode.Automatic)
-                {
-                    if (settings.ReplicaSetName != null)
-                    {
-                        connectionMode = ClusterConnectionMode.ReplicaSet;
-                        settings = settings.With(connectionMode: connectionMode, connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode); // update connectionMode
-                    }
-                }
-
-                createSingleServerCluster =
-                    connectionMode == ClusterConnectionMode.Direct ||
-                    connectionMode == ClusterConnectionMode.Standalone ||
-                    (
-                        connectionMode == ClusterConnectionMode.Automatic &&
-                        settings.EndPoints.Count == 1 &&
-                        settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv
-                    );
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            if (createSingleServerCluster)
+            else if (settings.DirectConnection)
             {
                 return CreateSingleServerCluster(settings);
             }

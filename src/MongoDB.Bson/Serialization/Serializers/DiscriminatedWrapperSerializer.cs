@@ -148,8 +148,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             var discriminator = _discriminatorConvention.GetDiscriminator(nominalType, actualType);
 
             bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName(_discriminatorConvention.ElementName);
-            BsonValueSerializer.Instance.Serialize(context, discriminator);
+            if (discriminator != null)
+            {
+                bsonWriter.WriteName(_discriminatorConvention.ElementName);
+                BsonValueSerializer.Instance.Serialize(context, discriminator);
+            }
             bsonWriter.WriteName("_v");
             args.NominalType = actualType;
             _wrappedSerializer.Serialize(context, args, value);

@@ -595,19 +595,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected virtual ICollection<KeyValuePair<TKey, TValue>> CreateAccumulator()
         {
-#pragma warning disable 618
-            return (ICollection<KeyValuePair<TKey, TValue>>)CreateInstance();
-#pragma warning restore 618
-        }
-
-        // protected methods
-        /// <summary>
-        /// Creates the instance.
-        /// </summary>
-        /// <returns>The instance.</returns>
-        [Obsolete("CreateInstance is deprecated. Please use CreateAccumulator instead.")]
-        protected virtual TDictionary CreateInstance()
-        {
             throw new NotImplementedException();
         }
 

@@ -15,7 +15,9 @@
 
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -38,33 +40,42 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
+                ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 var sourceType = sourceExpression.Type;
                 var nominalType = sourceType.GetGenericArguments()[0];
                 var actualType = method.GetGenericArguments()[0];
-                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);
+
+                if (nominalType == actualType)
+                {
+                    return pipeline;
+                }
+
+                var discriminatorConvention = pipeline.OutputSerializer.GetDiscriminatorConvention();
                 var discriminatorElementName = discriminatorConvention.ElementName;
                 var wrappedValueOutputSerializer = pipeline.OutputSerializer as IWrappedValueSerializer;
                 if (wrappedValueOutputSerializer != null)
                 {
+                    discriminatorConvention = wrappedValueOutputSerializer.ValueSerializer.GetDiscriminatorConvention();
                     discriminatorElementName = wrappedValueOutputSerializer.FieldName + "." + discriminatorElementName;
                 }
                 var discriminatorField = AstFilter.Field(discriminatorElementName, BsonValueSerializer.Instance);
-                var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                if (discriminatorValue.IsBsonArray)
-                {
-                    discriminatorValue = discriminatorValue.AsBsonArray.Last();
-                }
 
-                var filter = AstFilter.Eq(discriminatorField, discriminatorValue); // note: OfType only works with hierarchical discriminators
-                var actualSerializer = context.KnownSerializersRegistry.GetSerializer(expression);
+                var filter = discriminatorConvention switch
+                {
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                    _ => throw new ExpressionNotSupportedException(expression, because: "OfType is not supported with the configured discriminator convention")
+                };
+
+                var resultSerializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 if (wrappedValueOutputSerializer != null)
                 {
-                    actualSerializer = WrappedValueSerializer.Create(wrappedValueOutputSerializer.FieldName, actualSerializer);
+                    resultSerializer = WrappedValueSerializer.Create(wrappedValueOutputSerializer.FieldName, resultSerializer);
                 }
 
                 pipeline = pipeline.AddStages(
-                    actualSerializer,
+                    resultSerializer,
                     AstStage.Match(filter));
 
                 return pipeline;

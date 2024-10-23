@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Authentication.Gssapi.Libgssapi
     /// <summary>
     /// Represents a Libgssapi exception.
     /// </summary>
-    [Serializable]
     public class LibgssapiException : GssapiException
     {
         /// <summary>

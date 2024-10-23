@@ -25,8 +25,6 @@ namespace MongoDB.Bson.Serialization.Attributes
     {
         // private fields
         private object _defaultValue;
-        private bool _serializeDefaultValue;
-        private bool _serializeDefaultValueWasSet;
 
         // constructors
         /// <summary>
@@ -47,20 +45,6 @@ namespace MongoDB.Bson.Serialization.Attributes
             get { return _defaultValue; }
         }
 
-        /// <summary>
-        /// Gets or sets whether to serialize the default value.
-        /// </summary>
-        [Obsolete("Use BsonIgnoreIfDefaultAttribute instead.")]
-        public bool SerializeDefaultValue
-        {
-            get { return _serializeDefaultValue; }
-            set
-            {
-                _serializeDefaultValue = value;
-                _serializeDefaultValueWasSet = true;
-            }
-        }
-
         // public methods
         /// <summary>
         /// Applies a modification to the member map.
@@ -69,11 +53,6 @@ namespace MongoDB.Bson.Serialization.Attributes
         public void Apply(BsonMemberMap memberMap)
         {
             memberMap.SetDefaultValue(_defaultValue);
-            if (_serializeDefaultValueWasSet)
-            {
-                memberMap.SetIgnoreIfNull(false);
-                memberMap.SetIgnoreIfDefault(!_serializeDefaultValue);
-            }
         }
     }
 }

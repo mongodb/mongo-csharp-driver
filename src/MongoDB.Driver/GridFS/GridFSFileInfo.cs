@@ -15,12 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -40,19 +37,6 @@ namespace MongoDB.Driver.GridFS
         public GridFSFileInfo(BsonDocument backingDocument, IGridFSFileInfoSerializer<TFileId> fileInfoSerializer)
             : base(backingDocument, fileInfoSerializer)
         {
-        }
-
-        // public properties
-        /// <summary>
-        /// Gets the aliases.
-        /// </summary>
-        /// <value>
-        /// The aliases.
-        /// </value>
-        [Obsolete("Place aliases inside metadata instead.")]
-        public IEnumerable<string> Aliases
-        {
-            get { return GetValue<string[]>("Aliases", null); }
         }
 
         /// <summary>
@@ -75,18 +59,6 @@ namespace MongoDB.Driver.GridFS
         public int ChunkSizeBytes
         {
             get { return GetValue<int>("ChunkSizeBytes"); }
-        }
-
-        /// <summary>
-        /// Gets the type of the content.
-        /// </summary>
-        /// <value>
-        /// The type of the content.
-        /// </value>
-        [Obsolete("Place contentType inside metadata instead.")]
-        public string ContentType
-        {
-            get { return GetValue<string>("ContentType", null); }
         }
 
         /// <summary>
@@ -121,17 +93,6 @@ namespace MongoDB.Driver.GridFS
         public long Length
         {
             get { return GetValue<long>("Length"); }
-        }
-
-        /// <summary>
-        /// Gets the MD5 checksum.
-        /// </summary>
-        /// <value>
-        /// The MD5 checksum.
-        /// </value>
-        public string MD5
-        {
-            get { return GetValue<string>("MD5", null); }
         }
 
         /// <summary>

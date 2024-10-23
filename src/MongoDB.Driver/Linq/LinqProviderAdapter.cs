@@ -177,11 +177,21 @@ namespace MongoDB.Driver.Linq
 
             expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(expression, inputSerializer, translationOptions);
-            var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, inputSerializer, asRoot: true);
-            var (specifications, projectionSerializer) = projectionCreator(translation);
-            specifications = simplifier.VisitAndConvert(specifications);
-            var renderedProjection = new BsonDocument(specifications.Select(specification => specification.RenderAsElement()));
-            return new RenderedProjectionDefinition<TOutput>(renderedProjection, (IBsonSerializer<TOutput>)projectionSerializer);
+
+            try
+            {
+                var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, inputSerializer, asRoot: true);
+                var (specifications, projectionSerializer) = projectionCreator(translation);
+                specifications = simplifier.VisitAndConvert(specifications);
+                var renderedProjection = new BsonDocument(specifications.Select(specification => specification.RenderAsElement()));
+                return new RenderedProjectionDefinition<TOutput>(renderedProjection, (IBsonSerializer<TOutput>)projectionSerializer);
+            }
+            catch (ExpressionNotSupportedException) when (translationOptions?.EnableClientSideProjections ?? false)
+            {
+                var projectorDelegate = expression.Compile();
+                var clientSideProjectionDeserializer = new ClientSideProjectionDeserializer<TInput, TOutput>(inputSerializer, projectorDelegate);
+                return new RenderedProjectionDefinition<TOutput>(document: null, clientSideProjectionDeserializer);
+            }
         }
 
         internal static BsonDocument TranslateExpressionToSetStage<TDocument, TFields>(

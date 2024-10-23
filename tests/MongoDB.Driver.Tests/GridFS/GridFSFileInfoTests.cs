@@ -28,38 +28,6 @@ namespace MongoDB.Driver.Tests.GridFS
     public class GridFSFileInfoTests
     {
         [Fact]
-        public void Aliases_get_should_return_the_expected_result()
-        {
-            var value = new[] { "alias" };
-            var subject = CreateSubject(aliases: value);
-
-#pragma warning disable 618
-            var result = subject.Aliases;
-#pragma warning restore
-
-            result.Should().Equal(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Aliases_should_be_deserialized_correctly(
-            [Values(null, new string[0], new string[] { null }, new[] { "a" }, new[] { "a", "b" })]
-            string[] value)
-        {
-            var document = CreateFilesCollectionDocument();
-            if (value != null)
-            {
-                document["aliases"] = new BsonArray(value);
-            }
-
-            var subject = DeserializeFilesCollectionDocument(document);
-
-#pragma warning disable 618
-            subject.Aliases.Should().Equal(value);
-#pragma warning restore
-        }
-
-        [Fact]
         public void BackingDocument_get_should_return_the_expected_result()
         {
             var backingDocument = new BsonDocument("x", 1);
@@ -99,38 +67,6 @@ namespace MongoDB.Driver.Tests.GridFS
             var result = new GridFSFileInfo(backdocument);
 
             result.BackingDocument.Should().BeSameAs(backdocument);
-        }
-
-        [Fact]
-        public void ContentType_get_should_return_the_expected_result()
-        {
-            var value = "application/image";
-            var subject = CreateSubject(contentType: value);
-
-#pragma warning disable 618
-            var result = subject.ContentType;
-#pragma warning restore
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void ContentType_should_be_deserialized_correctly(
-            [Values(null, "type")]
-            string value)
-        {
-            var document = CreateFilesCollectionDocument();
-            if (value != null)
-            {
-                document["contentType"] = value;
-            }
-
-            var subject = DeserializeFilesCollectionDocument(document);
-
-#pragma warning disable 618
-            subject.ContentType.Should().Be(value);
-#pragma warning restore
         }
 
         [Theory]
@@ -262,31 +198,6 @@ namespace MongoDB.Driver.Tests.GridFS
         }
 
         [Fact]
-        public void MD5_get_should_return_the_expected_result()
-        {
-            var value = "md5";
-            var subject = CreateSubject(md5: value);
-
-#pragma warning disable 
-            var result = subject.MD5;
-#pragma warning restore
-
-            result.Should().Be(value);
-        }
-
-        [Fact]
-        public void MD5_should_be_deserialized_correctly()
-        {
-            var document = CreateFilesCollectionDocument();
-
-            var subject = DeserializeFilesCollectionDocument(document);
-
-#pragma warning disable 618
-            subject.MD5.Should().Be(document["md5"].AsString);
-#pragma warning restore            
-        }
-
-        [Fact]
         public void Metadata_get_should_return_the_expected_result()
         {
             var value = new BsonDocument("x", 1);
@@ -346,7 +257,6 @@ namespace MongoDB.Driver.Tests.GridFS
                 { "length", 123 },
                 { "chunkSize", 1024 },
                 { "uploadDate", DateTime.UtcNow },
-                { "md5", "md5" },
                 { "filename", "name" }
             };
         }
@@ -359,7 +269,6 @@ namespace MongoDB.Driver.Tests.GridFS
             string filename = null,
             BsonValue idAsBsonValue = null,
             long? length = null,
-            string md5 = null,
             BsonDocument metadata = null,
             DateTime? uploadDateTime = null)
         {
@@ -369,7 +278,6 @@ namespace MongoDB.Driver.Tests.GridFS
                 { "length", length ?? 0 },
                 { "chunkSize", chunkSizeBytes ?? 255 * 1024 },
                 { "uploadDate", uploadDateTime ?? DateTime.UtcNow },
-                { "md5", md5 ?? "md5" },
                 { "filename", filename ?? "filename" },
                 { "contentType", contentType, contentType != null },
                 { "aliases", () => new BsonArray(aliases.Select(a => new BsonString(a))), aliases != null },

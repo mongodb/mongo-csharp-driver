@@ -40,19 +40,6 @@ namespace MongoDB.Driver.GridFS
         {
         }
 
-        // public properties
-        /// <summary>
-        /// Gets the aliases.
-        /// </summary>
-        /// <value>
-        /// The aliases.
-        /// </value>
-        [Obsolete("Place aliases inside metadata instead.")]
-        public IEnumerable<string> Aliases
-        {
-            get { return GetValue<string[]>("Aliases", null); }
-        }
-
         /// <summary>
         /// Gets the backing document.
         /// </summary>
@@ -73,18 +60,6 @@ namespace MongoDB.Driver.GridFS
         public int ChunkSizeBytes
         {
             get { return GetValue<int>("ChunkSizeBytes"); }
-        }
-
-        /// <summary>
-        /// Gets the type of the content.
-        /// </summary>
-        /// <value>
-        /// The type of the content.
-        /// </value>
-        [Obsolete("Place contentType inside metadata instead.")]
-        public string ContentType
-        {
-            get { return GetValue<string>("ContentType", null); }
         }
 
         /// <summary>
@@ -130,18 +105,6 @@ namespace MongoDB.Driver.GridFS
         public long Length
         {
             get { return GetValue<long>("Length"); }
-        }
-
-        /// <summary>
-        /// Gets the MD5 checksum.
-        /// </summary>
-        /// <value>
-        /// The MD5 checksum.
-        /// </value>
-        [Obsolete("MD5 support will be removed soon.")]
-        public string MD5
-        {
-            get { return GetValue<string>("MD5", null); }
         }
 
         /// <summary>

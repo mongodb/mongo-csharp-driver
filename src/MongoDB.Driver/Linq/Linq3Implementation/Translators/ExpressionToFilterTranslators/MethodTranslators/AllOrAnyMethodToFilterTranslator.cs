@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -115,10 +117,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                     var nominalType = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer).ValueType;
                     var actualType = method.GetGenericArguments()[0];
-                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(actualType);
+                    var sourceSerializer = sourceField.Serializer;
+                    var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
+
+                    var discriminatorConvention = itemSerializer.GetDiscriminatorConvention();
                     var discriminatorField = AstFilter.Field(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
-                    var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                    var ofTypeFilter = AstFilter.Eq(discriminatorField, discriminatorValue);
+
+                    var ofTypeFilter = discriminatorConvention switch
+                    {
+                        IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                        IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                        _ => throw new ExpressionNotSupportedException(sourceExpression, because: "OfType method is not supported with the configured discriminator convention")
+                    };
+
                     var actualTypeSerializer = context.KnownSerializersRegistry.GetSerializer(sourceExpression);
                     var enumerableActualTypeSerializer = IEnumerableSerializer.Create(actualTypeSerializer);
                     var actualTypeSourceField = AstFilter.Field(sourceField.Path, enumerableActualTypeSerializer);

@@ -25,8 +25,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             if (expression.NodeType == ExpressionType.Negate)
             {
-                var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Operand);
-                SerializationHelper.EnsureRepresentationIsNumeric(expression, operandTranslation);
+                var operandExpression = expression.Operand;
+                var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operandExpression);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, operandExpression, operandTranslation);
 
                 var ast = AstExpression.Subtract(0, operandTranslation.Ast);
                 return new AggregationExpression(expression, ast, operandTranslation.Serializer);

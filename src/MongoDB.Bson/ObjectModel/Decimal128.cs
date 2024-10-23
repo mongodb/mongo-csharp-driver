@@ -24,7 +24,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a Decimal128 value.
     /// </summary>
-    [Serializable]
     public struct Decimal128 : IConvertible, IComparable<Decimal128>, IEquatable<Decimal128>
     {
         #region static
@@ -260,6 +259,20 @@ namespace MongoDB.Bson
             return new Decimal128(value);
         }
 
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Performs an explicit conversion from <see cref="Half"/> to <see cref="Decimal128"/>.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static explicit operator Decimal128(Half value)
+        {
+            return new Decimal128(value);
+        }
+#endif
+
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.Int32"/> to <see cref="Decimal128"/>.
         /// </summary>
@@ -371,6 +384,20 @@ namespace MongoDB.Bson
         {
             return Decimal128.ToSingle(value);
         }
+
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Performs an explicit conversion from <see cref="Decimal128"/> to <see cref="Half"/>.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static explicit operator Half(Decimal128 value)
+        {
+            return Decimal128.ToHalf(value);
+        }
+#endif
 
         /// <summary>
         /// Performs an explicit conversion from <see cref="Decimal128"/> to <see cref="System.Int32"/>.
@@ -963,6 +990,40 @@ namespace MongoDB.Bson
             }
         }
 
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Converts the value of the specified <see cref="Decimal128"/> to the equivalent <see cref="Half"/>.
+        /// </summary>
+        /// <param name="d">The number to convert.</param>
+        /// <returns>A <see cref="Half"/> equivalent to <paramref name="d" />.</returns>
+        public static Half ToHalf(Decimal128 d)
+        {
+            if (Flags.IsFirstForm(d._highBits))
+            {
+                // TODO: implement this more efficiently
+                var stringValue = d.ToString();
+                return Half.Parse(stringValue, CultureInfo.InvariantCulture);
+            }
+
+            if (Flags.IsSecondForm(d._highBits))
+            {
+                return (Half)0.0;
+            }
+
+            if (Flags.IsPositiveInfinity(d._highBits))
+            {
+                return Half.PositiveInfinity;
+            }
+
+            if (Flags.IsNegativeInfinity(d._highBits))
+            {
+                return Half.NegativeInfinity;
+            }
+
+            return Half.NaN;
+        }
+#endif
+
         /// <summary>
         /// Converts the value of the specified <see cref="Decimal128"/> to the equivalent 16-bit unsigned integer.
         /// </summary>
@@ -1441,6 +1502,21 @@ namespace MongoDB.Bson
             _highBits = MapIEEEHighBitsToDecimal128HighBits(decimal128Value.GetIEEEHighBits());
             _lowBits = decimal128Value.GetIEEELowBits();
         }
+
+#if NET5_0_OR_GREATER
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Decimal128"/> struct.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public Decimal128(Half value)
+        {
+            // TODO: implement this more efficiently
+            var stringValue = JsonConvert.ToString(value);
+            var decimal128Value = Decimal128.Parse(stringValue);
+            _highBits = MapIEEEHighBitsToDecimal128HighBits(decimal128Value.GetIEEEHighBits());
+            _lowBits = decimal128Value.GetIEEELowBits();
+        }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Decimal128"/> struct.

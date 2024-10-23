@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -36,6 +37,40 @@ namespace MongoDB.Driver.Tests
     {
         public ClusterRegistryTests(ITestOutputHelper output) : base(output)
         {
+        }
+
+        [Fact]
+        public void DefaultClusterSource_should_use_cluster_registry_and_not_return_cluster()
+        {
+            var settings = new MongoClientSettings();
+            var clusterKey = settings.ToClusterKey();
+
+            var clusterSource = DefaultClusterSource.Instance;
+
+            var cluster = clusterSource.Get(clusterKey);
+
+            var clusterInRegistry = ClusterRegistry.Instance._registry()[clusterKey];
+            clusterInRegistry.Should().BeSameAs(cluster);
+
+            clusterSource.Return(cluster);
+            ClusterRegistry.Instance._registry().Keys.Should().Contain(clusterKey);
+        }
+
+        [Fact]
+        public void DisposingClusterSource_should_use_cluster_registry_and_return_cluster()
+        {
+            var settings = new MongoClientSettings();
+            var clusterKey = settings.ToClusterKey();
+
+            var clusterSource = DisposingClusterSource.Instance;
+
+            var cluster = clusterSource.Get(clusterKey);
+
+            var clusterInRegistry = ClusterRegistry.Instance._registry()[clusterKey];
+            clusterInRegistry.Should().BeSameAs(cluster);
+
+            clusterSource.Return(cluster);
+            ClusterRegistry.Instance._registry().Keys.Should().NotContain(clusterKey);
         }
 
 #if WINDOWS
@@ -51,9 +86,7 @@ namespace MongoDB.Driver.Tests
         public void GetOrCreateCluster_should_return_a_cluster_with_the_correct_settings()
         {
             var clusterConfigurator = new Action<ClusterBuilder>(b => { });
-#pragma warning disable 618
-            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
-#pragma warning restore 618
+            var credential = MongoCredential.CreateCredential("source", "username", "password");
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost"), new MongoServerAddress("127.0.0.1", 30000), new MongoServerAddress("[::1]", 27018) };
             var sslSettings = new SslSettings
@@ -84,14 +117,10 @@ namespace MongoDB.Driver.Tests
                 applicationName: "app1",
                 clusterConfigurator: clusterConfigurator,
                 compressors: new[] { new CompressorConfiguration(CompressorType.Zlib) },
-#pragma warning disable CS0618 // Type or member is obsolete
-                connectionMode: ConnectionMode.ReplicaSet,
-                connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode,
-#pragma warning restore CS0618 // Type or member is obsolete
                 connectTimeout: TimeSpan.FromSeconds(1),
                 credential: credential,
                 cryptClientSettings: cryptClientSettings,
-                directConnection: null,
+                directConnection: false,
                 libraryInfo: null,
                 heartbeatInterval: TimeSpan.FromSeconds(2),
                 heartbeatTimeout: TimeSpan.FromSeconds(3),
@@ -130,11 +159,9 @@ namespace MongoDB.Driver.Tests
                     new IPEndPoint(IPAddress.Parse("127.0.0.1"), 30000),
                     new IPEndPoint(IPAddress.Parse("[::1]"), 27018)
                 };
-#pragma warning disable CS0618 // Type or member is obsolete
-                cluster.Settings.ConnectionMode.Should().Be(clusterKey.ConnectionMode.ToCore());
-#pragma warning restore CS0618 // Type or member is obsolete
                 cluster.Settings.CryptClientSettings.EncryptedFieldsMap.Should().BeEquivalentTo(dummyMap);
                 cluster.Settings.CryptClientSettings.KmsProviders.Should().BeEquivalentTo(kmsProviders);
+                cluster.Settings.DirectConnection.Should().Be(clusterKey.DirectConnection);
                 cluster.Settings.EndPoints.Should().Equal(expectedEndPoints);
                 cluster.Settings.LoadBalanced.Should().Be(clusterKey.LoadBalanced);
                 cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(clusterKey.WaitQueueSize);

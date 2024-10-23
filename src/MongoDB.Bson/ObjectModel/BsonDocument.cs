@@ -27,7 +27,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON document.
     /// </summary>
-    [Serializable]
     public class BsonDocument : BsonValue, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
     {
         // constants
@@ -98,18 +97,6 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public BsonDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(IEnumerable<KeyValuePair<string, object>> dictionary)
         {
@@ -120,34 +107,10 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public BsonDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(IDictionary dictionary)
         {
             AddRange(dictionary);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public BsonDocument(IDictionary dictionary, IEnumerable keys)
-        {
-            Add(dictionary, keys);
         }
 
         /// <summary>
@@ -168,7 +131,7 @@ namespace MongoDB.Bson
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BsonDocument(params BsonElement[] elements)
         {
-            Add(elements);
+            AddRange(elements);
         }
 
         /// <summary>
@@ -249,15 +212,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the raw values (see BsonValue.RawValue).
-        /// </summary>
-        [Obsolete("Use Values instead.")]
-        public virtual IEnumerable<object> RawValues
-        {
-            get { return _elements.Select(e => e.Value.RawValue); }
-        }
-
-        /// <summary>
         /// Gets the values.
         /// </summary>
         public virtual IEnumerable<BsonValue> Values
@@ -304,18 +258,6 @@ namespace MongoDB.Bson
                 }
                 _elements[index] = new BsonElement(_elements[index].Name, value);
             }
-        }
-
-        /// <summary>
-        /// Gets the value of an element or a default value if the element is not found.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="defaultValue">The default value to return if the element is not found.</param>
-        /// <returns>Teh value of the element or a default value if the element is not found.</returns>
-        [Obsolete("Use GetValue(string name, BsonValue defaultValue) instead.")]
-        public virtual BsonValue this[string name, BsonValue defaultValue]
-        {
-            get { return GetValue(name, defaultValue); }
         }
 
         /// <summary>
@@ -450,133 +392,6 @@ namespace MongoDB.Bson
             }
 
             return this;
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public virtual BsonDocument Add(Dictionary<string, object> dictionary)
-        {
-            return AddRange(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public virtual BsonDocument Add(Dictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            return Add((IDictionary<string, object>)dictionary, keys);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public virtual BsonDocument Add(IDictionary<string, object> dictionary)
-        {
-            return AddRange(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public virtual BsonDocument Add(IDictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            if (dictionary == null)
-            {
-                throw new ArgumentNullException("dictionary");
-            }
-            if (keys == null)
-            {
-                throw new ArgumentNullException("keys");
-            }
-
-            foreach (var key in keys)
-            {
-                Add(key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public virtual BsonDocument Add(IDictionary dictionary)
-        {
-            return AddRange(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public virtual BsonDocument Add(IDictionary dictionary, IEnumerable keys)
-        {
-            if (dictionary == null)
-            {
-                throw new ArgumentNullException("dictionary");
-            }
-            if (keys == null)
-            {
-                throw new ArgumentNullException("keys");
-            }
-
-            foreach (var key in keys)
-            {
-                if (key == null)
-                {
-                    throw new ArgumentException("keys", "A key passed to BsonDocument.Add is null.");
-                }
-                if (key.GetType() != typeof(string))
-                {
-                    throw new ArgumentOutOfRangeException("keys", "A key passed to BsonDocument.Add is not a string.");
-                }
-                Add((string)key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public virtual BsonDocument Add(IEnumerable<BsonElement> elements)
-        {
-            return AddRange(elements);
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public virtual BsonDocument Add(params BsonElement[] elements)
-        {
-            return AddRange((IEnumerable<BsonElement>)elements);
         }
 
         /// <summary>

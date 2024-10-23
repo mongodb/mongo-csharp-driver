@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Amazon.Runtime;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Authentication.External;
 using MongoDB.Driver.Core;
@@ -42,12 +43,13 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
-using MongoDB.Libmongocrypt;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using Reflector = MongoDB.Bson.TestHelpers.Reflector;
+using OperatingSystemHelper  = MongoDB.Driver.Core.Misc.OperatingSystemHelper;
+using OperatingSystemPlatform  = MongoDB.Driver.Core.Misc.OperatingSystemPlatform;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
@@ -81,6 +83,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public ClientEncryptionProseTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
             _cluster = CoreTestConfiguration.Cluster;
         }
 
@@ -436,7 +439,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             using (var clientEncrypted = EnsureEnvironmentAndConfigureTestClientEncrypted())
-            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=1000"), CreateLogger<DisposableMongoClient>()))
+            using (var mongocryptdClient = new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=1000"))
             {
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 Insert(coll, async, new BsonDocument("unencrypted", "test"));
@@ -449,7 +452,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server").And.Contain("localhost:27021");
             }
 
-            DisposableMongoClient EnsureEnvironmentAndConfigureTestClientEncrypted()
+            IMongoClient EnsureEnvironmentAndConfigureTestClientEncrypted()
             {
                 var extraOptions = new Dictionary<string, object>
                 {
@@ -2053,7 +2056,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
 
             RequireServer.Check()
-                .Supports(Feature.Csfle2QEv2RangePreviewAlgorithm)
+                .Supports(Feature.Csfle2QEv2RangeAlgorithm)
                 .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             if (rangeType == "DecimalNoPrecision")
@@ -2075,7 +2078,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var value201 = GetValue(201, rangeType);
 
             var explicitEncryption = CollectionNamespace.FromFullName("db.explicit_encryption");
-            var encryptOptions = WithRangeOptions(rangeType, new EncryptOptions(EncryptionAlgorithm.RangePreview, contentionFactor: 0, keyId: key1Id));
+            var encryptOptions = WithRangeOptions(rangeType, new EncryptOptions(EncryptionAlgorithm.Range, contentionFactor: 0, keyId: key1Id));
 
             using (var keyVaultClient = ConfigureClient(clearCollections: true, mainCollectionNamespace: explicitEncryption, encryptedFields: encryptedFields))
             {
@@ -2118,28 +2121,33 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 var rangeOptions = rangeType switch
                 {
-                    "DecimalNoPrecision" => new RangeOptions(sparsity: 1),
+                    "DecimalNoPrecision" => new RangeOptions(sparsity: 1, trimFactor: 1),
                     "DecimalPrecision" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         precision: 2,
                         min: new BsonDecimal128(0),
                         max: new BsonDecimal128(200)),
-                    "DoubleNoPrecision" => new RangeOptions(sparsity: 1),
+                    "DoubleNoPrecision" => new RangeOptions(sparsity: 1, trimFactor: 1),
                     "DoublePrecision" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         min: new BsonDouble(0),
                         max: new BsonDouble(200),
                         precision: 2),
                     "Date" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         min: new BsonDateTime(0),
                         max: new BsonDateTime(200)),
                     "Int" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         min: new BsonInt32(0),
                         max: new BsonInt32(200)),
                     "Long" => new RangeOptions(
                         sparsity: 1,
+                        trimFactor: 1,
                         min: new BsonInt64(0),
                         max: new BsonInt64(200)),
                     _ => throw new Exception($"Unsupported rangeSupportedType {rangeType}.")
@@ -2164,13 +2172,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
-                                encryptOptions.With(queryType: "rangePreview"),
+                                encryptOptions.With(queryType: "range"),
                                 expression: BsonDocument.Parse(@$"
                                 {{
                                     ""$and"" :
                                     [
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value6.ToJson()} }} }},
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value200.ToJson()} }} }}
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value6.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }},
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value200.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }}
                                     ]
                                 }}"),
                                 async);
@@ -2187,13 +2195,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
-                                encryptOptions.With(queryType: "rangePreview"),
+                                encryptOptions.With(queryType: "range"),
                                 expression: BsonDocument.Parse(@$"
                                 {{
                                     ""$and"" :
                                     [
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value0.ToJson()} }} }},
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value6.ToJson()} }} }}
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value0.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }},
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value6.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }}
                                     ]
                                 }}"),
                                 async);
@@ -2209,12 +2217,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
-                                encryptOptions.With(queryType: "rangePreview"),
+                                encryptOptions.With(queryType: "range"),
                                 expression: BsonDocument.Parse(@$"
                                 {{
                                     ""$and"" :
                                     [
-                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gt"" :  {value30.ToJson()} }} }}
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gt"" :  {value30.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} }} }}
                                     ]
                                 }}"),
                                 async);
@@ -2229,12 +2237,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var findPayload = await ExplicitEncryptExpression(
                                clientEncryption,
-                               encryptOptions.With(queryType: "rangePreview"),
+                               encryptOptions.With(queryType: "range"),
                                expression: BsonDocument.Parse(@$"
                                {{
                                     ""$and"" :
                                     [
-                                        {{ ""$lt"" : [ ""${encryptedKeyWithRangeSupportedType}"", {value30.ToJson()} ] }}
+                                        {{ ""$lt"" : [ ""${encryptedKeyWithRangeSupportedType}"", {value30.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell })} ] }}
                                     ]
                                }}"),
                                async);
@@ -2284,7 +2292,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var exception = Record.Exception(() =>
                                 ExplicitEncrypt(
                                     clientEncryption,
-                                    encryptOptions.With(rangeOptions: new RangeOptions(sparsity: 1, min: BsonValue.Create(0), max: BsonValue.Create(200), precision: 2)),
+                                    encryptOptions.With(rangeOptions: new RangeOptions(sparsity: 1, trimFactor: 1, min: BsonValue.Create(0), max: BsonValue.Create(200), precision: 2)),
                                     value6,
                                     async));
                             AssertInnerEncryptionException<CryptException>(exception, "expected 'precision' to be set with double or decimal128 index, but got: INT32 min");
@@ -2548,7 +2556,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return (TMostInnerException)AssertInnerEncryptionException(ex, typeof(TMostInnerException), innerExceptionErrorMessage);
         }
 
-        private DisposableMongoClient ConfigureClient(
+        private IMongoClient ConfigureClient(
             bool clearCollections = true,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
@@ -2570,7 +2578,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return client;
         }
 
-        private DisposableMongoClient ConfigureClientEncrypted(
+        private IMongoClient ConfigureClientEncrypted(
             BsonDocument schemaMap = null,
             IMongoClient externalKeyVaultClient = null,
             string kmsProviderFilter = null,
@@ -2598,7 +2606,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 configuredSettings.AutoEncryptionOptions = autoEncryptionOptionsConfigurator.Invoke(configuredSettings.AutoEncryptionOptions);
             }
 
-            return DriverTestConfiguration.CreateDisposableClient(configuredSettings);
+            return DriverTestConfiguration.CreateMongoClient(configuredSettings);
         }
 
         private MongoClientSettings ConfigureClientEncryptedSettings(
@@ -2640,7 +2648,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         private ClientEncryption ConfigureClientEncryption(
-            DisposableMongoClient client,
+            IMongoClient client,
             Action<string, Dictionary<string, object>> kmsProviderConfigurator = null,
             Func<string, bool> allowClientCertificateFunc = null,
             Action<ClientEncryptionOptions> clientEncryptionOptionsConfigurator = null,
@@ -2677,7 +2685,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
             var clientEncryptionOptions = new ClientEncryptionOptions(
-                keyVaultClient: client.Settings.AutoEncryptionOptions?.KeyVaultClient ?? client.Wrapped,
+                keyVaultClient: client.Settings.AutoEncryptionOptions?.KeyVaultClient ?? client,
                 keyVaultNamespace: __keyVaultCollectionNamespace,
                 kmsProviders: kmsProviders);
 
@@ -2770,7 +2778,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return new RewrapManyDataKeyOptions(kmsProvider, masterKey: masterKey);
         }
 
-        private DisposableMongoClient CreateMongoClient(
+        private IMongoClient CreateMongoClient(
             CollectionNamespace keyVaultNamespace = null,
             BsonDocument schemaMapDocument = null,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null,
@@ -2796,7 +2804,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 writeConcern,
                 readConcern);
 
-            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings);
+            return DriverTestConfiguration.CreateMongoClient(mongoClientSettings);
         }
 
         private MongoClientSettings CreateMongoClientSettings(
@@ -2876,6 +2884,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
 
             mongoClientSettings.LoggingSettings = LoggingSettings;
+            mongoClientSettings.ClusterSource = DisposingClusterSource.Instance;
 
             return mongoClientSettings;
         }

@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         throw new FormatException($"Invalid {nameof(UnifiedEncryptOperation)} argument name: '{argument.Name}'.");
                 }
             }
-            
+
             return new UnifiedEncryptOperation(clientEncryption, value, new EncryptOptions(algorithm, keyAltName));
         }
     }

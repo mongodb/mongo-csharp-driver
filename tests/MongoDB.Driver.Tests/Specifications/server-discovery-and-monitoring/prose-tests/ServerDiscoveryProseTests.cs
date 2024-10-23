@@ -19,14 +19,12 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -69,7 +67,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
             var settings = MongoClientSettings.FromConnectionString(CreateConnectionString(dnsEndpoint, directConnection, replicaSetName));
             settings.LoggingSettings = LoggingSettings;
 
-            using (var client = new DisposableMongoClient(new MongoClient(settings), CreateLogger<DisposableMongoClient>()))
+            using (var client = new MongoClient(settings))
             {
                 var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);

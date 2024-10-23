@@ -63,9 +63,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
+                ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
+
                 var sourceSerializer = pipeline.OutputSerializer;
                 var root = AstExpression.Var("ROOT", isCurrent: true);
-
                 AstExpression valueAst;
                 IBsonSerializer valueSerializer;
                 if (method.IsOneOf(__minWithSelectorMethods))

@@ -23,7 +23,6 @@ namespace MongoDB.Bson
     /// Represents a BSON Decimal128 value.
     /// </summary>
     /// <seealso cref="MongoDB.Bson.BsonValue" />
-    [Serializable]
     public class BsonDecimal128 : BsonValue, IComparable<BsonDecimal128>, IEquatable<BsonDecimal128>
     {
         // private fields
@@ -43,13 +42,6 @@ namespace MongoDB.Bson
         public override BsonType BsonType
         {
             get { return BsonType.Decimal128; }
-        }
-
-        /// <inheritdoc />
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
         }
 
         /// <summary>

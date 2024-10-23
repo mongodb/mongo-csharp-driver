@@ -60,29 +60,5 @@ namespace MongoDB.Driver.Core.Operations
             subject.WriteConcernError.Should().BeSameAs(_writeConcernError);
             subject.WriteErrors.Should().BeSameAs(_writeErrors);
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoBulkWriteOperationException(_connectionId, _result, _writeErrors, _writeConcernError, _unprocessedRequests);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoBulkWriteOperationException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
-                rehydrated.ErrorLabels.Should().BeEquivalentTo(subject.ErrorLabels);
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.Result.Should().BeUsing(subject.Result, EqualityComparerRegistry.Default);
-                rehydrated.UnprocessedRequests.Should().EqualUsing(subject.UnprocessedRequests, EqualityComparerRegistry.Default);
-                rehydrated.WriteConcernError.Should().BeUsing(subject.WriteConcernError, EqualityComparerRegistry.Default);
-                rehydrated.WriteErrors.Should().EqualUsing(subject.WriteErrors, EqualityComparerRegistry.Default);
-            }
-        }
     }
 }

@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.Jira
                 });
             }
 
-            using (var client = DriverTestConfiguration.CreateDisposableClient(clusterConfigurator))
+            using (var client = DriverTestConfiguration.CreateMongoClient(clusterConfigurator))
             {
                 using (var session = await client.StartSessionAsync().ConfigureAwait(false))
                 {

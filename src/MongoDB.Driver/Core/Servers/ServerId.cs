@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server identifier.
     /// </summary>
-    [Serializable]
-    public sealed class ServerId : IEquatable<ServerId>, ISerializable
+    public sealed class ServerId : IEquatable<ServerId>
     {
         // fields
         private readonly ClusterId _clusterId;
@@ -112,13 +111,6 @@ namespace MongoDB.Driver.Core.Servers
         public override string ToString()
         {
             return string.Format("{{ ClusterId : {0}, EndPoint : \"{1}\" }}", _clusterId, _endPoint);
-        }
-
-        // explicit interface implementations
-        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("_clusterId", _clusterId);
-            info.AddValue("_endPoint", EndPointHelper.GetObjectData(_endPoint));
         }
     }
 }

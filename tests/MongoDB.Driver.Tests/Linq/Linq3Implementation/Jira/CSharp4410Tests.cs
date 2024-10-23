@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -174,94 +175,178 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             Enumerable.Range(1, 6).Where(i => results[i - 1] == true).Should().Equal(expectedResults);
         }
 
-        [Fact]
-        public void Comparison_of_enum_and_enum_with_mismatched_serializers_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Comparison_of_enum_and_enum_with_mismatched_serializers_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = CreateCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.E == x.S);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                var results = queryable.ToList();
+                results.Should().Equal(true, true, true, true, true, true);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+            }
         }
 
-        [Fact]
-        public void Comparison_of_enum_and_nullable_enum_with_mismatched_serializers_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Comparison_of_enum_and_nullable_enum_with_mismatched_serializers_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = CreateCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.E == x.NS);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                var results = queryable.ToList();
+                results.Should().Equal(true, true, true, true, false, false);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+            }
         }
 
-        [Fact]
-        public void Comparison_of_nullable_enum_and_enum_with_mismatched_serializers_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Comparison_of_nullable_enum_and_enum_with_mismatched_serializers_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = CreateCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.NE == x.S);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                var results = queryable.ToList();
+                results.Should().Equal(true, true, true, true, false, false);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+            }
         }
 
-        [Fact]
-        public void Comparison_of_nullable_enum_and_nullable_enum_with_mismatched_serializers_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Comparison_of_nullable_enum_and_nullable_enum_with_mismatched_serializers_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = CreateCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.NE == x.NS);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                var results = queryable.ToList();
+                results.Should().Equal(true, true, true, true, true, true);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+            }
         }
 
-        [Fact]
-        public void Arithmetic_with_enum_represented_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Arithmetic_with_enum_represented_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = CreateCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.S + 1);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because arithmetic on enums is only allowed when the enum is represented as an integer");
+                var results = queryable.ToList();
+                results.Select(e => (int)e).Should().Equal(2, 3, 4, 7, 8, 10);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because arithmetic on enums is only allowed when the enum is represented as an integer");
+            }
         }
 
-        [Fact]
-        public void Arithmetic_with_nullable_enum_represented_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Arithmetic_with_nullable_enum_represented_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             var collection = CreateCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.NS + 1);
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because arithmetic on enums is only allowed when the enum is represented as an integer");
+                var results = queryable.ToList();
+                results.Select(e => (int?)e).Should().Equal(2, 3, 4, 7, null, null);
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("because arithmetic on enums is only allowed when the enum is represented as an integer");
+            }
         }
 
         private IMongoCollection<C> CreateCollection()

@@ -17,6 +17,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -28,10 +29,9 @@ namespace MongoDB.Bson.Tests.Jira.CSharp133
         public string S;
         [BsonIgnoreIfNull]
         public string I;
-#pragma warning disable 618 // SerializeDefaultValue is obsolete
-        [BsonDefaultValue(null, SerializeDefaultValue = false)] // works the same as [BsonIgnoreIfNull]
+        [BsonIgnoreIfDefault]
+        [BsonDefaultValue(null)]
         public string D;
-#pragma warning restore 618
         [BsonIgnoreIfDefault]
         public DateTime I2;
     }
@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp133
         public void TestNull()
         {
             var c = new C { S = null, I = null, D = null };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'S' : null }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp133
         {
             var date = new DateTime(1980, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             var c = new C { S = "xyz", I = "xyz", I2 = date, D = "xyz" };
-            var json = c.ToJson();
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'S' : 'xyz', 'I' : 'xyz', 'D' : 'xyz', 'I2' : ISODate('" + date.ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture) + "') }").Replace("'", "\"");
             Assert.Equal(expected, json);
 

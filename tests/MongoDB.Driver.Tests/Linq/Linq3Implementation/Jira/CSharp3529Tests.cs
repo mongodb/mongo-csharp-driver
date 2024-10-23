@@ -18,9 +18,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -148,18 +150,35 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new { Id = "G2", PlayerId = new { P = "PlayerA", S = 10 } });
         }
 
-        [Fact]
-        public void Bottom_without_GroupBy_should_have_helpful_error_message()
+        [Theory]
+        [ParameterAttributeData]
+        public void Bottom_without_GroupBy_should_have_helpful_error_message(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
             var collection = CreateDocumentsWithArrayCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.A.Bottom(Builders<ArrayElement>.Sort.Ascending(e => e.X), e => e.X));
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            var notSupportedException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
-            notSupportedException.Message.Should().Contain("Bottom can only be used as an accumulator with GroupBy");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var serializer);
+                AssertStages(stages, Array.Empty<string>());
+                serializer.Should().BeOfType<ClientSideProjectionDeserializer<DocumentWithArray, int>>();
+
+                var exception = Record.Exception(() => queryable.ToList());
+                exception.Should().BeOfType<NotSupportedException>();
+                exception.Message.Should().Contain("This method is not functional");
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("Bottom can only be used as an accumulator with GroupBy");
+            }
         }
 
         // $bottomN examples are from: https://www.mongodb.com/docs/v6.0/reference/operator/aggregation/bottomN/
@@ -363,18 +382,35 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].GameScores.Should().Equal(10);
         }
 
-        [Fact]
-        public void BottomN_without_GroupBy_should_have_helpful_error_message()
+        [Theory]
+        [ParameterAttributeData]
+        public void BottomN_without_GroupBy_should_have_helpful_error_message(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
             var collection = CreateDocumentsWithArrayCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.A.BottomN(Builders<ArrayElement>.Sort.Ascending(e => e.X), e => e.X, 2));
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            var notSupportedException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
-            notSupportedException.Message.Should().Contain("BottomN can only be used as an accumulator with GroupBy");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var exception = Record.Exception(() => queryable.ToList());
+                exception.Should().BeOfType<NotSupportedException>();
+                exception.Message.Should().Contain("This method is not functional");
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("BottomN can only be used as an accumulator with GroupBy");
+            }
         }
 
         // $first examples are from: https://www.mongodb.com/docs/v6.0/reference/operator/aggregation/first/
@@ -1608,18 +1644,35 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new { Id = "G2", PlayerId = new { P = "PlayerD", S = 80 } });
         }
 
-        [Fact]
-        public void Top_without_GroupBy_should_have_helpful_error_message()
+        [Theory]
+        [ParameterAttributeData]
+        public void Top_without_GroupBy_should_have_helpful_error_message(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
             var collection = CreateDocumentsWithArrayCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.A.Top(Builders<ArrayElement>.Sort.Ascending(e => e.X), e => e.X));
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            var notSupportedException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
-            notSupportedException.Message.Should().Contain("Top can only be used as an accumulator with GroupBy");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var exception = Record.Exception(() => queryable.ToList());
+                exception.Should().BeOfType<NotSupportedException>();
+                exception.Message.Should().Contain("This method is not functional");
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("Top can only be used as an accumulator with GroupBy");
+            }
         }
 
         // $topN examples are from: https://www.mongodb.com/docs/v6.0/reference/operator/aggregation/topN/
@@ -1823,18 +1876,35 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].GameScores.Should().Equal(80);
         }
 
-        [Fact]
-        public void TopN_without_GroupBy_should_have_helpful_error_message()
+        [Theory]
+        [ParameterAttributeData]
+        public void TopN_without_GroupBy_should_have_helpful_error_message(
+            [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.PickAccumulatorsNewIn52);
             var collection = CreateDocumentsWithArrayCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
             var queryable = collection
-                .AsQueryable()
+                .AsQueryable(translationOptions)
                 .Select(x => x.A.TopN(Builders<ArrayElement>.Sort.Ascending(e => e.X), e => e.X, 2));
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-            var notSupportedException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
-            notSupportedException.Message.Should().Contain("TopN can only be used as an accumulator with GroupBy");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+                var exception = Record.Exception(() => queryable.ToList());
+                exception.Should().BeOfType<NotSupportedException>();
+                exception.Message.Should().Contain("This method is not functional");
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("TopN can only be used as an accumulator with GroupBy");
+            }
         }
 
         private IMongoCollection<DocumentWithArray> CreateDocumentsWithArrayCollection()

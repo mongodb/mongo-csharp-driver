@@ -47,6 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var classMapType = classMapDefinition.MakeGenericType(typeof(TInterface));
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
             classMap.AutoMap();
+            classMap.SetDiscriminatorConvention(BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface)));
             classMap.Freeze();
             return new BsonClassMapSerializer<TInterface>(classMap);
         }
@@ -95,7 +96,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _interfaceType = typeof(TInterface);
-            _discriminatorConvention = discriminatorConvention ?? BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface));
+            _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention();
             _objectSerializer = BsonSerializer.LookupSerializer<object>();
             if (_objectSerializer is ObjectSerializer standardObjectSerializer)
             {

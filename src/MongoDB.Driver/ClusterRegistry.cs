@@ -83,15 +83,9 @@ namespace MongoDB.Driver
 
         private ClusterSettings ConfigureCluster(ClusterSettings settings, ClusterKey clusterKey)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             var endPoints = clusterKey.Servers.Select(s => EndPointHelper.Parse(s.ToString()));
-            var connectionModeSwitch = clusterKey.ConnectionModeSwitch;
-            Optional<ClusterConnectionMode> connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? clusterKey.ConnectionMode.ToCore() : default;
-            Optional<bool?> directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? clusterKey.DirectConnection : default;
             return settings.With(
-                connectionMode: connectionMode,
-                connectionModeSwitch: connectionModeSwitch,
-                directConnection: directConnection,
+                directConnection: clusterKey.DirectConnection,
                 cryptClientSettings: clusterKey.CryptClientSettings,
                 endPoints: Optional.Enumerable(endPoints),
                 loadBalanced: clusterKey.LoadBalanced,
@@ -101,7 +95,6 @@ namespace MongoDB.Driver
                 serverApi: clusterKey.ServerApi,
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
                 scheme: clusterKey.Scheme);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         private ConnectionPoolSettings ConfigureConnectionPool(ConnectionPoolSettings settings, ClusterKey clusterKey)

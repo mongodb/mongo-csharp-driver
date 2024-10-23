@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB write concern exception.
     /// </summary>
-    [Serializable]
     public class MongoWriteConcernException : MongoCommandException
     {
         #region static

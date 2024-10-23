@@ -1,34 +1,31 @@
-/* Copyright 2013-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// The client interface to MongoDB.
     /// </summary>
-    /// <remarks>
-    /// This interface is not guaranteed to remain stable. Implementors should use
-    /// <see cref="MongoClientBase"/>.
-    /// </remarks>
-    public interface IMongoClient
+    public interface IMongoClient : IDisposable
     {
         /// <summary>
         /// Gets the cluster.
@@ -42,6 +39,40 @@ namespace MongoDB.Driver
         /// Gets the settings.
         /// </summary>
         MongoClientSettings Settings { get; }
+
+        /// <summary>
+        /// Executes a list of mixed write operations.
+        /// </summary>
+        /// <param name="models">List of operations to execute.</param>
+        /// <param name="options">The bulk write options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        ClientBulkWriteResult BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Executes a list of mixed write operations.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="models">List of operations to execute.</param>
+        /// <param name="options">The bulk write options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        ClientBulkWriteResult BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Executes a list of mixed write operations.
+        /// </summary>
+        /// <param name="models">List of operations to execute.</param>
+        /// <param name="options">The bulk write options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        Task<ClientBulkWriteResult> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Executes a list of mixed write operations.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="models">List of operations to execute.</param>
+        /// <param name="options">The bulk write options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        Task<ClientBulkWriteResult> BulkWriteAsync(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Drops the database with the specified name.
@@ -244,7 +275,7 @@ namespace MongoDB.Driver
         /// Lists the databases on the server.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="options">The options.</param>        
+        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A Task whose result is a cursor.

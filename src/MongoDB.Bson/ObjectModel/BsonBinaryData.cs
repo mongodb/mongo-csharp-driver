@@ -22,7 +22,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents BSON binary data.
     /// </summary>
-    [Serializable]
     public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData>
     {
         // private fields
@@ -92,27 +91,6 @@ namespace MongoDB.Bson
         {
             get { return _bytes; }
         }
-
-        /// <summary>
-        /// Gets the BsonBinaryData as a byte array or a Guid or null depending on the subtype.
-        /// </summary>
-#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get
-            {
-                if (_subType == BsonBinarySubType.UuidStandard)
-                {
-                    return ToGuid();
-                }
-                else
-                {
-                    return _bytes;
-                }
-            }
-        }
-#pragma warning restore 618
 
         /// <summary>
         /// Gets the binary data subtype.

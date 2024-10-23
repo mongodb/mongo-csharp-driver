@@ -22,7 +22,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON long value.
     /// </summary>
-    [Serializable]
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64>
     {
         #region static
@@ -61,15 +60,6 @@ namespace MongoDB.Bson
         public override BsonType BsonType
         {
             get { return BsonType.Int64; }
-        }
-
-        /// <summary>
-        /// Gets the BsonInt64 as a long.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
         }
 
         /// <summary>

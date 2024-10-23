@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -29,7 +30,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains('A') });
 
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains('A') });
 
@@ -53,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains(x.CS) });
 
@@ -65,7 +66,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains(x.CS) });
 
@@ -74,30 +75,54 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $project : { R : { $gte : [{ $indexOfCP : ['ABC', '$CS'] }, 0] }, _id : 0 } }");
         }
 
-        [Fact]
-        public void Contains_with_string_field_and_char_field_not_represented_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Contains_with_string_field_and_char_field_not_represented_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.Contains(x.CC) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("it is not serialized as a string");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var serializer);
+                AssertStages(stages, Array.Empty<string>());
+                serializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("it is not serialized as a string");
+            }
         }
 
-        [Fact]
-        public void Contains_with_string_constant_and_char_field_not_represented_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void Contains_with_string_constant_and_char_field_not_represented_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = "ABC".Contains(x.CC) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
-
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("it is not serialized as a string");
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var serializer);
+                AssertStages(stages, Array.Empty<string>());
+                serializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("it is not serialized as a string");
+            }
         }
 
 #if !NETFRAMEWORK
@@ -106,7 +131,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : [{ $toLower : '$S' }, 'a'] }, 0] }, _id : 0 } }")]
         public void Contains_with_string_field_and_char_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains('A', comparisonType) });
 
@@ -122,7 +147,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void Contains_with_string_constant_and_char_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains('A', comparisonType) });
 
@@ -138,7 +163,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : [{ $toLower :'$S' }, { $toLower : '$CS' }] }, 0] } , _id : 0 } }")]
         public void Contains_with_string_field_and_char_field_represented_as_string_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains(x.CS, comparisonType) });
 
@@ -154,7 +179,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : ['abc', { $toLower : '$CS' }] }, 0] } , _id : 0 } }")]
         public void Contains_with_string_constant_and_char_field_represented_as_string_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains(x.CS, comparisonType) });
 
@@ -166,54 +191,104 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
 #if !NETFRAMEWORK
         [Theory]
-        [InlineData(StringComparison.CurrentCulture)]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase)]
-        public void Contains_with_string_field_and_char_value_not_represented_as_string_and_comparisonType_should_throw(StringComparison comparisonType)
+        [ParameterAttributeData]
+        public void Contains_with_string_field_and_char_value_not_represented_as_string_and_comparisonType_should_throw(
+            [Values(StringComparison.CurrentCulture, StringComparison.CurrentCultureIgnoreCase)]
+            StringComparison comparisonType,
+            [Values(false, true)]
+            bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.Contains(x.CC, comparisonType) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("it is not serialized as a string");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("it is not serialized as a string");
+            }
         }
 #endif
 
 #if !NETFRAMEWORK
         [Theory]
-        [InlineData(StringComparison.CurrentCulture)]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase)]
-        public void Contains_with_string_constant_and_char_value_not_represented_as_string_and_comparisonType_should_throw(StringComparison comparisonType)
+        [ParameterAttributeData]
+        public void Contains_with_string_constant_and_char_value_not_represented_as_string_and_comparisonType_should_throw(
+            [Values(StringComparison.CurrentCulture, StringComparison.CurrentCultureIgnoreCase)]
+            StringComparison comparisonType,
+            [Values(false, true)]
+            bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = "ABC".Contains(x.CC, comparisonType) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("it is not serialized as a string");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("it is not serialized as a string");
+            }
         }
 #endif
 
 #if !NETFRAMEWORK
         [Theory]
-        [InlineData(StringComparison.InvariantCulture)]
-        [InlineData(StringComparison.InvariantCultureIgnoreCase)]
-        [InlineData(StringComparison.Ordinal)]
-        [InlineData(StringComparison.OrdinalIgnoreCase)]
-        public void Contains_with_string_field_and_char_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
+        [ParameterAttributeData]
+        public void Contains_with_string_field_and_char_value_and_invalid_comparisonType_should_throw(
+            [Values(
+                StringComparison.InvariantCulture,
+                StringComparison.InvariantCultureIgnoreCase,
+                StringComparison.Ordinal,
+                StringComparison.OrdinalIgnoreCase)]
+            StringComparison comparisonType,
+            [Values(false, true)]
+            bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.Contains('A', comparisonType) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"{comparisonType} is not supported");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain($"{comparisonType} is not supported");
+            }
         }
 #endif
 
@@ -225,7 +300,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void Contains_with_string_constant_and_char_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains('A', comparisonType) });
 
@@ -238,7 +313,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains("aBc") });
 
@@ -250,7 +325,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains("aBc") });
 
@@ -262,7 +337,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains(x.T) });
 
@@ -274,7 +349,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains(x.T) });
 
@@ -289,7 +364,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : [{ $toLower : '$S' }, 'abc'] }, 0] }, _id : 0 } }")]
         public void Contains_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains("aBc", comparisonType) });
 
@@ -305,7 +380,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains("aBc", comparisonType) });
 
@@ -321,7 +396,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void Contains_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains(x.T, comparisonType) });
 
@@ -337,7 +412,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void Contains_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains(x.T, comparisonType) });
 
@@ -349,20 +424,38 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
 #if !NETFRAMEWORK
         [Theory]
-        [InlineData(StringComparison.InvariantCulture)]
-        [InlineData(StringComparison.InvariantCultureIgnoreCase)]
-        [InlineData(StringComparison.Ordinal)]
-        [InlineData(StringComparison.OrdinalIgnoreCase)]
-        public void Contains_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
+        [ParameterAttributeData]
+        public void Contains_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(
+            [Values(
+                StringComparison.InvariantCulture,
+                StringComparison.InvariantCultureIgnoreCase,
+                StringComparison.Ordinal,
+                StringComparison.OrdinalIgnoreCase)]
+            StringComparison comparisonType,
+            [Values(false, true)]
+            bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.Contains("aBc", comparisonType) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"{comparisonType} is not supported");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain($"{comparisonType} is not supported");
+            }
         }
 #endif
 
@@ -374,7 +467,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void Contains_with_string_constant_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains("aBc", comparisonType) });
 
@@ -388,7 +481,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith('A') });
 
@@ -402,7 +495,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith('A') });
 
@@ -416,7 +509,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith(x.CS) });
 
@@ -430,7 +523,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith(x.CS) });
 
@@ -441,39 +534,69 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #endif
 
 #if !NETFRAMEWORK
-        [Fact]
-        public void EndsWith_with_string_field_and_char_field_not_represented_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void EndsWith_with_string_field_and_char_field_not_represented_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.EndsWith(x.CC) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("it is not serialized as a string");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("it is not serialized as a string");
+            }
         }
 #endif
 
 #if !NETFRAMEWORK
-        [Fact]
-        public void EndsWith_with_string_constant_and_char_field_not_represented_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void EndsWith_with_string_constant_and_char_field_not_represented_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = "ABC".EndsWith(x.CC) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("it is not serialized as a string");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("it is not serialized as a string");
+            }
         }
 #endif
 
         [Fact]
         public void EndsWith_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith("aBc") });
 
@@ -485,7 +608,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith("aBc") });
 
@@ -497,7 +620,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith(x.T) });
 
@@ -509,7 +632,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith(x.T) });
 
@@ -523,7 +646,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $let : { vars : { string : { $toLower : '$S' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, 3] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', 'abc', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_field_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith("aBc", ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -537,7 +660,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith("aBc", ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -551,7 +674,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $let : { vars : { string : { $toLower : '$S' }, substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', '$$substring', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_field_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith(x.T, ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -565,7 +688,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $let : { vars : { substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [3, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['abc', '$$substring', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith(x.T, ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -575,19 +698,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void EndsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase)
+        [ParameterAttributeData]
+        public void EndsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(
+            [Values(false, true)] bool ignoreCase,
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
             var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
-            var queryable = collection.AsQueryable()
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.EndsWith("aBc", ignoreCase, notCurrentCulture) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"the supplied culture is not the current culture");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain($"the supplied culture is not the current culture");
+            }
         }
 
         [Theory]
@@ -595,7 +732,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith("aBc", ignoreCase, CultureInfo.InvariantCulture) });
 
@@ -609,7 +746,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $let : { vars : { string : { $toLower : '$S' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, 3] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', 'abc', '$$start'] }, '$$start'] }] } } } } }, _id : 0  } }")]
         public void EndsWith_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith("aBc", comparisonType) });
 
@@ -623,7 +760,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith("aBc", comparisonType) });
 
@@ -637,7 +774,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $let : { vars : { string : { $toLower : '$S' }, substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', '$$substring', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith(x.T, comparisonType) });
 
@@ -651,7 +788,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $let : { vars : { substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [3, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['abc', '$$substring', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith(x.T, comparisonType) });
 
@@ -661,44 +798,80 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(StringComparison.InvariantCulture)]
-        [InlineData(StringComparison.InvariantCultureIgnoreCase)]
-        [InlineData(StringComparison.Ordinal)]
-        [InlineData(StringComparison.OrdinalIgnoreCase)]
-        public void EndsWith_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
+        [ParameterAttributeData]
+        public void EndsWith_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(
+            [Values(
+                StringComparison.InvariantCulture,
+                StringComparison.InvariantCultureIgnoreCase,
+                StringComparison.Ordinal,
+                StringComparison.OrdinalIgnoreCase)]
+            StringComparison comparisonType,
+            [Values(false, true)]
+            bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.EndsWith(x.T, comparisonType) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"{comparisonType} is not supported");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain($"{comparisonType} is not supported");
+            }
         }
 
         [Theory]
-        [InlineData(StringComparison.InvariantCulture)]
-        [InlineData(StringComparison.InvariantCultureIgnoreCase)]
-        [InlineData(StringComparison.Ordinal)]
-        [InlineData(StringComparison.OrdinalIgnoreCase)]
-        public void EndsWith_with_string_constant_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
+        [ParameterAttributeData]
+        public void EndsWith_with_string_constant_and_string_value_and_invalid_comparisonType_should_throw(
+            [Values(
+                StringComparison.InvariantCulture,
+                StringComparison.InvariantCultureIgnoreCase,
+                StringComparison.Ordinal,
+                StringComparison.OrdinalIgnoreCase)]
+            StringComparison comparisonType,
+            [Values(false, true)]
+            bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = "ABC".EndsWith(x.T, comparisonType) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"{comparisonType} is not supported");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain($"{comparisonType} is not supported");
+            }
         }
 
 #if !NETFRAMEWORK
         [Fact]
         public void StartsWith_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith('A') });
 
@@ -712,7 +885,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith('A') });
 
@@ -726,7 +899,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith(x.CS) });
 
@@ -740,7 +913,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith(x.CS) });
 
@@ -751,39 +924,69 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #endif
 
 #if !NETFRAMEWORK
-        [Fact]
-        public void StartsWith_with_string_field_and_char_field_not_represented_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void StartsWith_with_string_field_and_char_field_not_represented_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.StartsWith(x.CC) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("it is not serialized as a string");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("it is not serialized as a string");
+            }
         }
 #endif
 
 #if !NETFRAMEWORK
-        [Fact]
-        public void StartsWith_with_string_constant_and_char_field_not_represented_as_string_should_throw()
+        [Theory]
+        [ParameterAttributeData]
+        public void StartsWith_with_string_constant_and_char_field_not_represented_as_string_should_throw(
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = "ABC".StartsWith(x.CC) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("it is not serialized as a string");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain("it is not serialized as a string");
+            }
         }
 #endif
 
         [Fact]
         public void StartsWith_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith("aBc") });
 
@@ -795,7 +998,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith("aBc") });
 
@@ -807,7 +1010,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith(x.T) });
 
@@ -819,7 +1022,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith(x.T) });
 
@@ -833,7 +1036,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, 'abc'] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_field_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith("aBc", ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -847,7 +1050,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith("aBc", ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -861,7 +1064,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_field_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith(x.T, ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -875,7 +1078,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $eq : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith(x.T, ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -885,19 +1088,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void StartsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase)
+        [ParameterAttributeData]
+        public void StartsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(
+            [Values(false, true)] bool ignoreCase,
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
             var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
-            var queryable = collection.AsQueryable()
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.StartsWith("aBc", ignoreCase, notCurrentCulture) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"the supplied culture is not the current culture");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain($"the supplied culture is not the current culture");
+            }
         }
 
         [Theory]
@@ -905,7 +1122,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith("aBc", ignoreCase, CultureInfo.InvariantCulture) });
 
@@ -919,7 +1136,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, 'abc'] }, 0] }, _id : 0  } }")]
         public void StartsWith_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith("aBc", comparisonType) });
 
@@ -933,7 +1150,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith("aBc", comparisonType) });
 
@@ -947,7 +1164,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith(x.T, comparisonType) });
 
@@ -961,7 +1178,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $eq : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = GetCollection();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith(x.T, comparisonType) });
 
@@ -971,37 +1188,79 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(StringComparison.InvariantCulture)]
-        [InlineData(StringComparison.InvariantCultureIgnoreCase)]
-        [InlineData(StringComparison.Ordinal)]
-        [InlineData(StringComparison.OrdinalIgnoreCase)]
-        public void StartsWith_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
+        [ParameterAttributeData]
+        public void StartsWith_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(
+            [Values(
+                StringComparison.InvariantCulture,
+                StringComparison.InvariantCultureIgnoreCase,
+                StringComparison.Ordinal,
+                StringComparison.OrdinalIgnoreCase)]
+            StringComparison comparisonType,
+            [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = x.S.StartsWith(x.T, comparisonType) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"{comparisonType} is not supported");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain($"{comparisonType} is not supported");
+            }
         }
 
         [Theory]
-        [InlineData(StringComparison.InvariantCulture)]
-        [InlineData(StringComparison.InvariantCultureIgnoreCase)]
-        [InlineData(StringComparison.Ordinal)]
-        [InlineData(StringComparison.OrdinalIgnoreCase)]
-        public void StartsWith_with_string_constant_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
+        [ParameterAttributeData]
+        public void StartsWith_with_string_constant_and_string_value_and_invalid_comparisonType_should_throw(
+            [Values(
+                StringComparison.InvariantCulture,
+                StringComparison.InvariantCultureIgnoreCase,
+                StringComparison.Ordinal,
+                StringComparison.OrdinalIgnoreCase)]
+            StringComparison comparisonType,
+            [Values(false, true)]
+            bool enableClientSideProjections)
         {
-            var collection = GetCollection<Test>();
-            var queryable = collection.AsQueryable()
+            var collection = GetCollection();
+            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+            var queryable = collection.AsQueryable(translationOptions)
                 .Select(x => new { R = "ABC".StartsWith(x.T, comparisonType) });
 
-            var exception = Record.Exception(() => Translate(collection, queryable));
+            if (enableClientSideProjections)
+            {
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, Array.Empty<string>());
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
-            exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"{comparisonType} is not supported");
+                var results = queryable.ToList();
+                results.Should().BeEmpty();
+            }
+            else
+            {
+                var exception = Record.Exception(() => Translate(collection, queryable));
+                exception.Should().BeOfType<ExpressionNotSupportedException>();
+                exception.Message.Should().Contain($"{comparisonType} is not supported");
+            }
+        }
+
+        private IMongoCollection<Test> GetCollection()
+        {
+            var collection = GetCollection<Test>();
+            CreateCollection(collection);
+            return collection;
         }
 
         private CultureInfo GetACultureThatIsNotTheCurrentCulture()

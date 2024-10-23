@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions_convenient_api
 
         protected override void RunTest(BsonDocument shared, BsonDocument test, EventCapturer eventCapturer)
         {
-            using (var client = CreateDisposableClient(test, eventCapturer))
+            using (var client = CreateMongoClient(test, eventCapturer))
             using (var session0 = StartSession(client, test, "session0"))
             {
                 var objectMap = new Dictionary<string, object>

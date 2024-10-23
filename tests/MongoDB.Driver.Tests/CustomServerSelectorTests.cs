@@ -40,15 +40,17 @@ namespace MongoDB.Driver.Tests
                 .Capture<ClusterSelectingServerEvent>()
                 .Capture<ClusterSelectedServerEvent>();
             var customServerSelector = new CustomServerSelector();
-            using (var client = DriverTestConfiguration.CreateDisposableClient(
+            using (var client = DriverTestConfiguration.CreateMongoClient(
                 clientSettings =>
+                {
                     clientSettings.ClusterConfigurator =
                         c =>
                         {
                             c.ConfigureCluster(s => s.With(postServerSelector: customServerSelector));
                             c.Subscribe(eventCapturer);
-                        },
-                 LoggingSettings))
+                        };
+                    clientSettings.LoggingSettings = LoggingSettings;
+                }))
             {
                 var collection = client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)

@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var outerExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, outerExpression);
+                ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 AstExpression outerAst;
                 var rootVar = AstExpression.Var("ROOT", isCurrent: true);

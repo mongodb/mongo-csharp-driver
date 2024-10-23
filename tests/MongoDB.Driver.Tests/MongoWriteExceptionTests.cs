@@ -89,28 +89,5 @@ namespace MongoDB.Driver.Tests
             result.WriteConcernError.Should().Be(writeConcernError);
             result.WriteError.Should().Be(writeErrors[0]);
         }
-
-#if NET472
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoWriteException(__connectionId, __writeError, __writeConcernError, __innerException);
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoWriteException)formatter.Deserialize(stream);
-
-                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
-                rehydrated.ErrorLabels.Should().BeEquivalentTo(subject.ErrorLabels);
-                rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
-                rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.WriteConcernError.Should().BeUsing(subject.WriteConcernError, EqualityComparerRegistry.Default);
-                rehydrated.WriteError.Should().BeUsing(subject.WriteError, EqualityComparerRegistry.Default);
-            }
-        }
-#endif
     }
 }

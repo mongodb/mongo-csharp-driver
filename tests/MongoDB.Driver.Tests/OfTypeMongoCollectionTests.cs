@@ -871,10 +871,12 @@ namespace MongoDB.Driver.Tests
         {
             var mockRootCollection = new Mock<IMongoCollection<TRoot>>();
             mockRootCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            mockRootCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.LookupSerializer<TRoot>());
             mockRootCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
 
             var mockDerivedCollection = new Mock<IMongoCollection<TDerived>>();
             mockDerivedCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            mockDerivedCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.LookupSerializer<TDerived>());
             mockDerivedCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
 
             var subject = new OfTypeMongoCollection<TRoot, TDerived>(mockRootCollection.Object, mockDerivedCollection.Object, _ofTypeFilter);
@@ -957,14 +959,14 @@ namespace MongoDB.Driver.Tests
         private readonly IMongoCollection<BsonDocument> _docsCollection;
         private readonly EventCapturer _eventsCapturer;
         private readonly IMongoCollection<A> _rootCollection;
-        private readonly DisposableMongoClient _client;
+        private readonly IMongoClient _client;
 
         public OfTypeCollectionIntegrationTests()
         {
             var clientSettings = DriverTestConfiguration.Client.Settings.Clone();
             _eventsCapturer = new EventCapturer().Capture<CommandStartedEvent>();
             clientSettings.ClusterConfigurator = (b) => b.Subscribe(_eventsCapturer);
-            _client = DriverTestConfiguration.CreateDisposableClient(clientSettings);
+            _client = DriverTestConfiguration.CreateMongoClient(clientSettings);
 
             var db = _client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);

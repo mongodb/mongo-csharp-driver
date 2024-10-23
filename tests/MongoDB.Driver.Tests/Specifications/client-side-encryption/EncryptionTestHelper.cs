@@ -22,9 +22,9 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
@@ -373,17 +373,23 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     dummyNamespace,
                     kmsProviders: GetKmsProviders(filter: "local"),
                     extraOptions: new Dictionary<string, object>() { { "cryptSharedLibPath", cryptSharedLibPath } });
-                using (var cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings()))
+
+                var mongoClientSettings = new MongoClientSettings
                 {
-                    if (cryptClient.CryptSharedLibraryVersion != null)
-                    {
-                        // csfle shared library code path
-                        return (IsValid: true, MongocryptdVersion: null);
-                    }
-                    else
-                    {
-                        // we will still try using mongocryptd
-                    }
+                    AutoEncryptionOptions = autoEncryptionOptions,
+                    ClusterSource = DisposingClusterSource.Instance
+                };
+
+                using var client = new MongoClient(mongoClientSettings);
+
+                if (client.LibMongoCryptController.CryptSharedLibraryVersion() != null)
+                {
+                    // csfle shared library code path
+                    return (IsValid: true, MongocryptdVersion: null);
+                }
+                else
+                {
+                    // we will still try using mongocryptd
                 }
             }
 

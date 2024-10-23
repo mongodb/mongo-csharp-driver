@@ -14,26 +14,25 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Encryption;
-using MongoDB.Driver.Tests.Specifications.client_side_encryption;
-using MongoDB.Libmongocrypt;
-using Xunit;
-using Moq;
-using System.Collections.Generic;
-using System.Threading;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Servers;
-using System.Net;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Tests.Specifications.client_side_encryption;
+using MongoDB.Driver.Encryption;
+using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Encryption
 {
@@ -125,13 +124,14 @@ namespace MongoDB.Driver.Tests.Encryption
             var serverId = new ServerId(__clusterId, __endPoint);
             var serverDescription = new ServerDescription(serverId, __endPoint, wireVersionRange: new Range<int>(20, 21), type: ServerType.ReplicaSetPrimary);
             var mockCluster = new Mock<IClusterInternal>();
-#pragma warning disable CS0618 // Type or member is obsolete
+
             var clusterDescription = new ClusterDescription(
                 __clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.ReplicaSet,
-                new[] { serverDescription });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [serverDescription]);
+
             mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
             var mockServer = new Mock<IServer>();
             mockServer.SetupGet(s => s.Description).Returns(serverDescription);
@@ -214,13 +214,13 @@ namespace MongoDB.Driver.Tests.Encryption
             var serverId = new ServerId(__clusterId, __endPoint);
             var serverDescription = new ServerDescription(serverId, __endPoint, wireVersionRange: new Range<int>(20, 21), type: ServerType.ReplicaSetPrimary);
             var mockCluster = new Mock<IClusterInternal>();
-#pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(
                 __clusterId,
-                ClusterConnectionMode.Automatic,
+                false,
+                null,
                 ClusterType.ReplicaSet,
-                new[] { serverDescription });
-#pragma warning restore CS0618 // Type or member is obsolete
+                [serverDescription]);
+
             mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
             var mockServer = new Mock<IServer>();
             mockServer.SetupGet(s => s.Description).Returns(serverDescription);
@@ -387,6 +387,8 @@ namespace MongoDB.Driver.Tests.Encryption
         // private methods
         private ClientEncryption CreateSubject(IMongoClient client = null)
         {
+            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
+
             var clientEncryptionOptions = new ClientEncryptionOptions(
                 client ?? DriverTestConfiguration.Client,
                 __keyVaultCollectionNamespace,
@@ -406,9 +408,9 @@ namespace MongoDB.Driver.Tests.Encryption
 
     internal static class ClientEncryptionReflector
     {
-        public static CryptClient _cryptClient(this ClientEncryption clientEncryption)
+        public static object _cryptClient(this ClientEncryption clientEncryption)
         {
-            return (CryptClient)Reflector.GetFieldValue(clientEncryption, nameof(_cryptClient));
+            return Reflector.GetFieldValue(clientEncryption, nameof(_cryptClient));
         }
 
         public static ExplicitEncryptionLibMongoCryptController _libMongoCryptController(this ClientEncryption clientEncryption)

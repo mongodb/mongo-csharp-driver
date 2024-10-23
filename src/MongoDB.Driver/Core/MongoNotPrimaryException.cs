@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB not primary exception.
     /// </summary>
-    [Serializable]
     public class MongoNotPrimaryException : MongoCommandException
     {
         // constructors

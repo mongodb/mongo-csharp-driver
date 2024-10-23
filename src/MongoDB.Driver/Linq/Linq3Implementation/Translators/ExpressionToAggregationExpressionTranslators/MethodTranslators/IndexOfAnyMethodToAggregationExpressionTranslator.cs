@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var startIndexExpression = arguments[1];
                 var startIndexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(startIndexExpression, startIndexTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, startIndexExpression, startIndexTranslation);
                 return AstExpression.UseVarIfNotSimple("startIndex", startIndexTranslation.Ast);
             }
 
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var countExpression = arguments[2];
                 var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                SerializationHelper.EnsureRepresentationIsNumeric(countExpression, countTranslation);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, countExpression, countTranslation);
                 return AstExpression.UseVarIfNotSimple("count", countTranslation.Ast);
             }
 

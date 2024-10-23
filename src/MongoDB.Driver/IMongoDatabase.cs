@@ -13,22 +13,15 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a database in MongoDB.
     /// </summary>
-    /// <remarks>
-    /// This interface is not guaranteed to remain stable. Implementors should use
-    /// <see cref="MongoDatabaseBase" />.
-    /// </remarks>
     public interface IMongoDatabase
     {
         /// <summary>

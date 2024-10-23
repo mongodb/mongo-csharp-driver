@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -47,7 +46,6 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
-        private CryptClient _cryptClient = null;
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
@@ -74,7 +72,7 @@ namespace MongoDB.Driver.Core.Clusters
             _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
 
             _clusterId = new ClusterId();
-            _description = CreateInitialDescription();
+            _description = ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection);
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
 
@@ -84,16 +82,6 @@ namespace MongoDB.Driver.Core.Clusters
 
             _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
-
-            ClusterDescription CreateInitialDescription()
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                var connectionModeSwitch = _settings.ConnectionModeSwitch;
-                var clusterConnectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _settings.ConnectionMode : default;
-                var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _settings.DirectConnection : default;
-                return ClusterDescription.CreateInitial(_clusterId, clusterConnectionMode, _settings.ConnectionModeSwitch, directConnection);
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
         }
 
         // events
@@ -103,11 +91,6 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterId ClusterId
         {
             get { return _clusterId; }
-        }
-
-        public CryptClient CryptClient
-        {
-            get { return _cryptClient; }
         }
 
         public ClusterDescription Description
@@ -149,25 +132,16 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposing");
 
-#pragma warning disable CS0618 // Type or member is obsolete
-                var connectionModeSwitch = _description.ConnectionModeSwitch;
-                var connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _description.ConnectionMode : default;
-                var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _description.DirectConnection : default;
-
                 var newClusterDescription = new ClusterDescription(
                     _clusterId,
-                    connectionMode,
-                    connectionModeSwitch,
-                    directConnection,
+                    _description.DirectConnection,
                     dnsMonitorException: null,
                     ClusterType.Unknown,
                     Enumerable.Empty<ServerDescription>());
-#pragma warning restore CS0618 // Type or member is obsolete
 
                 UpdateClusterDescription(newClusterDescription);
 
                 _rapidHeartbeatTimer.Dispose();
-                _cryptClient?.Dispose();
 
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposed");
             }
@@ -213,17 +187,6 @@ namespace MongoDB.Driver.Core.Clusters
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster initialized");
-
-                if (_settings.CryptClientSettings != null)
-                {
-                    _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
-
-                    _clusterEventLogger.Logger?.LogTrace(
-                        StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
-                        _clusterId,
-                        "CryptClient created. Configured shared library version: ",
-                        _cryptClient.CryptSharedLibraryVersion ?? "None");
-                }
             }
         }
 

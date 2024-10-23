@@ -22,7 +22,6 @@
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.6.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
-    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.11.0" />
     <PackageReference Include="SharpCompress" Version="0.30.1" />
     <PackageReference Include="Snappier" Version="1.0.0" />
     <PackageReference Include="ZstdSharp.Port" Version="0.7.3" />

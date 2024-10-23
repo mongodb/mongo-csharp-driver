@@ -22,7 +22,6 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
@@ -111,7 +110,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 19, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 21, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -256,7 +255,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             foreach (var logItem in expectedLogs.Cast<BsonDocument>())
             {
                 var clientId = logItem["client"].AsString;
-                var clusterId = entityMap.Clients[clientId].Cluster.ClusterId.Value;
+                var clusterId = entityMap.ClientIdToClusterId[clientId].Value;
                 var logs = logItem.GetValue("messages", false).AsBsonArray;
                 var loggingMessagesToIgnore = logItem.GetValue("ignoreMessages", null)?.AsBsonArray;
                 var ignoreExtraLogs = logItem.GetValue("ignoreExtraMessages", false).AsBoolean;
@@ -350,7 +349,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 actualResult.Exception.Should().NotBeNull();
                 actualResult.Result.Should().BeNull();
 
-                new UnifiedErrorMatcher().AssertErrorsMatch(actualResult.Exception, expectedError.AsBsonDocument);
+                new UnifiedErrorMatcher(entityMap).AssertErrorsMatch(actualResult.Exception, expectedError.AsBsonDocument);
             }
             else
             {

@@ -106,29 +106,5 @@ namespace MongoDB.Driver
 
             result.Should().Be("error message");
         }
-
-        [Fact]
-        public void Serialization_should_work()
-        {
-            var subject = new MongoCommandException(_connectionId, _message, _command, _commandResult);
-            subject.AddErrorLabel("one");
-
-            var formatter = new BinaryFormatter();
-            using (var stream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
-                formatter.Serialize(stream, subject);
-                stream.Position = 0;
-                var rehydrated = (MongoCommandException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
-
-                rehydrated.ErrorLabels.Should().Equal(subject.ErrorLabels);
-                rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
-                rehydrated.Message.Should().Be(_message);
-                rehydrated.InnerException.Should().BeNull();
-                rehydrated.Command.Should().Be(_command);
-                rehydrated.Result.Should().Be(_commandResult);
-            }
-        }
     }
 }

@@ -22,7 +22,6 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON boolean value.
     /// </summary>
-    [Serializable]
     public class BsonBoolean : BsonValue, IComparable<BsonBoolean>, IEquatable<BsonBoolean>
     {
         // private static fields
@@ -66,15 +65,6 @@ namespace MongoDB.Bson
         public override BsonType BsonType
         {
             get { return BsonType.Boolean; }
-        }
-
-        /// <summary>
-        /// Gets the BsonBoolean as a bool.
-        /// </summary>
-        [Obsolete("Use Value instead.")]
-        public override object RawValue
-        {
-            get { return _value; }
         }
 
         /// <summary>

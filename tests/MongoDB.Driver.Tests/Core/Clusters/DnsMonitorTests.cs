@@ -460,9 +460,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var clusterId = new ClusterId(1);
             var servers = new ServerDescription[0];
-#pragma warning disable CS0618 // Type or member is obsolete
-            return new ClusterDescription(clusterId, ClusterConnectionMode.Automatic, type, servers);
-#pragma warning restore CS0618 // Type or member is obsolete
+            return new ClusterDescription(clusterId, false, null, type, servers);
         }
 
         private List<SrvRecord> CreateSrvRecords(int[] ttls)

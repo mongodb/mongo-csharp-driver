@@ -843,10 +843,10 @@ namespace MongoDB.Driver.Tests
             Assert(personFilter, "{ $or : [{ _t : \"Twin\", wasBornFirst : true }, { _t : \"Triplet\", birthOrder : 1 }] }");
 
             // test OfType overloads that apply to a field of the document
-            Assert(subject.OfType<Animal, Cat>("favoritePet"), "{ \"favoritePet._t\" : \"Cat\" }");
-            Assert(subject.OfType<Animal, Cat>("favoritePet", Builders<Cat>.Filter.Eq(c => c.LivesLeft, 9)), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
-            Assert(subject.OfType<Animal, Cat>("favoritePet", "{ livesLeft : 9 }"), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
-            Assert(subject.OfType<Animal, Cat>("favoritePet", BsonDocument.Parse("{ livesLeft : 9 }")), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
+            Assert(subject.OfType<Animal, Cat>("FavoritePet"), "{ \"favoritePet._t\" : \"Cat\" }");
+            Assert(subject.OfType<Animal, Cat>("FavoritePet", Builders<Cat>.Filter.Eq(c => c.LivesLeft, 9)), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
+            Assert(subject.OfType<Animal, Cat>("FavoritePet", "{ livesLeft : 9 }"), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
+            Assert(subject.OfType<Animal, Cat>("FavoritePet", BsonDocument.Parse("{ livesLeft : 9 }")), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
             Assert(subject.OfType<Animal, Cat>(p => p.FavoritePet), "{ \"favoritePet._t\" : \"Cat\" }");
             Assert(subject.OfType<Animal, Cat>(p => p.FavoritePet, c => c.LivesLeft == 9), "{ \"favoritePet._t\" : \"Cat\", \"favoritePet.livesLeft\" : 9 }");
 
@@ -1066,6 +1066,8 @@ namespace MongoDB.Driver.Tests
             public EnumForClassWithEnums[] A { get; set; }
         }
 
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(Twin), typeof(Triplet))]
         private class Person
         {
             [BsonElement("fn")]
@@ -1099,6 +1101,8 @@ namespace MongoDB.Driver.Tests
             public int BirthOrder { get; set; }
         }
 
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(Mammal), typeof(Cat), typeof(Dog))]
         private abstract class Animal
         {
             [BsonElement("name")]

@@ -79,10 +79,6 @@ namespace MongoDB.Driver.Tests.Specifications.gridfs
                 _options = _options ?? new GridFSDownloadByNameOptions();
                 switch (option.Name)
                 {
-                    case "checkMD5":
-                        _options.CheckMD5 = option.Value.ToBoolean();
-                        break;
-
                     case "revision":
                         _options.Revision = option.Value.ToInt32();
                         break;

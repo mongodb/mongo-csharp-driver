@@ -23,7 +23,6 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB connection pool paused exception.
     /// </summary>
-    [Serializable]
     public class MongoConnectionPoolPausedException : MongoClientException
     {
         #region static

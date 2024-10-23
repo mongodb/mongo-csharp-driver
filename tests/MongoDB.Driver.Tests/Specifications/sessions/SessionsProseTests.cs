@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -64,7 +63,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using var mongocryptdContext = GetMongocryptdContext();
-            using var session = mongocryptdContext.DisposableMongoClient.StartSession();
+            using var session = mongocryptdContext.MongoClient.StartSession();
 
             var exception = async ?
                 await Record.ExceptionAsync(() => mongocryptdContext.MongocryptdCollection.FindAsync(session, FilterDefinition<BsonDocument>.Empty)) :
@@ -124,14 +123,14 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             var eventCapturer = new EventCapturer()
                .Capture<CommandStartedEvent>();
 
-            using var client = DriverTestConfiguration.CreateDisposableClient(
+            using var client = DriverTestConfiguration.CreateMongoClient(
                 (MongoClientSettings settings) =>
                 {
                     settings.RetryWrites = true;
                     settings.MaxConnectionPoolSize = 1;
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-                },
-                LoggingSettings);
+                    settings.LoggingSettings = LoggingSettings;
+                });
 
             var database = client.GetDatabase("test");
 
@@ -211,7 +210,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                             {
                                 collection.FindOneAndUpdate(Builders<BsonDocument>.Filter.Empty, Builders<BsonDocument>.Update.Set("a", 1));
                             }
-                            
+
                             break;
                         case 6:
                             if (async)
@@ -259,13 +258,13 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                .Capture<ConnectionPoolCheckedOutConnectionEvent>()
                .Capture<CommandStartedEvent>();
 
-            using var client = DriverTestConfiguration.CreateDisposableClient(
+            using var client = DriverTestConfiguration.CreateMongoClient(
                 (MongoClientSettings settings) =>
                 {
                     settings.MaxConnectionPoolSize = 1;
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-                },
-                LoggingSettings);
+                    settings.LoggingSettings = LoggingSettings;
+                });
 
             var database = client.GetDatabase("test");
             database.DropCollection("inventory");
@@ -305,18 +304,18 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
 
         private sealed class MongocryptdContext : IDisposable
         {
-            public DisposableMongoClient DisposableMongoClient { get; }
+            public IMongoClient MongoClient { get; }
             public EventCapturer EventCapturer { get; }
             public IMongoCollection<BsonDocument> MongocryptdCollection { get; }
 
-            public MongocryptdContext(DisposableMongoClient disposableMongoClient, IMongoCollection<BsonDocument> mongocryptdCollection, EventCapturer eventCapturer)
+            public MongocryptdContext(IMongoClient mongoClient, IMongoCollection<BsonDocument> mongocryptdCollection, EventCapturer eventCapturer)
             {
-                DisposableMongoClient = disposableMongoClient;
+                MongoClient = mongoClient;
                 EventCapturer = eventCapturer;
                 MongocryptdCollection = mongocryptdCollection;
             }
 
-            public void Dispose() => DisposableMongoClient.Dispose();
+            public void Dispose() => MongoClient.Dispose();
         }
 
         private MongocryptdContext GetMongocryptdContext()
@@ -334,7 +333,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             mongocryptdFactory.SpawnMongocryptdProcessIfRequired();
 
             var collection = client.GetDatabase("db").GetCollection<BsonDocument>("coll");
-            return new MongocryptdContext(new DisposableMongoClient(client, CreateLogger<DisposableMongoClient>()), collection, eventCapturer);
+            return new MongocryptdContext(client, collection, eventCapturer);
         }
     }
 }
