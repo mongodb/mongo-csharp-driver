@@ -148,6 +148,11 @@ namespace MongoDB.Driver
         /// <returns>A ReplaceOptions&lt;T&gt; </returns>
         public static implicit operator ReplaceOptions<T>(ReplaceOptions value)
         {
+            if (value is null)
+            {
+                return null;
+            }
+
             return new ReplaceOptions<T>
             {
                 BypassDocumentValidation = value.BypassDocumentValidation,
