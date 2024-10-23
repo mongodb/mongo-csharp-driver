@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context));
             exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Be("Cannot deserialize a null value into a value type (type: ImmutableArray`1).");
+            exception.Message.Should().Be("Cannot deserialize a null value into a value type (type: ImmutableArray<Int32>).");
         }
 #endif
 
@@ -167,7 +167,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context));
             exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Be("Cannot deserialize a null value into a value type (type: ImmutableArray`1).");
+            exception.Message.Should().Be("Cannot deserialize a null value into a value type (type: ImmutableArray<Int32>).");
         }
 #endif
 
