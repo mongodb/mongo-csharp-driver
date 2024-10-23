@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             WriteBoolean(serializationContext, "multi", false);
             WriteHint(serializationContext, model.Hint);
             WriteCollation(serializationContext, model.Collation);
-            WriteSort(serializationContext, model.Sort);
+            WriteSort(serializationContext, model.Sort?.Render(renderArgs.WithNewDocumentType(documentSerializer)));
             WriteEndModel(serializationContext);
         }
 
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             WriteArrayFilters(serializationContext, model.ArrayFilters);
             WriteHint(serializationContext, model.Hint);
             WriteCollation(serializationContext, model.Collation);
-            WriteSort(serializationContext, model.Sort);
+            WriteSort(serializationContext, model.Sort?.Render(renderArgs.WithNewDocumentType(documentSerializer)));
             WriteEndModel(serializationContext);
         }
 

@@ -96,9 +96,9 @@ namespace MongoDB.Driver
         public TDocument Replacement { get; }
 
         /// <summary>
-        /// The sort document to use.
+        /// The sort definition to use.
         /// </summary>
-        public BsonDocument Sort { get; init; }
+        public SortDefinition<TDocument> Sort { get; init; }
 
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
             => renderer.RenderReplaceOne(renderArgs, serializationContext, this);
