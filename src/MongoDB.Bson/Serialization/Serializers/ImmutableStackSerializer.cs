@@ -16,6 +16,7 @@
 #if NETCOREAPP1_0_OR_GREATER
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -26,21 +27,21 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class ImmutableStackSerializer<T>: EnumerableInterfaceImplementerSerializerBase<ImmutableStack<T>, T>
     {
         /// <inheritdoc/>
-        protected override void AddItem(object accumulator, T item)
+        protected override object CreateAccumulator()
         {
-            ((Stack<T>)accumulator).Push(item);
+            return new List<T>();
         }
 
         /// <inheritdoc/>
-        protected override object CreateAccumulator()
+        protected override IEnumerable<T> EnumerateItemsInSerializationOrder(ImmutableStack<T> value)
         {
-            return new Stack<T>();
+            return value.Reverse();
         }
 
         /// <inheritdoc/>
         protected override ImmutableStack<T> FinalizeResult(object accumulator)
         {
-            return ImmutableStack.CreateRange((Stack<T>)accumulator);
+            return ImmutableStack.CreateRange((List<T>)accumulator);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Deserialize_should_have_expected_result()
         {
-            const string json = """{ "x" : [{ "$numberInt" : "4" }, { "$numberInt" : "3" }, { "$numberInt" : "2" }, { "$numberInt" : "1" }] }""";
+            const string json = """{ "x" : [{ "$numberInt" : "1" }, { "$numberInt" : "2" }, { "$numberInt" : "3" }, { "$numberInt" : "4" }] }""";
             var subject = new ImmutableStackSerializer<int>();
 
             using var reader = new JsonReader(json);
@@ -102,7 +102,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = textWriter.ToString();
 
             const string expectedResult =
-                """{ "x" : [{ "$numberInt" : "4" }, { "$numberInt" : "3" }, { "$numberInt" : "2" }, { "$numberInt" : "1" }] }""";
+                """{ "x" : [{ "$numberInt" : "1" }, { "$numberInt" : "2" }, { "$numberInt" : "3" }, { "$numberInt" : "4" }] }""";
             result.Should().Be(expectedResult);
         }
 
