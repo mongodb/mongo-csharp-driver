@@ -22,14 +22,15 @@ namespace MongoDB.Driver.Core.Misc
     {
         Windows,
         Linux,
-        MacOS
+        MacOS,
+        Unknown
     }
 
     internal static class OperatingSystemHelper
     {
         public static OperatingSystemPlatform CurrentOperatingSystem => __currentOperatingSystem.Value;
 
-        private static readonly Lazy<OperatingSystemPlatform> __currentOperatingSystem = new Lazy<OperatingSystemPlatform>(DetermineOperatingSystemPlatform);
+        private static readonly Lazy<OperatingSystemPlatform> __currentOperatingSystem = new(DetermineOperatingSystemPlatform);
 
         private static OperatingSystemPlatform DetermineOperatingSystemPlatform()
         {
@@ -40,8 +41,7 @@ namespace MongoDB.Driver.Core.Misc
             {
                 return OperatingSystemPlatform.Linux;
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                     || RuntimeInformation.IsOSPlatform(OSPlatform.Create("MACCATALYST")))
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return OperatingSystemPlatform.MacOS;
             }
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Misc
             }
             else
             {
-                throw new PlatformNotSupportedException($"Unsupported platform '{RuntimeInformation.OSDescription}'.");
+                return OperatingSystemPlatform.Unknown;
             }
 #endif
         }
