@@ -79,11 +79,6 @@ namespace MongoDB.Bson
         /// <param name="bytes">The output buffer containing the byte equivalent of the hex string.</param>
         public static void ParseHexChars(ReadOnlySpan<char> s, Span<byte> bytes)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException(nameof(s));
-            }
-
             if (!TryParseHexChars(s, bytes))
             {
                 throw new FormatException("String should contain only hexadecimal digits.");
@@ -153,7 +148,7 @@ namespace MongoDB.Bson
         /// <returns>A hex string.</returns>
         public static string ToHexString(ReadOnlyMemory<byte> bytes)
         {
-#if NET5_0_OR_GREATER
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             return string.Create(bytes.Length * 2, bytes, static (chars, bytes) =>
             {
                 ToHexChars(bytes.Span, chars);
@@ -161,20 +156,6 @@ namespace MongoDB.Bson
 #else
             return new string(ToHexChars(bytes.Span));
 #endif
-        }
-
-        /// <summary>
-        /// Converts a byte array to an array of hex characters.
-        /// </summary>
-        /// <param name="bytes">The byte array.</param>
-        /// <returns>An array of hex characters.</returns>
-        public static char[] ToHexChars(byte[] bytes)
-        {
-            if (bytes == null)
-            {
-                throw new ArgumentNullException(nameof(bytes));
-            }
-            return ToHexChars(bytes.AsSpan());
         }
 
         /// <summary>
