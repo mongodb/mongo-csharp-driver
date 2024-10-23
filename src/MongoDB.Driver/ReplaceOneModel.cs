@@ -31,7 +31,7 @@ namespace MongoDB.Driver
         private BsonValue _hint;
         private bool _isUpsert;
         private readonly TDocument _replacement;
-        private BsonDocument _sort;
+        private SortDefinition<TDocument> _sort;
 
         // constructors
         /// <summary>
@@ -92,7 +92,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the sort document.
         /// </summary>
-        public BsonDocument Sort
+        public SortDefinition<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }
