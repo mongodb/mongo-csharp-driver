@@ -1,1 +1,1 @@
-pkg:nuget/MongoDB.Libmongocrypt@1.10.0
+pkg:github/mongodb/libmongocrypt@1.11.0
