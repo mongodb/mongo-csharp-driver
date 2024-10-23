@@ -52,6 +52,8 @@ namespace MongoDB.Bson.Serialization
                 { typeof(ImmutableList<>), typeof(ImmutableListSerializer<>) },
                 { typeof(ImmutableHashSet<>), typeof(ImmutableHashSetSerializer<>) },
                 { typeof(ImmutableSortedSet<>), typeof(ImmutableSortedSetSerializer<>) },
+                { typeof(ImmutableDictionary<,>), typeof(ImmutableDictionarySerializer<,>) },
+                { typeof(ImmutableSortedDictionary<,>), typeof(ImmutableSortedDictionarySerializer<,>) },
                 { typeof(ImmutableQueue<>), typeof(ImmutableQueueSerializer<>) },
                 { typeof(ImmutableStack<>), typeof(ImmutableStackSerializer<>) }
 #endif
