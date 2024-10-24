@@ -234,7 +234,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 .ToArray();
 
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "bulkWrite");
-            using var client = CreateMongoClient(eventCapturer);
+            using var client = DriverTestConfiguration.CreateMongoClient(settings =>
+            {
+                settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5);
+                settings.LoggingSettings = LoggingSettings;
+                settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                settings.RetryWrites = false;
+            });
 
             using var failPoint = ConfigureFailPoint(failPointCommand);
             var exception = async

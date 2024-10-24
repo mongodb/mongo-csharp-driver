@@ -95,6 +95,8 @@ namespace MongoDB.Driver
         /// </summary>
         public TDocument Replacement { get; }
 
+        internal override bool IsRetryable() => true;
+
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
             => renderer.RenderReplaceOne(renderArgs, serializationContext, this);
     }
