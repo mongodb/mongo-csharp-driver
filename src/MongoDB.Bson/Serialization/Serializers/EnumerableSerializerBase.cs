@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a base serializer for enumerable values.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    public abstract class EnumerableSerializerBase<TValue> : SerializerBase<TValue>, IBsonArraySerializer where TValue : class, IEnumerable
+    public abstract class EnumerableSerializerBase<TValue> : SerializerBase<TValue>, IBsonArraySerializer where TValue : IEnumerable
     {
         // private fields
         private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
@@ -93,8 +93,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Null:
+                    if (typeof(TValue).IsValueType)
+                    {
+                        throw new FormatException($"Cannot deserialize a null value into a value type (type: {BsonUtils.GetFriendlyTypeName(typeof(TValue))}).");
+                    }
                     bsonReader.ReadNull();
-                    return null;
+                    return default;
 
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
@@ -219,7 +223,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <typeparam name="TItem">The type of the items.</typeparam>
-    public abstract class EnumerableSerializerBase<TValue, TItem> : SerializerBase<TValue>, IBsonArraySerializer where TValue : class, IEnumerable<TItem>
+    public abstract class EnumerableSerializerBase<TValue, TItem> : SerializerBase<TValue>, IBsonArraySerializer where TValue : IEnumerable<TItem>
     {
         // private fields
         private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
@@ -289,8 +293,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Null:
+                    if (typeof(TValue).IsValueType)
+                    {
+                        throw new FormatException($"Cannot deserialize a null value into a value type (type: {BsonUtils.GetFriendlyTypeName(typeof(TValue))}).");
+                    }
                     bsonReader.ReadNull();
-                    return null;
+                    return default;
 
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
