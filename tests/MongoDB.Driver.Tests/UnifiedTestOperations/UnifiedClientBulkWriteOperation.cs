@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
@@ -244,7 +245,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             out BsonDocument replacement,
             out BsonValue hint,
             out Collation collation,
-            out bool isUpsert)
+            out bool isUpsert,
+            out BsonDocument sort)
         {
             ns = null;
             filter = null;
@@ -252,6 +254,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             hint = null;
             collation = null;
             isUpsert = false;
+            sort = null;
 
             foreach (BsonElement argument in model.Elements)
             {
@@ -272,6 +275,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;
+                    case "sort":
+                        sort = argument.Value.AsBsonDocument;
+                        break;
                     case "upsert":
                         isUpsert = argument.Value.ToBoolean();
                         break;
@@ -289,7 +295,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             out List<ArrayFilterDefinition> arrayFilters,
             out BsonValue hint,
             out Collation collation,
-            out bool isUpsert)
+            out bool isUpsert,
+            out BsonDocument sort)
         {
             ns = null;
             arrayFilters = null;
@@ -298,6 +305,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             hint = null;
             collation = null;
             isUpsert = false;
+            sort = null;
 
             foreach (BsonElement argument in model.Elements)
             {
@@ -322,6 +330,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "namespace":
                         ns = argument.Value.AsString;
+                        break;
+                    case "sort":
+                        sort = argument.Value.AsBsonDocument;
                         break;
                     case "update":
                         switch (argument.Value)
@@ -384,18 +395,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 case "replaceOne":
                     {
-                        ParseReplaceModel(model, out var ns, out var filter, out var replacement, out var hint, out var collation, out bool isUpsert);
+                        ParseReplaceModel(model, out var ns, out var filter, out var replacement, out var hint, out var collation, out bool isUpsert, out var sort);
 
                         return new BulkWriteReplaceOneModel<BsonDocument>(ns, filter, replacement)
                         {
                             Collation = collation,
                             Hint = hint,
-                            IsUpsert = isUpsert
+                            IsUpsert = isUpsert,
+                            Sort = sort
                         };
                     }
                 case "updateMany":
                     {
-                        ParseUpdateModel(model, out var ns, out var filter, out var update, out var arrayFilters, out var hint, out var collation, out var isUpsert);
+                        ParseUpdateModel(model, out var ns, out var filter, out var update, out var arrayFilters, out var hint, out var collation, out var isUpsert, out _);
 
                         return new BulkWriteUpdateManyModel<BsonDocument>(ns, filter, update)
                         {
@@ -407,14 +419,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 case "updateOne":
                     {
-                        ParseUpdateModel(model, out var ns, out var filter, out var update, out var arrayFilters, out var hint, out var collation, out var isUpsert);
+                        ParseUpdateModel(model, out var ns, out var filter, out var update, out var arrayFilters, out var hint, out var collation, out var isUpsert, out var sort);
 
                         return new BulkWriteUpdateOneModel<BsonDocument>(ns, filter, update)
                         {
                             ArrayFilters = arrayFilters,
                             Collation = collation,
                             Hint = hint,
-                            IsUpsert = isUpsert
+                            IsUpsert = isUpsert,
+                            Sort = sort
                         };
                     }
                 default:

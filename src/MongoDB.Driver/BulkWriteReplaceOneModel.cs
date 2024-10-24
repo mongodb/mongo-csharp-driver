@@ -34,14 +34,16 @@ namespace MongoDB.Driver
         /// <param name="collation">Specifies a collation.</param>
         /// <param name="hint">The index to use.</param>
         /// <param name="isUpsert">A value indicating whether to insert the document if it doesn't already exist.</param>
+        /// <param name="sort">The sort definition to use.</param>
         public BulkWriteReplaceOneModel(
             string collectionNamespace,
             FilterDefinition<TDocument> filter,
             TDocument replacement,
             Collation collation = null,
             BsonValue hint = null,
-            bool isUpsert = false)
-            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, replacement, collation, hint, isUpsert)
+            bool isUpsert = false,
+            SortDefinition<TDocument> sort = null)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, replacement, collation, hint, isUpsert, sort)
         {
         }
 
@@ -54,13 +56,15 @@ namespace MongoDB.Driver
         /// <param name="collation">Specifies a collation.</param>
         /// <param name="hint">The index to use.</param>
         /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
+        /// <param name="sort">The sort definition to use.</param>
         public BulkWriteReplaceOneModel(
             CollectionNamespace collectionNamespace,
             FilterDefinition<TDocument> filter,
             TDocument replacement,
             Collation collation = null,
             BsonValue hint = null,
-            bool isUpsert = false)
+            bool isUpsert = false,
+            SortDefinition<TDocument> sort = null)
             : base(collectionNamespace)
         {
             Filter = Ensure.IsNotNull(filter, nameof(filter));
@@ -68,6 +72,7 @@ namespace MongoDB.Driver
             Collation = collation;
             Hint = hint;
             IsUpsert = isUpsert;
+            Sort = sort;
         }
 
         /// <summary>
@@ -94,6 +99,11 @@ namespace MongoDB.Driver
         /// Update definition.
         /// </summary>
         public TDocument Replacement { get; }
+
+        /// <summary>
+        /// The sort definition to use.
+        /// </summary>
+        public SortDefinition<TDocument> Sort { get; init; }
 
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
             => renderer.RenderReplaceOne(renderArgs, serializationContext, this);

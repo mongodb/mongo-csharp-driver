@@ -31,6 +31,7 @@ namespace MongoDB.Driver
         private BsonValue _hint;
         private bool _isUpsert;
         private BsonDocument _let;
+        private BsonDocument _sort;
 
         // properties
         /// <summary>
@@ -97,6 +98,15 @@ namespace MongoDB.Driver
         {
             get { return _let; }
             set { _let = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the sort document.
+        /// </summary>
+        public BsonDocument Sort
+        {
+            get { return _sort; }
+            set { _sort = value; }
         }
     }
 }

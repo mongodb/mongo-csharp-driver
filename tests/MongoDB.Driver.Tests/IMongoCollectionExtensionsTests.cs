@@ -1132,7 +1132,7 @@ namespace MongoDB.Driver.Tests
 
             assertReplaceOne();
 
-            var replaceOptions = new ReplaceOptions();
+            var replaceOptions = new ReplaceOptions<Person>();
             assertReplaceOneWithReplaceOptions(replaceOptions);
 
             var updateOptions = new UpdateOptions();
@@ -1168,7 +1168,7 @@ namespace MongoDB.Driver.Tests
                 }
             }
 
-            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions<Person> options)
             {
                 if (usingSession)
                 {

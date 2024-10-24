@@ -18,43 +18,11 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
-    /// <summary>
+        /// <summary>
     /// Options for replacing a single document.
     /// </summary>
-    public sealed class ReplaceOptions
+    public abstract class ReplaceOptionsBase
     {
-        #region static
-        // public static methods
-        /// <summary>
-        /// Creates a new ReplaceOptions from an UpdateOptions.
-        /// </summary>
-        /// <param name="updateOptions">The update options.</param>
-        /// <returns>A ReplaceOptions.</returns>
-        internal static ReplaceOptions From(UpdateOptions updateOptions)
-        {
-            if (updateOptions == null)
-            {
-                return null;
-            }
-            else
-            {
-                if (updateOptions.ArrayFilters != null)
-                {
-                    throw new ArgumentException("ArrayFilters cannot be used with ReplaceOne.", nameof(updateOptions));
-                }
-
-                return new ReplaceOptions
-                {
-                    BypassDocumentValidation = updateOptions.BypassDocumentValidation,
-                    Collation = updateOptions.Collation,
-                    Hint = updateOptions.Hint,
-                    IsUpsert = updateOptions.IsUpsert,
-                    Let = updateOptions.Let
-                };
-            }
-        }
-        #endregion
-
         // fields
         private bool? _bypassDocumentValidation;
         private Collation _collation;
@@ -116,6 +84,84 @@ namespace MongoDB.Driver
         {
             get { return _let; }
             set { _let = value; }
+        }
+    }
+
+    /// <summary>
+    /// Options for replacing a single document.
+    /// </summary>
+    public sealed class ReplaceOptions : ReplaceOptionsBase
+    {
+        #region static
+        // public static methods
+        /// <summary>
+        /// Creates a new ReplaceOptions from an UpdateOptions.
+        /// </summary>
+        /// <param name="updateOptions">The update options.</param>
+        /// <returns>A ReplaceOptions.</returns>
+        internal static ReplaceOptions From(UpdateOptions updateOptions)
+        {
+            if (updateOptions == null)
+            {
+                return null;
+            }
+            else
+            {
+                if (updateOptions.ArrayFilters != null)
+                {
+                    throw new ArgumentException("ArrayFilters cannot be used with ReplaceOne.", nameof(updateOptions));
+                }
+
+                return new ReplaceOptions
+                {
+                    BypassDocumentValidation = updateOptions.BypassDocumentValidation,
+                    Collation = updateOptions.Collation,
+                    Hint = updateOptions.Hint,
+                    IsUpsert = updateOptions.IsUpsert,
+                    Let = updateOptions.Let
+                };
+            }
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Options for replacing a single document.
+    /// </summary>
+    public sealed class ReplaceOptions<T> : ReplaceOptionsBase
+    {
+        private SortDefinition<T> _sort;
+
+        /// <summary>
+        /// Gets or sets the sort document.
+        /// </summary>
+        public SortDefinition<T> Sort
+        {
+            get { return _sort; }
+            set { _sort = value; }
+        }
+
+        /// <summary>
+        /// Converts a ReplaceOptions to a ReplaceOptions&lt;T&gt;
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>A ReplaceOptions&lt;T&gt; </returns>
+        public static implicit operator ReplaceOptions<T>(ReplaceOptions value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+
+            return new ReplaceOptions<T>
+            {
+                BypassDocumentValidation = value.BypassDocumentValidation,
+                Collation = value.Collation,
+                Comment = value.Comment,
+                Hint = value.Hint,
+                IsUpsert = value.IsUpsert,
+                Let = value.Let
+            };
         }
     }
 }
