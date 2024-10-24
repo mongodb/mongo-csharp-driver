@@ -1323,7 +1323,7 @@ namespace MongoDB.Bson.Serialization
             var discriminatorConvention = _discriminatorConvention;
             if (discriminatorConvention == null)
             {
-                // it's possible but harmless for multiple threads to do the field initialization at the same time
+                // it's possible but harmless for multiple threads to do the discriminator convention lookukp at the same time
                 discriminatorConvention = LookupDiscriminatorConvention();
                 _discriminatorConvention = discriminatorConvention;
             }
@@ -1339,9 +1339,17 @@ namespace MongoDB.Bson.Serialization
                         return classMap._discriminatorConvention;
                     }
 
+                    if (BsonSerializer.IsDiscriminatorConventionRegisteredAtThisLevel(classMap._classType))
+                    {
+                        // in this case LookupDiscriminatorConvention below will find it
+                        break;
+                    }
+
                     if (classMap._isRootClass)
                     {
-                        return StandardDiscriminatorConvention.Hierarchical;
+                        // in this case auto-register a hierarchical convention for the root class and look it up as usual below
+                        BsonSerializer.GetOrRegisterDiscriminatorConvention(classMap._classType, StandardDiscriminatorConvention.Hierarchical);
+                        break;
                     }
 
                     classMap = classMap._baseClassMap;
