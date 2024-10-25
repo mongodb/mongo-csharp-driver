@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Authentication.Oidc
         {
             var cachedCredentials = _oidcCallback.CachedCredentials;
 
-            if (cachedCredentials != null)
+            if (cachedCredentials != null && !cachedCredentials.IsExpired)
             {
                 return new OidcCachedCredentialsSaslStep(cachedCredentials);
             }
