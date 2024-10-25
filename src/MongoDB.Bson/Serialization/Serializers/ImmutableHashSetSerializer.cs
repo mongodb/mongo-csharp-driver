@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#if NETCOREAPP1_0_OR_GREATER
+#if NET6_0_OR_GREATER
 using System.Collections.Immutable;
 
 namespace MongoDB.Bson.Serialization.Serializers
