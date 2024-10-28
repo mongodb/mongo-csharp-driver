@@ -47,9 +47,6 @@
 
   <ItemGroup>
     <EmbeddedResource LinkBase="Specifications\" Include="..\..\specifications\**\*.json" />
-    <EmbeddedResource Update="..\..\specifications\command-logging-and-monitoring\tests\monitoring\unacknowledged-client-bulkWrite.json">
-      <Link>Specifications\command-logging-and-monitoring\tests\monitoring\unacknowledged-client-bulkWrite.json</Link>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
