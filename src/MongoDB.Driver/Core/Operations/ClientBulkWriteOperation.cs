@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         private bool GetEffectiveRetryRequested()
-            => RetryRequested && _writeModels.Items.All(m => m.IsRetryable());
+            => RetryRequested && !_writeModels.Items.Any(m => m.IsMulti);
 
         private ClientBulkWriteResult ToFinalResultsOrThrow(ConnectionId connectionId, BulkWriteRawResult bulkWriteResult)
         {

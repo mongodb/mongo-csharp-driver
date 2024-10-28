@@ -54,7 +54,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TDocument Document { get; }
 
-        internal override bool IsRetryable() => true;
+        internal override bool IsMulti => false;
 
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
             => renderer.RenderInsertOne(renderArgs, serializationContext, this);

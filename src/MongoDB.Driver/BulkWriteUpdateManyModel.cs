@@ -106,7 +106,7 @@ namespace MongoDB.Driver
         /// </summary>
         public UpdateDefinition<TDocument> Update { get; }
 
-        internal override bool IsRetryable() => false;
+        internal override bool IsMulti => true;
 
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
             => renderer.RenderUpdateMany(renderArgs, serializationContext, this);
