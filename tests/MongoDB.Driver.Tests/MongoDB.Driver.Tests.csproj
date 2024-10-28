@@ -58,10 +58,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="..\..\specifications\command-logging-and-monitoring\tests\monitoring\unacknowledged-client-bulkWrite.yml">
-      <Link>Specifications\command-logging-and-monitoring\tests\monitoring\unacknowledged-client-bulkWrite.yml</Link>
-    </Content>
-  </ItemGroup>
-
 </Project>
