@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for enumerable values.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    public abstract class EnumerableInterfaceImplementerSerializerBase<TValue> : EnumerableSerializerBase<TValue>, IBsonArraySerializer where TValue : class, IEnumerable
+    public abstract class EnumerableInterfaceImplementerSerializerBase<TValue> : EnumerableSerializerBase<TValue> where TValue : IEnumerable
     {
         // constructors
         /// <summary>
@@ -87,7 +87,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <typeparam name="TItem">The type of the items.</typeparam>
-    public abstract class EnumerableInterfaceImplementerSerializerBase<TValue, TItem> : EnumerableSerializerBase<TValue, TItem>, IBsonArraySerializer where TValue : class, IEnumerable<TItem>
+    public abstract class EnumerableInterfaceImplementerSerializerBase<TValue, TItem> : EnumerableSerializerBase<TValue, TItem> where TValue : IEnumerable<TItem>
     {
         // constructors
         /// <summary>
