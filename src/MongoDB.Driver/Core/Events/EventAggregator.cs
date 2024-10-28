@@ -21,11 +21,11 @@ namespace MongoDB.Driver.Core.Events
 {
     internal class EventAggregator : IEventSubscriber
     {
-        private readonly List<IEventSubscriber> _subscribers;
+        private readonly HashSet<IEventSubscriber> _subscribers;
 
         public EventAggregator()
         {
-            _subscribers = new List<IEventSubscriber>();
+            _subscribers = new HashSet<IEventSubscriber>();
         }
 
         public void Subscribe<TEvent>(Action<TEvent> handler)
@@ -38,6 +38,20 @@ namespace MongoDB.Driver.Core.Events
             Ensure.IsNotNull(subscriber, nameof(subscriber));
 
             _subscribers.Add(subscriber);
+        }
+
+        public void Unsubscribe<TEvent>(Action<TEvent> handler)
+        {
+            Ensure.IsNotNull(handler, nameof(handler));
+
+            Unsubscribe(new SingleEventSubscriber<TEvent>(handler));
+        }
+
+        public void Unsubscribe(IEventSubscriber subscriber)
+        {
+            Ensure.IsNotNull(subscriber, nameof(subscriber));
+
+            _subscribers.Remove(subscriber);
         }
 
         public bool TryGetEventHandler<TEvent>(out Action<TEvent> handler)

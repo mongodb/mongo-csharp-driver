@@ -178,6 +178,7 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterBuilder Subscribe<TEvent>(Action<TEvent> handler)
         {
             Ensure.IsNotNull(handler, nameof(handler));
+
             _eventAggregator.Subscribe(handler);
             return this;
         }
@@ -192,6 +193,33 @@ namespace MongoDB.Driver.Core.Configuration
             Ensure.IsNotNull(subscriber, nameof(subscriber));
 
             _eventAggregator.Subscribe(subscriber);
+            return this;
+        }
+
+        /// <summary>
+        /// Unsubscribes from events of type <typeparamref name="TEvent"/>.
+        /// </summary>
+        /// <typeparam name="TEvent">The type of the event.</typeparam>
+        /// <param name="handler">The handler.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder Unsubscribe<TEvent>(Action<TEvent> handler)
+        {
+            Ensure.IsNotNull(handler, nameof(handler));
+
+            _eventAggregator.Unsubscribe(handler);
+            return this;
+        }
+
+        /// <summary>
+        /// Unsubscribes the specified subscriber.
+        /// </summary>
+        /// <param name="subscriber">The subscriber.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder Unsubscribe(IEventSubscriber subscriber)
+        {
+            Ensure.IsNotNull(subscriber, nameof(subscriber));
+
+            _eventAggregator.Unsubscribe(subscriber);
             return this;
         }
 

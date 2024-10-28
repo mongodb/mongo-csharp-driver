@@ -47,5 +47,21 @@ namespace MongoDB.Driver.Core.Events
             handler = null;
             return false;
         }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            var other = obj as SingleEventSubscriber<TSingleEvent>;
+
+            if (object.ReferenceEquals(other, null)) { return false; }
+
+            return object.ReferenceEquals(this, other) || _handler.Equals(other._handler);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return _handler.GetHashCode();
+        }
     }
 }

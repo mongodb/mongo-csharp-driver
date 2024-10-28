@@ -73,5 +73,41 @@ namespace MongoDB.Driver.Core.Events
             called2.Should().BeTrue();
             called3.Should().BeTrue();
         }
+
+        [Fact]
+        public void Handler_should_invoke_one_subscriber_when_same_subscribe_is_added_twice()
+        {
+            var subject = new EventAggregator();
+            int count = 0;
+            var action = new Action<int>(x => count += 1);
+
+            subject.Subscribe(action);
+            subject.Subscribe(action);
+
+            Action<int> handler;
+            subject.TryGetEventHandler(out handler);
+            handler(42);
+
+            count.Should().Be(1);
+        }
+
+        [Fact]
+        public void Unsubscribe_should_remove_subscriber()
+        {
+            var subject = new EventAggregator();
+            var action = new Action<int>(_ => {});
+
+            subject.Subscribe(action);
+            subject.Unsubscribe(action);
+
+            var exception = Record.Exception(() =>
+            {
+                Action<int> handler;
+                subject.TryGetEventHandler(out handler);
+                handler(42);
+            });
+
+            exception.Should().BeOfType<NullReferenceException>();
+        }
     }
 }
