@@ -114,7 +114,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private void AssertErrorLabelsContain(Exception actualException, IEnumerable<string> expectedErrorLabels)
         {
-            actualException = UnwrapCommandException(actualException);
+            if (actualException is ClientBulkWriteException bulkWriteException)
+            {
+                actualException = bulkWriteException.InnerException;
+            }
+
             var mongoException = actualException.Should().BeAssignableTo<MongoException>().Subject;
             mongoException.ErrorLabels.Should().Contain(expectedErrorLabels);
         }
