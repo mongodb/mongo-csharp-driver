@@ -54,8 +54,14 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var sslStream = CreateSslStream(stream);
                 var targetHost = GetTargetHost(endPoint);
+
+#if (NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER)
+                var options = GetAuthOptions(targetHost);
+                sslStream.AuthenticateAsClientAsync(options, default).GetAwaiter().GetResult();
+#else
                 var clientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray());
                 sslStream.AuthenticateAsClient(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation);
+#endif
                 return sslStream;
             }
             catch
@@ -73,8 +79,15 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var sslStream = CreateSslStream(stream);
                 var targetHost = GetTargetHost(endPoint);
+
+#if (NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER)
+                var options = GetAuthOptions(targetHost);
+                await sslStream.AuthenticateAsClientAsync(options, default).ConfigureAwait(false);
+#else
+
                 var clientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray());
                 await sslStream.AuthenticateAsClientAsync(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation).ConfigureAwait(false);
+#endif
                 return sslStream;
             }
             catch
@@ -105,6 +118,17 @@ namespace MongoDB.Driver.Core.Connections
                 // ignore exception
             }
         }
+
+#if (NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER)
+        private SslClientAuthenticationOptions GetAuthOptions(string targetHost) => new()
+        {
+            AllowRenegotiation = false,
+            ClientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray()),
+            CertificateRevocationCheckMode = _settings.CheckCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck,
+            EnabledSslProtocols = _settings.EnabledSslProtocols,
+            TargetHost = targetHost
+        };
+#endif
 
         private string GetTargetHost(EndPoint endPoint)
         {
