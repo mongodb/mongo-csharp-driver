@@ -136,6 +136,46 @@ namespace MongoDB.Driver.Tests.Search
             indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinition);
         }
 
+        [Fact(Timeout = Timeout)]
+        public async Task Case7_driver_can_handle_search_index_types_when_creating_indexes()
+        {
+            const string indexName1 = "test-search-index-case7-implicit";
+            const string indexName2 = "test-search-index-case7-explicit";
+            const string indexName3 = "test-search-index-case7-vector";
+
+            var indexNameCreated = await _collection.SearchIndexes.CreateOneAsync(_indexDefinition, indexName1);
+            indexNameCreated.Should().Be(indexName1);
+            var indexes = await GetIndexes(indexName1);
+            indexes[0]["type"].AsString.Should().Be("search");
+
+            indexNameCreated = await _collection.SearchIndexes.CreateOneAsync(_indexDefinition, SearchIndexType.Search, indexName2);
+            indexNameCreated.Should().Be(indexName2);
+            indexes = await GetIndexes(indexName2);
+            indexes[0]["type"].AsString.Should().Be("search");
+
+            var vectorIndexDefinition =
+                BsonDocument.Parse(
+                    "{ fields: [ { type: 'vector', path: 'plot_embedding', numDimensions: 1536, similarity: 'euclidean' } ] }");
+
+            indexNameCreated = await _collection.SearchIndexes.CreateOneAsync(vectorIndexDefinition, SearchIndexType.VectorSearch, indexName3);
+            indexNameCreated.Should().Be(indexName3);
+            indexes = await GetIndexes(indexName3);
+            indexes[0]["type"].AsString.Should().Be("vectorSearch");
+        }
+
+        [Fact(Timeout = Timeout)]
+        public async Task case8_driver_requires_explicit_type_to_create_vector_search_index()
+        {
+            const string indexName = "test-search-index-case8-error";
+
+            var vectorIndexDefinition =
+                BsonDocument.Parse(
+                    "{ fields: [ { type: 'vector', path: 'plot_embedding', numDimensions: 1536, similarity: 'euclidean' } ] }");
+
+            var exception = await Record.ExceptionAsync(() => _collection.SearchIndexes.CreateOneAsync(vectorIndexDefinition, indexName));
+            exception.Message.Should().Contain("Attribute mappings missing");
+        }
+
         private async Task<BsonDocument> CreateIndexAndValidate(string indexName)
         {
             var indexNameActual = await _collection.SearchIndexes.CreateOneAsync(_indexDefinition, indexName);
