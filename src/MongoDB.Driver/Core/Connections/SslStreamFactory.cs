@@ -55,7 +55,10 @@ namespace MongoDB.Driver.Core.Connections
                 var sslStream = CreateSslStream(stream);
                 var targetHost = GetTargetHost(endPoint);
 
-#if (NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER)
+#if (NET6_0_OR_GREATER)
+                var options = GetAuthOptions(targetHost);
+                sslStream.AuthenticateAsClient(options);
+#elif (NETSTANDARD2_1_OR_GREATER)
                 var options = GetAuthOptions(targetHost);
                 sslStream.AuthenticateAsClientAsync(options, default).GetAwaiter().GetResult();
 #else
