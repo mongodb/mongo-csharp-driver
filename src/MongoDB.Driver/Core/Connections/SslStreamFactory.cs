@@ -55,12 +55,12 @@ namespace MongoDB.Driver.Core.Connections
                 var sslStream = CreateSslStream(stream);
                 var targetHost = GetTargetHost(endPoint);
 
-#if (NET6_0_OR_GREATER)
-                var options = GetAuthOptions(targetHost);
+#if NET6_0_OR_GREATER
+                var options = GetAuthenticationOptions(targetHost);
                 sslStream.AuthenticateAsClient(options);
-#elif (NETSTANDARD2_1_OR_GREATER)
-                var options = GetAuthOptions(targetHost);
-                sslStream.AuthenticateAsClientAsync(options, default).GetAwaiter().GetResult();
+#elif NETSTANDARD2_1_OR_GREATER
+                var options = GetAuthenticationOptions(targetHost);
+                sslStream.AuthenticateAsClientAsync(options, cancellationToken).GetAwaiter().GetResult();
 #else
                 var clientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray());
                 sslStream.AuthenticateAsClient(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation);
@@ -83,11 +83,10 @@ namespace MongoDB.Driver.Core.Connections
                 var sslStream = CreateSslStream(stream);
                 var targetHost = GetTargetHost(endPoint);
 
-#if (NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER)
-                var options = GetAuthOptions(targetHost);
-                await sslStream.AuthenticateAsClientAsync(options, default).ConfigureAwait(false);
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                var options = GetAuthenticationOptions(targetHost);
+                await sslStream.AuthenticateAsClientAsync(options, cancellationToken).ConfigureAwait(false);
 #else
-
                 var clientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray());
                 await sslStream.AuthenticateAsClientAsync(targetHost, clientCertificates, _settings.EnabledSslProtocols, _settings.CheckCertificateRevocation).ConfigureAwait(false);
 #endif
@@ -122,8 +121,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-#if (NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER)
-        private SslClientAuthenticationOptions GetAuthOptions(string targetHost) => new()
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+        private SslClientAuthenticationOptions GetAuthenticationOptions(string targetHost) => new()
         {
             AllowRenegotiation = false,
             ClientCertificates = new X509CertificateCollection(_settings.ClientCertificates.ToArray()),
