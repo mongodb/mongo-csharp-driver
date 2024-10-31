@@ -81,14 +81,11 @@ namespace MongoDB.Driver.Encryption
         /// Gets the message to send to KMS.
         /// </summary>
         /// <returns>The message</returns>
-        public Binary Message
+        public Binary GetMessage()
         {
-            get {
             Binary binary = new Binary();
-
             Check(Library.mongocrypt_kms_ctx_message(_id, binary.Handle));
             return binary;
-            }
         }
 
         /// <summary>
