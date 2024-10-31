@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         {
             _closingEventHandler?.Invoke(new ConnectionClosingEvent(_connectionId, EventContext.OperationId));
             IsExpired = true;
-            _closedEventHandler?.Invoke(new ConnectionClosedEvent(_connectionId, TimeSpan.Zero, EventContext.OperationId));
+            _closedEventHandler?.Invoke(new ConnectionClosedEvent(_connectionId, TimeSpan.FromMilliseconds(42), EventContext.OperationId));
         }
 
         public void EnqueueCommandResponseMessage(Exception exception)
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             // which is one from methods called inside Open
             _lastUsedAtUtc = DateTime.UtcNow;
 
-            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
+            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.FromTicks(42), null));
         }
 
         public Task OpenAsync(CancellationToken cancellationToken)
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             // which is one from methods called inside OpenAsync
             _lastUsedAtUtc = DateTime.UtcNow;
 
-            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
+            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.FromTicks(42), null));
 
             return Task.CompletedTask;
         }

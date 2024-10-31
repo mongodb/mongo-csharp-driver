@@ -259,6 +259,35 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     throw new Exception($"Don't know how to assert against reason for class : {actualEvent.GetType().FullName}.");
                 }
             }
+
+            if (expectedEvent.TryGetValue("duration", out var duration))
+            {
+                var expectedDuration = duration.ToInt32();
+                TimeSpan actualDuration = actualEvent switch
+                {
+                    ConnectionPoolCheckedOutConnectionEvent connectionPoolCheckedOutEvent => connectionPoolCheckedOutEvent.Duration,
+                    ConnectionPoolCheckingOutConnectionFailedEvent connectionPoolCheckingOutFailedEvent => connectionPoolCheckingOutFailedEvent.Duration,
+                    ConnectionOpenedEvent connectionOpenedEvent => connectionOpenedEvent.Duration,
+                    ConnectionClosedEvent connectionClosedEvent => connectionClosedEvent.Duration,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+
+                if (expectedDuration == 42)
+                {
+                    if (actualDuration == TimeSpan.Zero)
+                    {
+                        int a = 10;
+                        a++;
+                    }
+
+                    actualDuration.Should().NotBe(default);
+                }
+                else
+                {
+                    // not expected code path
+                    throw new NotImplementedException();
+                }
+            }
         }
 
         private void AssertEvents(BsonDocument test, EventCapturer eventCapturer, Func<object, bool> eventsFilter)
@@ -271,7 +300,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                 for (var i = 0; i < minCount; i++)
                 {
                     var expectedEvent = expectedEvents[i];
-                    JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "options", "reason");
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "duration", "options", "reason");
                     AssertEvent(actualEvents[i], expectedEvent);
                 }
 
