@@ -379,7 +379,7 @@ namespace MongoDB.Driver.Core.Events
         }
 
         [Fact]
-        private void TryGetEventHandler_should_return_expected_handlers()
+        public void TryGetEventHandler_should_return_expected_handlers()
         {
             const string traceSourceName = "TryGetEventHandler_should_return_expected_handlers";
             const string logFileName = traceSourceName + "-log";

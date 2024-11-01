@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("retryable_writes.tests.unified")]
         public void RetryableWrites(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [Category("SDAM")]
+        [Category("SDAM", "SupportLoadBalancing")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
         public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase) =>
             Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
