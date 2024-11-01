@@ -1360,24 +1360,27 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var host = resolvedEndPoint.Host;
 
-            var hostParts = host.Split('.').ToArray();
-            var originalParts = original.Split('.').ToArray();
+            var hostDotCount = host.Count(c => c == '.');
+            var originalDotCount = original.Count(c => c == '.');
+            var originalFirstDotIndex = original.IndexOf('.');
 
-            if (originalParts.Length < 3)
+            // If original has less than 3 dot separated parts
+            if (originalDotCount < 2)
             {
-                return hostParts.Length > originalParts.Length && host.EndsWith("." + original);
+                return hostDotCount > originalDotCount && host.EndsWith("." + original);
             }
 
-            if (hostParts.Length < originalParts.Length)
+            if (hostDotCount < originalDotCount)
             {
                 return false;
             }
 
             // We check that all the parts are equal, going from the end and arriving at the
-            // first part of original (the subdomain)
-            for (int hi = hostParts.Length - 1, oi = originalParts.Length - 1; oi >= 1; hi--, oi--)
+            // first dot of original (where the subdomain is, if we continued)
+            for (int hostIndex = host.Length - 1, originalIndex = original.Length - 1;
+                 originalIndex >= originalFirstDotIndex; hostIndex--, originalIndex--)
             {
-                if (hostParts[hi] != originalParts[oi])
+                if (host[hostIndex] != original[originalIndex])
                 {
                     return false;
                 }
