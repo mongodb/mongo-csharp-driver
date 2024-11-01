@@ -637,7 +637,7 @@ namespace MongoDB.Driver.Encryption.Tests
                         var requests = context.GetKmsMessageRequests();
                         foreach (var req in requests)
                         {
-                            var binary = req.GetMessage();
+                            using var binary = req.GetMessage();
                             _output.WriteLine("Key Document: " + binary);
                             var postRequest = binary.ToString();
                             // TODO: add different hosts handling
