@@ -1004,6 +1004,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         case "topologydescriptionchangedevent":
                             eventCapturer = eventCapturer.Capture<ClusterDescriptionChangedEvent>();
                             break;
+                        case "topologyopeningevent":
+                            eventCapturer = eventCapturer.Capture<ClusterOpeningEvent>();
+                            break;
                         default:
                             throw new FormatException($"Invalid event name: {eventTypeToCapture}.");
                     }

@@ -19,6 +19,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             { "serverHeartbeatStartedEvent", (EventType.ServerHeartbeatStarted, EventSetType.Sdam) },
             { "serverHeartbeatSucceededEvent", (EventType.ServerHeartbeatSucceeded, EventSetType.Sdam) },
 
+            { "topologyOpeningEvent", (EventType.ClusterOpening, EventSetType.Sdam) },
             { "topologyClosedEvent", (EventType.ClusterClosed, EventSetType.Sdam) },
             { "topologyDescriptionChangedEvent", (EventType.ClusterDescriptionChanged, EventSetType.Sdam) },
         };
@@ -93,7 +95,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             static bool MatchIfComplexEvent(IEvent @event, BsonElement elements) =>
                 @event switch
                 {
-                    ServerDescriptionChangedEvent serverDescriptionChangedvent => IsExpectedServerDescriptionChangedEvent(serverDescriptionChangedvent, elements),
+                    ServerDescriptionChangedEvent serverDescriptionChangedEvent => IsExpectedServerDescriptionChangedEvent(serverDescriptionChangedEvent, elements),
                     _ => true,// validate only type name in the rest of cases
                 };
 
@@ -313,6 +315,28 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     case ConnectionPoolReadyEvent:
                         expectedEventValue.ElementCount.Should().Be(0); // empty document
                         break;
+                    case ClusterClosedEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ClusterOpeningEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ClusterDescriptionChangedEvent clusterDescriptionChangedEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "newDescription":
+                                    AssertTopologyDescription(element.Value.AsBsonDocument, clusterDescriptionChangedEvent.NewDescription);
+                                    break;
+                                case "previousDescription":
+                                    AssertTopologyDescription(element.Value.AsBsonDocument, clusterDescriptionChangedEvent.OldDescription);
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                            }
+                        }
+                        break;
                     case ServerDescriptionChangedEvent serverDescriptionChangedEvent:
                         if (expectedEventValue.Elements.Any())
                         {
@@ -372,6 +396,50 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     connectionId.LongServerValue.Should().HaveValue();
                 }
             }
+        }
+
+        private void AssertTopologyDescription(BsonDocument description, ClusterDescription clusterDescription)
+        {
+            foreach (var element in description)
+            {
+                switch (element.Name)
+                {
+                    case "type":
+                        AssertTopologyType(element.Value.ToString(), clusterDescription);
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected topology description field: '{element.Name}'.");
+                }
+            }
+        }
+
+        private void AssertTopologyType(string topologyType, ClusterDescription clusterDescription)
+        {
+            switch (topologyType)
+            {
+                case "Single":
+                    clusterDescription.Type.Should().Be(ClusterType.Standalone);
+                    break;
+                case "ReplicaSetNoPrimary":
+                    clusterDescription.Type.Should().Be(ClusterType.ReplicaSet);
+                    clusterDescription.Servers.All(s => s.Type != ServerType.ReplicaSetPrimary).Should().BeTrue();
+                    break;
+                case "ReplicaSetWithPrimary":
+                    clusterDescription.Type.Should().Be(ClusterType.ReplicaSet);
+                    clusterDescription.Servers.Any(s => s.Type == ServerType.ReplicaSetPrimary).Should().BeTrue();
+                    break;
+                case "Sharded":
+                    clusterDescription.Type.Should().Be(ClusterType.Sharded);
+                    break;
+                case "LoadBalanced":
+                    clusterDescription.Type.Should().Be(ClusterType.LoadBalanced);
+                    break;
+                case "Unknown":
+                    clusterDescription.Type.Should().Be(ClusterType.Unknown);
+                    break;
+                default:
+                    throw new Exception($"Unexpected topology type: {topologyType}.");
+            };
         }
 
         private string GetAssertionErrorMessage(List<object> actualEvents, BsonArray expectedEventsDocuments)
