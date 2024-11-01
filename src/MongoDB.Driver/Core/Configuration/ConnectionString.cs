@@ -1358,6 +1358,18 @@ namespace MongoDB.Driver.Core.Configuration
 
         internal static bool HasValidParentDomain(string original, DnsEndPoint resolvedEndPoint)
         {
+            var host = resolvedEndPoint.Host;
+
+            var hostParts = host.Split('.').ToArray();
+            var originalParts = original.Split('.').ToArray();
+
+            if (originalParts.Length < 3)
+            {
+                return hostParts.Length > originalParts.Length && host.EndsWith("." + original);
+            }
+
+            //TODO Need to see if I can merge the two parts...
+
             // Helper functions...
             Func<string, string[]> getParentParts = x => x.Split('.').Skip(1).ToArray();
 
@@ -1383,7 +1395,6 @@ namespace MongoDB.Driver.Core.Configuration
 
             // make sure that the resolve host ends with domain of the parent.
             var originalParentParts = getParentParts(original);
-            var host = resolvedEndPoint.Host;
             return endsWith(getParentParts(host), originalParentParts);
         }
 
