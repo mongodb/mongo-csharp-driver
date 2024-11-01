@@ -1984,6 +1984,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(queryVector, nameof(queryVector));
             Ensure.IsGreaterThanZero(limit, nameof(limit));
+            Ensure.That(options?.NumberOfCandidates is null || options.Exact == false, "Number of candidates must be omitted for exact nearest neighbour search (ENN).");
 
             const string operatorName = "$vectorSearch";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
@@ -1996,9 +1997,10 @@ namespace MongoDB.Driver
                         { "queryVector", queryVector.Array },
                         { "path", field.Render(args).FieldName },
                         { "limit", limit },
-                        { "numCandidates", options?.NumberOfCandidates ?? limit * 10 },
+                        { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
                         { "index", options?.IndexName ?? "default" },
-                        { "filter", () => options.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
+                        { "filter", () => options?.Filter.Render(args with { RenderDollarForm = true }), options?.Filter != null },
+                        { "exact", true, options?.Exact == true }
                     };
 
                     var document = new BsonDocument(operatorName, vectorSearchOperator);
