@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
 {
     public class SrvPartsTests
     {
+        // https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/tests/README.md#1-allow-srvs-with-fewer-than-3--separated-parts
         [Theory]
         [InlineData("mongodb+srv://localhost")]
         [InlineData("mongodb+srv://mongo.local")]
@@ -37,6 +38,7 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
             exception.Should().BeNull();
         }
 
+        // https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/tests/README.md#2-throw-when-return-address-does-not-end-with-srv-domain
         [Theory]
         [InlineData("mongodb+srv://localhost", "localhost.mongodb")]
         [InlineData("mongodb+srv://mongo.local", "test_1.evil.local")]
@@ -50,6 +52,7 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
                 Which.Message.Should().Be("Hosts in the SRV record must have the same parent domain as the seed host.");
         }
 
+        // https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/tests/README.md#3-throw-when-return-address-is-identical-to-srv-hostname
         [Theory]
         [InlineData("mongodb+srv://localhost", "localhost")]
         [InlineData("mongodb+srv://mongo.local", "mongo.local")]
@@ -62,6 +65,7 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
                 Which.Message.Should().Be("Hosts in the SRV record must have the same parent domain as the seed host.");
         }
 
+        // https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/tests/README.md#4-throw-when-return-address-does-not-contain--separating-shared-part-of-domain
         [Theory]
         [InlineData("mongodb+srv://localhost", "test_1.cluster_1localhost")]
         [InlineData("mongodb+srv://mongo.local", "test_1.my_hostmongo.local")]
