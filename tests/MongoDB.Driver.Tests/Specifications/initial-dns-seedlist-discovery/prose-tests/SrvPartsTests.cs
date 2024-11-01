@@ -84,19 +84,14 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
             }
 
             public List<TxtRecord> ResolveTxtRecords(string domainName, CancellationToken cancellation)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public Task<List<SrvRecord>> ResolveSrvRecordsAsync(string service, CancellationToken cancellation)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public Task<List<TxtRecord>> ResolveTxtRecordsAsync(string domainName, CancellationToken cancellation)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
+
         }
     }
 }
