@@ -1368,34 +1368,22 @@ namespace MongoDB.Driver.Core.Configuration
                 return hostParts.Length > originalParts.Length && host.EndsWith("." + original);
             }
 
-            //TODO Need to see if I can merge the two parts...
-
-            // Helper functions...
-            Func<string, string[]> getParentParts = x => x.Split('.').Skip(1).ToArray();
-
-            // Indicates whether "a" ends with "b"
-            Func<string[], string[], bool> endsWith = (a, b) =>
+            if (hostParts.Length < originalParts.Length)
             {
-                if (a.Length < b.Length)
+                return false;
+            }
+
+            // We check that all the parts are equal, going from the end and arriving at the
+            // first part of original (the subdomain)
+            for (int hi = hostParts.Length - 1, oi = originalParts.Length - 1; oi >= 1; hi--, oi--)
+            {
+                if (hostParts[hi] != originalParts[oi])
                 {
                     return false;
                 }
+            }
 
-                // loop from back to front making sure that all of b is at the back of a, in order.
-                for (int ai = a.Length - 1, bi = b.Length - 1; bi >= 0; ai--, bi--)
-                {
-                    if (a[ai] != b[bi])
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            };
-
-            // make sure that the resolve host ends with domain of the parent.
-            var originalParentParts = getParentParts(original);
-            return endsWith(getParentParts(host), originalParentParts);
+            return true;
         }
 
         private void ValidateResolvedOptions(IEnumerable<string> optionNames)

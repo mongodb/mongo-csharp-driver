@@ -25,7 +25,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.prose_tests
 {
-    public class SRVPartsTests
+    public class SrvPartsTests
     {
         [Theory]
         [InlineData("mongodb+srv://localhost")]
@@ -33,19 +33,6 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
         public void Allow_srv_with_fewer_than_3_parts(string uri)
         {
             var exception = Record.Exception(() => new ConnectionString(uri));
-
-            exception.Should().BeNull();
-        }
-
-        //TODO This is not in the prose tests, it's just to verify this works properly
-        [Theory]
-        [InlineData("mongodb+srv://localhost", "mongodb.localhost")]
-        [InlineData("mongodb+srv://mongo.local", "test_1.evil.mongo.local")]
-        [InlineData("mongodb+srv://blogs.mongodb.com", "blogs.mongodb.com")]
-        public void Should_not_throw(string uri, string resolvedHost)
-        {
-            var connectionString = new ConnectionString(uri, true, new MockDnsResolver(resolvedHost));
-            var exception = Record.Exception(() => connectionString.Resolve());
 
             exception.Should().BeNull();
         }
@@ -92,12 +79,13 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
         {
             public List<SrvRecord> ResolveSrvRecords(string service, CancellationToken cancellation)
             {
-                return [new SrvRecord(new DnsEndPoint(dnsEndPointString, 2090), TimeSpan.MaxValue)];
+                return new List<SrvRecord>
+                    { new SrvRecord(new DnsEndPoint(dnsEndPointString, 2090), TimeSpan.MaxValue) };
             }
 
             public List<TxtRecord> ResolveTxtRecords(string domainName, CancellationToken cancellation)
             {
-                return [new TxtRecord(["replicaSet=replProduction&authSource=authDB"])];
+                throw new NotImplementedException();
             }
 
             public Task<List<SrvRecord>> ResolveSrvRecordsAsync(string service, CancellationToken cancellation)
