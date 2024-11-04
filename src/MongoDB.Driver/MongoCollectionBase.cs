@@ -579,7 +579,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull((object)replacement, "replacement");
 
-            options = options ?? new ReplaceOptions();
+            options ??= new ReplaceOptions();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
                 Collation = options.Collation,
@@ -631,12 +631,14 @@ namespace MongoDB.Driver
             return ReplaceOneAsync(filter, replacement, ReplaceOptions.From(options), (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
+        private async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement,
+            ReplaceOptions options,
+            Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull((object)replacement, "replacement");
 
-            options = options ?? new ReplaceOptions();
+            options ??= new ReplaceOptions();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
                 Collation = options.Collation,
@@ -763,17 +765,20 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
 
-            options = options ?? new UpdateOptions();
+            options ??= new UpdateOptions();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert,
-                Sort = options.Sort
             };
-            //TODO Why don't UpdateOne and UpdateOneAsync have a common path for creating the UpdateOneModel and BulkWriteOptions (if not more)?
-            //TODO Remember to add ticket about this.
+
+            if (options is UpdateOptions<TDocument> uo)
+            {
+                model.Sort = uo.Sort;
+            }
+
             try
             {
                 var bulkWriteOptions = new BulkWriteOptions
@@ -806,15 +811,19 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
 
-            options = options ?? new UpdateOptions();
+            options ??= new UpdateOptions();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert,
-                Sort = options.Sort,
             };
+
+            if (options is UpdateOptions<TDocument> uo)
+            {
+                model.Sort = uo.Sort;
+            }
 
             try
             {

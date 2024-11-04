@@ -90,7 +90,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the sort document.
+        /// Gets or sets the sort definition.
         /// </summary>
         public SortDefinition<TDocument> Sort
         {

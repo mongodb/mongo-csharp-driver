@@ -32,7 +32,7 @@ namespace MongoDB.Driver
         private Collation _collation;
         private readonly FilterDefinition<TDocument> _filter;
         private BsonValue _hint;
-        private BsonDocument _sort;
+        private SortDefinition<TDocument> _sort;
         private bool _isUpsert;
         private readonly UpdateDefinition<TDocument> _update;
 
@@ -97,9 +97,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the sort document.
+        /// Gets or sets the sort definition.
         /// </summary>
-        public BsonDocument Sort
+        public SortDefinition<TDocument> Sort
         {
             get { return _sort; }
             set { _sort = value; }
