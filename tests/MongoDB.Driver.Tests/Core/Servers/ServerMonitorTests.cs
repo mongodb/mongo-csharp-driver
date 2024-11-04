@@ -50,6 +50,34 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Fact]
+        public void CancelCurrentCheck_should_dispose_connection()
+        {
+            using var subject = CreateSubject(out _, out _, out _);
+
+            subject.CancelCurrentCheck();
+
+            subject._connection().Should().BeNull();
+
+            var logMessages = Logs.Where(l => l.Category.Contains(nameof(IServerMonitor))).ToArray();
+            logMessages.Length.Should().Be(1);
+            logMessages[0].Message.Contains("Heartbeat cancellation check requested").Should().BeTrue();
+        }
+
+        [Fact]
+        public void CancelCurrentCheck_should_do_nothing_if_disposed()
+        {
+            using var subject = CreateSubject(out _, out _, out _);
+
+            subject.Dispose();
+            subject.CancelCurrentCheck();
+
+            var logMessages = Logs.Where(l => l.Category.Contains(nameof(IServerMonitor))).ToArray();
+            logMessages.Length.Should().Be(2);
+            logMessages[0].Message.Contains("Disposing").Should().BeTrue();
+            logMessages[1].Message.Contains("Disposed").Should().BeTrue();
+        }
+
+        [Fact]
         public void Constructor_should_throw_when_serverId_is_null()
         {
             Action act = () => new ServerMonitor(null, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), serverApi: null, loggerFactory: null);
@@ -100,7 +128,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Description_should_return_default_when_uninitialized()
         {
-            var subject = CreateSubject(out _, out _, out _);
+            using var subject = CreateSubject(out _, out _, out _);
 
             var description = subject.Description;
 
@@ -112,7 +140,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Description_should_return_default_when_disposed()
         {
-            var subject = CreateSubject(out _, out _, out _);
+            using var subject = CreateSubject(out _, out _, out _);
 
             subject.Dispose();
 
@@ -129,7 +157,7 @@ namespace MongoDB.Driver.Core.Servers
             var capturedEvents = new EventCapturer();
 
             var changes = new List<ServerDescriptionChangedEventArgs>();
-            var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents);
+            using var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents);
             subject.DescriptionChanged += (o, e) => changes.Add(e);
 
             SetupHeartbeatConnection(mockConnection);
@@ -157,7 +185,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var capturedEvents = new EventCapturer();
 
-            var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents);
+            using var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents);
             SetupHeartbeatConnection(mockConnection);
             subject.Initialize();
             SpinWait.SpinUntil(() => subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -175,7 +203,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var capturedEvents = new EventCapturer();
 
-            var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, captureConnectionEvents: true);
+            using var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, captureConnectionEvents: true);
 
             SetupHeartbeatConnection(mockConnection);
             subject.Initialize();
@@ -198,7 +226,7 @@ namespace MongoDB.Driver.Core.Servers
                     .Capture<ServerHeartbeatSucceededEvent>()
                     .Capture<ServerHeartbeatFailedEvent>()
                     .Capture<ServerDescriptionChangedEvent>();
-            var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTimeTripMonitor, capturedEvents);
+            using var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTimeTripMonitor, capturedEvents);
 
             subject.DescriptionChanged +=
                 (o, e) =>
@@ -276,7 +304,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(true, true, "hello")]
         public void InitializeHelloProtocol_should_use_streaming_protocol_when_available(bool isStreamable, bool helloOk, string expectedCommand)
         {
-            var subject = CreateSubject(out var mockConnection, out _, out _);
+            using var subject = CreateSubject(out var mockConnection, out _, out _);
             SetupHeartbeatConnection(mockConnection, isStreamable, autoFillStreamingResponses: true);
 
             mockConnection.WasReadTimeoutChanged.Should().Be(null);
@@ -304,7 +332,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var capturedEvents = new EventCapturer().Capture<ServerHeartbeatSucceededEvent>();
             var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10));
-            var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
+            using var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(), null);
@@ -328,7 +356,7 @@ namespace MongoDB.Driver.Core.Servers
                 serverMonitoringMode: ServerMonitoringMode.Poll);
 
             var capturedEvents = new EventCapturer().Capture<ServerHeartbeatSucceededEvent>();
-            var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
+            using var subject = CreateSubject(out var mockConnection, out _, out var mockRoundTripTimeMonitor, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
@@ -346,7 +374,7 @@ namespace MongoDB.Driver.Core.Servers
         public void RequestHeartbeat_should_force_another_heartbeat()
         {
             var capturedEvents = new EventCapturer();
-            var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents);
+            using var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents);
 
             SetupHeartbeatConnection(mockConnection);
             subject.Initialize();
@@ -372,7 +400,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatSucceededEvent>();
 
             var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10), serverMonitoringMode: ServerMonitoringMode.Poll);
-            var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
+            using var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
@@ -473,7 +501,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Capture<ServerHeartbeatSucceededEvent>();
 
             var serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(10));
-            var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings, environmentVariableProviderMock: environmentVariableProviderMock);
+            using var subject = CreateSubject(out var mockConnection, out _, out _, capturedEvents, serverMonitorSettings: serverMonitorSettings, environmentVariableProviderMock: environmentVariableProviderMock);
 
             SetupHeartbeatConnection(mockConnection, isStreamable: true, autoFillStreamingResponses: false);
             mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage());
