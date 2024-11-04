@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var collection = _entityMap.Collections[targetCollectionId];
 
             FilterDefinition<BsonDocument> filter = null;
-            UpdateOptions options = null;
+            UpdateOptions<BsonDocument> options = null;
             IClientSessionHandle session = null;
             UpdateDefinition<BsonDocument> update = null;
 
@@ -113,29 +113,29 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "comment":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Comment = argument.Value;
                         break;
                     case "filter":
                         filter = argument.Value.AsBsonDocument;
                         break;
                     case "hint":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Hint = argument.Value;
                         break;
                     case "let":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     case "sort":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Sort = argument.Value.AsBsonDocument;
                         break;
                     case "upsert":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.IsUpsert = argument.Value.AsBoolean;
                         break;
                     case "update":

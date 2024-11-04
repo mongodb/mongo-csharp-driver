@@ -817,7 +817,7 @@ namespace MongoDB.Driver
                         Hint = updateOneModel.Hint,
                         IsMulti = false,
                         IsUpsert = updateOneModel.IsUpsert,
-                        Sort = updateOneModel.Sort,
+                        Sort = updateOneModel.Sort?.Render(renderArgs),
                     };
                 default:
                     throw new InvalidOperationException("Unknown type of WriteModel provided.");

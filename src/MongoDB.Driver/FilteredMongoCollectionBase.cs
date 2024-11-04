@@ -405,7 +405,6 @@ namespace MongoDB.Driver
                             Hint = replaceOneModel.Hint,
                             IsUpsert = replaceOneModel.IsUpsert,
                             Sort = replaceOneModel.Sort
-                            //TODO how to test this?
                         };
                     case WriteModelType.UpdateMany:
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
@@ -428,7 +427,7 @@ namespace MongoDB.Driver
                             Collation = updateOneModel.Collation,
                             Hint = updateOneModel.Hint,
                             IsUpsert = updateOneModel.IsUpsert,
-                            Sort = updateOneModel.Sort, //TODO Need to find a way to test this
+                            Sort = updateOneModel.Sort
                         };
                     default:
                         throw new MongoInternalException("Request type is invalid.");
