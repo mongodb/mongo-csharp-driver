@@ -128,9 +128,8 @@ namespace MongoDB.Driver.Core.Servers
         // public methods
         public void CancelCurrentCheck()
         {
-            if (_state.Value == State.Disposed)
+            if (IsDisposed())
             {
-                // Skip lock if already disposed
                 return;
             }
 
@@ -140,16 +139,20 @@ namespace MongoDB.Driver.Core.Servers
                 if (!_heartbeatCancellationTokenSource.IsCancellationRequested)
                 {
                     // _heartbeatCancellationTokenSource instance might have been disposed in Dispose at this point
-                    if (TryCancelAndDispose(_heartbeatCancellationTokenSource))
+                    TryCancelAndDispose(_heartbeatCancellationTokenSource);
+
+                    if (IsDisposed()) // Skip creating new CancellationTokenSource if disposed
                     {
-                        _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationToken);
-                        // the previous hello or legacy hello cancellation token is still cancelled
-
-                        toDispose = _connection;
-                        _connection = null;
-
-                        _logger?.LogDebug(_serverId, "Heartbeat cancellation check requested");
+                        return;
                     }
+
+                    _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationToken);
+                    // the previous hello or legacy hello cancellation token is still cancelled
+
+                    toDispose = _connection;
+                    _connection = null;
+
+                    _logger?.LogDebug(_serverId, "Heartbeat cancellation check requested");
                 }
             }
             toDispose?.Dispose();
@@ -203,22 +206,6 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
-        private bool TryCancelAndDispose(CancellationTokenSource cancellationTokenSource)
-        {
-            try
-            {
-                cancellationTokenSource.Cancel();
-                cancellationTokenSource.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-                // Ignore ObjectDisposedException
-                return false;
-            }
-
-            return true;
-        }
-
         private IConnection InitializeConnection(CancellationToken cancellationToken) // called setUpConnection in spec
         {
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
@@ -268,6 +255,8 @@ namespace MongoDB.Driver.Core.Servers
 
             return HelloHelper.CreateProtocol(helloCommand, _serverApi, commandResponseHandling);
         }
+
+        private bool IsDisposed() => _state.Value == State.Disposed;
 
         private bool IsRunningInFaaS()
         {
@@ -547,7 +536,7 @@ namespace MongoDB.Driver.Core.Servers
 
         private void ThrowIfDisposed()
         {
-            if (_state.Value == State.Disposed)
+            if (IsDisposed())
             {
                 throw new ObjectDisposedException(GetType().Name);
             }
@@ -559,6 +548,19 @@ namespace MongoDB.Driver.Core.Servers
             {
                 ThrowIfDisposed();
                 throw new InvalidOperationException("Server monitor must be initialized.");
+            }
+        }
+
+        private void TryCancelAndDispose(CancellationTokenSource cancellationTokenSource)
+        {
+            try
+            {
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ignore ObjectDisposedException
             }
         }
 

@@ -393,6 +393,26 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Fact]
+        public void RequestHeartbeat_should_throw_if_disposed()
+        {
+            var subject = CreateSubject(out var _, out _, out _);
+
+            subject.Dispose();
+
+            var exception = Record.Exception(() => subject.RequestHeartbeat());
+            exception.Should().BeOfType<ObjectDisposedException>();
+        }
+
+        [Fact]
+        public void RequestHeartbeat_should_throw_if_not_open()
+        {
+            using var subject = CreateSubject(out var _, out _, out _);
+
+            var exception = Record.Exception(() => subject.RequestHeartbeat());
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Fact]
         public void ServerHeartBeatEvents_should_not_be_awaited_if_using_polling_protocol()
         {
             var capturedEvents = new EventCapturer()
