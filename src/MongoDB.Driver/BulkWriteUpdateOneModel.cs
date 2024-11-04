@@ -107,7 +107,7 @@ namespace MongoDB.Driver
         public bool IsUpsert { get; init; }
 
         /// <summary>
-        /// The sort document to use.
+        /// The sort definition to use.
         /// </summary>
         public SortDefinition<TDocument> Sort { get; init; }
 
