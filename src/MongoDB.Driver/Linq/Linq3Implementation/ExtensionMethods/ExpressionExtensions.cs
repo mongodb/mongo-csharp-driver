@@ -38,16 +38,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
 
         public static (string CollectionName, IBsonSerializer DocumentSerializer) GetCollectionInfo(this Expression innerExpression, Expression containerExpression)
         {
-            if (innerExpression is ConstantExpression constantExpression &&
-                constantExpression.Value is IQueryable queryable &&
-                queryable.Provider is IMongoQueryProviderInternal mongoQueryProvider &&
-                mongoQueryProvider.CollectionNamespace != null)
+            var mongoQueryProvider = ExtractQueryProviderFromExpression(innerExpression);
+            if (mongoQueryProvider is not null)
             {
                 return (mongoQueryProvider.CollectionNamespace.CollectionName, mongoQueryProvider.PipelineInputSerializer);
             }
 
-            var message = $"inner expression must be a MongoDB IQueryable against a collection";
+            var message = "inner expression must be a MongoDB IQueryable against a collection";
             throw new ExpressionNotSupportedException(innerExpression, containerExpression, because: message);
+        }
+
+        private static IMongoQueryProviderInternal ExtractQueryProviderFromExpression(Expression expression)
+        {
+            return expression switch
+            {
+                MethodCallExpression methodCallExpression => ExtractQueryProviderFromExpression(methodCallExpression.Arguments.FirstOrDefault()),
+                ConstantExpression constantExpression => constantExpression.Value switch
+                {
+                    IQueryable queryable => queryable.Provider as IMongoQueryProviderInternal,
+                    _ => null
+                },
+                _ => null
+            };
         }
 
         public static TValue GetConstantValue<TValue>(this Expression expression, Expression containingExpression)
