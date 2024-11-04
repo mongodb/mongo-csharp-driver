@@ -23,6 +23,38 @@ namespace MongoDB.Driver
     /// </summary>
     public class ReplaceOptions
     {
+        #region static
+        // public static methods
+        /// <summary>
+        /// Creates a new ReplaceOptions from an UpdateOptions.
+        /// </summary>
+        /// <param name="updateOptions">The update options.</param>
+        /// <returns>A ReplaceOptions.</returns>
+        internal static ReplaceOptions From(UpdateOptions updateOptions)
+        {
+            if (updateOptions == null)
+            {
+                return null;
+            }
+            else
+            {
+                if (updateOptions.ArrayFilters != null)
+                {
+                    throw new ArgumentException("ArrayFilters cannot be used with ReplaceOne.", nameof(updateOptions));
+                }
+
+                return new ReplaceOptions
+                {
+                    BypassDocumentValidation = updateOptions.BypassDocumentValidation,
+                    Collation = updateOptions.Collation,
+                    Hint = updateOptions.Hint,
+                    IsUpsert = updateOptions.IsUpsert,
+                    Let = updateOptions.Let
+                };
+            }
+        }
+        #endregion
+
         // fields
         private bool? _bypassDocumentValidation;
         private Collation _collation;
@@ -85,38 +117,6 @@ namespace MongoDB.Driver
             get { return _let; }
             set { _let = value; }
         }
-
-        #region static
-        // public static methods
-        /// <summary>
-        /// Creates a new ReplaceOptions from an UpdateOptions.
-        /// </summary>
-        /// <param name="updateOptions">The update options.</param>
-        /// <returns>A ReplaceOptions.</returns>
-        internal static ReplaceOptions From(UpdateOptions updateOptions)
-        {
-            if (updateOptions == null)
-            {
-                return null;
-            }
-            else
-            {
-                if (updateOptions.ArrayFilters != null)
-                {
-                    throw new ArgumentException("ArrayFilters cannot be used with ReplaceOne.", nameof(updateOptions));
-                }
-
-                return new ReplaceOptions
-                {
-                    BypassDocumentValidation = updateOptions.BypassDocumentValidation,
-                    Collation = updateOptions.Collation,
-                    Hint = updateOptions.Hint,
-                    IsUpsert = updateOptions.IsUpsert,
-                    Let = updateOptions.Let
-                };
-            }
-        }
-        #endregion
     }
 
     /// <summary>

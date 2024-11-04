@@ -2213,7 +2213,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        public static ReplaceOneResult ReplaceOne<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static ReplaceOneResult ReplaceOne<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
@@ -2257,7 +2257,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        public static ReplaceOneResult ReplaceOne<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, bool>> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static ReplaceOneResult ReplaceOne<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, bool>> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(session, nameof(session));
@@ -2303,7 +2303,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        public static Task<ReplaceOneResult> ReplaceOneAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<ReplaceOneResult> ReplaceOneAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
@@ -2347,7 +2347,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        public static Task<ReplaceOneResult> ReplaceOneAsync<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, bool>> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<ReplaceOneResult> ReplaceOneAsync<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, bool>> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(session, nameof(session));
