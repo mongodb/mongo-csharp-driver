@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for updating a single document.
     /// </summary>
-    public sealed class UpdateOptions
+    public class UpdateOptions
     {
         // fields
         private IEnumerable<ArrayFilterDefinition> _arrayFilters;
@@ -31,7 +31,6 @@ namespace MongoDB.Driver
         private BsonValue _hint;
         private bool _isUpsert;
         private BsonDocument _let;
-        private BsonDocument _sort;
 
         // properties
         /// <summary>
@@ -99,14 +98,21 @@ namespace MongoDB.Driver
             get { return _let; }
             set { _let = value; }
         }
+    }
+
+    /// <summary>
+    /// Options for updating a single document and specifying a sort order.
+    /// </summary>
+    public sealed class UpdateOptions<T> : UpdateOptions
+    {
+        private SortDefinition<T> _sort;
 
         /// <summary>
-        /// Gets or sets the sort document.
+        /// Gets or sets the sort definition.
         /// </summary>
-        public BsonDocument Sort
+        public SortDefinition<T> Sort
         {
             get { return _sort; }
             set { _sort = value; }
         }
-    }
-}
+    }}

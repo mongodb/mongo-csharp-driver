@@ -120,14 +120,14 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// Options for replacing a single document.
+    /// Options for replacing a single document and specifying a sort order.
     /// </summary>
     public sealed class ReplaceOptions<T> : ReplaceOptions
     {
         private SortDefinition<T> _sort;
 
         /// <summary>
-        /// Gets or sets the sort document.
+        /// Gets or sets the sort definition.
         /// </summary>
         public SortDefinition<T> Sort
         {
