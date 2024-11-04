@@ -1833,7 +1833,7 @@ tasks:
         - func: build-packages
         - func: upload-packages
 
-    - name: validate-packages
+    - name: validate-apicompat
       commands:
         - func: install-dotnet
           vars:
@@ -1846,7 +1846,7 @@ tasks:
             shell: "bash"
             script: |
               ${PREPARE_SHELL}
-              bash evergreen/validate-packages.sh
+              bash evergreen/validate-apicompat.sh
 
     - name: push-packages-nuget
       commands:
@@ -2391,7 +2391,7 @@ task_groups:
     tasks:
       - test-serverless
 
-  - name: validate-packages-task-group
+  - name: validate-apicompat-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
     setup_group:
@@ -2413,7 +2413,7 @@ task_groups:
           permissions: public-read
           content_type: text/plain
     tasks:
-      - validate-packages
+      - validate-apicompat
 
 buildvariants:
 - matrix_name: stable-api-tests
@@ -2765,12 +2765,12 @@ buildvariants:
     - name: build-packages
       priority: 10
 
-- matrix_name: validate-packages-compatibility
+- matrix_name: validate-apicompat-compatibility
   matrix_spec:
     os: "ubuntu-2004"
   display_name: "Validate API compatibility"
   tasks:
-    - name: validate-packages-task-group
+    - name: validate-apicompat-task-group
       depends_on:
         - name: build-packages
           variant: ".build-packages"
