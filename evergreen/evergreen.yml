@@ -2765,7 +2765,7 @@ buildvariants:
     - name: build-packages
       priority: 10
 
-- matrix_name: validate-apicompat-compatibility
+- matrix_name: validate-apicompat
   matrix_spec:
     os: "ubuntu-2004"
   display_name: "Validate API compatibility"
