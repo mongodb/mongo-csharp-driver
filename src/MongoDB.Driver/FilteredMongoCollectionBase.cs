@@ -403,7 +403,9 @@ namespace MongoDB.Driver
                         {
                             Collation = replaceOneModel.Collation,
                             Hint = replaceOneModel.Hint,
-                            IsUpsert = replaceOneModel.IsUpsert
+                            IsUpsert = replaceOneModel.IsUpsert,
+                            Sort = replaceOneModel.Sort
+                            //TODO how to test this?
                         };
                     case WriteModelType.UpdateMany:
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
