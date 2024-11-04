@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Tests.Search
         private readonly IMongoDatabase _database;
         private readonly IMongoClient _mongoClient;
         private readonly BsonDocument _indexDefinition = BsonDocument.Parse("{ mappings: { dynamic: false } }");
+        private readonly BsonDocument _vectorIndexDefinition = BsonDocument.Parse("{ fields: [ { type: 'vector', path: 'plot_embedding', numDimensions: 1536, similarity: 'euclidean' } ] }");
 
         public AtlasSearchIndexManagementTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
@@ -153,26 +154,18 @@ namespace MongoDB.Driver.Tests.Search
             indexes = await GetIndexes(indexName2);
             indexes[0]["type"].AsString.Should().Be("search");
 
-            var vectorIndexDefinition =
-                BsonDocument.Parse(
-                    "{ fields: [ { type: 'vector', path: 'plot_embedding', numDimensions: 1536, similarity: 'euclidean' } ] }");
-
-            indexNameCreated = await _collection.SearchIndexes.CreateOneAsync(vectorIndexDefinition, SearchIndexType.VectorSearch, indexName3);
+            indexNameCreated = await _collection.SearchIndexes.CreateOneAsync(_vectorIndexDefinition, SearchIndexType.VectorSearch, indexName3);
             indexNameCreated.Should().Be(indexName3);
             indexes = await GetIndexes(indexName3);
             indexes[0]["type"].AsString.Should().Be("vectorSearch");
         }
 
         [Fact(Timeout = Timeout)]
-        public async Task case8_driver_requires_explicit_type_to_create_vector_search_index()
+        public async Task Case8_driver_requires_explicit_type_to_create_vector_search_index()
         {
             const string indexName = "test-search-index-case8-error";
 
-            var vectorIndexDefinition =
-                BsonDocument.Parse(
-                    "{ fields: [ { type: 'vector', path: 'plot_embedding', numDimensions: 1536, similarity: 'euclidean' } ] }");
-
-            var exception = await Record.ExceptionAsync(() => _collection.SearchIndexes.CreateOneAsync(vectorIndexDefinition, indexName));
+            var exception = await Record.ExceptionAsync(() => _collection.SearchIndexes.CreateOneAsync(_vectorIndexDefinition, indexName));
             exception.Message.Should().Contain("Attribute mappings missing");
         }
 
