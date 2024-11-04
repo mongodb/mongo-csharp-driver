@@ -100,7 +100,7 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          OS=${OS} DOTNET_SDK_VERSION=${DOTNET_SDK_VERSION} bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -1833,6 +1833,21 @@ tasks:
         - func: build-packages
         - func: upload-packages
 
+    - name: validate-packages
+      commands:
+        - func: install-dotnet
+          vars:
+            DOTNET_SDK_VERSION: 6.0
+        - func: download-packages
+        - command: shell.exec
+          type: test
+          params:
+            working_dir: mongo-csharp-driver
+            shell: "bash"
+            script: |
+              ${PREPARE_SHELL}
+              bash evergreen/validate-packages.sh
+
     - name: push-packages-nuget
       commands:
         - func: install-dotnet
@@ -2376,6 +2391,30 @@ task_groups:
     tasks:
       - test-serverless
 
+  - name: validate-packages-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: install-dotnet
+    teardown_group:
+      - command: s3.put
+        params:
+          aws_key: ${aws_key}
+          aws_secret: ${aws_secret}
+          local_files_include_filter:
+            - mongo-csharp-driver/artifacts/apicompat/*.${PACKAGE_VERSION}.txt
+          remote_file: ${UPLOAD_BUCKET}/${revision}/
+          preserve_path: false
+          bucket: mciuploads
+          permissions: public-read
+          content_type: text/plain
+    tasks:
+      - validate-packages
+
 buildvariants:
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
@@ -2725,6 +2764,16 @@ buildvariants:
   tasks:
     - name: build-packages
       priority: 10
+
+- matrix_name: validate-packages-compatibility
+  matrix_spec:
+    os: "ubuntu-2004"
+  display_name: "Validate API compatibility"
+  tasks:
+    - name: validate-packages-task-group
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
 
 - matrix_name: validate-apidocs
   matrix_spec:
