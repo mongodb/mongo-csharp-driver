@@ -18,10 +18,10 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
-        /// <summary>
+    /// <summary>
     /// Options for replacing a single document.
     /// </summary>
-    public abstract class ReplaceOptionsBase
+    public class ReplaceOptions
     {
         // fields
         private bool? _bypassDocumentValidation;
@@ -85,13 +85,7 @@ namespace MongoDB.Driver
             get { return _let; }
             set { _let = value; }
         }
-    }
 
-    /// <summary>
-    /// Options for replacing a single document.
-    /// </summary>
-    public sealed class ReplaceOptions : ReplaceOptionsBase
-    {
         #region static
         // public static methods
         /// <summary>
@@ -128,7 +122,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for replacing a single document.
     /// </summary>
-    public sealed class ReplaceOptions<T> : ReplaceOptionsBase
+    public sealed class ReplaceOptions<T> : ReplaceOptions
     {
         private SortDefinition<T> _sort;
 
@@ -139,29 +133,6 @@ namespace MongoDB.Driver
         {
             get { return _sort; }
             set { _sort = value; }
-        }
-
-        /// <summary>
-        /// Converts a ReplaceOptions to a ReplaceOptions&lt;T&gt;
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns>A ReplaceOptions&lt;T&gt; </returns>
-        public static implicit operator ReplaceOptions<T>(ReplaceOptions value)
-        {
-            if (value is null)
-            {
-                return null;
-            }
-
-            return new ReplaceOptions<T>
-            {
-                BypassDocumentValidation = value.BypassDocumentValidation,
-                Collation = value.Collation,
-                Comment = value.Comment,
-                Hint = value.Hint,
-                IsUpsert = value.IsUpsert,
-                Let = value.Let
-            };
         }
     }
 }

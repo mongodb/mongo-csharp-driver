@@ -972,7 +972,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
@@ -998,7 +998,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
@@ -1024,7 +1024,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
@@ -1050,7 +1050,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
