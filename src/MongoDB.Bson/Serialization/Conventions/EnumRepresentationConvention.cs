@@ -15,7 +15,7 @@
 
 using System;
 using System.Reflection;
-using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -50,38 +50,37 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            var memberType = memberMap.MemberType;
-            var memberTypeInfo = memberType.GetTypeInfo();
+            var serializer = memberMap.GetSerializer();
 
-            if (memberTypeInfo.IsEnum)
+            if (memberMap.MemberType.IsEnum && serializer is IRepresentationConfigurable representationConfigurableSerializer)
             {
-                var serializer = memberMap.GetSerializer();
-                var representationConfigurableSerializer = serializer as IRepresentationConfigurable;
-                if (representationConfigurableSerializer != null)
-                {
-                    var reconfiguredSerializer = representationConfigurableSerializer.WithRepresentation(_representation);
-                    memberMap.SetSerializer(reconfiguredSerializer);
-                }
+                memberMap.SetSerializer(representationConfigurableSerializer.WithRepresentation(_representation));
                 return;
             }
 
-            if (IsNullableEnum(memberType))
+            var reconfiguredSerializer = Reconfigure(serializer);
+            if (reconfiguredSerializer is not null)
             {
-                var serializer = memberMap.GetSerializer();
-                var childSerializerConfigurableSerializer = serializer as IChildSerializerConfigurable;
-                if (childSerializerConfigurableSerializer != null)
-                {
-                    var childSerializer = childSerializerConfigurableSerializer.ChildSerializer;
-                    var representationConfigurableChildSerializer = childSerializer as IRepresentationConfigurable;
-                    if (representationConfigurableChildSerializer != null)
-                    {
-                        var reconfiguredChildSerializer = representationConfigurableChildSerializer.WithRepresentation(_representation);
-                        var reconfiguredSerializer = childSerializerConfigurableSerializer.WithChildSerializer(reconfiguredChildSerializer);
-                        memberMap.SetSerializer(reconfiguredSerializer);
-                    }
-                }
-                return;
+                memberMap.SetSerializer(reconfiguredSerializer);
             }
+        }
+
+        private IBsonSerializer Reconfigure(IBsonSerializer serializer)
+        {
+            if (serializer is IChildSerializerConfigurable childSerializerConfigurable)
+            {
+                var childSerializer = childSerializerConfigurable.ChildSerializer;
+                var reconfiguredChildSerializer = Reconfigure(childSerializer);
+                return reconfiguredChildSerializer is null ? null : childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
+            }
+
+            var serializerType = serializer.GetType();
+            if (serializerType.IsGenericType && serializerType.GetGenericTypeDefinition() == typeof(EnumSerializer<>))
+            {
+                return (serializer as IRepresentationConfigurable)?.WithRepresentation(_representation);
+            }
+
+            return null;
         }
 
         // private methods
