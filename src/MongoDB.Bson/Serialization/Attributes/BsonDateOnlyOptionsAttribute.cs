@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Attributes
 {
 #if NET6_0_OR_GREATER
     /// <summary>
-    /// Specifies the external representation and related options for this field or property.
+    /// Specifies the external representation and related options for a DateOnly field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonDateOnlyOptionsAttribute : BsonSerializationOptionsAttribute
@@ -36,8 +36,9 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         /// <param name="representation">The external representation.</param>
         public BsonDateOnlyOptionsAttribute(BsonType representation)
+            : this(representation, DateOnlyDocumentFormat.Classic)
         {
-            _representation = representation;
+
         }
 
         /// <summary>
@@ -58,9 +59,9 @@ namespace MongoDB.Bson.Serialization.Attributes
         public BsonType Representation => _representation;
 
         /// <summary>
-        /// Gets or sets the TimeOnlyUnits.
+        /// Gets the document format.
         /// </summary>
-        public DateOnlyDocumentFormat DocumentDocumentFormat => _documentFormat;
+        public DateOnlyDocumentFormat DocumentFormat => _documentFormat;
 
         /// <summary>
         /// Reconfigures the specified serializer by applying this attribute to it.

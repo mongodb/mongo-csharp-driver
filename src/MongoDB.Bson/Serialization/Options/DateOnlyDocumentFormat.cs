@@ -21,12 +21,12 @@ namespace MongoDB.Bson.Serialization.Options
     public enum DateOnlyDocumentFormat
     {
         /// <summary>
-        /// The document will contain "DateTime" (BsonType.DateTime) and "Ticks" (BsonType.Int64)
+        /// The document will contain "DateTime" (BsonType.DateTime) and "Ticks" (BsonType.Int64).
         /// </summary>
         Classic,
 
         /// <summary>
-        /// The document will contain "Year", "Month" and "Day" (all BsonType.Int32)
+        /// The document will contain "Year", "Month" and "Day" (all BsonType.Int32).
         /// </summary>
         HumanReadable
     }
