@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Conventions
@@ -84,25 +83,13 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         // private methods
-        private bool IsNullableEnum(Type type)
-        {
-            return
-                type.GetTypeInfo().IsGenericType &&
-                type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                Nullable.GetUnderlyingType(type).GetTypeInfo().IsEnum;
-        }
-
         private void EnsureRepresentationIsValidForEnums(BsonType representation)
         {
-            if (
-                representation == 0 ||
-                representation == BsonType.String ||
-                representation == BsonType.Int32 ||
-                representation == BsonType.Int64)
+            if (representation is 0 or BsonType.String or BsonType.Int32 or BsonType.Int64)
             {
                 return;
             }
-            throw new ArgumentException("Enums can only be represented as String, Int32, Int64 or the type of the enum", "representation");
+            throw new ArgumentException("Enums can only be represented as String, Int32, Int64 or the type of the enum", nameof(representation));
         }
     }
 }
