@@ -19,6 +19,8 @@ using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -28,6 +30,25 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 #if NET6_0_OR_GREATER
     public class DateOnlySerializerTests
     {
+        [Fact]
+        public void Attribute_should_set_correct_format()
+        {
+            var dateOnly = new DateOnly(2024, 10, 05);
+
+            var testObj = new TestClass
+            {
+                ClassicFormat = dateOnly,
+                HumanFormat = dateOnly,
+                IgnoredFormat = dateOnly
+            };
+
+            var json = testObj.ToJson();
+            const string expected = """
+                                    { "ClassicFormat" : { "DateTime" : { "$date" : "2024-10-05T00:00:00Z" }, "Ticks" : 638636832000000000 }, "HumanFormat" : { "Year" : 2024, "Month" : 10, "Day" : 5 }, "IgnoredFormat" : 638636832000000000 }
+                                    """;
+            Assert.Equal(expected, json);
+        }
+
         [Fact]
         public void Constructor_with_no_arguments_should_return_expected_result()
         {
@@ -84,6 +105,24 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Deserialize_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new DateOnlySerializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+            reader.ReadEndDocument();
+
+            result.Should().Be(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "Year" : 2024, "Month" : 10, "Day" : 5 } }""","2024-10-05" )]
+        [InlineData("""{ "x" : { "Year" : 9999, "Month" : 12, "Day" : 31 } }""","9999-12-31" )]
+        [InlineData("""{ "x" : { "Year" : 1, "Month" : 1, "Day" : 1 } }""","0001-01-01" )]
+        public void Deserialize_with_human_readable_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new DateOnlySerializer(BsonType.Document, DateOnlyDocumentFormat.HumanReadable);
 
             using var reader = new JsonReader(json);
             reader.ReadStartDocument();
@@ -220,6 +259,29 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result.Should().Be(expectedResult);
         }
 
+        [Theory]
+        [InlineData("2024-10-20", """{ "x" : { "Year" : { "$numberInt" : "2024" }, "Month" : { "$numberInt" : "10" }, "Day" : { "$numberInt" : "20" } } }""")]
+        [InlineData( "0001-01-01", """{ "x" : { "Year" : { "$numberInt" : "1" }, "Month" : { "$numberInt" : "1" }, "Day" : { "$numberInt" : "1" } } }""")]
+        [InlineData("9999-12-31", """{ "x" : { "Year" : { "$numberInt" : "9999" }, "Month" : { "$numberInt" : "12" }, "Day" : { "$numberInt" : "31" } } }""")]
+        public void Serialize_human_readable_should_have_expected_result(string valueString, string expectedResult)
+        {
+            var subject = new DateOnlySerializer(BsonType.Document, DateOnlyDocumentFormat.HumanReadable);
+            var value = DateOnly.Parse(valueString, CultureInfo.InvariantCulture);
+
+            using var textWriter = new StringWriter();
+            using var writer = new JsonWriter(textWriter,
+                new JsonWriterSettings { OutputMode = JsonOutputMode.CanonicalExtendedJson });
+
+            var context = BsonSerializationContext.CreateRoot(writer);
+            writer.WriteStartDocument();
+            writer.WriteName("x");
+            subject.Serialize(context, value);
+            writer.WriteEndDocument();
+            var result = textWriter.ToString();
+
+            result.Should().Be(expectedResult);
+        }
+
         [Fact]
         public void Serializer_should_be_registered()
         {
@@ -243,6 +305,18 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 result.Should().BeSameAs(subject);
             }
+        }
+
+        private class TestClass
+        {
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.Classic)]
+            public DateOnly ClassicFormat { get; set; }
+
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.HumanReadable)]
+            public DateOnly HumanFormat { get; set; }
+
+            [BsonDateOnlyOptions(BsonType.Int64, DateOnlyDocumentFormat.HumanReadable)]
+            public DateOnly IgnoredFormat { get; set; }
         }
     }
 #endif
