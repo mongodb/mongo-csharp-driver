@@ -584,7 +584,7 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert,
+                IsUpsert = options.IsUpsert
             };
 
             if (options is ReplaceOptions<TDocument> re)
@@ -642,7 +642,7 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert,
+                IsUpsert = options.IsUpsert
             };
 
             if (options is ReplaceOptions<TDocument> re)
@@ -770,7 +770,7 @@ namespace MongoDB.Driver
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert,
+                IsUpsert = options.IsUpsert
             };
 
             if (options is UpdateOptions<TDocument> uo)
@@ -816,7 +816,7 @@ namespace MongoDB.Driver
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert,
+                IsUpsert = options.IsUpsert
             };
 
             if (options is UpdateOptions<TDocument> uo)
