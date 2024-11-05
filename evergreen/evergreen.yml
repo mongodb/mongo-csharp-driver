@@ -230,11 +230,6 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          if [ "${OS}" = "macos-14-arm64" ]; then
-            ulimit -a
-            # have to set the limit manually for macos-14-arm, can be removed once DEVPROD-7353 will be solved
-            ulimit -n 64000
-          fi
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           LOAD_BALANCER=${LOAD_BALANCER} \
           MONGODB_VERSION=${VERSION} \
@@ -2399,6 +2394,7 @@ buildvariants:
 
 - matrix_name: "secure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-14", "macos-14-arm64"] }
+  exclude_spec: { version: "5.0", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2433,6 +2429,7 @@ buildvariants:
 
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
+  exclude_spec: { version: "5.0", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2467,6 +2464,7 @@ buildvariants:
 
 - matrix_name: "tests-compression-macOS"
   matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: ["macos-14", "macos-14-arm64"] }
+  exclude_spec: { compressor : "*", auth: "*", ssl: "*", version: "5.0", topology: "*", os: "macos-14-arm64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2668,6 +2666,7 @@ buildvariants:
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
   matrix_spec: { os: ["macos-14", "macos-14-arm64"], ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
+  exclude_spec: { os: "macos-14-arm64", ssl: "*", version: ["4.2", "4.4", "5.0"], topology: "*" }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
