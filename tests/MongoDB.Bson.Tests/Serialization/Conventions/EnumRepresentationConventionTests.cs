@@ -33,7 +33,9 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public E E { get; set; }
             public E? NE { get; set; }
             public E[] ArrayEnum { get; set; }
+            public E[][] ArrayOfArrayEnum { get; set; }
             public Dictionary<string, E> DictionaryEnum { get; set; }
+            public Dictionary<string, E[]> NestedDictionaryEnum { get; set; }
             public int I { get; set; }
             public int[] ArrayInt { get; set; }
         }
@@ -89,6 +91,22 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.Int32)]
         [InlineData(BsonType.Int64)]
         [InlineData(BsonType.String)]
+        public void Apply_should_configure_serializer_when_member_is_a_nested_enum_collection(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.ArrayOfArrayEnum);
+
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (EnumSerializer<E>)((IChildSerializerConfigurable)serializer.ChildSerializer).ChildSerializer;
+            childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_an_enum_dictionary(BsonType representation)
         {
             var subject = new EnumRepresentationConvention(representation);
@@ -98,6 +116,22 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
+            childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
+        public void Apply_should_configure_serializer_when_member_is_a_nested_enum_dictionary(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.NestedDictionaryEnum);
+
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (EnumSerializer<E>)((IChildSerializerConfigurable)serializer.ChildSerializer).ChildSerializer;
             childSerializer.Representation.Should().Be(representation);
         }
 
