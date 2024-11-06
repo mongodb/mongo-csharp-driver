@@ -1364,7 +1364,7 @@ namespace MongoDB.Driver.Core.Configuration
             var originalDotCount = original.Count(c => c == '.');
 
             // If original has less than 3 dot separated parts,
-            // the returned hostname must have at least one more domain level than the SRV record hostname
+            // the returned hostname must have at least one more domain level than original
             if (originalDotCount < 2)
             {
                 return host.Length > original.Length &&
