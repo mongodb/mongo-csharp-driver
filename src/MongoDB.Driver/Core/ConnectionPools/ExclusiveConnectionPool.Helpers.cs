@@ -180,10 +180,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
             {
-                var stopwatch = Stopwatch.StartNew();
+                var stopwatch = new Stopwatch();
                 try
                 {
-                    StartCheckingOut();
+                    StartCheckingOut(stopwatch);
                     _poolQueueWaitResult = _pool._maxConnectionsQueue.WaitSignaled(_timeout, cancellationToken);
 
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
@@ -212,10 +212,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
             {
-                var stopwatch = Stopwatch.StartNew();
+                var stopwatch = new Stopwatch();
                 try
                 {
-                    StartCheckingOut();
+                    StartCheckingOut(stopwatch);
                     _poolQueueWaitResult = await _pool._maxConnectionsQueue.WaitSignaledAsync(_timeout, cancellationToken).ConfigureAwait(false);
 
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
@@ -281,10 +281,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _enteredWaitQueue = true;
             }
 
-            private void StartCheckingOut()
+            private void StartCheckingOut(Stopwatch stopwatch)
             {
                 _pool._eventLogger.LogAndPublish(new ConnectionPoolCheckingOutConnectionEvent(_pool._serverId, EventContext.OperationId));
 
+                stopwatch.Start();
                 _pool._poolState.ThrowIfNotReady();
 
                 AcquireWaitQueueSlot();
