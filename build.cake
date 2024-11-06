@@ -222,7 +222,7 @@ Task("TestServerlessNet60").IsDependentOn("TestServerless");
 Task("TestLibMongoCrypt")
     .IsDependentOn("Build")
     .DoesForEach(
-        items: GetFiles("./**/MongoDB.Libmongocrypt.Tests.csproj"),
+        items: GetFiles("./**/MongoDB.Driver.Encryption.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) => RunTests(buildConfig, testProject));
 
 Task("TestLoadBalanced")

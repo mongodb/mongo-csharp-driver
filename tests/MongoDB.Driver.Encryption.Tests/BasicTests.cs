@@ -563,7 +563,7 @@ namespace MongoDB.Driver.Encryption.Tests
             return new KmsKeyId(datakeyOptionsDocument.ToBson(), keyAltNameBuffers);
         }
 
-        private CryptOptions CreateOptions()
+        private static CryptOptions CreateOptions()
         {
             return new CryptOptions(
                 new[]
@@ -573,7 +573,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 });
         }
 
-        private (Binary binarySent, BsonDocument document) ProcessContextToCompletion(CryptContext context, bool isKmsDecrypt = true)
+        private static (Binary binarySent, BsonDocument document) ProcessContextToCompletion(CryptContext context, bool isKmsDecrypt = true)
         {
             BsonDocument document = null;
             Binary binary = null;
@@ -591,7 +591,7 @@ namespace MongoDB.Driver.Encryption.Tests
         /// Returns (stateProcessed, binaryOperationProduced, bsonOperationProduced)
         /// </summary>
         /// <exception cref="NotImplementedException"></exception>
-        private (CryptContext.StateCode stateProcessed, Binary binaryProduced, BsonDocument bsonOperationProduced) ProcessState(CryptContext context, bool isKmsDecrypt = true)
+        private static (CryptContext.StateCode stateProcessed, Binary binaryProduced, BsonDocument bsonOperationProduced) ProcessState(CryptContext context, bool isKmsDecrypt = true)
         {
             _output.WriteLine("\n----------------------------------\nState:" + context.State);
             switch (context.State)
@@ -678,7 +678,7 @@ namespace MongoDB.Driver.Encryption.Tests
             throw new NotImplementedException();
         }
 
-        private CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
+        private static CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
         {
             return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null);
         }
@@ -732,7 +732,9 @@ namespace MongoDB.Driver.Encryption.Tests
             }
 
             // Work around C# drivers and C driver have different extended json support
+#pragma warning disable CA1307
             text = text.Replace("\"$numberLong\"", "$numberLong");
+#pragma warning restore CA1307
 
             return BsonUtil.FromJSON(text);
         }
