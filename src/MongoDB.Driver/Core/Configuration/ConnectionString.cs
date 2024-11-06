@@ -1362,31 +1362,20 @@ namespace MongoDB.Driver.Core.Configuration
 
             var hostDotCount = host.Count(c => c == '.');
             var originalDotCount = original.Count(c => c == '.');
-            var originalFirstDotIndex = original.IndexOf('.');
 
-            // If original has less than 3 dot separated parts
+            // If original has less than 3 dot separated parts,
+            // the returned hostname must have at least one more domain level than the SRV record hostname
             if (originalDotCount < 2)
             {
-                return hostDotCount > originalDotCount && host.EndsWith("." + original);
+                return host.Length > original.Length &&
+                       hostDotCount > originalDotCount &&
+                       host.EndsWith(original, StringComparison.Ordinal) &&
+                       host[host.Length - original.Length -1 ] == '.';
             }
 
-            if (hostDotCount < originalDotCount)
-            {
-                return false;
-            }
-
-            // We check that all the parts are equal, going from the end and arriving at the
-            // first dot of original (where the subdomain is, if we continued)
-            for (int hostIndex = host.Length - 1, originalIndex = original.Length - 1;
-                 originalIndex >= originalFirstDotIndex; hostIndex--, originalIndex--)
-            {
-                if (host[hostIndex] != original[originalIndex])
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            // We check that the returned hostname has the same domain name as original
+            var originalFirstDotIndex = original.IndexOf('.');
+            return hostDotCount >= originalDotCount && host.AsSpan().EndsWith(original.AsSpan(originalFirstDotIndex), StringComparison.Ordinal);
         }
 
         private void ValidateResolvedOptions(IEnumerable<string> optionNames)
