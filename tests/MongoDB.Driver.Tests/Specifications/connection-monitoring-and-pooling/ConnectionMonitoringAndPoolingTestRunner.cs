@@ -274,12 +274,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 
                 if (expectedDuration == 42)
                 {
-                    if (actualDuration == TimeSpan.Zero)
-                    {
-                        int a = 10;
-                        a++;
-                    }
-
                     actualDuration.Should().NotBe(default);
                 }
                 else
