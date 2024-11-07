@@ -1428,6 +1428,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [Fact]
+        public void KmsRetryTest()
+        {
+
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void KmsTlsOptionsTest(
