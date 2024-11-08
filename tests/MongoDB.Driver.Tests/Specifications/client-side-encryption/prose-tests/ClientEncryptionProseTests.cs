@@ -1428,10 +1428,109 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [Fact]
-        public void KmsRetryTest()
+        void TestRelatedClientEncryptionOptionsConfigurator2(ClientEncryptionOptions clientEncryptionOptions, string kmsProvider) // needs only for asserting reasons
         {
+            var tlsOptions = new Dictionary<string, SslSettings>((IDictionary<string, SslSettings>)clientEncryptionOptions.TlsOptions);
+            if (!tlsOptions.ContainsKey(kmsProvider))
+            {
+                tlsOptions.Add(kmsProvider, new SslSettings()); // configure it regardless global tls configuration to be able to validate certificate
+            }
 
+            tlsOptions[kmsProvider].ServerCertificateValidationCallback = new RemoteCertificateValidationCallback((subject, certificate, chain, policyErrors) =>
+            {
+                return false;
+            });
+            clientEncryptionOptions._tlsOptions(tlsOptions); // avoid validation on serverCertificateValidationCallback
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsRetryTest(
+            [Values("aws", "azure", "gcp")] string kmsProvider)
+        {
+            //RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            //RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true); //TODO probably we need something like that on evergreen too
+
+            var masterKey = kmsProvider switch
+            {
+                "aws" => new BsonDocument
+                {
+                    { "region", "foo" },
+                    { "key", "bar" },
+                    { "endpoint", "127.0.0.1:9003" }
+                },
+                "azure" => new BsonDocument
+                {
+                    { "keyVaultEndpoint", "127.0.0.1:9003" },
+                    { "keyName", "foo" },
+                },
+                "gcp" => new BsonDocument
+                {
+                    { "projectId", "foo" },
+                    { "location", "bar" },
+                    { "keyRing", "baz" },
+                    { "keyName", "qux" },
+                    { "endpoint", "127.0.0.1:9003" }
+                },
+                _ => throw new ArgumentException(nameof(kmsProvider))
+            };
+
+            using var clientEncrypted = ConfigureClientEncrypted();
+            //
+            // var kmsProviders =
+            //     EncryptionTestHelper.GetKmsProviders(filter: kmsProvider);
+            //
+            // var prov = kmsProviders.GetValueOrDefault(kmsProvider);
+            // ((Dictionary<string, object>)prov).Add("identityPlatformEndpoint", "127.0.0.1:9003");
+            // ((Dictionary<string, object>)prov).Add("endpoint", "127.0.0.1:9003");
+            //
+            // var clientEncryptionOptions = new ClientEncryptionOptions(
+            //     keyVaultClient: clientEncrypted.Settings.AutoEncryptionOptions?.KeyVaultClient ?? clientEncrypted,
+            //     keyVaultNamespace: __keyVaultCollectionNamespace,
+            //     kmsProviders: kmsProviders);
+            //var clientEncryption = new ClientEncryption(clientEncryptionOptions);
+
+            //We're using this because it doesn't trust the root of the certificates
+            using var clientEncryption = ConfigureClientEncryption(
+                clientEncrypted,
+                kmsProviderFilter: kmsProvider,
+                kmsProviderConfigurator: KmsProviderEndpointConfigurator
+                //clientEncryptionOptionsConfigurator: (opt) => TestRelatedClientEncryptionOptionsConfigurator2(opt, kmsProvider)
+                );
+
+            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
+            clientEncryption.CreateDataKey(kmsProvider, dataKeyOptions);
+
+            Guid dataKey;
+            var ex = Record.Exception(() => dataKey = CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, false));
+            ex.Should().BeNull();
+
+            void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
+            {
+                var endpoint = "127.0.0.1:9003";
+
+                switch (kmsProviderName)
+                {
+                    case "aws":
+                        break;
+                    case "azure":
+                        kmsOptions.Add("identityPlatformEndpoint", endpoint);
+                        break;
+                    case "gcp":
+                        kmsOptions.Add("endpoint", endpoint);
+                        break;
+                    default:
+                        throw new Exception($"Unexpected kmsProvider {kmsProvider}.");
+                }
+            }
+
+            /**
+             * LIST todo
+             * - Understand why the certificate is not trusted
+             * - Maybe should do the test both with sync and async
+             * - Need to finish the test (this is only the first part)
+             * - Need to understand how to setup failures on the mock server
+             */
         }
 
         [Theory]
@@ -1441,8 +1540,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(CertificateType.TlsWithoutClientCert, CertificateType.TlsWithClientCert, CertificateType.Expired, CertificateType.InvalidHostName)] CertificateType certificateType,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            //RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            //RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
 
             bool? isCertificateExpired = null, isInvalidHost = null; // will be assigned inside TestRelatedClientEncryptionOptionsConfigurator
 
