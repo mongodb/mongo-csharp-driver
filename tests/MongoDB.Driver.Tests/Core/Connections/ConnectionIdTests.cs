@@ -92,6 +92,16 @@ namespace MongoDB.Driver.Core.Connections
             subject.LongLocalValue.Should().Be(localValue);
         }
 
+        [Fact]
+        public void ServerValue_should_return_null_when_null()
+        {
+            var subject = new ConnectionId(__serverId, 10);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            subject.ServerValue.ShouldBeEquivalentTo(null);
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(int.MaxValue)]
