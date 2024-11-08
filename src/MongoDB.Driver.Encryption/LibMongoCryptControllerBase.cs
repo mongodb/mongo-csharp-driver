@@ -315,6 +315,12 @@ namespace MongoDB.Driver.Encryption
                 {
                     var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
                     var count = await sslStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+
+                    if (count == 0)
+                    {
+                        throw new Exception(); //TODO What to do here?
+                    }
+
                     var responseBytes = new byte[count];
                     Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);
                     request.Feed(responseBytes);

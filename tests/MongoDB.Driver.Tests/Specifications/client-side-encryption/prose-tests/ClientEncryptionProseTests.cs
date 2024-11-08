@@ -24,6 +24,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime;
@@ -1428,26 +1429,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        void TestRelatedClientEncryptionOptionsConfigurator2(ClientEncryptionOptions clientEncryptionOptions, string kmsProvider) // needs only for asserting reasons
-        {
-            var tlsOptions = new Dictionary<string, SslSettings>((IDictionary<string, SslSettings>)clientEncryptionOptions.TlsOptions);
-            if (!tlsOptions.ContainsKey(kmsProvider))
-            {
-                tlsOptions.Add(kmsProvider, new SslSettings()); // configure it regardless global tls configuration to be able to validate certificate
-            }
-
-            tlsOptions[kmsProvider].ServerCertificateValidationCallback = new RemoteCertificateValidationCallback((subject, certificate, chain, policyErrors) =>
-            {
-                return false;
-            });
-            clientEncryptionOptions._tlsOptions(tlsOptions); // avoid validation on serverCertificateValidationCallback
-        }
-
         [Theory]
         [ParameterAttributeData]
-        public void KmsRetryTest(
+        public async Task KmsRetryTest(
             [Values("aws", "azure", "gcp")] string kmsProvider)
         {
+            //TODO Do we need to test both the sync and async version of CreateDataKeyAsync?
+
+            const string endpoint = "127.0.0.1:9003";
+
             //RequireServer.Check().Supports(Feature.ClientSideEncryption);
             //RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true); //TODO probably we need something like that on evergreen too
 
@@ -1476,39 +1466,23 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             };
 
             using var clientEncrypted = ConfigureClientEncrypted();
-            //
-            // var kmsProviders =
-            //     EncryptionTestHelper.GetKmsProviders(filter: kmsProvider);
-            //
-            // var prov = kmsProviders.GetValueOrDefault(kmsProvider);
-            // ((Dictionary<string, object>)prov).Add("identityPlatformEndpoint", "127.0.0.1:9003");
-            // ((Dictionary<string, object>)prov).Add("endpoint", "127.0.0.1:9003");
-            //
-            // var clientEncryptionOptions = new ClientEncryptionOptions(
-            //     keyVaultClient: clientEncrypted.Settings.AutoEncryptionOptions?.KeyVaultClient ?? clientEncrypted,
-            //     keyVaultNamespace: __keyVaultCollectionNamespace,
-            //     kmsProviders: kmsProviders);
-            //var clientEncryption = new ClientEncryption(clientEncryptionOptions);
-
-            //We're using this because it doesn't trust the root of the certificates
             using var clientEncryption = ConfigureClientEncryption(
                 clientEncrypted,
                 kmsProviderFilter: kmsProvider,
                 kmsProviderConfigurator: KmsProviderEndpointConfigurator
-                //clientEncryptionOptionsConfigurator: (opt) => TestRelatedClientEncryptionOptionsConfigurator2(opt, kmsProvider)
                 );
 
             var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
-            clientEncryption.CreateDataKey(kmsProvider, dataKeyOptions);
+
+            await SetFailure("network", 1);
 
             Guid dataKey;
-            var ex = Record.Exception(() => dataKey = CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, false));
+            var ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
+                .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
             ex.Should().BeNull();
 
             void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
             {
-                var endpoint = "127.0.0.1:9003";
-
                 switch (kmsProviderName)
                 {
                     case "aws":
@@ -1524,12 +1498,34 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
+            async Task SetFailure(string failureType, int count)
+            {
+                if (count is 0) //TODO For testing
+                {
+                    return;
+                }
+
+                var handler = new HttpClientHandler
+                {
+                    ClientCertificates = { new X509Certificate2(Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH")!) },
+                };
+
+                using var client = new HttpClient(handler);
+                var jsonData = new { count }.ToJson();
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                var uri = new Uri($"https://{endpoint}/set_failpoint/{failureType}");
+                var response = await client.PostAsync(uri, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error while setting failure");
+                }
+            }
+
             /**
              * LIST todo
-             * - Understand why the certificate is not trusted
-             * - Maybe should do the test both with sync and async
              * - Need to finish the test (this is only the first part)
-             * - Need to understand how to setup failures on the mock server
              */
         }
 
