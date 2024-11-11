@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
@@ -59,19 +60,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
                 var innerExpression = arguments[1];
-                var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfo(containerExpression: expression);
+                var (queryProvider, isRawCollectionExpression) = innerExpression.FindMongoQueryProvider(containerExpression: expression);
 
                 var outerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
                 var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);
 
                 var innerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[3]);
-                var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, innerSerializer);
+                var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, queryProvider.PipelineInputSerializer);
 
-                var lookupStage = AstStage.Lookup(
-                    from: innerCollectionName,
-                    localField,
-                    foreignField,
-                    @as: "_inner");
+                AstStage lookupStage;
+
+                if (isRawCollectionExpression)
+                {
+                    lookupStage = AstStage.Lookup(
+                        from: queryProvider.CollectionNamespace.CollectionName,
+                        localField,
+                        foreignField,
+                        @as: "_inner");
+                }
+                else
+                {
+                    var lookupPipeline = ExpressionToPipelineTranslator.Translate(context, innerExpression);
+
+                    lookupStage = AstStage.Lookup(
+                        from: queryProvider.CollectionNamespace.CollectionName,
+                        localField,
+                        foreignField,
+                        Array.Empty<AstComputedField>(),
+                        lookupPipeline,
+                        @as: "_inner");
+                }
 
                 var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[4]);
                 var root = AstExpression.Var("ROOT", isCurrent: true);
@@ -80,7 +98,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var outerSymbol = context.CreateSymbol(outerParameter, outerField, outerSerializer);
                 var innerParameter = resultSelectorLambda.Parameters[1];
                 var innerField = AstExpression.GetField(root, "_inner");
-                var ienumerableInnerSerializer = IEnumerableSerializer.Create(innerSerializer);
+                var ienumerableInnerSerializer = IEnumerableSerializer.Create(queryProvider.PipelineInputSerializer);
                 var innerSymbol = context.CreateSymbol(innerParameter, innerField, ienumerableInnerSerializer);
                 var resultSelectorContext = context.WithSymbols(outerSymbol, innerSymbol);
                 var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
