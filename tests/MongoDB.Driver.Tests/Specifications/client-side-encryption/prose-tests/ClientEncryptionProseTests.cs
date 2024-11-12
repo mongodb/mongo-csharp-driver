@@ -1525,7 +1525,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             /**
              * LIST todo
-             * - Need to finish the test (this is only the first part)
+             * - For now it works only on aws-http.
+             * - Need to finish the test
              */
         }
 

@@ -221,11 +221,25 @@ namespace MongoDB.Driver.Encryption
 
         private async Task ProcessNeedKmsStateAsync(CryptContext context, CancellationToken cancellationToken)
         {
+            // while (context.GetNextKmsMessageRequest() is { } request)
+            // {
+            //     await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
+            // }
+            // context.MarkDone();
+
             var requests = context.GetKmsMessageRequests();
             foreach (var request in requests)
             {
                 await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
             }
+
+
+            requests = context.GetKmsMessageRequests();
+            foreach (var request in requests)
+            {
+                await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
+            }
+
             requests.MarkDone();
         }
 
@@ -301,29 +315,48 @@ namespace MongoDB.Driver.Encryption
 
         private async Task SendKmsRequestAsync(KmsRequest request, CancellationToken cancellation)
         {
-            var endpoint = CreateKmsEndPoint(request.Endpoint);
-
-            var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
-            var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
-            using (var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false))
-            using (var binary = request.GetMessage())
+            try
             {
-                var requestBytes = binary.ToArray();
-                await sslStream.WriteAsync(requestBytes, 0, requestBytes.Length).ConfigureAwait(false);
+                var endpoint = CreateKmsEndPoint(request.Endpoint);
 
-                while (request.BytesNeeded > 0)
+                var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
+                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+                using (var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false))
+                using (var binary = request.GetMessage())
                 {
-                    var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
-                    var count = await sslStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+                    var requestBytes = binary.ToArray();
 
-                    if (count == 0)
+                    var sleepMs = (int)(request.ShouldSleep() / 1000); //TODO need to check if this is good enough (edge cases, ...)
+
+                    if (sleepMs > 0)
                     {
-                        throw new Exception(); //TODO What to do here?
+                        await Task.Delay(sleepMs, cancellation).ConfigureAwait(false);
                     }
 
-                    var responseBytes = new byte[count];
-                    Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);
-                    request.Feed(responseBytes);
+                    await sslStream.WriteAsync(requestBytes, 0, requestBytes.Length).ConfigureAwait(false);
+
+                    while (request.BytesNeeded > 0)
+                    {
+                        var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
+                        var count = await sslStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+
+                        if (count == 0)
+                        {
+                            //continue to the next KMS context if mongocrypt_kms_ctx_fail returns true, otherwise return an error
+                            throw new IOException(); //TODO What to do here?
+                        }
+
+                        var responseBytes = new byte[count];
+                        Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);
+                        request.Feed(responseBytes);
+                    }
+                }
+            }
+            catch (Exception)  //TODO Here we should understand if it's a network error. How to do it..?
+            {
+                if (!request.ShouldBeRetried())
+                {
+                    throw;
                 }
             }
         }
