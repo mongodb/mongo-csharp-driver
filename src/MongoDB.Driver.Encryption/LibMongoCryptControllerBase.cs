@@ -311,7 +311,7 @@ namespace MongoDB.Driver.Encryption
                 {
                     var requestBytes = binary.ToArray();
 
-                    var sleepMs = (int)(request.ShouldSleep() / 1000); //TODO need to check if this is good enough (edge cases, ...)
+                    var sleepMs = (int)(request.ShouldSleep() / 1000);
 
                     if (sleepMs > 0)
                     {
@@ -327,8 +327,7 @@ namespace MongoDB.Driver.Encryption
 
                         if (count == 0)
                         {
-                            //continue to the next KMS context if mongocrypt_kms_ctx_fail returns true, otherwise return an error
-                            throw new IOException(); //TODO What to do here?
+                            throw new IOException();
                         }
 
                         var responseBytes = new byte[count];
@@ -337,7 +336,7 @@ namespace MongoDB.Driver.Encryption
                     }
                 }
             }
-            catch (Exception)  //TODO Here we should understand if it's a network error. How to do it..?
+            catch (Exception ex) when (ex is IOException or SocketException)  //TODO Here we should understand if it's a network error. How to do it..?
             {
                 if (!request.ShouldBeRetried())
                 {

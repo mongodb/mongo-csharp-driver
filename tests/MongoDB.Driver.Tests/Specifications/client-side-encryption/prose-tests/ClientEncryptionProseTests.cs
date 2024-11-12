@@ -1432,10 +1432,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [Theory]
         [ParameterAttributeData]
         public async Task KmsRetryTest(
-            [Values("aws", "azure", "gcp")] string kmsProvider)
+            [Values("aws", "azure", "gcp")] string kmsProvider,
+            [Values("network", "http")] string failureType)
         {
-            //TODO Do we need to test both the sync and async version of CreateDataKeyAsync?
-
             const string endpoint = "127.0.0.1:9003";
 
             //RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -1474,7 +1473,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
 
-            await SetFailure("network", 1);
+            await SetFailure(failureType, 1);
 
             Guid dataKey;
             var ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
@@ -1498,13 +1497,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            async Task SetFailure(string failureType, int count)
+            async Task SetFailure(string failure, int count)
             {
-                if (count is 0) //TODO For testing
-                {
-                    return;
-                }
-
                 var handler = new HttpClientHandler
                 {
                     ClientCertificates = { new X509Certificate2(Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH")!) },
@@ -1514,7 +1508,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var jsonData = new { count }.ToJson();
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-                var uri = new Uri($"https://{endpoint}/set_failpoint/{failureType}");
+                var uri = new Uri($"https://{endpoint}/set_failpoint/{failure}");
                 var response = await client.PostAsync(uri, content);
 
                 if (!response.IsSuccessStatusCode)
@@ -1525,8 +1519,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             /**
              * LIST todo
-             * - For now it works only on aws-http.
              * - Need to finish the test
+             * - Need to make also a sync version of the tests
+             * - Need to understand how to recognise http and network errors
              */
         }
 
