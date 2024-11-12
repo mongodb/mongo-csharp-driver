@@ -170,6 +170,13 @@ namespace MongoDB.Driver.Encryption
             return new KmsRequestCollection(requests, this);
         }
 
+        //TODO Fix
+        public KmsRequest GetNextKmsMessageRequest()
+        {
+            var request = Library.mongocrypt_ctx_next_kms_ctx(_handle);
+            return request == IntPtr.Zero ? null : new KmsRequest(request);
+        }
+
         /// <summary>
         /// Sets the KMS credentials
         /// </summary>

@@ -221,26 +221,11 @@ namespace MongoDB.Driver.Encryption
 
         private async Task ProcessNeedKmsStateAsync(CryptContext context, CancellationToken cancellationToken)
         {
-            // while (context.GetNextKmsMessageRequest() is { } request)
-            // {
-            //     await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
-            // }
-            // context.MarkDone();
-
-            var requests = context.GetKmsMessageRequests();
-            foreach (var request in requests)
+            while (context.GetNextKmsMessageRequest() is { } request)
             {
                 await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
             }
-
-
-            requests = context.GetKmsMessageRequests();
-            foreach (var request in requests)
-            {
-                await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
-            }
-
-            requests.MarkDone();
+            context.MarkKmsDone();
         }
 
         private void ProcessNeedMongoKeysState(CryptContext context, CancellationToken cancellationToken)
