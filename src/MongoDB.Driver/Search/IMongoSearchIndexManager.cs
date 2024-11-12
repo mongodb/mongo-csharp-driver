@@ -59,18 +59,6 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search index.
         /// </summary>
-        /// <param name="definition">The index definition.</param>
-        /// <param name="type">The index type.</param>
-        /// <param name="name">The index name.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The name of the index that was created.
-        /// </returns>
-        string CreateOne(BsonDocument definition, SearchIndexType type, string name = null, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Creates a search index.
-        /// </summary>
         /// <param name="model">The model defining the index.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
@@ -88,18 +76,6 @@ namespace MongoDB.Driver.Search
         /// The name of the index that was created.
         /// </returns>
         Task<string> CreateOneAsync(BsonDocument definition, string name = null, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Creates a search index.
-        /// </summary>
-        /// <param name="definition">The index definition.</param>
-        /// <param name="type">The index type.</param>
-        /// <param name="name">The index name.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The name of the index that was created.
-        /// </returns>
-        Task<string> CreateOneAsync(BsonDocument definition, SearchIndexType type, string name = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Creates a search index.

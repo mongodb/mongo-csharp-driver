@@ -1856,9 +1856,6 @@ namespace MongoDB.Driver
             public string CreateOne(BsonDocument definition, string name = null, CancellationToken cancellationToken = default) =>
                 CreateOne(new CreateSearchIndexModel(name, definition), cancellationToken);
 
-            public string CreateOne(BsonDocument definition, SearchIndexType type, string name = null, CancellationToken cancellationToken = default) =>
-                CreateOne(new CreateSearchIndexModel(name, type, definition), cancellationToken);
-
             public string CreateOne(CreateSearchIndexModel model, CancellationToken cancellationToken = default)
             {
                 var result = CreateMany(new[] { model }, cancellationToken);
@@ -1867,9 +1864,6 @@ namespace MongoDB.Driver
 
             public Task<string> CreateOneAsync(BsonDocument definition, string name = null, CancellationToken cancellationToken = default) =>
                 CreateOneAsync(new CreateSearchIndexModel(name, definition), cancellationToken);
-
-            public Task<string> CreateOneAsync(BsonDocument definition, SearchIndexType type, string name = null, CancellationToken cancellationToken = default) =>
-                CreateOneAsync(new CreateSearchIndexModel(name, type, definition), cancellationToken);
 
             public async Task<string> CreateOneAsync(CreateSearchIndexModel model, CancellationToken cancellationToken = default)
             {
