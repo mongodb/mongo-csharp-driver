@@ -210,6 +210,13 @@ namespace MongoDB.Driver.Encryption
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_ctx_destroy>(("mongocrypt_ctx_destroy")), true);
             _mongocrypt_kms_ctx_get_kms_provider = new Lazy<Delegates.mongocrypt_kms_ctx_get_kms_provider>(
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_kms_ctx_get_kms_provider>(("mongocrypt_kms_ctx_get_kms_provider")), true);
+
+            _mongocrypt_kms_ctx_usleep = new Lazy<Delegates.mongocrypt_kms_ctx_usleep>(
+                () => __loader.Value.GetFunction<Delegates.mongocrypt_kms_ctx_usleep>(("mongocrypt_kms_ctx_usleep")), true);
+            _mongocrypt_kms_ctx_fail = new Lazy<Delegates.mongocrypt_kms_ctx_fail>(
+                () => __loader.Value.GetFunction<Delegates.mongocrypt_kms_ctx_fail>(("mongocrypt_kms_ctx_fail")), true);
+            _mongocrypt_setopt_retry_kms = new Lazy<Delegates.mongocrypt_setopt_retry_kms>(
+                () => __loader.Value.GetFunction<Delegates.mongocrypt_setopt_retry_kms>(("mongocrypt_setopt_retry_kms")), true);
         }
 
         /// <summary>
@@ -305,6 +312,11 @@ namespace MongoDB.Driver.Encryption
         internal static Delegates.mongocrypt_ctx_destroy mongocrypt_ctx_destroy => _mongocrypt_ctx_destroy.Value;
         internal static Delegates.mongocrypt_kms_ctx_get_kms_provider mongocrypt_kms_ctx_get_kms_provider => _mongocrypt_kms_ctx_get_kms_provider.Value;
 
+        internal static Delegates.mongocrypt_kms_ctx_usleep mongocrypt_kms_ctx_usleep => _mongocrypt_kms_ctx_usleep.Value;
+        internal static Delegates.mongocrypt_kms_ctx_fail mongocrypt_kms_ctx_fail => _mongocrypt_kms_ctx_fail.Value;
+
+        internal static Delegates.mongocrypt_setopt_retry_kms mongocrypt_setopt_retry_kms => _mongocrypt_setopt_retry_kms.Value;
+
         private static readonly Lazy<LibraryLoader> __loader = new Lazy<LibraryLoader>(
             () => new LibraryLoader(), true);
         private static readonly Lazy<Delegates.mongocrypt_version> _mongocrypt_version;
@@ -391,6 +403,10 @@ namespace MongoDB.Driver.Encryption
         private static readonly Lazy<Delegates.mongocrypt_ctx_finalize> _mongocrypt_ctx_finalize;
         private static readonly Lazy<Delegates.mongocrypt_ctx_destroy> _mongocrypt_ctx_destroy;
         private static readonly Lazy<Delegates.mongocrypt_kms_ctx_get_kms_provider> _mongocrypt_kms_ctx_get_kms_provider;
+
+        private static readonly Lazy<Delegates.mongocrypt_kms_ctx_usleep> _mongocrypt_kms_ctx_usleep;
+        private static readonly Lazy<Delegates.mongocrypt_kms_ctx_fail> _mongocrypt_kms_ctx_fail;
+        private static readonly Lazy<Delegates.mongocrypt_setopt_retry_kms> _mongocrypt_setopt_retry_kms;
 
         // nested types
         internal enum StatusType
@@ -681,6 +697,15 @@ namespace MongoDB.Driver.Encryption
 
             public delegate void mongocrypt_ctx_destroy(IntPtr ptr);
             public delegate IntPtr mongocrypt_kms_ctx_get_kms_provider(IntPtr handle, out uint length);
+
+            //TODO Need to check where to put those
+            public delegate long mongocrypt_kms_ctx_usleep(IntPtr handle);
+
+            [return: MarshalAs(UnmanagedType.I1)]
+            public delegate bool mongocrypt_kms_ctx_fail(IntPtr handle);
+
+            [return: MarshalAs(UnmanagedType.I1)]
+            public delegate bool mongocrypt_setopt_retry_kms(MongoCryptSafeHandle handle, bool enable);
         }
     }
 }
