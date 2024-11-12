@@ -107,6 +107,17 @@ namespace MongoDB.Driver.Encryption
                 }
         }
 
+        //TODO Need to find good names and places for those two mathods
+        public bool ShouldBeRetried()
+        {
+            return Library.mongocrypt_kms_ctx_fail(_id);
+        }
+
+        public long ShouldSleep()
+        {
+            return Library.mongocrypt_kms_ctx_usleep(_id);
+        }
+
         void IStatus.Check(Status status)
         {
             Library.mongocrypt_kms_ctx_status(_id, status.Handle);
