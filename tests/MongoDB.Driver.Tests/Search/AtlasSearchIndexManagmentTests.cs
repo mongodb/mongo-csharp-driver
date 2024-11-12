@@ -61,10 +61,10 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
-        public Task Case1_driver_should_successfully_create_and_list_search_indexes(
+        public async Task Case1_driver_should_successfully_create_and_list_search_indexes(
             [Values(false, true)] bool runAsync)
-        {
-            return runAsync ? CreateIndexAndValidate("test-search-index-async", _indexDefinition) : CreateIndexAndValidate("test-search-index", _indexDefinition, false);
+        { 
+            await CreateIndexAndValidate(runAsync ? "test-search-index-async" : "test-search-index", _indexDefinition, runAsync);
         }
 
         [Theory(Timeout = Timeout)]
@@ -81,9 +81,7 @@ namespace MongoDB.Driver.Tests.Search
 
             indexNamesActual.Should().BeEquivalentTo(indexDefinition1.Name, indexDefinition2.Name);
 
-            var indexes = runAsync
-                ? await GetIndexes(indexDefinition1.Name, indexDefinition2.Name)
-                : GetIndexes(indexDefinition1.Name, indexDefinition2.Name).GetAwaiter().GetResult();
+            var indexes = await GetIndexes(runAsync, indexDefinition1.Name, indexDefinition2.Name);
 
             indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinition);
             indexes[1]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinition);
@@ -96,14 +94,13 @@ namespace MongoDB.Driver.Tests.Search
         {
             var indexName = runAsync ? "test-search-index-async" : "test-search-index";
 
+            await CreateIndexAndValidate(indexName, _indexDefinition, runAsync);
             if (runAsync)
             {
-                await CreateIndexAndValidate(indexName, _indexDefinition);
                 await _collection.SearchIndexes.DropOneAsync(indexName);
             }
             else
             {
-                CreateIndexAndValidate(indexName, _indexDefinition, false).GetAwaiter().GetResult();
                 _collection.SearchIndexes.DropOne(indexName);
             }
             
@@ -137,18 +134,17 @@ namespace MongoDB.Driver.Tests.Search
             var indexName = runAsync ? "test-search-index-async" : "test-search-index";
             var indexNewDefinition = BsonDocument.Parse("{ mappings: { dynamic: true }}");
 
+            await CreateIndexAndValidate(indexName, _indexDefinition, runAsync);
             if (runAsync)
             {
-                await CreateIndexAndValidate(indexName, _indexDefinition);
                 await _collection.SearchIndexes.UpdateAsync(indexName, indexNewDefinition);
             }
             else
             {
-                CreateIndexAndValidate(indexName, _indexDefinition, false).GetAwaiter().GetResult();
                 _collection.SearchIndexes.Update(indexName, indexNewDefinition);
             }
             
-            var updatedIndex = runAsync ? await GetIndexes(indexName) : GetIndexes(indexName).GetAwaiter().GetResult();
+            var updatedIndex = await GetIndexes(runAsync, indexName);
             updatedIndex[0]["latestDefinition"].AsBsonDocument.Should().Be(indexNewDefinition);
         }
 
@@ -186,7 +182,7 @@ namespace MongoDB.Driver.Tests.Search
             
             indexNameCreated.Should().Be(indexName);
 
-            var indexes = runAsync ? await GetIndexes(indexName) : GetIndexes(indexName).GetAwaiter().GetResult();
+            var indexes = await GetIndexes(runAsync, indexName);
             indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinition);
         }
 
@@ -209,25 +205,23 @@ namespace MongoDB.Driver.Tests.Search
                 indexName3 = "test-search-index-case7-vector";
             }
 
-            var indexCreated = runAsync
-                ? await CreateIndexAndValidate(indexName1, _indexDefinition)
-                : CreateIndexAndValidate(indexName1, _indexDefinition, false).GetAwaiter().GetResult();
+            var indexCreated = await CreateIndexAndValidate(indexName1, _indexDefinition, runAsync);
             indexCreated["type"].AsString.Should().Be("search");
 
             var indexNameCreated = runAsync
-                ? await _collection.SearchIndexes.CreateOneAsync(_indexDefinition, SearchIndexType.Search, indexName2)
-                : _collection.SearchIndexes.CreateOne(_indexDefinition, SearchIndexType.Search, indexName2);
+                ? await _collection.SearchIndexes.CreateOneAsync(new CreateSearchIndexModel(indexName2, SearchIndexType.Search, _indexDefinition))
+                : _collection.SearchIndexes.CreateOne(new CreateSearchIndexModel(indexName2, SearchIndexType.Search, _indexDefinition));
             indexNameCreated.Should().Be(indexName2);
-            
-            var indexCreated2 = runAsync ? await GetIndexes(indexName2) : GetIndexes(indexName2).GetAwaiter().GetResult();
+
+            var indexCreated2 = await GetIndexes(runAsync, indexName2);
             indexCreated2[0]["type"].AsString.Should().Be("search");
 
             indexNameCreated = runAsync
-                ? await _collection.SearchIndexes.CreateOneAsync(_vectorIndexDefinition, SearchIndexType.VectorSearch, indexName3)
-                : _collection.SearchIndexes.CreateOne(_vectorIndexDefinition, SearchIndexType.VectorSearch, indexName3);
+                ? await _collection.SearchIndexes.CreateOneAsync(new CreateSearchIndexModel(indexName3, SearchIndexType.VectorSearch, _vectorIndexDefinition))
+                : _collection.SearchIndexes.CreateOne(new CreateSearchIndexModel(indexName3, SearchIndexType.VectorSearch, _vectorIndexDefinition));
             indexNameCreated.Should().Be(indexName3);
             
-            var indexCreated3 = await GetIndexes(indexName3);
+            var indexCreated3 = await GetIndexes(runAsync, indexName3);
             indexCreated3[0]["type"].AsString.Should().Be("vectorSearch");
         }
 
@@ -245,7 +239,7 @@ namespace MongoDB.Driver.Tests.Search
             exception.Message.Should().Contain("Attribute mappings missing");
         }
 
-        private async Task<BsonDocument> CreateIndexAndValidate(string indexName, BsonDocument indexDefinition, bool runAsync = true)
+        private async Task<BsonDocument> CreateIndexAndValidate(string indexName, BsonDocument indexDefinition, bool runAsync)
         {
             var indexNameActual = runAsync
                 ? await _collection.SearchIndexes.CreateOneAsync(indexDefinition, indexName)
@@ -253,17 +247,24 @@ namespace MongoDB.Driver.Tests.Search
             
             indexNameActual.Should().Be(indexName);
 
-            var result = runAsync ? await GetIndexes(indexName) : GetIndexes(indexName).GetAwaiter().GetResult();
-
+            var result = await GetIndexes(runAsync, indexName);
             return result[0];
         }
 
-        private async Task<BsonDocument[]> GetIndexes(params string[] indexNames)
+        private async Task<BsonDocument[]> GetIndexes(bool runAsync, params string[] indexNames)
         {
             while (true)
             {
-                var cursor = await _collection.SearchIndexes.ListAsync();
-                var indexes = await cursor.ToListAsync();
+                List<BsonDocument> indexes;
+                if (runAsync)
+                {
+                    var cursor = await _collection.SearchIndexes.ListAsync();
+                    indexes = await cursor.ToListAsync();
+                }
+                else
+                {
+                    indexes = _collection.SearchIndexes.List().ToList();
+                }
 
                 var indexesFiltered = indexes
                     .Where(i => indexNames.Contains(TryGetValue<string>(i, "name")) && TryGetValue<bool>(i, "queryable"))
