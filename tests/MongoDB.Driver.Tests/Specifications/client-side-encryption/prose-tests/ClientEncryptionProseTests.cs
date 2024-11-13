@@ -1431,98 +1431,185 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [Theory]
         [ParameterAttributeData]
-        public async Task KmsRetryTest(
+        public async Task KmsRetryTestCase1and2(
             [Values("aws", "azure", "gcp")] string kmsProvider,
             [Values("network", "http")] string failureType)
         {
-            const string endpoint = "127.0.0.1:9003";
-
             //RequireServer.Check().Supports(Feature.ClientSideEncryption);
             //RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true); //TODO probably we need something like that on evergreen too
 
-            var masterKey = kmsProvider switch
-            {
-                "aws" => new BsonDocument
-                {
-                    { "region", "foo" },
-                    { "key", "bar" },
-                    { "endpoint", "127.0.0.1:9003" }
-                },
-                "azure" => new BsonDocument
-                {
-                    { "keyVaultEndpoint", "127.0.0.1:9003" },
-                    { "keyName", "foo" },
-                },
-                "gcp" => new BsonDocument
-                {
-                    { "projectId", "foo" },
-                    { "location", "bar" },
-                    { "keyRing", "baz" },
-                    { "keyName", "qux" },
-                    { "endpoint", "127.0.0.1:9003" }
-                },
-                _ => throw new ArgumentException(nameof(kmsProvider))
-            };
+            const string endpoint = "127.0.0.1:9003";
+
+            var kmsRetryUtils = new KmsRetryTestsUtils(endpoint, kmsProvider);
+
+            await kmsRetryUtils.ResetServer();
 
             using var clientEncrypted = ConfigureClientEncrypted();
             using var clientEncryption = ConfigureClientEncryption(
                 clientEncrypted,
                 kmsProviderFilter: kmsProvider,
-                kmsProviderConfigurator: KmsProviderEndpointConfigurator
-                );
+                kmsProviderConfigurator: kmsRetryUtils.KmsProviderEndpointConfigurator
+            );
 
-            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
+            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: kmsRetryUtils.MasterKey);
 
-            await SetFailure(failureType, 1);
+            await kmsRetryUtils.SetFailure(failureType, 1);
 
-            Guid dataKey;
+            Guid dataKey = default;
             var ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
                 .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
             ex.Should().BeNull();
 
-            void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
+            await kmsRetryUtils.SetFailure(failureType, 1);
+
+            var ex2 = await Record.ExceptionAsync(async () => await clientEncryption.EncryptAsync(new BsonInt32(123),
+                new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
+            ex2.Should().BeNull();
+
+            /**
+             * LIST todo
+             * - Need to finish the test
+             * - Need to make also a sync version of the tests (encryptAsync and CreateDataKeyAsync have some helper methods to do that)
+             */
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task KmsRetryTestCase3(
+            [Values("aws", "azure", "gcp")] string kmsProvider)
+        {
+            //RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            //RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true); //TODO probably we need something like that on evergreen too
+
+            const string endpoint = "127.0.0.1:9003";
+
+            var kmsRetryUtils = new KmsRetryTestsUtils(endpoint, kmsProvider);
+
+            await kmsRetryUtils.ResetServer();
+
+            using var clientEncrypted = ConfigureClientEncrypted();
+            using var clientEncryption = ConfigureClientEncryption(
+                clientEncrypted,
+                kmsProviderFilter: kmsProvider,
+                kmsProviderConfigurator: kmsRetryUtils.KmsProviderEndpointConfigurator
+            );
+
+            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: kmsRetryUtils.MasterKey);
+
+            await kmsRetryUtils.SetFailure("network", 4);
+
+            Guid dataKey = default;
+            var ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
+                .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+            ex.Should().BeNull();
+
+            //TODO Need to decide what kind of exception we should have here
+
+            /**
+             * LIST todo
+             * - Need to finish the test
+             * - Need to make also a sync version of the tests (encryptAsync and CreateDataKeyAsync have some helper methods to do that)
+             */
+        }
+
+        private class KmsRetryTestsUtils
+        {
+            /* For some reason, if I use a single httpClient that I reuse, the tests take about 2 min 45 sec to run
+             * Some notes:
+             * - Adding or not the client certificate does not make a difference
+             * - When having the single client, it was a class variable initialized in the constructor and that
+             *  I was disposing it in OnDispose
+             * - When modifying the code going from a single client to a client per method, then the first test method
+             * takes 15 seconds, the following ones less than 1 second.
+             */
+            private readonly string _endpoint;
+
+            public BsonDocument MasterKey { get; }
+
+            public KmsRetryTestsUtils(string endpoint, string kmsProvider)
+            {
+                _endpoint = endpoint;
+                MasterKey = kmsProvider switch
+                {
+                    "aws" => new BsonDocument
+                    {
+                        { "region", "foo" },
+                        { "key", "bar" },
+                        { "endpoint", "127.0.0.1:9003" }
+                    },
+                    "azure" => new BsonDocument
+                    {
+                        { "keyVaultEndpoint", "127.0.0.1:9003" },
+                        { "keyName", "foo" },
+                    },
+                    "gcp" => new BsonDocument
+                    {
+                        { "projectId", "foo" },
+                        { "location", "bar" },
+                        { "keyRing", "baz" },
+                        { "keyName", "qux" },
+                        { "endpoint", "127.0.0.1:9003" }
+                    },
+                    _ => throw new ArgumentException(nameof(kmsProvider))
+                };
+            }
+
+            public void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
             {
                 switch (kmsProviderName)
                 {
                     case "aws":
                         break;
                     case "azure":
-                        kmsOptions.Add("identityPlatformEndpoint", endpoint);
+                        kmsOptions.Add("identityPlatformEndpoint", _endpoint);
                         break;
                     case "gcp":
-                        kmsOptions.Add("endpoint", endpoint);
+                        kmsOptions.Add("endpoint", _endpoint);
                         break;
                     default:
-                        throw new Exception($"Unexpected kmsProvider {kmsProvider}.");
+                        throw new Exception($"Unexpected kmsProvider {_endpoint}.");
                 }
             }
 
-            async Task SetFailure(string failure, int count)
+            private HttpClient GetClient()
             {
                 var handler = new HttpClientHandler
                 {
-                    ClientCertificates = { new X509Certificate2(Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH")!) },
+                    ClientCertificates =
+                    {
+                        new X509Certificate2(Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH")!)
+                    },
                 };
 
-                using var client = new HttpClient(handler);
+                return new HttpClient(handler);
+            }
+
+            public async Task SetFailure(string failure, int count)
+            {
+                using var client = GetClient();
                 var jsonData = new { count }.ToJson();
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-                var uri = new Uri($"https://{endpoint}/set_failpoint/{failure}");
+                var uri = new Uri($"https://{_endpoint}/set_failpoint/{failure}");
                 var response = await client.PostAsync(uri, content);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception("Error while setting failure");
+                    throw new Exception("Error while setting failure!");
                 }
             }
 
-            /**
-             * LIST todo
-             * - Need to finish the test
-             * - Need to make also a sync version of the tests
-             * - Need to understand how to recognise http and network errors
-             */
+            public async Task ResetServer()
+            {
+                using var client = GetClient();
+                var uri = new Uri($"https://{_endpoint}/reset");
+                var response = await client.PostAsync(uri, null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error while resetting!");
+                }
+            }
         }
 
         [Theory]
@@ -1532,8 +1619,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(CertificateType.TlsWithoutClientCert, CertificateType.TlsWithClientCert, CertificateType.Expired, CertificateType.InvalidHostName)] CertificateType certificateType,
             [Values(false, true)] bool async)
         {
-            //RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            //RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
 
             bool? isCertificateExpired = null, isInvalidHost = null; // will be assigned inside TestRelatedClientEncryptionOptionsConfigurator
 

@@ -336,12 +336,16 @@ namespace MongoDB.Driver.Encryption
                     }
                 }
             }
-            catch (Exception ex) when (ex is IOException or SocketException)  //TODO Here we should understand if it's a network error. How to do it..?
+            catch (Exception ex) when (ex is IOException or SocketException) //TODO What kind of exceptions should we have here?
             {
                 if (!request.ShouldBeRetried())
                 {
                     throw;
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 

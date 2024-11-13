@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Encryption
             return new KmsRequestCollection(requests, this);
         }
 
-        //TODO Fix
+        //TODO I think we should remove the previous method and use this
         public KmsRequest GetNextKmsMessageRequest()
         {
             var request = Library.mongocrypt_ctx_next_kms_ctx(_handle);
