@@ -61,27 +61,25 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
-        public async Task Case1_driver_should_successfully_create_and_list_search_indexes(
-            [Values(false, true)] bool runAsync)
-        { 
-            await CreateIndexAndValidate(runAsync ? "test-search-index-async" : "test-search-index", _indexDefinition, runAsync);
-        }
+        public Task Case1_driver_should_successfully_create_and_list_search_indexes(
+            [Values(false, true)] bool async) =>
+            CreateIndexAndValidate(async ? "test-search-index-async" : "test-search-index", _indexDefinition, async);
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
         public async Task Case2_driver_should_successfully_create_multiple_indexes_in_batch(
-            [Values(false, true)] bool runAsync)
+            [Values(false, true)] bool async)
         {
-            var indexDefinition1 = new CreateSearchIndexModel(runAsync ? "test-search-index-1-async" : "test-search-index-1", _indexDefinition);
-            var indexDefinition2 = new CreateSearchIndexModel(runAsync ? "test-search-index-2-async" : "test-search-index-2", _indexDefinition);
+            var indexDefinition1 = new CreateSearchIndexModel(async ? "test-search-index-1-async" : "test-search-index-1", _indexDefinition);
+            var indexDefinition2 = new CreateSearchIndexModel(async ? "test-search-index-2-async" : "test-search-index-2", _indexDefinition);
 
-            var indexNamesActual = runAsync
+            var indexNamesActual = async
                 ? await _collection.SearchIndexes.CreateManyAsync(new[] { indexDefinition1, indexDefinition2 })
                 : _collection.SearchIndexes.CreateMany(new[] { indexDefinition1, indexDefinition2 });
 
             indexNamesActual.Should().BeEquivalentTo(indexDefinition1.Name, indexDefinition2.Name);
 
-            var indexes = await GetIndexes(runAsync, indexDefinition1.Name, indexDefinition2.Name);
+            var indexes = await GetIndexes(async, indexDefinition1.Name, indexDefinition2.Name);
 
             indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinition);
             indexes[1]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinition);
@@ -90,12 +88,12 @@ namespace MongoDB.Driver.Tests.Search
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
         public async Task Case3_driver_can_successfully_drop_search_indexes(
-            [Values(false, true)] bool runAsync)
+            [Values(false, true)] bool async)
         {
-            var indexName = runAsync ? "test-search-index-async" : "test-search-index";
+            var indexName = async ? "test-search-index-async" : "test-search-index";
 
-            await CreateIndexAndValidate(indexName, _indexDefinition, runAsync);
-            if (runAsync)
+            await CreateIndexAndValidate(indexName, _indexDefinition, async);
+            if (async)
             {
                 await _collection.SearchIndexes.DropOneAsync(indexName);
             }
@@ -107,7 +105,7 @@ namespace MongoDB.Driver.Tests.Search
             while (true)
             {
                 List<BsonDocument> indexes;
-                if (runAsync)
+                if (async)
                 {
                     var cursor = await _collection.SearchIndexes.ListAsync();
                     indexes = await cursor.ToListAsync();
@@ -129,13 +127,13 @@ namespace MongoDB.Driver.Tests.Search
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
         public async Task Case4_driver_can_update_a_search_index(
-            [Values(false, true)] bool runAsync)
+            [Values(false, true)] bool async)
         {
-            var indexName = runAsync ? "test-search-index-async" : "test-search-index";
+            var indexName = async ? "test-search-index-async" : "test-search-index";
             var indexNewDefinition = BsonDocument.Parse("{ mappings: { dynamic: true }}");
 
-            await CreateIndexAndValidate(indexName, _indexDefinition, runAsync);
-            if (runAsync)
+            await CreateIndexAndValidate(indexName, _indexDefinition, async);
+            if (async)
             {
                 await _collection.SearchIndexes.UpdateAsync(indexName, indexNewDefinition);
             }
@@ -144,18 +142,18 @@ namespace MongoDB.Driver.Tests.Search
                 _collection.SearchIndexes.Update(indexName, indexNewDefinition);
             }
             
-            var updatedIndex = await GetIndexes(runAsync, indexName);
+            var updatedIndex = await GetIndexes(async, indexName);
             updatedIndex[0]["latestDefinition"].AsBsonDocument.Should().Be(indexNewDefinition);
         }
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
         public async Task Case5_dropSearchIndex_suppresses_namespace_not_found_errors(
-            [Values(false, true)] bool runAsync)
+            [Values(false, true)] bool async)
         {
             var collection = _database.GetCollection<BsonDocument>("non_existent_collection");
 
-            if (runAsync)
+            if (async)
             {
                 await collection.SearchIndexes.DropOneAsync("non_existing_index");
             }
@@ -168,31 +166,31 @@ namespace MongoDB.Driver.Tests.Search
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
         public async Task Case6_driver_can_create_and_list_search_indexes_with_non_default_read_write_concern(
-            [Values(false, true)] bool runAsync)
+            [Values(false, true)] bool async)
         {
-            var indexName = runAsync ? "test-search-index-case6-async" : "test-search-index-case6";
+            var indexName = async ? "test-search-index-case6-async" : "test-search-index-case6";
 
             var collection = _collection
                 .WithReadConcern(ReadConcern.Majority)
                 .WithWriteConcern(WriteConcern.WMajority);
 
-            var indexNameCreated = runAsync
+            var indexNameCreated = async
                 ? await collection.SearchIndexes.CreateOneAsync(_indexDefinition, indexName)
                 : collection.SearchIndexes.CreateOne(_indexDefinition, indexName);
             
             indexNameCreated.Should().Be(indexName);
 
-            var indexes = await GetIndexes(runAsync, indexName);
+            var indexes = await GetIndexes(async, indexName);
             indexes[0]["latestDefinition"].AsBsonDocument.Should().Be(_indexDefinition);
         }
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
         public async Task Case7_driver_can_handle_search_index_types_when_creating_indexes(
-            [Values(false, true)] bool runAsync)
+            [Values(false, true)] bool async)
         {
             string indexName1, indexName2, indexName3;
-            if (runAsync)
+            if (async)
             {
                 indexName1 = "test-search-index-case7-implicit-async";
                 indexName2 = "test-search-index-case7-explicit-async";
@@ -205,58 +203,58 @@ namespace MongoDB.Driver.Tests.Search
                 indexName3 = "test-search-index-case7-vector";
             }
 
-            var indexCreated = await CreateIndexAndValidate(indexName1, _indexDefinition, runAsync);
+            var indexCreated = await CreateIndexAndValidate(indexName1, _indexDefinition, async);
             indexCreated["type"].AsString.Should().Be("search");
 
-            var indexNameCreated = runAsync
+            var indexNameCreated = async
                 ? await _collection.SearchIndexes.CreateOneAsync(new CreateSearchIndexModel(indexName2, SearchIndexType.Search, _indexDefinition))
                 : _collection.SearchIndexes.CreateOne(new CreateSearchIndexModel(indexName2, SearchIndexType.Search, _indexDefinition));
             indexNameCreated.Should().Be(indexName2);
 
-            var indexCreated2 = await GetIndexes(runAsync, indexName2);
+            var indexCreated2 = await GetIndexes(async, indexName2);
             indexCreated2[0]["type"].AsString.Should().Be("search");
 
-            indexNameCreated = runAsync
+            indexNameCreated = async
                 ? await _collection.SearchIndexes.CreateOneAsync(new CreateSearchIndexModel(indexName3, SearchIndexType.VectorSearch, _vectorIndexDefinition))
                 : _collection.SearchIndexes.CreateOne(new CreateSearchIndexModel(indexName3, SearchIndexType.VectorSearch, _vectorIndexDefinition));
             indexNameCreated.Should().Be(indexName3);
             
-            var indexCreated3 = await GetIndexes(runAsync, indexName3);
+            var indexCreated3 = await GetIndexes(async, indexName3);
             indexCreated3[0]["type"].AsString.Should().Be("vectorSearch");
         }
 
         [Theory(Timeout = Timeout)]
         [ParameterAttributeData]
         public async Task Case8_driver_requires_explicit_type_to_create_vector_search_index(
-            [Values(false, true)] bool runAsync)
+            [Values(false, true)] bool async)
         {
-            var indexName = runAsync ? "test-search-index-case8-error-async" : "test-search-index-case8-error";
+            var indexName = async ? "test-search-index-case8-error-async" : "test-search-index-case8-error";
 
-            var exception = runAsync
+            var exception = async
                 ? await Record.ExceptionAsync(() => _collection.SearchIndexes.CreateOneAsync(_vectorIndexDefinition, indexName))
                 : Record.Exception(() => _collection.SearchIndexes.CreateOne(_vectorIndexDefinition, indexName));
             
             exception.Message.Should().Contain("Attribute mappings missing");
         }
 
-        private async Task<BsonDocument> CreateIndexAndValidate(string indexName, BsonDocument indexDefinition, bool runAsync)
+        private async Task<BsonDocument> CreateIndexAndValidate(string indexName, BsonDocument indexDefinition, bool async)
         {
-            var indexNameActual = runAsync
+            var indexNameActual = async
                 ? await _collection.SearchIndexes.CreateOneAsync(indexDefinition, indexName)
                 : _collection.SearchIndexes.CreateOne(indexDefinition, indexName);
             
             indexNameActual.Should().Be(indexName);
 
-            var result = await GetIndexes(runAsync, indexName);
+            var result = await GetIndexes(async, indexName);
             return result[0];
         }
 
-        private async Task<BsonDocument[]> GetIndexes(bool runAsync, params string[] indexNames)
+        private async Task<BsonDocument[]> GetIndexes(bool async, params string[] indexNames)
         {
             while (true)
             {
                 List<BsonDocument> indexes;
-                if (runAsync)
+                if (async)
                 {
                     var cursor = await _collection.SearchIndexes.ListAsync();
                     indexes = await cursor.ToListAsync();
