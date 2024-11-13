@@ -18,19 +18,21 @@ using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
 {
     [IterationCount(100)]
-    [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
-    public class InsertManyLargeBenchmark
+    [BenchmarkCategory(DriverBenchmarkCategory.BulkWriteBench, DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
+    public class LargeDocBulkInsertBenchmark
     {
         private IMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
         private IEnumerable<BsonDocument> _largeDocuments;
+        
+        private static readonly CollectionNamespace __collectionNamespace =
+            CollectionNamespace.FromFullName($"{MongoConfiguration.PerfTestDatabaseName}.{MongoConfiguration.PerfTestCollectionName}");
 
         [Params(27_310_890)]
         public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
@@ -53,9 +55,16 @@ namespace MongoDB.Benchmarks.MultiDoc
         }
 
         [Benchmark]
-        public void InsertManyLarge()
+        public void InsertManyLargeBenchmark()
         {
             _collection.InsertMany(_largeDocuments, new InsertManyOptions());
+        }
+        
+        [Benchmark]
+        public void LargeDocClientBulkInsertBenchmark()
+        {
+            var models = _largeDocuments.Select(x => new BulkWriteInsertOneModel<BsonDocument>(__collectionNamespace, x)).ToList();
+            _client.BulkWrite(models, new ClientBulkWriteOptions());
         }
 
         [GlobalCleanup]

@@ -1473,6 +1473,18 @@ tasks:
         - func: install-dotnet
         - func: run-performance-tests
 
+    - name: performance-tests-net80-server-v8.0
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            VERSION: "v8.0-perf"
+            TOPOLOGY: "server"
+            SSL: "nossl"
+            AUTH: "noauth"
+            SKIP_LEGACY_SHELL: "true"
+        - func: install-dotnet
+        - func: run-performance-tests
+          
     - name: test-aws-lambda-deployed
       commands:
         - command: ec2.assume_role
@@ -2528,6 +2540,7 @@ buildvariants:
     - rhel90-dbx-perf-large
   tasks:
     - name: performance-tests-net80-server-v6.0
+    - name: performance-tests-net80-server-v8.0
 
 # AWS Lambda tests
 - name: aws-lambda-tests
