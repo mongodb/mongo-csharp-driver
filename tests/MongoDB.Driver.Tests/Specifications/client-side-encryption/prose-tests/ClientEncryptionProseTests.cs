@@ -1555,21 +1555,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     throw new Exception("Error while resetting!");
                 }
             }
-
-            /**
-             * LIST todo
-             * - Need to finish the test
-             * - Need to make also a sync version of the tests (encryptAsync and CreateDataKeyAsync have some helper methods to do that)
-             */
-
-            /* For some reason, if I use a single httpClient that I reuse, the tests take about 2 min 45 sec to run
-             * Some notes:
-             * - Adding or not the client certificate does not make a difference
-             * - When having the single client, it was a class variable initialized in the constructor and that
-             *  I was disposing it in OnDispose
-             * - When modifying the code going from a single client to a client per method, then the first test method
-             * takes 15 seconds, the following ones less than 1 second.
-             */
         }
 
         [Theory]

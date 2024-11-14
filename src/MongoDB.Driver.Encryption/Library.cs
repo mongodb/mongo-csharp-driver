@@ -698,7 +698,7 @@ namespace MongoDB.Driver.Encryption
             public delegate void mongocrypt_ctx_destroy(IntPtr ptr);
             public delegate IntPtr mongocrypt_kms_ctx_get_kms_provider(IntPtr handle, out uint length);
 
-            //TODO Need to check where to put those
+            //TODO Need to put these and the new methods in the right place
             public delegate long mongocrypt_kms_ctx_usleep(IntPtr handle);
 
             [return: MarshalAs(UnmanagedType.I1)]
