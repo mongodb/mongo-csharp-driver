@@ -16,6 +16,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  password for client certificate
 #   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net472", "NetStandard21",
 #   TARGET                          Set to specify a custom test target. Default: "nil"
+#   DRIVERS_TOOLS                   Set base path to evergreen-drivers-tools project
 #
 # Environment variables produced as output:
 #   MONGODB_X509_CLIENT_P12_PATH            Absolute path to client certificate in p12 format
@@ -139,6 +140,10 @@ if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFI
     # if we make CLIENT_PEM input parameter conditional
     export MONGO_X509_CLIENT_CERTIFICATE_PATH=${MONGO_X509_CLIENT_CERTIFICATE_PATH}
     export MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}"
+fi
+
+if [ -f "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh" ]; then
+  source "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh"
 fi
 
 . ./evergreen/export-libmongocrypt-path.sh

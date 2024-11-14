@@ -353,19 +353,9 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
-        include_expansions_in_env:
-          - "FLE_AWS_ACCESS_KEY_ID"
-          - "FLE_AWS_SECRET_ACCESS_KEY"
-          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
-          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
-          - "FLE_AZURE_TENANT_ID"
-          - "FLE_AZURE_CLIENT_ID"
-          - "FLE_AZURE_CLIENT_SECRET"
-          - "FLE_GCP_EMAIL"
-          - "FLE_GCP_PRIVATE_KEY"
         script: |
           . ./evergreen/set-virtualenv.sh
-          . ./evergreen/set-temp-fle-aws-creds.sh
+          DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
@@ -390,16 +380,6 @@ functions:
       params:
         working_dir: "mongo-csharp-driver"
         shell: "bash"
-        include_expansions_in_env:
-          - "FLE_AWS_ACCESS_KEY_ID"
-          - "FLE_AWS_SECRET_ACCESS_KEY"
-          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
-          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
-          - "FLE_AZURE_TENANT_ID"
-          - "FLE_AZURE_CLIENT_ID"
-          - "FLE_AZURE_CLIENT_SECRET"
-          - "FLE_GCP_EMAIL"
-          - "FLE_GCP_PRIVATE_KEY"
         script: |
           export KMS_MOCK_SERVERS_ENABLED=true
           export GCE_METADATA_HOST="localhost:5000"
@@ -426,19 +406,9 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         shell: "bash"
-        include_expansions_in_env:
-          - "FLE_AWS_ACCESS_KEY_ID"
-          - "FLE_AWS_SECRET_ACCESS_KEY"
-          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
-          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
-          - "FLE_AZURE_TENANT_ID"
-          - "FLE_AZURE_CLIENT_ID"
-          - "FLE_AZURE_CLIENT_SECRET"
-          - "FLE_GCP_EMAIL"
-          - "FLE_GCP_PRIVATE_KEY"
         script: |
           . ./evergreen/set-virtualenv.sh
-          . ./evergreen/set-temp-fle-aws-creds.sh
+          DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
@@ -783,16 +753,6 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
-        include_expansions_in_env:
-          - "FLE_AWS_ACCESS_KEY_ID"
-          - "FLE_AWS_SECRET_ACCESS_KEY"
-          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
-          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
-          - "FLE_AZURE_TENANT_ID"
-          - "FLE_AZURE_CLIENT_ID"
-          - "FLE_AZURE_CLIENT_SECRET"
-          - "FLE_GCP_EMAIL"
-          - "FLE_GCP_PRIVATE_KEY"
         script: |
           ${PREPARE_SHELL}
           AUTH=${AUTH} \
@@ -834,96 +794,34 @@ functions:
           git clone https://github.com/microsoft/semantic-kernel.git
           ./evergreen/run-sk.sh
 
-  start-kms-mock-servers:
-    - command: shell.exec
+  setup-csfle-secrets:
+    - command: ec2.assume_role
       params:
-        shell: "bash"
-        script: |
-          ${PREPARE_SHELL}
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-    - command: shell.exec
+        role_arn: ${aws_test_secrets_role}
+    - command: subprocess.exec
       params:
-        background: true
-        shell: "bash"
-        script: |
-          #expired client cert
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/expired.pem --port 8000
-    - command: shell.exec
-      params:
-        background: true
-        shell: "bash"
-        script: |
-          #wrong-host client cert
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/wrong-host.pem --port 8001
-    - command: shell.exec
-      params:
-        background: true
-        shell: "bash"
-        script: |
-          #server.pem client cert
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/server.pem --port 8002 --require_client_cert
+        working_dir: mongo-csharp-driver
+        binary: bash
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        args:
+          - ${DRIVERS_TOOLS}/.evergreen/csfle/setup-secrets.sh
 
-  start-kms-mock-kmip-server:
-    - command: shell.exec
+  start-cse-servers:
+    - command: subprocess.exec
       params:
-        shell: "bash"
-        script: |
-          ${PREPARE_SHELL}
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-    - command: shell.exec
-      params:
-        shell: "bash"
+        working_dir: mongo-csharp-driver
+        binary: bash
         background: true
-        script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python -u kms_kmip_server.py
-
-  start-kms-mock-gcp-server:
-    - command: shell.exec
+        args:
+          - ${DRIVERS_TOOLS}/.evergreen/csfle/start-servers.sh
+    - command: subprocess.exec
       params:
-        shell: "bash"
-        script: |
-          ${PREPARE_SHELL}
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-    - command: shell.exec
-      params:
-        background: true
-        shell: "bash"
-        script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms
-          . ./activate-kmstlsvenv.sh
-          python -m pip install PyJWT
-          mkdir ${DRIVERS_TOOLS}/tmp
-          echo '${GOOGLE_APPLICATION_CREDENTIALS_CONTENT}' > ${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
-          export GOOGLE_APPLICATION_CREDENTIALS=${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
-          python -u mock_server.py
-
-  start-kms-mock-azure-imds-server:
-    - command: shell.exec
-      params:
-        shell: "bash"
-        script: |
-          ${PREPARE_SHELL}
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-    - command: shell.exec
-      params:
-        background: true
-        shell: "bash"
-        script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python bottle.py fake_azure:imds
+        binary: bash
+        args:
+          - ${DRIVERS_TOOLS}/.evergreen/csfle/await-servers.sh
 
   trace-artifacts:
     - command: papertrail.trace
@@ -1158,6 +1056,7 @@ post:
 tasks:
     - name: test-net472
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -1165,6 +1064,7 @@ tasks:
 
     - name: test-netstandard21
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -1172,6 +1072,7 @@ tasks:
 
     - name: test-net60
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -1179,6 +1080,7 @@ tasks:
 
     - name: test-csfle-with-mongocryptd-net472
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mongocryptd-tests
           vars:
@@ -1186,6 +1088,7 @@ tasks:
 
     - name: test-csfle-with-mongocryptd-netstandard21
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mongocryptd-tests
           vars:
@@ -1193,6 +1096,7 @@ tasks:
 
     - name: test-csfle-with-mongocryptd-net60
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mongocryptd-tests
           vars:
@@ -1200,10 +1104,8 @@ tasks:
 
     - name: test-csfle-with-mocked-kms-tls-net472
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-mock-kmip-server
-        - func: start-kms-mock-gcp-server
-        - func: start-kms-mock-azure-imds-server
+        - func: setup-csfle-secrets
+        - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -1211,10 +1113,8 @@ tasks:
 
     - name: test-csfle-with-mocked-kms-tls-netstandard21
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-mock-kmip-server
-        - func: start-kms-mock-gcp-server
-        - func: start-kms-mock-azure-imds-server
+        - func: setup-csfle-secrets
+        - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -1222,10 +1122,8 @@ tasks:
 
     - name: test-csfle-with-mocked-kms-tls-net60
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-mock-kmip-server
-        - func: start-kms-mock-gcp-server
-        - func: start-kms-mock-azure-imds-server
+        - func: setup-csfle-secrets
+        - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -1304,6 +1202,7 @@ tasks:
 
     - name: stable-api-tests-net472
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
@@ -1314,6 +1213,7 @@ tasks:
 
     - name: stable-api-tests-netstandard21
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
@@ -1324,6 +1224,7 @@ tasks:
 
     - name: stable-api-tests-net60
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
@@ -1389,6 +1290,7 @@ tasks:
     - name: test-serverless
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
+        - func: setup-csfle-secrets
         - func: run-serverless-tests
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
@@ -2122,28 +2024,25 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - command: shell.exec
+      - func: assume-ec2-role
+      - command: subprocess.exec
         params:
-          shell: "bash"
-          silent: true
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           env:
-            AZUREKMS_CLIENTID : ${testazurekms_clientid}
-            AZUREKMS_TENANTID : ${testazurekms_tenantid}
-            AZUREKMS_SECRET= : ${testazurekms_secret}
-            AZUREKMS_RESOURCEGROUP: ${testazurekms_resourcegroup}
-            AZUREKMS_SCOPE : ${testazurekms_scope}
-          script: |
-            ${PREPARE_SHELL}
-            echo '${testazurekms_publickey}' > /tmp/testazurekms_publickey
-            echo '${testazurekms_privatekey}' > /tmp/testazurekms_privatekey
-            # Set 600 permissions on private key file. Otherwise ssh / scp may error with permissions "are too open".
-            chmod 600 /tmp/testazurekms_privatekey
-
-            export AZUREKMS_DRIVERS_TOOLS=$DRIVERS_TOOLS
-            export AZUREKMS_PUBLICKEYPATH=/tmp/testazurekms_publickey
-            export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
-            export AZUREKMS_VMNAME_PREFIX=CSHARPDRIVER
-            $DRIVERS_TOOLS/.evergreen/csfle/azurekms/create-and-setup-vm.sh
+            VAULT_NAME: "azurekms"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/azurekms/setup-secrets.sh
+      - command: subprocess.exec
+        params:
+          binary: bash
+          env:
+            AZUREKMS_VMNAME_PREFIX: "CSHARPDRIVER"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/azurekms/create-and-setup-vm.sh
       - command: expansions.update
         params:
           file: testazurekms-expansions.yml
@@ -2153,15 +2052,13 @@ task_groups:
       - command: expansions.update
         params:
           file: testazurekms-expansions.yml
-      - command: shell.exec
+      - command: subprocess.exec
         params:
-          shell: "bash"
+          binary: bash
           env:
-            AZUREKMS_VMNAME : ${AZUREKMS_VMNAME}
-            AZUREKMS_RESOURCEGROUP : ${testazurekms_resourcegroup}
-          script: |
-            ${PREPARE_SHELL}
-            $DRIVERS_TOOLS/.evergreen/csfle/azurekms/delete-vm.sh
+            AZUREKMS_VMNAME: ${AZUREKMS_VMNAME}
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/azurekms/delete-vm.sh
     tasks:
       - test-csfle-with-azure-kms
 
@@ -2175,35 +2072,40 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - command: shell.exec
+      - func: assume-ec2-role
+      - command: subprocess.exec
         params:
-          shell: "bash"
-          silent: true
+          binary: bash
           include_expansions_in_env:
-            - "GCPKMS_SERVICEACCOUNT"
-          script: |
-            ${PREPARE_SHELL}
-            echo '${GOOGLE_APPLICATION_CREDENTIALS_CONTENT}' > /tmp/testgcpkms_key_file.json
-            export GCPKMS_KEYFILE=/tmp/testgcpkms_key_file.json
-            export GCPKMS_DRIVERS_TOOLS=$DRIVERS_TOOLS
-            export GCPKMS_MACHINETYPE="e2-standard-4"
-            $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/create-and-setup-instance.sh
-      # Load the GCPKMS_GCLOUD, GCPKMS_INSTANCE, GCPKMS_REGION, and GCPKMS_ZONE expansions.
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          env:
+            VAULT_NAME: "gcpkms"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms/setup-secrets.sh
+      - command: subprocess.exec
+        params:
+          binary: bash
+          include_expansions_in_env:
+            - "DRIVERS_TOOLS"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms/create-and-setup-instance.sh
       - command: expansions.update
         params:
           file: testgcpkms-expansions.yml
     teardown_group:
       - func: upload-test-results
-      - command: shell.exec
+      - command: subprocess.exec
         params:
-          shell: "bash"
-          script: |
-            ${PREPARE_SHELL}
-            export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
-            export GCPKMS_PROJECT=${GCPKMS_PROJECT}
-            export GCPKMS_ZONE=${GCPKMS_ZONE}
-            export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
-            $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/delete-instance.sh
+          binary: bash
+          include_expansions_in_env:
+            - "GCPKMS_GCLOUD"
+            - "GCPKMS_PROJECT"
+            - "GCPKMS_ZONE"
+            - "GCPKMS_INSTANCENAME"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms/delete-instance.sh
     tasks:
       - test-csfle-with-gcp-kms
 
@@ -2216,39 +2118,37 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - command: shell.exec
+      - func: assume-ec2-role
+      - command: subprocess.exec
         params:
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           env:
-            DRIVERS_ATLAS_PUBLIC_API_KEY: "${DRIVERS_ATLAS_PUBLIC_API_KEY}"
-            DRIVERS_ATLAS_PRIVATE_API_KEY: "${DRIVERS_ATLAS_PRIVATE_API_KEY}"
-            DRIVERS_ATLAS_GROUP_ID: "${DRIVERS_ATLAS_GROUP_ID}"
-            DRIVERS_ATLAS_LAMBDA_USER: "${DRIVERS_ATLAS_LAMBDA_USER}"
-            DRIVERS_ATLAS_LAMBDA_PASSWORD: "${DRIVERS_ATLAS_LAMBDA_PASSWORD}"
-            LAMBDA_STACK_NAME: "${LAMBDA_STACK_NAME}"
-          add_expansions_to_env: true
-          shell: "bash"
-          script: |
-            ${PREPARE_SHELL}
-            $DRIVERS_TOOLS/.evergreen/atlas/setup-atlas-cluster.sh
+            VAULT_NAME: "atlas"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-secrets.sh
+      - command: subprocess.exec
+        params:
+          binary: bash
+          env:
+            LAMBDA_STACK_NAME: dbx-csharp-lambda
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update
         params:
           file: atlas-expansion.yml
     teardown_group:
       - func: upload-test-results
-      - command: shell.exec
+      - command: subprocess.exec
         params:
+          binary: bash
           env:
-            DRIVERS_ATLAS_PUBLIC_API_KEY: "${DRIVERS_ATLAS_PUBLIC_API_KEY}"
-            DRIVERS_ATLAS_PRIVATE_API_KEY: "${DRIVERS_ATLAS_PRIVATE_API_KEY}"
-            DRIVERS_ATLAS_GROUP_ID: "${DRIVERS_ATLAS_GROUP_ID}"
-            DRIVERS_ATLAS_LAMBDA_USER: "${DRIVERS_ATLAS_LAMBDA_USER}"
-            DRIVERS_ATLAS_LAMBDA_PASSWORD: "${DRIVERS_ATLAS_LAMBDA_PASSWORD}"
-            LAMBDA_STACK_NAME: "${LAMBDA_STACK_NAME}"
-          add_expansions_to_env: true
-          shell: "bash"
-          script: |
-            ${PREPARE_SHELL}
-            $DRIVERS_TOOLS/.evergreen/atlas/teardown-atlas-cluster.sh
+            LAMBDA_STACK_NAME: dbx-csharp-lambda
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/atlas/teardown-atlas-cluster.sh
     tasks:
       - atlas-search-index-helpers-test
 
