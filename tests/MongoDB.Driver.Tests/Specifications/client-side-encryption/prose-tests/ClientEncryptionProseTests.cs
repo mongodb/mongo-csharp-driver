@@ -1522,7 +1522,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     ClientCertificates =
                     {
-                        new X509Certificate2(Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH")!)
+                        new X509Certificate2(Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH")!,
+                            Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD"))
                     },
                 };
 

@@ -95,12 +95,9 @@ namespace MongoDB.Driver.Encryption
 
         /// <summary>
         /// Indicates a network-level failure.
-        /// It will set an error status if the request should not be retried.
         /// </summary>
-        public void Fail()
-        {
-            Check(Library.mongocrypt_kms_ctx_fail(_id));
-        }
+        /// <returns>A boolean indicating whether the failed request may be retried.</returns>
+        public bool Fail() => Library.mongocrypt_kms_ctx_fail(_id);
 
         /// <summary>
         /// Feeds the response back to the libmongocrypt

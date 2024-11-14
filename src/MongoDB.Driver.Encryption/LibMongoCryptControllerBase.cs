@@ -306,38 +306,40 @@ namespace MongoDB.Driver.Encryption
 
                 var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
                 var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
-                using (var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false))
-                using (var binary = request.GetMessage())
+                using var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false);
+                using var binary = request.GetMessage();
+
+                var requestBytes = binary.ToArray();
+
+                var sleepMs = request.Sleep;
+                if (sleepMs > 0)
                 {
-                    var requestBytes = binary.ToArray();
+                    await Task.Delay(sleepMs, cancellation).ConfigureAwait(false);
+                }
 
-                    var sleepMs = request.Sleep;
-                    if (sleepMs > 0)
+                await sslStream.WriteAsync(requestBytes, 0, requestBytes.Length).ConfigureAwait(false);
+
+                while (request.BytesNeeded > 0)
+                {
+                    var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
+                    var count = await sslStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+
+                    if (count == 0)
                     {
-                        await Task.Delay(sleepMs, cancellation).ConfigureAwait(false);
+                        throw new IOException();
                     }
 
-                    await sslStream.WriteAsync(requestBytes, 0, requestBytes.Length).ConfigureAwait(false);
-
-                    while (request.BytesNeeded > 0)
-                    {
-                        var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
-                        var count = await sslStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-
-                        if (count == 0)
-                        {
-                            throw new IOException();
-                        }
-
-                        var responseBytes = new byte[count];
-                        Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);
-                        request.Feed(responseBytes);
-                    }
+                    var responseBytes = new byte[count];
+                    Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);
+                    request.Feed(responseBytes);
                 }
             }
             catch (Exception ex) when (ex is IOException or SocketException)
             {
-                request.Fail();
+                if (!request.Fail())
+                {
+                    throw;
+                }
             }
         }
 
