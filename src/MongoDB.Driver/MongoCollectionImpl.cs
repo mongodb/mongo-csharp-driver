@@ -1917,7 +1917,7 @@ namespace MongoDB.Driver
 
             private CreateSearchIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateSearchIndexModel> models) =>
                 new(_collection._collectionNamespace,
-                    models.Select(m => new CreateSearchIndexRequest(m.Name, m.Definition)),
+                    models.Select(m => new CreateSearchIndexRequest(m.Name, m.Type, m.Definition)),
                     _collection._messageEncoderSettings);
 
             private string[] GetIndexNames(BsonDocument createSearchIndexesResponse) =>

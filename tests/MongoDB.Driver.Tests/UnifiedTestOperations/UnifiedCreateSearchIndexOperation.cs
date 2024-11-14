@@ -84,6 +84,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             BsonDocument definition = null;
             string name = null;
+            SearchIndexType? type = null;
 
             foreach (var argument in model)
             {
@@ -91,6 +92,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     case "name":
                         name = argument.Value.AsString;
+                        break;
+                    case "type":
+                        type = argument.Value.AsString switch
+                        {
+                            "search" => SearchIndexType.Search,
+                            "vectorSearch" => SearchIndexType.VectorSearch,
+                            _ => throw new FormatException($"Unexpected search index type '{argument.Value}'.")
+                        };
                         break;
                     case "definition":
                         definition = argument.Value.AsBsonDocument;
@@ -100,7 +109,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            var createSearchIndexModel = new CreateSearchIndexModel(name, definition);
+            var createSearchIndexModel = new CreateSearchIndexModel(name, type, definition);
 
             return new(collection, createSearchIndexModel);
         }
