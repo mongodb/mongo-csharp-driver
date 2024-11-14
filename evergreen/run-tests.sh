@@ -143,7 +143,7 @@ if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFI
 fi
 
 if [ -f "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh" ]; then
-  source "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh"
+  source $DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh
 fi
 
 . ./evergreen/export-libmongocrypt-path.sh
