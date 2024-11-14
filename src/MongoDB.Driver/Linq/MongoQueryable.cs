@@ -865,6 +865,205 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Looks up documents in a foreign collection.
+        /// </summary>
+        /// <param name="source">The source documents.</param>
+        /// <param name="from">The foreign collection.</param>
+        /// <param name="localField">The local field to compare against the foreign field.</param>
+        /// <param name="foreignField">The foreign field to compare against the local field.</param>
+        /// <typeparam name="TSource">The type of the source documents.</typeparam>
+        /// <typeparam name="TForeign">The type of the foreign documents.</typeparam>
+        /// <typeparam name="TField">The type of the fields being compared.</typeparam>
+        /// <returns>An <see cref="T:IQueryable{LookupResult{TSource,TForeign}}"/> with the results of the Lookup.</returns>
+        /// <notes>The Results property of <see cref="T:LookupResult{TSource,TForeign}"/> contains the matching foreign documents.</notes>
+        public static IQueryable<LookupResult<TSource, TForeign>> Lookup<TSource, TForeign, TField>(
+            this IQueryable<TSource> source,
+            IMongoCollection<TForeign> from,
+            Expression<Func<TSource, TField>> localField,
+            Expression<Func<TForeign, TField>> foreignField)
+        {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(from, nameof(from));
+            Ensure.IsNotNull(localField, nameof(localField));
+            Ensure.IsNotNull(foreignField, nameof(foreignField));
+
+            return source.Provider.CreateQuery<LookupResult<TSource, TForeign>>(
+                Expression.Call(
+                    GetMethodInfo(Lookup, source, from, localField, foreignField),
+                    source.Expression,
+                    Expression.Constant(from),
+                    Expression.Quote(localField),
+                    Expression.Quote(foreignField)));
+        }
+
+        /// <summary>
+        /// Looks up documents in a foreign collection.
+        /// </summary>
+        /// <param name="source">The source documents.</param>
+        /// <param name="from">The foreign collection.</param>
+        /// <param name="pipeline">The pipeline to run against the foreign documents.</param>
+        /// <typeparam name="TSource">The type of the source documents.</typeparam>
+        /// <typeparam name="TForeign">The type of the foreign documents.</typeparam>
+        /// <typeparam name="TResult">The type of the pipeline output.</typeparam>
+        /// <returns>An <see cref="T:IQueryable{LookupResult{TSource,TResult}}"/> with the results of the Lookup.</returns>
+        /// <notes>The Results property of <see cref="T:LookupResult{TSource,TResult}"/> contains the output of running the pipeline against the foreign documents.</notes>
+        public static IQueryable<LookupResult<TSource, TResult>> Lookup<TSource, TForeign, TResult>(
+            this IQueryable<TSource> source,
+            IMongoCollection<TForeign> from,
+            Expression<Func<TSource, IQueryable<TForeign>, IQueryable<TResult>>> pipeline
+        )
+        {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(from, nameof(from));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+
+            return source.Provider.CreateQuery<LookupResult<TSource, TResult>>(
+                Expression.Call(
+                    GetMethodInfo(Lookup, source, from, pipeline),
+                    source.Expression,
+                    Expression.Constant(from),
+                    Expression.Quote(pipeline)));
+        }
+
+        /// <summary>
+        /// Looks up documents in a foreign collection.
+        /// </summary>
+        /// <param name="source">The source documents.</param>
+        /// <param name="from">The foreign collection.</param>
+        /// <param name="localField">The local field to compare against the foreign field.</param>
+        /// <param name="foreignField">The foreign field to compare against the local field.</param>
+        /// <param name="pipeline">The pipeline to run against the matching foreign documents.</param>
+        /// <typeparam name="TSource">The type of the source documents.</typeparam>
+        /// <typeparam name="TForeign">The type of the foreign documents.</typeparam>
+        /// <typeparam name="TField">The type of the fields being compared.</typeparam>
+        /// <typeparam name="TResult">The type of the pipeline output.</typeparam>
+        /// <returns>An <see cref="T:IQueryable{LookupResult{TSource,TResult}}"/> with the results of the Lookup.</returns>
+        /// <notes>The Results property of <see cref="T:LookupResult{TSource,TResult}"/> contains the output of running the pipeline against the matching foreign documents.</notes>
+        public static IQueryable<LookupResult<TSource, TResult>> Lookup<TSource, TForeign, TField, TResult>(
+            this IQueryable<TSource> source,
+            IMongoCollection<TForeign> from,
+            Expression<Func<TSource, TField>> localField,
+            Expression<Func<TForeign, TField>> foreignField,
+            Expression<Func<TSource, IQueryable<TForeign>, IQueryable<TResult>>> pipeline
+        )
+        {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(from, nameof(from));
+            Ensure.IsNotNull(localField, nameof(localField));
+            Ensure.IsNotNull(foreignField, nameof(foreignField));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+
+            return source.Provider.CreateQuery<LookupResult<TSource, TResult>>(
+                Expression.Call(
+                    GetMethodInfo(Lookup, source, from, localField, foreignField, pipeline),
+                    source.Expression,
+                    Expression.Constant(from),
+                    Expression.Quote(localField),
+                    Expression.Quote(foreignField),
+                    Expression.Quote(pipeline)));
+        }
+
+        /// <summary>
+        /// Looks up documents in a list of foreign documents.
+        /// </summary>
+        /// <param name="source">The source documents.</param>
+        /// <param name="documents">The foreign documents.</param>
+        /// <param name="localField">The local field to compare against the foreign field.</param>
+        /// <param name="foreignField">The foreign field to compare against the local field.</param>
+        /// <typeparam name="TSource">The type of the source documents.</typeparam>
+        /// <typeparam name="TDocument">The type of the foreign documents.</typeparam>
+        /// <typeparam name="TField">The type of the fields being compared.</typeparam>
+        /// <returns>An <see cref="T:IQueryable{LookupResult{TSource,TDocument}}"/> with the results of the Lookup.</returns>
+        /// <notes>The Results property of <see cref="T:LookupResult{TSource,TDocument}"/> contains the matching foreign documents.</notes>
+        public static IQueryable<LookupResult<TSource, TDocument>> Lookup<TSource, TDocument, TField>(
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, IEnumerable<TDocument>>> documents,
+            Expression<Func<TSource, TField>> localField,
+            Expression<Func<TDocument, TField>> foreignField
+        )
+        {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(documents, nameof(documents));
+            Ensure.IsNotNull(localField, nameof(localField));
+            Ensure.IsNotNull(foreignField, nameof(foreignField));
+
+            return source.Provider.CreateQuery<LookupResult<TSource, TDocument>>(
+                Expression.Call(
+                    GetMethodInfo(Lookup, source, documents, localField, foreignField),
+                    source.Expression,
+                    Expression.Quote(documents),
+                    Expression.Quote(localField),
+                    Expression.Quote(foreignField)));
+        }
+
+        /// <summary>
+        /// Looks up documents in a list of foreign documents.
+        /// </summary>
+        /// <param name="source">The source documents.</param>
+        /// <param name="documents">The foreign documents.</param>
+        /// <param name="pipeline">The pipeline to run against the foreign documents.</param>
+        /// <typeparam name="TSource">The type of the source documents.</typeparam>
+        /// <typeparam name="TDocument">The type of the foreign documents.</typeparam>
+        /// <typeparam name="TResult">The type of the pipeline output.</typeparam>
+        /// <returns>An <see cref="T:IQueryable{LookupResult{TSource,TResult}}"/> with the results of the Lookup.</returns>
+        /// <notes>The Results property of <see cref="T:LookupResult{TSource,TResult}"/> contains the output of running the pipeline against the foreign documents.</notes>
+        public static IQueryable<LookupResult<TSource, TResult>> Lookup<TSource, TDocument, TResult>(
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, IEnumerable<TDocument>>> documents,
+            Expression<Func<TSource, IQueryable<TDocument>, IQueryable<TResult>>> pipeline
+        )
+        {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(documents, nameof(documents));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+
+            return source.Provider.CreateQuery<LookupResult<TSource, TResult>>(
+                Expression.Call(
+                    GetMethodInfo(Lookup, source, documents, pipeline),
+                    source.Expression,
+                    Expression.Quote(documents),
+                    Expression.Quote(pipeline)));
+        }
+
+        /// <summary>
+        /// Looks up documents in a list of foreign documents.
+        /// </summary>
+        /// <param name="source">The source documents.</param>
+        /// <param name="documents">The foreign documents.</param>
+        /// <param name="localField">The local field to compare against the foreign field.</param>
+        /// <param name="foreignField">The foreign field to compare against the local field.</param>
+        /// <param name="pipeline">The pipeline to run against the matching foreign documents.</param>
+        /// <typeparam name="TSource">The type of the source documents.</typeparam>
+        /// <typeparam name="TDocument">The type of the foreign documents.</typeparam>
+        /// <typeparam name="TField">The type of the fields being matched.</typeparam>
+        /// <typeparam name="TResult">The type of the pipeline output.</typeparam>
+        /// <returns>An <see cref="T:IQueryable{LookupResult{TSource,TResult}}"/> with the results of the Lookup.</returns>
+        /// <notes>The Results property of <see cref="T:LookupResult{TSource,TResult}"/> contains the output of running the pipeline against the matching foreign documents.</notes>
+        public static IQueryable<LookupResult<TSource, TResult>> Lookup<TSource, TDocument, TField, TResult>(
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, IEnumerable<TDocument>>> documents,
+            Expression<Func<TSource, TField>> localField,
+            Expression<Func<TDocument, TField>> foreignField,
+            Expression<Func<TSource, IQueryable<TDocument>, IQueryable<TResult>>> pipeline
+        )
+        {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(documents, nameof(documents));
+            Ensure.IsNotNull(localField, nameof(localField));
+            Ensure.IsNotNull(foreignField, nameof(foreignField));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+
+            return source.Provider.CreateQuery<LookupResult<TSource, TResult>>(
+                Expression.Call(
+                    GetMethodInfo(Lookup, source, documents, localField, foreignField, pipeline),
+                    source.Expression,
+                    Expression.Quote(documents),
+                    Expression.Quote(localField),
+                    Expression.Quote(foreignField),
+                    Expression.Quote(pipeline)));
+        }
+
+        /// <summary>
         /// Returns the maximum value in a generic <see cref="IQueryable{TSource}" />.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
@@ -988,7 +1187,7 @@ namespace MongoDB.Driver.Linq
         /// </param>
         /// <param name="scoreDetails">
         /// Flag that specifies whether to return a detailed breakdown
-        /// of the score for each document in the result. 
+        /// of the score for each document in the result.
         /// </param>
         /// <returns>The queryable with a new stage appended.</returns>
         public static IQueryable<TSource> Search<TSource>(
@@ -3303,6 +3502,11 @@ namespace MongoDB.Driver.Linq
         }
 
         private static MethodInfo GetMethodInfo<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5> f, T1 unused1, T2 unused2, T3 unused3, T4 unused4)
+        {
+            return f.GetMethodInfo();
+        }
+
+        private static MethodInfo GetMethodInfo<T1, T2, T3, T4, T5, T6>(Func<T1, T2, T3, T4, T5, T6> f, T1 unused1, T2 unused2, T3 unused3, T4 unused4, T5 unused5)
         {
             return f.GetMethodInfo();
         }

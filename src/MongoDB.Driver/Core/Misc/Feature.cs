@@ -77,6 +77,8 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.Zero, WireVersion.Server51);
         private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", WireVersion.Server40);
         private static readonly Feature __loadBalancedMode = new Feature("LoadBalancedMode", WireVersion.Server50);
+        private static readonly Feature __loookupConciseSyntax = new Feature("LoookupConciseSyntax", WireVersion.Server50);
+        private static readonly Feature __loookupDocuments= new Feature("LoookupDocuments", WireVersion.Server60);
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
         private static readonly Feature __regexMatch = new Feature("RegexMatch", WireVersion.Server42);
@@ -357,6 +359,16 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the load balanced mode feature.
         /// </summary>
         public static Feature LoadBalancedMode => __loadBalancedMode;
+
+        /// <summary>
+        /// Gets the lookup concise syntax feature.
+        /// </summary>
+        public static Feature LookupConciseSyntax => __loookupConciseSyntax;
+
+        /// <summary>
+        /// Gets the lookup documents feature.
+        /// </summary>
+        public static Feature LookupDocuments => __loookupDocuments;
 
         /// <summary>
         /// Gets the mmapv1 storage engine feature.

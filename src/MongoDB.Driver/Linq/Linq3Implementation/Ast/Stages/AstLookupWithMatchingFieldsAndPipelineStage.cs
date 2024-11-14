@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             AstPipeline pipeline,
             string @as)
         {
-            _from = Ensure.IsNotNull(from, nameof(from));
+            _from = from; // null when using $documents in the pipeline
             _localField = Ensure.IsNotNull(localField, nameof(localField));
             _foreignField = Ensure.IsNotNull(foreignField, nameof(foreignField));
             _let = let?.AsReadOnlyList(); // can be null for an uncorrelated subquery
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             {
                 { "$lookup", new BsonDocument()
                     {
-                        { "from", _from },
+                        { "from", _from, _from != null },
                         { "localField", _localField },
                         { "foreignField", _foreignField },
                         { "let", () => new BsonDocument(_let.Select(l => l.RenderAsElement())), _let?.Count > 0 },

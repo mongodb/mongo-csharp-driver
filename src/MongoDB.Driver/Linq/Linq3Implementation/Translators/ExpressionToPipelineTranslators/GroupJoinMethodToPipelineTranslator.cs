@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
                 var innerExpression = arguments[1];
-                var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfo(containerExpression: expression);
+                var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
 
                 var outerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
                 var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);

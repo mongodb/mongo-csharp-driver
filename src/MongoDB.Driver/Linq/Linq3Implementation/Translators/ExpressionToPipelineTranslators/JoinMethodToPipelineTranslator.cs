@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     AstProject.Exclude("_id"));
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
-                var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfo(containerExpression: expression);
+                var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
                 var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);
                 var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, innerSerializer);
 
