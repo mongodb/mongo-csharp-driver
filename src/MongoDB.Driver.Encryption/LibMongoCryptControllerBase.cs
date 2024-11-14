@@ -311,8 +311,7 @@ namespace MongoDB.Driver.Encryption
                 {
                     var requestBytes = binary.ToArray();
 
-                    var sleepMs = (int)(request.ShouldSleep() / 1000);
-
+                    var sleepMs = request.Sleep;
                     if (sleepMs > 0)
                     {
                         await Task.Delay(sleepMs, cancellation).ConfigureAwait(false);
@@ -336,16 +335,9 @@ namespace MongoDB.Driver.Encryption
                     }
                 }
             }
-            catch (Exception ex) when (ex is IOException or SocketException) //TODO What kind of exceptions should we have here?
+            catch (Exception ex) when (ex is IOException or SocketException)
             {
-                if (!request.ShouldBeRetried())
-                {
-                    throw;
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+                request.Fail();
             }
         }
 

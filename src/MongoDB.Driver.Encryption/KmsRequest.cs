@@ -78,6 +78,11 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
+        /// The number of milliseconds to wait before sending this request.
+        /// </summary>
+        public int Sleep => (int)(Library.mongocrypt_kms_ctx_usleep(_id) / 1000);
+
+        /// <summary>
         /// Gets the message to send to KMS.
         /// </summary>
         /// <returns>The message</returns>
@@ -86,6 +91,15 @@ namespace MongoDB.Driver.Encryption
             Binary binary = new Binary();
             Check(Library.mongocrypt_kms_ctx_message(_id, binary.Handle));
             return binary;
+        }
+
+        /// <summary>
+        /// Indicates a network-level failure.
+        /// It will set an error status if the request should not be retried.
+        /// </summary>
+        public void Fail()
+        {
+            Check(Library.mongocrypt_kms_ctx_fail(_id));
         }
 
         /// <summary>
@@ -105,17 +119,6 @@ namespace MongoDB.Driver.Encryption
                         }
                     }
                 }
-        }
-
-        //TODO Need to find good names and places for those two mathods
-        public bool ShouldBeRetried()
-        {
-            return Library.mongocrypt_kms_ctx_fail(_id);
-        }
-
-        public long ShouldSleep()
-        {
-            return Library.mongocrypt_kms_ctx_usleep(_id);
         }
 
         void IStatus.Check(Status status)

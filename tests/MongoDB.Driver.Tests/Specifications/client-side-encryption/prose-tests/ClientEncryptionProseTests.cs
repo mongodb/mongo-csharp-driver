@@ -1431,7 +1431,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [Theory]
         [ParameterAttributeData]
-        public async Task KmsRetryTestCase1and2(
+        public async Task KmsRetryTest(
             [Values("aws", "azure", "gcp")] string kmsProvider,
             [Values("network", "http")] string failureType)
         {
@@ -1440,138 +1440,81 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             const string endpoint = "127.0.0.1:9003";
 
-            var kmsRetryUtils = new KmsRetryTestsUtils(endpoint, kmsProvider);
+            var masterKey = kmsProvider switch
+            {
+                "aws" => new BsonDocument
+                {
+                    { "region", "foo" },
+                    { "key", "bar" },
+                    { "endpoint", "127.0.0.1:9003" }
+                },
+                "azure" => new BsonDocument
+                {
+                    { "keyVaultEndpoint", "127.0.0.1:9003" },
+                    { "keyName", "foo" },
+                },
+                "gcp" => new BsonDocument
+                {
+                    { "projectId", "foo" },
+                    { "location", "bar" },
+                    { "keyRing", "baz" },
+                    { "keyName", "qux" },
+                    { "endpoint", "127.0.0.1:9003" }
+                },
+                _ => throw new ArgumentException(nameof(kmsProvider))
+            };
 
-            await kmsRetryUtils.ResetServer();
+            await ResetServer();
 
             using var clientEncrypted = ConfigureClientEncrypted();
             using var clientEncryption = ConfigureClientEncryption(
                 clientEncrypted,
                 kmsProviderFilter: kmsProvider,
-                kmsProviderConfigurator: kmsRetryUtils.KmsProviderEndpointConfigurator
+                kmsProviderConfigurator: KmsProviderEndpointConfigurator
             );
 
-            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: kmsRetryUtils.MasterKey);
+            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
 
-            await kmsRetryUtils.SetFailure(failureType, 1);
+            await SetFailure(failureType, 1);
 
             Guid dataKey = default;
             var ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
                 .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
             ex.Should().BeNull();
 
-            await kmsRetryUtils.SetFailure(failureType, 1);
+            await SetFailure(failureType, 1);
 
             var ex2 = await Record.ExceptionAsync(async () => await clientEncryption.EncryptAsync(new BsonInt32(123),
                 new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
             ex2.Should().BeNull();
 
-            /**
-             * LIST todo
-             * - Need to finish the test
-             * - Need to make also a sync version of the tests (encryptAsync and CreateDataKeyAsync have some helper methods to do that)
-             */
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public async Task KmsRetryTestCase3(
-            [Values("aws", "azure", "gcp")] string kmsProvider)
-        {
-            //RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            //RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true); //TODO probably we need something like that on evergreen too
-
-            const string endpoint = "127.0.0.1:9003";
-
-            var kmsRetryUtils = new KmsRetryTestsUtils(endpoint, kmsProvider);
-
-            await kmsRetryUtils.ResetServer();
-
-            using var clientEncrypted = ConfigureClientEncrypted();
-            using var clientEncryption = ConfigureClientEncryption(
-                clientEncrypted,
-                kmsProviderFilter: kmsProvider,
-                kmsProviderConfigurator: kmsRetryUtils.KmsProviderEndpointConfigurator
-            );
-
-            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: kmsRetryUtils.MasterKey);
-
-            await kmsRetryUtils.SetFailure("network", 4);
-
-            Guid dataKey = default;
-            var ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
-                .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
-            ex.Should().BeNull();
-
-            //TODO Need to decide what kind of exception we should have here
-
-            /**
-             * LIST todo
-             * - Need to finish the test
-             * - Need to make also a sync version of the tests (encryptAsync and CreateDataKeyAsync have some helper methods to do that)
-             */
-        }
-
-        private class KmsRetryTestsUtils
-        {
-            /* For some reason, if I use a single httpClient that I reuse, the tests take about 2 min 45 sec to run
-             * Some notes:
-             * - Adding or not the client certificate does not make a difference
-             * - When having the single client, it was a class variable initialized in the constructor and that
-             *  I was disposing it in OnDispose
-             * - When modifying the code going from a single client to a client per method, then the first test method
-             * takes 15 seconds, the following ones less than 1 second.
-             */
-            private readonly string _endpoint;
-
-            public BsonDocument MasterKey { get; }
-
-            public KmsRetryTestsUtils(string endpoint, string kmsProvider)
+            if (failureType == "network")
             {
-                _endpoint = endpoint;
-                MasterKey = kmsProvider switch
-                {
-                    "aws" => new BsonDocument
-                    {
-                        { "region", "foo" },
-                        { "key", "bar" },
-                        { "endpoint", "127.0.0.1:9003" }
-                    },
-                    "azure" => new BsonDocument
-                    {
-                        { "keyVaultEndpoint", "127.0.0.1:9003" },
-                        { "keyName", "foo" },
-                    },
-                    "gcp" => new BsonDocument
-                    {
-                        { "projectId", "foo" },
-                        { "location", "bar" },
-                        { "keyRing", "baz" },
-                        { "keyName", "qux" },
-                        { "endpoint", "127.0.0.1:9003" }
-                    },
-                    _ => throw new ArgumentException(nameof(kmsProvider))
-                };
+                await SetFailure("network", 4);
+
+                var ex3 = await Record.ExceptionAsync(async () => await clientEncryption
+                    .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+                ex3.Should().NotBeNull();
             }
 
-            public void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
+            void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
             {
                 switch (kmsProviderName)
                 {
                     case "aws":
                         break;
                     case "azure":
-                        kmsOptions.Add("identityPlatformEndpoint", _endpoint);
+                        kmsOptions.Add("identityPlatformEndpoint", endpoint);
                         break;
                     case "gcp":
-                        kmsOptions.Add("endpoint", _endpoint);
+                        kmsOptions.Add("endpoint", endpoint);
                         break;
                     default:
-                        throw new Exception($"Unexpected kmsProvider {_endpoint}.");
+                        throw new Exception($"Unexpected kmsProvider {endpoint}.");
                 }
             }
 
-            private HttpClient GetClient()
+            HttpClient GetClient()
             {
                 var handler = new HttpClientHandler
                 {
@@ -1584,13 +1527,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 return new HttpClient(handler);
             }
 
-            public async Task SetFailure(string failure, int count)
+            async Task SetFailure(string failure, int count)
             {
                 using var client = GetClient();
                 var jsonData = new { count }.ToJson();
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-                var uri = new Uri($"https://{_endpoint}/set_failpoint/{failure}");
+                var uri = new Uri($"https://{endpoint}/set_failpoint/{failure}");
                 var response = await client.PostAsync(uri, content);
 
                 if (!response.IsSuccessStatusCode)
@@ -1599,10 +1542,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            public async Task ResetServer()
+            async Task ResetServer()
             {
                 using var client = GetClient();
-                var uri = new Uri($"https://{_endpoint}/reset");
+                var uri = new Uri($"https://{endpoint}/reset");
                 var response = await client.PostAsync(uri, null);
 
                 if (!response.IsSuccessStatusCode)
@@ -1610,6 +1553,21 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     throw new Exception("Error while resetting!");
                 }
             }
+
+            /**
+             * LIST todo
+             * - Need to finish the test
+             * - Need to make also a sync version of the tests (encryptAsync and CreateDataKeyAsync have some helper methods to do that)
+             */
+
+            /* For some reason, if I use a single httpClient that I reuse, the tests take about 2 min 45 sec to run
+             * Some notes:
+             * - Adding or not the client certificate does not make a difference
+             * - When having the single client, it was a class variable initialized in the constructor and that
+             *  I was disposing it in OnDispose
+             * - When modifying the code going from a single client to a client per method, then the first test method
+             * takes 15 seconds, the following ones less than 1 second.
+             */
         }
 
         [Theory]
