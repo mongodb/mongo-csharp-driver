@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         // constructors
         protected MongoQueryProvider(
-            IClientSessionHandle session, 
+            IClientSessionHandle session,
             AggregateOptions options)
         {
             _session = session;
@@ -63,6 +63,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         private readonly IMongoCollection<TDocument> _collection;
         private readonly IMongoDatabase _database;
         private ExecutableQuery<TDocument> _executedQuery;
+        private readonly IBsonSerializer _pipelineInputSerializer;
 
         // constructors
         public MongoQueryProvider(
@@ -72,6 +73,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             : base(session, options)
         {
             _collection = Ensure.IsNotNull(collection, nameof(collection));
+            _pipelineInputSerializer = collection.DocumentSerializer;
         }
 
         public MongoQueryProvider(
@@ -81,6 +83,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             : base(session, options)
         {
             _database = Ensure.IsNotNull(database, nameof(database));
+            _pipelineInputSerializer = NoPipelineInputSerializer.Instance;
+        }
+
+        internal MongoQueryProvider(
+            IBsonSerializer pipelineInputSerializer,
+            IClientSessionHandle session,
+            AggregateOptions options)
+            : base(session, options)
+        {
+            _pipelineInputSerializer = Ensure.IsNotNull(pipelineInputSerializer, nameof(pipelineInputSerializer));
         }
 
         // public properties
@@ -88,7 +100,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override CollectionNamespace CollectionNamespace => _collection == null ? null : _collection.CollectionNamespace;
         public IMongoDatabase Database => _database;
         public override BsonDocument[] LoggedStages => _executedQuery?.LoggedStages;
-        public override IBsonSerializer PipelineInputSerializer => _collection == null ? NoPipelineInputSerializer.Instance : _collection.DocumentSerializer;
+        public override IBsonSerializer PipelineInputSerializer => _pipelineInputSerializer;
 
         // public methods
         public override IQueryable CreateQuery(Expression expression)
@@ -137,8 +149,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override ExpressionTranslationOptions GetTranslationOptions()
         {
             var translationOptions = _options?.TranslationOptions;
-            var database = _database ?? _collection.Database;
-            return translationOptions.AddMissingOptionsFrom(database.Client.Settings.TranslationOptions);
+            var database = _database ?? _collection?.Database;
+            return translationOptions.AddMissingOptionsFrom(database?.Client.Settings.TranslationOptions);
         }
     }
 }

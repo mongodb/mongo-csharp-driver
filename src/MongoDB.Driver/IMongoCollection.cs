@@ -23,6 +23,13 @@ using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
+    internal interface IMongoCollection
+    {
+        CollectionNamespace CollectionNamespace { get; }
+
+        IBsonSerializer DocumentSerializer { get; }
+    }
+
     /// <summary>
     /// Represents a typed collection in MongoDB.
     /// </summary>
