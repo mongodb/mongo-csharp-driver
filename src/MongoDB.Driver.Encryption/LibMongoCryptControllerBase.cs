@@ -326,7 +326,7 @@ namespace MongoDB.Driver.Encryption
 
                     if (count == 0)
                     {
-                        throw new IOException();
+                        throw new IOException("Unexpected end of stream. No data was read from the SSL stream.");
                     }
 
                     var responseBytes = new byte[count];
