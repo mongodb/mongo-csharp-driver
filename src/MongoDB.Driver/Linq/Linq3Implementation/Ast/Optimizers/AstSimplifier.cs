@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             static bool OperatorMapsNullToNull(AstUnaryOperator @operator)
             {
                 return @operator switch
-                { 
+                {
                     AstUnaryOperator.ToDecimal => true,
                     AstUnaryOperator.ToDouble => true,
                     AstUnaryOperator.ToInt => true,
@@ -362,6 +362,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
                 return getField.Input;
             }
+        }
+
+        public override AstNode VisitNotFilterOperation(AstNotFilterOperation node)
+        {
+            if (node.Operation is AstExistsFilterOperation existsFilterOperation)
+            {
+                return new AstExistsFilterOperation(!existsFilterOperation.Exists);
+            }
+
+            return base.VisitNotFilterOperation(node);
         }
 
         public override AstNode VisitUnaryExpression(AstUnaryExpression node)

@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq.Expressions;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
@@ -30,28 +29,49 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     internal static class GetTypeComparisonExpressionToFilterTranslator
     {
         // caller is responsible for ensuring constant is on the right
-        public static bool CanTranslate(Expression leftExpression, Expression rightExpression)
+        public static bool CanTranslate(
+            Expression leftExpression,
+            AstComparisonFilterOperator comparisonOperator,
+            Expression rightExpression)
         {
             return
                 leftExpression is MethodCallExpression methodCallExpression &&
                 methodCallExpression.Method.Is(ObjectMethod.GetType) &&
+                (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne) &&
                 rightExpression is ConstantExpression;
         }
 
-        public static AstFilter Translate(TranslationContext context, BinaryExpression expression, MethodCallExpression getTypeExpression, Expression typeConstantExpression)
+        public static AstFilter Translate(
+            TranslationContext context,
+            BinaryExpression expression,
+            MethodCallExpression getTypeExpression,
+            AstComparisonFilterOperator comparisonOperator,
+            Expression typeConstantExpression)
         {
-            var field = ExpressionToFilterFieldTranslator.Translate(context, getTypeExpression.Object);
-            var nominalType = field.Serializer.ValueType;
-            var actualType = typeConstantExpression.GetConstantValue<Type>(expression);
-
-            var discriminatorConvention = field.Serializer.GetDiscriminatorConvention();
-            var discriminatorField = field.SubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
-
-            return discriminatorConvention switch
+            if (CanTranslate(getTypeExpression, comparisonOperator, typeConstantExpression))
             {
-                IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeEquals(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                _ => DiscriminatorAstFilter.TypeEquals(discriminatorField, discriminatorConvention, nominalType, actualType),
-            };
+                var field = ExpressionToFilterFieldTranslator.Translate(context, getTypeExpression.Object);
+                var nominalType = field.Serializer.ValueType;
+                var actualType = typeConstantExpression.GetConstantValue<Type>(expression);
+
+                var discriminatorConvention = field.Serializer.GetDiscriminatorConvention();
+                var discriminatorField = field.SubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+
+                var filter = discriminatorConvention switch
+                {
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeEquals(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                    _ => DiscriminatorAstFilter.TypeEquals(discriminatorField, discriminatorConvention, nominalType, actualType),
+                };
+
+                return comparisonOperator switch
+                {
+                    AstComparisonFilterOperator.Eq => filter,
+                    AstComparisonFilterOperator.Ne => AstFilter.Not(filter),
+                    _ => throw new ExpressionNotSupportedException(expression, because: $"comparison operator {comparisonOperator} is not supported")
+                };
+            }
+
+            throw new ExpressionNotSupportedException(expression);
         }
     }
 }
