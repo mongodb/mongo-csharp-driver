@@ -1435,8 +1435,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values("aws", "azure", "gcp")] string kmsProvider,
             [Values("network", "http")] string failureType)
         {
-            //RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            //RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true); //TODO probably we need something like that on evergreen too
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
 
             const string endpoint = "127.0.0.1:9003";
 

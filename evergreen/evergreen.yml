@@ -869,6 +869,15 @@ functions:
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
           . ./activate-kmstlsvenv.sh
           python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/server.pem --port 8002 --require_client_cert
+    - command: shell.exec
+      params:
+        background: true
+        shell: "bash"
+        script: |
+          #server.pem client cert
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          . ./activate-kmstlsvenv.sh
+          python -u kms_failpoint_server.py --port 9003
 
   start-kms-mock-kmip-server:
     - command: shell.exec
