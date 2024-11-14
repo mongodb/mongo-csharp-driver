@@ -1497,6 +1497,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 ex3.Should().NotBeNull();
             }
 
+            return;
+
             void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
             {
                 switch (kmsProviderName)
