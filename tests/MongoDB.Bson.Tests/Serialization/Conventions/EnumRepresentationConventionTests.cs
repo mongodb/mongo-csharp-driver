@@ -48,7 +48,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             serializer.Representation.Should().Be(representation);
         }
 
-
         [Theory]
         [InlineData(BsonType.Int32)]
         [InlineData(BsonType.Int64)]
