@@ -348,6 +348,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new ObjectSerializer(discriminatorConvention, _guidRepresentation, _allowedDeserializationTypes, _allowedSerializationTypes);
         }
 
+        public ObjectSerializer WithAllowedTypes(Func<Type, bool> allowedDeserializationTypes, Func<Type, bool> allowedSerializationTypes)
+        {
+            return new ObjectSerializer(_discriminatorConvention, _guidRepresentation, allowedDeserializationTypes, allowedSerializationTypes);
+        }
+
         // private methods
         private object DeserializeDiscriminatedValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
