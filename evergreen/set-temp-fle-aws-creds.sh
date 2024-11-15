@@ -22,8 +22,6 @@
 set +o xtrace # Disable tracing.
 
 if [ -f "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh" ]; then
-  echo "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh"
-  tail $DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh
   source $DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh
 else
   echo "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh does not exists."
