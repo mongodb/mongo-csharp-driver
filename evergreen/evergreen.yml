@@ -353,6 +353,7 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
+        shell: "bash"
         script: |
           . ./evergreen/set-virtualenv.sh
           DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
