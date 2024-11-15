@@ -73,10 +73,9 @@ namespace MongoDB.Bson.Serialization.Conventions
                 return reconfiguredChildSerializer is null ? null : childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
             }
 
-            var serializerType = serializer.GetType();
-            if (serializerType.IsGenericType && serializerType.GetGenericTypeDefinition() == typeof(EnumSerializer<>))
+            if (serializer.ValueType.IsEnum && serializer is IRepresentationConfigurable representationConfigurable)
             {
-                return (serializer as IRepresentationConfigurable)?.WithRepresentation(_representation);
+                return representationConfigurable.WithRepresentation(_representation);
             }
 
             return null;
