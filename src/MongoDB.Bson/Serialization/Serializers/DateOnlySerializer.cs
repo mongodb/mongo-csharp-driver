@@ -288,7 +288,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc />
         public DateOnlySerializer WithRepresentation(BsonType representation)
         {
-            return representation == _representation ? this : new DateOnlySerializer(representation);
+            return representation == _representation ? this : new DateOnlySerializer(representation, _documentFormat);
         }
 
         // explicit interface implementations
