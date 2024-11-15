@@ -15,16 +15,16 @@
 
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
+namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
-    internal static class FieldMethodToAggregationExpressionTranslator
+    internal static class FieldMethodToFilterFieldTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -35,12 +35,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var fieldNameExpression = arguments[1];
                 var fieldSerializerExpression = arguments[2];
 
-                var documentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, documentExpression);
+                var documentField = ExpressionToFilterFieldTranslator.Translate(context, documentExpression);
                 var fieldName = fieldNameExpression.GetConstantValue<string>(expression);
                 var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
 
-                var ast = AstExpression.GetField(documentTranslation.Ast, fieldName);
-                return new AggregationExpression(expression, ast, fieldSerializer);
+                return documentField.SubField(fieldName, fieldSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

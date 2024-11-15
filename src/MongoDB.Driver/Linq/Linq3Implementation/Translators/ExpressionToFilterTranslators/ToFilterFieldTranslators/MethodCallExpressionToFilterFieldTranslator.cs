@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 case "AllElements": return AllElementsMethodToFilterFieldTranslator.Translate(context, expression);
                 case "AllMatchingElements": return AllMatchingElementsMethodToFilterFieldTranslator.Translate(context, expression);
                 case "ElementAt": return ElementAtMethodToFilterFieldTranslator.Translate(context, expression);
+                case "Field": return FieldMethodToFilterFieldTranslator.Translate(context, expression);
                 case "First": return FirstMethodToFilterFieldTranslator.Translate(context, expression);
                 case "FirstMatchingElement": return FirstMatchingElementMethodToFilterFieldTranslator.Translate(context, expression);
                 case "get_Item": return GetItemMethodToFilterFieldTranslator.Translate(context, expression);

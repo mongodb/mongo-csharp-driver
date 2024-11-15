@@ -16,6 +16,7 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
@@ -34,8 +35,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { _v : { $add : ['$X', 1] }, _id : 0 } }");
 
-            var result = queryable.Single();
-            result.Should().Be(2);
+            var results = queryable.ToList();
+            results.Should().Equal(2, 3);
         }
 
         [Fact]
@@ -49,21 +50,54 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { _v : { $add : ['$X', 1] }, _id : 0 } }");
 
-            var result = queryable.Single();
-            result.Should().Be(2);
+            var results = queryable.ToList();
+            results.Should().Equal(2, 3);
+        }
+
+        [Fact]
+        public void Where_Mql_Field_should_work_with_BsonDocument()
+        {
+            var collection = GetCollection<BsonDocument>();
+
+            var queryable = collection.AsQueryable()
+                .Where(root => Mql.Field(root, "X", Int32Serializer.Instance) == 1); // like root.X except BsonDocument does not have a property called X
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { X : 1 } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x["_id"].AsInt32).Should().Equal(1);
+        }
+
+        [Fact]
+        public void Where_Mql_Field_should_work_with_POCO()
+        {
+            var collection = GetCollection<C>();
+
+            var queryable = collection.AsQueryable()
+                .Where(root => Mql.Field(root, "X", Int32Serializer.Instance) == 1); // like root.X except C does not have a property called X
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { X : 1 } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1);
         }
 
         private IMongoCollection<TDocument> GetCollection<TDocument>()
         {
             var collection = GetCollection<BsonDocument>("test");
-            var document = new BsonDocument { { "_id", 1 }, { "X", 1 } };
-            CreateCollection(collection, document);
+            CreateCollection(
+                collection,
+                new BsonDocument { { "_id", 1 }, { "X", 1 } },
+                new BsonDocument { { "_id", 2 }, { "X", 2 } });
 
             var database = collection.Database;
             var collectionName = collection.CollectionNamespace.CollectionName;
             return database.GetCollection<TDocument>(collectionName);
         }
 
+        [BsonIgnoreExtraElements]
         private class C
         {
             public int Id { get; set; }
