@@ -15,6 +15,7 @@
 */
 
 using System;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq
 {
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The resulting DateTime.</returns>
         public static DateTime Add(this DateTime @this, long value, DateTimeUnit unit)
         {
-            throw new InvalidOperationException("This DateTime.Add method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime Add(this DateTime @this, long value, DateTimeUnit unit, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.Add method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -59,7 +60,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime Add(this DateTime @this, TimeSpan value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.Add method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddDays(this DateTime @this, double value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddDays method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -85,7 +86,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddHours(this DateTime @this, double value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddHours method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddMilliseconds(this DateTime @this, double value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddMilliseconds method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddMinutes(this DateTime @this, double value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddMinutes method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -124,7 +125,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddMonths(this DateTime @this, int value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddMonths method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -135,7 +136,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The resulting DateTime.</returns>
         public static DateTime AddQuarters(this DateTime @this, int value)
         {
-            throw new InvalidOperationException("This DateTime.AddQuarters method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddQuarters(this DateTime @this, int value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddQuarters method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddSeconds(this DateTime @this, double value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddSeconds method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -172,7 +173,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The resulting DateTime.</returns>
         public static DateTime AddWeeks(this DateTime @this, int value)
         {
-            throw new InvalidOperationException("The DateTime.AddWeeks method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -185,7 +186,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddWeeks(this DateTime @this, int value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddWeeks method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -198,7 +199,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateAdd for information on timezones in MongoDB.</remarks>
         public static DateTime AddYears(this DateTime @this, int value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.AddYears method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -210,7 +211,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The result.</returns>
         public static long Subtract(this DateTime @this, DateTime startDate, DateTimeUnit unit)
         {
-            throw new InvalidOperationException("This DateTime.Subtract method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -224,7 +225,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateDiff for information on timezones in MongoDB.</remarks>
         public static long Subtract(this DateTime @this, DateTime startDate, DateTimeUnit unit, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.Subtract method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -237,7 +238,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateDiff for information on timezones in MongoDB.</remarks>
         public static TimeSpan Subtract(this DateTime @this, DateTime value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.Subtract method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -250,7 +251,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateSubtract for information on timezones in MongoDB.</remarks>
         public static DateTime Subtract(this DateTime @this, TimeSpan value, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.Subtract method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -262,7 +263,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The resulting DateTime.</returns>
         public static DateTime Subtract(this DateTime @this, long value, DateTimeUnit unit)
         {
-            throw new InvalidOperationException("This DateTime.Subtract method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -276,7 +277,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateSubtract for information on timezones in MongoDB.</remarks>
         public static DateTime Subtract(this DateTime @this, long value, DateTimeUnit unit, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.Subtract method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -288,7 +289,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The DateTime value converted to a string.</returns>
         public static string ToString(this DateTime @this, string format, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.ToString method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -299,7 +300,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The resulting DateTime.</returns>
         public static DateTime Truncate(this DateTime @this, DateTimeUnit unit)
         {
-            throw new InvalidOperationException("This DateTime.Truncate method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -311,7 +312,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The resulting DateTime.</returns>
         public static DateTime Truncate(this DateTime @this, DateTimeUnit unit, long binSize)
         {
-            throw new InvalidOperationException("This DateTime.Truncate method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -325,7 +326,7 @@ namespace MongoDB.Driver.Linq
         /// <remarks>See the server documentation for $dateTrunc for information on timezones in MongoDB.</remarks>
         public static DateTime Truncate(this DateTime @this, DateTimeUnit unit, long binSize, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.Truncate method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -335,7 +336,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The week number of a specified DateTime value.</returns>
         public static int Week(this DateTime @this)
         {
-            throw new InvalidOperationException("This DateTime.Week method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -346,7 +347,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The week number of a specified DateTime value.</returns>
         public static int Week(this DateTime @this, string timezone)
         {
-            throw new InvalidOperationException("This DateTime.Week method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
     }
 }

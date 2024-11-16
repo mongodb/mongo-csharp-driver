@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq
 {
@@ -31,7 +32,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>True if any value in s is present in values.</returns>
         public static bool AnyStringIn(this IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values)
         {
-            throw new InvalidOperationException("This String.AnyStringIn method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>True if any value in s is present in values.</returns>
         public static bool AnyStringIn(this IEnumerable<string> s, params StringOrRegularExpression[] values)
         {
-            throw new InvalidOperationException("This String.AnyStringIn method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>True if any value in s is not present in values.</returns>
         public static bool AnyStringNin(this IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values)
         {
-            throw new InvalidOperationException("This String.AnyStringNin method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -64,7 +65,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>True if any value in s is not present in values.</returns>
         public static bool AnyStringNin(this IEnumerable<string> s, params StringOrRegularExpression[] values)
         {
-            throw new InvalidOperationException("This String.AnyStringNin method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -75,7 +76,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The byte index of the first occurrence, or -1 if not found.</returns>
         public static int IndexOfBytes(this string s, string value)
         {
-            throw new InvalidOperationException("This String.IndexOfBytes method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -87,7 +88,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The byte index of the first occurrence, or -1 if not found.</returns>
         public static int IndexOfBytes(this string s, string value, int startIndex)
         {
-            throw new InvalidOperationException("This String.IndexOfBytes method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The byte index of the first occurrence, or -1 if not found.</returns>
         public static int IndexOfBytes(this string s, string value, int startIndex, int count)
         {
-            throw new InvalidOperationException("This String.IndexOfBytes method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>True if s is present in values.</returns>
         public static bool StringIn(this string s, IEnumerable<StringOrRegularExpression> values)
         {
-            throw new InvalidOperationException("This String.StringIn method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -122,7 +123,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>True if s is present in values.</returns>
         public static bool StringIn(this string s, params StringOrRegularExpression[] values)
         {
-            throw new InvalidOperationException("This String.StringIn method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -133,7 +134,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>True if s is not present in values.</returns>
         public static bool StringNin(this string s, IEnumerable<StringOrRegularExpression> values)
         {
-            throw new InvalidOperationException("This String.StringNin method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -144,7 +145,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>True if s is not present in values.</returns>
         public static bool StringNin(this string s, params StringOrRegularExpression[] values)
         {
-            throw new InvalidOperationException("This String.StringNin method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -154,7 +155,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The number of UTF-8 bytes.</returns>
         public static int StrLenBytes(this string s)
         {
-            throw new InvalidOperationException("This String.StrLenBytes method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -166,7 +167,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The number of UTF-8 bytes.</returns>
         public static string SubstrBytes(this string s, int startIndex, int length)
         {
-            throw new InvalidOperationException("This String.SubstrBytes method is only intended to be used in LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
     }
 }

@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Runtime.CompilerServices;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver
 {
@@ -29,7 +31,7 @@ namespace MongoDB.Driver
         /// <returns>A DateTime.</returns>
         public static DateTime DateFromString(string dateString)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace MongoDB.Driver
             string dateString,
             string format)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace MongoDB.Driver
             string format,
             string timezone)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -76,7 +78,7 @@ namespace MongoDB.Driver
             DateTime? onError,
             DateTime? onNull)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -87,7 +89,7 @@ namespace MongoDB.Driver
         /// <returns><c>true</c> if the field exists.</returns>
         public static bool Exists<TField>(TField field)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -98,7 +100,7 @@ namespace MongoDB.Driver
         /// <returns><c>true</c> if the field is missing.</returns>
         public static bool IsMissing<TField>(TField field)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -109,7 +111,7 @@ namespace MongoDB.Driver
         /// <returns><c>true</c> if the field is null or missing.</returns>
         public static bool IsNullOrMissing<TField>(TField field)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
     }
 }
