@@ -36,18 +36,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
             }
         }
 
-        public static (string CollectionName, IBsonSerializer DocumentSerializer) GetCollectionInfo(this Expression innerExpression, Expression containerExpression)
+        public static (IMongoQueryProviderInternal QueryProvider, bool IsRawCollectionExpression) FindMongoQueryProvider(this Expression innerExpression, Expression containerExpression)
         {
-            if (innerExpression is ConstantExpression constantExpression &&
-                constantExpression.Value is IQueryable queryable &&
-                queryable.Provider is IMongoQueryProviderInternal mongoQueryProvider &&
-                mongoQueryProvider.CollectionNamespace != null)
+            var mongoQueryProvider = ExtractQueryProviderFromExpression(innerExpression);
+            if (mongoQueryProvider.QueryProvider is not null)
             {
-                return (mongoQueryProvider.CollectionNamespace.CollectionName, mongoQueryProvider.PipelineInputSerializer);
+                return mongoQueryProvider;
             }
 
-            var message = $"inner expression must be a MongoDB IQueryable against a collection";
+            var message = "inner expression must be a MongoDB IQueryable against a collection";
             throw new ExpressionNotSupportedException(innerExpression, containerExpression, because: message);
+        }
+
+        private static (IMongoQueryProviderInternal QueryProvider, bool IsRawCollectionExpression) ExtractQueryProviderFromExpression(Expression expression, int depth = 0)
+        {
+            return expression switch
+            {
+                MethodCallExpression methodCallExpression => ExtractQueryProviderFromExpression(methodCallExpression.Arguments.FirstOrDefault(), depth + 1),
+                ConstantExpression constantExpression => constantExpression.Value switch
+                {
+                    IQueryable { Provider: IMongoQueryProviderInternal queryProvider } => (queryProvider, depth == 0),
+                    _ => default
+                },
+                _ => default
+            };
         }
 
         public static TValue GetConstantValue<TValue>(this Expression expression, Expression containingExpression)
