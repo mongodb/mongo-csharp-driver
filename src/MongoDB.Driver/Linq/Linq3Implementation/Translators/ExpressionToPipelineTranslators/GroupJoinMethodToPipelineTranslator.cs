@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
@@ -41,16 +40,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 AstExpression outerAst;
-                var rootVar = AstExpression.Var("ROOT", isCurrent: true);
                 var outerSerializer = pipeline.OutputSerializer;
                 if (outerSerializer is IWrappedValueSerializer wrappedSerializer)
                 {
-                    outerAst = AstExpression.GetField(rootVar, wrappedSerializer.FieldName);
+                    outerAst = AstExpression.GetField(AstExpression.RootVar, wrappedSerializer.FieldName);
                     outerSerializer = wrappedSerializer.ValueSerializer;
                 }
                 else
                 {
-                    outerAst = rootVar;
+                    outerAst = AstExpression.RootVar;
                 }
 
                 var wrapOuterStage = AstStage.Project(
@@ -74,20 +72,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     @as: "_inner");
 
                 var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[4]);
-                var root = AstExpression.Var("ROOT", isCurrent: true);
                 var outerParameter = resultSelectorLambda.Parameters[0];
-                var outerField = AstExpression.GetField(root, "_outer");
+                var outerField = AstExpression.GetField(AstExpression.RootVar, "_outer");
                 var outerSymbol = context.CreateSymbol(outerParameter, outerField, outerSerializer);
                 var innerParameter = resultSelectorLambda.Parameters[1];
-                var innerField = AstExpression.GetField(root, "_inner");
+                var innerField = AstExpression.GetField(AstExpression.RootVar, "_inner");
                 var ienumerableInnerSerializer = IEnumerableSerializer.Create(innerSerializer);
                 var innerSymbol = context.CreateSymbol(innerParameter, innerField, ienumerableInnerSerializer);
                 var resultSelectorContext = context.WithSymbols(outerSymbol, innerSymbol);
                 var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
-                var (projectStage, newOutputSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
+                var (projectStage, projectSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
 
                 pipeline = pipeline.AddStages(
-                    newOutputSerializer,
+                    projectSerializer,
                     wrapOuterStage,
                     lookupStage,
                     projectStage);
