@@ -43,6 +43,7 @@ namespace MongoDB.Driver.GridFS
             RegisterMember("ChunkSizeBytes", "chunkSize", new Int32Serializer());
             RegisterMember("ContentType", "contentType", new StringSerializer());
             RegisterMember("Filename", "filename", new StringSerializer());
+            RegisterMember("Id", "_id", ObjectIdSerializer.Instance);
             RegisterMember("IdAsBsonValue", "_id", BsonValueSerializer.Instance);
             RegisterMember("Length", "length", new Int64Serializer());
             RegisterMember("Metadata", "metadata", BsonDocumentSerializer.Instance);
