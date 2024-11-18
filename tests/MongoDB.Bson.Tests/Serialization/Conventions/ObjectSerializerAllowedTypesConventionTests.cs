@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Apply_should_configure_serializer_when_building_with_constructor_single_delegate()
         {
-            var allowedDelegate = (Type t) => t.Name.Contains('t');
+            var allowedDelegate = (Type t) => t.Name.Contains("t");
             var subject = new ObjectSerializerAllowedTypesConvention(allowedDelegate);
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
@@ -58,8 +58,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Apply_should_configure_serializer_when_building_with_constructor_double_delegate()
         {
-            var allowedDeserializationDelegate = (Type t) => t.Name.Contains('t');
-            var allowedSerializationDelegate = (Type t) => t.Name.Contains('n');
+            var allowedDeserializationDelegate = (Type t) => t.Name.Contains("t");
+            var allowedSerializationDelegate = (Type t) => t.Name.Contains("n");
             var subject = new ObjectSerializerAllowedTypesConvention(allowedDeserializationDelegate, allowedSerializationDelegate);
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
