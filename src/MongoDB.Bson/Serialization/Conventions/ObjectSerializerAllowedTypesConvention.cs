@@ -30,7 +30,6 @@ namespace MongoDB.Bson.Serialization.Conventions
         private readonly Func<Type, bool> _allowedDeserializationTypes;
         private readonly Func<Type, bool> _allowedSerializationTypes;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectSerializerAllowedTypesConvention"/> class.
         /// </summary>
@@ -59,8 +58,8 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var allowedTypesArray = allowedTypes.ToArray();
 
-            _allowedDeserializationTypes = allowedTypesArray.Contains;
-            _allowedSerializationTypes = allowedTypesArray.Contains;
+            _allowedDeserializationTypes = t => Array.IndexOf(allowedTypesArray, t) != -1;
+            _allowedSerializationTypes = t => Array.IndexOf(allowedTypesArray, t) != -1;
         }
 
         /// <summary>
@@ -73,8 +72,8 @@ namespace MongoDB.Bson.Serialization.Conventions
             var allowedDeserializationTypesArray = allowedDeserializationTypes.ToArray();
             var allowedSerializationTypesArray = allowedSerializationTypes.ToArray();
 
-            _allowedDeserializationTypes = allowedDeserializationTypesArray.Contains;
-            _allowedSerializationTypes = allowedSerializationTypesArray.Contains;
+            _allowedDeserializationTypes = t => Array.IndexOf(allowedDeserializationTypesArray, t) != -1;
+            _allowedSerializationTypes = t => Array.IndexOf(allowedSerializationTypesArray, t) != -1;
         }
 
         /// <summary>
@@ -83,7 +82,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="allowedAssemblies">A collection of allowed assemblies whose types can be serialized and deserialized.</param>
         public ObjectSerializerAllowedTypesConvention(params Assembly[] allowedAssemblies)
         {
-            _allowedDeserializationTypes = _allowedSerializationTypes = t => allowedAssemblies.Contains(t.Assembly);
+            _allowedDeserializationTypes = _allowedSerializationTypes = t => Array.IndexOf(allowedAssemblies, t.Assembly) != -1;
         }
 
         /// <summary>
@@ -106,13 +105,13 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 if (!value) return;
 
-                var previousDeserializationTypes = _allowedDeserializationTypes;
-                var previousSerializationTypes = _allowedSerializationTypes;
+                var previousAllowedDeserializationTypes = _allowedDeserializationTypes;
+                var previousAllowedSerializationTypes = _allowedSerializationTypes;
 
                 _allowedDeserializationTypes =
-                    t => previousDeserializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t);
+                    t => previousAllowedDeserializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t);
                 _allowedSerializationTypes =
-                    t => previousSerializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t);
+                    t => previousAllowedSerializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t);
             }
         }
 
