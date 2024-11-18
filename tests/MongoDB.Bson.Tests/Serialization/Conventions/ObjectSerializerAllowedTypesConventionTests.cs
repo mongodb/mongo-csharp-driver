@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Metadata;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
