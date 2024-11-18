@@ -147,7 +147,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         public void Apply_should_configure_serializer_when_building_with_constructor_assemblies()
         {
             var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetAssembly(typeof(TestClass)),
-                Assembly.GetAssembly(typeof(MetadataKind)));
+                Assembly.GetAssembly(typeof(System.Linq.Enumerable)));
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
@@ -157,8 +157,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             //Types in input assemblies
             serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
-            serializer.AllowedDeserializationTypes(typeof(MetadataKind)).Should().BeTrue();
-            serializer.AllowedSerializationTypes(typeof(MetadataKind)).Should().BeTrue();
+            serializer.AllowedDeserializationTypes(typeof(System.Linq.Enumerable)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(System.Linq.Enumerable)).Should().BeTrue();
 
             //Type not in input assemblies
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
