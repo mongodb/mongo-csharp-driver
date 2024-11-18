@@ -122,14 +122,31 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            var memberType = memberMap.MemberType;
+            var serializer = memberMap.GetSerializer();
 
-            if (memberType == typeof(object) &&  memberMap.GetSerializer() is ObjectSerializer objectSerializer)
+            var reconfiguredSerializer = Reconfigure(serializer);
+            if (reconfiguredSerializer is not null)
             {
-                var reconfiguredSerializer =
-                    objectSerializer.WithAllowedTypes(_allowedDeserializationTypes, _allowedSerializationTypes);
                 memberMap.SetSerializer(reconfiguredSerializer);
             }
         }
+
+        private IBsonSerializer Reconfigure(IBsonSerializer serializer)
+        {
+            if (serializer is IChildSerializerConfigurable childSerializerConfigurable)
+            {
+                var childSerializer = childSerializerConfigurable.ChildSerializer;
+                var reconfiguredChildSerializer = Reconfigure(childSerializer);
+                return reconfiguredChildSerializer is null ? null : childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
+            }
+
+            if (serializer.ValueType == typeof(object) && serializer is ObjectSerializer objectSerializer)
+            {
+                return objectSerializer.WithAllowedTypes(_allowedDeserializationTypes, _allowedSerializationTypes);
+            }
+
+            return null;
+        }
+
     }
 }

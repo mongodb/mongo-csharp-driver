@@ -30,6 +30,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         private class TestClass
         {
             public object ObjectProp { get; set; }
+            public object[] ArrayOfObjectProp { get; set; }
+            public object[][] ArrayOfArrayOfObjectProp { get; set; }
         }
 
         [Fact]
@@ -201,8 +203,48 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             serializer.AllowedSerializationTypes(typeof(long)).Should().BeTrue();
         }
 
+        [Fact]
+        public void Apply_should_configure_serializer_when_member_is_a_collection()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention();
+
+            var memberMap = CreateMemberMap(c => c.ArrayOfObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (ObjectSerializer)serializer.ChildSerializer;
+
+            //Type in assembly
+            childSerializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
+            childSerializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
+
+            //Type not in assembly
+            childSerializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+            childSerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Apply_should_configure_serializer_when_member_is_a_nested_collection()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention();
+
+            var memberMap = CreateMemberMap(c => c.ArrayOfArrayOfObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (ObjectSerializer)((IChildSerializerConfigurable)serializer.ChildSerializer).ChildSerializer;
+
+            //Type in assembly
+            childSerializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
+            childSerializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
+
+            //Type not in assembly
+            childSerializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+            childSerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+        }
+
         // private methods
-        private BsonMemberMap CreateMemberMap<TMember>(Expression<Func<TestClass, TMember>> member)
+        private static BsonMemberMap CreateMemberMap<TMember>(Expression<Func<TestClass, TMember>> member)
         {
             var classMap = new BsonClassMap<TestClass>();
             return classMap.MapMember(member);

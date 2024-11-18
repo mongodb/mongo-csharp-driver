@@ -349,10 +349,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        ///
+        /// Returns a new ObjectSerializer configured the same but with the specified allowed types delegates.
         /// </summary>
-        /// <param name="allowedDeserializationTypes"></param>
-        /// <param name="allowedSerializationTypes"></param>
+        /// <param name="allowedDeserializationTypes">A delegate that determines what types are allowed to be deserialized.</param>
+        /// <param name="allowedSerializationTypes">A delegate that determines what types are allowed to be serialized.</param>
         /// <returns></returns>
         public ObjectSerializer WithAllowedTypes(Func<Type, bool> allowedDeserializationTypes, Func<Type, bool> allowedSerializationTypes)
         {
