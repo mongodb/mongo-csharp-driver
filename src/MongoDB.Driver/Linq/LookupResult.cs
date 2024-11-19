@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// The result values.
         /// </summary>
+        /// <notes>The result values are either the matching foreign documents themselves or the output of the pipeline that was run on the matching foreign documents.</notes>
         public TResult[] Results { get; init; }
     }
 
