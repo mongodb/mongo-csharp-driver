@@ -1433,7 +1433,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [ParameterAttributeData]
         public async Task KmsRetryTest(
             [Values("aws", "azure", "gcp")] string kmsProvider,
-            [Values("network", "http")] string failureType)
+            [Values("network", "http")] string failureType,
+            [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
@@ -1478,22 +1479,49 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             await SetFailure(failureType, 1);
 
             Guid dataKey = default;
-            var ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
-                .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+            Exception ex;
+            if (async)
+            {
+                ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
+                    .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+            }
+            else
+            {
+                ex = Record.Exception(() => dataKey = clientEncryption
+                    .CreateDataKey(kmsProvider, dataKeyOptions, CancellationToken.None));
+            }
             ex.Should().BeNull();
 
             await SetFailure(failureType, 1);
 
-            var ex2 = await Record.ExceptionAsync(async () => await clientEncryption.EncryptAsync(new BsonInt32(123),
-                new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
+            Exception ex2;
+            if (async)
+            {
+                ex2 = await Record.ExceptionAsync(async () => await clientEncryption.EncryptAsync(new BsonInt32(123),
+                    new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
+            }
+            else
+            {
+                ex2 = Record.Exception(() => clientEncryption.Encrypt(new BsonInt32(123),
+                    new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
+            }
             ex2.Should().BeNull();
 
             if (failureType == "network")
             {
                 await SetFailure("network", 4);
 
-                var ex3 = await Record.ExceptionAsync(async () => await clientEncryption
-                    .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+                Exception ex3;
+                if (async)
+                {
+                    ex3 = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
+                        .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+                }
+                else
+                {
+                    ex3 = Record.Exception(() => dataKey = clientEncryption
+                        .CreateDataKey(kmsProvider, dataKeyOptions, CancellationToken.None));
+                }
                 ex3.Should().NotBeNull();
             }
 
