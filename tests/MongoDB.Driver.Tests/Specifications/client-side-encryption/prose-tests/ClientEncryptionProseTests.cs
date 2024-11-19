@@ -1446,11 +1446,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     { "region", "foo" },
                     { "key", "bar" },
-                    { "endpoint", "127.0.0.1:9003" }
+                    { "endpoint", $"{endpoint}" }
                 },
                 "azure" => new BsonDocument
                 {
-                    { "keyVaultEndpoint", "127.0.0.1:9003" },
+                    { "keyVaultEndpoint", $"{endpoint}" },
                     { "keyName", "foo" },
                 },
                 "gcp" => new BsonDocument
@@ -1459,7 +1459,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     { "location", "bar" },
                     { "keyRing", "baz" },
                     { "keyName", "qux" },
-                    { "endpoint", "127.0.0.1:9003" }
+                    { "endpoint", $"{endpoint}" }
                 },
                 _ => throw new ArgumentException(nameof(kmsProvider))
             };
