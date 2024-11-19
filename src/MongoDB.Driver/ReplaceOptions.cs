@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for replacing a single document.
     /// </summary>
-    public sealed class ReplaceOptions
+    public class ReplaceOptions
     {
         #region static
         // public static methods
@@ -116,6 +116,23 @@ namespace MongoDB.Driver
         {
             get { return _let; }
             set { _let = value; }
+        }
+    }
+
+    /// <summary>
+    /// Options for replacing a single document and specifying a sort order.
+    /// </summary>
+    public sealed class ReplaceOptions<T> : ReplaceOptions
+    {
+        private SortDefinition<T> _sort;
+
+        /// <summary>
+        /// Gets or sets the sort definition.
+        /// </summary>
+        public SortDefinition<T> Sort
+        {
+            get { return _sort; }
+            set { _sort = value; }
         }
     }
 }

@@ -124,8 +124,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
 
                     var description = testCase.Test["description"].AsString;
-                    var lineNumer = lines.FirstOrDefault(p => p.Line.Contains(description)).Index;
-                    testCase.Test.Add("_lineNumber", lineNumer);
+                    var lineNumber = lines.FirstOrDefault(p => p.Line.Contains(description)).Index;
+                    testCase.Test.Add("_lineNumber", lineNumber);
 
                     var test = testCase.Test.Add("async", false);
                     var name = $"{fileName}:{testCase.Name}:async={false}";

@@ -182,12 +182,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             out FilterDefinition<BsonDocument> filter,
             out BsonDocument replacement,
             out BsonValue hint,
-            out bool isUpsert)
+            out bool isUpsert,
+            out BsonDocument sort)
         {
             filter = null;
             replacement = null;
             hint = null;
             isUpsert = false;
+            sort = null;
 
             foreach (BsonElement argument in model.Elements)
             {
@@ -201,6 +203,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
+                        break;
+                    case "sort":
+                        sort = argument.Value.AsBsonDocument;
                         break;
                     case "upsert":
                         isUpsert = argument.Value.ToBoolean();
@@ -217,13 +222,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             out UpdateDefinition<BsonDocument> update,
             out List<ArrayFilterDefinition> arrayFilters,
             out BsonValue hint,
-            out bool isUpsert)
+            out bool isUpsert,
+            out BsonDocument sort)
         {
             arrayFilters = null;
             filter = null;
             update = null;
             hint = null;
             isUpsert = false;
+            sort = null;
 
             foreach (BsonElement argument in model.Elements)
             {
@@ -242,6 +249,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "hint":
                         hint = argument.Value;
+                        break;
+                    case "sort":
+                        sort = argument.Value.AsBsonDocument;
                         break;
                     case "update":
                         switch (argument.Value)
@@ -302,17 +312,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 case "replaceOne":
                     {
-                        ParseReplaceModel(model, out var filter, out var replacement, out var hint, out bool isUpsert);
+                        ParseReplaceModel(model, out var filter, out var replacement, out var hint, out bool isUpsert, out var sort);
 
                         return new ReplaceOneModel<BsonDocument>(filter, replacement)
                         {
                             Hint = hint,
-                            IsUpsert = isUpsert
+                            IsUpsert = isUpsert,
+                            Sort = sort
                         };
                     }
                 case "updateMany":
                     {
-                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert);
+                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert, out _);
 
                         return new UpdateManyModel<BsonDocument>(filter, update)
                         {
@@ -323,13 +334,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 case "updateOne":
                     {
-                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert);
+                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert, out var sort);
 
                         return new UpdateOneModel<BsonDocument>(filter, update)
                         {
                             ArrayFilters = arrayFilters,
                             Hint = hint,
-                            IsUpsert = isUpsert
+                            IsUpsert = isUpsert,
+                            Sort = sort
                         };
                     }
                 default:

@@ -403,7 +403,8 @@ namespace MongoDB.Driver
                         {
                             Collation = replaceOneModel.Collation,
                             Hint = replaceOneModel.Hint,
-                            IsUpsert = replaceOneModel.IsUpsert
+                            IsUpsert = replaceOneModel.IsUpsert,
+                            Sort = replaceOneModel.Sort
                         };
                     case WriteModelType.UpdateMany:
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
@@ -425,7 +426,8 @@ namespace MongoDB.Driver
                             ArrayFilters = updateOneModel.ArrayFilters,
                             Collation = updateOneModel.Collation,
                             Hint = updateOneModel.Hint,
-                            IsUpsert = updateOneModel.IsUpsert
+                            IsUpsert = updateOneModel.IsUpsert,
+                            Sort = updateOneModel.Sort
                         };
                     default:
                         throw new MongoInternalException("Request type is invalid.");

@@ -164,6 +164,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             WriteBoolean(serializationContext, "multi", false);
             WriteHint(serializationContext, model.Hint);
             WriteCollation(serializationContext, model.Collation);
+            WriteSort(serializationContext, renderArgs, model.Sort, documentSerializer);
             WriteEndModel(serializationContext);
         }
 
@@ -200,6 +201,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             WriteArrayFilters(serializationContext, model.ArrayFilters);
             WriteHint(serializationContext, model.Hint);
             WriteCollation(serializationContext, model.Collation);
+            WriteSort(serializationContext, renderArgs, model.Sort, documentSerializer);
             WriteEndModel(serializationContext);
         }
 
@@ -272,6 +274,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             serializationContext.Writer.WriteName("hint");
             BsonValueSerializer.Instance.Serialize(serializationContext, hint);
+        }
+
+        private void WriteSort<TDocument>(BsonSerializationContext serializationContext, RenderArgs<BsonDocument> renderArgs, SortDefinition<TDocument> sortDefinition, IBsonSerializer<TDocument> documentSerializer)
+        {
+            if (sortDefinition == null)
+            {
+                return;
+            }
+
+            serializationContext.Writer.WriteName("sort");
+            var typedRenderArgs = renderArgs.WithNewDocumentType(documentSerializer);
+            var sortDocument = sortDefinition.Render(typedRenderArgs);
+            BsonDocumentSerializer.Instance.Serialize(serializationContext, sortDocument);
         }
 
         private void WriteStartModel(BsonSerializationContext serializationContext, string operationName, BulkWriteModel model)

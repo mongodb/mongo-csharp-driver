@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for updating a single document.
     /// </summary>
-    public sealed class UpdateOptions
+    public class UpdateOptions
     {
         // fields
         private IEnumerable<ArrayFilterDefinition> _arrayFilters;
@@ -99,4 +99,20 @@ namespace MongoDB.Driver
             set { _let = value; }
         }
     }
-}
+
+    /// <summary>
+    /// Options for updating a single document and specifying a sort order.
+    /// </summary>
+    public sealed class UpdateOptions<T> : UpdateOptions
+    {
+        private SortDefinition<T> _sort;
+
+        /// <summary>
+        /// Gets or sets the sort definition.
+        /// </summary>
+        public SortDefinition<T> Sort
+        {
+            get { return _sort; }
+            set { _sort = value; }
+        }
+    }}
