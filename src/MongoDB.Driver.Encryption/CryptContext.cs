@@ -156,21 +156,8 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Gets a collection of KMS message requests to make
+        /// Gets the next KMS message request
         /// </summary>
-        /// <returns>Collection of KMS Messages</returns>
-        public KmsRequestCollection GetKmsMessageRequests()
-        {
-            var requests = new List<KmsRequest>();
-            for (IntPtr request = Library.mongocrypt_ctx_next_kms_ctx(_handle); request != IntPtr.Zero; request = Library.mongocrypt_ctx_next_kms_ctx(_handle))
-            {
-                requests.Add(new KmsRequest(request));
-            }
-
-            return new KmsRequestCollection(requests, this);
-        }
-
-        //TODO I think we should remove the previous method and use this
         public KmsRequest GetNextKmsMessageRequest()
         {
             var request = Library.mongocrypt_ctx_next_kms_ctx(_handle);
