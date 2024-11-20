@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 Type t when t == typeof(decimal) => DecimalSerializer.Instance,
                 Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
                 Type { IsArray: true } t => (IBsonSerializer)Activator.CreateInstance(typeof(ArraySerializer<>).MakeGenericType(t.GetElementType())),
-                _ => context.KnownSerializersRegistry.GetSerializer(expression) // Required for Coalesce
+                _ => BsonSerializer.LookupSerializer(expression.Type) // Required for Coalesce
             };
 
             return new AggregationExpression(expression, ast, serializer);

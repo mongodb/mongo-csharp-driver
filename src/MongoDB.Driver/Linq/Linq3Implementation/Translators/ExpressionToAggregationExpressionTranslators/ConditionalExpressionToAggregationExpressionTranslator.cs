@@ -14,7 +14,9 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -25,17 +27,50 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (expression.NodeType == ExpressionType.Conditional)
             {
                 var testExpression = expression.Test;
-                var testTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, testExpression);
                 var ifTrueExpression = expression.IfTrue;
-                var ifTrueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifTrueExpression);
                 var ifFalseExpression = expression.IfFalse;
-                var ifFalseTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifFalseExpression);
+
+                var testTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, testExpression);
+
+                AggregationExpression ifTrueTranslation;
+                AggregationExpression ifFalseTranslation;
+                IBsonSerializer resultSerializer;
+                if (ifTrueExpression is ConstantExpression ifTrueConstantExpression)
+                {
+                    ifFalseTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifFalseExpression);
+                    resultSerializer = ifFalseTranslation.Serializer;
+                    ifTrueTranslation = TranslateConstant(expression, ifTrueConstantExpression, resultSerializer);
+                }
+                else if (ifFalseExpression is ConstantExpression ifFalseConstantExpression)
+                {
+                    ifTrueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifTrueExpression);
+                    resultSerializer = ifTrueTranslation.Serializer;
+                    ifFalseTranslation = TranslateConstant(expression, ifFalseConstantExpression, resultSerializer);
+                }
+                else
+                {
+                    ifTrueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifTrueExpression);
+                    ifFalseTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifFalseExpression);
+
+                    resultSerializer = ifTrueTranslation.Serializer;
+                    if (!ifFalseTranslation.Serializer.Equals(resultSerializer))
+                    {
+                        throw new ExpressionNotSupportedException(expression, because: "IfTrue and IfFalse expressions have different serializers");
+                    }
+                }
+
                 var ast = AstExpression.Cond(testTranslation.Ast, ifTrueTranslation.Ast, ifFalseTranslation.Ast);
-                var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
-                return new AggregationExpression(expression, ast, serializer);
+                return new AggregationExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static AggregationExpression TranslateConstant(Expression containingExpression, ConstantExpression constantExpression, IBsonSerializer constantSerializer)
+        {
+            var serializedValue = SerializationHelper.SerializeValue(constantSerializer, constantExpression, containingExpression);
+            var ast = AstExpression.Constant(serializedValue);
+            return new AggregationExpression(constantExpression, ast, constantSerializer);
         }
     }
 }
