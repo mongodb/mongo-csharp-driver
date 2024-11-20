@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Clusters
         public SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
             : base(settings, serverFactory, eventSubscriber, loggerFactory)
         {
-            Ensure.That(settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(SingleServerCluster)}.");
+            Ensure.That(!settings.DirectConnection, $"DirectConnection mode is not supported for {nameof(SingleServerCluster)}.");
             Ensure.That(settings.SrvMaxHosts == 0, "srvMaxHosts cannot be used with a single server cluster.");
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, nameof(settings.EndPoints.Count));
 
@@ -121,7 +121,8 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
-
+            if(newClusterDescription.Type == ClusterType.Unknown)
+                newClusterDescription = newClusterDescription.WithType(newServerDescription.Type.ToClusterType());
             var shouldClusterDescriptionChangedEventBePublished = !args.OldServerDescription.SdamEquals(args.NewServerDescription);
             UpdateClusterDescription(newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
         }

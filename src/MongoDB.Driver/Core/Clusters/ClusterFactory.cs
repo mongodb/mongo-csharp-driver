@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 return CreateLoadBalancedCluster(settings);
             }
-            else if (settings.DirectConnection)
+            else if (settings.DirectConnection || settings.EndPoints.Count == 1)
             {
                 return CreateSingleServerCluster(settings);
             }
