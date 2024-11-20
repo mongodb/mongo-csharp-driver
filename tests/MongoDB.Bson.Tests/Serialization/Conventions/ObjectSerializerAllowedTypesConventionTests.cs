@@ -38,6 +38,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var allowedDelegate = (Type t) => t.Name.Contains("t");
             var subject = new ObjectSerializerAllowedTypesConvention(allowedDelegate);
+            subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
@@ -61,6 +62,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var allowedDeserializationDelegate = (Type t) => t.Name.Contains("t");
             var allowedSerializationDelegate = (Type t) => t.Name.Contains("n");
             var subject = new ObjectSerializerAllowedTypesConvention(allowedDeserializationDelegate, allowedSerializationDelegate);
+            subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
@@ -87,6 +89,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var allowedTypes = new[] { typeof(TestClass) };
             var subject = new ObjectSerializerAllowedTypesConvention(allowedTypes);
+            subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
@@ -108,6 +111,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var allowedDeserializableTypes = new[] { typeof(TestClass) };
             var allowedSerializableTypes = new[] { typeof(EnumSerializer) };
             var subject = new ObjectSerializerAllowedTypesConvention(allowedDeserializableTypes, allowedSerializableTypes);
+            subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
@@ -127,17 +131,18 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         public void Apply_should_configure_serializer_when_building_with_constructor_no_arguments()
         {
             var subject = new ObjectSerializerAllowedTypesConvention();
+            subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Type in assembly
-            serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
-            serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
+            //Type in default framework types
+            serializer.AllowedDeserializationTypes(typeof(long)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(long)).Should().BeTrue();
 
-            //Type not in assembly
+            //Type not in default framework types
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
@@ -147,6 +152,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetAssembly(typeof(TestClass)),
                 Assembly.GetAssembly(typeof(System.Linq.Enumerable)));
+            subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
@@ -167,16 +173,13 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Apply_should_configure_serializer_when_building_without_default_types()
         {
-            var subject = new ObjectSerializerAllowedTypesConvention();
+            var subject = new ObjectSerializerAllowedTypesConvention { AllowDefaultFrameworkTypes = false };
+            subject.AllowDefaultFrameworkTypes.Should().BeFalse();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
-
-            //Type in input assembly
-            serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
-            serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
 
             //Default framework type
             serializer.AllowedDeserializationTypes(typeof(long)).Should().BeFalse();
@@ -187,15 +190,12 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         public void Apply_should_configure_serializer_when_building_with_default_types()
         {
             var subject = new ObjectSerializerAllowedTypesConvention { AllowDefaultFrameworkTypes = true };
+            subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
             subject.Apply(memberMap);
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
-
-            //Type in input assembly
-            serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
-            serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
 
             //Default framework type
             serializer.AllowedDeserializationTypes(typeof(long)).Should().BeTrue();
@@ -205,7 +205,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Apply_should_configure_serializer_when_member_is_a_collection()
         {
-            var subject = new ObjectSerializerAllowedTypesConvention();
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
 
             var memberMap = CreateMemberMap(c => c.ArrayOfObjectProp);
             subject.Apply(memberMap);
@@ -225,7 +225,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Apply_should_configure_serializer_when_member_is_a_nested_collection()
         {
-            var subject = new ObjectSerializerAllowedTypesConvention();
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
 
             var memberMap = CreateMemberMap(c => c.ArrayOfArrayOfObjectProp);
             subject.Apply(memberMap);

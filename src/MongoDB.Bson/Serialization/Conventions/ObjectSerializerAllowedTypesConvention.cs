@@ -30,6 +30,9 @@ namespace MongoDB.Bson.Serialization.Conventions
         private readonly Func<Type, bool> _allowedDeserializationTypes;
         private readonly Func<Type, bool> _allowedSerializationTypes;
 
+        private readonly Lazy<Func<Type, bool>> _lazyAllowedDeserializationTypes;
+        private readonly Lazy<Func<Type, bool>> _lazyAllowedSerializationTypes;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectSerializerAllowedTypesConvention"/> class.
         /// </summary>
@@ -45,6 +48,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="allowedDeserializationTypes">A delegate that determines what types are allowed to be deserialized.</param>
         /// <param name="allowedSerializationTypes">A delegate that determines what types are allowed to be serialized.</param>
         public ObjectSerializerAllowedTypesConvention(Func<Type, bool> allowedDeserializationTypes, Func<Type, bool> allowedSerializationTypes)
+            : this()
         {
             _allowedDeserializationTypes = allowedDeserializationTypes;
             _allowedSerializationTypes = allowedSerializationTypes;
@@ -55,11 +59,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="allowedTypes">A collection of the allowed types for both serialization and deserialization.</param>
         public ObjectSerializerAllowedTypesConvention(IEnumerable<Type> allowedTypes)
+            : this()
         {
             var allowedTypesArray = allowedTypes.ToArray();
 
-            _allowedDeserializationTypes = t => Array.IndexOf(allowedTypesArray, t) != -1;
-            _allowedSerializationTypes = t => Array.IndexOf(allowedTypesArray, t) != -1;
+            _allowedDeserializationTypes = allowedTypesArray.Contains;
+            _allowedSerializationTypes = allowedTypesArray.Contains;
         }
 
         /// <summary>
@@ -68,12 +73,13 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="allowedDeserializationTypes">A collection of the allowed types for deserialization.</param>
         /// <param name="allowedSerializationTypes">A collection of the allowed types for serialization.</param>
         public ObjectSerializerAllowedTypesConvention(IEnumerable<Type> allowedDeserializationTypes, IEnumerable<Type> allowedSerializationTypes)
+            : this()
         {
             var allowedDeserializationTypesArray = allowedDeserializationTypes.ToArray();
             var allowedSerializationTypesArray = allowedSerializationTypes.ToArray();
 
-            _allowedDeserializationTypes = t => Array.IndexOf(allowedDeserializationTypesArray, t) != -1;
-            _allowedSerializationTypes = t => Array.IndexOf(allowedSerializationTypesArray, t) != -1;
+            _allowedDeserializationTypes = allowedDeserializationTypesArray.Contains;
+            _allowedSerializationTypes = allowedSerializationTypesArray.Contains;
         }
 
         /// <summary>
@@ -81,39 +87,39 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="allowedAssemblies">A collection of allowed assemblies whose types can be serialized and deserialized.</param>
         public ObjectSerializerAllowedTypesConvention(params Assembly[] allowedAssemblies)
+            : this()
         {
-            _allowedDeserializationTypes = _allowedSerializationTypes = t => Array.IndexOf(allowedAssemblies, t.Assembly) != -1;
+            _allowedDeserializationTypes = _allowedSerializationTypes = t => allowedAssemblies.Contains(t.Assembly);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectSerializerAllowedTypesConvention"/> class
-        /// that allows all types contained in the calling assembly.
+        /// Initializes a new instance of the <see cref="ObjectSerializerAllowedTypesConvention"/> class.
         /// </summary>
-        public ObjectSerializerAllowedTypesConvention() : this(Assembly.GetCallingAssembly())
+        public ObjectSerializerAllowedTypesConvention()
         {
-        }
-
-        /// <summary>
-        /// Sets a value indicating whether default framework types should be added to the list of types that
-        /// can be serialized and deserialized.
-        /// </summary>
-#pragma warning disable CA1044
-        public bool AllowDefaultFrameworkTypes
-#pragma warning restore CA1044
-        {
-            init
+            _lazyAllowedDeserializationTypes = new Lazy<Func<Type, bool>>(() =>
             {
-                if (!value) return;
+                return AllowDefaultFrameworkTypes
+                    ? _allowedDeserializationTypes is null
+                        ? ObjectSerializer.DefaultAllowedTypes
+                        : t => _allowedDeserializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t)
+                    : _allowedDeserializationTypes ?? ObjectSerializer.NoAllowedTypes;
+            });
 
-                var previousAllowedDeserializationTypes = _allowedDeserializationTypes;
-                var previousAllowedSerializationTypes = _allowedSerializationTypes;
-
-                _allowedDeserializationTypes =
-                    t => previousAllowedDeserializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t);
-                _allowedSerializationTypes =
-                    t => previousAllowedSerializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t);
-            }
+            _lazyAllowedSerializationTypes = new Lazy<Func<Type, bool>>(() =>
+            {
+                return AllowDefaultFrameworkTypes
+                    ? _allowedSerializationTypes is null
+                        ? ObjectSerializer.DefaultAllowedTypes
+                        : t => _allowedSerializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t)
+                    : _allowedSerializationTypes ?? ObjectSerializer.NoAllowedTypes;
+            });
         }
+
+        /// <summary>
+        /// Indicates whether default framework types are included for serialization and deserialization. Defaults to true.
+        /// </summary>
+        public bool AllowDefaultFrameworkTypes { get; init; } = true;
 
         /// <summary>
         /// Applies a modification to the member map.
@@ -141,7 +147,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             if (serializer.ValueType == typeof(object) && serializer is ObjectSerializer objectSerializer)
             {
-                return objectSerializer.WithAllowedTypes(_allowedDeserializationTypes, _allowedSerializationTypes);
+                return objectSerializer.WithAllowedTypes(_lazyAllowedDeserializationTypes.Value, _lazyAllowedSerializationTypes.Value);
             }
 
             return null;
