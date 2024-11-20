@@ -78,6 +78,11 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
+        /// The number of milliseconds to wait before sending this request.
+        /// </summary>
+        public int Sleep => (int)(Library.mongocrypt_kms_ctx_usleep(_id) / 1000);
+
+        /// <summary>
         /// Gets the message to send to KMS.
         /// </summary>
         /// <returns>The message</returns>
@@ -87,6 +92,12 @@ namespace MongoDB.Driver.Encryption
             Check(Library.mongocrypt_kms_ctx_message(_id, binary.Handle));
             return binary;
         }
+
+        /// <summary>
+        /// Indicates a network-level failure.
+        /// </summary>
+        /// <returns>A boolean indicating whether the failed request may be retried.</returns>
+        public bool Fail() => Library.mongocrypt_kms_ctx_fail(_id);
 
         /// <summary>
         /// Feeds the response back to the libmongocrypt

@@ -163,6 +163,8 @@ namespace MongoDB.Driver.Encryption
 
                 Library.mongocrypt_setopt_use_need_kms_credentials_state(handle);
 
+                Library.mongocrypt_setopt_retry_kms(handle, true);
+
                 Library.mongocrypt_init(handle);
 
                 if (options.IsCryptSharedLibRequired)
