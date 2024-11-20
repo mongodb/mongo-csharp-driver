@@ -248,6 +248,5 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<TestClass>();
             return classMap.MapMember(member);
         }
-
     }
 }

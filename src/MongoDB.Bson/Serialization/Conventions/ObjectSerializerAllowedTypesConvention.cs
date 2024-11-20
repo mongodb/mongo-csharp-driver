@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that allows to set the types that can be safely serialized and deserialized with the <see cref="ObjectSerializer"/>.
     /// </summary>
-    public class ObjectSerializerAllowedTypesConvention
+    public sealed class ObjectSerializerAllowedTypesConvention
     {
         // private fields
         private readonly Func<Type, bool> _allowedDeserializationTypes;
@@ -146,6 +146,5 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             return null;
         }
-
     }
 }
