@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
@@ -24,6 +25,30 @@ namespace MongoDB.Driver
     /// </summary>
     public static class Mql
     {
+        /// <summary>
+        /// Use this method in a MongoDB LINQ query when you need to specify how a constant should be serialized.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <returns>The value.</returns>
+        public static TValue Constant<TValue>(TValue value, IBsonSerializer<TValue> serializer)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Use this method in a MongoDB LINQ query when you need to specify how a constant should be serialized.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="representaion">The representation.</param>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <returns>The value</returns>
+        public static TValue Constant<TValue>(TValue value, BsonType representaion)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
         /// <summary>
         /// Converts a string to a DateTime using the $dateFromString aggregation operator.
         /// </summary>

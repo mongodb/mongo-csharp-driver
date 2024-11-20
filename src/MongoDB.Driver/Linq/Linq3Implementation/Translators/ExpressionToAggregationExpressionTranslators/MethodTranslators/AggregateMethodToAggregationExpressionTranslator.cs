@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -102,7 +103,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
                     var funcParameters = funcLambda.Parameters;
                     var accumulatorParameter = funcParameters[0];
-                    var accumulatorSerializer = context.KnownSerializersRegistry.GetSerializer(accumulatorParameter);
+                    var accumulatorSerializer = seedTranslation.Serializer;
                     var accumulatorSymbol = context.CreateSymbolWithVarName(accumulatorParameter, varName: "value", accumulatorSerializer); // note: MQL uses $$value for the accumulator
                     var itemParameter = funcParameters[1];
                     var itemSymbol = context.CreateSymbolWithVarName(itemParameter, varName: "this", itemSerializer); // note: MQL uses $$this for the item being processed
@@ -118,16 +119,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     if (method.IsOneOf(__aggregateWithSeedFuncAndResultSelectorMethods))
                     {
                         var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
-                        var resultSelectorParameter = resultSelectorLambda.Parameters[0];
-                        var resultSelectorParameterSerializer = context.KnownSerializersRegistry.GetSerializer(resultSelectorParameter);
-                        var resultSelectorSymbol = context.CreateSymbol(resultSelectorParameter, resultSelectorParameterSerializer);
-                        var resultSelectorContext = context.WithSymbol(resultSelectorSymbol);
+                        var resultSelectorAccumulatorParameter = resultSelectorLambda.Parameters[0];
+                        var resultSelectorAccumulatorSymbol = context.CreateSymbol(resultSelectorAccumulatorParameter, accumulatorSerializer);
+                        var resultSelectorContext = context.WithSymbol(resultSelectorAccumulatorSymbol);
                         var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
 
                         ast = AstExpression.Let(
-                            var: AstExpression.VarBinding(resultSelectorSymbol.Var, ast),
+                            var: AstExpression.VarBinding(resultSelectorAccumulatorSymbol.Var, ast),
                             @in: resultSelectorTranslation.Ast);
-                        serializer = context.KnownSerializersRegistry.GetSerializer(resultSelectorLambda);
+                        serializer = resultSelectorTranslation.Serializer;
                     }
 
                     return new AggregationExpression(expression, ast, serializer);

@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
@@ -138,17 +139,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         private static AstExpression QuoteIfNecessary(AstExpression expression)
         {
-            if (expression is AstConstantExpression constantExpression)
+            var simplifiedExpression = AstSimplifier.SimplifyAndConvert(expression);
+            if (simplifiedExpression is AstConstantExpression constantExpression &&
+                ValueNeedsToBeQuoted(constantExpression.Value))
             {
-                if (ValueNeedsToBeQuoted(constantExpression.Value))
-                {
-                    return AstExpression.Literal(constantExpression);
-                }
+                return AstExpression.Literal(constantExpression);
             }
 
-            return expression;
+            return expression; // not the simplified expression
 
-            bool ValueNeedsToBeQuoted(BsonValue value)
+            static bool ValueNeedsToBeQuoted(BsonValue value)
             {
                 switch (value.BsonType)
                 {

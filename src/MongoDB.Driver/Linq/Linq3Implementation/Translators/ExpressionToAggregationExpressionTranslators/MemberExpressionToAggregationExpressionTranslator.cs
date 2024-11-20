@@ -47,6 +47,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
+            if (typeof(BsonValue).IsAssignableFrom(containerExpression.Type))
+            {
+                throw new ExpressionNotSupportedException(expression); // TODO: support BsonValue properties
+            }
+
             var containerTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, containerExpression);
             if (containerTranslation.Serializer is IWrappedValueSerializer wrappedValueSerializer)
             {

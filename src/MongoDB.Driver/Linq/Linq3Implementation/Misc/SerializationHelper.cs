@@ -27,12 +27,39 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class SerializationHelper
     {
+        public static void EnsureArgumentSerializersAreEqual(Expression expression, AggregationExpression firstArgumentTranslation, AggregationExpression secondArgumentTranslation)
+        {
+            EnsureArgumentSerializersAreEqual(expression, firstArgumentTranslation.Serializer, secondArgumentTranslation.Serializer);
+        }
+
+        public static void EnsureArgumentSerializersAreEqual(Expression expression, IBsonSerializer firstSerializer, IBsonSerializer secondSerializer)
+        {
+            if (!firstSerializer.Equals(secondSerializer))
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"the two arguments are serialized differently");
+            }
+        }
+
         public static void EnsureRepresentationIsArray(Expression expression, IBsonSerializer serializer)
         {
             var representation = GetRepresentation(serializer);
             if (representation != BsonType.Array)
             {
                 throw new ExpressionNotSupportedException(expression, because: "the expression is not represented as an array in the database");
+            }
+        }
+
+        public static void EnsureRepresentationIsBoolean(Expression expression, Expression argumentExpression, AggregationExpression argumentTranslation)
+        {
+            EnsureRepresentationIsBoolean(expression, argumentExpression, argumentTranslation.Serializer);
+        }
+
+        public static void EnsureRepresentationIsBoolean(Expression expression, Expression argumentExpression, IBsonSerializer argumentSerializer)
+        {
+            var argumentRepresentation = GetRepresentation(argumentSerializer);
+            if (argumentRepresentation != BsonType.Boolean)
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"{argumentExpression} uses a non-boolean representation: {argumentRepresentation}");
             }
         }
 
