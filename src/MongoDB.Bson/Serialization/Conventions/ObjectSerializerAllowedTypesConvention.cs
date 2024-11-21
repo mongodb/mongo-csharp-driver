@@ -29,9 +29,15 @@ namespace MongoDB.Bson.Serialization.Conventions
         // static
 
         /// <summary>
+        /// Default <see cref="ObjectSerializerAllowedTypesConvention"/> where all calling assembly types are allowed for both serialization and deserialization.
+        /// </summary>
+        public static ObjectSerializerAllowedTypesConvention AllowAllCallingAssemblyTypes => new(Assembly.GetCallingAssembly())
+                { AllowDefaultFrameworkTypes = false };
+
+        /// <summary>
         /// Default <see cref="ObjectSerializerAllowedTypesConvention"/> where all calling assembly types and default framework types are allowed for both serialization and deserialization.
         /// </summary>
-        public static ObjectSerializerAllowedTypesConvention AllowAllCallingAssemblyTypes => new(Assembly.GetCallingAssembly());
+        public static ObjectSerializerAllowedTypesConvention AllowAllCallingAssemblyAndDefaultFrameworkTypes => new(Assembly.GetCallingAssembly());
 
         /// <summary>
         /// Default <see cref="ObjectSerializerAllowedTypesConvention"/> where all types are allowed for both serialization and deserialization.

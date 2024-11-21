@@ -255,8 +255,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
-            serializer.AllowedDeserializationTypes(typeof(System.Linq.Enumerable)).Should().BeTrue();
-            serializer.AllowedSerializationTypes(typeof(System.Linq.Enumerable)).Should().BeTrue();
+            serializer.AllowedDeserializationTypes(typeof(long)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(long)).Should().BeTrue();
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeTrue();
         }
@@ -274,8 +274,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeFalse();
-            serializer.AllowedDeserializationTypes(typeof(System.Linq.Enumerable)).Should().BeFalse();
-            serializer.AllowedSerializationTypes(typeof(System.Linq.Enumerable)).Should().BeFalse();
+            serializer.AllowedDeserializationTypes(typeof(long)).Should().BeFalse();
+            serializer.AllowedSerializationTypes(typeof(long)).Should().BeFalse();
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
@@ -303,6 +303,25 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         public void Apply_should_configure_serializer_when_using_static_AllowAllCallingAssemblyTypes()
         {
             var subject = ObjectSerializerAllowedTypesConvention.AllowAllCallingAssemblyTypes;
+            subject.AllowDefaultFrameworkTypes.Should().BeFalse();
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
+            serializer.AllowedDeserializationTypes(typeof(long)).Should().BeFalse();
+            serializer.AllowedSerializationTypes(typeof(long)).Should().BeFalse();
+            serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+            serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Apply_should_configure_serializer_when_using_static_AllowAllCallingAssemblyAndDefaultFrameworkTypes()
+        {
+            var subject = ObjectSerializerAllowedTypesConvention.AllowAllCallingAssemblyAndDefaultFrameworkTypes;
             subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
