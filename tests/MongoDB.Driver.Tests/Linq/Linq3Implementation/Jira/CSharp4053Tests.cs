@@ -34,6 +34,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 where person.MovieIds.Contains(movie.Id)
                 select new { movie, person };
 
+            // what the LINQ provider sees:
+            // Tests11201707.movies.Aggregate([])
+            //     .SelectMany(
+            //         movie => value(MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira.CSharp4053Tests+<>c__DisplayClass0_0).people.AsQueryable(new AggregateOptions()),
+            //         (movie, person) => new <>f__AnonymousType72`2(movie = movie, person = person))
+            //     .Where(<>h__TransparentIdentifier0 => <>h__TransparentIdentifier0.person.MovieIds.Contains(<>h__TransparentIdentifier0.movie.Id))
+            //     .Select(<>h__TransparentIdentifier0 => new <>f__AnonymousType72`2(movie = <>h__TransparentIdentifier0.movie, person = <>h__TransparentIdentifier0.person))
+
             var stages = Translate(movies, queryable);
             AssertStages(
                 stages,
