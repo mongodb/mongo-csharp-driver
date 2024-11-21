@@ -64,13 +64,13 @@ namespace MongoDB.Benchmarks.MultiDoc
         }
 
         [Benchmark]
-        public void SmallDocCollectionBulkMixedOpsBenchmark()
+        public void SmallDocCollectionBulkWriteMixedOpsBenchmark()
         {
             _collection.BulkWrite(_collectionBulkWriteMixedOpsModels, new BulkWriteOptions());
         }
         
         [Benchmark]
-        public void SmallDocClientBulkMixedOpsBenchmark()
+        public void SmallDocClientBulkWriteMixedOpsBenchmark()
         {
             _client.BulkWrite(_clientBulkWriteMixedOpsModels, new ClientBulkWriteOptions());
         }

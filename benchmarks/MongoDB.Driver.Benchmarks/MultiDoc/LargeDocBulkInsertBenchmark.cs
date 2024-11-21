@@ -30,6 +30,8 @@ namespace MongoDB.Benchmarks.MultiDoc
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
         private IEnumerable<BsonDocument> _largeDocuments;
+        private List<InsertOneModel<BsonDocument>> _collectionBulkWriteInsertModels;
+        private List<BulkWriteInsertOneModel<BsonDocument>> _clientBulkWriteInsertModels;
         
         private static readonly CollectionNamespace __collectionNamespace =
             CollectionNamespace.FromFullName($"{MongoConfiguration.PerfTestDatabaseName}.{MongoConfiguration.PerfTestCollectionName}");
@@ -44,7 +46,9 @@ namespace MongoDB.Benchmarks.MultiDoc
             _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
 
             var largeDocument = ReadExtendedJson("single_and_multi_document/large_doc.json");
-            _largeDocuments = Enumerable.Range(0, 10).Select(_ => largeDocument.DeepClone().AsBsonDocument);
+            _largeDocuments = Enumerable.Range(0, 10).Select(_ => largeDocument.DeepClone().AsBsonDocument).ToList();
+            _collectionBulkWriteInsertModels = _largeDocuments.Select(x => new InsertOneModel<BsonDocument>(x.DeepClone().AsBsonDocument)).ToList();
+            _clientBulkWriteInsertModels = _largeDocuments.Select(x => new BulkWriteInsertOneModel<BsonDocument>(__collectionNamespace, x.DeepClone().AsBsonDocument)).ToList();
         }
 
         [IterationSetup]
@@ -61,10 +65,15 @@ namespace MongoDB.Benchmarks.MultiDoc
         }
         
         [Benchmark]
-        public void LargeDocClientBulkInsertBenchmark()
+        public void LargeDocCollectionBulkWriteInsertBenchmark()
         {
-            var models = _largeDocuments.Select(x => new BulkWriteInsertOneModel<BsonDocument>(__collectionNamespace, x)).ToList();
-            _client.BulkWrite(models, new ClientBulkWriteOptions());
+            _collection.BulkWrite(_collectionBulkWriteInsertModels, new BulkWriteOptions());
+        }
+        
+        [Benchmark]
+        public void LargeDocClientBulkWriteInsertBenchmark()
+        {
+            _client.BulkWrite(_clientBulkWriteInsertModels, new ClientBulkWriteOptions());
         }
 
         [GlobalCleanup]

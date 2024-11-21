@@ -60,6 +60,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Encryption.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Authentication.AWS", "src\MongoDB.Driver.Authentication.AWS\MongoDB.Driver.Authentication.AWS.csproj", "{A0CAC199-457E-4862-AF9E-971C7A77CBF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp2", "ConsoleApp2\ConsoleApp2.csproj", "{54EBC539-ABFB-45A0-A77F-1A294576212B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,10 @@ Global
 		{A0CAC199-457E-4862-AF9E-971C7A77CBF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0CAC199-457E-4862-AF9E-971C7A77CBF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0CAC199-457E-4862-AF9E-971C7A77CBF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54EBC539-ABFB-45A0-A77F-1A294576212B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54EBC539-ABFB-45A0-A77F-1A294576212B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54EBC539-ABFB-45A0-A77F-1A294576212B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54EBC539-ABFB-45A0-A77F-1A294576212B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
