@@ -21,7 +21,7 @@ using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
 {
-    [IterationCount(100)]
+    [IterationCount(15)]
     [BenchmarkCategory(DriverBenchmarkCategory.BulkWriteBench, DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
     public class BulkWriteMixedOpsBenchmark
     {
