@@ -1664,9 +1664,8 @@ tasks:
             script: |
               ${PREPARE_SHELL}
               echo "Copying files ... begin"
-              export AZUREKMS_RESOURCEGROUP=${testazurekms_resourcegroup}
-              export AZUREKMS_VMNAME=${AZUREKMS_VMNAME}
               export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
+              source $DRIVERS_TOOLS/.evergreen/csfle/azurekms/secrets-export.sh
               tar czf /tmp/mongo-csharp-driver.tgz .
               AZUREKMS_SRC=/tmp/mongo-csharp-driver.tgz AZUREKMS_DST="~/" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/copy-file.sh
               echo "Copying files ... end"
@@ -1681,10 +1680,9 @@ tasks:
             shell: "bash"
             script: |
               ${PREPARE_SHELL}
-              export AZUREKMS_RESOURCEGROUP=${testazurekms_resourcegroup}
-              export AZUREKMS_VMNAME=${AZUREKMS_VMNAME}
+              source $DRIVERS_TOOLS/.evergreen/csfle/azurekms/secrets-export.sh
               export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
-              AZUREKMS_CMD="MONGODB_URI='mongodb://localhost:27017' KEY_NAME='${testazurekms_keyname}' KEY_VAULT_ENDPOINT='${testazurekms_keyvaultendpoint}' OS='${OS}' ./evergreen/run-csfle-azure-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
+              AZUREKMS_CMD="MONGODB_URI='mongodb://localhost:27017' KEY_NAME='${AZUREKMS_KEYNAME}' KEY_VAULT_ENDPOINT='${AZUREKMS_KEYVAULTENDPOINT}' OS='${OS}' ./evergreen/run-csfle-azure-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
 
     - name: test-csfle-with-gcp-kms
       commands:
@@ -1696,11 +1694,8 @@ tasks:
             script: |
               ${PREPARE_SHELL}
               echo "Copying files ... begin"
-              export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
-              export GCPKMS_PROJECT=${GCPKMS_PROJECT}
-              export GCPKMS_ZONE=${GCPKMS_ZONE}
-              export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
               tar czf /tmp/mongo-csharp-driver.tgz .
+              source $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/secrets-export.sh
               GCPKMS_SRC=/tmp/mongo-csharp-driver.tgz GCPKMS_DST=$GCPKMS_INSTANCENAME: $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/copy-file.sh
               echo "Copying files ... end"
               echo "Untarring file ... begin"
@@ -1714,10 +1709,7 @@ tasks:
             shell: "bash"
             script: |
               ${PREPARE_SHELL}
-              export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
-              export GCPKMS_PROJECT=${GCPKMS_PROJECT}
-              export GCPKMS_ZONE=${GCPKMS_ZONE}
-              export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
+              source $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/secrets-export.sh
               GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' OS='${OS}' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
 
     - name: test-SK
