@@ -97,23 +97,18 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         public ObjectSerializerAllowedTypesConvention()
         {
-            _lazyAllowedDeserializationTypes = new Lazy<Func<Type, bool>>(() =>
-            {
-                return AllowDefaultFrameworkTypes
-                    ? _allowedDeserializationTypes is null
-                        ? ObjectSerializer.DefaultAllowedTypes
-                        : t => _allowedDeserializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t)
-                    : _allowedDeserializationTypes ?? ObjectSerializer.NoAllowedTypes;
-            });
+            _lazyAllowedDeserializationTypes = new Lazy<Func<Type, bool>>(() => Construct(_allowedDeserializationTypes));
+            _lazyAllowedSerializationTypes = new Lazy<Func<Type, bool>>(() => Construct(_allowedSerializationTypes));
+            return;
 
-            _lazyAllowedSerializationTypes = new Lazy<Func<Type, bool>>(() =>
+            Func<Type, bool> Construct(Func<Type, bool> allowedTypes)
             {
                 return AllowDefaultFrameworkTypes
-                    ? _allowedSerializationTypes is null
+                    ? allowedTypes is null
                         ? ObjectSerializer.DefaultAllowedTypes
-                        : t => _allowedSerializationTypes(t) || ObjectSerializer.DefaultAllowedTypes(t)
-                    : _allowedSerializationTypes ?? ObjectSerializer.NoAllowedTypes;
-            });
+                        : t => allowedTypes(t) || ObjectSerializer.DefaultAllowedTypes(t)
+                    : allowedTypes ?? ObjectSerializer.NoAllowedTypes;
+            }
         }
 
         /// <summary>
