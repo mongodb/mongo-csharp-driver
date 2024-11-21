@@ -1734,9 +1734,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             string GetMockedKmsEndpoint() => certificateType switch
             {
-                CertificateType.Expired => "127.0.0.1:8000",
-                CertificateType.InvalidHostName => "127.0.0.1:8001",
-                CertificateType.TlsWithClientCert or CertificateType.TlsWithoutClientCert => !kmsProvider.StartsWith("kmip") ? "127.0.0.1:8002" : "127.0.0.1:5698",
+                CertificateType.Expired => "127.0.0.1:9000",
+                CertificateType.InvalidHostName => "127.0.0.1:9001",
+                CertificateType.TlsWithClientCert or CertificateType.TlsWithoutClientCert => !kmsProvider.StartsWith("kmip") ? "127.0.0.1:9002" : "127.0.0.1:5698",
                 _ => throw new Exception($"Not supported client certificate type {certificateType}."),
             };
 
