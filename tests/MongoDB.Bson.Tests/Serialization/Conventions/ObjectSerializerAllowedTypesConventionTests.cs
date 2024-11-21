@@ -45,12 +45,12 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Allowed type
+            // Allowed type
             allowedDelegate(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
 
-            //Not allowed type
+            // Not allowed type
             allowedDelegate(typeof(EnumSerializer)).Should().BeFalse();
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
@@ -69,14 +69,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Deserialization
+            // Deserialization
             allowedDeserializationDelegate(typeof(TestClass)).Should().BeTrue();
             allowedDeserializationDelegate(typeof(EnumSerializer)).Should().BeFalse();
 
             serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
 
-            //Serialization
+            // Serialization
             allowedSerializationDelegate(typeof(TestClass)).Should().BeFalse();
             allowedSerializationDelegate(typeof(EnumSerializer)).Should().BeTrue();
 
@@ -96,11 +96,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Allowed type
+            // Allowed type
             serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
 
-            //Not allowed type
+            // Not allowed type
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
@@ -118,11 +118,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Deserialization
+            // Deserialization
             serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
 
-            //Serialization
+            // Serialization
             serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeTrue();
         }
@@ -138,11 +138,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Type in default framework types
+            // Type in default framework types
             serializer.AllowedDeserializationTypes(typeof(long)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(long)).Should().BeTrue();
 
-            //Type not in default framework types
+            // Type not in default framework types
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
@@ -159,13 +159,13 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Types in input assemblies
+            // Types in input assemblies
             serializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
             serializer.AllowedDeserializationTypes(typeof(System.Linq.Enumerable)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(System.Linq.Enumerable)).Should().BeTrue();
 
-            //Type not in input assemblies
+            // Type not in input assemblies
             serializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
@@ -181,7 +181,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Default framework type
+            // Default framework type
             serializer.AllowedDeserializationTypes(typeof(long)).Should().BeFalse();
             serializer.AllowedSerializationTypes(typeof(long)).Should().BeFalse();
         }
@@ -197,7 +197,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (ObjectSerializer)memberMap.GetSerializer();
 
-            //Default framework type
+            // Default framework type
             serializer.AllowedDeserializationTypes(typeof(long)).Should().BeTrue();
             serializer.AllowedSerializationTypes(typeof(long)).Should().BeTrue();
         }
@@ -213,11 +213,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (ObjectSerializer)serializer.ChildSerializer;
 
-            //Type in assembly
+            // Type in assembly
             childSerializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             childSerializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
 
-            //Type not in assembly
+            // Type not in assembly
             childSerializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             childSerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
@@ -233,11 +233,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (ObjectSerializer)((IChildSerializerConfigurable)serializer.ChildSerializer).ChildSerializer;
 
-            //Type in assembly
+            // Type in assembly
             childSerializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
             childSerializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
 
-            //Type not in assembly
+            // Type not in assembly
             childSerializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
             childSerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
