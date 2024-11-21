@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var ast = AstExpression.Filter(
                     sourceTranslation.Ast,
                     predicateTranslation.Ast,
-                    predicateParameter.Name,
+                    @as: predicateSymbol.Var.Name,
                     limitTranslation?.Ast);
 
                 var resultSerializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);

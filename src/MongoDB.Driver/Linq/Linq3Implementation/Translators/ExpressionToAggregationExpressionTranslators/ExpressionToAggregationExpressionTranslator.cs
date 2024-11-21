@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -123,6 +124,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 asRoot ?
                     context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true) :
                     context.CreateSymbol(parameterExpression, parameterSerializer, isCurrent: false);
+
+            return TranslateLambdaBody(context, lambdaExpression, parameterSymbol);
+        }
+
+        public static AggregationExpression TranslateLambdaBody(
+            TranslationContext context,
+            LambdaExpression lambdaExpression,
+            Symbol parameterSymbol)
+        {
             var lambdaContext = context.WithSymbol(parameterSymbol);
             var translatedBody = Translate(lambdaContext, lambdaExpression.Body);
 

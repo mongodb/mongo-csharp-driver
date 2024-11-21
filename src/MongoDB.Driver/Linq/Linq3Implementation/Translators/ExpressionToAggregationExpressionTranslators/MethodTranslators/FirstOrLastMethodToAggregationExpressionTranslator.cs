@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -97,12 +98,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (method.IsOneOf(__withPredicateMethods))
                 {
                     var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, itemSerializer, asRoot: false);
-                    var predicateParameter = predicateLambda.Parameters[0];
+                    var parameterExpression = predicateLambda.Parameters.Single();
+                    var parameterSymbol = context.CreateSymbol(parameterExpression, itemSerializer, isCurrent: false);
+                    var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, parameterSymbol);
                     sourceAst = AstExpression.Filter(
                         input: sourceAst,
                         cond: predicateTranslation.Ast,
-                        @as: predicateParameter.Name);
+                        @as: parameterSymbol.Var.Name);
                 }
 
                 AstExpression ast;
