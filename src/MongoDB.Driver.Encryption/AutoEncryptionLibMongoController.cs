@@ -300,7 +300,7 @@ namespace MongoDB.Driver.Encryption
                 ClusterRegistry.Instance.UnregisterAndDisposeCluster(_internalClient.Cluster);
             }
 
-            if (_mongocryptdClient != null)
+            if (_mongocryptdClient.IsValueCreated)
             {
                 ClusterRegistry.Instance.UnregisterAndDisposeCluster(_mongocryptdClient.Value.Cluster);
             }
