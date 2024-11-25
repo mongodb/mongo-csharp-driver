@@ -1938,7 +1938,7 @@ namespace MongoDB.Bson
             {
                 var xClass = GetNumberClass(x);
                 var yClass = GetNumberClass(y);
-// .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
+				// .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
 #if NET6_0_OR_GREATER
                 var result = Comparer<NumberClass>.Default.Compare(xClass, yClass);
 #else
