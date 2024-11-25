@@ -1909,7 +1909,7 @@ namespace MongoDB.Bson
             {
                 var xType = GetDecimal128Type(x);
                 var yType = GetDecimal128Type(y);
-// .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
+				// .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
 #if NET6_0_OR_GREATER
                 var result = Comparer<Decimal128Type>.Default.Compare(xType, yType);
 #else
