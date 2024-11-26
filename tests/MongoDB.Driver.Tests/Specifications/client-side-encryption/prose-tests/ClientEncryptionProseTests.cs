@@ -353,26 +353,26 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             try
             {
                 tcpListener = new TcpListener(mongocryptdIpAddress, port: mongocryptPort);
-                var listenerThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
+                tcpListener.Start();
+                var listenerThread = new Thread(ThreadStart) { IsBackground = true };
+                listenerThread.Start(tcpListener);
 
                 using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local", extraOptions: extraOptions))
                 {
                     var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
 
-                    listenerThread.Start(tcpListener);
-
                     _ = Record.Exception(() => Insert(coll, async, new BsonDocument("unencrypted", "test")));
+                }
 
-                    if (listenerThread.Join(timeout))
-                    {
-                        // This exception is never thrown when mognocryptd mongoClient is not spawned which is expected behavior.
-                        // However, if we intentionally break that logic to spawn mongocryptd mongoClient regardless of shared library,
-                        // this exception sometimes won't be thrown. In all such cases the spent time in listenerThread.Join is higher
-                        // or really close to timeout. So it's unclear why Join doesn't throw in that cases, but that logic is unrelated
-                        // to the driver and csfle in particular. We rely on the fact that even if we break this logic,
-                        // we run this test more than once.
-                        throw new Exception($"Listener accepted a tcp call for moncgocryptd during {timeout}.");
-                    }
+                if (listenerThread.Join(timeout))
+                {
+                    // This exception is never thrown when mognocryptd mongoClient is not spawned which is expected behavior.
+                    // However, if we intentionally break that logic to spawn mongocryptd mongoClient regardless of shared library,
+                    // this exception sometimes won't be thrown. In all such cases the spent time in listenerThread.Join is higher
+                    // or really close to timeout. So it's unclear why Join doesn't throw in that cases, but that logic is unrelated
+                    // to the driver and csfle in particular. We rely on the fact that even if we break this logic,
+                    // we run this test more than once.
+                    throw new Exception($"Listener accepted a tcp call for moncgocryptd during {timeout}.");
                 }
             }
             finally
@@ -385,7 +385,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 try
                 {
                     var tcpListener = (TcpListener)param;
-                    tcpListener.Start();
                     using var client = tcpListener.AcceptTcpClient();
                     // Perform a blocking call to accept requests.
                     // if we're here, then something queries port 27030.
