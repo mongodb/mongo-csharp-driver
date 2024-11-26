@@ -27,16 +27,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         #region static
         public static TranslationContext Create(
             Expression expression,
-            IBsonSerializer serializer,
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            if (serializer is ISetWindowFieldsPartitionSerializer partitionSerializer)
-            {
-                serializer = partitionSerializer.InputSerializer;
-            }
             return new TranslationContext(symbolTable, nameGenerator, translationOptions, data);
         }
         #endregion

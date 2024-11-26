@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     }
                     else
                     {
-                        throw new ExpressionNotSupportedException(expression, because: "the registred serializer is not representation configurable");
+                        throw new ExpressionNotSupportedException(expression, because: "the registered serializer is not representation configurable");
                     }
                 }
                 else if (method.Is(MqlMethod.ConstantWithSerializer))
