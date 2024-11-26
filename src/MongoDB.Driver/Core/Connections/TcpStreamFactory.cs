@@ -122,103 +122,76 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var state = 1; // 1 == connecting, 2 == connected, 3 == timedout, 4 == cancelled
+            IAsyncResult connectOperation;
 
-            using (new Timer(_ => ChangeState(3), null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
-            using (cancellationToken.Register(() => ChangeState(4)))
+            if (endPoint is DnsEndPoint dnsEndPoint)
             {
-                try
-                {
-                    var dnsEndPoint = endPoint as DnsEndPoint;
-                    if (dnsEndPoint != null)
-                    {
-                        // mono doesn't support DnsEndPoint in its BeginConnect method.
-                        socket.Connect(dnsEndPoint.Host, dnsEndPoint.Port);
-                    }
-                    else
-                    {
-                        socket.Connect(endPoint);
-                    }
-                    ChangeState(2); // note: might not actually go to state 2 if already in state 3 or 4
-                }
-                catch when (state == 1)
-                {
-                    try { socket.Dispose(); } catch { }
-                    throw;
-                }
-                catch when (state >= 3)
-                {
-                    // a timeout or operation cancelled exception will be thrown instead
-                }
-
-                if (state == 3)
-                {
-                    var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
-                    throw new TimeoutException(message);
-                }
-                if (state == 4) { throw new OperationCanceledException(); }
+                // mono doesn't support DnsEndPoint in its BeginConnect method.
+                connectOperation = socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null);
+            }
+            else
+            {
+                connectOperation = socket.BeginConnect(endPoint, null, null);
             }
 
-            void ChangeState(int to)
+            WaitHandle.WaitAny(new[] { connectOperation.AsyncWaitHandle, cancellationToken.WaitHandle }, _settings.ConnectTimeout);
+
+            if (!connectOperation.IsCompleted)
             {
-                var from = Interlocked.CompareExchange(ref state, to, 1);
-                if (from == 1 && to >= 3)
-                {
-                    try { socket.Dispose(); } catch { } // disposing the socket aborts the connection attempt
-                }
+                socket.Dispose();
+
+                cancellationToken.ThrowIfCancellationRequested();
+                throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
+            }
+
+            try
+            {
+                socket.EndConnect(connectOperation);
+            }
+            catch
+            {
+                socket.Dispose();
+                throw;
             }
         }
 
         private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var state = 1; // 1 == connecting, 2 == connected, 3 == timedout, 4 == cancelled
+            var timeoutTask = Task.Delay(_settings.ConnectTimeout, cancellationToken);
+            Task connectTask;
 
-            using (new Timer(_ => ChangeState(3), null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
-            using (cancellationToken.Register(() => ChangeState(4)))
-            {
-                try
-                {
-                    var dnsEndPoint = endPoint as DnsEndPoint;
 #if !NET472
-                    await socket.ConnectAsync(endPoint).ConfigureAwait(false);
+            connectTask = socket.ConnectAsync(endPoint);
 #else
-                    if (dnsEndPoint != null)
-                    {
-                        // mono doesn't support DnsEndPoint in its BeginConnect method.
-                        await Task.Factory.FromAsync(socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null), socket.EndConnect).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect).ConfigureAwait(false);
-                    }
+            if (endPoint is DnsEndPoint dnsEndPoint)
+            {
+                // mono doesn't support DnsEndPoint in its BeginConnect method.
+                connectTask = Task.Factory.FromAsync(socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null), socket.EndConnect);
+            }
+            else
+            {
+                connectTask = Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect);
+            }
 #endif
-                    ChangeState(2); // note: might not actually go to state 2 if already in state 3 or 4
-                }
-                catch when (state == 1)
-                {
-                    try { socket.Dispose(); } catch { }
-                    throw;
-                }
-                catch when (state >= 3)
-                {
-                    // a timeout or operation cancelled exception will be thrown instead
-                }
 
-                if (state == 3)
-                {
-                    var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
-                    throw new TimeoutException(message);
-                }
-                if (state == 4) { throw new OperationCanceledException(); }
+            await Task.WhenAny(connectTask, timeoutTask).ConfigureAwait(false);
+
+            if (!connectTask.IsCompleted)
+            {
+                socket.Dispose();
+
+                cancellationToken.ThrowIfCancellationRequested();
+                throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
             }
 
-            void ChangeState(int to)
+            try
             {
-                var from = Interlocked.CompareExchange(ref state, to, 1);
-                if (from == 1 && to >= 3)
-                {
-                    try { socket.Dispose(); } catch { } // disposing the socket aborts the connection attempt
-                }
+                await connectTask.ConfigureAwait(false);
+            }
+            catch
+            {
+                socket.Dispose();
+                throw;
             }
         }
 
