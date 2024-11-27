@@ -414,6 +414,8 @@ namespace MongoDB.Driver.Tests.Search
             baseSearchResults.ForEach( m => m.SearchSequenceToken.Should().NotBeNullOrEmpty());
             baseSearchResults[0].Title.Should().Be(titles[0]);
             baseSearchResults[1].Title.Should().Be(titles[1]);
+            baseSearchResults[2].Title.Should().Be(titles[2]);
+            baseSearchResults[3].Title.Should().Be(titles[3]);
 
             // Testing SearchAfter
             // We're searching after the 2nd result of the base search
