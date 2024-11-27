@@ -268,6 +268,23 @@ namespace MongoDB.Driver
         /// </returns>
         public static ProjectionDefinition<TDocument> MetaSearchSequenceToken<TDocument>(
             this ProjectionDefinition<TDocument> projection,
+            FieldDefinition<TDocument> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaSearchScoreDetails(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a search sequence token projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaSearchSequenceToken<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
             Expression<Func<TDocument, object>> field)
         {
             var builder = Builders<TDocument>.Projection;
@@ -673,21 +690,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// //TODO Fill
+        /// Creates a search sequence token projection.
         /// </summary>
-        /// <param name="field"></param>
-        /// <returns></returns>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search sequence token projection.
+        /// </returns>
         public ProjectionDefinition<TSource> MetaSearchSequenceToken(FieldDefinition<TSource> field)
         {
             return Meta(field, "searchSequenceToken");
         }
 
         /// <summary>
-        /// //TODO Fill
+        /// Creates a search sequence token projection.
         /// </summary>
-        /// <param name="field"></param>
-        /// <typeparam name="TField"></typeparam>
-        /// <returns></returns>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search sequence token projection.
+        /// </returns>
         public ProjectionDefinition<TSource> MetaSearchSequenceToken<TField>(Expression<Func<TSource, TField>> field)
         {
             return MetaSearchSequenceToken(new ExpressionFieldDefinition<TSource>(field));
