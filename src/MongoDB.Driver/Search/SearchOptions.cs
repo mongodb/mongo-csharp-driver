@@ -59,12 +59,14 @@ namespace MongoDB.Driver.Search
         public SearchTrackingOptions Tracking { get; set; }
 
         /// <summary>
-        /// //TODO
+        /// Gets or sets the reference point for pagination.
+        /// When set, the search retrieves documents starting immediately after the specified reference point.
         /// </summary>
         public string SearchAfter { get; set; }
 
         /// <summary>
-        /// //TODO
+        /// Gets or sets the reference point for pagination.
+        /// When set, the search retrieves documents starting immediately before the specified reference point.
         /// </summary>
         public string SearchBefore { get; set; }
     }

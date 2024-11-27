@@ -257,14 +257,15 @@ namespace MongoDB.Driver
             return builder.Combine(projection, builder.MetaSearchScoreDetails(field));
         }
 
-        //TODO Fill
         /// <summary>
-        ///
+        /// Combines an existing projection with a search sequence token projection.
         /// </summary>
-        /// <param name="projection"></param>
-        /// <param name="field"></param>
-        /// <typeparam name="TDocument"></typeparam>
-        /// <returns></returns>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
         public static ProjectionDefinition<TDocument> MetaSearchSequenceToken<TDocument>(
             this ProjectionDefinition<TDocument> projection,
             Expression<Func<TDocument, object>> field)
