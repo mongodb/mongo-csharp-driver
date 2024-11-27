@@ -96,35 +96,27 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <returns>The actual type.</returns>
         public Type GetActualType(IBsonReader bsonReader, Type nominalType)
         {
-            // the BsonReader is sitting at the value whose actual type needs to be found
-            var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Document)
-            {
-                // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
-                BsonSerializer.EnsureKnownTypesAreRegistered(nominalType);
+            // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
+            BsonSerializer.EnsureKnownTypesAreRegistered(nominalType);
 
-                // we can skip looking for a discriminator if nominalType has no discriminated sub types
-                if (BsonSerializer.IsTypeDiscriminated(nominalType))
-                {
-                    var bookmark = bsonReader.GetBookmark();
-                    bsonReader.ReadStartDocument();
-                    var actualType = nominalType;
-                    if (bsonReader.FindElement(_elementName))
-                    {
-                        var context = BsonDeserializationContext.CreateRoot(bsonReader);
-                        var discriminator = BsonValueSerializer.Instance.Deserialize(context);
-                        if (discriminator.IsBsonArray)
-                        {
-                            discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
-                        }
-                        actualType = BsonSerializer.LookupActualType(nominalType, discriminator);
-                    }
-                    bsonReader.ReturnToBookmark(bookmark);
-                    return actualType;
-                }
+            // we can skip looking for a discriminator if nominalType has no discriminated sub types
+            if (!BsonSerializer.IsTypeDiscriminated(nominalType))
+            {
+                return nominalType;
             }
 
-            return nominalType;
+            var discriminator = ReadDiscriminator(bsonReader);
+            if (discriminator == null)
+            {
+                return nominalType;
+            }
+
+            if (discriminator.IsBsonArray)
+            {
+                discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
+            }
+
+            return GetActualType(nominalType, discriminator);
         }
 
         /// <summary>
@@ -137,5 +129,47 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         /// <inheritdoc/>
         public override int GetHashCode() => 0;
+
+        // protected methods
+        /// <summary>
+        /// Gets the actual type.
+        /// </summary>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="discriminator">The discriminator.</param>
+        /// <returns>The actual type.</returns>
+        protected virtual Type GetActualType(Type nominalType, BsonValue discriminator)
+        {
+            return BsonSerializer.LookupActualType(nominalType, discriminator);
+        }
+
+        /// <summary>
+        /// Reads the discriminator.
+        /// </summary>
+        /// <param name="bsonReader">The bsonReader.</param>
+        /// <returns>The discriminator, or null if no discriminator was found.</returns>
+        protected BsonValue ReadDiscriminator(IBsonReader bsonReader)
+        {
+            // the BsonReader is sitting at the value whose actual type needs to be found
+            var bsonType = bsonReader.GetCurrentBsonType();
+            if (bsonType == BsonType.Document)
+            {
+                var bookmark = bsonReader.GetBookmark();
+                try
+                {
+                    bsonReader.ReadStartDocument();
+                    if (bsonReader.FindElement(_elementName))
+                    {
+                        var context = BsonDeserializationContext.CreateRoot(bsonReader);
+                        return BsonValueSerializer.Instance.Deserialize(context);
+                    }
+                }
+                finally
+                {
+                    bsonReader.ReturnToBookmark(bookmark);
+                }
+            }
+
+            return null;
+        }
     }
 }
