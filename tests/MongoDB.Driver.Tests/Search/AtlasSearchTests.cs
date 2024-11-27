@@ -400,7 +400,7 @@ namespace MongoDB.Driver.Tests.Search
             };
             var projection = Builders<Movie>.Projection
                 .Include(x => x.Title)
-                .MetaSearchSequenceToken(x => x.SearchSequenceToken);
+                .MetaSearchSequenceToken(x => x.PaginationToken);
 
             // Base search
             var baseSearchResults = GetSynonymTestCollection()
@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Tests.Search
                 .ToList();
 
             baseSearchResults.Count.Should().Be(limitVal);
-            baseSearchResults.ForEach( m => m.SearchSequenceToken.Should().NotBeNullOrEmpty());
+            baseSearchResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
             baseSearchResults[0].Title.Should().Be(titles[0]);
             baseSearchResults[1].Title.Should().Be(titles[1]);
             baseSearchResults[2].Title.Should().Be(titles[2]);
@@ -419,7 +419,7 @@ namespace MongoDB.Driver.Tests.Search
 
             // Testing SearchAfter
             // We're searching after the 2nd result of the base search
-            searchOptions.SearchAfter = baseSearchResults[1].SearchSequenceToken;
+            searchOptions.SearchAfter = baseSearchResults[1].PaginationToken;
             var searchAfterResults = GetSynonymTestCollection()
                 .Aggregate()
                 .Search(searchDefinition, searchOptions)
@@ -428,14 +428,14 @@ namespace MongoDB.Driver.Tests.Search
                 .ToList();
 
             searchAfterResults.Count.Should().Be(limitVal);
-            searchAfterResults.ForEach( m => m.SearchSequenceToken.Should().NotBeNullOrEmpty());
+            searchAfterResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
             searchAfterResults[0].Title.Should().Be(titles[2]);
             searchAfterResults[1].Title.Should().Be(titles[3]);
 
             // Testing SearchBefore
             // We're searching before the 4th result of the base search
             searchOptions.SearchAfter = null;
-            searchOptions.SearchBefore = baseSearchResults[3].SearchSequenceToken;
+            searchOptions.SearchBefore = baseSearchResults[3].PaginationToken;
             var searchBeforeResults = GetSynonymTestCollection()
                 .Aggregate()
                 .Search(searchDefinition, searchOptions)
@@ -445,7 +445,7 @@ namespace MongoDB.Driver.Tests.Search
 
             // We only get the first 3 elements of the base search
             searchBeforeResults.Count.Should().Be(3);
-            searchBeforeResults.ForEach( m => m.SearchSequenceToken.Should().NotBeNullOrEmpty());
+            searchBeforeResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
             // With searchBefore the results are reversed
             searchBeforeResults[0].Title.Should().Be(titles[2]);
             searchBeforeResults[1].Title.Should().Be(titles[1]);
@@ -758,8 +758,8 @@ namespace MongoDB.Driver.Tests.Search
             [BsonElement("score")]
             public double Score { get; set; }
 
-            [BsonElement("searchSequenceToken")]
-            public string SearchSequenceToken { get; set; }
+            [BsonElement("paginationToken")]
+            public string PaginationToken { get; set; }
         }
 
         [BsonIgnoreExtraElements]

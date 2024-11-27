@@ -271,7 +271,7 @@ namespace MongoDB.Driver
             FieldDefinition<TDocument> field)
         {
             var builder = Builders<TDocument>.Projection;
-            return builder.Combine(projection, builder.MetaSearchScoreDetails(field));
+            return builder.Combine(projection, builder.MetaSearchSequenceToken(field));
         }
 
         /// <summary>
@@ -610,7 +610,7 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <param name="metaFieldName">The meta field name.</param>
         /// <returns>
-        /// A text score projection.
+        /// A meta projection.
         /// </returns>
         public ProjectionDefinition<TSource> Meta(FieldDefinition<TSource> field, string metaFieldName)
         {
