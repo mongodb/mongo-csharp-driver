@@ -302,7 +302,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void Apply_should_configure_serializer_when_using_static_AllowAllCallingAssemblyAndDefaultFrameworkTypes()
         {
-            var subject = ObjectSerializerAllowedTypesConvention.GetAllowAllCallingAssemblyAndDefaultFrameworkTypes();
+            var subject = ObjectSerializerAllowedTypesConvention.GetAllowAllCallingAssemblyAndDefaultFrameworkTypesConvention();
             subject.AllowDefaultFrameworkTypes.Should().BeTrue();
 
             var memberMap = CreateMemberMap(c => c.ObjectProp);
