@@ -57,5 +57,15 @@ namespace MongoDB.Driver.Search
         /// Gets or sets the options for tracking search terms.
         /// </summary>
         public SearchTrackingOptions Tracking { get; set; }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public string SearchAfter { get; set; }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public string SearchBefore { get; set; }
     }
 }

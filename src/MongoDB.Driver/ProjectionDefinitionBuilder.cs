@@ -257,6 +257,22 @@ namespace MongoDB.Driver
             return builder.Combine(projection, builder.MetaSearchScoreDetails(field));
         }
 
+        //TODO Fill
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="projection"></param>
+        /// <param name="field"></param>
+        /// <typeparam name="TDocument"></typeparam>
+        /// <returns></returns>
+        public static ProjectionDefinition<TDocument> MetaSearchSequenceToken<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaSearchSequenceToken(field));
+        }
+
         /// <summary>
         /// Combines an existing projection with a text score projection.
         /// </summary>
@@ -653,6 +669,27 @@ namespace MongoDB.Driver
         public ProjectionDefinition<TSource> MetaSearchScoreDetails<TField>(Expression<Func<TSource, TField>> field)
         {
             return MetaSearchScoreDetails(new ExpressionFieldDefinition<TSource>(field));
+        }
+
+        /// <summary>
+        /// //TODO Fill
+        /// </summary>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public ProjectionDefinition<TSource> MetaSearchSequenceToken(FieldDefinition<TSource> field)
+        {
+            return Meta(field, "searchSequenceToken");
+        }
+
+        /// <summary>
+        /// //TODO Fill
+        /// </summary>
+        /// <param name="field"></param>
+        /// <typeparam name="TField"></typeparam>
+        /// <returns></returns>
+        public ProjectionDefinition<TSource> MetaSearchSequenceToken<TField>(Expression<Func<TSource, TField>> field)
+        {
+            return MetaSearchSequenceToken(new ExpressionFieldDefinition<TSource>(field));
         }
 
         /// <summary>
