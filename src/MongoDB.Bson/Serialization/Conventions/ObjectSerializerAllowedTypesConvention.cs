@@ -26,12 +26,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// </summary>
     public sealed class ObjectSerializerAllowedTypesConvention
     {
-        // static
-
-        /// <summary>
-        /// A predefined <see cref="ObjectSerializerAllowedTypesConvention"/> where all calling assembly types and default framework types are allowed for both serialization and deserialization.
-        /// </summary>
-        public static ObjectSerializerAllowedTypesConvention AllowAllCallingAssemblyAndDefaultFrameworkTypes => new(Assembly.GetCallingAssembly());
+        // static properties
 
         /// <summary>
         /// A predefined <see cref="ObjectSerializerAllowedTypesConvention"/> where all types are allowed for both serialization and deserialization.
@@ -48,6 +43,13 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// A predefined <see cref="ObjectSerializerAllowedTypesConvention"/> where only default framework types are allowed for both serialization and deserialization.
         /// </summary>
         public static ObjectSerializerAllowedTypesConvention AllowOnlyDefaultFrameworkTypes { get; } = new();
+
+        //static methods
+
+        /// <summary>
+        /// Builds a predefined <see cref="ObjectSerializerAllowedTypesConvention"/> where all calling assembly types and default framework types are allowed for both serialization and deserialization.
+        /// </summary>
+        public static ObjectSerializerAllowedTypesConvention GetAllowAllCallingAssemblyAndDefaultFrameworkTypes() => new(Assembly.GetCallingAssembly());
 
         // private fields
         private readonly Func<Type, bool> _allowedDeserializationTypes;
