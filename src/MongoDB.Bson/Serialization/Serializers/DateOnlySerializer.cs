@@ -43,9 +43,9 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         private static class HumanReadableFormatFlags
         {
-            public const long Year = 1;
-            public const long Month = 2;
-            public const long Day = 4;
+            public const long Year = 4;
+            public const long Month = 8;
+            public const long Day = 16;
         }
 
         // private fields
@@ -94,25 +94,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             _representation = representation;
             _documentFormat = documentFormat;
             _converter = new RepresentationConverter(false, false);
-
-            if (_documentFormat is DateOnlyDocumentFormat.Classic)
-            {
-                _helper = new SerializerHelper
-                (
-                    new SerializerHelper.Member("DateTime", ClassicFormatFlags.DateTime),
-                    new SerializerHelper.Member("Ticks", ClassicFormatFlags.Ticks)
-                );
-            }
-            else
-            {
-                _helper = new SerializerHelper
-                (
-                    new SerializerHelper.Member("Year", HumanReadableFormatFlags.Year),
-                    new SerializerHelper.Member("Month", HumanReadableFormatFlags.Month),
-                    new SerializerHelper.Member("Day", HumanReadableFormatFlags.Day)
-                );
-            }
-
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("DateTime", ClassicFormatFlags.DateTime, isOptional: true),
+                new SerializerHelper.Member("Ticks", ClassicFormatFlags.Ticks, isOptional: true),
+                new SerializerHelper.Member("Year", HumanReadableFormatFlags.Year, isOptional: true),
+                new SerializerHelper.Member("Month", HumanReadableFormatFlags.Month, isOptional: true),
+                new SerializerHelper.Member("Day", HumanReadableFormatFlags.Day, isOptional: true)
+            );
         }
 
         // public properties
@@ -140,36 +129,51 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.Document:
-                    if (_documentFormat is DateOnlyDocumentFormat.Classic)
+                    var tickFound = false;
+                    var dateTimeFound = false;
+                    var yearFound = false;
+                    var monthFound = false;
+                    var dayFound = false;
+
+                    var tickValue = 0L;
+                    var year = 0;
+                    var month = 0;
+                    var day = 0;
+
+                    _helper.DeserializeMembers(context, (_, flag) =>
                     {
-                        value = default;
-                        _helper.DeserializeMembers(context, (_, flag) =>
+                        switch (flag)
                         {
-                            switch (flag)
-                            {
-                                case ClassicFormatFlags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
-                                case ClassicFormatFlags.Ticks:
-                                    value = VerifyAndMakeDateOnly(new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc));
-                                    break;
-                            }
-                        });
-                    }
-                    else
+                            case ClassicFormatFlags.DateTime:
+                                dateTimeFound = true;
+                                bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
+                            case ClassicFormatFlags.Ticks:
+                                tickFound = true;
+                                tickValue = Int64Serializer.Instance.Deserialize(context);
+                                break;
+                            case HumanReadableFormatFlags.Year:
+                                yearFound = true;
+                                year = bsonReader.ReadInt32(); break;
+                            case HumanReadableFormatFlags.Month:
+                                monthFound = true;
+                                month = bsonReader.ReadInt32(); break;
+                            case HumanReadableFormatFlags.Day:
+                                dayFound = true;
+                                day = bsonReader.ReadInt32(); break;
+                        }
+                    });
+
+                    var humanReadableFormatFound = yearFound && monthFound && dayFound;
+                    var classicFormatFound = tickFound && dateTimeFound;
+
+                    if ((humanReadableFormatFound && (tickFound || dateTimeFound))
+                        || (classicFormatFound && (yearFound || monthFound || dayFound)))
                     {
-                        var year = 0;
-                        var month = 0;
-                        var day = 0;
-                        _helper.DeserializeMembers(context, (_, flag) =>
-                        {
-                            switch (flag)
-                            {
-                                case HumanReadableFormatFlags.Year: year = bsonReader.ReadInt32(); break;
-                                case HumanReadableFormatFlags.Month: month = bsonReader.ReadInt32(); break;
-                                case HumanReadableFormatFlags.Day: day = bsonReader.ReadInt32(); break;
-                            }
-                        });
-                        value = new DateOnly(year, month, day);
+                        throw new FormatException("Invalid document format.");
                     }
+
+                    value = classicFormatFound ? VerifyAndMakeDateOnly(new DateTime(tickValue, DateTimeKind.Utc))
+                        : new DateOnly(year, month, day);
 
                     break;
 
