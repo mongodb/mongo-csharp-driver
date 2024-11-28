@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that allows to set the types that can be safely serialized and deserialized with the <see cref="ObjectSerializer"/>.
     /// </summary>
-    public sealed class ObjectSerializerAllowedTypesConvention
+    public sealed class ObjectSerializerAllowedTypesConvention : ConventionBase, IMemberMapConvention
     {
         // static properties
 
@@ -36,8 +36,8 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <summary>
         /// A predefined <see cref="ObjectSerializerAllowedTypesConvention"/> where no types are allowed for both serialization and deserialization.
         /// </summary>
-        public static ObjectSerializerAllowedTypesConvention AllowNoTypes { get; } = new(ObjectSerializer.NoAllowedTypes)
-            { AllowDefaultFrameworkTypes = false };
+        public static ObjectSerializerAllowedTypesConvention AllowNoTypes { get; } =
+            new(ObjectSerializer.NoAllowedTypes) { AllowDefaultFrameworkTypes = false };
 
         /// <summary>
         /// A predefined <see cref="ObjectSerializerAllowedTypesConvention"/> where only default framework types are allowed for both serialization and deserialization.
@@ -54,11 +54,9 @@ namespace MongoDB.Bson.Serialization.Conventions
         // private fields
         private readonly Func<Type, bool> _allowedDeserializationTypes;
         private readonly Func<Type, bool> _allowedSerializationTypes;
-
+        private readonly bool _allowDefaultFrameworkTypes = true;
         private readonly Lazy<Func<Type, bool>> _effectiveAllowedDeserializationTypes;
         private readonly Lazy<Func<Type, bool>> _effectiveAllowedSerializationTypes;
-
-        private readonly bool _allowDefaultFrameworkTypes = true;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectSerializerAllowedTypesConvention"/> class.

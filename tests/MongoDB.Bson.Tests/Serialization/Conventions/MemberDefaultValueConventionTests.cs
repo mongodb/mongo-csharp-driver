@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
@@ -37,42 +38,51 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void TestMappingUsesMemberDefaultValueConvention()
         {
+            var conventionName = Guid.NewGuid().ToString();
             var pack = new ConventionPack();
             pack.Add(new MemberDefaultValueConvention(typeof(int), 1));
-            ConventionRegistry.Register("test", pack, t => t == typeof(A));
+            ConventionRegistry.Register(conventionName, pack, t => t == typeof(A));
 
             var classMap = new BsonClassMap<A>(cm => cm.AutoMap());
 
             var defaultValue = classMap.GetMemberMap("Match").DefaultValue;
             Assert.IsType<int>(defaultValue);
             Assert.Equal(1, defaultValue);
+
+            ConventionRegistry.Remove(conventionName);
         }
 
         [Fact]
         public void TestMappingUsesMemberDefaultValueConventionDoesNotMatchWrongProperty()
         {
+            var conventionName = Guid.NewGuid().ToString();
             var pack = new ConventionPack();
             pack.Add(new MemberDefaultValueConvention(typeof(int), 1));
-            ConventionRegistry.Register("test", pack, t => t == typeof(A));
+            ConventionRegistry.Register(conventionName, pack, t => t == typeof(A));
 
             var classMap = new BsonClassMap<A>(cm => cm.AutoMap());
 
             var defaultValue = classMap.GetMemberMap("NoMatch").DefaultValue;
             Assert.Equal(0L, defaultValue);
+
+            ConventionRegistry.Remove(conventionName);
         }
 
         [Fact]
         public void TestMappingUsesMemberDefaultValueConventionDoesNotOverrideAttribute()
         {
+            var conventionName = Guid.NewGuid().ToString();
             var pack = new ConventionPack();
             pack.Add(new MemberDefaultValueConvention(typeof(int), 1));
-            ConventionRegistry.Register("test", pack, t => t == typeof(B));
+            ConventionRegistry.Register(conventionName, pack, t => t == typeof(B));
 
             var classMap = new BsonClassMap<B>(cm => cm.AutoMap());
 
             var defaultValue = classMap.GetMemberMap("Match").DefaultValue;
             Assert.IsType<int>(defaultValue);
             Assert.Equal(2, defaultValue);
+
+            ConventionRegistry.Remove(conventionName);
         }
     }
 }

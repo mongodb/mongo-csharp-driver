@@ -318,6 +318,32 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             serializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
         }
 
+        [Fact]
+        public void Convention_should_be_applied_during_automapping()
+        {
+            var conventionName = Guid.NewGuid().ToString();
+
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+            ConventionRegistry.Register(conventionName, new ConventionPack {subject}, _ => true);
+
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+            var memberMap = classMap.GetMemberMap("ObjectProp");
+
+            var serializer = memberMap.GetSerializer();
+            serializer.Should().BeOfType<ObjectSerializer>();
+            var typedSerializer = (ObjectSerializer)serializer;
+
+            // Type in assembly
+            typedSerializer.AllowedDeserializationTypes(typeof(TestClass)).Should().BeTrue();
+            typedSerializer.AllowedSerializationTypes(typeof(TestClass)).Should().BeTrue();
+
+            // Type not in assembly
+            typedSerializer.AllowedDeserializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+            typedSerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
+
+            ConventionRegistry.Remove(conventionName);
+        }
+
         // private methods
         private static BsonMemberMap CreateMemberMap<TMember>(Expression<Func<TestClass, TMember>> member)
         {
