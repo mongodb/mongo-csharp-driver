@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>
         /// The reconfigured serializer, or <c>null</c> if no leaf serializer could be reconfigured.
         /// </returns>
-        internal static IBsonSerializer GetReconfigured<T>(this IBsonSerializer serializer, Func<T, IBsonSerializer> reconfigure, Func<IBsonSerializer, bool> shouldReconfigure = null )
+        internal static IBsonSerializer GetReconfigured<T>(this IBsonSerializer serializer, Func<T, IBsonSerializer> reconfigure, Func<IBsonSerializer, bool> shouldReconfigure = null)
         {
             switch (serializer)
             {
