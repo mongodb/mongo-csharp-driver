@@ -37,14 +37,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var testObj = new TestClass
             {
-                ClassicFormat = dateOnly,
-                HumanFormat = dateOnly,
-                IgnoredFormat = dateOnly
+                DateTimeTicksFormat = dateOnly,
+                YearMonthDayFormat = dateOnly,
+                IgnoredFormat = dateOnly,
+                ArrayYearMonthDayFormat = [dateOnly, dateOnly]
             };
 
             var json = testObj.ToJson();
             const string expected = """
-                                    { "ClassicFormat" : { "DateTime" : { "$date" : "2024-10-05T00:00:00Z" }, "Ticks" : 638636832000000000 }, "HumanFormat" : { "Year" : 2024, "Month" : 10, "Day" : 5 }, "IgnoredFormat" : 638636832000000000 }
+                                    { "DateTimeTicksFormat" : { "DateTime" : { "$date" : "2024-10-05T00:00:00Z" }, "Ticks" : 638636832000000000 }, "YearMonthDayFormat" : { "Year" : 2024, "Month" : 10, "Day" : 5 }, "IgnoredFormat" : 638636832000000000, "ArrayYearMonthDayFormat" : [{ "Year" : 2024, "Month" : 10, "Day" : 5 }, { "Year" : 2024, "Month" : 10, "Day" : 5 }] }
                                     """;
             Assert.Equal(expected, json);
         }
@@ -66,6 +67,20 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new DateOnlySerializer(representation);
 
             subject.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Constructor_with_representation_and_format_should_return_expected_result(
+            [Values(BsonType.DateTime, BsonType.String, BsonType.Int64, BsonType.Document)]
+            BsonType representation,
+            [Values(DateOnlyDocumentFormat.DateTimeTicks, DateOnlyDocumentFormat.YearMonthDay)]
+            DateOnlyDocumentFormat format)
+        {
+            var subject = new DateOnlySerializer(representation, format);
+
+            subject.Representation.Should().Be(representation);
+            subject.DocumentFormat.Should().Be(format);
         }
 
         [Theory]
@@ -128,7 +143,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "253402214400000" } }, "Ticks" : { "$numberLong" : "3155378112000000000" } } }""","9999-12-31" )]
         public void Deserialize_with_human_readable_should_have_expected_result(string json, string expectedResult)
         {
-            var subject = new DateOnlySerializer(BsonType.Document, DateOnlyDocumentFormat.HumanReadable);
+            var subject = new DateOnlySerializer(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay);
 
             using var reader = new JsonReader(json);
             reader.ReadStartDocument();
@@ -287,7 +302,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("9999-12-31", """{ "x" : { "Year" : { "$numberInt" : "9999" }, "Month" : { "$numberInt" : "12" }, "Day" : { "$numberInt" : "31" } } }""")]
         public void Serialize_human_readable_should_have_expected_result(string valueString, string expectedResult)
         {
-            var subject = new DateOnlySerializer(BsonType.Document, DateOnlyDocumentFormat.HumanReadable);
+            var subject = new DateOnlySerializer(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay);
             var value = DateOnly.Parse(valueString, CultureInfo.InvariantCulture);
 
             using var textWriter = new StringWriter();
@@ -331,14 +346,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         private class TestClass
         {
-            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.Classic)]
-            public DateOnly ClassicFormat { get; set; }
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.DateTimeTicks)]
+            public DateOnly DateTimeTicksFormat { get; set; }
 
-            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.HumanReadable)]
-            public DateOnly HumanFormat { get; set; }
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay)]
+            public DateOnly YearMonthDayFormat { get; set; }
 
-            [BsonDateOnlyOptions(BsonType.Int64, DateOnlyDocumentFormat.HumanReadable)]
+            [BsonDateOnlyOptions(BsonType.Int64, DateOnlyDocumentFormat.YearMonthDay)]
             public DateOnly IgnoredFormat { get; set; }
+
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay)]
+            public DateOnly[] ArrayYearMonthDayFormat { get; set; }
         }
     }
 #endif

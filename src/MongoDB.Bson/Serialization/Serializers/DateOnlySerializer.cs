@@ -35,17 +35,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         public static DateOnlySerializer Instance => __instance;
 
         // private constants
-        private static class ClassicFormatFlags
+        private static class Flags
         {
             public const long DateTime = 1;
             public const long Ticks = 2;
-        }
-
-        private static class HumanReadableFormatFlags
-        {
             public const long Year = 4;
             public const long Month = 8;
             public const long Day = 16;
+
+            public const long DateTimeTicks = DateTime | Ticks;
+            public const long YearMonthDay = Year | Month | Day;
         }
 
         // private fields
@@ -59,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="DateOnlySerializer"/> class.
         /// </summary>
         public DateOnlySerializer()
-            : this(BsonType.DateTime, DateOnlyDocumentFormat.Classic)
+            : this(BsonType.DateTime, DateOnlyDocumentFormat.DateTimeTicks)
         {
         }
 
@@ -68,7 +67,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         public DateOnlySerializer(BsonType representation)
-            : this(representation, DateOnlyDocumentFormat.Classic)
+            : this(representation, DateOnlyDocumentFormat.DateTimeTicks)
         {
         }
 
@@ -96,11 +95,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             _converter = new RepresentationConverter(false, false);
             _helper = new SerializerHelper
             (
-                new SerializerHelper.Member("DateTime", ClassicFormatFlags.DateTime, isOptional: true),
-                new SerializerHelper.Member("Ticks", ClassicFormatFlags.Ticks, isOptional: true),
-                new SerializerHelper.Member("Year", HumanReadableFormatFlags.Year, isOptional: true),
-                new SerializerHelper.Member("Month", HumanReadableFormatFlags.Month, isOptional: true),
-                new SerializerHelper.Member("Day", HumanReadableFormatFlags.Day, isOptional: true)
+                new SerializerHelper.Member("DateTime", Flags.DateTime, isOptional: true),
+                new SerializerHelper.Member("Ticks", Flags.Ticks, isOptional: true),
+                new SerializerHelper.Member("Year", Flags.Year, isOptional: true),
+                new SerializerHelper.Member("Month", Flags.Month, isOptional: true),
+                new SerializerHelper.Member("Day", Flags.Day, isOptional: true)
             );
         }
 
@@ -129,53 +128,29 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.Document:
-                    var tickFound = false;
-                    var dateTimeFound = false;
-                    var yearFound = false;
-                    var monthFound = false;
-                    var dayFound = false;
-
-                    var tickValue = 0L;
+                    var ticks = 0L;
                     var year = 0;
                     var month = 0;
                     var day = 0;
 
-                    _helper.DeserializeMembers(context, (_, flag) =>
+                    var foundMemberFlags = _helper.DeserializeMembers(context, (_, flag) =>
                     {
                         switch (flag)
                         {
-                            case ClassicFormatFlags.DateTime:
-                                dateTimeFound = true;
-                                bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
-                            case ClassicFormatFlags.Ticks:
-                                tickFound = true;
-                                tickValue = Int64Serializer.Instance.Deserialize(context);
-                                break;
-                            case HumanReadableFormatFlags.Year:
-                                yearFound = true;
-                                year = bsonReader.ReadInt32(); break;
-                            case HumanReadableFormatFlags.Month:
-                                monthFound = true;
-                                month = bsonReader.ReadInt32(); break;
-                            case HumanReadableFormatFlags.Day:
-                                dayFound = true;
-                                day = bsonReader.ReadInt32(); break;
+                            case Flags.DateTime: bsonReader.SkipValue();  break; // ignore value (use Ticks instead)
+                            case Flags.Ticks: ticks = Int64Serializer.Instance.Deserialize(context); break;
+                            case Flags.Year: year = Int32Serializer.Instance.Deserialize(context); break;
+                            case Flags.Month: month = Int32Serializer.Instance.Deserialize(context); break;
+                            case Flags.Day: day = Int32Serializer.Instance.Deserialize(context); break;
                         }
                     });
 
-                    var humanReadableFormatFound = yearFound && monthFound && dayFound;
-                    var classicFormatFound = tickFound && dateTimeFound;
-
-                    if ((humanReadableFormatFound && (tickFound || dateTimeFound))
-                        || (classicFormatFound && (yearFound || monthFound || dayFound)))
+                    return foundMemberFlags switch
                     {
-                        throw new FormatException("Invalid document format.");
-                    }
-
-                    value = classicFormatFound ? VerifyAndMakeDateOnly(new DateTime(tickValue, DateTimeKind.Utc))
-                        : new DateOnly(year, month, day);
-
-                    break;
+                        Flags.DateTimeTicks => VerifyAndMakeDateOnly(new DateTime(ticks, DateTimeKind.Utc)),
+                        Flags.YearMonthDay => new DateOnly(year, month, day),
+                        _ => throw new FormatException("Invalid document format.")
+                    };
 
                 case BsonType.Decimal128:
                     value = VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDecimal128()), DateTimeKind.Utc));
@@ -222,7 +197,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             return
                 base.Equals(obj) &&
                 obj is DateOnlySerializer other &&
-                _representation.Equals(other._representation);
+                _representation.Equals(other._representation) &&
+                _documentFormat.Equals(other._documentFormat);
         }
 
         /// <inheritdoc/>
@@ -244,7 +220,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 case BsonType.Document:
                     bsonWriter.WriteStartDocument();
-                    if (_documentFormat is DateOnlyDocumentFormat.Classic)
+                    if (_documentFormat is DateOnlyDocumentFormat.DateTimeTicks)
                     {
                         bsonWriter.WriteDateTime("DateTime", millisecondsSinceEpoch);
                         bsonWriter.WriteInt64("Ticks", utcDateTime.Ticks);

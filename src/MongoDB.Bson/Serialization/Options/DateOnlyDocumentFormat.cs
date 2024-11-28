@@ -23,11 +23,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// <summary>
         /// The document will contain "DateTime" (BsonType.DateTime) and "Ticks" (BsonType.Int64).
         /// </summary>
-        Classic,
+        DateTimeTicks,
 
         /// <summary>
         /// The document will contain "Year", "Month" and "Day" (all BsonType.Int32).
         /// </summary>
-        HumanReadable
+        YearMonthDay
     }
 }

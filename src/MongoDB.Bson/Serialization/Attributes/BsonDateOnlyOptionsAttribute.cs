@@ -31,22 +31,13 @@ namespace MongoDB.Bson.Serialization.Attributes
         private DateOnlyDocumentFormat _documentFormat;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the BsonDateOnlyOptionsAttribute class.
-        /// </summary>
-        /// <param name="representation">The external representation.</param>
-        public BsonDateOnlyOptionsAttribute(BsonType representation)
-            : this(representation, DateOnlyDocumentFormat.Classic)
-        {
-
-        }
 
         /// <summary>
         /// Initializes a new instance of the BsonDateOnlyOptionsAttribute class.
         /// </summary>
         /// <param name="representation">The external representation.</param>
         /// <param name="documentDocumentFormat">The format to use with document representation.</param>
-        public BsonDateOnlyOptionsAttribute(BsonType representation, DateOnlyDocumentFormat documentDocumentFormat)
+        public BsonDateOnlyOptionsAttribute(BsonType representation, DateOnlyDocumentFormat documentDocumentFormat = DateOnlyDocumentFormat.DateTimeTicks)
         {
             _representation = representation;
             _documentFormat = documentDocumentFormat;
@@ -70,12 +61,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>A reconfigured serializer.</returns>
         protected override IBsonSerializer Apply(IBsonSerializer serializer)
         {
-            if (serializer is DateOnlySerializer dateOnlySerializer)
-            {
-                return dateOnlySerializer.WithRepresentation(_representation, _documentFormat);
-            }
-
-            return base.Apply(serializer);
+            var reconfiguredSerializer = serializer.GetReconfigured<DateOnlySerializer>(s => s.WithRepresentation(_representation, _documentFormat));
+            return reconfiguredSerializer ?? base.Apply(serializer);
         }
     }
 #endif

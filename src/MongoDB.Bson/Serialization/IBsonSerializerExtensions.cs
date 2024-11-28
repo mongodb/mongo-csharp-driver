@@ -61,6 +61,37 @@ namespace MongoDB.Bson.Serialization
                 : BsonSerializer.LookupDiscriminatorConvention(serializer.ValueType);
 
         /// <summary>
+        /// Reconfigures a serializer using the specified <paramref name="reconfigure"/> method.
+        /// If the serializer implements <see cref="IChildSerializerConfigurable"/>,
+        /// the method traverses and applies the reconfiguration to its child serializers recursively until an appropriate leaf serializer is found.
+        /// </summary>
+        /// <param name="serializer">The input serializer to be reconfigured.</param>
+        /// <param name="reconfigure">A function that defines how the serializer of type <typeparamref name="T"/> should be reconfigured.</param>
+        /// <param name="shouldReconfigure">
+        /// An optional predicate to determine if the reconfiguration should be applied to the current serializer.
+        /// </param>
+        /// <typeparam name="T">The specific type of serializer to be reconfigured.</typeparam>
+        /// <returns>
+        /// The reconfigured serializer, or <c>null</c> if no leaf serializer could be reconfigured.
+        /// </returns>
+        internal static IBsonSerializer GetReconfigured<T>(this IBsonSerializer serializer, Func<T, IBsonSerializer> reconfigure, Func<IBsonSerializer, bool> shouldReconfigure = null )
+        {
+            switch (serializer)
+            {
+                case IChildSerializerConfigurable childSerializerConfigurable:
+                {
+                    var childSerializer = childSerializerConfigurable.ChildSerializer;
+                    var reconfiguredChildSerializer = childSerializer.GetReconfigured(reconfigure, shouldReconfigure);
+                    return reconfiguredChildSerializer != null? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
+                }
+                case T typedSerializer when shouldReconfigure?.Invoke(serializer) ?? true:
+                    return reconfigure(typedSerializer);
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="serializer">The serializer.</param>
