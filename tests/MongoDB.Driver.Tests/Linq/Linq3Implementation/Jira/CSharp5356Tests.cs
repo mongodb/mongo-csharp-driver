@@ -112,6 +112,366 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(3);
         }
 
+        [Fact]
+        public void Where_is_Animal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => x is Animal);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2, 3);
+        }
+
+        [Fact]
+        public void Where_is_Mammal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => x is Mammal);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _t : { $in : ['Cat', 'Dog', 'Mammal'] } } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2);
+        }
+
+        [Fact]
+        public void Where_is_Cat_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => x is Cat);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _t : 'Cat' } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1);
+        }
+
+        [Fact]
+        public void Where_is_Reptile_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => x is Reptile);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _t : { $in : ['Reptile', 'Snake'] } } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(3);
+        }
+
+        [Fact]
+        public void Where_is_Snake_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => x is Snake);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _t : 'Snake' } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(3);
+        }
+
+        [Fact]
+        public void Where_not_is_Animal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => !(x is Animal));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _id : { $type : -1 } } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal();
+        }
+
+        [Fact]
+        public void Where_not_is_Mammal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => !(x is Mammal));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _t : { $nin : ['Cat', 'Dog', 'Mammal'] } } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(3);
+        }
+
+        [Fact]
+        public void Where_not_is_Cat_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => !(x is Cat));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _t : { $ne : 'Cat' } } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(2, 3);
+        }
+
+        [Fact]
+        public void Where_not_is_Reptile_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => !(x is Reptile));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _t : { $nin : ['Reptile', 'Snake'] } } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2);
+        }
+
+        [Fact]
+        public void Where_not_is_Snake_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .Where(x => !(x is Snake));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _t : { $ne : 'Snake' } } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2);
+        }
+
+        [Fact]
+        public void Array_Where_is_Animal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => x is Animal).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : true } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(1, 2, 3);
+        }
+
+        [Fact]
+        public void Array_Where_is_Mammal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => x is Mammal).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $in : ['$$x._t', ['Cat', 'Dog', 'Mammal']] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(1, 2);
+        }
+
+        [Fact]
+        public void Array_Where_is_Cat_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => x is Cat).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $eq : ['$$x._t', 'Cat'] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(1);
+        }
+
+        [Fact]
+        public void Array_Where_is_Reptile_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => x is Reptile).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $in : ['$$x._t', ['Reptile', 'Snake']] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(3);
+        }
+
+        [Fact]
+        public void Array_Where_is_Snake_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => x is Snake).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $eq : ['$$x._t', 'Snake'] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(3);
+        }
+
+        [Fact]
+        public void Array_Where_not_is_Animal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => !(x is Animal)).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : true } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal();
+        }
+
+        [Fact]
+        public void Array_Where_not_is_Mammal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => !(x is Mammal)).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : { $in : ['$$x._t', ['Cat', 'Dog', 'Mammal']] } } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(3);
+        }
+
+        [Fact]
+        public void Array_Where_not_is_Cat_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => !(x is Cat)).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : { $eq : ['$$x._t', 'Cat'] } } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(2, 3);
+        }
+
+        [Fact]
+        public void Array_Where_not_is_Reptile_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => !(x is Reptile)).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : { $in : ['$$x._t', ['Reptile', 'Snake']] } } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(1, 2);
+        }
+
+        [Fact]
+        public void Array_Where_not_is_Snake_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.Where(x => !(x is Snake)).ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : { $eq : ['$$x._t', 'Snake'] } } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(1, 2);
+        }
+
         private IMongoCollection<Animal> GetCollection()
         {
             var collection = GetCollection<Animal>("test");

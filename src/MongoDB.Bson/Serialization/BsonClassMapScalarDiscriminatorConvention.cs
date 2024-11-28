@@ -139,7 +139,6 @@ namespace MongoDB.Bson.Serialization
                     var context = BsonDeserializationContext.CreateRoot(bsonReader);
                     return BsonValueSerializer.Instance.Deserialize(context);
                 }
-                bsonReader.ReturnToBookmark(bookmark);
             }
             finally
             {
