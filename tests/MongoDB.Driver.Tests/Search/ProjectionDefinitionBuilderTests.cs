@@ -54,6 +54,16 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void MetaSearchSequenceToken()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            AssertRendered(subject.MetaSearchSequenceToken("a"), "{ a : { $meta: 'searchSequenceToken' } }");
+
+            var subjectTyped = CreateSubject<SimplestPerson>();
+            AssertRendered(subjectTyped.MetaSearchSequenceToken(p => p.MetaField), "{ mf : { $meta: 'searchSequenceToken' } }");
+        }
+
+        [Fact]
         public void MetaVectorSearchScore()
         {
             var subject = CreateSubject<BsonDocument>();

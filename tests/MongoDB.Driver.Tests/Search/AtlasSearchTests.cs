@@ -288,7 +288,6 @@ namespace MongoDB.Driver.Tests.Search
         {
             // This test case exercises the indexName and returnStoredSource arguments. The
             // remaining test cases omit them.
-            var coll = GetTestCollection();
             var results = GetTestCollection().Aggregate()
                 .Search(Builders.Search.Phrase(x => x.Body, "life, liberty, and the pursuit of happiness"),
                     new SearchHighlightOptions<HistoricalDocument>(x => x.Body),
@@ -379,6 +378,78 @@ namespace MongoDB.Driver.Tests.Search
                     GeoBuilders.Search.Range(x => x.Beds, SearchRangeBuilder.Gte(14).Lte(14))));
 
             results.Should().ContainSingle().Which.Name.Should().Be("House close to station & direct to opera house....");
+        }
+
+        [Fact]
+        public void SearchSequenceToken()
+        {
+            const int limitVal = 10;
+            var titles = new[]
+            {
+                "Equinox Flower",
+                "Flower Drum Song",
+                "Cactus Flower",
+                "The Flower of My Secret",
+            };
+
+            var searchDefinition = Builders<Movie>.Search.Text(t => t.Title, "flower");
+            var searchOptions = new SearchOptions<Movie>
+            {
+                IndexName = "default",
+                Sort = Builders<Movie>.Sort.Ascending("year")
+            };
+            var projection = Builders<Movie>.Projection
+                .Include(x => x.Title)
+                .MetaSearchSequenceToken(x => x.PaginationToken);
+
+            // Base search
+            var baseSearchResults = GetSynonymTestCollection()
+                .Aggregate()
+                .Search(searchDefinition, searchOptions)
+                .Project<Movie>(projection)
+                .Limit(limitVal)
+                .ToList();
+
+            baseSearchResults.Count.Should().Be(limitVal);
+            baseSearchResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            baseSearchResults[0].Title.Should().Be(titles[0]);
+            baseSearchResults[1].Title.Should().Be(titles[1]);
+            baseSearchResults[2].Title.Should().Be(titles[2]);
+            baseSearchResults[3].Title.Should().Be(titles[3]);
+
+            // Testing SearchAfter
+            // We're searching after the 2nd result of the base search
+            searchOptions.SearchAfter = baseSearchResults[1].PaginationToken;
+            var searchAfterResults = GetSynonymTestCollection()
+                .Aggregate()
+                .Search(searchDefinition, searchOptions)
+                .Project<Movie>(projection)
+                .Limit(limitVal)
+                .ToList();
+
+            searchAfterResults.Count.Should().Be(limitVal);
+            searchAfterResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            searchAfterResults[0].Title.Should().Be(titles[2]);
+            searchAfterResults[1].Title.Should().Be(titles[3]);
+
+            // Testing SearchBefore
+            // We're searching before the 4th result of the base search
+            searchOptions.SearchAfter = null;
+            searchOptions.SearchBefore = baseSearchResults[3].PaginationToken;
+            var searchBeforeResults = GetSynonymTestCollection()
+                .Aggregate()
+                .Search(searchDefinition, searchOptions)
+                .Project<Movie>(projection)
+                .Limit(limitVal)
+                .ToList();
+
+            // We only get the first 3 elements of the base search
+            searchBeforeResults.Count.Should().Be(3);
+            searchBeforeResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            // With searchBefore the results are reversed
+            searchBeforeResults[0].Title.Should().Be(titles[2]);
+            searchBeforeResults[1].Title.Should().Be(titles[1]);
+            searchBeforeResults[2].Title.Should().Be(titles[0]);
         }
 
         [Fact]
@@ -686,6 +757,9 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("score")]
             public double Score { get; set; }
+
+            [BsonElement("paginationToken")]
+            public string PaginationToken { get; set; }
         }
 
         [BsonIgnoreExtraElements]
