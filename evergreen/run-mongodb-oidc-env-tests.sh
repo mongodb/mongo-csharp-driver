@@ -5,6 +5,9 @@ set -o errexit # Exit the script with error if any of the commands fail
 
 DOTNET_SDK_PATH="$(pwd)/.dotnet"
 
+## check if curl exists and install, needed for k8s environment
+which curl &> /dev/null || apt install curl
+
 echo "Downloading .NET SDK installer into $DOTNET_SDK_PATH folder..."
 curl -Lfo ./dotnet-install.sh https://dot.net/v1/dotnet-install.sh
 echo "Installing .NET LTS SDK..."
@@ -17,6 +20,8 @@ if [ "$OIDC_ENV" == "azure" ]; then
 elif [ "$OIDC_ENV" == "gcp" ]; then
   source ./secrets-export.sh
   TOKEN_RESOURCE="$GCPOIDC_AUDIENCE"
+elif [ "$OIDC_ENV" == "k8s" ]; then
+  source ./secrets-export.sh
 else
   echo "Unrecognized OIDC_ENV $OIDC_ENV"
   exit 1
@@ -32,5 +37,8 @@ else
 fi
 
 sleep 60 # sleep for 1 minute to let cluster make the master election
+
+# need set DOTNET_SYSTEM_GLOBALIZATION_INVARIANT to avoid "Couldn't find a valid ICU package installed on the system." error
+export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
 dotnet test --no-build --framework net6.0 --filter Category=MongoDbOidc -e OIDC_ENV="$OIDC_ENV" -e TOKEN_RESOURCE="$TOKEN_RESOURCE" -e MONGODB_URI="$MONGODB_URI" --results-directory ./build/test-results --logger "console;verbosity=detailed" ./tests/**/*.Tests.dll
