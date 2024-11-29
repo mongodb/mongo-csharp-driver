@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Authentication.Oidc
         public const string EnvironmentMechanismPropertyName = "ENVIRONMENT";
         public const string TokenResourceMechanismPropertyName = "TOKEN_RESOURCE";
 
-        private static readonly ISet<string> __supportedEnvironments = new HashSet<string> { "test", "azure", "gcp" };
+        private static readonly ISet<string> __supportedEnvironments = new HashSet<string> { "test", "azure", "gcp", "k8s" };
         private readonly int _hashCode;
 
         public OidcConfiguration(
