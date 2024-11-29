@@ -263,6 +263,111 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
+        public void Array_OfType_Animal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.OfType<Animal>().ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : '$A', _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(1, 2, 3);
+        }
+
+        [Fact]
+        public void Array_OfType_Mammal_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.OfType<Mammal>().ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'item', cond : { $in : ['$$item._t', ['Cat', 'Dog', 'Mammal']] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(1, 2);
+        }
+
+        [Fact]
+        public void Array_OfType_Cat_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.OfType<Cat>().ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'item', cond : { $eq : ['$$item._t', 'Cat'] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(1);
+        }
+
+        [Fact]
+        public void Array_OfType_Reptile_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.OfType<Reptile>().ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'item', cond : { $in : ['$$item._t', ['Reptile', 'Snake']] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(3);
+        }
+
+        [Fact]
+        public void Array_OfType_Snake_should_work()
+        {
+            var collection = GetCollection();
+
+            var queryable = collection.AsQueryable()
+                .GroupBy(x => 1)
+                .Select(x => new { A = x.ToArray() })
+                .Select(x => new { A = x.A.OfType<Snake>().ToArray() });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
+                "{ $project : { A : '$_elements', _id : 0 } }",
+                "{ $project : { A : { $filter : { input : '$A', as : 'item', cond : { $eq : ['$$item._t', 'Snake'] } } }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.A.Select(x => x.Id).Should().Equal(3);
+        }
+
+        [Fact]
         public void Array_Where_is_Animal_should_work()
         {
             var collection = GetCollection();
