@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Where(x => x is Animal);
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
 
             var results = queryable.ToList();
             results.Select(x => x.Id).Should().Equal(1, 2, 3);
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $match : { _id : { $type : -1 } } }");
 
             var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal();
+            results.Count.Should().Be(0);
         }
 
         [Fact]
@@ -277,7 +277,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
                 "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : true } }, _id : 0 } }");
+                "{ $project : { A : '$A', _id : 0 } }");
 
             var result = queryable.Single();
             result.A.Select(x => x.Id).Should().Equal(1, 2, 3);
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
                 "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : true } } }, _id : 0 } }");
+                "{ $project : { A : [], _id : 0 } }");
 
             var result = queryable.Single();
             result.A.Select(x => x.Id).Should().Equal();
@@ -424,7 +424,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
                 "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : { $eq : ['$$x._t', 'Cat'] } } } }, _id : 0 } }");
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $ne : ['$$x._t', 'Cat'] } } } , _id : 0 } }");
 
             var result = queryable.Single();
             result.A.Select(x => x.Id).Should().Equal(2, 3);
@@ -466,7 +466,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
                 "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : { $eq : ['$$x._t', 'Snake'] } } } }, _id : 0 } }");
+                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $ne : ['$$x._t', 'Snake'] } } } , _id : 0 } }");
 
             var result = queryable.Single();
             result.A.Select(x => x.Id).Should().Equal(1, 2);

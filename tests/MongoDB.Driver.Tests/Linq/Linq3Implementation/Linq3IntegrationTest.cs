@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
 
         protected void AssertStages(IEnumerable<BsonDocument> stages, IEnumerable<string> expectedStages)
         {
-            stages.Should().Equal(expectedStages.Select(json => BsonDocument.Parse(json)));
+            stages.Should().Equal(expectedStages.Where(x => x != null).Select(json => BsonDocument.Parse(json)));
         }
 
         protected void CreateCollection<TDocument>(IMongoCollection<TDocument> collection, IEnumerable<TDocument> documents = null)

@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     {
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void Optimize_match_with_expr(bool value, string expectedStage)
         {
             var collection = GetCollection<BsonDocument>();
