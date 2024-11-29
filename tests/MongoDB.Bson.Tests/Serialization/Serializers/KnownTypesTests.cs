@@ -34,7 +34,6 @@ namespace MongoDB.Bson.Tests.Serialization
         {
         }
 
-        [BsonDiscriminator(RootClass = true)]
         [BsonKnownTypes(typeof(E))]
         private class C : A
         {
@@ -77,7 +76,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var document = new BsonDocument
             {
-                { "_t", new BsonArray { "C", "E" } },
+                { "_t", "E" },
                 { "P", "x" }
             };
 
@@ -86,7 +85,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsType<E>(rehydrated);
 
             var json = rehydrated.ToJson<A>();
-            var expected = "{ '_t' : ['C', 'E'], 'P' : 'x' }".Replace("'", "\"");
+            var expected = "{ '_t' : 'E', 'P' : 'x' }".Replace("'", "\"");
             Assert.Equal(expected, json);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson<A>()));
         }

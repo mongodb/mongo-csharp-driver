@@ -268,19 +268,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.OfType<Animal>().ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.OfType<Animal>().ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : '$A', _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : '$_v', _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(1, 2, 3);
+            result.Select(x => x.Id).Should().Equal(1, 2, 3);
         }
 
         [Fact]
@@ -289,19 +288,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.OfType<Mammal>().ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.OfType<Mammal>().ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'item', cond : { $in : ['$$item._t', ['Cat', 'Dog', 'Mammal']] } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'item', cond : { $in : ['$$item._t', ['Cat', 'Dog', 'Mammal']] } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(1, 2);
+            result.Select(x => x.Id).Should().Equal(1, 2);
         }
 
         [Fact]
@@ -310,19 +308,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.OfType<Cat>().ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.OfType<Cat>().ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'item', cond : { $eq : ['$$item._t', 'Cat'] } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'item', cond : { $eq : ['$$item._t', 'Cat'] } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(1);
+            result.Select(x => x.Id).Should().Equal(1);
         }
 
         [Fact]
@@ -331,19 +328,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.OfType<Reptile>().ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.OfType<Reptile>().ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'item', cond : { $in : ['$$item._t', ['Reptile', 'Snake']] } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'item', cond : { $in : ['$$item._t', ['Reptile', 'Snake']] } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(3);
+            result.Select(x => x.Id).Should().Equal(3);
         }
 
         [Fact]
@@ -352,19 +348,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.OfType<Snake>().ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.OfType<Snake>().ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'item', cond : { $eq : ['$$item._t', 'Snake'] } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'item', cond : { $eq : ['$$item._t', 'Snake'] } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(3);
+            result.Select(x => x.Id).Should().Equal(3);
         }
 
         [Fact]
@@ -373,19 +368,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => x is Animal).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => x is Animal).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : '$A', _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : '$_v', _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(1, 2, 3);
+            result.Select(x => x.Id).Should().Equal(1, 2, 3);
         }
 
         [Fact]
@@ -394,19 +388,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => x is Mammal).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => x is Mammal).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $in : ['$$x._t', ['Cat', 'Dog', 'Mammal']] } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v: { $filter : { input : '$_v', as : 'x', cond : { $in : ['$$x._t', ['Cat', 'Dog', 'Mammal']] } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(1, 2);
+            result.Select(x => x.Id).Should().Equal(1, 2);
         }
 
         [Fact]
@@ -415,19 +408,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => x is Cat).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => x is Cat).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $eq : ['$$x._t', 'Cat'] } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'x', cond : { $eq : ['$$x._t', 'Cat'] } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(1);
+            result.Select(x => x.Id).Should().Equal(1);
         }
 
         [Fact]
@@ -436,19 +428,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => x is Reptile).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => x is Reptile).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $in : ['$$x._t', ['Reptile', 'Snake']] } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'x', cond : { $in : ['$$x._t', ['Reptile', 'Snake']] } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(3);
+            result.Select(x => x.Id).Should().Equal(3);
         }
 
         [Fact]
@@ -457,19 +448,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => x is Snake).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => x is Snake).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $eq : ['$$x._t', 'Snake'] } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'x', cond : { $eq : ['$$x._t', 'Snake'] } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(3);
+            result.Select(x => x.Id).Should().Equal(3);
         }
 
         [Fact]
@@ -478,19 +468,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => !(x is Animal)).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => !(x is Animal)).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : [], _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : [], _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal();
+            result.Select(x => x.Id).Should().Equal();
         }
 
         [Fact]
@@ -499,19 +488,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => !(x is Mammal)).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => !(x is Mammal)).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : { $in : ['$$x._t', ['Cat', 'Dog', 'Mammal']] } } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'x', cond : { $not : { $in : ['$$x._t', ['Cat', 'Dog', 'Mammal']] } } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(3);
+            result.Select(x => x.Id).Should().Equal(3);
         }
 
         [Fact]
@@ -520,19 +508,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => !(x is Cat)).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => !(x is Cat)).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $ne : ['$$x._t', 'Cat'] } } } , _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'x', cond : { $ne : ['$$x._t', 'Cat'] } } } , _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(2, 3);
+            result.Select(x => x.Id).Should().Equal(2, 3);
         }
 
         [Fact]
@@ -541,19 +528,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => !(x is Reptile)).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => !(x is Reptile)).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $not : { $in : ['$$x._t', ['Reptile', 'Snake']] } } } }, _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'x', cond : { $not : { $in : ['$$x._t', ['Reptile', 'Snake']] } } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(1, 2);
+            result.Select(x => x.Id).Should().Equal(1, 2);
         }
 
         [Fact]
@@ -562,19 +548,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var collection = GetCollection();
 
             var queryable = collection.AsQueryable()
-                .GroupBy(x => 1)
-                .Select(x => new { A = x.ToArray() })
-                .Select(x => new { A = x.A.Where(x => !(x is Snake)).ToArray() });
+                .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
+                .Select(x => x.Where(x => !(x is Snake)).ToArray());
 
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
                 "{ $group : { _id : 1, _elements : { $push : '$$ROOT' } } }",
-                "{ $project : { A : '$_elements', _id : 0 } }",
-                "{ $project : { A : { $filter : { input : '$A', as : 'x', cond : { $ne : ['$$x._t', 'Snake'] } } } , _id : 0 } }");
+                "{ $project : { _v : '$_elements', _id : 0 } }",
+                "{ $project : { _v : { $filter : { input : '$_v', as : 'x', cond : { $ne : ['$$x._t', 'Snake'] } } } , _id : 0 } }");
 
             var result = queryable.Single();
-            result.A.Select(x => x.Id).Should().Equal(1, 2);
+            result.Select(x => x.Id).Should().Equal(1, 2);
         }
 
         private IMongoCollection<Animal> GetCollection()

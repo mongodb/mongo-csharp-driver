@@ -42,8 +42,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
+                var sourceAst = sourceTranslation.Ast;
+                var sourceSerializer = sourceTranslation.Serializer;
+                if (sourceSerializer is IWrappedValueSerializer wrappedValueSerializer)
+                {
+                    sourceAst = AstExpression.GetField(sourceAst, wrappedValueSerializer.FieldName);
+                    sourceSerializer = wrappedValueSerializer.ValueSerializer;
+                }
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
 
                 var nominalType = itemSerializer.ValueType;
                 var nominalTypeSerializer = itemSerializer;
@@ -53,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 AstExpression ast;
                 if (nominalType == actualType)
                 {
-                    ast = sourceTranslation.Ast;
+                    ast = sourceAst;
                 }
                 else
                 {
@@ -69,7 +77,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     };
 
                     ast = AstExpression.Filter(
-                        input: sourceTranslation.Ast,
+                        input: sourceAst,
                         cond: ofTypeExpression,
                         @as: "item");
                 }
