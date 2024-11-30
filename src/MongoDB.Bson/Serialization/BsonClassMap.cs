@@ -1165,12 +1165,11 @@ namespace MongoDB.Bson.Serialization
                 return;
             }
 
-            if (_baseClassMap == null)
+            if (_baseClassMap != null)
             {
-                return;
+                _baseClassMap.AddKnownDiscriminator(discriminator, type);
             }
 
-            _baseClassMap.AddKnownDiscriminator(discriminator, type);
             var knownType = _discriminatorToTypeMap.GetOrAdd(discriminator, type);
             if (knownType != type)
             {

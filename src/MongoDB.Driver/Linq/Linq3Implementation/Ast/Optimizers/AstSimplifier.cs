@@ -291,10 +291,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             {
                 if (condBsonBoolean.Value && limitExpression == null)
                 {
+                    // { $cond : { input : <input>, as : "x", cond : true } } => <input>
                     return inputExpression;
                 }
                 else
                 {
+                    // { $cond : { input : <input>, as : "x", cond : false } } => []
                     return AstExpression.Constant(new BsonArray());
                 }
             }
