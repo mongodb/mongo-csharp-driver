@@ -324,7 +324,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var conventionName = Guid.NewGuid().ToString();
 
             var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
-            ConventionRegistry.Register(conventionName, new ConventionPack {subject}, _ => true);
+            ConventionRegistry.Register(conventionName, new ConventionPack {subject}, t => t == typeof(TestClass));
 
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("ObjectProp");
