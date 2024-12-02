@@ -23,7 +23,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -130,6 +129,17 @@ namespace MongoDB.Driver.Tests.Search
             {
                 document.Comments.Should().Contain(c => c.Author == "Corliss Zuk");
             }
+        }
+
+        [Fact]
+        public void Equals()
+        {
+            var result = SearchSingle(
+                Builders.Search.Compound().Must(
+                    Builders.Search.Text(x => x.Body, "life, liberty, and the pursuit of happiness"),
+                    Builders.Search.Exists(x => x.Title)));
+
+            result.Title.Should().Be("Declaration of Independence");
         }
 
         [Fact]
@@ -533,6 +543,18 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void EqualNull()
+        {
+            var result = GetCompaniesCollection().Aggregate()
+                .Search(Builders<Company>.Search.EqualsNull(c => c.Description))
+                .Single();
+
+            result.Should().NotBeNull();
+
+
+        }
+
+        [Fact]
         public void Sort_MetaSearchScore()
         {
             var results = GetSynonymTestCollection().Aggregate()
@@ -739,6 +761,10 @@ namespace MongoDB.Driver.Tests.Search
             .GetDatabase("sample_mflix")
             .GetCollection<EmbeddedMovie>("embedded_movies");
 
+        private IMongoCollection<Company> GetCompaniesCollection() => _mongoClient
+            .GetDatabase("sample_training")
+            .GetCollection<Company>("companies");
+
         [BsonIgnoreExtraElements]
         public class Comment
         {
@@ -849,6 +875,19 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("score")]
             public double Score { get; set; }
+        }
+
+        [BsonIgnoreExtraElements]
+        private class Company
+        {
+            [BsonId]
+            public ObjectId Id { get; set; }
+
+            [BsonElement("name")]
+            public string Name { get; set; }
+
+            [BsonElement("description")]
+            public string Description { get; set; }
         }
     }
 }

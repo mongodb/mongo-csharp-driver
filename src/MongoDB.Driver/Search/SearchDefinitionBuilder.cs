@@ -126,6 +126,19 @@ namespace MongoDB.Driver.Search
                 new EqualsSearchDefinition<TDocument, TField>(path, value, score);
 
         /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="score"></param>
+        /// <typeparam name="TField"></typeparam>
+        /// <returns></returns>
+        public SearchDefinition<TDocument> EqualsNull<TField>(
+            FieldDefinition<TDocument, TField> path,
+            SearchScoreDefinition<TDocument> score = null)
+            where TField : IComparable<TField> =>
+            new EqualsSearchDefinition<TDocument, TField>(path, (TField)((object)null)!, score);
+
+        /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
         /// to the specified value.
         /// Supported value types are boolean, numeric, ObjectId and date.
@@ -141,6 +154,19 @@ namespace MongoDB.Driver.Search
             SearchScoreDefinition<TDocument> score = null)
             where TField : struct, IComparable<TField> =>
                 Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="score"></param>
+        /// <typeparam name="TField"></typeparam>
+        /// <returns></returns>
+        public SearchDefinition<TDocument> EqualsNull<TField>(
+            Expression<Func<TDocument, TField>> path,
+            SearchScoreDefinition<TDocument> score = null)
+            where TField : IComparable<TField> =>
+            EqualsNull(new ExpressionFieldDefinition<TDocument, TField>(path), score);
 
         /// <summary>
         /// Creates a search definition that tests if a path to a specified indexed field name
