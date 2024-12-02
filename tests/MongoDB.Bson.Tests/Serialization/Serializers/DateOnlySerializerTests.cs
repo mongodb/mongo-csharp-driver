@@ -232,17 +232,28 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData(BsonType.String)]
-        [InlineData(BsonType.Int64)]
-        [InlineData(BsonType.Document)]
-        public void Equals_with_not_equal_fields_should_return_true(BsonType representation)
+        [ParameterAttributeData]
+        public void Equals_with_different_representation_and_format_should_return_correct(
+            [Values(BsonType.DateTime, BsonType.String, BsonType.Int64, BsonType.Document)]
+            BsonType representation,
+            [Values(DateOnlyDocumentFormat.DateTimeTicks, DateOnlyDocumentFormat.YearMonthDay)]
+            DateOnlyDocumentFormat format)
         {
             var x = new DateOnlySerializer();
-            var y = new DateOnlySerializer(representation);
+            var y = new DateOnlySerializer(representation, format);
 
             var result = x.Equals(y);
+            var result2 = y.Equals(x);
+            result.Should().Be(result2);
 
-            result.Should().Be(false);
+            if (representation == BsonType.DateTime && format == DateOnlyDocumentFormat.DateTimeTicks)
+            {
+                result.Should().Be(true);
+            }
+            else
+            {
+                result.Should().Be(false);
+            }
         }
 
         [Fact]

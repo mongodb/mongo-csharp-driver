@@ -117,15 +117,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override DateOnly Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            DateOnly value;
 
             var bsonType = bsonReader.GetCurrentBsonType();
 
             switch (bsonType)
             {
                 case BsonType.DateTime:
-                    value = VerifyAndMakeDateOnly(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime()));
-                    break;
+                    return VerifyAndMakeDateOnly(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime()));
 
                 case BsonType.Document:
                     var ticks = 0L;
@@ -153,30 +151,24 @@ namespace MongoDB.Bson.Serialization.Serializers
                     };
 
                 case BsonType.Decimal128:
-                    value = VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDecimal128()), DateTimeKind.Utc));
-                    break;
+                    return VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDecimal128()), DateTimeKind.Utc));
 
                 case BsonType.Double:
-                    value = VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDouble()), DateTimeKind.Utc));
-                    break;
+                    return VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDouble()), DateTimeKind.Utc));
 
                 case BsonType.Int32:
-                    value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt32(), DateTimeKind.Utc));
-                    break;
+                    return VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt32(), DateTimeKind.Utc));
 
                 case BsonType.Int64:
-                    value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
-                    break;
+                    return VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
 
                 case BsonType.String:
-                    value = DateOnly.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd");
-                    break;
+                    return DateOnly.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd");
 
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
 
-            return value;
 
             DateOnly VerifyAndMakeDateOnly(DateTime dt)
             {

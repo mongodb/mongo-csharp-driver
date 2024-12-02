@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="shouldReconfigure">
         /// An optional predicate to determine if the reconfiguration should be applied to the current serializer.
         /// </param>
-        /// <typeparam name="T">The specific type of serializer to be reconfigured.</typeparam>
+        /// <typeparam name="T">The input type for the reconfigure method.</typeparam>
         /// <returns>
         /// The reconfigured serializer, or <c>null</c> if no leaf serializer could be reconfigured.
         /// </returns>
