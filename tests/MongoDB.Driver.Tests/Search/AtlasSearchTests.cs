@@ -61,7 +61,6 @@ namespace MongoDB.Driver.Tests.Search
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
 
             var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH");
-            atlasSearchUri = "mongodb+srv://ferdi:ferdipw@cluster0.3cnvy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
             Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));
 
             _mongoClient = new MongoClient(atlasSearchUri);
