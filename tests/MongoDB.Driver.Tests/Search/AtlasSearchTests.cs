@@ -142,6 +142,28 @@ namespace MongoDB.Driver.Tests.Search
             result.Title.Should().Be("Declaration of Independence");
         }
 
+        [Fact(Skip = "Skipping this until we can run this test on the Atlas Search cluster.")]
+        public void EqualsGuid()
+        {
+            var testGuid = Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf");
+
+            var result = GetLocalTestCollection().Aggregate()
+                .Search(Builders<TestClass>.Search.Equals(c => c.TestGuid,  testGuid))
+                .Single();
+
+            result.Name.Should().Be("test6");
+        }
+
+        [Fact(Skip = "Skipping this until we can run this test on the Atlas Search cluster.")]
+        public void EqualsNull()
+        {
+            var result = GetLocalTestCollection().Aggregate()
+                .Search(Builders<TestClass>.Search.Equals(c => c.TestString,  null))
+                .Single();
+
+            result.Name.Should().Be("testNull");
+        }
+
         [Fact]
         public void Exists()
         {
@@ -246,6 +268,23 @@ namespace MongoDB.Driver.Tests.Search
             results.Count.Should().Be(2);
             results[0].Runtime.Should().Be(231);
             results[1].Runtime.Should().Be(31);
+        }
+
+        [Fact(Skip = "Skipping this until we can run this test on the Atlas Search cluster")]
+        public void InGuid()
+        {
+            var testGuids = new[]
+            {
+                Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf"), Guid.Parse("84da5d44-bc97-454f-a578-418a64fa937a")
+            };
+
+            var result = GetLocalTestCollection().Aggregate()
+                .Search(Builders<TestClass>.Search.In(c => c.TestGuid,  testGuids))
+                .Limit(10)
+                .ToList();
+
+            result.Should().HaveCount(2);
+            result.Select(s => s.Name).Should().BeEquivalentTo(["test6", "test7"]);
         }
 
         [Fact]
@@ -540,45 +579,6 @@ namespace MongoDB.Driver.Tests.Search
                 Builders.Sort.Descending(x => x.Title));
 
             result.Title.Should().Be("US Constitution");
-        }
-
-        [Fact]
-        public void EqualNull()
-        {
-            var result = GetLocalTestCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.Equals(c => c.TestString,  null))
-                .Single();
-
-            result.Should().NotBeNull();
-            result.Name.Should().Be("testNull");
-        }
-
-        [Fact]
-        public void EqualGuid()
-        {
-            var testGuid = Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf");
-
-            var result = GetLocalTestCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.Equals(c => c.TestGuid,  testGuid))
-                .Single();
-
-            result.Should().NotBeNull();
-            result.Name.Should().Be("test6");
-        }
-
-        [Fact]
-        public void InGuid()
-        {
-            var testGuids = new[]
-            {
-                Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf"), Guid.Parse("84da5d44-bc97-454f-a578-418a64fa937a")
-            };
-
-            var result = GetLocalTestCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.In(c => c.TestGuid,  testGuids)).ToList();
-
-            result.Should().HaveCount(2);
-            result.Select(s => s.Name).Should().BeEquivalentTo(["test6", "test7"]);
         }
 
         [Fact]
