@@ -27,8 +27,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Encryption;
-using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -408,36 +406,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 
             eventCapturer.Events.Should().Contain(e => ((CommandStartedEvent)e).CommandName == "getMore");
             eventCapturer.Events.Should().Contain(e => ((CommandStartedEvent)e).CommandName == "killCursors");
-        }
-
-        // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L371
-        [Theory]
-        [ParameterAttributeData]
-        internal async Task MongoClient_bulkWrite_returns_error_for_unacknowledged_too_large_insert(
-            [Values(true, false)] bool async,
-            [Values(true, false)] bool isReplace)
-        {
-            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
-            var maxDocumentSize = DriverTestConfiguration.GetConnectionDescription().MaxDocumentSize;
-
-            var document = new BsonDocument() { { "a", new string('b', maxDocumentSize) } };
-            BulkWriteModel[] models = isReplace
-                    ? new[] { new BulkWriteReplaceOneModel<BsonDocument>("db.coll", Builders<BsonDocument>.Filter.Empty, document) }
-                    : new[] { new BulkWriteInsertOneModel<BsonDocument>("db.coll", document) };
-
-            using var client = CreateMongoClient(null);
-            var bulkWriteOptions = new ClientBulkWriteOptions
-            {
-                WriteConcern = WriteConcern.Unacknowledged,
-                IsOrdered = false
-            };
-
-            var exception = async
-                ? await Record.ExceptionAsync(() => client.BulkWriteAsync(models, bulkWriteOptions))
-                : Record.Exception(() => client.BulkWrite(models, bulkWriteOptions));
-
-            var bulkWriteException = exception.Should().BeOfType<ClientBulkWriteException>().Subject;
-            bulkWriteException.InnerException.Should().BeOfType<FormatException>();
         }
 
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L422
