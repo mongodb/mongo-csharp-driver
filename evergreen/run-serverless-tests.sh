@@ -47,6 +47,9 @@ else
 fi
 
 source ${DRIVERS_TOOLS}/.evergreen/serverless/secrets-export.sh
+if [ -f "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh" ]; then
+  source $DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh
+fi
 
 # Assume "mongodb+srv" protocol
 export MONGODB_URI="mongodb+srv://${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${SERVERLESS_URI:14}"

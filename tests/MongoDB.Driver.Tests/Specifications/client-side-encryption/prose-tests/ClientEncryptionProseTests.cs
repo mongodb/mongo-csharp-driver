@@ -83,7 +83,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public ClientEncryptionProseTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
             _cluster = CoreTestConfiguration.Cluster;
         }
 

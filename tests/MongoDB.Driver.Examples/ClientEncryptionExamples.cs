@@ -20,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -43,7 +42,6 @@ namespace MongoDB.Driver.Examples
         public void ClientSideEncryptionSimpleTour()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
@@ -77,7 +75,6 @@ namespace MongoDB.Driver.Examples
         public void ClientSideEncryptionAutoEncryptionSettingsTour()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 

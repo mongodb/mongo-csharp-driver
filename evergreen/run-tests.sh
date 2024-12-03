@@ -146,10 +146,7 @@ if [ -f "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh" ]; then
   source $DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh
 fi
 
-. ./evergreen/export-libmongocrypt-path.sh
-
 if [[ "$TARGET" =~ "SmokeTests" ]]; then
-    unset LIBMONGOCRYPT_PATH
     # add/adjust nuget.config pointing to myget so intermediate versions could be restored
     if [ -f "./nuget.config" ]; then
       echo "Adding myget into nuget.config"
