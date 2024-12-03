@@ -777,6 +777,7 @@ namespace MongoDB.Driver.Tests.Search
             .GetDatabase("sample_mflix")
             .GetCollection<EmbeddedMovie>("embedded_movies");
 
+        // This has been used to run some tests locally that still cannot be run on the common Atlas Search cluster
         private IMongoCollection<TestClass> GetLocalTestCollection() => _mongoClient
             .GetDatabase("testDatabase")
             .GetCollection<TestClass>("testClasses");
