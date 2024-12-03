@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Tests.Search
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
 
             var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH");
+            atlasSearchUri = "mongodb+srv://ferdi:ferdipw@cluster0.3cnvy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
             Ensure.IsNotNullOrEmpty(atlasSearchUri, nameof(atlasSearchUri));
 
             _mongoClient = new MongoClient(atlasSearchUri);
@@ -545,22 +546,40 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void EqualNull()
         {
-            var result = GetCompaniesCollection().Aggregate()
-                .Search(Builders<Company>.Search.Equals(c => c.Description,  null))
+            var result = GetLocalTestCollection().Aggregate()
+                .Search(Builders<TestClass>.Search.Equals(c => c.TestString,  null))
                 .Single();
 
             result.Should().NotBeNull();
+            result.Name.Should().Be("testNull");
         }
 
         [Fact]
         public void EqualGuid()
         {
-            var result = GetCompaniesCollection().Aggregate()
-                .Search(Builders<Company>.Search.Equals( c => c.TestGuid, Guid.Empty))
+            var testGuid = Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf");
+
+            var result = GetLocalTestCollection().Aggregate()
+                .Search(Builders<TestClass>.Search.Equals(c => c.TestGuid,  testGuid))
                 .Single();
 
             result.Should().NotBeNull();
-            result.Name.Should().Be("test");
+            result.Name.Should().Be("test6");
+        }
+
+        [Fact]
+        public void InGuid()
+        {
+            var testGuids = new[]
+            {
+                Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf"), Guid.Parse("84da5d44-bc97-454f-a578-418a64fa937a")
+            };
+
+            var result = GetLocalTestCollection().Aggregate()
+                .Search(Builders<TestClass>.Search.In(c => c.TestGuid,  testGuids)).ToList();
+
+            result.Should().HaveCount(2);
+            result.Select(s => s.Name).Should().BeEquivalentTo(["test6", "test7"]);
         }
 
         [Fact]
@@ -770,9 +789,9 @@ namespace MongoDB.Driver.Tests.Search
             .GetDatabase("sample_mflix")
             .GetCollection<EmbeddedMovie>("embedded_movies");
 
-        private IMongoCollection<Company> GetCompaniesCollection() => _mongoClient
-            .GetDatabase("sample_training")
-            .GetCollection<Company>("companies");
+        private IMongoCollection<TestClass> GetLocalTestCollection() => _mongoClient
+            .GetDatabase("testDatabase")
+            .GetCollection<TestClass>("testClasses");
 
         [BsonIgnoreExtraElements]
         public class Comment
@@ -887,7 +906,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [BsonIgnoreExtraElements]
-        private class Company
+        private class TestClass
         {
             [BsonId]
             public ObjectId Id { get; set; }
@@ -895,8 +914,8 @@ namespace MongoDB.Driver.Tests.Search
             [BsonElement("name")]
             public string Name { get; set; }
 
-            [BsonElement("description")]
-            public string Description { get; set; }
+            [BsonElement("testString")]
+            public string TestString { get; set; }
 
             [BsonGuidRepresentation(GuidRepresentation.Standard)]
             [BsonElement("testGuid")]

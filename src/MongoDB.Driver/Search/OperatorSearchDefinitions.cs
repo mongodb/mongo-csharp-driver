@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Search
                 DateTime v => (BsonDateTime)v,
                 DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
                 ObjectId v => (BsonObjectId)v,
-                Guid v => new BsonBinaryData(v, GuidRepresentation.Standard), //TODO Check if correct
+                Guid v => new BsonBinaryData(v, GuidRepresentation.Standard),
                 null => BsonNull.Value,
                 _ => throw new InvalidCastException()
             };
@@ -260,6 +260,7 @@ namespace MongoDB.Driver.Search
                 DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
                 string v => (BsonString)v,
                 ObjectId v => (BsonObjectId)v,
+                Guid v => new BsonBinaryData(v, GuidRepresentation.Standard),
                 _ => throw new InvalidCastException()
             };
     }
