@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Search
             FieldDefinition<TDocument, TField> path,
             TField value,
             SearchScoreDefinition<TDocument> score = null)
-            where TField : struct, IComparable<TField> =>
+            where TField : IComparable<TField> =>
                 new EqualsSearchDefinition<TDocument, TField>(path, value, score);
 
         /// <summary>
@@ -152,21 +152,8 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, TField>> path,
             TField value,
             SearchScoreDefinition<TDocument> score = null)
-            where TField : struct, IComparable<TField> =>
-                Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="score"></param>
-        /// <typeparam name="TField"></typeparam>
-        /// <returns></returns>
-        public SearchDefinition<TDocument> EqualsNull<TField>(
-            Expression<Func<TDocument, TField>> path,
-            SearchScoreDefinition<TDocument> score = null)
             where TField : IComparable<TField> =>
-            EqualsNull(new ExpressionFieldDefinition<TDocument, TField>(path), score);
+                Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
 
         /// <summary>
         /// Creates a search definition that tests if a path to a specified indexed field name

@@ -546,12 +546,21 @@ namespace MongoDB.Driver.Tests.Search
         public void EqualNull()
         {
             var result = GetCompaniesCollection().Aggregate()
-                .Search(Builders<Company>.Search.EqualsNull(c => c.Description))
+                .Search(Builders<Company>.Search.Equals(c => c.Description,  null))
                 .Single();
 
             result.Should().NotBeNull();
+        }
 
+        [Fact]
+        public void EqualGuid()
+        {
+            var result = GetCompaniesCollection().Aggregate()
+                .Search(Builders<Company>.Search.Equals( c => c.TestGuid, Guid.Empty))
+                .Single();
 
+            result.Should().NotBeNull();
+            result.Name.Should().Be("test");
         }
 
         [Fact]
@@ -888,6 +897,10 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("description")]
             public string Description { get; set; }
+
+            [BsonGuidRepresentation(GuidRepresentation.Standard)]
+            [BsonElement("testGuid")]
+            public Guid TestGuid { get; set; }
         }
     }
 }
