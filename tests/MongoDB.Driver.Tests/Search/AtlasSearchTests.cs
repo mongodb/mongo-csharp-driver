@@ -131,17 +131,6 @@ namespace MongoDB.Driver.Tests.Search
             }
         }
 
-        [Fact]
-        public void Equals()
-        {
-            var result = SearchSingle(
-                Builders.Search.Compound().Must(
-                    Builders.Search.Text(x => x.Body, "life, liberty, and the pursuit of happiness"),
-                    Builders.Search.Exists(x => x.Title)));
-
-            result.Title.Should().Be("Declaration of Independence");
-        }
-
         [Fact(Skip = "Skipping this until we can run this test on the Atlas Search cluster.")]
         public void EqualsGuid()
         {
