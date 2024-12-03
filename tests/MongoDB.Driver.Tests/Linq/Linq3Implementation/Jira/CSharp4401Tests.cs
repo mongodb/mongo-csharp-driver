@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two arguments being compared are serialized differently");
+            exception.Message.Should().Contain("because the two arguments are serialized differently");
         }
 
         [Fact]
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two arguments being compared are serialized differently");
+            exception.Message.Should().Contain("because the two arguments are serialized differently");
         }
 
         [Fact]
@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two arguments being compared are serialized differently");
+            exception.Message.Should().Contain("because the two arguments are serialized differently");
         }
 
         [Fact]
@@ -249,7 +249,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two arguments being compared are serialized differently");
+            exception.Message.Should().Contain("because the two arguments are serialized differently");
         }
 
         private IMongoCollection<C> CreateCollection()
