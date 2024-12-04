@@ -261,6 +261,16 @@ namespace MongoDB.Driver.Tests.Search
                 subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.QueryString(p => p.LastName, "berg")),
                 "{ embeddedDocument: { path : 'Children', operator : { 'queryString' : { defaultPath : 'Children.ln', query : 'berg' } } } }");
         }
+        
+        [Fact]
+        public void Equals_with_array_should_render_supported_type()
+        {
+            var subjectTyped = CreateSubject<Person>();
+            
+            AssertRendered(
+                subjectTyped.Equals(p => p.Hobbies, "soccer"),
+                "{ equals: { path: 'hobbies', value: 'soccer' } }");
+        }
 
         [Theory]
         [MemberData(nameof(EqualsSupportedTypesTestData))]
@@ -269,7 +279,6 @@ namespace MongoDB.Driver.Tests.Search
             string valueRendered,
             Expression<Func<Person, T>> fieldExpression,
             string fieldRendered)
-            where T : IComparable<T>
         {
             var subject = CreateSubject<BsonDocument>();
             var subjectTyped = CreateSubject<Person>();
@@ -305,11 +314,12 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { ObjectId.Empty, "{ $oid: '000000000000000000000000' }", Exp(p => p.Id), "_id" },
             new object[] { Guid.Empty, """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", Exp(p => p.Guid), nameof(Person.Guid) },
             new object[] { null, "null", Exp(p => p.Name), nameof(Person.Name) },
+            new object[] { "Jim", "\"Jim\"", Exp(p => p.FirstName), "fn" }
         };
 
         [Theory]
         [MemberData(nameof(EqualsUnsupportedTypesTestData))]
-        public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression) where T : IComparable<T>
+        public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression)
         {
             var subject = CreateSubject<BsonDocument>();
             Record.Exception(() => subject.Equals("x", value)).Should().BeOfType<InvalidCastException>();
@@ -1251,6 +1261,9 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("ret")]
             public bool Retired { get; set; }
+            
+            [BsonElement("hobbies")]
+            public string[] Hobbies { get; set; }
 
             public object Object { get; set; }
 
