@@ -121,8 +121,7 @@ namespace MongoDB.Driver.Search
         public SearchDefinition<TDocument> Equals<TField>(
             FieldDefinition<TDocument, TField> path,
             TField value,
-            SearchScoreDefinition<TDocument> score = null)
-            where TField : IComparable<TField> =>
+            SearchScoreDefinition<TDocument> score = null) =>
                 new EqualsSearchDefinition<TDocument, TField>(path, value, score);
 
         /// <summary>
@@ -138,8 +137,7 @@ namespace MongoDB.Driver.Search
         public SearchDefinition<TDocument> Equals<TField>(
             Expression<Func<TDocument, TField>> path,
             TField value,
-            SearchScoreDefinition<TDocument> score = null)
-            where TField : IComparable<TField> =>
+            SearchScoreDefinition<TDocument> score = null) =>
                 Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
 
         /// <summary>
@@ -301,7 +299,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
-        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, number, date, string.</typeparam>
+        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string.</typeparam>
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="score">The score modifier.</param>
@@ -315,7 +313,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
-        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, number, date, string.</typeparam>
+        /// <typeparam name="TField">The type of the field. Valid types are: boolean, ObjectId, Guid, number, date, string.</typeparam>
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="values">Values to compare the field with.</param>
         /// <param name="score">The score modifier.</param>
