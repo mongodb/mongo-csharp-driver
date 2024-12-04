@@ -16,6 +16,7 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -54,7 +55,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (IsEnumArithmeticExpression(expression))
             {
-                return TranslateEnumArithmeticExpression(context, expression);
+                return TranslateEnumArithmeticExpression(context, expression, leftExpression, rightExpression);
+            }
+
+            if (IsCoalesceExpression(expression))
+            {
+                return TranslateCoalesceExpression(context, expression, leftExpression, rightExpression);
             }
 
             AggregationExpression leftTranslation, rightTranslation;
@@ -82,11 +88,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (IsBooleanExpression(expression))
             {
                 return TranslateBooleanExpression(expression, leftExpression, rightExpression, leftTranslation, rightTranslation);
-            }
-
-            if (IsCoalesceExpression(expression))
-            {
-                return TranslateCoalesceExpression(expression, leftTranslation, rightTranslation);
             }
 
             if (IsComparisonExpression(expression))
@@ -118,6 +119,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             return false;
+        }
+
+        private static void EnsureCoalesceArgumentSerializersAreCompatible(Expression expression, IBsonSerializer leftSerializer, IBsonSerializer rightSerializer)
+        {
+            if (leftSerializer.Equals(rightSerializer) ||
+                leftSerializer is INullableSerializer nullableLeftSerializer && nullableLeftSerializer.ValueSerializer.Equals(rightSerializer))
+            {
+                return;
+            }
+
+            throw new ExpressionNotSupportedException(expression, because: "argument serializers are not compatible");
         }
 
         private static IBsonSerializer GetConstantSerializer(BinaryExpression containingExpression, IBsonSerializer otherSerializer, Type constantType)
@@ -235,7 +247,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         }
 
         private static AggregationExpression TranslateArithmeticExpression(
-            Expression expression,
+            BinaryExpression expression,
             Expression leftExpression,
             Expression rightExpression,
             AggregationExpression leftTranslation,
@@ -265,7 +277,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         }
 
         private static AggregationExpression TranslateBooleanExpression(
-            Expression expression,
+            BinaryExpression expression,
             Expression leftExpression,
             Expression rightExpression,
             AggregationExpression leftTranslation,
@@ -290,23 +302,50 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         }
 
         private static AggregationExpression TranslateCoalesceExpression(
-            Expression expression,
-            AggregationExpression leftTranslation,
-            AggregationExpression rightTranslation)
+            TranslationContext context,
+            BinaryExpression expression,
+            Expression leftExpression,
+            Expression rightExpression)
         {
-            SerializationHelper.EnsureArgumentsAreSerializedTheSameWay(expression, leftTranslation, rightTranslation);
+            AggregationExpression leftTranslation, rightTranslation;
+            if (leftExpression is ConstantExpression leftConstantExpression)
+            {
+                rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+                var constantSerializer = rightTranslation.Serializer;
+                if (leftExpression.Type.IsNullable(out var valueType) && constantSerializer.ValueType == valueType)
+                {
+                    constantSerializer = NullableSerializer.Create(constantSerializer);
+                }
+                leftTranslation = ConstantExpressionToAggregationExpressionTranslator.Translate(leftConstantExpression, constantSerializer);
+            }
+            else if (rightExpression is ConstantExpression rightConstantExpression)
+            {
+                leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+                var constantSerializer = leftTranslation.Serializer;
+                if (constantSerializer is INullableSerializer nullableSerializer && nullableSerializer.ValueSerializer.ValueType == rightConstantExpression.Type)
+                {
+                    constantSerializer = nullableSerializer.ValueSerializer;
+                }
+                rightTranslation = ConstantExpressionToAggregationExpressionTranslator.Translate(rightConstantExpression, constantSerializer);
+            }
+            else
+            {
+                leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+                rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+            }
 
+            EnsureCoalesceArgumentSerializersAreCompatible(expression, leftTranslation.Serializer, rightTranslation.Serializer);
             var ast = AstExpression.IfNull(leftTranslation.Ast, rightTranslation.Ast);
 
-            return new AggregationExpression(expression, ast, leftTranslation.Serializer);
+            return new AggregationExpression(expression, ast, rightTranslation.Serializer);
         }
 
         private static AggregationExpression TranslateComparisonExpression(
-            Expression expression,
+            BinaryExpression expression,
             AggregationExpression leftTranslation,
             AggregationExpression rightTranslation)
         {
-            SerializationHelper.EnsureArgumentsAreSerializedTheSameWay(expression, leftTranslation, rightTranslation);
+            SerializationHelper.EnsureArgumentSerializersAreEqual(expression, leftTranslation, rightTranslation);
 
             var leftAst = leftTranslation.Ast;
             var rightAst = rightTranslation.Ast;
@@ -333,11 +372,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return new AggregationExpression(constantExpression, ast, constantSerializer);
         }
 
-        private static AggregationExpression TranslateEnumArithmeticExpression(TranslationContext context, BinaryExpression expression)
+        private static AggregationExpression TranslateEnumArithmeticExpression(
+            TranslationContext context,
+            BinaryExpression expression,
+            Expression leftExpression,
+            Expression rightExpression)
         {
-            var leftExpression = expression.Left;
-            var rightExpression = expression.Right;
-
             var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
             var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
 

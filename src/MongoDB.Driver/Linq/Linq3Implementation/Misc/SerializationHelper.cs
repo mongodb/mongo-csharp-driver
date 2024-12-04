@@ -27,12 +27,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class SerializationHelper
     {
-        public static void EnsureArgumentsAreSerializedTheSameWay(Expression expression, AggregationExpression firstArgumentTranslation, AggregationExpression secondArgumentTranslation)
+        public static void EnsureArgumentSerializersAreEqual(Expression expression, AggregationExpression firstArgumentTranslation, AggregationExpression secondArgumentTranslation)
         {
-            EnsureArgumentsAreSerializedTheSameWay(expression, firstArgumentTranslation.Serializer, secondArgumentTranslation.Serializer);
+            EnsureArgumentSerializersAreEqual(expression, firstArgumentTranslation.Serializer, secondArgumentTranslation.Serializer);
         }
 
-        public static void EnsureArgumentsAreSerializedTheSameWay(Expression expression, IBsonSerializer firstSerializer, IBsonSerializer secondSerializer)
+        public static void EnsureArgumentSerializersAreEqual(Expression expression, IBsonSerializer firstSerializer, IBsonSerializer secondSerializer)
         {
             if (!firstSerializer.Equals(secondSerializer))
             {

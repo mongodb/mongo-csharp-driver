@@ -13,11 +13,11 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq.Expressions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -27,28 +27,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             if (expression.NodeType == ExpressionType.Constant)
             {
-                var value = expression.Value;
-                var valueSerializer = expression.Type switch
-                {
-                    Type t when t == typeof(bool) => new BooleanSerializer(),
-                    Type t when t == typeof(string) => new StringSerializer(),
-                    Type t when t == typeof(byte) => new ByteSerializer(),
-                    Type t when t == typeof(short) => new Int16Serializer(),
-                    Type t when t == typeof(ushort) => new UInt16Serializer(),
-                    Type t when t == typeof(int) => new Int32Serializer(),
-                    Type t when t == typeof(uint) => new UInt32Serializer(),
-                    Type t when t == typeof(long) => new Int64Serializer(),
-                    Type t when t == typeof(ulong) => new UInt64Serializer(),
-                    Type t when t == typeof(float) => new SingleSerializer(),
-                    Type t when t == typeof(double) => new DoubleSerializer(),
-                    Type t when t == typeof(decimal) => new DecimalSerializer(),
-                    Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
-                    Type { IsArray: true } t => (IBsonSerializer)Activator.CreateInstance(typeof(ArraySerializer<>).MakeGenericType(t.GetElementType())),
-                    _ => BsonSerializer.LookupSerializer(expression.Type)
-                };
-                var serializedValue = valueSerializer.ToBsonValue(value);
+                var constantType = expression.Type;
+                var constantSerializer = StandardSerializers.TryGetSerializer(constantType, out var serializer) ? serializer : BsonSerializer.LookupSerializer(constantType);
+                return Translate(expression, constantSerializer);
+            }
+
+            throw new ExpressionNotSupportedException(expression);
+        }
+
+        public static AggregationExpression Translate(ConstantExpression expression, IBsonSerializer constantSerializer)
+        {
+            if (expression.NodeType == ExpressionType.Constant)
+            {
+                var constantValue = expression.Value;
+                var serializedValue = constantSerializer.ToBsonValue(constantValue);
                 var ast = AstExpression.Constant(serializedValue);
-                return new AggregationExpression(expression, ast, valueSerializer);
+                return new AggregationExpression(expression, ast, constantSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

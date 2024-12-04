@@ -73,7 +73,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         public static IBsonSerializer<ulong> UInt64Serializer => __uint64Serializer;
 
         public static IBsonSerializer GetSerializer(Type type)
-            => type switch
+            => TryGetSerializer(type, out var serializer) ? serializer : throw new ArgumentException($"{type} is not a standard type,", nameof(type));
+
+        public static bool TryGetSerializer(Type type, out IBsonSerializer serializer)
+        {
+            serializer = type switch
             {
                 _ when type == typeof(bool) => __booleanSerializer,
                 _ when type == typeof(byte) => __byteSerializer,
@@ -88,8 +92,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
                 _ when type == typeof(ushort) => __uint16Serializer,
                 _ when type == typeof(uint) => __uint32Serializer,
                 _ when type == typeof(ulong) => __uint64Serializer,
-                _ when type.IsNullable(out var valueType) => NullableSerializer.Create(GetSerializer(valueType)),
-                _ => throw new ArgumentException($"{type} is not a standard type,", nameof(type))
+                _ => null
             };
+
+            if (serializer != null)
+            {
+                return true;
+            }
+
+            if (type.IsArray(out var itemType) && TryGetSerializer(itemType, out var itemSerializer))
+            {
+                serializer = ArraySerializerHelper.CreateSerializer(itemSerializer);
+                return true;
+            }
+
+            if (type.IsNullable(out var valueType) && TryGetSerializer(valueType, out var valueSerializer))
+            {
+                serializer = NullableSerializer.Create(valueSerializer);
+                return true;
+            }
+
+            serializer = null;
+            return false;
+        }
     }
 }
