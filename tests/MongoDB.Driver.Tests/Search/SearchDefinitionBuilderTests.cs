@@ -279,7 +279,6 @@ namespace MongoDB.Driver.Tests.Search
             string valueRendered,
             Expression<Func<Person, T>> fieldExpression,
             string fieldRendered)
-            where T : IComparable<T>
         {
             var subject = CreateSubject<BsonDocument>();
             var subjectTyped = CreateSubject<Person>();
@@ -318,7 +317,7 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory]
         [MemberData(nameof(EqualsUnsupportedTypesTestData))]
-        public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression) where T : struct, IComparable<T>
+        public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression)
         {
             var subject = CreateSubject<BsonDocument>();
             Record.Exception(() => subject.Equals("x", value)).Should().BeOfType<InvalidCastException>();

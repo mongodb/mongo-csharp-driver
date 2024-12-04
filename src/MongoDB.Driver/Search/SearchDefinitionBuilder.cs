@@ -121,8 +121,7 @@ namespace MongoDB.Driver.Search
         public SearchDefinition<TDocument> Equals<TField>(
             FieldDefinition<TDocument, TField> path,
             TField value,
-            SearchScoreDefinition<TDocument> score = null)
-            where TField : IComparable<TField> =>
+            SearchScoreDefinition<TDocument> score = null) =>
                 new EqualsSearchDefinition<TDocument, TField>(path, value, score);
 
         /// <summary>
@@ -138,8 +137,7 @@ namespace MongoDB.Driver.Search
         public SearchDefinition<TDocument> Equals<TField>(
             Expression<Func<TDocument, TField>> path,
             TField value,
-            SearchScoreDefinition<TDocument> score = null)
-            where TField : IComparable<TField> =>
+            SearchScoreDefinition<TDocument> score = null) =>
                 Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
         
         /// <summary>
@@ -155,8 +153,7 @@ namespace MongoDB.Driver.Search
         public SearchDefinition<TDocument> Equals<TField>(
             Expression<Func<TDocument, IEnumerable<TField>>> path,
             TField value,
-            SearchScoreDefinition<TDocument> score = null)
-            where TField : IComparable<TField> =>
+            SearchScoreDefinition<TDocument> score = null) =>
             new EqualsSearchDefinition<TDocument, TField>(
                 new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(path), value, score);
 
