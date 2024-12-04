@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
         /// to the specified value.
-        /// Supported value types are boolean, numeric, ObjectId and date.
+        /// Supported value types are boolean, numeric, ObjectId, date and string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field to search.</param>
@@ -121,14 +121,13 @@ namespace MongoDB.Driver.Search
         public SearchDefinition<TDocument> Equals<TField>(
             FieldDefinition<TDocument, TField> path,
             TField value,
-            SearchScoreDefinition<TDocument> score = null)
-            where TField : struct, IComparable<TField> =>
+            SearchScoreDefinition<TDocument> score = null) =>
                 new EqualsSearchDefinition<TDocument, TField>(path, value, score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
         /// to the specified value.
-        /// Supported value types are boolean, numeric, ObjectId and date.
+        /// Supported value types are boolean, numeric, ObjectId, date and string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field to search.</param>
@@ -138,9 +137,25 @@ namespace MongoDB.Driver.Search
         public SearchDefinition<TDocument> Equals<TField>(
             Expression<Func<TDocument, TField>> path,
             TField value,
-            SearchScoreDefinition<TDocument> score = null)
-            where TField : struct, IComparable<TField> =>
+            SearchScoreDefinition<TDocument> score = null) =>
                 Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
+        
+        /// <summary>
+        /// Creates a search definition that queries for documents where at least one element in an indexed array field is equal
+        /// to the specified value.
+        /// Supported value types are boolean, numeric, ObjectId, date and string.
+        /// </summary>
+        /// <typeparam name="TField">The type of elements contained in the indexed array field.</typeparam>
+        /// <param name="path">The indexed array field to search.</param>
+        /// <param name="value">The value to query for.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>An equality search definition.</returns>
+        public SearchDefinition<TDocument> Equals<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
+            TField value,
+            SearchScoreDefinition<TDocument> score = null) =>
+            new EqualsSearchDefinition<TDocument, TField>(
+                new ExpressionFieldDefinition<TDocument, IEnumerable<TField>>(path), value, score);
 
         /// <summary>
         /// Creates a search definition that tests if a path to a specified indexed field name
@@ -574,7 +589,7 @@ namespace MongoDB.Driver.Search
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
-        /// <returns>A a range search definition.</returns>
+        /// <returns>A range search definition.</returns>
         public SearchDefinition<TDocument> Range<TField>(
             Expression<Func<TDocument, TField>> path,
             SearchRange<TField> range,
@@ -589,7 +604,7 @@ namespace MongoDB.Driver.Search
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
-        /// <returns>A a range search definition.</returns>
+        /// <returns>A range search definition.</returns>
         public SearchDefinition<TDocument> Range<TField>(
             SearchPathDefinition<TDocument> path,
             SearchRange<TField> range,
