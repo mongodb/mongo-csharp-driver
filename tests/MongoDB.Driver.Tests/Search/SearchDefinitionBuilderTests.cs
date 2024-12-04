@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Tests.Search
             
             AssertRendered(
                 subjectTyped.Equals(p => p.Hobbies, "soccer"),
-                $"{{ equals: {{ path: 'hobbies', value: \"soccer\" }} }}");
+                "{ equals: { path: 'hobbies', value: 'soccer' } }");
         }
 
         [Theory]

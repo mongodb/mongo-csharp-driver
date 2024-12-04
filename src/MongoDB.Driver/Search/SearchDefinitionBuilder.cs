@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
         /// to the specified value.
-        /// Supported value types are boolean, numeric, ObjectId and date.
+        /// Supported value types are boolean, numeric, ObjectId, date and string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field to search.</param>
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
         /// to the specified value.
-        /// Supported value types are boolean, numeric, ObjectId and date.
+        /// Supported value types are boolean, numeric, ObjectId, date and string.
         /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field to search.</param>
@@ -143,12 +143,12 @@ namespace MongoDB.Driver.Search
                 Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
         
         /// <summary>
-        /// Creates a search definition that queries for documents where an indexed field is equal
+        /// Creates a search definition that queries for documents where at least one element in an indexed array field is equal
         /// to the specified value.
-        /// Supported value types are boolean, numeric, ObjectId and date.
+        /// Supported value types are boolean, numeric, ObjectId, date and string.
         /// </summary>
-        /// <typeparam name="TField">The type of the field.</typeparam>
-        /// <param name="path">The indexed field to search.</param>
+        /// <typeparam name="TField">The type of elements contained in the indexed array field.</typeparam>
+        /// <param name="path">The indexed array field to search.</param>
         /// <param name="value">The value to query for.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>An equality search definition.</returns>
