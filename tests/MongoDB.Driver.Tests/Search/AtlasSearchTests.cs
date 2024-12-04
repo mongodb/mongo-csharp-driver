@@ -446,6 +446,22 @@ namespace MongoDB.Driver.Tests.Search
 
             results.Should().ContainSingle().Which.Name.Should().Be("House close to station & direct to opera house....");
         }
+        
+        [Fact]
+        public void RangeString()
+        {
+            var results = GetSynonymTestCollection().Aggregate()
+                .Search(Builders<Movie>.Search.Range(p => p.Title, StringSearchRangeBuilder.Gt("city").Lt("country")))
+                .Limit(5)
+                .Project<Movie>(Builders<Movie>.Projection.Include(p => p.Title))
+                .ToList();
+            
+            results[0].Title.Should().Be("Civilization");
+            results[1].Title.Should().Be("Clash of the Wolves");
+            results[2].Title.Should().Be("City Lights");
+            results[3].Title.Should().Be("Comradeship");
+            results[4].Title.Should().Be("Come and Get it");
+        }
 
         [Fact]
         public void SearchSequenceToken()
