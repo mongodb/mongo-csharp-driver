@@ -311,8 +311,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (leftExpression is ConstantExpression leftConstantExpression)
             {
                 rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+                var constantType = leftConstantExpression.Type;
                 var constantSerializer = rightTranslation.Serializer;
-                if (leftExpression.Type.IsNullable(out var valueType) && constantSerializer.ValueType == valueType)
+                if (constantType.IsNullable(out var valueType) && constantSerializer.ValueType == valueType)
                 {
                     constantSerializer = NullableSerializer.Create(constantSerializer);
                 }
@@ -321,8 +322,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             else if (rightExpression is ConstantExpression rightConstantExpression)
             {
                 leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+                var constantType = rightConstantExpression.Type;
                 var constantSerializer = leftTranslation.Serializer;
-                if (constantSerializer is INullableSerializer nullableSerializer && nullableSerializer.ValueSerializer.ValueType == rightConstantExpression.Type)
+                if (constantSerializer is INullableSerializer nullableSerializer && nullableSerializer.ValueSerializer.ValueType == constantType)
                 {
                     constantSerializer = nullableSerializer.ValueSerializer;
                 }
@@ -365,11 +367,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static AggregationExpression TranslateConstant(BinaryExpression containingExpression, ConstantExpression constantExpression, IBsonSerializer otherSerializer)
         {
-            var constantValue = constantExpression.GetConstantValue<object>(containingExpression);
             var constantSerializer = GetConstantSerializer(containingExpression, otherSerializer, constantExpression.Type);
-            var serializedValue = SerializationHelper.SerializeValue(constantSerializer, constantValue);
-            var ast = AstExpression.Constant(serializedValue);
-            return new AggregationExpression(constantExpression, ast, constantSerializer);
+            return ConstantExpressionToAggregationExpressionTranslator.Translate(constantExpression, constantSerializer);
         }
 
         private static AggregationExpression TranslateEnumArithmeticExpression(

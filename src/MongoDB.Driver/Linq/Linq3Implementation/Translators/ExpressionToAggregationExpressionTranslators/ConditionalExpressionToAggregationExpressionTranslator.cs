@@ -39,13 +39,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     ifFalseTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifFalseExpression);
                     resultSerializer = ifFalseTranslation.Serializer;
-                    ifTrueTranslation = TranslateConstant(expression, ifTrueConstantExpression, resultSerializer);
+                    ifTrueTranslation = ConstantExpressionToAggregationExpressionTranslator.Translate(ifTrueConstantExpression, resultSerializer);
                 }
                 else if (ifFalseExpression is ConstantExpression ifFalseConstantExpression)
                 {
                     ifTrueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifTrueExpression);
                     resultSerializer = ifTrueTranslation.Serializer;
-                    ifFalseTranslation = TranslateConstant(expression, ifFalseConstantExpression, resultSerializer);
+                    ifFalseTranslation = ConstantExpressionToAggregationExpressionTranslator.Translate(ifFalseConstantExpression, resultSerializer);
                 }
                 else
                 {
@@ -64,13 +64,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static AggregationExpression TranslateConstant(Expression containingExpression, ConstantExpression constantExpression, IBsonSerializer constantSerializer)
-        {
-            var serializedValue = SerializationHelper.SerializeValue(constantSerializer, constantExpression, containingExpression);
-            var ast = AstExpression.Constant(serializedValue);
-            return new AggregationExpression(constantExpression, ast, constantSerializer);
         }
     }
 }

@@ -23,29 +23,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ConstantExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, ConstantExpression expression)
+        public static AggregationExpression Translate(ConstantExpression constantExpression)
         {
-            if (expression.NodeType == ExpressionType.Constant)
-            {
-                var constantType = expression.Type;
-                var constantSerializer = StandardSerializers.TryGetSerializer(constantType, out var serializer) ? serializer : BsonSerializer.LookupSerializer(constantType);
-                return Translate(expression, constantSerializer);
-            }
+            var constantType = constantExpression.Type;
+            var constantSerializer = StandardSerializers.TryGetSerializer(constantType, out var serializer) ? serializer : BsonSerializer.LookupSerializer(constantType);
+            return Translate(constantExpression, constantSerializer);
+       }
 
-            throw new ExpressionNotSupportedException(expression);
-        }
-
-        public static AggregationExpression Translate(ConstantExpression expression, IBsonSerializer constantSerializer)
+        public static AggregationExpression Translate(ConstantExpression constantExpression, IBsonSerializer constantSerializer)
         {
-            if (expression.NodeType == ExpressionType.Constant)
-            {
-                var constantValue = expression.Value;
-                var serializedValue = constantSerializer.ToBsonValue(constantValue);
-                var ast = AstExpression.Constant(serializedValue);
-                return new AggregationExpression(expression, ast, constantSerializer);
-            }
-
-            throw new ExpressionNotSupportedException(expression);
+            var constantValue = constantExpression.Value;
+            var serializedValue = constantSerializer.ToBsonValue(constantValue);
+            var ast = AstExpression.Constant(serializedValue);
+            return new AggregationExpression(constantExpression, ast, constantSerializer);
         }
     }
 }
