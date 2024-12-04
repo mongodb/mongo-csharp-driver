@@ -592,7 +592,7 @@ namespace MongoDB.Driver.Search
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
-        /// <returns>A a range search definition.</returns>
+        /// <returns>A range search definition.</returns>
         public SearchDefinition<TDocument> Range<TField>(
             Expression<Func<TDocument, TField>> path,
             SearchRange<TField> range,
@@ -607,7 +607,7 @@ namespace MongoDB.Driver.Search
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
-        /// <returns>A a range search definition.</returns>
+        /// <returns>A range search definition.</returns>
         public SearchDefinition<TDocument> Range<TField>(
             SearchPathDefinition<TDocument> path,
             SearchRange<TField> range,
