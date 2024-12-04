@@ -131,22 +131,22 @@ namespace MongoDB.Driver.Tests.Search
             }
         }
 
-        [Fact(Skip = "Skipping this until we can run this test on the Atlas Search cluster.")]
+        [Fact]
         public void EqualsGuid()
         {
             var testGuid = Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf");
 
-            var result = GetLocalTestCollection().Aggregate()
+            var result = GetExtraTestsCollection().Aggregate()
                 .Search(Builders<TestClass>.Search.Equals(c => c.TestGuid,  testGuid))
                 .Single();
 
             result.Name.Should().Be("test6");
         }
 
-        [Fact(Skip = "Skipping this until we can run this test on the Atlas Search cluster.")]
+        [Fact]
         public void EqualsNull()
         {
-            var result = GetLocalTestCollection().Aggregate()
+            var result = GetExtraTestsCollection().Aggregate()
                 .Search(Builders<TestClass>.Search.Equals(c => c.TestString,  null))
                 .Single();
 
@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Tests.Search
             results[1].Runtime.Should().Be(31);
         }
 
-        [Fact(Skip = "Skipping this until we can run this test on the Atlas Search cluster")]
+        [Fact]
         public void InGuid()
         {
             var testGuids = new[]
@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Tests.Search
                 Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf"), Guid.Parse("84da5d44-bc97-454f-a578-418a64fa937a")
             };
 
-            var result = GetLocalTestCollection().Aggregate()
+            var result = GetExtraTestsCollection().Aggregate()
                 .Search(Builders<TestClass>.Search.In(c => c.TestGuid,  testGuids))
                 .Limit(10)
                 .ToList();
@@ -777,9 +777,8 @@ namespace MongoDB.Driver.Tests.Search
             .GetDatabase("sample_mflix")
             .GetCollection<EmbeddedMovie>("embedded_movies");
 
-        // This has been used to run some tests locally that still cannot be run on the common Atlas Search cluster
-        private IMongoCollection<TestClass> GetLocalTestCollection() => _mongoClient
-            .GetDatabase("testDatabase")
+        private IMongoCollection<TestClass> GetExtraTestsCollection() => _mongoClient
+            .GetDatabase("csharpExtraTests")
             .GetCollection<TestClass>("testClasses");
 
         [BsonIgnoreExtraElements]
