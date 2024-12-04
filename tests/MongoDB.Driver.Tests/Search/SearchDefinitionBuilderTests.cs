@@ -312,6 +312,8 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { DateTime.MinValue, "ISODate(\"0001-01-01T00:00:00Z\")", Exp(p => p.Birthday), "dob" },
             new object[] { DateTimeOffset.MaxValue, "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) },
             new object[] { ObjectId.Empty, "{ $oid: '000000000000000000000000' }", Exp(p => p.Id), "_id" },
+            new object[] { Guid.Empty, """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", Exp(p => p.Guid), nameof(Person.Guid) },
+            new object[] { null, "null", Exp(p => p.Name), nameof(Person.Name) },
             new object[] { "Jim", "\"Jim\"", Exp(p => p.FirstName), "fn" }
         };
 
@@ -553,6 +555,7 @@ namespace MongoDB.Driver.Tests.Search
              new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.Birthday), "dob" },
              new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset)},
              new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" }, Exp(p => p.Id), "_id" },
+             new object[] { new[] { Guid.Empty, Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf") }, new[] { """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", """{ "$binary" : { "base64" : "tSrxRLyXRU+leEGKZPqVvw==", "subType" : "04" } }""" }, Exp(p => p.Guid), nameof(Person.Guid) },
              new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" }, Exp(p => p.Object), nameof(Person.Object) }
         };
 
@@ -1240,7 +1243,7 @@ namespace MongoDB.Driver.Tests.Search
             public float Float { get; set; }
             public double Double { get; set; }
             public decimal Decimal { get; set; }
-
+            public Guid Guid { get; set; }
             public DateTimeOffset DateTimeOffset { get; set; }
             public TimeSpan TimeSpan { get; set; }
 
@@ -1263,6 +1266,8 @@ namespace MongoDB.Driver.Tests.Search
             public string[] Hobbies { get; set; }
 
             public object Object { get; set; }
+
+            public string Name { get; set; }
         }
 
         public class Family
