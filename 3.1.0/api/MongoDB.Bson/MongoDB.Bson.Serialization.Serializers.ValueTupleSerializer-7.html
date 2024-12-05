@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7.md&amp;value=---%0Auid%3A%20MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer%607%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer`7">
+
+
+
+  <h1 id="MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7" data-uid="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer`7" class="text-break">
+    Class ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Bson/Serialization/Serializers/ValueTupleSerializers.cs/#L1040"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Bson.html">Bson</a>.<a class="xref" href="MongoDB.Bson.Serialization.html">Serialization</a>.<a class="xref" href="MongoDB.Bson.Serialization.Serializers.html">Serializers</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Bson.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Represents a serializer for a <span class="xref">(T1, T2, T3, T4, T5, T6, T7)</span>.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt; : StructSerializerBase&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;, IBsonSerializer&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;, IBsonSerializer, IBsonTupleSerializer</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>T1</code></dt>
+    <dd><p>The type of item 1.</p>
+</dd>
+    <dt><code>T2</code></dt>
+    <dd><p>The type of item 2.</p>
+</dd>
+    <dt><code>T3</code></dt>
+    <dd><p>The type of item 3.</p>
+</dd>
+    <dt><code>T4</code></dt>
+    <dd><p>The type of item 4.</p>
+</dd>
+    <dt><code>T5</code></dt>
+    <dd><p>The type of item 5.</p>
+</dd>
+    <dt><code>T6</code></dt>
+    <dd><p>The type of item 6.</p>
+</dd>
+    <dt><code>T7</code></dt>
+    <dd><p>The type of item 7.</p>
+</dd>
+  </dl>
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerBase-1.html">SerializerBase</a>&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;</div>
+      <div><a class="xref" href="MongoDB.Bson.Serialization.Serializers.StructSerializerBase-1.html">StructSerializerBase</a>&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;</div>
+      <div><span class="xref">ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;</span></div>
+    </dd>
+  </dl>
+
+  <dl class="typelist implements">
+    <dt>Implements</dt>
+    <dd>
+      <div><a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializer-1.html">IBsonSerializer</a>&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;</div>
+      <div><a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializer.html">IBsonSerializer</a></div>
+      <div><a class="xref" href="MongoDB.Bson.Serialization.Serializers.IBsonTupleSerializer.html">IBsonTupleSerializer</a></div>
+    </dd>
+  </dl>
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerBase-1.ValueType.html#MongoDB_Bson_Serialization_Serializers_SerializerBase_1_ValueType">SerializerBase&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;.ValueType</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerBase-1.Deserialize.html#MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Deserialize_MongoDB_Bson_Serialization_BsonDeserializationContext_MongoDB_Bson_Serialization_BsonDeserializationArgs_">SerializerBase&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;.Deserialize(BsonDeserializationContext, BsonDeserializationArgs)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerBase-1.Equals.html#MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Equals_System_Object_">SerializerBase&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerBase-1.GetHashCode.html#MongoDB_Bson_Serialization_Serializers_SerializerBase_1_GetHashCode">SerializerBase&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.Serializers.SerializerBase-1.Serialize.html#MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Serialize_MongoDB_Bson_Serialization_BsonSerializationContext_MongoDB_Bson_Serialization_BsonSerializationArgs__0_">SerializerBase&lt;(T1, T2, T3, T4, T5, T6, T7)&gt;.Serialize(BsonSerializationContext, BsonSerializationArgs, (T1, T2, T3, T4, T5, T6, T7))</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+  <dl class="typelist extensionMethods">
+    <dt>Extension Methods</dt>
+    <dd>
+  <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerExtensions.Deserialize.html#MongoDB_Bson_Serialization_IBsonSerializerExtensions_Deserialize_MongoDB_Bson_Serialization_IBsonSerializer_MongoDB_Bson_Serialization_BsonDeserializationContext_">IBsonSerializerExtensions.Deserialize(IBsonSerializer, BsonDeserializationContext)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerExtensions.GetDiscriminatorConvention.html#MongoDB_Bson_Serialization_IBsonSerializerExtensions_GetDiscriminatorConvention_MongoDB_Bson_Serialization_IBsonSerializer_">IBsonSerializerExtensions.GetDiscriminatorConvention(IBsonSerializer)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerExtensions.Serialize.html#MongoDB_Bson_Serialization_IBsonSerializerExtensions_Serialize_MongoDB_Bson_Serialization_IBsonSerializer_MongoDB_Bson_Serialization_BsonSerializationContext_System_Object_">IBsonSerializerExtensions.Serialize(IBsonSerializer, BsonSerializationContext, object)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerExtensions.ToBsonValue.html#MongoDB_Bson_Serialization_IBsonSerializerExtensions_ToBsonValue_MongoDB_Bson_Serialization_IBsonSerializer_System_Object_">IBsonSerializerExtensions.ToBsonValue(IBsonSerializer, object)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerExtensions.Deserialize.html#MongoDB_Bson_Serialization_IBsonSerializerExtensions_Deserialize__1_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_Serialization_BsonDeserializationContext_">IBsonSerializerExtensions.Deserialize&lt;TValue&gt;(IBsonSerializer&lt;TValue&gt;, BsonDeserializationContext)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerExtensions.Serialize.html#MongoDB_Bson_Serialization_IBsonSerializerExtensions_Serialize__1_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_Serialization_BsonSerializationContext___0_">IBsonSerializerExtensions.Serialize&lt;TValue&gt;(IBsonSerializer&lt;TValue&gt;, BsonSerializationContext, TValue)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.Serialization.IBsonSerializerExtensions.ToBsonValue.html#MongoDB_Bson_Serialization_IBsonSerializerExtensions_ToBsonValue__1_MongoDB_Bson_Serialization_IBsonSerializer___0____0_">IBsonSerializerExtensions.ToBsonValue&lt;TValue&gt;(IBsonSerializer&lt;TValue&gt;, TValue)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson__1___0_MongoDB_Bson_Serialization_IBsonSerializer___0__MongoDB_Bson_IO_BsonBinaryWriterSettings_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson&lt;TNominalType&gt;(TNominalType, IBsonSerializer&lt;TNominalType&gt;, BsonBinaryWriterSettings, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson__1___0_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer___0__System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson&lt;TNominalType&gt;(TNominalType, JsonWriterSettings, IBsonSerializer&lt;TNominalType&gt;, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBson.html#MongoDB_Bson_BsonExtensionMethods_ToBson_System_Object_System_Type_MongoDB_Bson_IO_BsonBinaryWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_System_Int32_">BsonExtensionMethods.ToBson(object, Type, BsonBinaryWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs, int)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToBsonDocument.html#MongoDB_Bson_BsonExtensionMethods_ToBsonDocument_System_Object_System_Type_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToBsonDocument(object, Type, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  <div>
+      <a class="xref" href="MongoDB.Bson.BsonExtensionMethods.ToJson.html#MongoDB_Bson_BsonExtensionMethods_ToJson_System_Object_System_Type_MongoDB_Bson_IO_JsonWriterSettings_MongoDB_Bson_Serialization_IBsonSerializer_System_Action_MongoDB_Bson_Serialization_BsonSerializationContext_Builder__MongoDB_Bson_Serialization_BsonSerializationArgs_">BsonExtensionMethods.ToJson(object, Type, JsonWriterSettings, IBsonSerializer, Action&lt;BsonSerializationContext.Builder&gt;, BsonSerializationArgs)</a>
+  </div>
+  </dd></dl>
+
+
+
+
+  <h2 class="section" id="constructors">Constructors
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.-ctor.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7__ctor">ValueTupleSerializer()</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.html">ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;</a> class.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.-ctor.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7__ctor_MongoDB_Bson_Serialization_IBsonSerializerRegistry_">ValueTupleSerializer(IBsonSerializerRegistry)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.html">ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;</a> class.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.-ctor.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7__ctor_MongoDB_Bson_Serialization_IBsonSerializer__0__MongoDB_Bson_Serialization_IBsonSerializer__1__MongoDB_Bson_Serialization_IBsonSerializer__2__MongoDB_Bson_Serialization_IBsonSerializer__3__MongoDB_Bson_Serialization_IBsonSerializer__4__MongoDB_Bson_Serialization_IBsonSerializer__5__MongoDB_Bson_Serialization_IBsonSerializer__6__">ValueTupleSerializer(IBsonSerializer&lt;T1&gt;, IBsonSerializer&lt;T2&gt;, IBsonSerializer&lt;T3&gt;, IBsonSerializer&lt;T4&gt;, IBsonSerializer&lt;T5&gt;, IBsonSerializer&lt;T6&gt;, IBsonSerializer&lt;T7&gt;)</a></dt>
+    <dd><p>Initializes a new instance of the <a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.html">ValueTupleSerializer&lt;T1, T2, T3, T4, T5, T6, T7&gt;</a> class.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Item1Serializer.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item1Serializer">Item1Serializer</a></dt>
+    <dd><p>Gets the Item1 serializer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Item2Serializer.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item2Serializer">Item2Serializer</a></dt>
+    <dd><p>Gets the Item2 serializer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Item3Serializer.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item3Serializer">Item3Serializer</a></dt>
+    <dd><p>Gets the Item3 serializer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Item4Serializer.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item4Serializer">Item4Serializer</a></dt>
+    <dd><p>Gets the Item4 serializer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Item5Serializer.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item5Serializer">Item5Serializer</a></dt>
+    <dd><p>Gets the Item5 serializer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Item6Serializer.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item6Serializer">Item6Serializer</a></dt>
+    <dd><p>Gets the Item6 serializer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Item7Serializer.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Item7Serializer">Item7Serializer</a></dt>
+    <dd><p>Gets the Item7 serializer.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Deserialize.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Deserialize_MongoDB_Bson_Serialization_BsonDeserializationContext_MongoDB_Bson_Serialization_BsonDeserializationArgs_">Deserialize(BsonDeserializationContext, BsonDeserializationArgs)</a></dt>
+    <dd><p>Deserializes a value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Equals.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Equals_System_Object_">Equals(object)</a></dt>
+    <dd><p>Determines whether the specified object is equal to the current object.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.GetHashCode.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_GetHashCode">GetHashCode()</a></dt>
+    <dd><p>Serves as the default hash function.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.GetItemSerializer.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_GetItemSerializer_System_Int32_">GetItemSerializer(int)</a></dt>
+    <dd><p>Gets ths serializer for an item.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Bson.Serialization.Serializers.ValueTupleSerializer-7.Serialize.html#MongoDB_Bson_Serialization_Serializers_ValueTupleSerializer_7_Serialize_MongoDB_Bson_Serialization_BsonSerializationContext_MongoDB_Bson_Serialization_BsonSerializationArgs_System_ValueTuple__0__1__2__3__4__5__6__">Serialize(BsonSerializationContext, BsonSerializationArgs, (T1, T2, T3, T4, T5, T6, T7))</a></dt>
+    <dd><p>Serializes a value.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
