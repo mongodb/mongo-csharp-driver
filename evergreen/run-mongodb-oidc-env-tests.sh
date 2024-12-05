@@ -5,12 +5,9 @@ set -o errexit # Exit the script with error if any of the commands fail
 
 DOTNET_SDK_PATH="$(pwd)/.dotnet"
 
-## check if curl exists and install, needed for k8s environment
-which curl &> /dev/null || apt install curl
-
 echo "Downloading .NET SDK installer into $DOTNET_SDK_PATH folder..."
 curl -Lfo ./dotnet-install.sh https://dot.net/v1/dotnet-install.sh
-echo "Installing .NET LTS SDK..."
+echo "Installing .NET 6.0 SDK..."
 bash ./dotnet-install.sh --channel 6.0 --install-dir "$DOTNET_SDK_PATH" --no-path
 export PATH=$DOTNET_SDK_PATH:$PATH
 
