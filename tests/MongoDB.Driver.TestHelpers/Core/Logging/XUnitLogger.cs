@@ -46,5 +46,15 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
 
         public bool IsEnabled(LogLevel logLevel) => true;
         public IDisposable BeginScope<TState>(TState state) { return NullScope.Instance; }
+
+
+
+
+        private sealed class NullScope : IDisposable
+        {
+            public static NullScope Instance { get; } = new NullScope();
+            private NullScope() { }
+            public void Dispose() { }
+        }
     }
 }

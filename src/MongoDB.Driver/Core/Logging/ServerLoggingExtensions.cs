@@ -14,6 +14,7 @@
 */
 
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -22,22 +23,45 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal static partial class ServerLoggingExtensions
     {
-        [LoggerMessage(Level = LogLevel.Information, Message = "{TopologyId} {ServerHost} {ServerPort} {Message}")]
-        internal static partial void ServerDebug(this ILogger logger, int topologyId, string serverHost, int serverPort, string message);
+        private const string ClusterFormat = "{TopologyId} {Message}";
+        private const string ServerFormat = "{TopologyId} {ServerHost} {ServerPort} {Message}";
 
+
+        [LoggerMessage(Level = LogLevel.Debug, Message = ServerFormat)]
+        internal static partial void ServerDebug(this ILogger logger, int topologyId, string serverHost, int serverPort, string message);
         internal static void ServerDebug(this ILogger logger, ServerId serverId, string message)
         {
             var (clusterId, serverHost, serverPort, formattedMessage) = GetParams(serverId, message);
             logger.ServerDebug(clusterId, serverHost, serverPort, formattedMessage);
         }
 
+        [LoggerMessage(Level = LogLevel.Debug, Message = ClusterFormat)]
+        internal static partial void ServerDebug(this ILogger logger, int topologyId, string message);
+        internal static void ServerDebug(this ILogger logger, ClusterId cluster, string message)
+        {
+            var (clusterId, formattedMessage) = GetParams(cluster, message);
+            logger.ServerDebug(clusterId, formattedMessage);
+        }
 
+
+
+        [LoggerMessage(Level = LogLevel.Trace, Message = ClusterFormat)]
+        internal static partial void ServerTrace(this ILogger logger, int topologyId, string message);
+        internal static void ServerTrace(this ILogger logger, ClusterId cluster, string message)
+        {
+            var (clusterId, formattedMessage) = GetParams(cluster, message);
+            logger.ServerDebug(clusterId, formattedMessage);
+        }
 
 
         internal static (int ClusterId, string ServerHost, int ServerPort, string Message) GetParams(ServerId serverId, string message)
         {
             var (host, port) = serverId.EndPoint.GetHostAndPort();
             return (serverId.ClusterId.Value, host, port, message);
+        }
+        internal static (int ClusterId, string Message) GetParams(ClusterId cluster, string message)
+        {
+            return (cluster.Value, message);
         }
     }
 }
