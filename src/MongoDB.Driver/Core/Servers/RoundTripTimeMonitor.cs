@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (!_disposed)
             {
-                _logger?.LogDebug(_serverId, "Disposing");
+                _logger?.ServerDebug(_serverId, "Disposing");
 
                 _disposed = true;
                 _cancellationTokenSource.Cancel();
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 try { _roundTripTimeConnection?.Dispose(); } catch { }
 
-                _logger?.LogDebug(_serverId, "Disposed");
+                _logger?.ServerDebug(_serverId, "Disposed");
             }
         }
 
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Servers
         // private methods
         private void MonitorServer()
         {
-            _logger?.LogDebug(_serverId, "Monitoring started");
+            _logger?.ServerDebug(_serverId, "Monitoring started");
 
             var helloOk = false;
             while (!_cancellationToken.IsCancellationRequested)

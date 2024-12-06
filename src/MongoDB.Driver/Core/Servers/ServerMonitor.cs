@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Servers
                     toDispose = _connection;
                     _connection = null;
 
-                    _logger?.LogDebug(_serverId, "Heartbeat cancellation check requested");
+                    _logger?.ServerDebug(_serverId, "Heartbeat cancellation check requested");
                 }
             }
             toDispose?.Dispose();
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Disposed))
             {
-                _logger?.LogDebug(_serverId, "Disposing");
+                _logger?.ServerDebug(_serverId, "Disposing");
 
                 _monitorCancellationTokenSource.Cancel();
                 _monitorCancellationTokenSource.Dispose();
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Core.Servers
                 // _heartbeatCancellationTokenSource instance might have been disposed in CancelCurrentCheck at this point.
                 TryCancelAndDispose(_heartbeatCancellationTokenSource);
 
-                _logger?.LogDebug(_serverId, "Disposed");
+                _logger?.ServerDebug(_serverId, "Disposed");
             }
         }
 
@@ -182,12 +182,12 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _logger?.LogDebug(_serverId, "Initializing");
+                _logger?.ServerDebug(_serverId, "Initializing");
 
                 _serverMonitorThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
                 _serverMonitorThread.Start(_monitorCancellationToken);
 
-                _logger?.LogDebug(_serverId, "Initialized");
+                _logger?.ServerDebug(_serverId, "Initialized");
             }
 
             void ThreadStart(object monitorCancellationToken)

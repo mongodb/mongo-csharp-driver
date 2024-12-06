@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Logging
         {
             if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogDebug(TopologyId_Message, GetParams(clusterId, message));
+                logger.LogDebug(TopologyId_Message, clusterId, message);
             }
         }
 
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Logging
         {
             if (logger.IsEnabled(LogLevel.Trace))
             {
-                logger.LogTrace(TopologyId_Message, GetParams(clusterId, message));
+                logger.LogTrace(TopologyId_Message, clusterId, message);
             }
         }
 
@@ -60,14 +60,6 @@ namespace MongoDB.Driver.Core.Logging
             if (logger.IsEnabled(LogLevel.Trace))
             {
                 logger.LogTrace(format, GetParams(clusterId, message, arg1));
-            }
-        }
-
-        public static void LogDebug<T>(this ILogger<T> logger, ServerId serverId, string message)
-        {
-            if (logger.IsEnabled(LogLevel.Debug))
-            {
-                logger.LogDebug(ServerId_Message, GetParams(serverId, message));
             }
         }
 
