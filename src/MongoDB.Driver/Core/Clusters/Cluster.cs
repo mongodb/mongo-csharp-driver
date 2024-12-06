@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (_state.TryChange(State.Disposed))
             {
-                _clusterEventLogger.Logger?.ServerTrace(_clusterId, "Cluster disposing");
+                _clusterEventLogger.Logger?.ClusterTrace(_clusterId, "Cluster disposing");
 
                 var newClusterDescription = new ClusterDescription(
                     _clusterId,
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 _rapidHeartbeatTimer.Dispose();
 
-                _clusterEventLogger.Logger?.ServerTrace(_clusterId, "Cluster disposed");
+                _clusterEventLogger.Logger?.ClusterTrace(_clusterId, "Cluster disposed");
             }
         }
 
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _clusterEventLogger.Logger?.ServerTrace(_clusterId, "Cluster initialized");
+                _clusterEventLogger.Logger?.ClusterTrace(_clusterId, "Cluster initialized");
             }
         }
 

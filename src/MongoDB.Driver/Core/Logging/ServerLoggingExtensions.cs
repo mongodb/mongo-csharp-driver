@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Logging
         private const string ServerFormat = "{TopologyId} {ServerHost} {ServerPort} {Message}";
 
 
-        [LoggerMessage(Level = LogLevel.Debug, Message = ServerFormat)]
+        [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = ServerFormat)]
         internal static partial void ServerDebug(this ILogger logger, int topologyId, string serverHost, int serverPort, string message);
         internal static void ServerDebug(this ILogger logger, ServerId serverId, string message)
         {
@@ -35,22 +35,23 @@ namespace MongoDB.Driver.Core.Logging
             logger.ServerDebug(clusterId, serverHost, serverPort, formattedMessage);
         }
 
-        [LoggerMessage(Level = LogLevel.Debug, Message = ClusterFormat)]
-        internal static partial void ServerDebug(this ILogger logger, int topologyId, string message);
-        internal static void ServerDebug(this ILogger logger, ClusterId cluster, string message)
+
+
+        [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = ClusterFormat)]
+        internal static partial void ClusterDebug(this ILogger logger, int topologyId, string message);
+        internal static void ClusterDebug(this ILogger logger, ClusterId cluster, string message)
         {
             var (clusterId, formattedMessage) = GetParams(cluster, message);
-            logger.ServerDebug(clusterId, formattedMessage);
+            logger.ClusterDebug(clusterId, formattedMessage);
         }
 
 
-
-        [LoggerMessage(Level = LogLevel.Trace, Message = ClusterFormat)]
-        internal static partial void ServerTrace(this ILogger logger, int topologyId, string message);
-        internal static void ServerTrace(this ILogger logger, ClusterId cluster, string message)
+        [LoggerMessage(EventId = 3, Level = LogLevel.Trace, Message = ClusterFormat)]
+        internal static partial void ClusterTrace(this ILogger logger, int topologyId, string message);
+        internal static void ClusterTrace(this ILogger logger, ClusterId cluster, string message)
         {
             var (clusterId, formattedMessage) = GetParams(cluster, message);
-            logger.ServerDebug(clusterId, formattedMessage);
+            logger.ClusterTrace(clusterId, formattedMessage);
         }
 
 
