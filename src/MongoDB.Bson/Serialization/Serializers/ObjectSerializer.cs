@@ -348,6 +348,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new ObjectSerializer(discriminatorConvention, _guidRepresentation, _allowedDeserializationTypes, _allowedSerializationTypes);
         }
 
+        /// <summary>
+        /// Returns a new ObjectSerializer configured the same but with the specified allowed types delegates.
+        /// </summary>
+        /// <param name="allowedDeserializationTypes">A delegate that determines what types are allowed to be deserialized.</param>
+        /// <param name="allowedSerializationTypes">A delegate that determines what types are allowed to be serialized.</param>
+        /// <returns></returns>
+        public ObjectSerializer WithAllowedTypes(Func<Type, bool> allowedDeserializationTypes, Func<Type, bool> allowedSerializationTypes)
+        {
+            return new ObjectSerializer(_discriminatorConvention, _guidRepresentation, allowedDeserializationTypes, allowedSerializationTypes);
+        }
+
         // private methods
         private object DeserializeDiscriminatedValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
