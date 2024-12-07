@@ -31,7 +31,7 @@ using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
-    internal sealed class MongoCollectionImpl<TDocument> : MongoCollectionBase<TDocument>
+    internal sealed class MongoCollectionImpl<TDocument> : MongoCollectionBase<TDocument>, IMongoCollection
     {
         // fields
         private readonly IClusterInternal _cluster;
@@ -75,6 +75,8 @@ namespace MongoDB.Driver
         {
             get { return _documentSerializer; }
         }
+
+        IBsonSerializer IMongoCollection.DocumentSerializer => _documentSerializer;
 
         public override IMongoIndexManager<TDocument> Indexes
         {
