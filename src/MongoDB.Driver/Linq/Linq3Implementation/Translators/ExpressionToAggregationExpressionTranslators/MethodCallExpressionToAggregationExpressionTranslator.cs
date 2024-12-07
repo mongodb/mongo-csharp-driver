@@ -120,6 +120,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "AddYears":
                     return DateTimeAddOrSubtractMethodToAggregationExpressionTranslator.Translate(context, expression);
 
+                case "Append":
+                case "Prepend":
+                    return AppendOrPrependMethodToAggregationExpressionTranslator.Translate(context, expression);
+
                 case "Bottom":
                 case "BottomN":
                 case "FirstN":

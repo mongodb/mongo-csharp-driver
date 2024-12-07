@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __all;
         private static readonly MethodInfo __any;
         private static readonly MethodInfo __anyWithPredicate;
+        private static readonly MethodInfo __append;
         private static readonly MethodInfo __averageDecimal;
         private static readonly MethodInfo __averageDecimalWithSelector;
         private static readonly MethodInfo __averageDouble;
@@ -138,6 +139,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __ofType;
         private static readonly MethodInfo __orderBy;
         private static readonly MethodInfo __orderByDescending;
+        private static readonly MethodInfo __prepend;
         private static readonly MethodInfo __range;
         private static readonly MethodInfo __repeat;
         private static readonly MethodInfo __reverse;
@@ -195,6 +197,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __all = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.All(predicate));
             __any = ReflectionInfo.Method((IEnumerable<object> source) => source.Any());
             __anyWithPredicate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.Any(predicate));
+            __append = ReflectionInfo.Method((IEnumerable<object> source, object element) => source.Append(element));
             __averageDecimal = ReflectionInfo.Method((IEnumerable<decimal> source) => source.Average());
             __averageDecimalWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, decimal> selector) => source.Average(selector));
             __averageDouble = ReflectionInfo.Method((IEnumerable<double> source) => source.Average());
@@ -301,6 +304,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __ofType = ReflectionInfo.Method((IEnumerable source) => source.OfType<object>());
             __orderBy = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector) => source.OrderBy(keySelector));
             __orderByDescending = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector) => source.OrderByDescending(keySelector));
+            __prepend = ReflectionInfo.Method((IEnumerable<object> source, object element) => source.Prepend(element));
             __range = ReflectionInfo.Method((int start, int count) => Enumerable.Range(start, count));
             __repeat = ReflectionInfo.Method((object element, int count) => Enumerable.Repeat(element, count));
             __reverse = ReflectionInfo.Method((IEnumerable<object> source) => source.Reverse());
@@ -357,6 +361,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo All => __all;
         public static MethodInfo Any => __any;
         public static MethodInfo AnyWithPredicate => __anyWithPredicate;
+        public static MethodInfo Append => __append;
         public static MethodInfo AverageDecimal => __averageDecimal;
         public static MethodInfo AverageDecimalWithSelector => __averageDecimalWithSelector;
         public static MethodInfo AverageDouble => __averageDouble;
@@ -463,6 +468,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo OfType => __ofType;
         public static MethodInfo OrderBy => __orderBy;
         public static MethodInfo OrderByDescending => __orderByDescending;
+        public static MethodInfo Prepend => __prepend;
         public static MethodInfo Range => __range;
         public static MethodInfo Repeat => __repeat;
         public static MethodInfo Reverse => __reverse;
