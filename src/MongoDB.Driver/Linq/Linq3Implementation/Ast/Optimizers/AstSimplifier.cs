@@ -36,6 +36,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
         }
         #endregion
 
+        public override AstNode VisitBinaryExpression(AstBinaryExpression node)
+        {
+            var arg1 = VisitAndConvert(node.Arg1);
+            var arg2 = VisitAndConvert(node.Arg2);
+
+            if (node.Operator == AstBinaryOperator.IfNull)
+            {
+                if (arg1 is AstConstantExpression arg1ConstantExpression)
+                {
+                    // { $ifNull : [expr1, expr2] } => expr2 when expr1 == null
+                    // { $ifNull : [expr1, expr2] } => expr1 when expr1 != null
+                    return arg1ConstantExpression.Value == BsonNull.Value ? arg2 : arg1;
+                }
+
+                if (arg2 is AstConstantExpression arg2ConstantExpression &&
+                    arg2ConstantExpression.Value == BsonNull.Value)
+                {
+                    // { $ifNull : [expr1, expr2] } => expr1 when expr2 == null
+                    return arg1;
+                }
+            }
+
+            return node.Update(arg1, arg2);
+        }
+
         public override AstNode VisitCondExpression(AstCondExpression node)
         {
             // { $cond : [{ $eq : [expr1, null] }, null, expr2] }

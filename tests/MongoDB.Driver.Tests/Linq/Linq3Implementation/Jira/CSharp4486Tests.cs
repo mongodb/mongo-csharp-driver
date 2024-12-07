@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because MongoDB does not have an $xor operator");
+                exception.Message.Should().Contain("because MongoDB does not have a boolean $xor operator");
             }
         }
 
