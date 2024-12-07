@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions.Internal;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
@@ -47,5 +46,15 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
 
         public bool IsEnabled(LogLevel logLevel) => true;
         public IDisposable BeginScope<TState>(TState state) { return NullScope.Instance; }
+
+
+
+
+        private sealed class NullScope : IDisposable
+        {
+            public static NullScope Instance { get; } = new NullScope();
+            private NullScope() { }
+            public void Dispose() { }
+        }
     }
 }
