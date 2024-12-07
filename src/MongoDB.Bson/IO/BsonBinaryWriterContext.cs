@@ -18,7 +18,8 @@ namespace MongoDB.Bson.IO
     internal class BsonBinaryWriterContext
     {
         // private fields
-        private BsonBinaryWriterContext _parentContext;
+        private readonly BsonBinaryWriterContext _parentContext;
+        private BsonBinaryWriterContext _cachedPushContext;
         private ContextType _contextType;
         private long _startPosition;
         private int _index; // used when contextType is Array
@@ -54,6 +55,24 @@ namespace MongoDB.Bson.IO
         {
             get { return _index; }
             set { _index = value; }
+        }
+
+        internal BsonBinaryWriterContext PopContext()
+        {
+            return _parentContext;
+        }
+
+        internal BsonBinaryWriterContext PushContext(ContextType contextType, long startPosition)
+        {
+            if (_cachedPushContext == null)
+                _cachedPushContext = new BsonBinaryWriterContext(this, contextType, startPosition);
+            else
+            {
+                _cachedPushContext._contextType = contextType;
+                _cachedPushContext._startPosition = startPosition;
+                _cachedPushContext._index = 0;
+            }
+            return _cachedPushContext;
         }
     }
 }
