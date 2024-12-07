@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Where(x => currentUser.Factory == null || x.FactoryId == currentUser.Factory.Id);
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 .Where(x => x.FactoryId != 0 || currentUser.Factory == null);
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 
         [Fact]
