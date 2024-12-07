@@ -1,0 +1,75 @@
+﻿/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System.Linq.Expressions;
+using System.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+
+namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
+{
+    internal static class EnumerableAppendMethodToAggregationExpressionTranslator
+    {
+        private static readonly MethodInfo[] __appendMethods =
+        {
+            EnumerableMethod.Append,
+            QueryableMethod.Append
+        };
+
+        public static bool CanTranslate(MethodCallExpression expression)
+            => expression.Method.IsOneOf(__appendMethods);
+
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        {
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.IsOneOf(__appendMethods))
+            {
+                var firstExpression = arguments[0];
+                var secondExpression = arguments[1];
+
+                var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, firstTranslation);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(firstTranslation.Serializer);
+
+                AggregationExpression secondTranslation;
+                if (secondExpression is ConstantExpression secondConstantExpression)
+                {
+                    var value = secondConstantExpression.Value;
+                    var serializedValue = SerializationHelper.SerializeValue(itemSerializer, value);
+                    secondTranslation = new AggregationExpression(secondExpression, AstExpression.Constant(serializedValue), itemSerializer);
+                }
+                else
+                {
+                    secondTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, secondExpression);
+                    if (!secondTranslation.Serializer.Equals(itemSerializer))
+                    {
+                        throw new ExpressionNotSupportedException(expression, because: "argument serializers are not compatible");
+                    }
+                }
+
+                var ast = AstExpression.ConcatArrays(firstTranslation.Ast, AstExpression.ComputedArray(secondTranslation.Ast));
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
+
+                return new AggregationExpression(expression, ast, serializer);
+            }
+
+            throw new ExpressionNotSupportedException(expression);
+        }
+    }
+}

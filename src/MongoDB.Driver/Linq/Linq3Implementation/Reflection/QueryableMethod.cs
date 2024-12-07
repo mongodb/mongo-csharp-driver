@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __all;
         private static readonly MethodInfo __any;
         private static readonly MethodInfo __anyWithPredicate;
+        private static readonly MethodInfo __append;
         private static readonly MethodInfo __asQueryable;
         private static readonly MethodInfo __averageDecimal;
         private static readonly MethodInfo __averageDecimalWithSelector;
@@ -135,6 +136,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __all = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.All(predicate));
             __any = ReflectionInfo.Method((IQueryable<object> source) => source.Any());
             __anyWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.Any(predicate));
+            __append = ReflectionInfo.Method((IQueryable<object> source, object element) => source.Append(element));
             __asQueryable = ReflectionInfo.Method((IEnumerable<object> source) => source.AsQueryable());
             __averageDecimal = ReflectionInfo.Method((IQueryable<decimal> source) => source.Average());
             __averageDecimalWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, decimal>> selector) => source.Average(selector));
@@ -239,6 +241,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo All => __all;
         public static MethodInfo Any => __any;
         public static MethodInfo AnyWithPredicate => __anyWithPredicate;
+        public static MethodInfo Append => __append;
         public static MethodInfo AsQueryable => __asQueryable;
         public static MethodInfo AverageDecimal => __averageDecimal;
         public static MethodInfo AverageDecimalWithSelector => __averageDecimalWithSelector;

@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Aggregate": return AggregateMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "All": return AllMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Any": return AnyMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Append": return AppendMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "AsQueryable": return AsQueryableMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Average": return AverageMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Ceiling": return CeilingMethodToAggregationExpressionTranslator.Translate(context, expression);
