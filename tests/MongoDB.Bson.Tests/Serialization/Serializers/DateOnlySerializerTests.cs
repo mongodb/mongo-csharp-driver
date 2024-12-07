@@ -19,6 +19,8 @@ using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -28,6 +30,26 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 #if NET6_0_OR_GREATER
     public class DateOnlySerializerTests
     {
+        [Fact]
+        public void Attribute_should_set_correct_format()
+        {
+            var dateOnly = new DateOnly(2024, 10, 05);
+
+            var testObj = new TestClass
+            {
+                DateTimeTicksFormat = dateOnly,
+                YearMonthDayFormat = dateOnly,
+                IgnoredFormat = dateOnly,
+                ArrayYearMonthDayFormat = [dateOnly, dateOnly]
+            };
+
+            var json = testObj.ToJson();
+            const string expected = """
+                                    { "DateTimeTicksFormat" : { "DateTime" : { "$date" : "2024-10-05T00:00:00Z" }, "Ticks" : 638636832000000000 }, "YearMonthDayFormat" : { "Year" : 2024, "Month" : 10, "Day" : 5 }, "IgnoredFormat" : 638636832000000000, "ArrayYearMonthDayFormat" : [{ "Year" : 2024, "Month" : 10, "Day" : 5 }, { "Year" : 2024, "Month" : 10, "Day" : 5 }] }
+                                    """;
+            Assert.Equal(expected, json);
+        }
+
         [Fact]
         public void Constructor_with_no_arguments_should_return_expected_result()
         {
@@ -45,6 +67,20 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new DateOnlySerializer(representation);
 
             subject.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Constructor_with_representation_and_format_should_return_expected_result(
+            [Values(BsonType.DateTime, BsonType.String, BsonType.Int64, BsonType.Document)]
+            BsonType representation,
+            [Values(DateOnlyDocumentFormat.DateTimeTicks, DateOnlyDocumentFormat.YearMonthDay)]
+            DateOnlyDocumentFormat format)
+        {
+            var subject = new DateOnlySerializer(representation, format);
+
+            subject.Representation.Should().Be(representation);
+            subject.DocumentFormat.Should().Be(format);
         }
 
         [Theory]
@@ -81,9 +117,33 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792000000000" } } }""","2024-10-20" )]
         [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : { "$numberLong" : "0" } } }""","0001-01-01" )]
         [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "253402214400000" } }, "Ticks" : { "$numberLong" : "3155378112000000000" } } }""","9999-12-31" )]
+        [InlineData("""{ "x" : { "Year" : 2024, "Month" : 10, "Day" : 5 } }""","2024-10-05" )]
+        [InlineData("""{ "x" : { "Year" : 9999, "Month" : 12, "Day" : 31 } }""","9999-12-31" )]
+        [InlineData("""{ "x" : { "Year" : 1, "Month" : 1, "Day" : 1 } }""","0001-01-01" )]
         public void Deserialize_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new DateOnlySerializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            var result = subject.Deserialize(context);
+            reader.ReadEndDocument();
+
+            result.Should().Be(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "Year" : 2024, "Month" : 10, "Day" : 5 } }""","2024-10-05" )]
+        [InlineData("""{ "x" : { "Year" : 9999, "Month" : 12, "Day" : 31 } }""","9999-12-31" )]
+        [InlineData("""{ "x" : { "Year" : 1, "Month" : 1, "Day" : 1 } }""","0001-01-01" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792000000000" } } }""","2024-10-20" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : { "$numberLong" : "0" } } }""","0001-01-01" )]
+        [InlineData("""{ "x" : { "DateTime" : { "$date" : { "$numberLong" : "253402214400000" } }, "Ticks" : { "$numberLong" : "3155378112000000000" } } }""","9999-12-31" )]
+        public void Deserialize_with_human_readable_should_have_expected_result(string json, string expectedResult)
+        {
+            var subject = new DateOnlySerializer(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay);
 
             using var reader = new JsonReader(json);
             reader.ReadStartDocument();
@@ -111,6 +171,22 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var exception = Record.Exception(() => subject.Deserialize(context));
             exception.Should().BeOfType<FormatException>();
             exception.Message.Should().Be("Deserialized value has a non-zero time component.");
+        }
+
+        [Theory]
+        [InlineData("""{ "x" : { "Year": 2024, "DateTime" : { "$date" : { "$numberLong" : "1729382400000" } }, "Ticks" : { "$numberLong" : "638649792100000000" } } }""")]
+        public void Deserialize_should_throw_when_document_format_is_invalid(string json)
+        {
+            var subject = new DateOnlySerializer();
+
+            using var reader = new JsonReader(json);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+            var context = BsonDeserializationContext.CreateRoot(reader);
+
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<FormatException>();
+            exception.Message.Should().Be("Invalid document format.");
         }
 
         [Fact]
@@ -156,17 +232,28 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData(BsonType.String)]
-        [InlineData(BsonType.Int64)]
-        [InlineData(BsonType.Document)]
-        public void Equals_with_not_equal_fields_should_return_true(BsonType representation)
+        [ParameterAttributeData]
+        public void Equals_with_different_representation_and_format_should_return_correct(
+            [Values(BsonType.DateTime, BsonType.String, BsonType.Int64, BsonType.Document)]
+            BsonType representation,
+            [Values(DateOnlyDocumentFormat.DateTimeTicks, DateOnlyDocumentFormat.YearMonthDay)]
+            DateOnlyDocumentFormat format)
         {
             var x = new DateOnlySerializer();
-            var y = new DateOnlySerializer(representation);
+            var y = new DateOnlySerializer(representation, format);
 
             var result = x.Equals(y);
+            var result2 = y.Equals(x);
+            result.Should().Be(result2);
 
-            result.Should().Be(false);
+            if (representation == BsonType.DateTime && format == DateOnlyDocumentFormat.DateTimeTicks)
+            {
+                result.Should().Be(true);
+            }
+            else
+            {
+                result.Should().Be(false);
+            }
         }
 
         [Fact]
@@ -220,6 +307,29 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             result.Should().Be(expectedResult);
         }
 
+        [Theory]
+        [InlineData("2024-10-20", """{ "x" : { "Year" : { "$numberInt" : "2024" }, "Month" : { "$numberInt" : "10" }, "Day" : { "$numberInt" : "20" } } }""")]
+        [InlineData( "0001-01-01", """{ "x" : { "Year" : { "$numberInt" : "1" }, "Month" : { "$numberInt" : "1" }, "Day" : { "$numberInt" : "1" } } }""")]
+        [InlineData("9999-12-31", """{ "x" : { "Year" : { "$numberInt" : "9999" }, "Month" : { "$numberInt" : "12" }, "Day" : { "$numberInt" : "31" } } }""")]
+        public void Serialize_human_readable_should_have_expected_result(string valueString, string expectedResult)
+        {
+            var subject = new DateOnlySerializer(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay);
+            var value = DateOnly.Parse(valueString, CultureInfo.InvariantCulture);
+
+            using var textWriter = new StringWriter();
+            using var writer = new JsonWriter(textWriter,
+                new JsonWriterSettings { OutputMode = JsonOutputMode.CanonicalExtendedJson });
+
+            var context = BsonSerializationContext.CreateRoot(writer);
+            writer.WriteStartDocument();
+            writer.WriteName("x");
+            subject.Serialize(context, value);
+            writer.WriteEndDocument();
+            var result = textWriter.ToString();
+
+            result.Should().Be(expectedResult);
+        }
+
         [Fact]
         public void Serializer_should_be_registered()
         {
@@ -243,6 +353,21 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 result.Should().BeSameAs(subject);
             }
+        }
+
+        private class TestClass
+        {
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.DateTimeTicks)]
+            public DateOnly DateTimeTicksFormat { get; set; }
+
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay)]
+            public DateOnly YearMonthDayFormat { get; set; }
+
+            [BsonDateOnlyOptions(BsonType.Int64, DateOnlyDocumentFormat.YearMonthDay)]
+            public DateOnly IgnoredFormat { get; set; }
+
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay)]
+            public DateOnly[] ArrayYearMonthDayFormat { get; set; }
         }
     }
 #endif

@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -26,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class DateOnlySerializer : StructSerializerBase<DateOnly>, IRepresentationConfigurable<DateOnlySerializer>
     {
         // static
-        private static readonly DateOnlySerializer __instance = new DateOnlySerializer();
+        private static readonly DateOnlySerializer __instance = new();
 
         /// <summary>
         /// Gets the default DateOnlySerializer.
@@ -38,19 +39,26 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             public const long DateTime = 1;
             public const long Ticks = 2;
+            public const long Year = 4;
+            public const long Month = 8;
+            public const long Day = 16;
+
+            public const long DateTimeTicks = DateTime | Ticks;
+            public const long YearMonthDay = Year | Month | Day;
         }
 
         // private fields
         private readonly RepresentationConverter _converter;
         private readonly SerializerHelper _helper;
         private readonly BsonType _representation;
+        private readonly DateOnlyDocumentFormat _documentFormat;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DateOnlySerializer"/> class.
         /// </summary>
         public DateOnlySerializer()
-            : this(BsonType.DateTime)
+            : this(BsonType.DateTime, DateOnlyDocumentFormat.DateTimeTicks)
         {
         }
 
@@ -59,6 +67,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         public DateOnlySerializer(BsonType representation)
+            : this(representation, DateOnlyDocumentFormat.DateTimeTicks)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DateOnlySerializer"/> class.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <param name="documentFormat">The format to use with the BsonType.Document representation. It will be ignored if the representation is different.</param>
+        public DateOnlySerializer(BsonType representation, DateOnlyDocumentFormat documentFormat)
         {
             switch (representation)
             {
@@ -73,12 +91,15 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+            _documentFormat = documentFormat;
             _converter = new RepresentationConverter(false, false);
-
             _helper = new SerializerHelper
             (
-                new SerializerHelper.Member("DateTime", Flags.DateTime),
-                new SerializerHelper.Member("Ticks", Flags.Ticks)
+                new SerializerHelper.Member("DateTime", Flags.DateTime, isOptional: true),
+                new SerializerHelper.Member("Ticks", Flags.Ticks, isOptional: true),
+                new SerializerHelper.Member("Year", Flags.Year, isOptional: true),
+                new SerializerHelper.Member("Month", Flags.Month, isOptional: true),
+                new SerializerHelper.Member("Day", Flags.Day, isOptional: true)
             );
         }
 
@@ -86,60 +107,68 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <inheritdoc />
         public BsonType Representation => _representation;
 
+        /// <summary>
+        /// The format to use for the BsonType.Document representation. It will be ignored if the representation is different.
+        /// </summary>
+        public DateOnlyDocumentFormat DocumentFormat => _documentFormat;
+
         //public methods
         /// <inheritdoc />
         public override DateOnly Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            DateOnly value;
 
             var bsonType = bsonReader.GetCurrentBsonType();
 
             switch (bsonType)
             {
                 case BsonType.DateTime:
-                    value = VerifyAndMakeDateOnly(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime()));
-                    break;
+                    return VerifyAndMakeDateOnly(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime()));
 
                 case BsonType.Document:
-                    value = default;
-                    _helper.DeserializeMembers(context, (_, flag) =>
+                    var ticks = 0L;
+                    var year = 0;
+                    var month = 0;
+                    var day = 0;
+
+                    var foundMemberFlags = _helper.DeserializeMembers(context, (_, flag) =>
                     {
                         switch (flag)
                         {
-                            case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
-                            case Flags.Ticks:
-                                value = VerifyAndMakeDateOnly(new DateTime(Int64Serializer.Instance.Deserialize(context), DateTimeKind.Utc));
-                                break;
+                            case Flags.DateTime: bsonReader.SkipValue();  break; // ignore value (use Ticks instead)
+                            case Flags.Ticks: ticks = Int64Serializer.Instance.Deserialize(context); break;
+                            case Flags.Year: year = Int32Serializer.Instance.Deserialize(context); break;
+                            case Flags.Month: month = Int32Serializer.Instance.Deserialize(context); break;
+                            case Flags.Day: day = Int32Serializer.Instance.Deserialize(context); break;
                         }
                     });
-                    break;
+
+                    return foundMemberFlags switch
+                    {
+                        Flags.DateTimeTicks => VerifyAndMakeDateOnly(new DateTime(ticks, DateTimeKind.Utc)),
+                        Flags.YearMonthDay => new DateOnly(year, month, day),
+                        _ => throw new FormatException("Invalid document format.")
+                    };
 
                 case BsonType.Decimal128:
-                    value = VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDecimal128()), DateTimeKind.Utc));
-                    break;
+                    return VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDecimal128()), DateTimeKind.Utc));
 
                 case BsonType.Double:
-                    value = VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDouble()), DateTimeKind.Utc));
-                    break;
+                    return VerifyAndMakeDateOnly(new DateTime(_converter.ToInt64(bsonReader.ReadDouble()), DateTimeKind.Utc));
 
                 case BsonType.Int32:
-                    value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt32(), DateTimeKind.Utc));
-                    break;
+                    return VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt32(), DateTimeKind.Utc));
 
                 case BsonType.Int64:
-                    value = VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
-                    break;
+                    return VerifyAndMakeDateOnly(new DateTime(bsonReader.ReadInt64(), DateTimeKind.Utc));
 
                 case BsonType.String:
-                    value = DateOnly.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd");
-                    break;
+                    return DateOnly.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd");
 
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
 
-            return value;
 
             DateOnly VerifyAndMakeDateOnly(DateTime dt)
             {
@@ -160,7 +189,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             return
                 base.Equals(obj) &&
                 obj is DateOnlySerializer other &&
-                _representation.Equals(other._representation);
+                _representation.Equals(other._representation) &&
+                _documentFormat.Equals(other._documentFormat);
         }
 
         /// <inheritdoc/>
@@ -182,8 +212,17 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 case BsonType.Document:
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteDateTime("DateTime", millisecondsSinceEpoch);
-                    bsonWriter.WriteInt64("Ticks", utcDateTime.Ticks);
+                    if (_documentFormat is DateOnlyDocumentFormat.DateTimeTicks)
+                    {
+                        bsonWriter.WriteDateTime("DateTime", millisecondsSinceEpoch);
+                        bsonWriter.WriteInt64("Ticks", utcDateTime.Ticks);
+                    }
+                    else
+                    {
+                        bsonWriter.WriteInt32("Year", value.Year);
+                        bsonWriter.WriteInt32("Month", value.Month);
+                        bsonWriter.WriteInt32("Day", value.Day);
+                    }
                     bsonWriter.WriteEndDocument();
                     break;
 
@@ -200,10 +239,28 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified representation and document format.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <param name="documentFormat">The document format to use with BsonType.Document representation.</param>
+        /// <returns>
+        /// The reconfigured serializer.
+        /// </returns>
+        public DateOnlySerializer WithRepresentation(BsonType representation, DateOnlyDocumentFormat documentFormat)
+        {
+            if (representation == _representation && documentFormat == _documentFormat)
+            {
+                return this;
+            }
+
+            return new DateOnlySerializer(representation, documentFormat);
+        }
+
         /// <inheritdoc />
         public DateOnlySerializer WithRepresentation(BsonType representation)
         {
-            return representation == _representation ? this : new DateOnlySerializer(representation);
+            return representation == _representation ? this : new DateOnlySerializer(representation, _documentFormat);
         }
 
         // explicit interface implementations
