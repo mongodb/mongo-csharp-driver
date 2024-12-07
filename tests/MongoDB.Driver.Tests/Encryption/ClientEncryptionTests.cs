@@ -387,8 +387,6 @@ namespace MongoDB.Driver.Tests.Encryption
         // private methods
         private ClientEncryption CreateSubject(IMongoClient client = null)
         {
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
-
             var clientEncryptionOptions = new ClientEncryptionOptions(
                 client ?? DriverTestConfiguration.Client,
                 __keyVaultCollectionNamespace,

@@ -24,7 +24,6 @@ using Xunit;
 using System.Text;
 using FluentAssertions;
 using Xunit.Abstractions;
-using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Encryption.Tests
 {
@@ -36,7 +35,6 @@ namespace MongoDB.Driver.Encryption.Tests
 
         public BasicTests(ITestOutputHelper output)
         {
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
             _output = output;
         }
 
