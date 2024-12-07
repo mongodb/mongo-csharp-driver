@@ -1042,6 +1042,26 @@ functions:
           fi
           ./evergreen/upload-apidocs.sh
 
+  run_oidc_k8s_tests:
+    - command: shell.exec
+      params:
+        shell: bash
+        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        script: |
+          ${PREPARE_SHELL}
+
+          export K8S_VARIANT=${K8S_VARIANT}
+          export K8S_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
+          export K8S_TEST_CMD="OIDC_ENV=k8s ./evergreen/run-mongodb-oidc-env-tests.sh"
+
+          bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/setup-pod.sh
+          bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/run-driver-test.sh
+          bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/teardown-pod.sh
+
 pre:
   - func: fetch-source
   - func: prepare-resources
@@ -1288,6 +1308,27 @@ tasks:
               export GCPOIDC_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
               export GCPOIDC_TEST_CMD="OIDC_ENV=gcp ./evergreen/run-mongodb-oidc-env-tests.sh"
               bash $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/run-driver-test.sh
+
+    - name: test-oidc-k8s
+      commands:
+        - command: shell.exec
+          params:
+            shell: bash
+            working_dir: mongo-csharp-driver
+            script: |-
+              ${PREPARE_SHELL}
+              dotnet build
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh
+        - func: assume-ec2-role
+        - func: run_oidc_k8s_tests
+          vars:
+            K8S_VARIANT: eks
+        - func: run_oidc_k8s_tests
+          vars:
+            K8S_VARIANT: gke
+        - func: run_oidc_k8s_tests
+          vars:
+            K8S_VARIANT: aks
 
     - name: test-serverless
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
@@ -2251,6 +2292,34 @@ task_groups:
     tasks:
       - test-oidc-gcp
 
+  - name: oidc-auth-k8s-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: install-dotnet
+      - func: assume-ec2-role
+      - command: subprocess.exec
+        params:
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/setup.sh
+    teardown_group:
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/teardown.sh
+    tasks:
+      - test-oidc-k8s
+
   - name: serverless-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
@@ -2447,6 +2516,13 @@ buildvariants:
   batchtime: 20160 # 14 days
   tasks:
     - name: oidc-auth-gcp-task-group
+
+- matrix_name: mongodb-oidc-k8s-tests
+  matrix_spec: { os: [ "ubuntu-2004" ] }
+  display_name: "MongoDB-OIDC Auth (k8s) - ${os}"
+  batchtime: 20160 # 14 days
+  tasks:
+    - name: oidc-auth-k8s-task-group
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }

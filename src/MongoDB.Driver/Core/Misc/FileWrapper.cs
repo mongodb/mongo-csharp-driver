@@ -14,6 +14,7 @@
  */
 
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
@@ -22,14 +23,27 @@ namespace MongoDB.Driver.Core.Misc
     /// </summary>
     internal interface IFile
     {
-        bool Exists(string name);
+        bool Exists(string path);
+
+        string ReadAllText(string path);
+
+        Task<string> ReadAllTextAsync(string path);
     }
 
     internal sealed class FileWrapper : IFile
     {
-        public bool Exists(string name)
+        public bool Exists(string path) => File.Exists(path);
+
+        public string ReadAllText(string path)
         {
-            return File.Exists(name);
+            using var streamReader = new StreamReader(path, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+            return streamReader.ReadToEnd();
+        }
+
+        public async Task<string> ReadAllTextAsync(string path)
+        {
+            using var streamReader = new StreamReader(path, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+            return await streamReader.ReadToEndAsync().ConfigureAwait(false);
         }
     }
 }

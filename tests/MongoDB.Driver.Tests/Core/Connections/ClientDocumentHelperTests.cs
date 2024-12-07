@@ -14,11 +14,13 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.TestHelpers.Core;
 using MongoDB.Driver.Tests;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -145,10 +147,13 @@ namespace MongoDB.Driver.Core.Connections
         public void CreateEnvDocument_should_return_expected_result(bool isDockerToBeDetected, bool isKubernetesToBeDetected, string expected)
         {
             var fileSystemProviderMock  = new Mock<IFileSystemProvider>();
-            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
+            var env = new List<string>{ "VERCEL" };
+            if (isKubernetesToBeDetected)
+            {
+                env.Add("KUBERNETES_SERVICE_HOST");
+            }
 
-            environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")).Returns(isKubernetesToBeDetected ? "dummy" : null);
-            environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable("VERCEL")).Returns("dummy");
+            var environmentVariableProviderMock = EnvironmentVariableProviderMock.Create(env.ToArray());
 
             fileSystemProviderMock.Setup(fileSystem => fileSystem.File.Exists("/.dockerenv")).Returns(isDockerToBeDetected);
 
@@ -239,16 +244,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string left,
             [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string right)
         {
-            var variableLeftParts = left.Split('=');
-            var variableRightParts = right.Split('=');
-
-            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
-
-            environmentVariableProviderMock
-                .Setup(env => env.GetEnvironmentVariable(variableLeftParts[0])).Returns(variableLeftParts.Length > 1 ? variableLeftParts[1] : "dummy");
-
-            environmentVariableProviderMock
-                .Setup(env => env.GetEnvironmentVariable(variableRightParts[0])).Returns(variableRightParts.Length > 1 ? variableRightParts[1] : "dummy");
+            var environmentVariableProviderMock = EnvironmentVariableProviderMock.Create(left, right);
 
             using var __ = new ClientDocumentHelperProvidersSetter(environmentVariableProviderMock.Object);
 

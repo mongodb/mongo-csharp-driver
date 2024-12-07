@@ -31,6 +31,7 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.TestHelpers.Core;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
@@ -509,12 +510,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("VERCEL")]
         public void Should_use_polling_protocol_if_running_in_FaaS_platform(string environmentVariable)
         {
-            var environmentVariableParts = environmentVariable.Split('=');
-
-            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
-            environmentVariableProviderMock
-                .Setup(env => env.GetEnvironmentVariable(environmentVariableParts[0]))
-                .Returns(environmentVariableParts.Length > 1 ? environmentVariableParts[1] : "dummy");
+            var environmentVariableProviderMock = EnvironmentVariableProviderMock.Create(environmentVariable);
 
             var capturedEvents = new EventCapturer()
                 .Capture<ServerHeartbeatStartedEvent>()

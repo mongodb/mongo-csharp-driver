@@ -26,16 +26,21 @@ namespace MongoDB.Driver.Authentication.Oidc
 
     internal class OidcCallbackAdapterCachingFactory : IOidcCallbackAdapterFactory
     {
-        public static readonly OidcCallbackAdapterCachingFactory Instance = new(SystemClock.Instance, EnvironmentVariableProvider.Instance);
+        public static readonly OidcCallbackAdapterCachingFactory Instance = new(SystemClock.Instance, EnvironmentVariableProvider.Instance, FileSystemProvider.Instance);
 
         private readonly IClock _clock;
         private readonly IEnvironmentVariableProvider _environmentVariableProvider;
+        private readonly IFileSystemProvider _fileSystemProvider;
         private readonly ConcurrentDictionary<OidcConfiguration, IOidcCallbackAdapter> _cache = new();
 
-        public OidcCallbackAdapterCachingFactory(IClock clock, IEnvironmentVariableProvider environmentVariableProvider)
+        public OidcCallbackAdapterCachingFactory(
+            IClock clock,
+            IEnvironmentVariableProvider environmentVariableProvider,
+            IFileSystemProvider fileSystemProvider)
         {
-            _clock = clock;
-            _environmentVariableProvider = environmentVariableProvider;
+            _clock = Ensure.IsNotNull(clock, nameof(clock));
+            _environmentVariableProvider = Ensure.IsNotNull(environmentVariableProvider, nameof(environmentVariableProvider));
+            _fileSystemProvider = Ensure.IsNotNull(fileSystemProvider, nameof(fileSystemProvider));
         }
 
         public IOidcCallbackAdapter Get(OidcConfiguration configuration)
@@ -54,7 +59,15 @@ namespace MongoDB.Driver.Authentication.Oidc
                 {
                     "azure" => new AzureOidcCallback(configuration.TokenResource),
                     "gcp" => new GcpOidcCallback(configuration.TokenResource),
-                    "test" => FileOidcCallback.CreateFromEnvironmentVariable("OIDC_TOKEN_FILE", _environmentVariableProvider),
+                    "test" => FileOidcCallback.CreateFromEnvironmentVariable(
+                        _environmentVariableProvider,
+                        _fileSystemProvider,
+                        ["OIDC_TOKEN_FILE"]),
+                    "k8s" => FileOidcCallback.CreateFromEnvironmentVariable(
+                        _environmentVariableProvider,
+                        _fileSystemProvider,
+                        ["AZURE_FEDERATED_TOKEN_FILE", "AWS_WEB_IDENTITY_TOKEN_FILE"],
+                        "/var/run/secrets/kubernetes.io/serviceaccount/token"),
                     _ => throw new NotSupportedException($"Non supported {OidcConfiguration.EnvironmentMechanismPropertyName} value: {configuration.Environment}")
                 };
             }
