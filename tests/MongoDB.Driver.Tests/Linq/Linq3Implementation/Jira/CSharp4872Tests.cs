@@ -58,6 +58,42 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Equal(1, 2, 3, 4);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void Prepend_constant_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = GetCollection();
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.A.AsQueryable().Prepend(4).ToList()) :
+                collection.AsQueryable().Select(x => x.A.Prepend(4).ToList());
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $concatArrays : [[4]], '$A'] }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.Should().Equal(4, 1, 2, 3);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Prepend_expression_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = GetCollection();
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.A.AsQueryable().Prepend(x.B).ToList()) :
+                collection.AsQueryable().Select(x => x.A.Prepend(x.B).ToList());
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $concatArrays : [['$B'], '$A'] }, _id : 0 } }");
+
+            var result = queryable.Single();
+            result.Should().Equal(4, 1, 2, 3);
+        }
+
         private IMongoCollection<C> GetCollection()
         {
             var collection = GetCollection<C>("test");

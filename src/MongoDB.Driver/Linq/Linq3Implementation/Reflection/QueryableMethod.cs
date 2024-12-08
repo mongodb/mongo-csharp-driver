@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __ofType;
         private static readonly MethodInfo __orderBy;
         private static readonly MethodInfo __orderByDescending;
+        private static readonly MethodInfo __prepend;
         private static readonly MethodInfo __reverse;
         private static readonly MethodInfo __select;
         private static readonly MethodInfo __selectMany;
@@ -193,6 +194,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __ofType = ReflectionInfo.Method((IQueryable source) => source.OfType<object>());
             __orderBy = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, object>> keySelector) => source.OrderBy(keySelector));
             __orderByDescending = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, object>> keySelector) => source.OrderByDescending(keySelector));
+            __prepend = ReflectionInfo.Method((IQueryable<object> source, object element) => source.Prepend(element));
             __reverse = ReflectionInfo.Method((IQueryable<object> source) => source.Reverse());
             __select = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, object>> selector) => source.Select(selector));
             __selectMany = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, IEnumerable<object>>> selector) => source.SelectMany(selector));
@@ -298,6 +300,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo OfType => __ofType;
         public static MethodInfo OrderBy => __orderBy;
         public static MethodInfo OrderByDescending => __orderByDescending;
+        public static MethodInfo Prepend => __prepend;
         public static MethodInfo Reverse => __reverse;
         public static MethodInfo Select => __select;
         public static MethodInfo SelectMany => __selectMany;

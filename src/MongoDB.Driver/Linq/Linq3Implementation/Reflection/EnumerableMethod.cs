@@ -139,6 +139,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __ofType;
         private static readonly MethodInfo __orderBy;
         private static readonly MethodInfo __orderByDescending;
+        private static readonly MethodInfo __prepend;
         private static readonly MethodInfo __range;
         private static readonly MethodInfo __repeat;
         private static readonly MethodInfo __reverse;
@@ -303,6 +304,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __ofType = ReflectionInfo.Method((IEnumerable source) => source.OfType<object>());
             __orderBy = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector) => source.OrderBy(keySelector));
             __orderByDescending = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector) => source.OrderByDescending(keySelector));
+            __prepend = ReflectionInfo.Method((IEnumerable<object> source, object element) => source.Prepend(element));
             __range = ReflectionInfo.Method((int start, int count) => Enumerable.Range(start, count));
             __repeat = ReflectionInfo.Method((object element, int count) => Enumerable.Repeat(element, count));
             __reverse = ReflectionInfo.Method((IEnumerable<object> source) => source.Reverse());
@@ -466,6 +468,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo OfType => __ofType;
         public static MethodInfo OrderBy => __orderBy;
         public static MethodInfo OrderByDescending => __orderByDescending;
+        public static MethodInfo Prepend => __prepend;
         public static MethodInfo Range => __range;
         public static MethodInfo Repeat => __repeat;
         public static MethodInfo Reverse => __reverse;
