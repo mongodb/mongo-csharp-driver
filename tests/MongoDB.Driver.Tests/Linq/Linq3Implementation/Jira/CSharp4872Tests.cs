@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 collection.AsQueryable().Select(x => x.A.Prepend(4).ToList());
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $concatArrays : [[4]], '$A'] }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $concatArrays : [[4], '$A'] }, _id : 0 } }");
 
             var result = queryable.Single();
             result.Should().Equal(4, 1, 2, 3);
