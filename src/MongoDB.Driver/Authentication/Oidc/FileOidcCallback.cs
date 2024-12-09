@@ -33,17 +33,15 @@ namespace MongoDB.Driver.Authentication.Oidc
         {
             Ensure.IsNotNull(environmentVariableProvider, nameof(environmentVariableProvider));
             Ensure.IsNotNull(fileSystemProvider, nameof(fileSystemProvider));
+            Ensure.IsNotNullOrEmpty(environmentVariableNames, nameof(environmentVariableNames));
 
             string filePath = null;
-            if (environmentVariableNames != null)
+            foreach (var variableName in environmentVariableNames)
             {
-                foreach (var variableName in environmentVariableNames)
+                filePath = environmentVariableProvider.GetEnvironmentVariable(variableName);
+                if (!string.IsNullOrEmpty(filePath))
                 {
-                    filePath = environmentVariableProvider.GetEnvironmentVariable(variableName);
-                    if (!string.IsNullOrEmpty(filePath))
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
 

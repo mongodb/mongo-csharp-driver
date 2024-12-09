@@ -78,7 +78,7 @@ public class FileOidcCallbackTests
     {
         var exception = Record.Exception(() =>
         {
-            FileOidcCallback.CreateFromEnvironmentVariable(null, Mock.Of<IFileSystemProvider>(), [], "defaultPath");
+            FileOidcCallback.CreateFromEnvironmentVariable(null, Mock.Of<IFileSystemProvider>(), ["env"], "defaultPath");
         });
 
         exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("environmentVariableProvider");
@@ -89,10 +89,32 @@ public class FileOidcCallbackTests
     {
         var exception = Record.Exception(() =>
         {
-            FileOidcCallback.CreateFromEnvironmentVariable(Mock.Of<IEnvironmentVariableProvider>(), null, [], "defaultPath");
+            FileOidcCallback.CreateFromEnvironmentVariable(Mock.Of<IEnvironmentVariableProvider>(), null, ["env"], "defaultPath");
         });
 
         exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("fileSystemProvider");
+    }
+
+    [Fact]
+    public void CreateFromEnvironmentVariable_throws_on_null_environmentVariableNames()
+    {
+        var exception = Record.Exception(() =>
+        {
+            FileOidcCallback.CreateFromEnvironmentVariable(Mock.Of<IEnvironmentVariableProvider>(), Mock.Of<IFileSystemProvider>(), null, "defaultPath");
+        });
+
+        exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("environmentVariableNames");
+    }
+
+    [Fact]
+    public void CreateFromEnvironmentVariable_throws_on_empty_environmentVariableNames()
+    {
+        var exception = Record.Exception(() =>
+        {
+            FileOidcCallback.CreateFromEnvironmentVariable(Mock.Of<IEnvironmentVariableProvider>(), Mock.Of<IFileSystemProvider>(), [], "defaultPath");
+        });
+
+        exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("environmentVariableNames");
     }
 
     [Theory]
@@ -121,19 +143,7 @@ public class FileOidcCallbackTests
     [
         [
             null,
-            null,
-            "defaultPath",
-            "defaultPath"
-        ],
-        [
-            null,
             new[] { "env1", "env2" },
-            "defaultPath",
-            "defaultPath"
-        ],
-        [
-            new[] { "env1=path1", "env2=path2" },
-            null,
             "defaultPath",
             "defaultPath"
         ],
@@ -155,15 +165,7 @@ public class FileOidcCallbackTests
     [
         [
             null,
-            null
-        ],
-        [
-            new[] { "env1=path1", "env2=path2" },
-            null
-        ],
-        [
-            null,
-            new[] { "env3", "env4" }
+            new[] { "env1", "env2" }
         ],
         [
             new[] { "env1=path1", "env2=path2" },
