@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplateProvider<ClusterClosingEvent>(
                 LogLevel.Debug,
                 ClusterCommonParams(),
-                (e, _) => [e.ClusterId, "Stopping topology monitoring"]);
+                (e, _) => GetParams(e.ClusterId, "Stopping topology monitoring"));
 
             AddTemplateProvider<ClusterClosedEvent>(
                 LogLevel.Debug,
