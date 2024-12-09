@@ -68,6 +68,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Push": return PushMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Range": return RangeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Rank": return RankMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Repeat": return RepeatMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Reverse": return ReverseMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Round": return RoundMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Select": return SelectMethodToAggregationExpressionTranslator.Translate(context, expression);
