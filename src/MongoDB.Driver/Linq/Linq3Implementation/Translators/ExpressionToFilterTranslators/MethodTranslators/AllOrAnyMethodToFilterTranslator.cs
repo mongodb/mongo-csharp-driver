@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
@@ -32,14 +31,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     {
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (AllWithContainsInPredicateMethodToFilterTranslator.CanTranslate(expression, out var arrayFieldExpression, out var arrayConstantExpression))
+            if (AllMethodWithContainsInPredicateToFilterTranslator.CanTranslate(expression, out var arrayFieldExpression, out var arrayConstantExpression))
             {
-                return AllWithContainsInPredicateMethodToFilterTranslator.Translate(context, arrayFieldExpression, arrayConstantExpression);
+                return AllMethodWithContainsInPredicateToFilterTranslator.Translate(context, arrayFieldExpression, arrayConstantExpression);
             }
 
-            if (AnyWithContainsInPredicateMethodToFilterTranslator.CanTranslate(expression, out arrayFieldExpression, out arrayConstantExpression))
+            if (AnyMethodWithContainsInPredicateToFilterTranslator.CanTranslate(expression, out arrayFieldExpression, out arrayConstantExpression))
             {
-                return AnyWithContainsInPredicateMethodToFilterTranslator.Translate(context, arrayFieldExpression, arrayConstantExpression);
+                return AnyMethodWithContainsInPredicateToFilterTranslator.Translate(context, arrayFieldExpression, arrayConstantExpression);
+            }
+
+            if (AnyMethodWithConstantArrayAndFieldEqualsParameterInPredicateToFilterTranslator.CanTranslate(expression, out arrayConstantExpression, out var fieldExpression))
+            {
+                return AnyMethodWithConstantArrayAndFieldEqualsParameterInPredicateToFilterTranslator.Translate(context, arrayConstantExpression, fieldExpression);
             }
 
             var method = expression.Method;

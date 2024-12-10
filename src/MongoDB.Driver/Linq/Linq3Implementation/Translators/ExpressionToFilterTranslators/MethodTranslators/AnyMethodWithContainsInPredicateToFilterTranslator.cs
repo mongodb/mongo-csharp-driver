@@ -22,14 +22,14 @@ using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTran
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    internal static class AllWithContainsInPredicateMethodToFilterTranslator
+    internal static class AnyMethodWithContainsInPredicateToFilterTranslator
     {
         public static bool CanTranslate(MethodCallExpression expression, out Expression arrayFieldExpression, out ConstantExpression arrayConstantExpression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.All))
+            if (method.Is(EnumerableMethod.AnyWithPredicate))
             {
                 var outerSourceExpression = arguments[0];
                 var predicateLambda = (LambdaExpression)arguments[1];
@@ -37,7 +37,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 if (IsContainsParameterExpression(predicateLambda.Body, predicateParameter, out var innerSourceExpression))
                 {
-                    // a.All(i => f.Contains(i)) where f is an array field and a is an array constant
+                    // f.Any(i => a.Contains(i)) where f is an array field and a is an array constant
+                    if (innerSourceExpression is ConstantExpression innerArrayConstantExpression)
+                    {
+                        arrayFieldExpression = outerSourceExpression;
+                        arrayConstantExpression = innerArrayConstantExpression;
+                        return true;
+                    }
+
+                    // a.Any(i => f.Contains(i)) where f is an array field and a is an array constant
                     if (outerSourceExpression is ConstantExpression outerArrayConstantExpression)
                     {
                         arrayFieldExpression = innerSourceExpression;
@@ -58,64 +66,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayFieldTranslation.Serializer);
             var values = (IEnumerable)arrayConstantExpression.Value;
             var serializedValues = SerializationHelper.SerializeValues(itemSerializer, values);
-            return AstFilter.All(arrayFieldTranslation, serializedValues);
+            return AstFilter.In(arrayFieldTranslation, serializedValues);
         }
 
         private static bool IsContainsParameterExpression(Expression predicateBody, ParameterExpression predicateParameter, out Expression innerSourceExpression)
         {
             if (predicateBody is MethodCallExpression methodCallExpression &&
-                IsContainsMethodCall(methodCallExpression, out var sourceExpression, out var valueExpression) &&
+                EnumerableMethod.IsContainsMethod(methodCallExpression, out innerSourceExpression, out var valueExpression) &&
                 valueExpression == predicateParameter)
             {
-                innerSourceExpression = sourceExpression;
                 return true;
             }
 
             innerSourceExpression = null;
             return false;
-
-            static bool IsContainsMethodCall(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)
-            {
-                var method = methodCallExpression.Method;
-                var arguments = methodCallExpression.Arguments;
-
-                if (method.Name == "Contains" && method.ReturnType == typeof(bool))
-                {
-                    if (method.IsStatic && arguments.Count == 2)
-                    {
-                        sourceExpression = arguments[0];
-                        valueExpression = arguments[1];
-                        if (ValueTypeIsElementTypeOfSourceType(valueExpression, sourceExpression))
-                        {
-                            return true;
-                        }
-                    }
-                    else if (!method.IsStatic && arguments.Count == 1)
-                    {
-                        sourceExpression = methodCallExpression.Object;
-                        valueExpression = arguments[0];
-                        if (ValueTypeIsElementTypeOfSourceType(valueExpression, sourceExpression))
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                sourceExpression = null;
-                valueExpression = null;
-                return false;
-            }
-
-            static bool ValueTypeIsElementTypeOfSourceType(Expression valueExpression, Expression sourceExpression)
-            {
-                if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var ienumerableInterface))
-                {
-                    var elementType = ienumerableInterface.GetGenericArguments()[0];
-                    return elementType.IsAssignableFrom(valueExpression.Type);
-                }
-
-                return false;
-            }
         }
     }
 }
