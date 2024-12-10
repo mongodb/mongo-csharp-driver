@@ -25,21 +25,7 @@ namespace MongoDB.Driver.Authentication.Oidc
         public const string MechanismName = "MONGODB-OIDC";
 
         public static OidcSaslMechanism Create(SaslContext context)
-            => Create(context, SystemClock.Instance, EnvironmentVariableProvider.Instance);
-
-        public static OidcSaslMechanism Create(SaslContext context, IClock clock, IEnvironmentVariableProvider environmentVariableProvider)
-        {
-            Ensure.IsNotNull(clock, nameof(clock));
-            Ensure.IsNotNull(environmentVariableProvider, nameof(environmentVariableProvider));
-
-            var callbackAdapterFactory = OidcCallbackAdapterCachingFactory.Instance;
-            if (clock != SystemClock.Instance || environmentVariableProvider != EnvironmentVariableProvider.Instance)
-            {
-                callbackAdapterFactory = new OidcCallbackAdapterCachingFactory(clock, environmentVariableProvider);
-            }
-
-            return Create(context, callbackAdapterFactory);
-        }
+            => Create(context, OidcCallbackAdapterCachingFactory.Instance);
 
         public static OidcSaslMechanism Create(
             SaslContext context,

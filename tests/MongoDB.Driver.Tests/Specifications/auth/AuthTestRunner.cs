@@ -24,6 +24,7 @@ using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.Gssapi;
 using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.TestHelpers.Core;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -81,10 +82,10 @@ namespace MongoDB.Driver.Tests.Specifications.auth
 
                         if (mongoCredential.Mechanism?.ToUpper() == OidcSaslMechanism.MechanismName)
                         {
-                            var environmentVariablesProviderMock = new Mock<IEnvironmentVariableProvider>();
-                            environmentVariablesProviderMock
-                                .Setup(p => p.GetEnvironmentVariable("OIDC_TOKEN_FILE")).Returns("dummy_file_path");
-                            var mechanism = OidcSaslMechanism.Create(saslContext, SystemClock.Instance, environmentVariablesProviderMock.Object);
+                            var environmentVariablesProviderMock = EnvironmentVariableProviderMock.Create("OIDC_TOKEN_FILE=dummy_file_path");
+
+                            var callbackFactory = new OidcCallbackAdapterCachingFactory(SystemClock.Instance, environmentVariablesProviderMock.Object, FileSystemProvider.Instance);
+                            var mechanism = OidcSaslMechanism.Create(saslContext, callbackFactory);
                             authenticator = new SaslAuthenticator(mechanism, null);
                             return;
                         }
