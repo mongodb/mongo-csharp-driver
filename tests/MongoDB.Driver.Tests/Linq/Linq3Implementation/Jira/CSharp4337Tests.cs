@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             (d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? d.S1 : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$I1', 1] }, then : '$S1', else : 'E2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? E.E1 : d.S2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$I1', 1] }, then : 'E1', else : '$S2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? d.S1 : d.S2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$I1', 1] }, then : '$S1', else : '$S2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
-            (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? E.E1 : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : 'E1', else : 'E2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
+            (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? Mql.Constant(E.E1, BsonType.String) : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : 'E1', else : 'E2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? d.I1 : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : '$I1', else : 2 } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? E.E1 : d.I2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : 1, else : '$I2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? d.I1 : d.I2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : '$I1', else : '$I2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
