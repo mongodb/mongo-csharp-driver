@@ -178,12 +178,12 @@ namespace MongoDB.Driver
             {
                 if (disposing)
                 {
-                    _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposing");
+                    _logger?.ClusterDebug(_cluster.ClusterId, "MongoClient disposing");
 
                     _settings.ClusterSource.Return(_cluster);
                     _libMongoCryptController?.Dispose();
 
-                    _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposed");
+                    _logger?.ClusterDebug(_cluster.ClusterId, "MongoClient disposed");
                 }
 
                 _disposed = true;
