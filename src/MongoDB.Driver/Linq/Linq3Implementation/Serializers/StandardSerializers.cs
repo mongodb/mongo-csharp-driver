@@ -34,40 +34,35 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             var strictConverter = new RepresentationConverter(allowOverflow: false, allowTruncation: false);
             var allowTruncationConverter = new RepresentationConverter(allowOverflow: false, allowTruncation: true);
 
-            __standardSerializers.Add(typeof(bool), new BooleanSerializer(representation: BsonType.Boolean));
-            __standardSerializers.Add(typeof(byte), new ByteSerializer(representation: BsonType.Int32));
-            __standardSerializers.Add(typeof(char), new CharSerializer(representation: BsonType.Int32));
-            __standardSerializers.Add(typeof(decimal), new DecimalSerializer(representation: BsonType.Decimal128, allowTruncationConverter));
-            __standardSerializers.Add(typeof(double), new DoubleSerializer(representation: BsonType.Double, strictConverter));
-            __standardSerializers.Add(typeof(short), new Int16Serializer(representation: BsonType.Int32, strictConverter));
-            __standardSerializers.Add(typeof(int), new Int32Serializer(representation: BsonType.Int32, strictConverter));
-            __standardSerializers.Add(typeof(long), new Int64Serializer(representation: BsonType.Int64, strictConverter));
-            __standardSerializers.Add(typeof(sbyte), new SByteSerializer(representation: BsonType.Int32));
-            __standardSerializers.Add(typeof(float), new SingleSerializer(representation: BsonType.Double, allowTruncationConverter));
-            __standardSerializers.Add(typeof(ushort), new UInt16Serializer(representation: BsonType.Int32, strictConverter));
-            __standardSerializers.Add(typeof(uint), new UInt32Serializer(representation: BsonType.Int32, strictConverter));
-            __standardSerializers.Add(typeof(ulong), new UInt64Serializer(representation: BsonType.Int64, strictConverter));
-
-            var standardTypes = __standardSerializers.Keys.ToArray(); // call ToArray to make a copy of the current Keys
-
-            foreach (var standardType in standardTypes)
-            {
-                var standardSerializer = __standardSerializers[standardType];
-
-                var nullableType = typeof(Nullable<>).MakeGenericType(standardType);
-                var nullableSerializer = NullableSerializer.Create(valueSerializer: standardSerializer);
-                __standardSerializers.Add(nullableType, nullableSerializer);
-
-                var arrayType = standardType.MakeArrayType();
-                var arraySerializer = ArraySerializerHelper.CreateSerializer(itemSerializer: standardSerializer);
-                __standardSerializers.Add(arrayType, arraySerializer);
-
-                var arrayOfNullableType = nullableType.MakeArrayType();
-                var arrayOfNullableSerializer = ArraySerializerHelper.CreateSerializer(itemSerializer: nullableSerializer);
-                __standardSerializers.Add(arrayOfNullableType, arrayOfNullableSerializer);
-            }
+            AddStandardSerializers(new BooleanSerializer(representation: BsonType.Boolean));
+            AddStandardSerializers(new ByteSerializer(representation: BsonType.Int32));
+            AddStandardSerializers(new CharSerializer(representation: BsonType.Int32));
+            AddStandardSerializers(new DecimalSerializer(representation: BsonType.Decimal128, allowTruncationConverter));
+            AddStandardSerializers(new DoubleSerializer(representation: BsonType.Double, strictConverter));
+            AddStandardSerializers(new Int16Serializer(representation: BsonType.Int32, strictConverter));
+            AddStandardSerializers(new Int32Serializer(representation: BsonType.Int32, strictConverter));
+            AddStandardSerializers(new Int64Serializer(representation: BsonType.Int64, strictConverter));
+            AddStandardSerializers(new SByteSerializer(representation: BsonType.Int32));
+            AddStandardSerializers(new SingleSerializer(representation: BsonType.Double, allowTruncationConverter));
+            AddStandardSerializers(new UInt16Serializer(representation: BsonType.Int32, strictConverter));
+            AddStandardSerializers(new UInt32Serializer(representation: BsonType.Int32, strictConverter));
+            AddStandardSerializers(new UInt64Serializer(representation: BsonType.Int64, strictConverter));
 
             __booleanSerializer = (IBsonSerializer<bool>)__standardSerializers[typeof(bool)];
+
+            static void AddStandardSerializers(IBsonSerializer standardSerializer)
+            {
+                __standardSerializers.Add(standardSerializer.ValueType, standardSerializer);
+
+                var nullableSerializer = NullableSerializer.Create(valueSerializer: standardSerializer);
+                __standardSerializers.Add(nullableSerializer.ValueType, nullableSerializer);
+
+                var arraySerializer = ArraySerializerHelper.CreateSerializer(itemSerializer: standardSerializer);
+                __standardSerializers.Add(arraySerializer.ValueType, nullableSerializer);
+
+                var arrayOfNullableSerializer = ArraySerializerHelper.CreateSerializer(itemSerializer: nullableSerializer);
+                __standardSerializers.Add(arrayOfNullableSerializer.ValueType, arrayOfNullableSerializer);
+            }
         }
 
         public static IBsonSerializer<bool> BooleanSerializer => __booleanSerializer;
