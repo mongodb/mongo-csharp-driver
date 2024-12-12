@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
@@ -31,7 +32,9 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             public E E { get; set; }
             public E? NE { get; set; }
+            public E[] ArrayEnum { get; set; }
             public int I { get; set; }
+            public int[] ArrayInt { get; set; }
         }
 
         [Theory]
@@ -51,10 +54,28 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Theory]
         [InlineData(BsonType.Int32)]
         [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
+        //TODO we need a test like this for collections of various kinds (including dictionaries)
         public void Apply_should_configure_serializer_when_member_is_a_nullable_enum(BsonType representation)
         {
             var subject = new EnumRepresentationConvention(representation);
             var memberMap = CreateMemberMap(c => c.NE);
+
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
+            childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
+        public void Apply_should_configure_serializer_when_member_is_an_enum_collection(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.ArrayEnum);
 
             subject.Apply(memberMap);
 
@@ -68,6 +89,18 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var subject = new EnumRepresentationConvention(BsonType.String);
             var memberMap = CreateMemberMap(c => c.I);
+            var serializer = memberMap.GetSerializer();
+
+            subject.Apply(memberMap);
+
+            memberMap.GetSerializer().Should().BeSameAs(serializer);
+        }
+
+        [Fact]
+        public void Apply_should_do_nothing_when_member_is_not_an_enum_collection()
+        {
+            var subject = new EnumRepresentationConvention(BsonType.String);
+            var memberMap = CreateMemberMap(c => c.ArrayInt);
             var serializer = memberMap.GetSerializer();
 
             subject.Apply(memberMap);
