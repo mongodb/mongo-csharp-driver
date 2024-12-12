@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
@@ -76,7 +77,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_an_enum_collection(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation);
+            var subject = new EnumRepresentationConvention(representation, true);
             var memberMap = CreateMemberMap(c => c.ArrayEnum);
 
             subject.Apply(memberMap);
@@ -92,7 +93,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_a_nested_enum_collection(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation);
+            var subject = new EnumRepresentationConvention(representation, true);
             var memberMap = CreateMemberMap(c => c.ArrayOfArrayEnum);
 
             subject.Apply(memberMap);
@@ -108,7 +109,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_an_enum_dictionary(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation);
+            var subject = new EnumRepresentationConvention(representation, true);
             var memberMap = CreateMemberMap(c => c.DictionaryEnum);
 
             subject.Apply(memberMap);
@@ -124,7 +125,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_a_nested_enum_dictionary(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation);
+            var subject = new EnumRepresentationConvention(representation, true);
             var memberMap = CreateMemberMap(c => c.NestedDictionaryEnum);
 
             subject.Apply(memberMap);
@@ -132,6 +133,21 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)((IChildSerializerConfigurable)serializer.ChildSerializer).ChildSerializer;
             childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int64)]
+        [InlineData(BsonType.String)]
+        public void Apply_should_do_nothing_when_member_is_an_enum_collection_and_should_apply_to_collection_is_false(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation, false);
+            var memberMap = CreateMemberMap(c => c.ArrayEnum);
+
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
+            childSerializer.Representation.Should().Be(BsonType.Int32);
         }
 
         [Fact]
@@ -163,11 +179,23 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.Int32)]
         [InlineData(BsonType.Int64)]
         [InlineData(BsonType.String)]
-        public void constructor_should_initialize_instance_when_representation_is_valid(BsonType representation)
+        public void constructor_with_representation_should_return_expected_result(BsonType representation)
         {
             var subject = new EnumRepresentationConvention(representation);
 
             subject.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_with_representation_and_should_apply_to_collection_should_return_expected_result(
+            [Values((BsonType)0, BsonType.Int32, BsonType.Int64, BsonType.String)] BsonType representation,
+            [Values(true, false)] bool shouldApplyToCollections)
+        {
+            var subject = new EnumRepresentationConvention(representation, shouldApplyToCollections);
+
+            subject.Representation.Should().Be(representation);
+            subject.ShouldApplyToCollections.Should().Be(shouldApplyToCollections);
         }
 
         [Theory]
