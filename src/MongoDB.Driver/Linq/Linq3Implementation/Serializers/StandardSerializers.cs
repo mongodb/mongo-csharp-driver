@@ -57,8 +57,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
                 var nullableSerializer = NullableSerializer.Create(valueSerializer: standardSerializer);
                 __standardSerializers.Add(nullableSerializer.ValueType, nullableSerializer);
 
-                var arraySerializer = ArraySerializerHelper.CreateSerializer(itemSerializer: standardSerializer);
-                __standardSerializers.Add(arraySerializer.ValueType, nullableSerializer);
+                var arraySerializer = standardSerializer.ValueType == typeof(byte) ?
+                    new ByteArraySerializer() : // use this custom serializer for byte arrays
+                    ArraySerializerHelper.CreateSerializer(itemSerializer: standardSerializer);
+                __standardSerializers.Add(arraySerializer.ValueType, arraySerializer);
 
                 var arrayOfNullableSerializer = ArraySerializerHelper.CreateSerializer(itemSerializer: nullableSerializer);
                 __standardSerializers.Add(arrayOfNullableSerializer.ValueType, arrayOfNullableSerializer);
