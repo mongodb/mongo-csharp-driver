@@ -103,13 +103,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         // private methods
-        // private methods
         private bool IsNullableEnum(Type type)
         {
             return
-                type.GetTypeInfo().IsGenericType &&
+                type.IsGenericType &&
                 type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                Nullable.GetUnderlyingType(type)!.GetTypeInfo().IsEnum;
+                Nullable.GetUnderlyingType(type)!.IsEnum;
         }
 
         private void EnsureRepresentationIsValidForEnums(BsonType representation)
