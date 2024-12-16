@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
@@ -99,17 +100,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var client = ConfigureClient())
             using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider))
             {
-                var encryptedFields = BsonDocument.Parse($@"
-                {{
+                var encryptedFields = BsonDocument.Parse(@"
+                {
                     fields:
-                    [
-                    {{
-                        path: ""ssn"",
-                        bsonType: ""string"",
+                    [{
+                        path: 'ssn',
+                        bsonType: 'string',
                         keyId: null
-                    }}
-                    ]
-                }}");
+                    }]
+                }");
 
                 DropCollection(__collCollectionNamespace, encryptedFields);
 
@@ -419,7 +418,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
 
-                AssertInnerEncryptionException<TimeoutException>(exception, "A timeout occurred after 10000ms selecting a server");
+                AssertInnerEncryptionException<TimeoutException>(exception, ex => ex.Message.Should().Contain("A timeout occurred after 10000ms selecting a server"));
             }
         }
 
@@ -1213,7 +1212,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             Insert(decryptionEventsCollection, async, new BsonDocument("encrypted", malformedCiphertext));
                             var exception = Record.Exception(() => Aggregate(decryptionEventsCollection, async));
-                            AssertInnerEncryptionException<CryptException>(exception, "HMAC validation failure");
+                            AssertInnerEncryptionException<CryptException>(exception, ex => ex.Message.Should().Contain("HMAC validation failure"));
 
                             var reply = eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Which.Reply;
                             eventCapturer.Any().Should().BeFalse();
@@ -1503,7 +1502,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                             AssertTlsWithoutClientCertOnLinux(exception);
                                             break;
                                         case OperatingSystemPlatform.MacOS:
-                                            AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                            AssertInnerEncryptionException(
+                                                exception,
+                                                Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true),
+                                                ex => ex.Message.Should().Contain("handshake failure"));
                                             break;
                                         default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
                                     }
@@ -1512,17 +1514,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     AssertCertificate(isExpired: null, invalidHost: null);
                                     // Expect an error from libmongocrypt with a message containing the string: "parse
                                     // error". This implies TLS handshake succeeded.
-                                    AssertInnerEncryptionException<CryptException>(exception, "Got parse error");
+                                    AssertInnerEncryptionException<CryptException>(exception, ex => ex.Message.Should().Contain("Got parse error"));
                                     break;
                                 case CertificateType.Expired:
                                     AssertCertificate(isExpired: true, invalidHost: false);
                                     // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                    AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
+                                    AssertInnerEncryptionException<AuthenticationException>(exception, ex => ex.Message.Should().Contain(invalidCertificateError));
                                     break;
                                 case CertificateType.InvalidHostName:
                                     AssertCertificate(isExpired: false, invalidHost: true);
                                     // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                    AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
+                                    AssertInnerEncryptionException<AuthenticationException>(exception, ex => ex.Message.Should().Contain(invalidCertificateError));
                                     break;
                                 default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                             }
@@ -1543,7 +1545,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        AssertInnerEncryptionException(
+                                            exception,
+                                            Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true),
+                                            ex => ex.Message.Should().Contain("handshake failure"));
                                         break;
                                     default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
                                 }
@@ -1551,17 +1556,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
                                 // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, "404");
+                                AssertInnerEncryptionException<CryptException>(exception, ex => ex.Message.Should().Contain("404"));
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
+                                AssertInnerEncryptionException<AuthenticationException>(exception, ex => ex.Message.Should().Contain(invalidCertificateError));
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
+                                AssertInnerEncryptionException<AuthenticationException>(exception,ex => ex.Message.Should().Contain(invalidCertificateError));
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -1581,7 +1586,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        AssertInnerEncryptionException(
+                                            exception,
+                                            Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true),
+                                            ex => ex.Message.Should().Contain("handshake failure"));
                                         break;
                                     default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
                                 }
@@ -1589,17 +1597,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
                                 // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, "404");
+                                AssertInnerEncryptionException<CryptException>(exception, ex => ex.Message.Should().Contain("404"));
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
+                                AssertInnerEncryptionException<AuthenticationException>(exception, ex => ex.Message.Should().Contain(invalidCertificateError));
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
+                                AssertInnerEncryptionException<AuthenticationException>(exception, ex => ex.Message.Should().Contain(invalidCertificateError));
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -1619,7 +1627,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        AssertInnerEncryptionException(
+                                            exception,
+                                            Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true),
+                                            ex => ex.Message.Should().Contain("handshake failure"));
                                         break;
                                     default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
                                 }
@@ -1631,12 +1642,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
+                                AssertInnerEncryptionException<AuthenticationException>(exception, ex => ex.Message.Should().Contain(invalidCertificateError));
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
+                                AssertInnerEncryptionException<AuthenticationException>(exception, ex => ex.Message.Should().Contain(invalidCertificateError));
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -1657,25 +1668,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     AssertInnerEncryptionException(
                         exception,
-                        Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true),
-                        "Authentication failed, see inner exception.",
-                        "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                        Type.GetType("Interop+OpenSsl+SslException, System.Net.Security", throwOnError: true),
+                        ex => ex.Message.Should().BeOneOf("SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.", "Decrypt failed with OpenSSL error - SSL_ERROR_SSL."));
                 }
                 catch (XunitException)
                 {
-
-#if NET6_0_OR_GREATER
-                    var innerException = "Unable to write data to the transport connection: Connection reset by peer.";
-#else
-                    var innerException =  async
-                        ? "Unable to read data from the transport connection: Connection reset by peer."
-                        : "Unable to write data to the transport connection: Connection reset by peer.";
-#endif
-
                     // With Tls1.3, there is no report of a failed handshake if the client certificate verification fails
                     // since the client receives a 'Finished' message from the server before sending its certificate, it assumes
                     // authentication and we will not know if there was an error until we next read/write from the server.
-                    AssertInnerEncryptionException<SocketException>(exception, innerException);
+                    AssertInnerEncryptionException<SocketException>(exception, ex => ex.Message.Should().Contain("Connection reset by peer"));
                 }
             }
 
@@ -1683,15 +1684,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 try
                 {
-                    string[] innerExceptions =
-#if NET6_0_OR_GREATER
-                        ["Authentication failed because the remote party sent a TLS alert"];
-#elif NET472
-                        ["A call to SSPI failed, see inner exception.", "The message received was unexpected or badly formatted"];
-#else
-                        ["Authentication failed, see inner exception.", "The message received was unexpected or badly formatted"];
-#endif
-                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, innerExceptions);
+                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
+                        exception,
+                        ex => ex.Message.Should().Contain("The message received was unexpected or badly formatted"));
                 }
                 catch (XunitException) // assertation failed
                 {
@@ -1699,8 +1694,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     // It looks like a test env issue, a similar behavior presents in other drivers, so we rely on the same check on different OSs
                     AssertInnerEncryptionException<SocketException>(
                         exception,
-                        "Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host.",
-                        "An existing connection was forcibly closed by the remote host");
+                        // It should be Contain, because in Net6.0 they added "." at the very end of the exception message
+                        ex => ex.Message.Should().Contain("An existing connection was forcibly closed by the remote host"));
                 }
             }
 
@@ -1825,46 +1820,27 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             {
                                 try
                                 {
-                                    AssertInnerEncryptionException<AmazonServiceException>(ex, "Unable to get IAM security credentials from EC2 Instance Metadata Service.");
+                                    AssertInnerEncryptionException<AmazonServiceException>(
+                                        ex,
+                                        e => e.Message.Should().Contain("Unable to get IAM security credentials from EC2 Instance Metadata Service."));
                                 }
                                 catch (XunitException)
                                 {
                                     // In rare cases, the thrown error is "CryptException exception: AccessDeniedException". That means you don't have authorization to perform the requested action.
                                     // It more or less corresponds to the expected behavior here, but it's unclear why the same scenario triggers different exceptions.
                                     // However, it looks harmless to slightly update the test assertion to avoid assertion failures on EG.
-                                    AssertInnerEncryptionException<CryptException>(ex, "Error in KMS response.", "HTTP status=400.", "\"__type\":\"AccessDeniedException\"");
+                                    AssertInnerEncryptionException<CryptException>(ex, e => e.Message.Should().Contain("\"__type\":\"AccessDeniedException\""));
                                 }
                             }
                             break;
                         case "azure":
                             {
-                                switch (currentOperatingSystem)
-                                {
-                                    case OperatingSystemPlatform.Windows:
-                                    case OperatingSystemPlatform.Linux:
-                                        {
-                                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
-                                        }
-                                        break;
-                                    case OperatingSystemPlatform.MacOS:
-                                        {
-                                            try
-                                            {
-                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire IMDS access token.");
-                                            }
-                                            catch (XunitException)
-                                            {
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
-                                            }
-                                        }
-                                        break;
-                                    default: throw new Exception($"Unexpected OS: {currentOperatingSystem}");
-                                }
+                                AssertInnerEncryptionException<MongoClientException>(ex, e => e.Message.Should().Contain("Failed to acquire IMDS access token."));
                             }
                             break;
                         case "gcp":
                             {
-                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire gce metadata credentials.");
+                                AssertInnerEncryptionException<MongoClientException>(ex, e => e.Message.Should().Contain("Failed to acquire gce metadata credentials."));
                             }
                             break;
                         default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
@@ -2260,7 +2236,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
 
                             var exception = Record.Exception(() => ExplicitEncrypt(clientEncryption, encryptOptions, value201, async));
-                            AssertInnerEncryptionException<CryptException>(exception, "Value must be greater than or equal to the minimum value and less than or equal to the maximum value");
+                            AssertInnerEncryptionException<CryptException>(
+                                exception,
+                                ex => ex.Message.Should().Contain("Value must be greater than or equal to the minimum value and less than or equal to the maximum value"));
                         }
                         break;
                     case 7: // encrypting a document of a different type errors
@@ -2293,7 +2271,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     encryptOptions.With(rangeOptions: new RangeOptions(sparsity: 1, trimFactor: 1, min: BsonValue.Create(0), max: BsonValue.Create(200), precision: 2)),
                                     value6,
                                     async));
-                            AssertInnerEncryptionException<CryptException>(exception, "expected 'precision' to be set with double or decimal128 index, but got: INT32 min");
+                            AssertInnerEncryptionException<CryptException>(
+                                exception,
+                                ex => ex.Message.Should().Contain("expected 'precision' to be set with double or decimal128 index, but got: INT32 min"));
                         }
                         break;
                 }
@@ -2442,12 +2422,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var newLocalDataKey = CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "abc" }), async);
 
                             var exception = Record.Exception(() => CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "abc" }), async));
-                            var e = AssertInnerEncryptionException<MongoWriteException>(exception);
-                            e.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+                            AssertInnerEncryptionException<MongoWriteException>(
+                                exception,
+                                ex => ex.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey));
 
                             exception = Record.Exception(() => CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "def" }), async));
-                            e = AssertInnerEncryptionException<MongoWriteException>(exception);
-                            e.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+                            AssertInnerEncryptionException<MongoWriteException>(
+                                exception,
+                                ex => ex.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey));
                         }
                         break;
                     case 2:
@@ -2461,8 +2443,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             result["keyAltNames"].AsBsonArray.Contains("abc");
                             // 4 Add a keyAltName "def" to the key created in Step 1 and assert the operation fails due to a duplicate key
                             var exception = Record.Exception(() => AddAlternateKeyName(clientEncryption, newLocalDataKey, alternateKeyName: "def", async));
-                            var e = AssertInnerEncryptionException<MongoCommandException>(exception);
-                            e.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+                            AssertInnerEncryptionException<MongoCommandException>(
+                                exception,
+                                ex => ex.Code.Should().Be((int)ServerErrorCode.DuplicateKey));
                             // 5 add a keyAltName "def" to the existing key, assert the operation does not fail, and assert the returned key document contains the keyAltName "def"
                             result = AddAlternateKeyName(clientEncryption, existingKey, "def", async);
                             result["keyAltNames"].AsBsonArray.Contains("def");
@@ -2524,35 +2507,26 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        private Exception AssertInnerEncryptionException(Exception ex, Type exType, params string[] innerExceptionErrorMessage)
+        private void AssertInnerEncryptionException(Exception ex, Type innerExceptionType, Action<Exception> assert = null)
         {
-            Exception e = ex.Should().BeOfType<MongoEncryptionException>().Subject.InnerException;
-            foreach (var innerMessage in innerExceptionErrorMessage)
+            ex.Should().BeOfType<MongoEncryptionException>();
+            Exception e = ex;
+            while (e != null && !innerExceptionType.IsAssignableFrom(e.GetType()))
             {
-                e.Message.Should().Contain(innerMessage);
-                if (e.InnerException != null)
-                {
-                    e = e.InnerException;
-                }
+                e = e.InnerException;
             }
 
-            if (typeof(OperationCanceledException).IsAssignableFrom(exType))
+            if (e == null)
             {
-                // handles OperationCanceledException and TaskCanceledException.
-                // At least in macOS these exceptions can be triggered from the same code path in some cases
-                e.Should().BeAssignableTo<OperationCanceledException>();
+                Assert.Fail(ex.ToString());
             }
-            else
-            {
-                e.Should().BeOfType(exType);
-            }
-            return e;
+            e.Should().NotBeNull($"Cannot find inner exception of expected type: {innerExceptionType}.");
+            assert?.Invoke(e);
         }
 
-        private TMostInnerException AssertInnerEncryptionException<TMostInnerException>(Exception ex, params string[] innerExceptionErrorMessage) where TMostInnerException : Exception
-        {
-            return (TMostInnerException)AssertInnerEncryptionException(ex, typeof(TMostInnerException), innerExceptionErrorMessage);
-        }
+        private void AssertInnerEncryptionException<TInnerException>(Exception ex, Action<TInnerException> assert = null)
+            where TInnerException : Exception
+            => AssertInnerEncryptionException(ex, typeof(TInnerException), ex => assert?.Invoke((TInnerException)ex));
 
         private IMongoClient ConfigureClient(
             bool clearCollections = true,
