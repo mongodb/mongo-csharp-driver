@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                exception.Message.Should().Contain("because the two arguments are serialized differently");
             }
         }
 
@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                exception.Message.Should().Contain("because the two arguments are serialized differently");
             }
         }
 
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                exception.Message.Should().Contain("because the two arguments are serialized differently");
             }
         }
 
@@ -287,7 +287,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                exception.Message.Should().Contain("because the two arguments are serialized differently");
             }
         }
 

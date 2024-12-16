@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     _ => throw new ExpressionNotSupportedException(expression, because: "OfType is not supported with the configured discriminator convention")
                 };
 
-                var resultSerializer = context.KnownSerializersRegistry.GetSerializer(expression);
+                var resultSerializer = BsonSerializer.LookupSerializer(actualType);
                 if (wrappedValueOutputSerializer != null)
                 {
                     resultSerializer = WrappedValueSerializer.Create(wrappedValueOutputSerializer.FieldName, resultSerializer);
