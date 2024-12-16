@@ -93,6 +93,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
         private static readonly MethodInfo __selectManyWithSelectorTakingIndex;
         private static readonly MethodInfo __selectWithSelectorTakingIndex;
+        private static readonly MethodInfo __sequenceEqual;
         private static readonly MethodInfo __single;
         private static readonly MethodInfo __singleOrDefault;
         private static readonly MethodInfo __singleOrDefaultWithPredicate;
@@ -198,6 +199,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __selectManyWithCollectionSelectorTakingIndexAndResultSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, IEnumerable<object>>> collectionSelector, Expression<Func<object, object, object>> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
             __selectManyWithSelectorTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, IEnumerable<object>>> selector) => source.SelectMany(selector));
             __selectWithSelectorTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, object>> selector) => source.Select(selector));
+            __sequenceEqual = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2) => source1.SequenceEqual(source2));
             __single = ReflectionInfo.Method((IQueryable<object> source) => source.Single());
             __singleOrDefault = ReflectionInfo.Method((IQueryable<object> source) => source.SingleOrDefault());
             __singleOrDefaultWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.SingleOrDefault(predicate));
@@ -302,6 +304,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SelectManyWithCollectionSelectorTakingIndexAndResultSelector => __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
         public static MethodInfo SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
         public static MethodInfo SelectWithSelectorTakingIndex => __selectWithSelectorTakingIndex;
+        public static MethodInfo SequenceEqual => __sequenceEqual;
         public static MethodInfo Single => __single;
         public static MethodInfo SingleOrDefault => __singleOrDefault;
         public static MethodInfo SingleOrDefaultWithPredicate => __singleOrDefaultWithPredicate;
