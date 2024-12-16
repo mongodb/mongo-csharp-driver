@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 #endif
 
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $match : { } }");
+           AssertStages(stages);
         }
 #endif
 
@@ -301,7 +301,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, null)]
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -368,9 +368,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.InvariantCulture, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.InvariantCultureIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.InvariantCultureIgnoreCase, null)]
         [InlineData(StringComparison.Ordinal, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.OrdinalIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.OrdinalIgnoreCase, null)]
         public void Contains_with_string_constant_and_string_value_and_invalid_comparisonType_should_(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -533,7 +533,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void EndsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -591,7 +591,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void EndsWith_with_string_constant_and_string_value_and_ignoreCase_and_invalid_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -619,7 +619,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, null)]
         public void EndsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -717,7 +717,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 #endif
 
@@ -843,7 +843,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void StartsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -901,7 +901,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void StartsWith_with_string_constant_and_string_value_and_ignoreCase_and_invalid_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -929,7 +929,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, null)]
         public void StartsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
