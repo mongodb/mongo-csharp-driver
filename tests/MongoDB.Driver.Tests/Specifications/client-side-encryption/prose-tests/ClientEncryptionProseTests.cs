@@ -1566,7 +1566,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception,ex => ex.Message.Should().Contain(invalidCertificateError));
+                                AssertInnerEncryptionException<AuthenticationException>(exception, ex => ex.Message.Should().Contain(invalidCertificateError));
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -2520,6 +2520,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 Assert.Fail(ex.ToString());
             }
+
             e.Should().NotBeNull($"Cannot find inner exception of expected type: {innerExceptionType}.");
             assert?.Invoke(e);
         }
