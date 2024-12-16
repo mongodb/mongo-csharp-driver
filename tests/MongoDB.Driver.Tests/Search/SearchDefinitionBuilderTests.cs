@@ -599,6 +599,16 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<Person>();
             Record.Exception(() => subjectTyped.In(p => p.Object, values)).Should().BeOfType<ArgumentException>();
         }
+        
+        [Fact]
+        public void In_with_array_field_should_render_correctly()
+        {
+            var subjectTyped = CreateSubject<Person>();
+            
+            AssertRendered(
+                subjectTyped.In(p => p.Hobbies, ["dance", "ski"]),
+                "{ in: { path: 'hobbies', value: ['dance', 'ski'] } }");
+        }
 
         [Fact]
         public void MoreLikeThis()
@@ -943,6 +953,16 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { (ulong)1, Exp(p => p.UInt64) },
             new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
         };
+        
+        [Fact]
+        public void Range_with_array_field_should_render_correctly()
+        {
+            var subject = CreateSubject<Person>();
+
+            AssertRendered(
+                subject.Range(x => x.SalaryHistory, SearchRangeBuilder.Gte(1000).Lt(2000)),
+                "{ range: { path: 'salaries', gte: 1000, lt: 2000 } }");
+        }
 
         [Fact]
         public void Regex()
@@ -1265,6 +1285,9 @@ namespace MongoDB.Driver.Tests.Search
             [BsonElement("hobbies")]
             public string[] Hobbies { get; set; }
 
+            [BsonElement("salaries")]
+            public int[] SalaryHistory { get; set; }
+            
             public object Object { get; set; }
 
             public string Name { get; set; }
