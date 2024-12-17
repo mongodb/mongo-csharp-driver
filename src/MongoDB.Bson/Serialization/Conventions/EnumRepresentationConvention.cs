@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Reflection;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -87,7 +86,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         private IBsonSerializer Reconfigure(IBsonSerializer serializer)
         {
-            if (serializer is IChildSerializerConfigurable childSerializerConfigurable)
+            if (serializer is IBsonArraySerializer and IChildSerializerConfigurable childSerializerConfigurable)
             {
                 var childSerializer = childSerializerConfigurable.ChildSerializer;
                 var reconfiguredChildSerializer = Reconfigure(childSerializer);
