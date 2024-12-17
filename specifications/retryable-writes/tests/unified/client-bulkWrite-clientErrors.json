@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "client bulkWrite retryable writes with client errors",
   "schemaVersion": "1.21",
   "runOnRequirements": [

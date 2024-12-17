@@ -100,6 +100,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOneAndDeleteOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
+                    case "sort":
+                        options ??= new FindOneAndDeleteOptions<BsonDocument>();
+                        options.Sort = argument.Value.AsBsonDocument;
+                        break;
                     default:
                         throw new FormatException($"Invalid FindOneAndDeleteOperation argument name: '{argument.Name}'.");
                 }

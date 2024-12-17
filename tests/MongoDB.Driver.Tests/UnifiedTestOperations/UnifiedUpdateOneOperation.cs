@@ -169,6 +169,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 { "matchedCount", result.MatchedCount },
                 { "modifiedCount", result.ModifiedCount },
                 { "upsertedCount", result.UpsertedId == null ? 0 : 1 },
+                { "upsertedId", result.UpsertedId, result.UpsertedId != null}
             };
 
             return OperationResult.FromResult(document);
