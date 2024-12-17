@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class DictionaryInterfaceImplementerSerializer<TDictionary> :
         DictionarySerializerBase<TDictionary>,
         IChildSerializerConfigurable,
+        IKeyAndValueSerializerConfigurable,
         IDictionaryRepresentationConfigurable
             where TDictionary : class, IDictionary, new()
     {
@@ -153,6 +154,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
+
+        IBsonSerializer IKeyAndValueSerializerConfigurable.WithKeyAndValueSerializers(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        {
+            return valueSerializer.Equals(ValueSerializer) && keySerializer.Equals(KeySerializer)
+                ? this
+                : new DictionaryInterfaceImplementerSerializer<TDictionary>(DictionaryRepresentation, keySerializer, valueSerializer);
+        }
     }
 
     /// <summary>
@@ -164,6 +172,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> :
         DictionarySerializerBase<TDictionary, TKey, TValue>,
         IChildSerializerConfigurable,
+        IKeyAndValueSerializerConfigurable,
         IDictionaryRepresentationConfigurable<DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>>
             where TDictionary : class, IDictionary<TKey, TValue>
     {
@@ -279,6 +288,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         IBsonSerializer IDictionaryRepresentationConfigurable.WithDictionaryRepresentation(DictionaryRepresentation dictionaryRepresentation)
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
+        }
+
+        IBsonSerializer IKeyAndValueSerializerConfigurable.WithKeyAndValueSerializers(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        {
+            return valueSerializer.Equals(ValueSerializer) && keySerializer.Equals(KeySerializer)
+                ? this
+                : new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, (IBsonSerializer<TKey>)keySerializer, (IBsonSerializer<TValue>)valueSerializer);
         }
 
         /// <inheritdoc/>

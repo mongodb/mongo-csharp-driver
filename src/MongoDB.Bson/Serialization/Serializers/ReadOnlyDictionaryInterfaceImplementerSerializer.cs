@@ -28,6 +28,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> :
         DictionarySerializerBase<TDictionary, TKey, TValue>,
         IChildSerializerConfigurable,
+        IKeyAndValueSerializerConfigurable,
         IDictionaryRepresentationConfigurable<ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>>
             where TDictionary : class, IReadOnlyDictionary<TKey, TValue>
     {
@@ -120,6 +121,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         IBsonSerializer IDictionaryRepresentationConfigurable.WithDictionaryRepresentation(DictionaryRepresentation dictionaryRepresentation)
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
+        }
+
+        IBsonSerializer IKeyAndValueSerializerConfigurable.WithKeyAndValueSerializers(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        {
+            return valueSerializer.Equals(ValueSerializer) && keySerializer.Equals(KeySerializer)
+                ? this
+                : new ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, (IBsonSerializer<TKey>)keySerializer, (IBsonSerializer<TValue>)valueSerializer);
         }
 
         /// <inheritdoc/>
