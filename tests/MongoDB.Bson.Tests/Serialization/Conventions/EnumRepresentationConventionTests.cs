@@ -37,9 +37,9 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public E[][] ArrayOfArrayEnum { get; set; }
             public Dictionary<string, E> DictionaryEnum { get; set; }
             public Dictionary<string, E[]> NestedDictionaryEnum { get; set; }
-
             public Dictionary<E, string> DictionaryKeyEnum { get; set; }
             public int I { get; set; }
+            public int NI { get; set; }
             public int[] ArrayInt { get; set; }
         }
 
@@ -173,6 +173,18 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var subject = new EnumRepresentationConvention(BsonType.String);
             var memberMap = CreateMemberMap(c => c.I);
+            var serializer = memberMap.GetSerializer();
+
+            subject.Apply(memberMap);
+
+            memberMap.GetSerializer().Should().BeSameAs(serializer);
+        }
+
+        [Fact]
+        public void Apply_should_do_nothing_when_member_is_not_an_enum_and_nullable()
+        {
+            var subject = new EnumRepresentationConvention(BsonType.String);
+            var memberMap = CreateMemberMap(c => c.NI);
             var serializer = memberMap.GetSerializer();
 
             subject.Apply(memberMap);
