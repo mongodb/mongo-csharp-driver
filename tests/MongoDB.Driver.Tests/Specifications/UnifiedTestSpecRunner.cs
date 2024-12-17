@@ -27,6 +27,7 @@ using MongoDB.Driver.Tests.UnifiedTestOperations;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications
 {
@@ -126,7 +127,15 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("Serverless", "SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_writes.tests.unified")]
-        public void RetryableWrites(JsonDrivenTestCase testCase) => Run(testCase);
+        public void RetryableWrites(JsonDrivenTestCase testCase)
+        {
+            if (testCase.Name.Contains("bulkWrite.json") && testCase.Name.Contains("is never committed"))
+            {
+                throw new SkipException("This test is skipped because csharp driver has bug with handling connection closing while mixedBulkWrite operation.");
+            }
+
+            Run(testCase);
+        }
 
         [Category("SDAM", "SupportLoadBalancing")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
