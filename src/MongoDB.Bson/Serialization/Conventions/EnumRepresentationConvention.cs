@@ -66,50 +66,18 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            var serializer = memberMap.GetSerializer();
+            var reconfiguredSerializer =
+                SerializerConfigurator.ReconfigureSerializer<IRepresentationConfigurable>(memberMap.GetSerializer(),
+                    s => s.WithRepresentation(_representation),
+                    s => s.ValueType.IsEnum, _shouldApplyToCollections);
 
-            if (memberMap.MemberType.IsEnum && serializer is IRepresentationConfigurable representationConfigurableSerializer)
+            if (reconfiguredSerializer is not null)
             {
-                memberMap.SetSerializer(representationConfigurableSerializer.WithRepresentation(_representation));
-                return;
+                memberMap.SetSerializer(reconfiguredSerializer);
             }
-
-            if (_shouldApplyToCollections || IsNullableEnum(memberMap.MemberType))
-            {
-                var reconfiguredSerializer = Reconfigure(serializer);
-                if (reconfiguredSerializer is not null)
-                {
-                    memberMap.SetSerializer(reconfiguredSerializer);
-                }
-            }
-        }
-
-        private IBsonSerializer Reconfigure(IBsonSerializer serializer)
-        {
-            if (serializer is IBsonArraySerializer and IChildSerializerConfigurable childSerializerConfigurable)
-            {
-                var childSerializer = childSerializerConfigurable.ChildSerializer;
-                var reconfiguredChildSerializer = Reconfigure(childSerializer);
-                return reconfiguredChildSerializer is null ? null : childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
-            }
-
-            if (serializer.ValueType.IsEnum && serializer is IRepresentationConfigurable representationConfigurable)
-            {
-                return representationConfigurable.WithRepresentation(_representation);
-            }
-
-            return null;
         }
 
         // private methods
-        private bool IsNullableEnum(Type type)
-        {
-            return
-                type.IsGenericType &&
-                type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                Nullable.GetUnderlyingType(type)!.IsEnum;
-        }
-
         private void EnsureRepresentationIsValidForEnums(BsonType representation)
         {
             if (representation is 0 or BsonType.String or BsonType.Int32 or BsonType.Int64)

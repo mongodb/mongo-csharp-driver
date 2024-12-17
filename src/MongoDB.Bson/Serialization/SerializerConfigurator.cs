@@ -26,22 +26,26 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="serializer">The input serializer to be reconfigured.</param>
         /// <param name="reconfigure">A function that defines how the serializer of type <typeparamref name="TSerializer"/> should be reconfigured.</param>
+        /// <param name="testFunc">TODO</param>
+        /// <param name="shouldApplyToCollections">TODO</param>
         /// <typeparam name="TSerializer">The input type for the reconfigure method.</typeparam>
         /// <returns>
         /// The reconfigured serializer, or <c>null</c> if no leaf serializer could be reconfigured.
         /// </returns>
-        internal static IBsonSerializer ReconfigureSerializer<TSerializer>(IBsonSerializer serializer, Func<TSerializer, IBsonSerializer> reconfigure)
+        internal static IBsonSerializer ReconfigureSerializer<TSerializer>(IBsonSerializer serializer, Func<TSerializer, IBsonSerializer> reconfigure,
+            Func<IBsonSerializer, bool> testFunc = null, bool shouldApplyToCollections = true)
         {
             switch (serializer)
             {
-                case IChildSerializerConfigurable childSerializerConfigurable:
-                    var childSerializer = childSerializerConfigurable.ChildSerializer;
-                    var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure);
-                    return reconfiguredChildSerializer != null? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
-
-                case TSerializer typedSerializer:
+                case TSerializer typedSerializer when testFunc?.Invoke(serializer) ?? true:
                     return reconfigure(typedSerializer);
-
+                case IChildSerializerConfigurable childSerializerConfigurable when
+                    shouldApplyToCollections || Nullable.GetUnderlyingType(serializer.ValueType) != null:
+                {
+                    var childSerializer = childSerializerConfigurable.ChildSerializer;
+                    var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunc, shouldApplyToCollections);
+                    return reconfiguredChildSerializer != null? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
+                }
                 default:
                     return null;
             }
