@@ -2684,7 +2684,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
   display_name: "CSFLE with AZURE KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
@@ -2693,7 +2693,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-gcp-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
   display_name: "CSFLE with GCP KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
