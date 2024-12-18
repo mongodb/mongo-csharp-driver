@@ -158,20 +158,7 @@ namespace MongoDB.Driver.Core.Connections
         private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
             var timeoutTask = Task.Delay(_settings.ConnectTimeout, cancellationToken);
-            Task connectTask;
-
-#if !NET472
-            connectTask = socket.ConnectAsync(endPoint);
-#else
-            if (endPoint is DnsEndPoint dnsEndPoint)
-            {
-                connectTask = socket.ConnectAsync(dnsEndPoint.Host, dnsEndPoint.Port);
-            }
-            else
-            {
-                connectTask = socket.ConnectAsync(endPoint);
-            }
-#endif
+            var connectTask = socket.ConnectAsync(endPoint);
 
             await Task.WhenAny(connectTask, timeoutTask).ConfigureAwait(false);
 
