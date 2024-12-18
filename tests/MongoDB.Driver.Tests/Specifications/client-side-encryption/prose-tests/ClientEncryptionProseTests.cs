@@ -1833,18 +1833,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     case OperatingSystemPlatform.Windows:
                                     case OperatingSystemPlatform.Linux:
                                         {
-                                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                            AssertInnerEncryptionException<MongoClientException>(ex, "Failed to acquire IMDS access token.");
                                         }
                                         break;
                                     case OperatingSystemPlatform.MacOS:
                                         {
                                             try
                                             {
-                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire IMDS access token.");
+                                                AssertInnerEncryptionException<TaskCanceledException>(ex);
                                             }
                                             catch (XunitException)
                                             {
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                                AssertInnerEncryptionException<MongoClientException>(ex, "Failed to acquire IMDS access token.");
                                             }
                                         }
                                         break;
