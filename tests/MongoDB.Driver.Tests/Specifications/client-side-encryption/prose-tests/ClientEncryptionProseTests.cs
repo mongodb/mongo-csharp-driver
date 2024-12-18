@@ -1828,7 +1828,28 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             break;
                         case "azure":
                             {
-                                AssertInnerEncryptionException<MongoClientException>(ex, "Failed to acquire IMDS access token.");
+                                switch (currentOperatingSystem)
+                                {
+                                    case OperatingSystemPlatform.Windows:
+                                    case OperatingSystemPlatform.Linux:
+                                        {
+                                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                        }
+                                        break;
+                                    case OperatingSystemPlatform.MacOS:
+                                        {
+                                            try
+                                            {
+                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire IMDS access token.");
+                                            }
+                                            catch (XunitException)
+                                            {
+                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                            }
+                                        }
+                                        break;
+                                    default: throw new Exception($"Unexpected OS: {currentOperatingSystem}");
+                                }
                             }
                             break;
                         case "gcp":
