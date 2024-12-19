@@ -107,6 +107,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;
+                    case "returnDocument":
+                        options ??= new FindOneAndReplaceOptions<BsonDocument>();
+                        options.ReturnDocument = (ReturnDocument)Enum.Parse(typeof(ReturnDocument), argument.Value.AsString, true);
+                        break;
                     default:
                         throw new FormatException($"Invalid FindOneAndReplaceOperation argument name: '{argument.Name}'.");
                 }

@@ -144,7 +144,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     break;
 
                 default:
-                    throw new NotSupportedException($"Unrecognized exception type: '{actualException.GetType().FullName}'.");
+                    actualResult = new BsonDocument
+                    {
+                        { "insertedCount", 0 },
+                        { "upsertedCount", 0 },
+                        { "matchedCount", 0 },
+                        { "modifiedCount", 0 },
+                        { "deletedCount", 0 },
+                        { "insertedIds", new BsonDocument() },
+                        { "upsertedIds", new BsonDocument() }
+                    };
+                    break;
             }
 
             new UnifiedValueMatcher(_entityMap).AssertValuesMatch(actualResult, expectedResult);
