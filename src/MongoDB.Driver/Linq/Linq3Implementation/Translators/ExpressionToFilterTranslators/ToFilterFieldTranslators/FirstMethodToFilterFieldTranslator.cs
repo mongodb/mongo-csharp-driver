@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class FirstMethodToFilterFieldTranslator
     {
-        public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -31,14 +31,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 method.Name == "First" &&
                 arguments.Count == 1)
             {
-                var enumerableFieldAst = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, arguments[0]);
-                if (enumerableFieldAst.Serializer is IBsonArraySerializer arraySerializer &&
+                var fieldExpression = arguments[0];
+                var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
+
+                if (fieldTranslation.Serializer is IBsonArraySerializer arraySerializer &&
                     arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                 {
                     var itemSerializer = itemSerializationInfo.Serializer;
                     if (method.ReturnType.IsAssignableFrom(itemSerializer.ValueType))
                     {
-                        return enumerableFieldAst.SubField("0", itemSerializer);
+                        return fieldTranslation.SubField("0", itemSerializer);
                     }
                 }
             }

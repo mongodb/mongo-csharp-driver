@@ -118,9 +118,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             if (expression.Type == typeof(bool))
             {
-                var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
-                var serializedTrue = SerializationHelper.SerializeValue(field.Serializer, true);
-                return AstFilter.Eq(field, serializedTrue);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression);
+                var serializedTrue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, true);
+                return AstFilter.Eq(fieldTranslation.Ast, serializedTrue);
             }
 
             throw new ExpressionNotSupportedException(expression);

@@ -26,47 +26,47 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class ConvertExpressionToFilterFieldTranslator
     {
-        public static AstFilterField Translate(TranslationContext context, UnaryExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, UnaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs)
             {
-                var field = ExpressionToFilterFieldTranslator.Translate(context, expression.Operand);
-                var fieldType = field.Serializer.ValueType;
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression.Operand);
+                var fieldType = fieldTranslation.Serializer.ValueType;
                 var targetType = expression.Type;
 
                 if (targetType == fieldType)
                 {
-                    return field;
+                    return fieldTranslation;
                 }
 
                 if (IsConvertEnumToUnderlyingType(fieldType, targetType))
                 {
-                    return TranslateConvertEnumToUnderlyingType(field, targetType);
+                    return TranslateConvertEnumToUnderlyingType(fieldTranslation, targetType);
                 }
 
                 if (IsConvertUnderlyingTypeToEnum(fieldType, targetType))
                 {
-                    return TranslateConvertUnderlyingTypeToEnum(field, targetType);
+                    return TranslateConvertUnderlyingTypeToEnum(fieldTranslation, targetType);
                 }
 
                 if (IsNumericConversion(fieldType, targetType))
                 {
-                    return TranslateNumericConversion(field, targetType);
+                    return TranslateNumericConversion(fieldTranslation, targetType);
                 }
 
                 if (IsConvertToNullable(fieldType, targetType))
                 {
-                    return TranslateConvertToNullable(field);
+                    return TranslateConvertToNullable(fieldTranslation);
                 }
 
                 if (IsConvertToBaseType(fieldType, targetType))
                 {
-                    return TranslateConvertToBaseType(field, targetType);
+                    return TranslateConvertToBaseType(fieldTranslation, targetType);
                 }
 
                 if (IsConvertToDerivedType(fieldType, targetType))
                 {
-                    return TranslateConvertToDerivedType(field, targetType);
+                    return TranslateConvertToDerivedType(fieldTranslation, targetType);
                 }
             }
 
@@ -132,9 +132,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
         }
 
-        private static AstFilterField TranslateConvertEnumToUnderlyingType(AstFilterField field, Type targetType)
+        private static TranslatedFilterField TranslateConvertEnumToUnderlyingType(TranslatedFilterField fieldTranslation, Type targetType)
         {
-            var fieldSerializer = field.Serializer;
+            var fieldSerializer = fieldTranslation.Serializer;
             var fieldType = fieldSerializer.ValueType;
 
             IBsonSerializer enumSerializer;
@@ -154,32 +154,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 targetSerializer = NullableSerializer.Create(targetSerializer);
             }
 
-            return AstFilter.Field(field.Path, targetSerializer);
+            return new TranslatedFilterField(fieldTranslation.Ast, targetSerializer);
         }
 
-        private static AstFilterField TranslateConvertToBaseType(AstFilterField field, Type baseType)
+        private static TranslatedFilterField TranslateConvertToBaseType(TranslatedFilterField fieldTranslation, Type baseType)
         {
-            var derivedTypeSerializer = field.Serializer;
+            var derivedTypeSerializer = fieldTranslation.Serializer;
             var derivedType = derivedTypeSerializer.ValueType;
             var targetSerializer = DowncastingSerializer.Create(baseType, derivedType, derivedTypeSerializer);
-            return AstFilter.Field(field.Path, targetSerializer);
+            return new TranslatedFilterField(fieldTranslation.Ast, targetSerializer);
         }
 
-        private static AstFilterField TranslateConvertToDerivedType(AstFilterField field, Type targetType)
+        private static TranslatedFilterField TranslateConvertToDerivedType(TranslatedFilterField fieldTranslation, Type targetType)
         {
             var targetSerializer = BsonSerializer.LookupSerializer(targetType);
-            return AstFilter.Field(field.Path, targetSerializer);
+            return new TranslatedFilterField(fieldTranslation.Ast, targetSerializer);
         }
 
-        private static AstFilterField TranslateConvertToNullable(AstFilterField field)
+        private static TranslatedFilterField TranslateConvertToNullable(TranslatedFilterField fieldTranslation)
         {
-            var nullableSerializer = NullableSerializer.Create(field.Serializer);
-            return AstFilter.Field(field.Path, nullableSerializer);
+            var nullableSerializer = NullableSerializer.Create(fieldTranslation.Serializer);
+            return new TranslatedFilterField(fieldTranslation.Ast, nullableSerializer);
         }
 
-        private static AstFilterField TranslateConvertUnderlyingTypeToEnum(AstFilterField field, Type targetType)
+        private static TranslatedFilterField TranslateConvertUnderlyingTypeToEnum(TranslatedFilterField fieldTranslation, Type targetType)
         {
-            var valueSerializer = field.Serializer;
+            var valueSerializer = fieldTranslation.Serializer;
             if (valueSerializer is INullableSerializer nullableSerializer)
             {
                 valueSerializer = nullableSerializer.ValueSerializer;
@@ -206,10 +206,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 targetSerializer = NullableSerializer.Create(targetSerializer);
             }
 
-            return AstFilter.Field(field.Path, targetSerializer);
+            return new TranslatedFilterField(fieldTranslation.Ast, targetSerializer);
         }
 
-        private static AstFilterField TranslateNumericConversion(AstFilterField field, Type targetType)
+        private static TranslatedFilterField TranslateNumericConversion(TranslatedFilterField fieldTranslation, Type targetType)
         {
             IBsonSerializer targetTypeSerializer = targetType switch
             {
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 Type t when t == typeof(decimal) => new DecimalSerializer(),
                 _ => throw new Exception($"Unexpected target type: {targetType}.")
             };
-            if (field.Serializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
+            if (fieldTranslation.Serializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
                 targetTypeSerializer is IRepresentationConfigurable representationConfigurableTargetTypeSerializer)
             {
                 var fieldRepresentation = representationConfigurableFieldSerializer.Representation;
@@ -235,12 +235,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     targetTypeSerializer = representationConfigurableTargetTypeSerializer.WithRepresentation(fieldRepresentation);
                 }
             }
-            if (field.Serializer is IRepresentationConverterConfigurable converterConfigurableFieldSerializer &&
+            if (fieldTranslation.Serializer is IRepresentationConverterConfigurable converterConfigurableFieldSerializer &&
                 targetTypeSerializer is IRepresentationConverterConfigurable converterConfigurableTargetTypeSerializer)
             {
                 targetTypeSerializer = converterConfigurableTargetTypeSerializer.WithConverter(converterConfigurableFieldSerializer.Converter);
             }
-            return AstFilter.Field(field.Path, targetTypeSerializer);
+            return new TranslatedFilterField(fieldTranslation.Ast, targetTypeSerializer);
         }
     }
 }

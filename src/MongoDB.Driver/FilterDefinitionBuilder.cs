@@ -2165,7 +2165,7 @@ namespace MongoDB.Driver
                     throw new NotSupportedException($"OfType requires that documents of type {BsonUtils.GetFriendlyTypeName(typeof(TDerived))} have a discriminator value.");
                 }
 
-                var discriminatorField = new AstFilterField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
                 ofTypeFilter= discriminatorConvention switch
                 {
                     IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
@@ -2223,7 +2223,7 @@ namespace MongoDB.Driver
                 }
 
                 var discriminatorElementName = renderedField.FieldName + "." + discriminatorConvention.ElementName;
-                var discriminatorField = new AstFilterField(discriminatorElementName, BsonValueSerializer.Instance);
+                var discriminatorField = new AstFilterField(discriminatorElementName);
 
                 ofTypeFilter = discriminatorConvention switch
                 {

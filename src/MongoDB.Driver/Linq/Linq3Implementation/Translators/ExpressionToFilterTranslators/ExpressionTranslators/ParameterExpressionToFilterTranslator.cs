@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 if (context.SymbolTable.TryGetSymbol(expression, out var symbol))
                 {
                     var serializer = symbol.Serializer;
-                    var field = AstFilter.Field(symbol.Name, serializer);
-                    var serializedTrue = SerializationHelper.SerializeValue(field.Serializer, true);
+                    var field = AstFilter.Field(symbol.Name);
+                    var serializedTrue = SerializationHelper.SerializeValue(serializer, true);
                     return AstFilter.Eq(field, serializedTrue);
                 }
             }

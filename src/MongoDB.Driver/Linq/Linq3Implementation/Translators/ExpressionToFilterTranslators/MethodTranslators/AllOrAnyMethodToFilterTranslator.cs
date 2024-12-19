@@ -48,13 +48,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (method.IsOneOf(EnumerableMethod.All, EnumerableMethod.Any, EnumerableMethod.AnyWithPredicate, ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))
             {
                 var sourceExpression = method.IsStatic ? arguments[0] : expression.Object;
-                var (field, filter) = FilteredEnumerableFilterFieldTranslator.Translate(context, sourceExpression);
+                var (fieldTranslation, filter) = FilteredEnumerableFilterFieldTranslator.Translate(context, sourceExpression);
 
                 if (method.IsOneOf(EnumerableMethod.All, EnumerableMethod.AnyWithPredicate, ArrayMethod.Exists) || ListMethod.IsExistsMethod(method))
                 {
                     var predicateLambda = (LambdaExpression)(method.IsStatic ? arguments[1] : arguments[0]);
                     var parameterExpression = predicateLambda.Parameters.Single();
-                    var elementSerializer = ArraySerializerHelper.GetItemSerializer(field.Serializer);
+                    var elementSerializer = ArraySerializerHelper.GetItemSerializer(fieldTranslation.Serializer);
                     var parameterSymbol = context.CreateSymbol(parameterExpression, "@<elem>", elementSerializer); // @<elem> represents the implied element
                     var predicateContext = context.WithSingleSymbol(parameterSymbol); // @<elem> is the only symbol visible inside an $elemMatch
                     var predicateFilter = ExpressionToFilterTranslator.Translate(predicateContext, predicateLambda.Body, exprOk: false);
@@ -64,13 +64,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 if (method.Is(EnumerableMethod.All))
                 {
-                    return AstFilter.Not(AstFilter.ElemMatch(field, AstFilter.Not(filter)));
+                    return AstFilter.Not(AstFilter.ElemMatch(fieldTranslation.Ast, AstFilter.Not(filter)));
                 }
                 else
                 {
                     if (filter == null)
                     {
-                        return AstFilter.And(AstFilter.Ne(field, BsonNull.Value), AstFilter.Not(AstFilter.Size(field, 0)));
+                        return AstFilter.And(AstFilter.Ne(fieldTranslation.Ast, BsonNull.Value), AstFilter.Not(AstFilter.Size(fieldTranslation.Ast, 0)));
                     }
                     else
                     {
@@ -82,10 +82,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                                 .Select(filter => ((AstFieldOperationFilter)filter).Operation)
                                 .Select(operation => ((AstComparisonFilterOperation)operation).Value);
 
-                            return AstFilter.In(field, values);
+                            return AstFilter.In(fieldTranslation.Ast, values);
                         }
 
-                        return AstFilter.ElemMatch(field, filter);
+                        return AstFilter.ElemMatch(fieldTranslation.Ast, filter);
                     }
                 }
             }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
     internal static class FilteredEnumerableFilterFieldTranslator
     {
-        public static (AstFilterField, AstFilter) Translate(TranslationContext context, Expression sourceExpression)
+        public static (TranslatedFilterField, AstFilter) Translate(TranslationContext context, Expression sourceExpression)
         {
             if (sourceExpression is MethodCallExpression sourceMethodCallExpression)
             {
@@ -113,15 +113,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 if (method.Is(EnumerableMethod.OfType))
                 {
                     var ofTypeSourceExpression = arguments[0];
-                    var (sourceField, sourceFilter) = Translate(context, ofTypeSourceExpression);
+                    var (fieldTranslation, sourceFilter) = Translate(context, ofTypeSourceExpression);
 
-                    var nominalType = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer).ValueType;
+                    var nominalType = ArraySerializerHelper.GetItemSerializer(fieldTranslation.Serializer).ValueType;
                     var actualType = method.GetGenericArguments()[0];
-                    var sourceSerializer = sourceField.Serializer;
+                    var sourceSerializer = fieldTranslation.Serializer;
                     var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
 
                     var discriminatorConvention = itemSerializer.GetDiscriminatorConvention();
-                    var discriminatorField = AstFilter.Field(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                    var discriminatorField = AstFilter.Field(discriminatorConvention.ElementName);
 
                     var ofTypeFilter = discriminatorConvention switch
                     {
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                     var actualTypeSerializer = BsonSerializer.LookupSerializer(actualType);
                     var enumerableActualTypeSerializer = IEnumerableSerializer.Create(actualTypeSerializer);
-                    var actualTypeSourceField = AstFilter.Field(sourceField.Path, enumerableActualTypeSerializer);
+                    var actualTypeSourceField = new TranslatedFilterField(fieldTranslation.Ast, enumerableActualTypeSerializer);
                     var combinedFilter = AstFilter.Combine(sourceFilter, ofTypeFilter);
 
                     return (actualTypeSourceField, combinedFilter);
@@ -141,22 +141,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 if (method.Is(EnumerableMethod.Where))
                 {
                     var whereSourceExpression = arguments[0];
-                    var (sourceField, sourceFilter) = Translate(context, whereSourceExpression);
+                    var (fieldTranslation, sourceFilter) = Translate(context, whereSourceExpression);
 
                     var predicateLambda = (LambdaExpression)arguments[1];
                     var parameterExpression = predicateLambda.Parameters.Single();
-                    var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
+                    var itemSerializer = ArraySerializerHelper.GetItemSerializer(fieldTranslation.Serializer);
                     var parameterSymbol = context.CreateSymbol(parameterExpression, "@<elem>", itemSerializer); // @<elem> represents the implied element
                     var predicateContext = context.WithSingleSymbol(parameterSymbol); // @<elem> is the only symbol visible inside an $elemMatch
                     var whereFilter = ExpressionToFilterTranslator.Translate(predicateContext, predicateLambda.Body, exprOk: false);
                     var combinedFilter = AstFilter.Combine(sourceFilter, whereFilter);
 
-                    return (sourceField, combinedFilter);
+                    return (fieldTranslation, combinedFilter);
                 }
             }
 
-            var field = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
-            return (field, null);
+            {
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
+                return (fieldTranslation, null);
+            }
         }
     }
 }

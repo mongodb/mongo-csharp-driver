@@ -70,10 +70,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return filter;
             }
 
-            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var value = valueExpression.GetConstantValue<object>(containingExpression: expression);
-            var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
-            return AstFilter.Eq(field, serializedValue);
+            var serializedValue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, value);
+            return AstFilter.Eq(fieldTranslation.Ast, serializedValue);
         }
     }
 }

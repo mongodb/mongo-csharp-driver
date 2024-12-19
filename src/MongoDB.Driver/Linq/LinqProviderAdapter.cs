@@ -79,9 +79,9 @@ namespace MongoDB.Driver.Linq
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var body = RemovePossibleConvertToObject(expression.Body);
-            var field = ExpressionToFilterFieldTranslator.Translate(context, body);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, body);
 
-            return new RenderedFieldDefinition(field.Path, field.Serializer);
+            return new RenderedFieldDefinition(fieldTranslation.Ast.Path, fieldTranslation.Serializer);
 
             static Expression RemovePossibleConvertToObject(Expression expression)
             {
@@ -108,13 +108,13 @@ namespace MongoDB.Driver.Linq
             var context = TranslationContext.Create(expression, translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
-            var field = ExpressionToFilterFieldTranslator.Translate(context, expression.Body);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression.Body);
 
-            var underlyingSerializer = field.Serializer;
+            var underlyingSerializer = fieldTranslation.Serializer;
             var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
             var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
 
-            return new RenderedFieldDefinition<TField>(field.Path, fieldSerializer, valueSerializer, underlyingSerializer);
+            return new RenderedFieldDefinition<TField>(fieldTranslation.Ast.Path, fieldSerializer, valueSerializer, underlyingSerializer);
         }
 
         internal static BsonDocument TranslateExpressionToElemMatchFilter<TElement>(

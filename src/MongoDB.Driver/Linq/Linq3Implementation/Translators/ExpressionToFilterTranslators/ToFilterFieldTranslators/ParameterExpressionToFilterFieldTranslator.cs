@@ -22,21 +22,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class ParameterExpressionToFilterFieldTranslator
     {
-        public static AstFilterField Translate(TranslationContext context, ParameterExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, ParameterExpression expression)
         {
             var symbolTable = context.SymbolTable;
             if (symbolTable.TryGetSymbol(expression, out Symbol symbol))
             {
                 var fieldName = symbol.IsCurrent ? "@<current>" : symbol.Name;
                 var fieldSerializer = symbol.Serializer;
-                var field = AstFilter.Field(fieldName, fieldSerializer);
 
+                var field = AstFilter.Field(fieldName);
                 if (fieldSerializer is IWrappedValueSerializer wrappedValueSerializer)
                 {
-                    field = field.SubField("_v", wrappedValueSerializer.ValueSerializer);
+                    field = field.SubField("_v");
+                    fieldSerializer = wrappedValueSerializer.ValueSerializer;
                 }
 
-                return field;
+                return new TranslatedFilterField(field, fieldSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

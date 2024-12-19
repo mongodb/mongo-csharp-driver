@@ -22,13 +22,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
     internal static class ExpressionToPipelineTranslator
     {
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, Expression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, Expression expression)
         {
             if (expression.NodeType == ExpressionType.Constant)
             {
                 var query = (IQueryable)((ConstantExpression)expression).Value;
                 var provider = (IMongoQueryProviderInternal)query.Provider;
-                return AstPipeline.Empty(provider.PipelineInputSerializer);
+                return TranslatedPipeline.Empty(provider.PipelineInputSerializer);
             }
 
             var methodCallExpression = (MethodCallExpression)expression;

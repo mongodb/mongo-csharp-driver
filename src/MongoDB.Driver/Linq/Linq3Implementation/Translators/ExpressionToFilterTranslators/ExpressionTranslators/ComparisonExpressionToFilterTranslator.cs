@@ -89,9 +89,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return TranslateComparisonToBooleanConstant(context, expression, leftExpression, comparisonOperator, (bool)comparandExpression.Value);
             }
 
-            var field = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
-            var serializedComparand = SerializationHelper.SerializeValue(field.Serializer, comparandExpression, expression);
-            return AstFilter.Compare(field, comparisonOperator, serializedComparand);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
+            var serializedComparand = SerializationHelper.SerializeValue(fieldTranslation.Serializer, comparandExpression, expression);
+            return AstFilter.Compare(fieldTranslation.Ast, comparisonOperator, serializedComparand);
         }
 
         private static AstFilter TranslateComparisonToBooleanConstant(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, bool comparand)

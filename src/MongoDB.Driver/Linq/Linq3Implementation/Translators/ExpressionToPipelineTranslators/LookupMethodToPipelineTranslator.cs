@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         };
 
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     foreignSerializer = foreignCollection.DocumentSerializer;
                 }
 
-                AstPipeline lookupPipeline = null;
+                TranslatedPipeline lookupPipeline = null;
                 var isCorrelatedSubquery = false;
                 if (method.IsOneOf(__lookupMethodsWithDocuments))
                 {
@@ -120,8 +120,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                         lookupPipeline = TranslateDocumentsPipeline(context, pipelineLambda, localSerializer, documentSerializer);
                         isCorrelatedSubquery |= pipelineLambda.LambdaBodyReferencesParameter(localParameter);
 
-                        lookupPipeline = new AstPipeline(
-                            documentsPipeline.Stages.Concat(lookupPipeline.Stages), // splice in the $documents stage
+                        lookupPipeline = new TranslatedPipeline(
+                            new AstPipeline(documentsPipeline.Ast.Stages.Concat(lookupPipeline.Ast.Stages)), // splice in the $documents stage
                             lookupPipeline.OutputSerializer);
                     }
                     else
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                         localField,
                         foreignField,
                         let, // will be null if subquery is uncorrelated
-                        lookupPipeline,
+                        lookupPipeline.Ast,
                         @as: "_results");
 
                     resultSerializer = lookupPipeline.OutputSerializer;
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     lookupStage = AstStage.Lookup(
                         foreignCollectionName,
                         let, // will be null if subquery is uncorrelated
-                        lookupPipeline,
+                        lookupPipeline.Ast,
                         @as: "_results");
 
                     resultSerializer = lookupPipeline.OutputSerializer;
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                         localField,
                         foreignField,
                         let, // will be null if subquery is uncorrelated
-                        lookupPipeline,
+                        lookupPipeline.Ast,
                         @as: "_results");
 
                     resultSerializer = lookupPipeline.OutputSerializer;
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                         localField,
                         foreignField,
                         let, // will be null if subquery is uncorrelated
-                        lookupPipeline,
+                        lookupPipeline.Ast,
                         @as: "_results");
 
                     resultSerializer = lookupPipeline.OutputSerializer;
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 {
                     lookupStage = AstStage.Lookup(
                         let, // will be null if subquery is uncorrelated
-                        lookupPipeline,
+                        lookupPipeline.Ast,
                         @as: "_results");
 
                     resultSerializer = lookupPipeline.OutputSerializer;
@@ -239,7 +239,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AstPipeline TranslateDocuments(
+        private static TranslatedPipeline TranslateDocuments(
             TranslationContext context,
             LambdaExpression documentsLambda,
             IBsonSerializer localSerializer)
@@ -251,10 +251,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var documentsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, documentsLambda.Body);
             var documentSerializer = ArraySerializerHelper.GetItemSerializer(documentsTranslation.Serializer);
             var documentsStage = AstStage.Documents(documentsTranslation.Ast);
-            return new AstPipeline([documentsStage], documentSerializer);
+            return new TranslatedPipeline(new AstPipeline([documentsStage]), documentSerializer);
         }
 
-        private static AstPipeline TranslateDocumentsPipeline(
+        private static TranslatedPipeline TranslateDocumentsPipeline(
             TranslationContext context,
             LambdaExpression pipelineLambda,
             IBsonSerializer localSerializer,
@@ -267,10 +267,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var resultType = funcTypeGenericArguments[2].GetGenericArguments()[0]; // IQueryable<TResult>
             var methodInfo = typeof(LookupMethodToPipelineTranslator).GetMethod(nameof(TranslateDocumentsPipelineGeneric), BindingFlags.Static | BindingFlags.NonPublic);
             var genericMethodInfo = methodInfo.MakeGenericMethod(localType, documentType, resultType);
-            return (AstPipeline)genericMethodInfo.Invoke(null, [context, pipelineLambda, localSerializer, documentsSerializer]);
+            return (TranslatedPipeline)genericMethodInfo.Invoke(null, [context, pipelineLambda, localSerializer, documentsSerializer]);
         }
 
-        private static AstPipeline TranslateDocumentsPipelineGeneric<TLocal, TDocument, TResult>(
+        private static TranslatedPipeline TranslateDocumentsPipelineGeneric<TLocal, TDocument, TResult>(
             TranslationContext context,
             Expression<Func<TLocal, IQueryable<TDocument>, IQueryable<TResult>>> pipelineLambda,
             IBsonSerializer<TLocal> localSerializer,
@@ -295,7 +295,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             return ExpressionToPipelineTranslator.Translate(context, body);
         }
 
-        private static AstPipeline TranslateLookupPipeline(
+        private static TranslatedPipeline TranslateLookupPipeline(
             TranslationContext context,
             LambdaExpression pipelineLambda,
             IBsonSerializer localSerializer,
@@ -308,10 +308,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var resultType = funcParameterTypes[2].GetGenericArguments()[0]; // IQueryable<TResult>
             var methodInfo = typeof(LookupMethodToPipelineTranslator).GetMethod(nameof(TranslateLookupPipelineAgainstForeignCollection), BindingFlags.Static | BindingFlags.NonPublic);
             var genericMethodInfo = methodInfo.MakeGenericMethod(localType, foreignType, resultType);
-            return (AstPipeline)genericMethodInfo.Invoke(null, [context, pipelineLambda, localSerializer, foreignCollection]);
+            return (TranslatedPipeline)genericMethodInfo.Invoke(null, [context, pipelineLambda, localSerializer, foreignCollection]);
         }
 
-        private static AstPipeline TranslateLookupPipelineAgainstForeignCollection<TLocal, TForeign, TResult>(
+        private static TranslatedPipeline TranslateLookupPipelineAgainstForeignCollection<TLocal, TForeign, TResult>(
             TranslationContext context,
             Expression<Func<TLocal, IQueryable<TForeign>, IQueryable<TResult>>> pipelineLambda,
             IBsonSerializer<TLocal> localSerializer,
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             return TranslateLookupPipelineAgainstQueryable(context, pipelineLambda, localSerializer, queryable);
         }
 
-        private static AstPipeline TranslateLookupPipelineAgainstQueryable<TLocal, TForeign, TResult>(
+        private static TranslatedPipeline TranslateLookupPipelineAgainstQueryable<TLocal, TForeign, TResult>(
             TranslationContext context,
             Expression<Func<TLocal, IQueryable<TForeign>, IQueryable<TResult>>> pipelineLambda,
             IBsonSerializer<TLocal> localSerializer,

@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
     internal static class JoinMethodToPipelineTranslator
     {
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;

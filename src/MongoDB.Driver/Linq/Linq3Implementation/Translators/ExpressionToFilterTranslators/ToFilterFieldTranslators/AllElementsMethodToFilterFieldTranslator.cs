@@ -23,21 +23,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class AllElementsMethodToFilterFieldTranslator
     {
-        public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
             if (method.Is(MongoEnumerableMethod.AllElements))
             {
-                var sourceExpression = arguments[0];
-                var field = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
+                var fieldExpression = arguments[0];
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
-                if (field.Serializer is IBsonArraySerializer arraySerializer &&
+                if (fieldTranslation.Serializer is IBsonArraySerializer arraySerializer &&
                     arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                 {
                     var itemSerializer = itemSerializationInfo.Serializer;
-                    return field.SubField($"$[]", itemSerializer);
+                    return fieldTranslation.SubField($"$[]", itemSerializer);
                 }
             }
 

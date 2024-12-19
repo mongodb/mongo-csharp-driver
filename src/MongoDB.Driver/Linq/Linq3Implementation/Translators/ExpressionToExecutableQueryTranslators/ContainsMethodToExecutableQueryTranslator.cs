@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 var itemValue = itemExpression.GetConstantValue<object>(containingExpression: expression);
                 var serializedValue = SerializationHelper.SerializeValue(pipeline.OutputSerializer, itemValue);
 
-                AstFilter filter = AstFilter.Eq(AstFilter.Field("_v", valueSerializer), serializedValue);
+                AstFilter filter = AstFilter.Eq(AstFilter.Field("_v"), serializedValue);
                 pipeline = pipeline.AddStages(
                     __outputSerializer,
                     AstStage.Match(filter),

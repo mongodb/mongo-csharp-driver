@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 {
     internal static class ConcatMethodToPipelineTranslator
     {
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -46,14 +46,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     var secondCollectionName = secondCollectionNamespace.CollectionName;
                     var secondContext = TranslationContext.Create(secondQueryable.Expression, context.TranslationOptions);
                     var secondPipeline = ExpressionToPipelineTranslator.Translate(secondContext, secondQueryable.Expression);
-                    if (secondPipeline.Stages.Count == 0)
+                    if (secondPipeline.Ast.Stages.Count == 0)
                     {
                         secondPipeline = null;
                     }
 
                     pipeline = pipeline.AddStages(
                         pipeline.OutputSerializer,
-                        AstStage.UnionWith(secondCollectionName, secondPipeline));
+                        AstStage.UnionWith(secondCollectionName, secondPipeline.Ast));
 
                     return pipeline;
                 }

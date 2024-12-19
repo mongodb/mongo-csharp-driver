@@ -1219,7 +1219,7 @@ namespace MongoDB.Driver
                             throw new NotSupportedException(message);
                         }
 
-                        var discriminatorField = new AstFilterField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                        var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
                         ofTypeFilter = discriminatorConvention switch
                         {
                             IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),

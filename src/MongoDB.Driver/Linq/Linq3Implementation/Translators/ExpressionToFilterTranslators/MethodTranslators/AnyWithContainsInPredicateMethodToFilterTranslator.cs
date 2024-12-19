@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayFieldTranslation.Serializer);
             var values = (IEnumerable)arrayConstantExpression.Value;
             var serializedValues = SerializationHelper.SerializeValues(itemSerializer, values);
-            return AstFilter.In(arrayFieldTranslation, serializedValues);
+            return AstFilter.In(arrayFieldTranslation.Ast, serializedValues);
         }
 
         private static bool IsContainsParameterExpression(Expression predicateBody, ParameterExpression predicateParameter, out Expression innerSourceExpression)

@@ -42,36 +42,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             if (arrayLengthExpression.NodeType == ExpressionType.ArrayLength)
             {
-                var arrayExpression = arrayLengthExpression.Operand;
-                var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
+                var fieldExpression = arrayLengthExpression.Operand;
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
                 var size = sizeExpression.GetConstantValue<int>(containingExpression: expression);
 
                 switch (comparisonOperator)
                 {
                     case AstComparisonFilterOperator.Eq:
-                        return AstFilter.Size(arrayField, size);
+                        return AstFilter.Size(fieldTranslation.Ast, size);
 
                     case AstComparisonFilterOperator.Gt:
-                        return AstFilter.Exists(ItemField(arrayField, size));
+                        return AstFilter.Exists(ItemField(fieldTranslation.Ast, size));
 
                     case AstComparisonFilterOperator.Gte:
-                        return AstFilter.Exists(ItemField(arrayField, size - 1));
+                        return AstFilter.Exists(ItemField(fieldTranslation.Ast, size - 1));
 
                     case AstComparisonFilterOperator.Lt:
-                        return AstFilter.NotExists(ItemField(arrayField, size - 1));
+                        return AstFilter.NotExists(ItemField(fieldTranslation.Ast, size - 1));
 
                     case AstComparisonFilterOperator.Lte:
-                        return AstFilter.NotExists(ItemField(arrayField, size));
+                        return AstFilter.NotExists(ItemField(fieldTranslation.Ast, size));
 
                     case AstComparisonFilterOperator.Ne:
-                        return AstFilter.Not(AstFilter.Size(arrayField, size));
+                        return AstFilter.Not(AstFilter.Size(fieldTranslation.Ast, size));
                 }
 
             }
 
             throw new ExpressionNotSupportedException(expression);
 
-            static AstFilterField ItemField(AstFilterField field, int index) => field.SubField(index.ToString(), BsonValueSerializer.Instance);
+            static AstFilterField ItemField(AstFilterField field, int index) => field.SubField(index.ToString());
         }
     }
 }

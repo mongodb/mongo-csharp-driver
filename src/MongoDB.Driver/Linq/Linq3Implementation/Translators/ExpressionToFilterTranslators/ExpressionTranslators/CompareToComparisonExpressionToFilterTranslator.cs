@@ -43,16 +43,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 IComparableMethod.IsCompareToMethod(leftMethodCallExpression.Method))
             {
                 var fieldExpression = leftMethodCallExpression.Object;
-                var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var valueExpression = leftMethodCallExpression.Arguments[0];
                 var value = valueExpression.GetConstantValue<object>(containingExpression: expression);
-                var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
+                var serializedValue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, value);
 
                 var rightValue = rightExpression.GetConstantValue<int>(containingExpression: expression);
                 if (rightValue == 0)
                 {
-                    return AstFilter.Compare(field, comparisonOperator, serializedValue);
+                    return AstFilter.Compare(fieldTranslation.Ast, comparisonOperator, serializedValue);
                 }
             }
 

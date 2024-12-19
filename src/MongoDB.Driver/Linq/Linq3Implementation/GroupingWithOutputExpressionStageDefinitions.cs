@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
 
         private IReadOnlyList<AstStage> OptimizeGroupingStages(AstStage groupingStage, AstStage projectStage, IBsonSerializer inputSerializer, IBsonSerializer outputSerializer)
         {
-            var pipeline = AstPipeline.Empty(inputSerializer).AddStages(outputSerializer, groupingStage, projectStage);
+            var pipeline = new AstPipeline([groupingStage, projectStage]);
             var optimizedPipeline = AstPipelineOptimizer.Optimize(pipeline);
             return optimizedPipeline.Stages;
         }

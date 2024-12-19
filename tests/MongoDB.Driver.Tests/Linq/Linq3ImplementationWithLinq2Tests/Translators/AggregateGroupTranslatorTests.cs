@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators;
@@ -547,9 +548,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             var context = TranslationContext.Create(queryable.Expression, translationOptions: null);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, queryable.Expression);
-            pipeline = AstPipelineOptimizer.Optimize(pipeline);
+            var optimizedAstPipeline = AstPipelineOptimizer.Optimize(pipeline.Ast);
+            pipeline = new TranslatedPipeline(optimizedAstPipeline, pipeline.OutputSerializer);
 
-            var stages = pipeline.Stages.Select(s => s.Render()).Cast<BsonDocument>().ToList();
+            var stages = pipeline.Ast.Stages.Select(s => s.Render()).Cast<BsonDocument>().ToList();
             stages.Insert(1, new BsonDocument("$sort", new BsonDocument("_id", 1))); // force a standard order for testing purposes
             var pipelineDefinition = new BsonDocumentStagePipelineDefinition<Root, TResult>(stages, outputSerializer: (IBsonSerializer<TResult>)pipeline.OutputSerializer);
             var results = __collection.Aggregate(pipelineDefinition).ToList();

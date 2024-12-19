@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         }
 
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -67,9 +67,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AstPipeline TranslateSelectMany(
+        private static TranslatedPipeline TranslateSelectMany(
             TranslationContext context,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             ReadOnlyCollection<Expression> arguments)
         {
             var sourceSerializer = pipeline.OutputSerializer;
@@ -88,9 +88,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             return pipeline;
         }
 
-        private static AstPipeline TranslateSelectManyWithCollectionSelectorAndResultSelector(
+        private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndResultSelector(
             TranslationContext context,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             ReadOnlyCollection<Expression> arguments)
         {
             var sourceSerializer = pipeline.OutputSerializer;
@@ -109,8 +109,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             }
         }
 
-        private static AstPipeline TranslateSelectManyWithCollectionSelectorAndIdentityResultSelector(
-            AstPipeline pipeline,
+        private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndIdentityResultSelector(
+            TranslatedPipeline pipeline,
             AggregationExpression collectionSelectorTranslation)
         {
             var collectionItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionSelectorTranslation.Serializer);
@@ -125,9 +125,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 AstStage.Unwind("_v"));
         }
 
-        private static AstPipeline TranslateSelectManyWithCollectionSelectorAndNonIdentityResultSelector(
+        private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndNonIdentityResultSelector(
             TranslationContext context,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             AggregationExpression collectionSelectorTranslation,
             LambdaExpression resultSelectorLambda)
 

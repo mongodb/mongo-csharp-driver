@@ -35,53 +35,54 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         private static readonly IBsonSerializer<Nullable<long>> __nullableInt64Serializer = new NullableSerializer<long>(Int64Serializer.Instance);
         private static readonly IBsonSerializer<Nullable<ObjectId>> __nullableObjectIdSerializer = new NullableSerializer<ObjectId>(ObjectIdSerializer.Instance);
 
-        public static AstFilterField Translate(TranslationContext context, MemberExpression memberExpression)
+        public static TranslatedFilterField Translate(TranslationContext context, MemberExpression memberExpression)
         {
             var fieldExpression = ConvertHelper.RemoveConvertToInterface(memberExpression.Expression);
-            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
-            var fieldSerializer = field.Serializer;
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var fieldSerializer = fieldTranslation.Serializer;
             var fieldSerializerType = fieldSerializer.GetType();
 
             if (fieldSerializer.GetType() == typeof(BsonValueSerializer))
             {
+                var field = fieldTranslation.Ast;
                 switch (memberExpression.Member.Name)
                 {
-                    case "AsBoolean": return AstFilter.Field(field.Path, BooleanSerializer.Instance);
-                    case "AsBsonArray": return AstFilter.Field(field.Path, BsonArraySerializer.Instance);
-                    case "AsBsonBinaryData": return AstFilter.Field(field.Path, BsonBinaryDataSerializer.Instance);
-                    case "AsBsonDateTime": return AstFilter.Field(field.Path, BsonDateTimeSerializer.Instance);
-                    case "AsBsonDocument": return AstFilter.Field(field.Path, BsonDocumentSerializer.Instance);
-                    case "AsBsonJavaScript": return AstFilter.Field(field.Path, BsonJavaScriptSerializer.Instance);
-                    case "AsBsonJavaScriptWithScope": return AstFilter.Field(field.Path, BsonJavaScriptWithScopeSerializer.Instance);
-                    case "AsBsonMaxKey": return AstFilter.Field(field.Path, BsonMaxKeySerializer.Instance);
-                    case "AsBsonMinKey": return AstFilter.Field(field.Path, BsonMinKeySerializer.Instance);
-                    case "AsBsonNull": return AstFilter.Field(field.Path, BsonNullSerializer.Instance);
-                    case "AsBsonRegularExpression": return AstFilter.Field(field.Path, BsonRegularExpressionSerializer.Instance);
-                    case "AsBsonSymbol": return AstFilter.Field(field.Path, BsonSymbolSerializer.Instance);
-                    case "AsBsonTimestamp": return AstFilter.Field(field.Path, BsonTimestampSerializer.Instance);
-                    case "AsBsonUndefined": return AstFilter.Field(field.Path, BsonUndefinedSerializer.Instance);
-                    case "AsBsonValue": return AstFilter.Field(field.Path, fieldSerializer);
-                    case "AsByteArray": return AstFilter.Field(field.Path, ByteArraySerializer.Instance);
-                    case "AsDecimal": return AstFilter.Field(field.Path, DecimalSerializer.Instance);
-                    case "AsDecimal128": return AstFilter.Field(field.Path, Decimal128Serializer.Instance);
-                    case "AsDouble": return AstFilter.Field(field.Path, DoubleSerializer.Instance);
-                    case "AsGuid": return AstFilter.Field(field.Path, GuidSerializer.StandardInstance);
-                    case "AsInt32": return AstFilter.Field(field.Path, Int32Serializer.Instance);
-                    case "AsInt64": return AstFilter.Field(field.Path, Int64Serializer.Instance);
-                    case "AsLocalTime": return AstFilter.Field(field.Path, DateTimeSerializer.LocalInstance);
-                    case "AsNullableBoolean": return AstFilter.Field(field.Path, __nullableBooleanSerializer);
-                    case "AsNullableDecimal": return AstFilter.Field(field.Path, __nullableDecimalSerializer);
-                    case "AsNullableDecimal128": return AstFilter.Field(field.Path, __nullableDecimal128Serializer);
-                    case "AsNullableDouble": return AstFilter.Field(field.Path, __nullableDoubleSerializer);
-                    case "AsNullableGuid": return AstFilter.Field(field.Path, __nullableGuidSerializer);
-                    case "AsNullableInt32": return AstFilter.Field(field.Path, __nullableInt32Serializer);
-                    case "AsNullableInt64": return AstFilter.Field(field.Path, __nullableInt64Serializer);
-                    case "AsNullableObjectId": return AstFilter.Field(field.Path, __nullableObjectIdSerializer);
-                    case "AsNullableUniversalTime": return AstFilter.Field(field.Path, __nullableDateTimeSerializer);
-                    case "AsObjectId": return AstFilter.Field(field.Path, ObjectIdSerializer.Instance);
-                    case "AsRegex": return AstFilter.Field(field.Path, RegexSerializer.RegularExpressionInstance);
-                    case "AsString": return AstFilter.Field(field.Path, StringSerializer.Instance);
-                    case "AsUniversalTime": return AstFilter.Field(field.Path, DateTimeSerializer.UtcInstance);
+                    case "AsBoolean": return new TranslatedFilterField(field, BooleanSerializer.Instance);
+                    case "AsBsonArray": return new TranslatedFilterField(field, BsonArraySerializer.Instance);
+                    case "AsBsonBinaryData": return new TranslatedFilterField(field, BsonBinaryDataSerializer.Instance);
+                    case "AsBsonDateTime": return new TranslatedFilterField(field, BsonDateTimeSerializer.Instance);
+                    case "AsBsonDocument": return new TranslatedFilterField(field, BsonDocumentSerializer.Instance);
+                    case "AsBsonJavaScript": return new TranslatedFilterField(field, BsonJavaScriptSerializer.Instance);
+                    case "AsBsonJavaScriptWithScope": return new TranslatedFilterField(field, BsonJavaScriptWithScopeSerializer.Instance);
+                    case "AsBsonMaxKey": return new TranslatedFilterField(field, BsonMaxKeySerializer.Instance);
+                    case "AsBsonMinKey": return new TranslatedFilterField(field, BsonMinKeySerializer.Instance);
+                    case "AsBsonNull": return new TranslatedFilterField(field, BsonNullSerializer.Instance);
+                    case "AsBsonRegularExpression": return new TranslatedFilterField(field, BsonRegularExpressionSerializer.Instance);
+                    case "AsBsonSymbol": return new TranslatedFilterField(field, BsonSymbolSerializer.Instance);
+                    case "AsBsonTimestamp": return new TranslatedFilterField(field, BsonTimestampSerializer.Instance);
+                    case "AsBsonUndefined": return new TranslatedFilterField(field, BsonUndefinedSerializer.Instance);
+                    case "AsBsonValue": return new TranslatedFilterField(field, fieldSerializer);
+                    case "AsByteArray": return new TranslatedFilterField(field, ByteArraySerializer.Instance);
+                    case "AsDecimal": return new TranslatedFilterField(field, DecimalSerializer.Instance);
+                    case "AsDecimal128": return new TranslatedFilterField(field, Decimal128Serializer.Instance);
+                    case "AsDouble": return new TranslatedFilterField(field, DoubleSerializer.Instance);
+                    case "AsGuid": return new TranslatedFilterField(field, GuidSerializer.StandardInstance);
+                    case "AsInt32": return new TranslatedFilterField(field, Int32Serializer.Instance);
+                    case "AsInt64": return new TranslatedFilterField(field, Int64Serializer.Instance);
+                    case "AsLocalTime": return new TranslatedFilterField(field, DateTimeSerializer.LocalInstance);
+                    case "AsNullableBoolean": return new TranslatedFilterField(field, __nullableBooleanSerializer);
+                    case "AsNullableDecimal": return new TranslatedFilterField(field, __nullableDecimalSerializer);
+                    case "AsNullableDecimal128": return new TranslatedFilterField(field, __nullableDecimal128Serializer);
+                    case "AsNullableDouble": return new TranslatedFilterField(field, __nullableDoubleSerializer);
+                    case "AsNullableGuid": return new TranslatedFilterField(field, __nullableGuidSerializer);
+                    case "AsNullableInt32": return new TranslatedFilterField(field, __nullableInt32Serializer);
+                    case "AsNullableInt64": return new TranslatedFilterField(field, __nullableInt64Serializer);
+                    case "AsNullableObjectId": return new TranslatedFilterField(field, __nullableObjectIdSerializer);
+                    case "AsNullableUniversalTime": return new TranslatedFilterField(field, __nullableDateTimeSerializer);
+                    case "AsObjectId": return new TranslatedFilterField(field, ObjectIdSerializer.Instance);
+                    case "AsRegex": return new TranslatedFilterField(field, RegexSerializer.RegularExpressionInstance);
+                    case "AsString": return new TranslatedFilterField(field, StringSerializer.Instance);
+                    case "AsUniversalTime": return new TranslatedFilterField(field, DateTimeSerializer.UtcInstance);
                 }
             }
 
@@ -92,16 +93,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 if (memberSerializationInfo.ElementPath == null)
                 {
                     var subFieldName = memberSerializationInfo.ElementName;
-                    return field.SubField(subFieldName, subFieldSerializer);
+                    return fieldTranslation.SubField(subFieldName, subFieldSerializer);
                 }
                 else
                 {
-                    var subField = field;
+                    var subField = fieldTranslation.Ast;
                     foreach (var subFieldName in memberSerializationInfo.ElementPath)
                     {
-                        subField = subField.SubField(subFieldName, subFieldSerializer);
+                        subField = subField.SubField(subFieldName);
                     }
-                    return subField;
+                    return new TranslatedFilterField(subField, subFieldSerializer);
                 }
             }
 
@@ -112,25 +113,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 fieldSerializerType.GetGenericTypeDefinition() == typeof(NullableSerializer<>))
             {
                 var valueSerializer = ((IChildSerializerConfigurable)fieldSerializer).ChildSerializer;
-                return AstFilter.Field(field.Path, valueSerializer);
+                return new TranslatedFilterField(fieldTranslation.Ast, valueSerializer);
             }
 
             if (fieldExpression.Type.IsTupleOrValueTuple())
             {
-                if (field.Serializer is IBsonTupleSerializer tupleSerializer)
+                if (fieldTranslation.Serializer is IBsonTupleSerializer tupleSerializer)
                 {
                     var itemName = memberExpression.Member.Name;
                     if (TupleSerializer.TryParseItemName(itemName, out var itemNumber))
                     {
-                        var itemPath = $"{field.Path}.{itemNumber - 1}";
+                        var itemFieldName = (itemNumber - 1).ToString();
                         var itemSerializer = tupleSerializer.GetItemSerializer(itemNumber);
-                        return AstFilter.Field(itemPath, itemSerializer);
+                        return fieldTranslation.SubField(itemFieldName, itemSerializer);
                     }
 
                     throw new ExpressionNotSupportedException(memberExpression, because: $"Item name is not valid: {itemName}");
                 }
 
-                throw new ExpressionNotSupportedException(memberExpression, because: $"serializer {field.Serializer.GetType().FullName} does not implement IBsonTupleSerializer");
+                throw new ExpressionNotSupportedException(memberExpression, because: $"serializer {fieldTranslation.Serializer.GetType().FullName} does not implement IBsonTupleSerializer");
             }
 
             throw new ExpressionNotSupportedException(memberExpression);

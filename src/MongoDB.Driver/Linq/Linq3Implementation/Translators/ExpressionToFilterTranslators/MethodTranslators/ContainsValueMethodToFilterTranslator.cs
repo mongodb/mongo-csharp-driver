@@ -32,42 +32,42 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             if (IsContainsValueMethod(method))
             {
-                var dictionaryExpression = expression.Object;
+                var fieldExpression = expression.Object;
                 var valueExpression = arguments[0];
 
-                var dictionaryField = ExpressionToFilterFieldTranslator.Translate(context, dictionaryExpression);
-                var dictionarySerializer = GetDictionarySerializer(expression, dictionaryField);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var dictionarySerializer = GetDictionarySerializer(expression, fieldTranslation);
                 var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
                 var valueSerializer = dictionarySerializer.ValueSerializer;
 
                 if (valueExpression is ConstantExpression constantValueExpression)
                 {
-                    var valueField = AstFilter.Field("v", valueSerializer);
+                    var valueField = AstFilter.Field("v");
                     var value = constantValueExpression.Value;
                     var serializedValue = SerializationHelper.SerializeValue(valueSerializer, value);
 
                     switch (dictionaryRepresentation)
                     {
                         case DictionaryRepresentation.ArrayOfDocuments:
-                            return AstFilter.ElemMatch(dictionaryField, AstFilter.Eq(valueField, serializedValue));
+                            return AstFilter.ElemMatch(fieldTranslation.Ast, AstFilter.Eq(valueField, serializedValue));
 
                         default:
                             throw new ExpressionNotSupportedException(expression, because: $"ContainsValue is not supported when DictionaryRepresentation is: {dictionaryRepresentation}");
-                    }   
+                    }
                 }
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static IBsonDictionarySerializer GetDictionarySerializer(Expression expression, AstFilterField field)
+        private static IBsonDictionarySerializer GetDictionarySerializer(Expression expression, TranslatedFilterField fieldTranslation)
         {
-            if (field.Serializer is IBsonDictionarySerializer dictionarySerializer)
+            if (fieldTranslation.Serializer is IBsonDictionarySerializer dictionarySerializer)
             {
                 return dictionarySerializer;
             }
 
-            throw new ExpressionNotSupportedException(expression, because: $"class {field.Serializer.GetType().FullName} does not implement the IBsonDictionarySerializer interface");
+            throw new ExpressionNotSupportedException(expression, because: $"class {fieldTranslation.Serializer.GetType().FullName} does not implement the IBsonDictionarySerializer interface");
         }
 
         private static bool IsContainsValueMethod(MethodInfo method)

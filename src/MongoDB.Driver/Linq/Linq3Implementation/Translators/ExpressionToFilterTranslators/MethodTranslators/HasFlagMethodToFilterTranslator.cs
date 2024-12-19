@@ -33,12 +33,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (method.Is(EnumMethod.HasFlag))
             {
                 var fieldExpression = expression.Object;
-                var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var flagExpression = arguments[0];
                 var flag = flagExpression.GetConstantValue<object>(containingExpression: expression);
-                var serializedFlag = SerializationHelper.SerializeValue(field.Serializer, flag);
-                return AstFilter.BitsAllSet(field, serializedFlag);
+                var serializedFlag = SerializationHelper.SerializeValue(fieldTranslation.Serializer, flag);
+                return AstFilter.BitsAllSet(fieldTranslation.Ast, serializedFlag);
             }
 
             throw new ExpressionNotSupportedException(expression);
