@@ -131,6 +131,7 @@ namespace MongoDB.Driver.Tests.Specifications
         {
             if (testCase.Name.Contains("bulkWrite.json") && testCase.Name.Contains("is never committed"))
             {
+                // Unskip the tests once CSHARP-5444 is fixed.
                 throw new SkipException("This test is skipped because csharp driver has bug with handling connection closing while mixedBulkWrite operation.");
             }
 
