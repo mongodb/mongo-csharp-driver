@@ -65,6 +65,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     "delete" => new UnifiedGridFsDeleteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "download" => new UnifiedGridFsDownloadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "downloadByName" => new UnifiedGridFsDownloadByNameOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "upload" => new UnifiedGridFsUploadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
