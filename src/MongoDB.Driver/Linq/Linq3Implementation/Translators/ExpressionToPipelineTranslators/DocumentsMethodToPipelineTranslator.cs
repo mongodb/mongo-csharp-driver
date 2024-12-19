@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
     internal static class DocumentsMethodToPipelineTranslator
     {
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 {
                     throw new ExpressionNotSupportedException(expression, because: "a Documents method is only valid with an IQueryable against a database");
                 }
-                if (pipeline.Stages.Count != 0)
+                if (pipeline.AstStages.Count != 0)
                 {
                     throw new ExpressionNotSupportedException(expression, because: "a Documents method must be the first method in a LINQ query");
                 }

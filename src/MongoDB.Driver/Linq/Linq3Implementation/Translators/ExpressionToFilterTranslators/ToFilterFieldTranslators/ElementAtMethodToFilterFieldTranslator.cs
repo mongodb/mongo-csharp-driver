@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class ElementAtMethodToFilterFieldTranslator
     {
-        public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;

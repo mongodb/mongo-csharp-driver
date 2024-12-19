@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     internal static class ExpressionToFilterFieldTranslator
     {
         // public static methods
-        public static AstFilterField Translate(TranslationContext context, Expression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             throw new ExpressionNotSupportedException(expression);
         }
 
-        public static AstFilterField TranslateEnumerable(TranslationContext context, Expression expression)
+        public static TranslatedFilterField TranslateEnumerable(TranslationContext context, Expression expression)
         {
             var field = Translate(context, expression);
 

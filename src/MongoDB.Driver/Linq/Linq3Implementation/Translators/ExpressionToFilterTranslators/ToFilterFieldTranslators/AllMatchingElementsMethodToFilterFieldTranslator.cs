@@ -24,15 +24,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class AllMatchingElementsMethodToFilterFieldTranslator
     {
-        public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
             if (method.Is(MongoEnumerableMethod.AllMatchingElements))
             {
-                var sourceExpression = arguments[0];
-                var field = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
+                var fieldExpression = arguments[0];
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var identifierExpression = arguments[1];
                 var identifier = identifierExpression.GetConstantValue<string>(containingExpression: expression);
@@ -42,11 +42,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     throw new ExpressionNotSupportedException(expression, because: "identifier cannot be an empty string.");
                 }
 
-                if (field.Serializer is IBsonArraySerializer arraySerializer &&
+                if (fieldTranslation.Serializer is IBsonArraySerializer arraySerializer &&
                     arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                 {
                     var itemSerializer = itemSerializationInfo.Serializer;
-                    return field.SubField($"$[{identifier}]", itemSerializer);
+                    return fieldTranslation.SubField($"$[{identifier}]", itemSerializer);
                 }
             }
 

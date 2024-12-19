@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
     internal static class OrderByMethodToPipelineTranslator
     {
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -63,12 +63,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         }
 
         // private static methods
-        private static AstPipeline AppendSortStages(AstPipeline pipeline, AstStage[] newSortStages)
+        private static TranslatedPipeline AppendSortStages(TranslatedPipeline pipeline, AstStage[] newSortStages)
         {
             return pipeline.AddStages(pipeline.OutputSerializer, newSortStages);
         }
 
-        private static AstPipeline CombineSortStages(AstPipeline pipeline, AstStage[] newSortStages)
+        private static TranslatedPipeline CombineSortStages(TranslatedPipeline pipeline, AstStage[] newSortStages)
         {
             var oldSortStages = FindOldSortStages(pipeline);
 
@@ -83,9 +83,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 _ => throw new Exception("Unexpected number of old and new sort stages.")
             };
 
-            static AstStage[] FindOldSortStages(AstPipeline pipeline)
+            static AstStage[] FindOldSortStages(TranslatedPipeline pipeline)
             {
-                var stages = pipeline.Stages;
+                var stages = pipeline.AstStages;
                 var count = stages.Count;
 
                 if (count >= 1)
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 throw new Exception("Unexpected failure to find old sort stages.");
             }
 
-            static AstPipeline Combine1And1(AstPipeline pipeline, AstStage[] oldSortStages, AstStage[] newSortStages)
+            static TranslatedPipeline Combine1And1(TranslatedPipeline pipeline, AstStage[] oldSortStages, AstStage[] newSortStages)
             {
                 // old:
                 // { $sort : { f1 : d1, ..., fj : dj } }
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 return pipeline.ReplaceLastStage(pipeline.OutputSerializer, combinedSortStage);
             }
 
-            static AstPipeline Combine1And3(AstPipeline pipeline, AstStage[] oldSortStages, AstStage[] newSortStages)
+            static TranslatedPipeline Combine1And3(TranslatedPipeline pipeline, AstStage[] oldSortStages, AstStage[] newSortStages)
             {
                 // old:
                 // { $sort : { f1 : d1, ..., fj : dj } }
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 return pipeline.ReplaceStagesAtEnd(pipeline.OutputSerializer, numberOfStagesToReplace: 1, newProjectStage, combinedSortStage, newReplaceRootStage);
             }
 
-            static AstPipeline Combine3And1(AstPipeline pipeline, AstStage[] oldSortStages, AstStage[] newSortStages)
+            static TranslatedPipeline Combine3And1(TranslatedPipeline pipeline, AstStage[] oldSortStages, AstStage[] newSortStages)
             {
                 // old:
                 // { $project : { _id : 0, _document : "$$ROOT", _key1 : expr1, ..., _keyj : exprj } }
@@ -169,11 +169,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var combinedSortStage = AstStage.Sort(
                     oldSortStage.Fields
                     .Append(newSortStage.Fields.Select(f => AstSort.Field("_document." + f.Path, f.Order)).Single()));
-                    
+
                 return pipeline.ReplaceStagesAtEnd(pipeline.OutputSerializer, numberOfStagesToReplace: 3, oldProjectStage, combinedSortStage, oldReplaceRootStage);
             }
 
-            static AstPipeline Combine3And3(AstPipeline pipeline, AstStage[] oldSortStages, AstStage[] newSortStages)
+            static TranslatedPipeline Combine3And3(TranslatedPipeline pipeline, AstStage[] oldSortStages, AstStage[] newSortStages)
             {
                 // old:
                 // { $project : { _id : 0, _document : "$$ROOT", _key1 : oldExpr1, ..., _keyj : oldExprj } }

@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var queryProvider = (MongoQueryProvider<Person>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Person, IGrouping<int, Person>>(queryProvider, queryable.Expression, translationOptions: null);
-            return executableQuery.Pipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
+            return executableQuery.Pipeline.AstPipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
         }
 
         public class Person

@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                     var accumulatorFieldName = _accumulators.AddAccumulatorExpression(accumulatorExpression);
                     var restOfPath = node.Path.Substring("_elements.0.".Length);
                     var rewrittenPath = $"{accumulatorFieldName}.{restOfPath}";
-                    return AstFilter.Field(rewrittenPath, node.Serializer);
+                    return AstFilter.Field(rewrittenPath);
                 }
 
                 if (node.Path == "_elements" || node.Path.StartsWith("_elements."))
