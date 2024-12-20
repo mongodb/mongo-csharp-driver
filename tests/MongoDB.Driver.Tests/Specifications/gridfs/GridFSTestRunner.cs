@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.Specifications.gridfs
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                const string prefix = "MongoDB.Driver.Tests.Specifications.gridfs.tests.";
+                const string prefix = "MongoDB.Driver.Tests.Specifications.gridfs.tests.legacy";
                 var testCases = typeof(TestCaseSource).GetTypeInfo().Assembly
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))

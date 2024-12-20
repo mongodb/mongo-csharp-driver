@@ -262,9 +262,7 @@ namespace MongoDB.Driver.Tests.GridFS
         }
 
         private GridFSFileInfo CreateSubject(
-             IEnumerable<string> aliases = null,
             int? chunkSizeBytes = null,
-            string contentType = null,
             BsonDocument extraElements = null,
             string filename = null,
             BsonValue idAsBsonValue = null,
@@ -279,8 +277,6 @@ namespace MongoDB.Driver.Tests.GridFS
                 { "chunkSize", chunkSizeBytes ?? 255 * 1024 },
                 { "uploadDate", uploadDateTime ?? DateTime.UtcNow },
                 { "filename", filename ?? "filename" },
-                { "contentType", contentType, contentType != null },
-                { "aliases", () => new BsonArray(aliases.Select(a => new BsonString(a))), aliases != null },
                 { "metadata", metadata, metadata != null }
             };
             if (extraElements != null)

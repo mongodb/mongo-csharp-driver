@@ -91,6 +91,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "metadata":
+                        options = options ?? new GridFSUploadOptions();
+                        options.Metadata = argument.Value.AsBsonDocument;
+                        break;
                     case "chunkSizeBytes":
                         options = options ?? new GridFSUploadOptions();
                         options.ChunkSizeBytes = argument.Value.AsInt32;
