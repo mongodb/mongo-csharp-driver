@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class ArrayIndexExpressionToFilterFieldTranslator
     {
-        public static AstFilterField Translate(TranslationContext context, BinaryExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, BinaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.ArrayIndex)
             {
@@ -36,11 +36,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             throw new ExpressionNotSupportedException(expression);
         }
 
-        public static AstFilterField Translate(TranslationContext context, Expression expression, Expression fieldExpression, Expression indexExpression)
+        public static TranslatedFilterField Translate(TranslationContext context, Expression expression, Expression fieldExpression, Expression indexExpression)
         {
-            var field = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
             var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
-            var itemSerializer = ArraySerializerHelper.GetItemSerializer(fieldExpression, field.Serializer);
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(fieldExpression, fieldTranslation.Serializer);
 
             if (index < 0)
             {
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 throw new ExpressionNotSupportedException(expression, because: reason);
             }
 
-            return field.SubField(index.ToString(), itemSerializer);
+            return fieldTranslation.SubField(index.ToString(), itemSerializer);
         }
     }
 }

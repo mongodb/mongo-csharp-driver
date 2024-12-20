@@ -25,22 +25,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class SelectMethodToFilterFieldTranslator
     {
-        public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
             if (method.Is(EnumerableMethod.Select))
             {
-                var sourceExpression = arguments[0];
-                var sourceField = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
+                var fieldExpression = arguments[0];
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var selectorExpression = arguments[1];
                 if (selectorExpression is LambdaExpression lambdaExpression &&
                     lambdaExpression.Body is MemberExpression memberExpression &&
                     memberExpression.Expression == lambdaExpression.Parameters.Single())
                 {
-                    var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
+                    var itemSerializer = ArraySerializerHelper.GetItemSerializer(fieldTranslation.Serializer);
                     if (DocumentSerializerHelper.AreMembersRepresentedAsFields(itemSerializer, out var documentSerializer))
                     {
                         var memberName = memberExpression.Member.Name;
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                         {
                             var subFieldName = memberSerializationInfo.ElementName;
                             var subFieldSerializer = IEnumerableSerializer.Create(memberSerializationInfo.Serializer);
-                            return sourceField.SubField(subFieldName, subFieldSerializer);
+                            return fieldTranslation.SubField(subFieldName, subFieldSerializer);
                         }
                     }
                 }

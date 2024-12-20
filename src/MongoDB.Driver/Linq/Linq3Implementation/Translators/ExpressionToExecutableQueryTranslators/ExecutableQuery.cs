@@ -39,10 +39,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     {
         public static ExecutableQuery<TDocument, TOutput, TResult> Create<TDocument, TOutput, TResult>(
             MongoQueryProvider<TDocument> provider,
-            AstPipeline unoptimizedPipeline,
+            TranslatedPipeline unoptimizedPipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
         {
-            var optimizedPipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline);
+            var optimizedAstPipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline.AstPipeline);
+            var optimizedPipeline = new TranslatedPipeline(optimizedAstPipeline, unoptimizedPipeline.OutputSerializer);
             return provider.Collection == null ?
                 new ExecutableQuery<TDocument, TOutput, TResult>(provider.Database, provider.Options, optimizedPipeline, finalizer) :
                 new ExecutableQuery<TDocument, TOutput, TResult>(provider.Collection, provider.Options, optimizedPipeline, finalizer);
@@ -52,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
     internal abstract class ExecutableQuery<TDocument>
     {
         public abstract BsonDocument[] LoggedStages { get; }
-        public abstract AstPipeline Pipeline { get; }
+        public abstract TranslatedPipeline Pipeline { get; }
     }
 
     internal abstract class ExecutableQuery<TDocument, TResult> : ExecutableQuery<TDocument>
@@ -69,13 +70,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         private readonly IExecutableQueryFinalizer<TOutput, TResult> _finalizer;
         private BsonDocument[] _loggedStages = null;
         private readonly AggregateOptions _options;
-        private readonly AstPipeline _pipeline;
+        private readonly TranslatedPipeline _pipeline;
 
         // constructors
         public ExecutableQuery(
             IMongoCollection<TDocument> collection,
             AggregateOptions options,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
             : this(options, pipeline, finalizer)
         {
@@ -85,7 +86,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         public ExecutableQuery(
             IMongoDatabase database,
             AggregateOptions options,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
             : this(options, pipeline, finalizer)
         {
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
         private ExecutableQuery(
             AggregateOptions options,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
         {
             _options = options;
@@ -104,7 +105,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
         // public properties
         public override BsonDocument[] LoggedStages => _loggedStages;
-        public override AstPipeline Pipeline => _pipeline;
+        public override TranslatedPipeline Pipeline => _pipeline;
 
         // public methods
         public override TResult Execute(IClientSessionHandle session, CancellationToken cancellationToken)
@@ -156,7 +157,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
         private BsonDocument[] RenderPipeline()
         {
-            return _pipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
+            return _pipeline.AstPipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
         }
 
         private IBsonSerializer<TOutput> GetOutputSerializer()

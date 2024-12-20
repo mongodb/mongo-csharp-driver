@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         // public static methods
         public static void ThrowIfClientSideProjection(
             Expression expression,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             MethodInfo method)
         {
             if (pipeline.OutputSerializer is IClientSideProjectionDeserializer)
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static void ThrowIfClientSideProjection(
             Expression expression,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             MethodInfo method,
             string methodOverload)
         {

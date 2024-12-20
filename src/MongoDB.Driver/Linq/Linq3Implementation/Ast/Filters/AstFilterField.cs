@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
@@ -23,34 +22,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
     internal sealed class AstFilterField : AstNode
     {
         private string _path;
-        private IBsonSerializer _serializer;
 
-        public AstFilterField(string path, IBsonSerializer serializer)
+        public AstFilterField(string path)
         {
             _path = Ensure.IsNotNull(path, nameof(path));
-            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         public string Path => _path;
         public override AstNodeType NodeType => AstNodeType.FilterField;
-        public IBsonSerializer Serializer => _serializer;
 
         public override AstNode Accept(AstNodeVisitor visitor)
         {
             return visitor.VisitFilterField(this);
         }
 
-        public AstFilterField SubField(string subFieldName, IBsonSerializer subFieldSerializer)
+        public AstFilterField SubField(string subFieldName)
         {
             Ensure.IsNotNull(subFieldName, nameof(subFieldName));
 
             if (_path == "@<current>")
             {
-                return new AstFilterField(subFieldName, subFieldSerializer);
+                return new AstFilterField(subFieldName);
             }
             else
             {
-                return new AstFilterField(_path + "." + subFieldName, subFieldSerializer);
+                return new AstFilterField(_path + "." + subFieldName);
             }
         }
 

@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation
             var provider = (MongoQueryProvider<TDocument>)queryable.Provider;
             var translationOptions = provider.GetTranslationOptions();
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression, translationOptions);
-            var stages = executableQuery.Pipeline.Stages;
+            var stages = executableQuery.Pipeline.AstStages;
             return stages.Select(s => s.Render().AsBsonDocument).ToList();
         }
     }

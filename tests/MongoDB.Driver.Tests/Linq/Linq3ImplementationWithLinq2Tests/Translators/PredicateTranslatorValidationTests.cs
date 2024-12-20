@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             var provider = (MongoQueryProvider<TestObject>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TestObject, T>(provider, queryable.Expression, translationOptions: null);
-            return executableQuery.Pipeline.Stages.Select(s => (BsonDocument)s.Render()).ToArray();
+            return executableQuery.Pipeline.AstStages.Select(s => (BsonDocument)s.Render()).ToArray();
         }
 
         private IQueryable<TestObject> CreateWhereQuery(Expression<Func<TestObject, bool>> expression)

@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         }
 
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -130,9 +130,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             return (elementAst, elementSerializer);
         }
 
-        private static AstPipeline TranslateResultSelector(
+        private static TranslatedPipeline TranslateResultSelector(
             TranslationContext context,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             ReadOnlyCollection<Expression> arguments,
             IBsonSerializer keySerializer,
             IBsonSerializer elementSerializer)

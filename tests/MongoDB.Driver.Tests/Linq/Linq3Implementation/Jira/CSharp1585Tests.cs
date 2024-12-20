@@ -55,10 +55,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void AstFilter_should_handle_nested_elemMatch()
         {
             var ast = AstFilter.ElemMatch(
-                new AstFilterField("Details.A", BsonValueSerializer.Instance),
+                new AstFilterField("Details.A"),
                 AstFilter.ElemMatch(
-                    new AstFilterField("@<elem>", BsonValueSerializer.Instance),
-                    AstFilter.Regex(new AstFilterField("DeviceName", BsonValueSerializer.Instance), ".Name0.", "")));
+                    new AstFilterField("@<elem>"),
+                    AstFilter.Regex(new AstFilterField("DeviceName"), ".Name0.", "")));
             var simplifiedAst = AstSimplifier.Simplify(ast);
 
             var rendered = simplifiedAst.Render();

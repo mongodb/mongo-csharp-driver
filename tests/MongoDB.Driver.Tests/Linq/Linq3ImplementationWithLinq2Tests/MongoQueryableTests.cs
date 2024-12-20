@@ -1855,7 +1855,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
             var translationOptions = DriverTestConfiguration.Client.Settings.TranslationOptions;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, T>(provider, queryable.Expression, translationOptions);
 
-            var stages = executableQuery.Pipeline.Stages.Select(s => s.Render());
+            var stages = executableQuery.Pipeline.AstStages.Select(s => s.Render());
             stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
 
             // async
