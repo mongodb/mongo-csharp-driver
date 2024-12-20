@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -21,7 +22,7 @@ namespace MongoDB.Bson.Serialization
     {
         /// Reconfigures a serializer using the specified <paramref name="reconfigure"/> method if the result of <paramref name="testFunction"/> is true or the function is null.
         /// If the serializer implements <see cref="IChildSerializerConfigurable"/> and either:
-        /// - is a collection serializer and <paramref name="shouldApplyToCollections"/> is true;
+        /// - <paramref name="shouldApplyToCollections"/> is true;
         /// - or is a <see cref="Nullable"/> serializer;
         /// the method traverses and applies the reconfiguration to its child serializers recursively.
         internal static IBsonSerializer ReconfigureSerializer<TSerializer>(IBsonSerializer serializer, Func<TSerializer, IBsonSerializer> reconfigure,
@@ -31,28 +32,28 @@ namespace MongoDB.Bson.Serialization
             {
                 case TSerializer typedSerializer when testFunction?.Invoke(serializer) ?? true:
                     return reconfigure(typedSerializer);
-                case IChildSerializerConfigurable childSerializerConfigurable when
-                    (shouldApplyToCollections && childSerializerConfigurable is IBsonArraySerializer)
-                    || Nullable.GetUnderlyingType(serializer.ValueType) != null:
+                case IMultipleChildrenSerializerConfigurableSerializer multipleChildrenSerializerConfigurable:
                 {
-                    if (childSerializerConfigurable is IKeyAndValueSerializerConfigurable keyAndValueSerializerConfigurable)
+                    var newSerializers = new List<IBsonSerializer>();
+
+                    foreach (var childSerializer in multipleChildrenSerializerConfigurable.ChildrenSerializers)
                     {
-                        var keySerializer = keyAndValueSerializerConfigurable.KeySerializer;
-                        var valueSerializer = keyAndValueSerializerConfigurable.ValueSerializer;
-
-                        var reconfiguredKeySerializer = ReconfigureSerializer(keySerializer, reconfigure, testFunction,
-                            shouldApplyToCollections);
-                        var reconfiguredValueSerializer = ReconfigureSerializer(valueSerializer, reconfigure, testFunction,
+                        var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunction,
                             shouldApplyToCollections);
 
-                        return keyAndValueSerializerConfigurable.WithKeyAndValueSerializers(
-                            reconfiguredKeySerializer ?? keySerializer, reconfiguredValueSerializer ?? valueSerializer);
+                        newSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
                     }
-                    
+
+                    return multipleChildrenSerializerConfigurable.WithChildrenSerializers(newSerializers.ToArray());
+                }
+                case IChildSerializerConfigurable childSerializerConfigurable when
+                    shouldApplyToCollections || Nullable.GetUnderlyingType(serializer.ValueType) != null:
+                {
                     var childSerializer = childSerializerConfigurable.ChildSerializer;
                     var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunction, shouldApplyToCollections);
                     return reconfiguredChildSerializer != null? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
                 }
+
                 default:
                     return null;
             }

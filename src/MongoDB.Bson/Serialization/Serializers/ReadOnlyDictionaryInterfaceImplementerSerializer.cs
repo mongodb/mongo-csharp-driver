@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> :
         DictionarySerializerBase<TDictionary, TKey, TValue>,
         IChildSerializerConfigurable,
-        IKeyAndValueSerializerConfigurable,
+        IMultipleChildrenSerializerConfigurableSerializer,
         IDictionaryRepresentationConfigurable<ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>>
             where TDictionary : class, IReadOnlyDictionary<TKey, TValue>
     {
@@ -123,11 +123,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
 
-        IBsonSerializer IKeyAndValueSerializerConfigurable.WithKeyAndValueSerializers(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        IBsonSerializer[] IMultipleChildrenSerializerConfigurableSerializer.ChildrenSerializers => [KeySerializer, ValueSerializer];
+
+        IBsonSerializer IMultipleChildrenSerializerConfigurableSerializer.WithChildrenSerializers(IBsonSerializer[] childrenSerializers)
         {
-            return valueSerializer.Equals(ValueSerializer) && keySerializer.Equals(KeySerializer)
+            if (childrenSerializers.Length != 2)
+            {
+                throw new Exception("Wrong number of children serializers passed.");
+            }
+
+            var newKeySerializer =  (IBsonSerializer<TKey>)childrenSerializers[0];
+            var newValueSerializer =  (IBsonSerializer<TValue>)childrenSerializers[1];
+
+            return newKeySerializer.Equals(KeySerializer) && newValueSerializer.Equals(ValueSerializer)
                 ? this
-                : new ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, (IBsonSerializer<TKey>)keySerializer, (IBsonSerializer<TValue>)valueSerializer);
+                : new ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, newKeySerializer,
+                    newValueSerializer);
         }
 
         /// <inheritdoc/>

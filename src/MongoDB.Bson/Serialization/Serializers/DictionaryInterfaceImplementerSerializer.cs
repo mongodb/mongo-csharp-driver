@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class DictionaryInterfaceImplementerSerializer<TDictionary> :
         DictionarySerializerBase<TDictionary>,
         IChildSerializerConfigurable,
-        IKeyAndValueSerializerConfigurable,
+        IMultipleChildrenSerializerConfigurableSerializer,
         IDictionaryRepresentationConfigurable
             where TDictionary : class, IDictionary, new()
     {
@@ -155,11 +155,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
 
-        IBsonSerializer IKeyAndValueSerializerConfigurable.WithKeyAndValueSerializers(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        IBsonSerializer[] IMultipleChildrenSerializerConfigurableSerializer.ChildrenSerializers => [KeySerializer, ValueSerializer];
+
+        IBsonSerializer IMultipleChildrenSerializerConfigurableSerializer.WithChildrenSerializers(IBsonSerializer[] childrenSerializers)
         {
-            return valueSerializer.Equals(ValueSerializer) && keySerializer.Equals(KeySerializer)
+            if (childrenSerializers.Length != 2)
+            {
+                throw new Exception("Wrong number of children serializers passed.");
+            }
+
+            var newKeySerializer = childrenSerializers[0];
+            var newValueSerializer = childrenSerializers[1];
+
+            return newKeySerializer.Equals(KeySerializer) && newValueSerializer.Equals(ValueSerializer)
                 ? this
-                : new DictionaryInterfaceImplementerSerializer<TDictionary>(DictionaryRepresentation, keySerializer, valueSerializer);
+                : new DictionaryInterfaceImplementerSerializer<TDictionary>(DictionaryRepresentation, newKeySerializer,
+                    newValueSerializer);
         }
     }
 
@@ -172,7 +183,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> :
         DictionarySerializerBase<TDictionary, TKey, TValue>,
         IChildSerializerConfigurable,
-        IKeyAndValueSerializerConfigurable,
+        IMultipleChildrenSerializerConfigurableSerializer,
         IDictionaryRepresentationConfigurable<DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>>
             where TDictionary : class, IDictionary<TKey, TValue>
     {
@@ -290,11 +301,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
 
-        IBsonSerializer IKeyAndValueSerializerConfigurable.WithKeyAndValueSerializers(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        IBsonSerializer[] IMultipleChildrenSerializerConfigurableSerializer.ChildrenSerializers => [KeySerializer, ValueSerializer];
+
+        IBsonSerializer IMultipleChildrenSerializerConfigurableSerializer.WithChildrenSerializers(IBsonSerializer[] childrenSerializers)
         {
-            return valueSerializer.Equals(ValueSerializer) && keySerializer.Equals(KeySerializer)
+            if (childrenSerializers.Length != 2)
+            {
+                throw new Exception("Wrong number of children serializers passed.");
+            }
+
+            var newKeySerializer = (IBsonSerializer<TKey>)childrenSerializers[0];
+            var newValueSerializer = (IBsonSerializer<TValue>)childrenSerializers[1];
+
+            return newKeySerializer.Equals(KeySerializer) && newValueSerializer.Equals(ValueSerializer)
                 ? this
-                : new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, (IBsonSerializer<TKey>)keySerializer, (IBsonSerializer<TValue>)valueSerializer);
+                : new DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, newKeySerializer,
+                    newValueSerializer);
         }
 
         /// <inheritdoc/>

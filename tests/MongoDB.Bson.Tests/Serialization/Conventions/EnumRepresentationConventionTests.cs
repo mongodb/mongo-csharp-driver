@@ -132,8 +132,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            var serializer = (IKeyAndValueSerializerConfigurable)memberMap.GetSerializer();
-            var childSerializer = (EnumSerializer<E>)serializer.KeySerializer;
+            var serializer = (IMultipleChildrenSerializerConfigurableSerializer)memberMap.GetSerializer();
+            var childSerializer = (EnumSerializer<E>)serializer.ChildrenSerializers[0];
             childSerializer.Representation.Should().Be(representation);
         }
 
@@ -141,7 +141,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.Int32)]
         [InlineData(BsonType.Int64)]
         [InlineData(BsonType.String)]
-        public void Apply_should_configure_serializer_when_member_is_a_nested_enum_dictionary(BsonType representation)
+        public void Apply_should_configure_serializer_when_member_is_an_enum_dictionary_value(BsonType representation)
         {
             var subject = new EnumRepresentationConvention(representation, true);
             var memberMap = CreateMemberMap(c => c.NestedDictionaryEnum);
