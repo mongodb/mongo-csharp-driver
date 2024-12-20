@@ -24,6 +24,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class LambdaExpressionExtensions
     {
+        public static bool LambdaBodyReferencesParameter(this LambdaExpression lambda, ParameterExpression parameter)
+        {
+            var visitor = new ExpressionIsReferencedVisitor(parameter);
+            visitor.Visit(lambda.Body);
+            return visitor.ExpressionIsReferenced;
+        }
+
         public static string TranslateToDottedFieldName(this LambdaExpression fieldSelectorLambda, TranslationContext context, IBsonSerializer parameterSerializer)
         {
             var parameterExpression = fieldSelectorLambda.Parameters.Single();
