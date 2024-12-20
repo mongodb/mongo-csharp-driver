@@ -22,24 +22,24 @@ namespace MongoDB.Bson.Serialization
     {
         /// Reconfigures a serializer using the specified <paramref name="reconfigure"/> method if the result of <paramref name="testFunction"/> is true or the function is null.
         /// If the serializer implements <see cref="IChildSerializerConfigurable"/> and either:
-        /// - <paramref name="shouldApplyToCollections"/> is true;
+        /// - <paramref name="topLevelOnly"/> is false;
         /// - or is a <see cref="Nullable"/> serializer;
         /// the method traverses and applies the reconfiguration to its child serializers recursively.
         internal static IBsonSerializer ReconfigureSerializer<TSerializer>(IBsonSerializer serializer, Func<TSerializer, IBsonSerializer> reconfigure,
-            Func<IBsonSerializer, bool> testFunction = null, bool shouldApplyToCollections = true)
+            Func<IBsonSerializer, bool> testFunction = null, bool topLevelOnly = false)
         {
             switch (serializer)
             {
                 case TSerializer typedSerializer when testFunction?.Invoke(serializer) ?? true:
                     return reconfigure(typedSerializer);
-                case IMultipleChildrenSerializerConfigurableSerializer multipleChildrenSerializerConfigurable:
+                case IMultipleChildrenSerializerConfigurableSerializer multipleChildrenSerializerConfigurable when !topLevelOnly:
                 {
                     var newSerializers = new List<IBsonSerializer>();
 
                     foreach (var childSerializer in multipleChildrenSerializerConfigurable.ChildrenSerializers)
                     {
                         var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunction,
-                            shouldApplyToCollections);
+                            false);
 
                         newSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
                     }
@@ -47,10 +47,10 @@ namespace MongoDB.Bson.Serialization
                     return multipleChildrenSerializerConfigurable.WithChildrenSerializers(newSerializers.ToArray());
                 }
                 case IChildSerializerConfigurable childSerializerConfigurable when
-                    shouldApplyToCollections || Nullable.GetUnderlyingType(serializer.ValueType) != null:
+                    !topLevelOnly || Nullable.GetUnderlyingType(serializer.ValueType) != null:
                 {
                     var childSerializer = childSerializerConfigurable.ChildSerializer;
-                    var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunction, shouldApplyToCollections);
+                    var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunction, topLevelOnly);
                     return reconfiguredChildSerializer != null? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
                 }
 

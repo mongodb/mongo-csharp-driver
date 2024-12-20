@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     {
         // private fields
         private readonly BsonType _representation;
-        private readonly bool _shouldApplyToCollections;
+        private readonly bool _topLevelOnly;
 
         // constructors
         /// <summary>
@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="representation">The serialization representation. 0 is used to detect representation
         /// from the enum itself.</param>
         public EnumRepresentationConvention(BsonType representation)
-            :this(representation, false)
+            :this(representation, true)
         {
         }
 
@@ -42,12 +42,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="representation">The serialization representation. 0 is used to detect representation
         /// from the enum itself.</param>
-        /// <param name="shouldApplyToCollections">If set to true, the convention will be applied also to collection of enums, recursively.</param>
-        public EnumRepresentationConvention(BsonType representation, bool shouldApplyToCollections)
+        /// <param name="topLevelOnly">If set to true, the convention will be applied only to top level enum properties, and not collections of enums, for example.</param>
+        public EnumRepresentationConvention(BsonType representation, bool topLevelOnly)
         {
             EnsureRepresentationIsValidForEnums(representation);
             _representation = representation;
-            _shouldApplyToCollections = shouldApplyToCollections;
+            _topLevelOnly = topLevelOnly;
         }
 
         /// <summary>
@@ -56,9 +56,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         public BsonType Representation => _representation;
 
         /// <summary>
-        /// Gets a boolean indicating if this convention should be also applied to collections of enums.
+        /// Gets a boolean indicating if this convention should be also applied only to the top level enum properties and not to others,
+        /// collections of enums for example. True by default.
         /// </summary>
-        public bool ShouldApplyToCollections => _shouldApplyToCollections;
+        public bool TopLevelOnly => _topLevelOnly;
 
         /// <summary>
         /// Applies a modification to the member map.
@@ -69,7 +70,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             var reconfiguredSerializer =
                 SerializerConfigurator.ReconfigureSerializer<IRepresentationConfigurable>(memberMap.GetSerializer(),
                     s => s.WithRepresentation(_representation),
-                    s => s.ValueType.IsEnum, _shouldApplyToCollections);
+                    s => s.ValueType.IsEnum, _topLevelOnly);
 
             if (reconfiguredSerializer is not null)
             {

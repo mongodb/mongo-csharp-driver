@@ -79,7 +79,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_an_enum_collection(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation, true);
+            var subject = new EnumRepresentationConvention(representation, false);
             var memberMap = CreateMemberMap(c => c.ArrayEnum);
 
             subject.Apply(memberMap);
@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_a_nested_enum_collection(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation, true);
+            var subject = new EnumRepresentationConvention(representation, false);
             var memberMap = CreateMemberMap(c => c.ArrayOfArrayEnum);
 
             subject.Apply(memberMap);
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_an_enum_dictionary(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation, true);
+            var subject = new EnumRepresentationConvention(representation, false);
             var memberMap = CreateMemberMap(c => c.DictionaryEnum);
 
             subject.Apply(memberMap);
@@ -127,7 +127,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_an_enum_dictionary_key(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation, true);
+            var subject = new EnumRepresentationConvention(representation, false);
             var memberMap = CreateMemberMap(c => c.DictionaryKeyEnum);
 
             subject.Apply(memberMap);
@@ -143,7 +143,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [InlineData(BsonType.String)]
         public void Apply_should_configure_serializer_when_member_is_an_enum_dictionary_value(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation, true);
+            var subject = new EnumRepresentationConvention(representation, false);
             var memberMap = CreateMemberMap(c => c.NestedDictionaryEnum);
 
             subject.Apply(memberMap);
@@ -156,9 +156,9 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Theory]
         [InlineData(BsonType.Int64)]
         [InlineData(BsonType.String)]
-        public void Apply_should_do_nothing_when_member_is_an_enum_collection_and_should_apply_to_collection_is_false(BsonType representation)
+        public void Apply_should_do_nothing_when_member_is_an_enum_collection_and_top_level_only_is_true(BsonType representation)
         {
-            var subject = new EnumRepresentationConvention(representation, false);
+            var subject = new EnumRepresentationConvention(representation, true);
             var memberMap = CreateMemberMap(c => c.ArrayEnum);
 
             subject.Apply(memberMap);
@@ -220,12 +220,12 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [ParameterAttributeData]
         public void constructor_with_representation_and_should_apply_to_collection_should_return_expected_result(
             [Values((BsonType)0, BsonType.Int32, BsonType.Int64, BsonType.String)] BsonType representation,
-            [Values(true, false)] bool shouldApplyToCollections)
+            [Values(true, false)] bool topLevelOnly)
         {
-            var subject = new EnumRepresentationConvention(representation, shouldApplyToCollections);
+            var subject = new EnumRepresentationConvention(representation, topLevelOnly);
 
             subject.Representation.Should().Be(representation);
-            subject.ShouldApplyToCollections.Should().Be(shouldApplyToCollections);
+            subject.TopLevelOnly.Should().Be(topLevelOnly);
         }
 
         [Theory]
