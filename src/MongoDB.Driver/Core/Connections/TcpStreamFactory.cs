@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (!connectOperation.IsCompleted)
             {
-                socket.Dispose();
+                try { socket.Dispose(); } catch { }
 
                 cancellationToken.ThrowIfCancellationRequested();
                 throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch
             {
-                socket.Dispose();
+                try { socket.Dispose(); } catch { }
                 throw;
             }
         }
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (!connectTask.IsCompleted)
             {
-                socket.Dispose();
+                try { socket.Dispose(); } catch { }
 
                 cancellationToken.ThrowIfCancellationRequested();
                 throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch
             {
-                socket.Dispose();
+                try { socket.Dispose(); } catch { }
                 throw;
             }
         }
