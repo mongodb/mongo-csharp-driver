@@ -70,5 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
             var newAstPipeline = new AstPipeline(oldAstStages.Take(oldAstStages.Count - numberOfStagesToReplace).Concat(newStages));
             return new TranslatedPipeline(newAstPipeline, newOutputSerializer);
         }
+
+        public override string ToString() => _astPipeline.ToString();
     }
 }

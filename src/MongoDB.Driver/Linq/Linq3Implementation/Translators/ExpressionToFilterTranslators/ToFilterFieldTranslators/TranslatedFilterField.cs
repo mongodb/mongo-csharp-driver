@@ -37,5 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var astSubField = _astField.SubField(subFieldName);
             return new TranslatedFilterField(astSubField, subFieldSerializer);
         }
+
+        public override string ToString() => _astField.ToString();
     }
 }
