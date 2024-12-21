@@ -1503,11 +1503,11 @@ tasks:
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
-    - name: performance-tests-net80-server-v6.0
+    - name: test-csharp-spec-benchmarks
       commands:
         - func: bootstrap-mongo-orchestration
           vars:
-            VERSION: "v6.0-perf"
+            VERSION: "v8.0-perf"
             TOPOLOGY: "server"
             SSL: "nossl"
             AUTH: "noauth"
@@ -2604,7 +2604,7 @@ buildvariants:
   run_on:
     - rhel90-dbx-perf-large
   tasks:
-    - name: performance-tests-net80-server-v6.0
+    - name: test-csharp-spec-benchmarks
 
 # AWS Lambda tests
 - name: aws-lambda-tests
