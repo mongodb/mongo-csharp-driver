@@ -1472,7 +1472,7 @@ tasks:
             SKIP_LEGACY_SHELL: "true"
         - func: install-dotnet
         - func: run-performance-tests
-          
+
     - name: test-aws-lambda-deployed
       commands:
         - command: ec2.assume_role
