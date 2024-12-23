@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("crud.tests.unified")]
         public void Crud(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [UnifiedTestsTheory("gridfs.tests.unified")]
+        [UnifiedTestsTheory("gridfs.tests")]
         public void GridFS(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("index_management.tests")]
