@@ -32,11 +32,11 @@ namespace MongoDB.Bson.Serialization
             {
                 case TSerializer typedSerializer when testFunction?.Invoke(serializer) ?? true:
                     return reconfigure(typedSerializer);
-                case IMultipleChildSerializerConfigurable multipleChildrenSerializerConfigurable when !topLevelOnly:
+                case IMultipleChildSerializerConfigurable multipleChildSerializerConfigurable when !topLevelOnly:
                 {
                     var newSerializers = new List<IBsonSerializer>();
 
-                    foreach (var childSerializer in multipleChildrenSerializerConfigurable.ChildSerializers)
+                    foreach (var childSerializer in multipleChildSerializerConfigurable.ChildSerializers)
                     {
                         var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunction,
                             false);
@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Serialization
                         newSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
                     }
 
-                    return multipleChildrenSerializerConfigurable.WithChildSerializers(newSerializers.ToArray());
+                    return multipleChildSerializerConfigurable.WithChildSerializers(newSerializers.ToArray());
                 }
                 case IChildSerializerConfigurable childSerializerConfigurable when
                     !topLevelOnly || Nullable.GetUnderlyingType(serializer.ValueType) != null:
