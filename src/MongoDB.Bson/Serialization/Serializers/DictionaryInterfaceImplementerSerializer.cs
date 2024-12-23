@@ -157,15 +157,15 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         IBsonSerializer[] IMultipleChildSerializerConfigurable.ChildSerializers => [KeySerializer, ValueSerializer];
 
-        IBsonSerializer IMultipleChildSerializerConfigurable.WithChildSerializers(IBsonSerializer[] childrenSerializers)
+        IBsonSerializer IMultipleChildSerializerConfigurable.WithChildSerializers(IBsonSerializer[] childSerializers)
         {
-            if (childrenSerializers.Length != 2)
+            if (childSerializers.Length != 2)
             {
                 throw new Exception("Wrong number of children serializers passed.");
             }
 
-            var newKeySerializer = childrenSerializers[0];
-            var newValueSerializer = childrenSerializers[1];
+            var newKeySerializer = childSerializers[0];
+            var newValueSerializer = childSerializers[1];
 
             return newKeySerializer.Equals(KeySerializer) && newValueSerializer.Equals(ValueSerializer)
                 ? this
@@ -303,15 +303,15 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         IBsonSerializer[] IMultipleChildSerializerConfigurable.ChildSerializers => [KeySerializer, ValueSerializer];
 
-        IBsonSerializer IMultipleChildSerializerConfigurable.WithChildSerializers(IBsonSerializer[] childrenSerializers)
+        IBsonSerializer IMultipleChildSerializerConfigurable.WithChildSerializers(IBsonSerializer[] childSerializers)
         {
-            if (childrenSerializers.Length != 2)
+            if (childSerializers.Length != 2)
             {
                 throw new Exception("Wrong number of children serializers passed.");
             }
 
-            var newKeySerializer = (IBsonSerializer<TKey>)childrenSerializers[0];
-            var newValueSerializer = (IBsonSerializer<TValue>)childrenSerializers[1];
+            var newKeySerializer = (IBsonSerializer<TKey>)childSerializers[0];
+            var newValueSerializer = (IBsonSerializer<TValue>)childSerializers[1];
 
             return newKeySerializer.Equals(KeySerializer) && newValueSerializer.Equals(ValueSerializer)
                 ? this

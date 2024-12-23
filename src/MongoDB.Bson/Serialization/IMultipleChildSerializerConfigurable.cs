@@ -24,15 +24,15 @@ namespace MongoDB.Bson.Serialization
         /// Gets the child serializers.
         /// </summary>
         /// <value>
-        /// The children serializers.
+        /// The child serializers.
         /// </value>
         IBsonSerializer[] ChildSerializers { get; }
 
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified child serializers.
         /// </summary>
-        /// <param name="childrenSerializers">The child serializers.</param>
+        /// <param name="childSerializers">The child serializers.</param>
         /// <returns>The reconfigured serializer.</returns>
-        IBsonSerializer WithChildSerializers(IBsonSerializer[] childrenSerializers);
+        IBsonSerializer WithChildSerializers(IBsonSerializer[] childSerializers);
     }
 }
