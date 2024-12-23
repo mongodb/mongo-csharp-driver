@@ -132,8 +132,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            var serializer = (IMultipleChildrenSerializerConfigurableSerializer)memberMap.GetSerializer();
-            var childSerializer = (EnumSerializer<E>)serializer.ChildrenSerializers[0];
+            var serializer = (IMultipleChildSerializerConfigurable)memberMap.GetSerializer();
+            var childSerializer = (EnumSerializer<E>)serializer.ChildSerializers[0];
             childSerializer.Representation.Should().Be(representation);
         }
 

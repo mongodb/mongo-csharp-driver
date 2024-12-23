@@ -16,23 +16,23 @@
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    /// Represents a serializer that has multiple children serializers that configuration attributes can be forwarded to.
+    /// Represents a serializer that has multiple child serializers that configuration attributes can be forwarded to.
     /// </summary>
-    public interface IMultipleChildrenSerializerConfigurableSerializer
+    public interface IMultipleChildSerializerConfigurable
     {
         /// <summary>
-        /// Gets the children serializers.
+        /// Gets the child serializers.
         /// </summary>
         /// <value>
         /// The children serializers.
         /// </value>
-        IBsonSerializer[] ChildrenSerializers { get; }
+        IBsonSerializer[] ChildSerializers { get; }
 
         /// <summary>
-        /// Returns a serializer that has been reconfigured with the specified children serializers.
+        /// Returns a serializer that has been reconfigured with the specified child serializers.
         /// </summary>
-        /// <param name="childrenSerializers">The children serializers.</param>
+        /// <param name="childrenSerializers">The child serializers.</param>
         /// <returns>The reconfigured serializer.</returns>
-        IBsonSerializer WithChildrenSerializers(IBsonSerializer[] childrenSerializers);
+        IBsonSerializer WithChildSerializers(IBsonSerializer[] childrenSerializers);
     }
 }
