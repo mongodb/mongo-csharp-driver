@@ -129,7 +129,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (childSerializers.Length != 2)
             {
-                throw new Exception("Wrong number of children serializers passed.");
+                throw new Exception("Wrong number of child serializers passed.");
             }
 
             var newKeySerializer =  (IBsonSerializer<TKey>)childSerializers[0];
