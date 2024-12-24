@@ -24,6 +24,27 @@ namespace MongoDB.Bson
     /// </summary>
     public class BsonRegularExpression : BsonValue, IComparable<BsonRegularExpression>, IEquatable<BsonRegularExpression>
     {
+        // private static fields
+        private static readonly string[] RegexOptionStrings = new[]
+        {
+            "",    // 0000
+            "i",   // 0001
+            "m",   // 0010
+            "im",  // 0011
+            "s",   // 0100
+            "is",  // 0101
+            "ms",  // 0110
+            "ims", // 0111
+            "x",   // 1000
+            "ix",  // 1001
+            "mx",  // 1010
+            "imx", // 1011
+            "sx",  // 1100
+            "isx", // 1101
+            "msx", // 1110
+            "imsx" // 1111
+        };
+
         // private fields
         private readonly string _pattern;
         private readonly string _options;
@@ -80,60 +101,19 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("regex");
             }
             _pattern = regex.ToString();
-            switch (regex.Options & (RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace))
-            {
-                case RegexOptions.None:
-                    _options = string.Empty;
-                    break;
-                case RegexOptions.IgnoreCase:
-                    _options = "i";
-                    break;
-                case RegexOptions.Multiline:
-                    _options = "m";
-                    break;
-                case RegexOptions.Singleline:
-                    _options = "s";
-                    break;
-                case RegexOptions.IgnorePatternWhitespace:
-                    _options = "x";
-                    break;
-                case RegexOptions.IgnoreCase | RegexOptions.Multiline:
-                    _options = "im";
-                    break;
-                case RegexOptions.IgnoreCase | RegexOptions.Singleline:
-                    _options = "is";
-                    break;
-                case RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace:
-                    _options = "ix";
-                    break;
-                case RegexOptions.Multiline | RegexOptions.Singleline:
-                    _options = "ms";
-                    break;
-                case RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace:
-                    _options = "mx";
-                    break;
-                case RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace:
-                    _options = "sx";
-                    break;
-                case RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline:
-                    _options = "ims";
-                    break;
-                case RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace:
-                    _options = "imx";
-                    break;
-                case RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace:
-                    _options = "isx";
-                    break;
-                case RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace:
-                    _options = "msx";
-                    break;
-                case RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace:
-                    _options = "imsx";
-                    break;
-                default:
-                    _options = string.Empty;
-                    break;
-            }
+            _options = ConvertToBsonRegularExpressionOptions(regex);
+        }
+
+        private static string ConvertToBsonRegularExpressionOptions(Regex regex)
+        {
+            var regexOptions = regex.Options;
+
+            var index = ((regexOptions & RegexOptions.IgnoreCase) != 0 ? 1 : 0) |
+                        ((regexOptions & RegexOptions.Multiline) != 0 ? 1 : 0) << 1 |
+                        ((regexOptions & RegexOptions.Singleline) != 0 ? 1 : 0) << 2 |
+                        ((regexOptions & RegexOptions.IgnorePatternWhitespace) != 0 ? 1 : 0) << 3;
+
+            return RegexOptionStrings[index];
         }
 
         // public properties
