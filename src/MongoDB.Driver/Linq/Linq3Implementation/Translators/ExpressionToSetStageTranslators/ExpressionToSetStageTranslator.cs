@@ -139,39 +139,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
         private static AstComputedField CreateComputedField(TranslationContext context, IBsonDocumentSerializer documentSerializer, MemberInfo member, Expression valueExpression)
         {
             string elementName;
-            AstExpression valueAst;
+            IBsonSerializer targetSerializer;
             if (documentSerializer.TryGetMemberSerializationInfo(member.Name, out var serializationInfo))
             {
                 elementName = serializationInfo.ElementName;
-                var memberSerializer = serializationInfo.Serializer;
-
-                if (valueExpression is ConstantExpression constantValueExpression)
-                {
-                    var value = constantValueExpression.Value;
-                    var serializedValue = SerializationHelper.SerializeValue(memberSerializer, value);
-                    valueAst = AstExpression.Constant(serializedValue);
-                }
-                else
-                {
-                    var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                    ThrowIfMemberAndValueSerializersAreNotCompatible(valueExpression, memberSerializer, valueTranslation.Serializer);
-                    valueAst = valueTranslation.Ast;
-                }
+                targetSerializer = serializationInfo.Serializer;
             }
             else
             {
                 elementName = member.Name;
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                valueAst = valueTranslation.Ast;
+                targetSerializer = null;
             }
 
-            return AstExpression.ComputedField(elementName, valueAst);
+            var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression, targetSerializer);
+            ThrowIfTargetAndValueSerializersAreNotCompatible(valueExpression, targetSerializer, valueTranslation.Serializer);
+
+            return AstExpression.ComputedField(elementName, valueTranslation.Ast);
         }
 
-        private static void ThrowIfMemberAndValueSerializersAreNotCompatible(Expression expression, IBsonSerializer memberSerializer, IBsonSerializer valueSerializer)
+        private static void ThrowIfTargetAndValueSerializersAreNotCompatible(Expression expression, IBsonSerializer targetSerializer, IBsonSerializer valueSerializer)
         {
-            // TODO: depends on CSHARP-3315
-            if (!memberSerializer.Equals(valueSerializer))
+            if (targetSerializer != null && !targetSerializer.Equals(valueSerializer))
             {
                 throw new ExpressionNotSupportedException(expression, because: "member and value serializers are not compatible");
             }

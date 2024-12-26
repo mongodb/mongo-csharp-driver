@@ -28,22 +28,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class MemberInitExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression, IBsonSerializer targetSerializer)
         {
             if (expression.Type == typeof(BsonDocument))
             {
                 return NewBsonDocumentExpressionToAggregationExpressionTranslator.Translate(context, expression);
             }
 
-            return Translate(context, expression, expression.NewExpression, expression.Bindings);
+            return Translate(context, expression, expression.NewExpression, expression.Bindings, targetSerializer);
         }
 
         public static AggregationExpression Translate(
             TranslationContext context,
             Expression expression,
             NewExpression newExpression,
-            IReadOnlyList<MemberBinding> bindings)
+            IReadOnlyList<MemberBinding> bindings,
+            IBsonSerializer targetSerializer)
         {
+            if (targetSerializer != null)
+            {
+                return TranslateWithTargetSerializer(context, expression, newExpression, bindings, targetSerializer);
+            }
+
             var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
             var constructorArguments = newExpression.Arguments;
             var computedFields = new List<AstComputedField>();
@@ -98,6 +104,72 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
 
             return new AggregationExpression(expression, ast, serializer);
+        }
+
+        private static AggregationExpression TranslateWithTargetSerializer(
+            TranslationContext context,
+            Expression expression,
+            NewExpression newExpression,
+            IReadOnlyList<MemberBinding> bindings,
+            IBsonSerializer targetSerializer)
+        {
+            var resultSerializer = targetSerializer as IBsonDocumentSerializer;
+            if (resultSerializer == null)
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"serializer class {targetSerializer.GetType()} does not implement IBsonDocumentSerializer.");
+            }
+
+            var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
+            var constructorArguments = newExpression.Arguments;
+            var computedFields = new List<AstComputedField>();
+
+            if (constructorInfo != null && constructorArguments.Count > 0)
+            {
+                var constructorParameters = constructorInfo.GetParameters();
+
+                // if the documentSerializer is a BsonClassMappedSerializer we can use the classMap
+                var classMap = (resultSerializer as IBsonClassMapSerializer)?.ClassMap;
+                var creatorMap = classMap == null ? null : FindMatchingCreatorMap(classMap, constructorInfo);
+                if (creatorMap == null && classMap != null)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "couldn't find matching creator map");
+                }
+                var creatorMapArguments = creatorMap?.Arguments?.ToArray();
+
+                for (var i = 0; i < constructorParameters.Length; i++)
+                {
+                    var parameterName = constructorParameters[i].Name;
+                    var argumentExpression = constructorArguments[i];
+                    var memberName = creatorMapArguments?[i].Name; // null if there is no classMap
+
+                    var (elementName, memberSerializer) = FindMemberElementNameAndSerializer(argumentExpression, classMap, memberName, resultSerializer, parameterName);
+                    if (elementName == null)
+                    {
+                        throw new ExpressionNotSupportedException(expression, because: $"couldn't find matching class member for constructor parameter {parameterName}");
+                    }
+
+                    var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression, memberSerializer);
+                    computedFields.Add(AstExpression.ComputedField(elementName, argumentTranslation.Ast));
+                }
+            }
+
+            foreach (var binding in bindings)
+            {
+                var memberAssignment = (MemberAssignment)binding;
+                var member = memberAssignment.Member;
+                var valueExpression = memberAssignment.Expression;
+                if (!resultSerializer.TryGetMemberSerializationInfo(member.Name, out var memberSerializationInfo))
+                {
+                    throw new ExpressionNotSupportedException(valueExpression, expression, because: $"couldn't find member {member.Name}");
+                }
+                var memberSerializer = memberSerializationInfo.Serializer;
+
+                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression, memberSerializer);
+                computedFields.Add(AstExpression.ComputedField(memberSerializationInfo.ElementName, valueTranslation.Ast));
+            }
+
+            var ast = AstExpression.ComputedDocument(computedFields);
+            return new AggregationExpression(expression, ast, resultSerializer);
         }
 
         private static BsonClassMap CreateClassMap(Type classType, ConstructorInfo constructorInfo, out BsonCreatorMap creatorMap)
@@ -188,6 +260,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             var defaultValue = memberMap.MemberType.IsValueType ? Activator.CreateInstance(memberMap.MemberType) : null;
             memberMap.SetDefaultValue(defaultValue);
+        }
+
+        private static BsonCreatorMap FindMatchingCreatorMap(BsonClassMap classMap, ConstructorInfo constructorInfo)
+            => classMap?.CreatorMaps.FirstOrDefault(m => m.MemberInfo.Equals(constructorInfo));
+
+        private static (string, IBsonSerializer) FindMemberElementNameAndSerializer(
+            Expression expression,
+            BsonClassMap classMap,
+            string memberName,
+            IBsonDocumentSerializer documentSerializer,
+            string constructorParameterName)
+        {
+            // if we have a classMap use it
+            if (classMap != null)
+            {
+                var memberMap = FindMemberMap(expression, classMap, memberName);
+                return (memberMap.ElementName, memberMap.GetSerializer());
+            }
+
+            // otherwise fall back to calling TryGetMemberSerializationInfo on potential matches
+            var bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.IgnoreCase;
+            foreach (var memberInfo in documentSerializer.ValueType.GetMember(constructorParameterName, bindingFlags))
+            {
+                if (documentSerializer.TryGetMemberSerializationInfo(memberInfo.Name, out var serializationInfo))
+                {
+                    return (serializationInfo.ElementName, serializationInfo.Serializer);
+                }
+            }
+
+            return (null, null);
         }
 
         private static BsonMemberMap FindMemberMap(Expression expression, BsonClassMap classMap, string memberName)

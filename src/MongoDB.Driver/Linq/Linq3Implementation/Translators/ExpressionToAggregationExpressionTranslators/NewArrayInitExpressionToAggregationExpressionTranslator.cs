@@ -24,15 +24,34 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class NewArrayInitExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, NewArrayExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, NewArrayExpression expression, IBsonSerializer targetSerializer)
         {
-            var items = new List<AstExpression>();
+            IBsonArraySerializer resultSerializer = null;
             IBsonSerializer itemSerializer = null;
+
+            if (targetSerializer != null)
+            {
+                if ((resultSerializer = targetSerializer as IBsonArraySerializer) == null)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {targetSerializer} does not implement IBsonArraySerializer");
+                }
+                if (!resultSerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {targetSerializer} returned false for TryGetItemSerializationInfo");
+                }
+
+                itemSerializer = itemSerializationInfo.Serializer;
+            }
+
+            var items = new List<AstExpression>();
             foreach (var itemExpression in expression.Expressions)
             {
-                var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, itemExpression);
+                var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, itemExpression, itemSerializer);
                 items.Add(itemTranslation.Ast);
-                itemSerializer ??= itemTranslation.Serializer;
+                if (itemSerializer == null)
+                {
+                    itemSerializer = itemTranslation.Serializer;
+                }
 
                 // make sure all items are serialized using the same serializer
                 if (!itemTranslation.Serializer.Equals(itemSerializer))
@@ -42,14 +61,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var ast = AstExpression.ComputedArray(items);
+            if (resultSerializer == null)
+            {
+                var arrayType = expression.Type;
+                var itemType = arrayType.GetElementType();
+                itemSerializer ??= BsonSerializer.LookupSerializer(itemType); // if the array is empty itemSerializer might be null
+                var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(itemType);
+                resultSerializer = (IBsonArraySerializer)Activator.CreateInstance(arraySerializerType, itemSerializer);
+            }
 
-            var arrayType = expression.Type;
-            var itemType = arrayType.GetElementType();
-            itemSerializer ??= BsonSerializer.LookupSerializer(itemType); // if the array is empty itemSerializer will be null
-            var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(itemType);
-            var arraySerializer = (IBsonSerializer)Activator.CreateInstance(arraySerializerType, itemSerializer);
-
-            return new AggregationExpression(expression, ast, arraySerializer);
+            return new AggregationExpression(expression, ast, resultSerializer);
         }
     }
 }
