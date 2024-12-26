@@ -47,9 +47,11 @@ namespace MongoDB.Benchmarks.MultiDoc
             var smallDocument = ReadExtendedJson("single_and_multi_document/small_doc.json");
             for (var i = 0; i < 10000; i++)
             {
-                _clientBulkWriteMixedOpsModels.Add(new BulkWriteInsertOneModel<BsonDocument>(__collectionNamespaces[i % __collectionNamespaces.Length], smallDocument.DeepClone().AsBsonDocument));
-                _clientBulkWriteMixedOpsModels.Add(new BulkWriteReplaceOneModel<BsonDocument>(__collectionNamespaces[i % __collectionNamespaces.Length], FilterDefinition<BsonDocument>.Empty, smallDocument.DeepClone().AsBsonDocument));
-                _clientBulkWriteMixedOpsModels.Add(new BulkWriteDeleteOneModel<BsonDocument>(__collectionNamespaces[i % __collectionNamespaces.Length], FilterDefinition<BsonDocument>.Empty));
+                var collectionName = __collectionNamespaces[i % __collectionNamespaces.Length];
+                
+                _clientBulkWriteMixedOpsModels.Add(new BulkWriteInsertOneModel<BsonDocument>(collectionName, smallDocument.DeepClone().AsBsonDocument));
+                _clientBulkWriteMixedOpsModels.Add(new BulkWriteReplaceOneModel<BsonDocument>(collectionName, FilterDefinition<BsonDocument>.Empty, smallDocument.DeepClone().AsBsonDocument));
+                _clientBulkWriteMixedOpsModels.Add(new BulkWriteDeleteOneModel<BsonDocument>(collectionName, FilterDefinition<BsonDocument>.Empty));
                 
                 _collectionBulkWriteMixedOpsModels.Add(new InsertOneModel<BsonDocument>(smallDocument.DeepClone().AsBsonDocument));
                 _collectionBulkWriteMixedOpsModels.Add(new ReplaceOneModel<BsonDocument>(FilterDefinition<BsonDocument>.Empty, smallDocument.DeepClone().AsBsonDocument));
