@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             var batch = section.Documents;
             var maxDocumentSize = section.MaxDocumentSize ?? binaryWriter.Settings.MaxDocumentSize;
-            binaryWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
+            binaryWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = int.MaxValue);
             binaryWriter.PushElementNameValidator(NoOpElementNameValidator.Instance);
             _nsInfoWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
             try
@@ -98,6 +98,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                         break;
                     }
                 }
+
+                if (processedCount == 0)
+                {
+                    throw new FormatException("Cannot send empty batch.");
+                }
+
                 batch.SetProcessedCount(processedCount);
                 stream.BackpatchSize(startPosition);
 
