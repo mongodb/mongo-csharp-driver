@@ -106,6 +106,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Autocomplete("FirstName", "foo"),
                 "{ autocomplete: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Autocomplete(x => x.Hobbies, "foo"),
+                "{ autocomplete: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Autocomplete(
@@ -353,6 +356,9 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Exists(x => x.FirstName),
                 "{ exists: { path: 'fn' } }");
             AssertRendered(
+                subject.Exists(x => x.Hobbies),
+                "{ exists: { path: 'hobbies' } }");
+            AssertRendered(
                 subject.Exists("FirstName"),
                 "{ exists: { path: 'fn' } }");
         }
@@ -599,6 +605,16 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<Person>();
             Record.Exception(() => subjectTyped.In(p => p.Object, values)).Should().BeOfType<ArgumentException>();
         }
+        
+        [Fact]
+        public void In_with_array_field_should_render_correctly()
+        {
+            var subjectTyped = CreateSubject<Person>();
+            
+            AssertRendered(
+                subjectTyped.In(p => p.Hobbies, ["dance", "ski"]),
+                "{ in: { path: 'hobbies', value: ['dance', 'ski'] } }");
+        }
 
         [Fact]
         public void MoreLikeThis()
@@ -771,6 +787,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Phrase("FirstName", "foo"),
                 "{ phrase: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Phrase(x => x.Hobbies, "foo"),
+                "{ phrase: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Phrase(
@@ -832,6 +851,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.QueryString("FirstName", "foo"),
                 "{ queryString: { defaultPath: 'fn', query: 'foo' } }");
+            AssertRendered(
+                subject.QueryString(x => x.Hobbies, "foo"),
+                "{ queryString: { defaultPath: 'hobbies', query: 'foo' } }");
         }
 
         [Fact]
@@ -943,6 +965,16 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { (ulong)1, Exp(p => p.UInt64) },
             new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
         };
+        
+        [Fact]
+        public void Range_with_array_field_should_render_correctly()
+        {
+            var subject = CreateSubject<Person>();
+
+            AssertRendered(
+                subject.Range(x => x.SalaryHistory, SearchRangeBuilder.Gte(1000).Lt(2000)),
+                "{ range: { path: 'salaries', gte: 1000, lt: 2000 } }");
+        }
 
         [Fact]
         public void Regex()
@@ -986,6 +1018,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Regex("FirstName", "foo"),
                 "{ regex: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Regex(x => x.Hobbies, "foo"),
+                "{ regex: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Regex(
@@ -1100,6 +1135,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Text("FirstName", "foo"),
                 "{ text: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Text(x => x.Hobbies, "foo"),
+                "{ text: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Text(
@@ -1180,6 +1218,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Wildcard("FirstName", "foo"),
                 "{ wildcard: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Wildcard(x => x.Hobbies, "foo"),
+                "{ wildcard: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Wildcard(
@@ -1265,6 +1306,9 @@ namespace MongoDB.Driver.Tests.Search
             [BsonElement("hobbies")]
             public string[] Hobbies { get; set; }
 
+            [BsonElement("salaries")]
+            public int[] SalaryHistory { get; set; }
+            
             public object Object { get; set; }
 
             public string Name { get; set; }
