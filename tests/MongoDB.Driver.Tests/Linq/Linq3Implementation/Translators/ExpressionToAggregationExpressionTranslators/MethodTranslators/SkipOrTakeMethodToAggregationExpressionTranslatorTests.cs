@@ -20,7 +20,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class TakeMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class SkipOrTakeMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
     {
         [Fact]
         public void Enumerable_Take_should_work()

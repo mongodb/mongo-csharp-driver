@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public override BsonValue Render()
         {
             var args =
-                _position == null ?
+                (_position == null || _position.IsZero()) ?
                     new BsonArray { _array.Render(), _n.Render() } :
                     new BsonArray { _array.Render(), _position.Render(), _n.Render() };
 

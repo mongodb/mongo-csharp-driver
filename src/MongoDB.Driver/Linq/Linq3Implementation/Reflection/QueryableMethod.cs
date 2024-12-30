@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
