@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (arrayLengthExpression.NodeType == ExpressionType.ArrayLength)
             {
                 var fieldExpression = arrayLengthExpression.Operand;
-                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
                 var size = sizeExpression.GetConstantValue<int>(containingExpression: expression);
 
                 switch (comparisonOperator)

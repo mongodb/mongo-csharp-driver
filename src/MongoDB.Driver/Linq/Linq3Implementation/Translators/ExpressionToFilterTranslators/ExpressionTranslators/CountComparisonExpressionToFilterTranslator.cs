@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression, AstComparisonFilterOperator comparisonOperator, Expression enumerableExpression, Expression sizeExpression)
         {
-            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, enumerableExpression);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, enumerableExpression);
             SerializationHelper.EnsureRepresentationIsArray(enumerableExpression, fieldTranslation.Serializer);
 
             if (TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))

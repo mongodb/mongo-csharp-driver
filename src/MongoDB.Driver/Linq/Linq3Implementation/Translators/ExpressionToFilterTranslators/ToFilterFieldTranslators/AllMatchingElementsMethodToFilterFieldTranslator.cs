@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (method.Is(MongoEnumerableMethod.AllMatchingElements))
             {
                 var fieldExpression = arguments[0];
-                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
 
                 var identifierExpression = arguments[1];
                 var identifier = identifierExpression.GetConstantValue<string>(containingExpression: expression);

@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (method.Is(EnumerableMethod.Select))
             {
                 var fieldExpression = arguments[0];
-                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
 
                 var selectorExpression = arguments[1];
                 if (selectorExpression is LambdaExpression lambdaExpression &&

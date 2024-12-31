@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             {
-                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, sourceExpression);
                 return (fieldTranslation, null);
             }
         }

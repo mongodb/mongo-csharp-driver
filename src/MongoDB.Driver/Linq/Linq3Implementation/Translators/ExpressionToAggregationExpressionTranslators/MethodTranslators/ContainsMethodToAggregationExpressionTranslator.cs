@@ -77,8 +77,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
             NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
             var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
+
             return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
         }
     }
