@@ -131,18 +131,15 @@ namespace MongoDB.Driver.Search
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
         {
-            var fieldRenderArgs = args;
-            var renderedField = _field.Render(fieldRenderArgs);
+            var renderedField = _field.Render(args);
 
             var document = new BsonDocument();
-            using (var bsonWriter = new BsonDocumentWriter(document))
-            {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName("value");
-                renderedField.FieldSerializer.Serialize(context, _value);
-                bsonWriter.WriteEndDocument();
-            }
+            using var bsonWriter = new BsonDocumentWriter(document);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter);
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteName("value");
+            renderedField.FieldSerializer.Serialize(context, _value);
+            bsonWriter.WriteEndDocument();
 
             return document;
         }
