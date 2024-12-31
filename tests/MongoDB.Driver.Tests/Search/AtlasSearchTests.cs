@@ -18,7 +18,9 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.GeoJsonObjectModel;
@@ -34,6 +36,8 @@ namespace MongoDB.Driver.Tests.Search
     [Trait("Category", "AtlasSearch")]
     public class AtlasSearchTests : LoggableTestClass
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
         #region static
 
         private static readonly GeoJsonPolygon<GeoJson2DGeographicCoordinates> __testPolygon =
@@ -58,6 +62,7 @@ namespace MongoDB.Driver.Tests.Search
 
         public AtlasSearchTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
+            _testOutputHelper = testOutputHelper;
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_SEARCH_TESTS_ENABLED");
 
             var atlasSearchUri = Environment.GetEnvironmentVariable("ATLAS_SEARCH");
@@ -735,6 +740,32 @@ namespace MongoDB.Driver.Tests.Search
             return fluent.Limit(1).Single();
         }
 
+        [Fact]
+        public void TestX()
+        {
+            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
+            var testGuid = Guid.NewGuid();
+            var searchDefinition = Builders<TestClass>.Search.Equals(t => t.TestGuid2, testGuid);
+
+            var result = GetExtraTestsCollection()
+                .Aggregate()
+                .Search(searchDefinition);
+            _testOutputHelper.WriteLine(result.ToString());
+            //result.Should().Be("  ");
+
+            var matchFilter1 = Builders<TestClass>.Filter.Eq(f => f.TestGuid2, testGuid);
+            var matchFilter2 = Builders<TestClass>.Filter.Eq(f => f.TestGuid, testGuid);
+
+            var result2 = GetExtraTestsCollection().Aggregate().Match(matchFilter1).Match(matchFilter2);
+            _testOutputHelper.WriteLine(result2.ToString());
+        }
+
+        /* Notes:
+         * - The match aggregation stage respects the correct serializer
+         *
+         *
+         */
+
         private List<BsonDocument> SearchMultipleSynonymMapping(params SearchDefinition<Movie>[] clauses) =>
             GetSynonymTestCollection().Aggregate()
                 .Search(Builders<Movie>.Search.Compound().Should(clauses), indexName: "synonyms-tests")
@@ -878,6 +909,10 @@ namespace MongoDB.Driver.Tests.Search
             [BsonGuidRepresentation(GuidRepresentation.Standard)]
             [BsonElement("testGuid")]
             public Guid TestGuid { get; set; }
+
+            [BsonRepresentation(BsonType.String)]
+            [BsonElement("testGuid2")]
+            public Guid TestGuid2 { get; set; }
         }
     }
 }

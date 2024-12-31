@@ -172,7 +172,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="guidRepresentation">The GuidRepresentation.</param>
         /// <returns>The reconfigured serializer.</returns>
-        public GuidSerializer WithGuidRepresentation(GuidRepresentation guidRepresentation)
+        public GuidSerializer WithGuidRepresentation(GuidRepresentation guidRepresentation)  //TODO This method and the following one should use the current values of both guidRepresentation and representation, otherwise they are lost
         {
             return new GuidSerializer(guidRepresentation);
         }
