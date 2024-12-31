@@ -44,21 +44,19 @@ namespace MongoDB.Driver.Tests.Jira
             result.Should().Be(expected);
         }
 
-        [Fact]
+        [Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]
         public void Search_Operators_use_correct_serializers_when_using_serializer_registry()
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
-
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
             var collection = new Mock<IMongoCollection<TestClass>>().Object;
             var searchDefinition = Builders<TestClass>
                 .Search
-                .Compound()
-                .Must(Builders<TestClass>.Search.Equals(t => t.DefaultGuid, testGuid));
+                .Equals(t => t.UndefinedRepresentationGuid, testGuid);
 
             var result = collection.Aggregate().Search(searchDefinition).ToString();
 
-            const string expected = """aggregate([{ "$search" : { "compound" : { "must" : [{ "equals" : { "value" : { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, "path" : "DefaultGuid" } }] } } }])""";
+            const string expected = """aggregate([{ "$search" : { "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "UndefinedRepresentationGuid" } } }])""";
 
             result.Should().Be(expected);
         }
@@ -70,6 +68,8 @@ namespace MongoDB.Driver.Tests.Jira
 
             [BsonRepresentation(BsonType.String)]
             public Guid StringGuid { get; set; }
+
+            public Guid UndefinedRepresentationGuid { get; set; }
         }
 
 
