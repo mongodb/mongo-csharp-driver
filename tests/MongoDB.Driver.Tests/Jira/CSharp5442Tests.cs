@@ -71,7 +71,5 @@ namespace MongoDB.Driver.Tests.Jira
 
             public Guid UndefinedRepresentationGuid { get; set; }
         }
-
-
     }
 }
