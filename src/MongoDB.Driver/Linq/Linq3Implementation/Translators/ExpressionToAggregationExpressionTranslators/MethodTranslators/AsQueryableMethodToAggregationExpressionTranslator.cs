@@ -32,11 +32,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
                 IBsonSerializer serializer;
                 if (sourceTranslation.Serializer is INestedAsQueryableSerializer)
                 {
-                    serializer = sourceTranslation.Serializer; 
+                    serializer = sourceTranslation.Serializer;
                 }
                 else
                 {
