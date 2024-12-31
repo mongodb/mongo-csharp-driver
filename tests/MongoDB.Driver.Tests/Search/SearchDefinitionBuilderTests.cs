@@ -276,7 +276,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Theory]
-        [MemberData(nameof(EqualsSupportedTypesTestData))]
+        [MemberData(nameof(EqualsSupportedTypesTestData))]  //TODO Need to fix this
         public void Equals_should_render_supported_type<T>(
             T value,
             string valueRendered,
