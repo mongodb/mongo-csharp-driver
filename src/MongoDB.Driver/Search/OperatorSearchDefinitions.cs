@@ -236,7 +236,7 @@ namespace MongoDB.Driver.Search
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args) =>
             new("value", _values);
 
-        private static BsonValue ToBsonValue(TField value) =>
+        private static BsonValue ToBsonValue(TField value) =>  //TODO probably we need to change also this
             value switch
             {
                 bool v => (BsonBoolean)v,
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Search
                 { _range.IsMaxInclusive ? "lte" : "lt", _max, _max != null },
             };
 
-        private static BsonValue ToBsonValue(TField? value) =>
+        private static BsonValue ToBsonValue(TField? value) =>  //TODO Probably we need to change this too
             value switch
             {
                 sbyte v => (BsonInt32)v,
