@@ -29,5 +29,17 @@ namespace MongoDB.Bson.Serialization
                 type.IsGenericType &&
                 type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
+
+        public static bool IsNullable(this Type type)
+        {
+            return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        public static bool IsNullableEnum(this Type type)
+        {
+            return
+                type.IsNullable() &&
+                Nullable.GetUnderlyingType(type).IsEnum;
+        }
     }
 }

@@ -68,7 +68,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         public void Apply(BsonMemberMap memberMap)
         {
             var serializer = memberMap.GetSerializer();
-            var reconfiguredSerializer = _topLevelOnly && Nullable.GetUnderlyingType(serializer.ValueType) == null ?
+            var reconfiguredSerializer = _topLevelOnly && !serializer.ValueType.IsNullableEnum() ?
                 Reconfigure(serializer) :
                 SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure);
 
