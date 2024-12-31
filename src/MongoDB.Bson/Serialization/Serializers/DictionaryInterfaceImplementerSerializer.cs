@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class DictionaryInterfaceImplementerSerializer<TDictionary> :
         DictionarySerializerBase<TDictionary>,
         IChildSerializerConfigurable,
-        IMultipleChildSerializerConfigurable,
+        IMultipleChildSerializersConfigurable,
         IDictionaryRepresentationConfigurable
             where TDictionary : class, IDictionary, new()
     {
@@ -155,9 +155,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
 
-        IBsonSerializer[] IMultipleChildSerializerConfigurable.ChildSerializers => [KeySerializer, ValueSerializer];
+        IBsonSerializer[] IMultipleChildSerializersConfigurable.ChildSerializers => [KeySerializer, ValueSerializer];
 
-        IBsonSerializer IMultipleChildSerializerConfigurable.WithChildSerializers(IBsonSerializer[] childSerializers)
+        IBsonSerializer IMultipleChildSerializersConfigurable.WithChildSerializers(IBsonSerializer[] childSerializers)
         {
             if (childSerializers.Length != 2)
             {
@@ -183,7 +183,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> :
         DictionarySerializerBase<TDictionary, TKey, TValue>,
         IChildSerializerConfigurable,
-        IMultipleChildSerializerConfigurable,
+        IMultipleChildSerializersConfigurable,
         IDictionaryRepresentationConfigurable<DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>>
             where TDictionary : class, IDictionary<TKey, TValue>
     {
@@ -301,9 +301,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
 
-        IBsonSerializer[] IMultipleChildSerializerConfigurable.ChildSerializers => [KeySerializer, ValueSerializer];
+        IBsonSerializer[] IMultipleChildSerializersConfigurable.ChildSerializers => [KeySerializer, ValueSerializer];
 
-        IBsonSerializer IMultipleChildSerializerConfigurable.WithChildSerializers(IBsonSerializer[] childSerializers)
+        IBsonSerializer IMultipleChildSerializersConfigurable.WithChildSerializers(IBsonSerializer[] childSerializers)
         {
             if (childSerializers.Length != 2)
             {

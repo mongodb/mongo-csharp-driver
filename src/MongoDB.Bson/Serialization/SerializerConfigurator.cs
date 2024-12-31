@@ -20,42 +20,39 @@ namespace MongoDB.Bson.Serialization
 {
     internal static class SerializerConfigurator
     {
-        /// Reconfigures a serializer using the specified <paramref name="reconfigure"/> method if the result of <paramref name="testFunction"/> is true or the function is null.
-        /// If the serializer implements <see cref="IChildSerializerConfigurable"/> and either:
-        /// - <paramref name="topLevelOnly"/> is false;
-        /// - or is a <see cref="Nullable"/> serializer;
-        /// the method traverses and applies the reconfiguration to its child serializers recursively.
-        internal static IBsonSerializer ReconfigureSerializer<TSerializer>(IBsonSerializer serializer, Func<TSerializer, IBsonSerializer> reconfigure,
-            Func<IBsonSerializer, bool> testFunction = null, bool topLevelOnly = false)
+        // Reconfigures a serializer recursively.
+        // The reconfigure Func should return null if it does not apply to a given serializer.
+        internal static IBsonSerializer ReconfigureSerializerRecursively(
+            IBsonSerializer serializer,
+            Func<IBsonSerializer, IBsonSerializer> reconfigure)
         {
             switch (serializer)
             {
-                case TSerializer typedSerializer when testFunction?.Invoke(serializer) ?? true:
-                    return reconfigure(typedSerializer);
-                case IMultipleChildSerializerConfigurable multipleChildSerializerConfigurable when !topLevelOnly:
+                // check IMultipleChildSerializersConfigurableSerializer first because some serializers implement both interfaces
+                case IMultipleChildSerializersConfigurable multipleChildSerializerConfigurable:
                 {
-                    var newSerializers = new List<IBsonSerializer>();
+                    var anyChildSerializerWasReconfigured = false;
+                    var reconfiguredChildSerializers = new List<IBsonSerializer>();
 
                     foreach (var childSerializer in multipleChildSerializerConfigurable.ChildSerializers)
                     {
-                        var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunction,
-                            false);
-
-                        newSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
+                        var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
+                        anyChildSerializerWasReconfigured |= reconfiguredChildSerializer != null;
+                        reconfiguredChildSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
                     }
 
-                    return multipleChildSerializerConfigurable.WithChildSerializers(newSerializers.ToArray());
+                    return anyChildSerializerWasReconfigured ? multipleChildSerializerConfigurable.WithChildSerializers(reconfiguredChildSerializers.ToArray()) : null;
                 }
-                case IChildSerializerConfigurable childSerializerConfigurable when
-                    !topLevelOnly || Nullable.GetUnderlyingType(serializer.ValueType) != null:
+
+                case IChildSerializerConfigurable childSerializerConfigurable:
                 {
                     var childSerializer = childSerializerConfigurable.ChildSerializer;
-                    var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure, testFunction, topLevelOnly);
-                    return reconfiguredChildSerializer != null? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
+                    var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
+                    return reconfiguredChildSerializer != null ? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
                 }
 
                 default:
-                    return null;
+                    return reconfigure(serializer);
             }
         }
     }

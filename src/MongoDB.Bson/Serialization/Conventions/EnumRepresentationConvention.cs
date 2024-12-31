@@ -67,15 +67,18 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            var reconfiguredSerializer =
-                SerializerConfigurator.ReconfigureSerializer<IRepresentationConfigurable>(memberMap.GetSerializer(),
-                    s => s.WithRepresentation(_representation),
-                    s => s.ValueType.IsEnum, _topLevelOnly);
+            var serializer = memberMap.GetSerializer();
+            var reconfiguredSerializer = _topLevelOnly && Nullable.GetUnderlyingType(serializer.ValueType) == null ?
+                Reconfigure(serializer) :
+                SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure);
 
             if (reconfiguredSerializer is not null)
             {
                 memberMap.SetSerializer(reconfiguredSerializer);
             }
+
+            IBsonSerializer Reconfigure(IBsonSerializer s)
+                => s.ValueType.IsEnum ? (s as IRepresentationConfigurable)?.WithRepresentation(_representation) : null;
         }
 
         // private methods

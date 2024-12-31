@@ -40,12 +40,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 DateTimeTicksFormat = dateOnly,
                 YearMonthDayFormat = dateOnly,
                 IgnoredFormat = dateOnly,
+                NullableYearMonthDayFormat = dateOnly,
                 ArrayYearMonthDayFormat = [dateOnly, dateOnly]
             };
 
             var json = testObj.ToJson();
             const string expected = """
-                                    { "DateTimeTicksFormat" : { "DateTime" : { "$date" : "2024-10-05T00:00:00Z" }, "Ticks" : 638636832000000000 }, "YearMonthDayFormat" : { "Year" : 2024, "Month" : 10, "Day" : 5 }, "IgnoredFormat" : 638636832000000000, "ArrayYearMonthDayFormat" : [{ "Year" : 2024, "Month" : 10, "Day" : 5 }, { "Year" : 2024, "Month" : 10, "Day" : 5 }] }
+                                    { "DateTimeTicksFormat" : { "DateTime" : { "$date" : "2024-10-05T00:00:00Z" }, "Ticks" : 638636832000000000 }, "YearMonthDayFormat" : { "Year" : 2024, "Month" : 10, "Day" : 5 }, "IgnoredFormat" : 638636832000000000, "NullableYearMonthDayFormat" : { "Year" : 2024, "Month" : 10, "Day" : 5 }, "ArrayYearMonthDayFormat" : [{ "Year" : 2024, "Month" : 10, "Day" : 5 }, { "Year" : 2024, "Month" : 10, "Day" : 5 }] }
                                     """;
             Assert.Equal(expected, json);
         }
@@ -365,6 +366,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             [BsonDateOnlyOptions(BsonType.Int64, DateOnlyDocumentFormat.YearMonthDay)]
             public DateOnly IgnoredFormat { get; set; }
+
+            [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay)]
+            public DateOnly? NullableYearMonthDayFormat { get; set; }
 
             [BsonDateOnlyOptions(BsonType.Document, DateOnlyDocumentFormat.YearMonthDay)]
             public DateOnly[] ArrayYearMonthDayFormat { get; set; }
