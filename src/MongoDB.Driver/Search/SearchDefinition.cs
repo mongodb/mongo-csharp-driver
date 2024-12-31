@@ -123,9 +123,9 @@ namespace MongoDB.Driver.Search
             QueryString,
             Range,
             Regex,
-            Search,
+            Search,  //TODO This is never used
             Span,
-            Term,
+            Term, //TODO This is never used
             Text,
             Wildcard
         }
