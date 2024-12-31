@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (method.Is(MongoEnumerableMethod.FirstMatchingElement))
             {
                 var sourceExpression = arguments[0];
-                var field = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
+                var field = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, sourceExpression);
 
                 if (field.Serializer is IBsonArraySerializer arraySerializer &&
                     arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
