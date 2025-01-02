@@ -121,27 +121,54 @@ namespace MongoDB.Driver.Search
     {
         private readonly TField _value;
         private readonly FieldDefinition<TDocument, TField> _field;
+        private readonly FieldDefinition<TDocument, IEnumerable<TField>> _arrayField;
 
-        public EqualsSearchDefinition(FieldDefinition<TDocument> path, FieldDefinition<TDocument, TField> field, TField value, SearchScoreDefinition<TDocument> score)
-            : base(OperatorType.Equals, path, score)
+        public EqualsSearchDefinition(FieldDefinition<TDocument, TField> path, TField value, SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
         {
             _value = value;
-            _field = field;
+            _field = path;
+        }
+
+        public EqualsSearchDefinition(FieldDefinition<TDocument, IEnumerable<TField>> path, TField value, SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
+        {
+            _value = value;
+            _arrayField = path;
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
         {
-            var renderedField = _field.Render(args);
+            if (_field is null)
+            {
+                var fieldRenderArgs = args with { PathRenderArgs = args.PathRenderArgs with { AllowScalarValueForArray = true } };
 
-            var document = new BsonDocument();
-            using var bsonWriter = new BsonDocumentWriter(document);
-            var context = BsonSerializationContext.CreateRoot(bsonWriter);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName("value");
-            renderedField.ValueSerializer.Serialize(context, _value);
-            bsonWriter.WriteEndDocument();
+                var renderedField = _arrayField.Render(fieldRenderArgs);
 
-            return document;
+                var document = new BsonDocument();
+                using var bsonWriter = new BsonDocumentWriter(document);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("value");
+                renderedField.ValueSerializer.Serialize(context, _value);
+                bsonWriter.WriteEndDocument();
+
+                return document;
+            }
+            else
+            {
+                var renderedField = _field.Render(args);
+
+                var document = new BsonDocument();
+                using var bsonWriter = new BsonDocumentWriter(document);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("value");
+                renderedField.ValueSerializer.Serialize(context, _value);
+                bsonWriter.WriteEndDocument();
+
+                return document;
+            }
         }
     }
 
