@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Jira
     public class CSharp5442Tests
     {
         [Fact]
-        public void Search_Operators_use_correct_serializers_when_using_attributes()
+        public void Search_Operators_use_correct_serializers_when_using_attributes_and_expression_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
             var collection = new Mock<IMongoCollection<TestClass>>().Object;
@@ -44,7 +44,26 @@ namespace MongoDB.Driver.Tests.Jira
             result.Should().Be(expected);
         }
 
-        [Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]
+        [Fact]
+        public void Search_Operators_use_correct_serializers_when_using_attributes_and_string_path()
+        {
+            var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var collection = new Mock<IMongoCollection<TestClass>>().Object;
+            var searchDefinition = Builders<TestClass>
+                .Search
+                .Compound()
+                .Must(Builders<TestClass>.Search.Equals("DefaultGuid", testGuid))
+                .Must(Builders<TestClass>.Search.Equals("StringGuid", testGuid));
+
+            var result = collection.Aggregate().Search(searchDefinition).ToString();
+
+            const string expected = """aggregate([{ "$search" : { "compound" : { "must" : [{ "equals" : { "value" : { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, "path" : "DefaultGuid" } }, { "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "StringGuid" } }] } } }])""";
+
+            result.Should().Be(expected);
+        }
+
+        //[Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]  //TODO Put back skip afterwards
+        [Fact]
         public void Search_Operators_use_correct_serializers_when_using_serializer_registry()
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
@@ -61,7 +80,7 @@ namespace MongoDB.Driver.Tests.Jira
             result.Should().Be(expected);
         }
 
-        public class TestClass
+        private class TestClass
         {
             [BsonGuidRepresentation(GuidRepresentation.Standard)]
             public Guid DefaultGuid { get; set; }
