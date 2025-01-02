@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Search
             var context = BsonSerializationContext.CreateRoot(bsonWriter);
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName("value");
-            renderedField.FieldSerializer.Serialize(context, _value);
+            renderedField.ValueSerializer.Serialize(context, _value);
             bsonWriter.WriteEndDocument();
 
             return document;
