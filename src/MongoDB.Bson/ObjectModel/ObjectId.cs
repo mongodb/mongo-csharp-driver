@@ -14,8 +14,10 @@
 */
 
 using System;
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace MongoDB.Bson
@@ -41,6 +43,15 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         public ObjectId(byte[] bytes)
+            : this(bytes.AsSpan())
+        {
+        }
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        public ObjectId(ReadOnlySpan<byte> bytes)
         {
             if (bytes == null)
             {
@@ -51,7 +62,7 @@ namespace MongoDB.Bson
                 throw new ArgumentException("Byte array must be 12 bytes long", "bytes");
             }
 
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            FromSpan(bytes, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -59,9 +70,9 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="index">The index into the byte array where the ObjectId starts.</param>
-        internal ObjectId(byte[] bytes, int index)
+        internal ObjectId(ReadOnlySpan<byte> bytes, int index)
         {
-            FromByteArray(bytes, index, out _a, out _b, out _c);
+            FromSpan(bytes.Slice(index), out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -69,14 +80,24 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public ObjectId(string value)
+            : this(value is null ? throw new ArgumentNullException("value") :value.AsSpan())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public ObjectId(ReadOnlySpan<char> value)
         {
             if (value == null)
             {
                 throw new ArgumentNullException("value");
             }
 
-            var bytes = BsonUtils.ParseHexString(value);
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            Span<byte> bytes = stackalloc byte[12];
+            BsonUtils.ParseHexChars(value, bytes);
+            FromSpan(bytes, out _a, out _b, out _c);
         }
 
         private ObjectId(int a, int b, int c)
@@ -243,10 +264,26 @@ namespace MongoDB.Bson
         public static bool TryParse(string s, out ObjectId objectId)
         {
             // don't throw ArgumentNullException if s is null
-            if (s != null && s.Length == 24)
+            if (s == null)
             {
-                byte[] bytes;
-                if (BsonUtils.TryParseHexString(s, out bytes))
+                objectId = default;
+                return false;
+            }
+            return TryParse(s.AsSpan(), out objectId);
+        }
+
+        /// <summary>
+        /// Tries to parse a string and create a new ObjectId.
+        /// </summary>
+        /// <param name="s">The string value.</param>
+        /// <param name="objectId">The new ObjectId.</param>
+        /// <returns>True if the string was parsed successfully.</returns>
+        public static bool TryParse(ReadOnlySpan<char> s, out ObjectId objectId)
+        {
+            if (s.Length == 24)
+            {
+                Span<byte> bytes = stackalloc byte[12];
+                if (BsonUtils.TryParseHexChars(s, bytes))
                 {
                     objectId = new ObjectId(bytes);
                     return true;
@@ -343,11 +380,12 @@ namespace MongoDB.Bson
             return (int)(uint)secondsSinceEpoch;
         }
 
-        private static void FromByteArray(byte[] bytes, int offset, out int a, out int b, out int c)
+        private static void FromSpan(ReadOnlySpan<byte> bytes, out int a, out int b, out int c)
         {
-            a = (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
-            b = (bytes[offset + 4] << 24) | (bytes[offset + 5] << 16) | (bytes[offset + 6] << 8) | bytes[offset + 7];
-            c = (bytes[offset + 8] << 24) | (bytes[offset + 9] << 16) | (bytes[offset + 10] << 8) | bytes[offset + 11];
+            var ints = MemoryMarshal.Cast<byte, int>(bytes);
+            a = BinaryPrimitives.ReverseEndianness(ints[0]);
+            b = BinaryPrimitives.ReverseEndianness(ints[1]);
+            c = BinaryPrimitives.ReverseEndianness(ints[2]);
         }
 
         // public methods
@@ -426,27 +464,27 @@ namespace MongoDB.Bson
         /// <param name="offset">The offset.</param>
         public void ToByteArray(byte[] destination, int offset)
         {
+            ToByteSpan(destination.AsSpan().Slice(offset));
+        }
+
+        /// <summary>
+        /// Writes the ObjectId into a byte span.
+        /// </summary>
+        /// <param name="destination">The destination.</param>
+        public void ToByteSpan(Span<byte> destination)
+        {
             if (destination == null)
             {
                 throw new ArgumentNullException("destination");
             }
-            if (offset + 12 > destination.Length)
+            if (12 > destination.Length)
             {
                 throw new ArgumentException("Not enough room in destination buffer.", "offset");
             }
-
-            destination[offset + 0] = (byte)(_a >> 24);
-            destination[offset + 1] = (byte)(_a >> 16);
-            destination[offset + 2] = (byte)(_a >> 8);
-            destination[offset + 3] = (byte)(_a);
-            destination[offset + 4] = (byte)(_b >> 24);
-            destination[offset + 5] = (byte)(_b >> 16);
-            destination[offset + 6] = (byte)(_b >> 8);
-            destination[offset + 7] = (byte)(_b);
-            destination[offset + 8] = (byte)(_c >> 24);
-            destination[offset + 9] = (byte)(_c >> 16);
-            destination[offset + 10] = (byte)(_c >> 8);
-            destination[offset + 11] = (byte)(_c);
+            var intValues = MemoryMarshal.Cast<byte, int>(destination);
+            intValues[0] = BinaryPrimitives.ReverseEndianness(_a);
+            intValues[1] = BinaryPrimitives.ReverseEndianness(_b);
+            intValues[2] = BinaryPrimitives.ReverseEndianness(_c);
         }
 
         /// <summary>
@@ -455,32 +493,30 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            var c = new char[24];
-            c[0] = BsonUtils.ToHexChar((_a >> 28) & 0x0f);
-            c[1] = BsonUtils.ToHexChar((_a >> 24) & 0x0f);
-            c[2] = BsonUtils.ToHexChar((_a >> 20) & 0x0f);
-            c[3] = BsonUtils.ToHexChar((_a >> 16) & 0x0f);
-            c[4] = BsonUtils.ToHexChar((_a >> 12) & 0x0f);
-            c[5] = BsonUtils.ToHexChar((_a >> 8) & 0x0f);
-            c[6] = BsonUtils.ToHexChar((_a >> 4) & 0x0f);
-            c[7] = BsonUtils.ToHexChar(_a & 0x0f);
-            c[8] = BsonUtils.ToHexChar((_b >> 28) & 0x0f);
-            c[9] = BsonUtils.ToHexChar((_b >> 24) & 0x0f);
-            c[10] = BsonUtils.ToHexChar((_b >> 20) & 0x0f);
-            c[11] = BsonUtils.ToHexChar((_b >> 16) & 0x0f);
-            c[12] = BsonUtils.ToHexChar((_b >> 12) & 0x0f);
-            c[13] = BsonUtils.ToHexChar((_b >> 8) & 0x0f);
-            c[14] = BsonUtils.ToHexChar((_b >> 4) & 0x0f);
-            c[15] = BsonUtils.ToHexChar(_b & 0x0f);
-            c[16] = BsonUtils.ToHexChar((_c >> 28) & 0x0f);
-            c[17] = BsonUtils.ToHexChar((_c >> 24) & 0x0f);
-            c[18] = BsonUtils.ToHexChar((_c >> 20) & 0x0f);
-            c[19] = BsonUtils.ToHexChar((_c >> 16) & 0x0f);
-            c[20] = BsonUtils.ToHexChar((_c >> 12) & 0x0f);
-            c[21] = BsonUtils.ToHexChar((_c >> 8) & 0x0f);
-            c[22] = BsonUtils.ToHexChar((_c >> 4) & 0x0f);
-            c[23] = BsonUtils.ToHexChar(_c & 0x0f);
-            return new string(c);
+#if NETFRAMEWORK
+            var chars = new char[24];
+#else
+            Span<char> chars = stackalloc char[24];
+#endif
+            WriteToSpan(chars);
+            return new string(chars);
+        }
+
+        /// <summary>
+        /// Writes the string representation of the value into the target span
+        /// </summary>
+        /// <param name="span">the target span</param>
+        public void WriteToSpan(Span<char> span)
+        {
+            if (span.Length < 24)
+            {
+                throw new ArgumentException("Not enough room in destination span.", "offset");
+            }
+            Span<int> intValues = stackalloc int[3];
+            intValues[0] = BinaryPrimitives.ReverseEndianness(_a);
+            intValues[1] = BinaryPrimitives.ReverseEndianness(_b);
+            intValues[2] = BinaryPrimitives.ReverseEndianness(_c);
+            BsonUtils.ToHexChars(MemoryMarshal.AsBytes(intValues), span);
         }
 
         // explicit IConvertible implementation
