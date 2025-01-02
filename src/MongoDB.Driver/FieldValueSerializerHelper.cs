@@ -317,6 +317,8 @@ namespace MongoDB.Driver
         {
             private readonly IBsonSerializer<TItem> _itemSerializer;
 
+            public IBsonSerializer<TItem> ItemSerializer => _itemSerializer;
+
             public IEnumerableSerializer(IBsonSerializer<TItem> itemSerializer)
             {
                 _itemSerializer = itemSerializer;
