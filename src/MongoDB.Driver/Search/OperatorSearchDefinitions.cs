@@ -123,9 +123,29 @@ namespace MongoDB.Driver.Search
         private readonly FieldDefinition<TDocument, TField> _field;
         private readonly FieldDefinition<TDocument, IEnumerable<TField>> _arrayField;
 
+        private readonly List<Type> _validTypes =
+        [
+            typeof(bool),
+            typeof(sbyte),
+            typeof(byte),
+            typeof(short),
+            typeof(ushort),
+            typeof(int),
+            typeof(uint),
+            typeof(long),
+            typeof(float),
+            typeof(double),
+            typeof(DateTime),
+            typeof(DateTimeOffset),
+            typeof(ObjectId),
+            typeof(Guid),
+            typeof(string)
+        ];
+
         public EqualsSearchDefinition(FieldDefinition<TDocument, TField> path, TField value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
         {
+            ValidateType();
             _value = value;
             _field = path;
         }
@@ -133,6 +153,7 @@ namespace MongoDB.Driver.Search
         public EqualsSearchDefinition(FieldDefinition<TDocument, IEnumerable<TField>> path, TField value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
         {
+            ValidateType();
             _value = value;
             _arrayField = path;
         }
@@ -141,8 +162,6 @@ namespace MongoDB.Driver.Search
         {
             if (_field is null)
             {
-                //var fieldRenderArgs = args with { PathRenderArgs = args.PathRenderArgs with { AllowScalarValueForArray = true } };
-
                 var renderedField = _arrayField.Render(args);
 
                 var serializer =
@@ -172,6 +191,14 @@ namespace MongoDB.Driver.Search
                 bsonWriter.WriteEndDocument();
 
                 return document;
+            }
+        }
+
+        private void ValidateType()
+        {
+            if (!_validTypes.Contains(typeof(TField)))
+            {
+                throw new InvalidCastException();
             }
         }
     }
