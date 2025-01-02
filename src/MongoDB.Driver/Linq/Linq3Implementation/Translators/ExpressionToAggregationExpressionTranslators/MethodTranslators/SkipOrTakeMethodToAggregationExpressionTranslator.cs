@@ -32,21 +32,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.Take,
         };
 
-        private static MethodInfo[] __skipOrTakeMethodsWithCount =
-        {
-            EnumerableMethod.Skip,
-            EnumerableMethod.Take,
-            QueryableMethod.Skip,
-            QueryableMethod.Take
-        };
-
-        private static MethodInfo[] __skipMethodsWithCount =
+        private static MethodInfo[] __skipMethods =
         {
             EnumerableMethod.Skip,
             QueryableMethod.Skip
         };
 
-        private static MethodInfo[] __takeMethodsWithCount =
+        private static MethodInfo[] __takeMethods =
         {
             EnumerableMethod.Take,
             QueryableMethod.Take
@@ -65,21 +57,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var resultSerializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
 
-                if (method.IsOneOf(__skipOrTakeMethodsWithCount))
+                var countExpression = arguments[1];
+                var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
+                var countAst = AstExpression.Max(countTranslation.Ast, 0); // map negative numbers to 0
+
+                var ast = method switch
                 {
-                    var countExpression = arguments[1];
-                    var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                    var countAst = AstExpression.Max(countTranslation.Ast, 0); // map negative numbers to 0
+                    _ when method.IsOneOf(__skipMethods) => AstExpression.Slice(sourceTranslation.Ast, countAst, int.MaxValue),
+                    _ when method.IsOneOf(__takeMethods) => AstExpression.Slice(sourceTranslation.Ast, countAst),
+                    _ => throw new ExpressionNotSupportedException(expression)
+                };
 
-                    var ast = method switch
-                    {
-                        _ when method.IsOneOf(__skipMethodsWithCount) => AstExpression.Slice(sourceTranslation.Ast, countAst, int.MaxValue),
-                        _ when method.IsOneOf(__takeMethodsWithCount) => AstExpression.Slice(sourceTranslation.Ast, countAst),
-                        _ => throw new ExpressionNotSupportedException(expression)
-                    };
-
-                    return new AggregationExpression(expression, ast, resultSerializer);
-                }
+                return new AggregationExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
