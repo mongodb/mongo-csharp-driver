@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var pipelineError = new EmptyPipelineDefinition<MyDocument>()
                 .Set(x => new MyDocument()
                 {
-                    ValueObject = new()
+                    ValueObject = new MyValue()
                     {
                         Value = x.ValueObject == null ? 1 : x.ValueObject.Value + 1
                     }
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
-        public void Test2()
+        public void TestDerived()
         {
             var coll = GetCollection();
             var doc = new MyDocument();
@@ -54,7 +54,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var pipelineError = new EmptyPipelineDefinition<MyDocument>()
                 .Set(x => new MyDocument()
                 {
-                    Long = x.ValueObject.Value,
+                    ValueObject = new MyDerivedValue()
+                    {
+                        Value = x.ValueObject == null ? 1 : x.ValueObject.Value + 1,
+                        B = 42
+                    }
                 });
             var updateError = Builders<MyDocument>.Update.Pipeline(pipelineError);
 
@@ -85,6 +89,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         class MyValue
         {
             public int Value { get; set; }
+        }
+
+        class MyDerivedValue : MyValue
+        {
+            public int B { get; set; }
         }
     }
 }
