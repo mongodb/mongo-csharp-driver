@@ -141,16 +141,20 @@ namespace MongoDB.Driver.Search
         {
             if (_field is null)
             {
-                var fieldRenderArgs = args with { PathRenderArgs = args.PathRenderArgs with { AllowScalarValueForArray = true } };
+                //var fieldRenderArgs = args with { PathRenderArgs = args.PathRenderArgs with { AllowScalarValueForArray = true } };
 
-                var renderedField = _arrayField.Render(fieldRenderArgs);
+                var renderedField = _arrayField.Render(args);
+
+                var serializer =
+                    (renderedField.ValueSerializer as FieldValueSerializerHelper.IEnumerableSerializer<TField>)
+                    .ItemSerializer;
 
                 var document = new BsonDocument();
                 using var bsonWriter = new BsonDocumentWriter(document);
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("value");
-                renderedField.ValueSerializer.Serialize(context, _value);
+                serializer.Serialize(context, _value);
                 bsonWriter.WriteEndDocument();
 
                 return document;
