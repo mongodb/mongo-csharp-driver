@@ -120,13 +120,13 @@ namespace MongoDB.Driver.Search
     internal sealed class EqualsSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
         private readonly TField _value;
-        private readonly FieldDefinition<TDocument> _field;
+        private readonly FieldDefinition<TDocument, TField> _field;
 
-        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TField value, SearchScoreDefinition<TDocument> score)
+        public EqualsSearchDefinition(FieldDefinition<TDocument> path, FieldDefinition<TDocument, TField> field, TField value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, path, score)
         {
             _value = value;
-            _field = path;
+            _field = field;
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
