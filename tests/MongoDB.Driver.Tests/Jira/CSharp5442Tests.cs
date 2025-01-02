@@ -62,8 +62,7 @@ namespace MongoDB.Driver.Tests.Jira
             result.Should().Be(expected);
         }
 
-        //[Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]  //TODO Put back skip afterwards
-        [Fact]
+        [Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]  //TODO Put back skip afterwards
         public void Search_Operators_use_correct_serializers_when_using_serializer_registry()
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
@@ -80,7 +79,7 @@ namespace MongoDB.Driver.Tests.Jira
             result.Should().Be(expected);
         }
 
-        private class TestClass
+        public class TestClass
         {
             [BsonGuidRepresentation(GuidRepresentation.Standard)]
             public Guid DefaultGuid { get; set; }
