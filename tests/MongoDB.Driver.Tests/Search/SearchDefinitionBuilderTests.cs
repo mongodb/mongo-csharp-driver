@@ -290,6 +290,8 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Equals("x", value),
                 $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
 
+            //For the Guid we get (correctly): GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified.
+
             var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
             AssertRendered(
                 subject.Equals("x", value, scoreBuilder.Constant(1)),
@@ -298,8 +300,6 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subjectTyped.Equals(fieldExpression, value),
                 $"{{ equals: {{ path: '{fieldRendered}', value: {valueRendered} }} }}");
-
-            //For the Guid we get: GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified. It makes sense
         }
 
         public static object[][] EqualsSupportedTypesTestData => new[]
