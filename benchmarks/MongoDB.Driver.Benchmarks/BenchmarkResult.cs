@@ -27,8 +27,10 @@ namespace MongoDB.Benchmarks
 
         public BenchmarkResult(BenchmarkReport benchmarkReport)
         {
+            Categories = new HashSet<string>(benchmarkReport.BenchmarkCase.Descriptor.Categories);
+
             int dataSetSize;
-            if (benchmarkReport.BenchmarkCase.Descriptor.HasCategory(DriverBenchmarkCategory.BsonBench))
+            if (Categories.Contains(DriverBenchmarkCategory.BsonBench))
             {
                 var bsonBenchmarkData = (BsonBenchmarkData)benchmarkReport.BenchmarkCase.Parameters["BenchmarkData"];
                 Name = bsonBenchmarkData.DataSetName + benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
@@ -36,11 +38,12 @@ namespace MongoDB.Benchmarks
             }
             else
             {
-                Name = benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
+                Name = Categories.Contains(DriverBenchmarkCategory.BulkWriteBench)
+                    ? benchmarkReport.BenchmarkCase.Descriptor.WorkloadMethod.Name
+                    : benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
+                
                 dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
             }
-
-            Categories = new HashSet<string>(benchmarkReport.BenchmarkCase.Descriptor.Categories);
 
             // change the median from nanoseconds to seconds for calculating the score.
             // since dataSetSize is in bytes, divide the score to convert to MB/s

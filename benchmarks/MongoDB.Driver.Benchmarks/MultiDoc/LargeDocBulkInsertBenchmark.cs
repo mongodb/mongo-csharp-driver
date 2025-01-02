@@ -18,21 +18,25 @@ using System.Linq;
 using BenchmarkDotNet.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.TestHelpers;
 using static MongoDB.Benchmarks.BenchmarkHelper;
 
 namespace MongoDB.Benchmarks.MultiDoc
 {
     [IterationCount(100)]
-    [BenchmarkCategory(DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
-    public class InsertManySmallBenchmark
+    [BenchmarkCategory(DriverBenchmarkCategory.BulkWriteBench, DriverBenchmarkCategory.MultiBench, DriverBenchmarkCategory.WriteBench, DriverBenchmarkCategory.DriverBench)]
+    public class LargeDocBulkInsertBenchmark
     {
         private IMongoClient _client;
         private IMongoCollection<BsonDocument> _collection;
         private IMongoDatabase _database;
-        private IEnumerable<BsonDocument> _smallDocuments;
+        private BsonDocument[] _largeDocuments;
+        private InsertOneModel<BsonDocument>[] _collectionBulkWriteInsertModels;
+        private BulkWriteInsertOneModel<BsonDocument>[] _clientBulkWriteInsertModels;
+        
+        private static readonly CollectionNamespace __collectionNamespace =
+            CollectionNamespace.FromFullName($"{MongoConfiguration.PerfTestDatabaseName}.{MongoConfiguration.PerfTestCollectionName}");
 
-        [Params(2_750_000)]
+        [Params(27_310_890)]
         public int BenchmarkDataSetSize { get; set; } // used in BenchmarkResult.cs
 
         [GlobalSetup]
@@ -41,8 +45,10 @@ namespace MongoDB.Benchmarks.MultiDoc
             _client = MongoConfiguration.CreateClient();
             _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
 
-            var smallDocument = ReadExtendedJson("single_and_multi_document/small_doc.json");
-            _smallDocuments = Enumerable.Range(0, 10000).Select(_ => smallDocument.DeepClone().AsBsonDocument);
+            var largeDocument = ReadExtendedJson("single_and_multi_document/large_doc.json");
+            _largeDocuments = Enumerable.Range(0, 10).Select(_ => largeDocument.DeepClone().AsBsonDocument).ToArray();
+            _collectionBulkWriteInsertModels = _largeDocuments.Select(x => new InsertOneModel<BsonDocument>(x.DeepClone().AsBsonDocument)).ToArray();
+            _clientBulkWriteInsertModels = _largeDocuments.Select(x => new BulkWriteInsertOneModel<BsonDocument>(__collectionNamespace, x.DeepClone().AsBsonDocument)).ToArray();
         }
 
         [IterationSetup]
@@ -53,9 +59,21 @@ namespace MongoDB.Benchmarks.MultiDoc
         }
 
         [Benchmark]
-        public void InsertManySmall()
+        public void InsertManyLargeBenchmark()
         {
-            _collection.InsertMany(_smallDocuments, new InsertManyOptions());
+            _collection.InsertMany(_largeDocuments, new());
+        }
+        
+        [Benchmark]
+        public void LargeDocCollectionBulkWriteInsertBenchmark()
+        {
+            _collection.BulkWrite(_collectionBulkWriteInsertModels, new());
+        }
+        
+        [Benchmark]
+        public void LargeDocClientBulkWriteInsertBenchmark()
+        {
+            _client.BulkWrite(_clientBulkWriteInsertModels, new());
         }
 
         [GlobalCleanup]
