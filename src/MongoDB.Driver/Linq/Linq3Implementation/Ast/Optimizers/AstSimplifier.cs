@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -397,6 +399,54 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             }
 
             return base.VisitNotFilterOperation(node);
+        }
+
+        public override AstNode VisitSliceExpression(AstSliceExpression node)
+        {
+            node = (AstSliceExpression)base.VisitSliceExpression(node);
+            var array = node.Array;
+            var position = node.Position ?? 0; // map null to zero
+            var n = node.N;
+
+            if (position.IsZero() && n.IsMaxInt32())
+            {
+                // { $slice : [array, 0, maxint] } => array
+                return array;
+            }
+
+            if (array is AstConstantExpression arrayConstant &&
+                arrayConstant.Value is BsonArray bsonArrayConstant &&
+                position.IsInt32Constant(out var positionValue) && positionValue >= 0 &&
+                n.IsInt32Constant(out var nValue) && nValue >= 0)
+            {
+                // { slice : [array, position, n] } => array.Skip(position).Take(n) when all arguments are non-negative constants
+                return AstExpression.Constant(new BsonArray(bsonArrayConstant.Skip(positionValue).Take(nValue)));
+            }
+
+            if (array is AstSliceExpression inner &&
+                (inner.Position ?? 0).IsInt32Constant(out var innerPosition) && innerPosition >= 0 &&
+                inner.N.IsInt32Constant(out var innerN) && innerN >= 0 &&
+                position.IsInt32Constant(out var outerPosition) && outerPosition >= 0 &&
+                n.IsInt32Constant(out var outerN) && outerN >= 0)
+            {
+                // the following simplifcations are only valid when all position and n values are known to be non-negative (so they have to be constants)
+                // { $slice : [{ $slice : [inner.Array, innerPosition, maxint] }, outerPosition, maxint] } => { $slice : [inner.Array, innerPosition + outerPosition, maxint] }
+                // { $slice : [{ $slice : [inner.Array, innerPosition, maxint] }, outerPosition, outerN] } => { $slice : [inner.Array, innerPosition + outerPosition, outerN] }
+                // { $slice : [{ $slice : [inner.Array, innerPosition, innerN] }, outerPosition, maxint] } => { $slice : [inner.Array, innerPosition + outerPosition, max(innerN - outerPosition, 0)] }
+                // { $slice : [{ $slice : [inner.Array, innerPosition, innerN] }, outerPosition, outerN] } => { $slice : [inner.Array, innerPosition + outerPosition, min(max(innerN - outerPosition, 0), outerN)] }
+                var combinedPosition = AstExpression.Add(innerPosition, outerPosition);
+                var combinedN = (innerN, outerN) switch
+                {
+                    (int.MaxValue, int.MaxValue) => int.MaxValue, // check whether both are int.MaxValue before checking one at a time
+                    (int.MaxValue, _) => outerN,
+                    (_, int.MaxValue) => Math.Max(innerN - outerPosition, 0),
+                    _ => Math.Min(Math.Max(innerN - outerPosition, 0), outerN)
+                };
+
+                return AstExpression.Slice(inner.Array, combinedPosition, combinedN);
+            }
+
+            return node;
         }
 
         public override AstNode VisitUnaryExpression(AstUnaryExpression node)

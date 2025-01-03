@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -229,13 +230,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 var result = base.VisitMethodCall(node);
 
                 var method = node.Method;
-                if (IsCustomLinqExtensionMethod(method))
+                if (IsCustomLinqExtensionMethod(method) ||
+                    method.Is(QueryableMethod.AsQueryable))
                 {
                     _cannotBeEvaluated = true;
                 }
 
                 return result;
-            }
+             }
 
             private bool IsCustomLinqExtensionMethod(MethodInfo method)
             {

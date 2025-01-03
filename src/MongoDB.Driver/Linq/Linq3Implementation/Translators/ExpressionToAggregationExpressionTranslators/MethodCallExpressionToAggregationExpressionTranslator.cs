@@ -81,7 +81,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "StrLenBytes": return StrLenBytesMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Subtract": return SubtractMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Sum": return SumMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "Take": return TakeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToArray": return ToArrayMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToList": return ToListMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToString": return ToStringMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -172,6 +171,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "ThenBy":
                 case "ThenByDescending":
                     return OrderByMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case "Skip":
+                case "Take":
+                    return SkipOrTakeMethodToAggregationExpressionTranslator.Translate(context, expression);
 
                 case "StandardDeviationPopulation":
                 case "StandardDeviationSample":

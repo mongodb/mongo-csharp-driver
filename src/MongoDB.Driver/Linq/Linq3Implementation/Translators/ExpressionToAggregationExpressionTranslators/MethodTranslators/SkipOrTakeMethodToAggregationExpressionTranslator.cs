@@ -22,12 +22,14 @@ using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    internal static class TakeMethodToAggregationExpressionTranslator
+    internal static class SkipOrTakeMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __takeMethods =
+        private static MethodInfo[] __skipOrTakeMethods =
         {
+            EnumerableMethod.Skip,
             EnumerableMethod.Take,
-            QueryableMethod.Take
+            QueryableMethod.Skip,
+            QueryableMethod.Take,
         };
 
         private static MethodInfo[] __skipMethods =
@@ -36,40 +38,37 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.Skip
         };
 
+        private static MethodInfo[] __takeMethods =
+        {
+            EnumerableMethod.Take,
+            QueryableMethod.Take
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__takeMethods))
+            if (method.IsOneOf(__skipOrTakeMethods))
             {
                 var sourceExpression = arguments[0];
-                var countExpression = arguments[1];
-                Expression skipExpression = null;
-                if (sourceExpression is MethodCallExpression sourceSkipExpression && sourceSkipExpression.Method.IsOneOf(__skipMethods))
-                {
-                    sourceExpression = sourceSkipExpression.Arguments[0];
-                    skipExpression = sourceSkipExpression.Arguments[1];
-                }
-
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
-
-                var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                AstExpression ast;
-                if (skipExpression == null)
-                {
-                    ast = AstExpression.Slice(sourceTranslation.Ast, countTranslation.Ast);
-                }
-                else
-                {
-                    var skipTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, skipExpression);
-                    ast = AstExpression.Slice(sourceTranslation.Ast, skipTranslation.Ast, countTranslation.Ast);
-                }
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
+                var resultSerializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
 
-                return new AggregationExpression(expression, ast, serializer);
+                var countExpression = arguments[1];
+                var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
+                var countAst = AstExpression.Max(countTranslation.Ast, 0); // map negative numbers to 0
+
+                var ast = method switch
+                {
+                    _ when method.IsOneOf(__skipMethods) => AstExpression.Slice(sourceTranslation.Ast, countAst, int.MaxValue),
+                    _ when method.IsOneOf(__takeMethods) => AstExpression.Slice(sourceTranslation.Ast, countAst),
+                    _ => throw new ExpressionNotSupportedException(expression)
+                };
+
+                return new AggregationExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

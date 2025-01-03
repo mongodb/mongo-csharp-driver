@@ -86,6 +86,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 return new AstConstantExpression(value);
             }
 
+            if (args.Length == 2)
+            {
+                if (args[0].IsZero())
+                {
+                    return args[1];
+                }
+
+                if (args[1].IsZero())
+                {
+                    return args[0];
+                }
+            }
+
             var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.Add);
             return new AstNaryExpression(AstNaryOperator.Add, flattenedArgs);
         }
@@ -565,9 +578,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Max, array);
         }
 
+        public static AstExpression Max(AstExpression arg1, AstExpression arg2)
+        {
+            if (AllArgsAreConstantInt32s([arg1, arg2], out var values))
+            {
+                return values.Max();
+            }
+
+            return new AstNaryExpression(AstNaryOperator.Max, [arg1, arg2]);
+        }
+
         public static AstExpression Min(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Min, array);
+        }
+
+        public static AstExpression Min(AstExpression arg1, AstExpression arg2)
+        {
+            if (AllArgsAreConstantInt32s([arg1, arg2], out var values))
+            {
+                return values.Min();
+            }
+
+            return new AstNaryExpression(AstNaryOperator.Min, [arg1, arg2]);
         }
 
         public static AstExpression Mod(AstExpression arg1, AstExpression arg2)
@@ -806,6 +839,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression Subtract(AstExpression arg1, AstExpression arg2)
         {
+            if (AllArgsAreConstantInt32s([arg1, arg2], out var values))
+            {
+                var value = values[0] - values[1];
+                return new AstConstantExpression(value);
+            }
+
+            if (arg2.IsZero())
+            {
+                return arg1;
+            }
+
             return new AstBinaryExpression(AstBinaryOperator.Subtract, arg1, arg2);
         }
 
