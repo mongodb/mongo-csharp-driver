@@ -14,36 +14,45 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace MongoDB.Bson.Serialization
 {
     internal static class SerializerConfigurator
     {
-        /// <summary>
-        /// Reconfigures a serializer using the specified <paramref name="reconfigure"/> method.
-        /// If the serializer implements <see cref="IChildSerializerConfigurable"/>,
-        /// the method traverses and applies the reconfiguration to its child serializers recursively until an appropriate leaf serializer is found.
-        /// </summary>
-        /// <param name="serializer">The input serializer to be reconfigured.</param>
-        /// <param name="reconfigure">A function that defines how the serializer of type <typeparamref name="TSerializer"/> should be reconfigured.</param>
-        /// <typeparam name="TSerializer">The input type for the reconfigure method.</typeparam>
-        /// <returns>
-        /// The reconfigured serializer, or <c>null</c> if no leaf serializer could be reconfigured.
-        /// </returns>
-        internal static IBsonSerializer ReconfigureSerializer<TSerializer>(IBsonSerializer serializer, Func<TSerializer, IBsonSerializer> reconfigure)
+        // Reconfigures a serializer recursively.
+        // The reconfigure Func should return null if it does not apply to a given serializer.
+        internal static IBsonSerializer ReconfigureSerializerRecursively(
+            IBsonSerializer serializer,
+            Func<IBsonSerializer, IBsonSerializer> reconfigure)
         {
             switch (serializer)
             {
-                case IChildSerializerConfigurable childSerializerConfigurable:
-                    var childSerializer = childSerializerConfigurable.ChildSerializer;
-                    var reconfiguredChildSerializer = ReconfigureSerializer(childSerializer, reconfigure);
-                    return reconfiguredChildSerializer != null? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
+                // check IMultipleChildSerializersConfigurableSerializer first because some serializers implement both interfaces
+                case IMultipleChildSerializersConfigurable multipleChildSerializerConfigurable:
+                {
+                    var anyChildSerializerWasReconfigured = false;
+                    var reconfiguredChildSerializers = new List<IBsonSerializer>();
 
-                case TSerializer typedSerializer:
-                    return reconfigure(typedSerializer);
+                    foreach (var childSerializer in multipleChildSerializerConfigurable.ChildSerializers)
+                    {
+                        var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
+                        anyChildSerializerWasReconfigured |= reconfiguredChildSerializer != null;
+                        reconfiguredChildSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
+                    }
+
+                    return anyChildSerializerWasReconfigured ? multipleChildSerializerConfigurable.WithChildSerializers(reconfiguredChildSerializers.ToArray()) : null;
+                }
+
+                case IChildSerializerConfigurable childSerializerConfigurable:
+                {
+                    var childSerializer = childSerializerConfigurable.ChildSerializer;
+                    var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
+                    return reconfiguredChildSerializer != null ? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
+                }
 
                 default:
-                    return null;
+                    return reconfigure(serializer);
             }
         }
     }
