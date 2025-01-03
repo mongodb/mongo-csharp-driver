@@ -276,7 +276,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Theory]
-        [MemberData(nameof(EqualsSupportedTypesTestData))]
+        [MemberData(nameof(EqualsSupportedTypesTestData))]  //TODO Need to fix this
         public void Equals_should_render_supported_type<T>(
             T value,
             string valueRendered,
@@ -289,6 +289,8 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Equals("x", value),
                 $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
+
+            //For the Guid we get (correctly): GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified.
 
             var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
             AssertRendered(
@@ -313,7 +315,7 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { (float)1, "1", Exp(p => p.Float), nameof(Person.Float) },
             new object[] { (double)1, "1", Exp(p => p.Double), nameof(Person.Double) },
             new object[] { DateTime.MinValue, "ISODate(\"0001-01-01T00:00:00Z\")", Exp(p => p.Birthday), "dob" },
-            new object[] { DateTimeOffset.MaxValue, "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) },
+            new object[] { DateTimeOffset.MaxValue, """{ "DateTime" : { "$date" : "9999-12-31T23:59:59.999Z" }, "Ticks" : 3155378975999999999, "Offset" : 0 }""", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) },
             new object[] { ObjectId.Empty, "{ $oid: '000000000000000000000000' }", Exp(p => p.Id), "_id" },
             new object[] { Guid.Empty, """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", Exp(p => p.Guid), nameof(Person.Guid) },
             new object[] { null, "null", Exp(p => p.Name), nameof(Person.Name) },
