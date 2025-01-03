@@ -1,4 +1,4 @@
-﻿/* Copyright 2020 MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -74,13 +74,11 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
 
         private BsonDocument DecodeBson(byte[] bytes)
         {
-#pragma warning disable 618
             var readerSettings = new BsonBinaryReaderSettings
             {
                 FixOldBinarySubTypeOnInput = false,
                 FixOldDateTimeMaxValueOnInput = false
             };
-#pragma warning restore 618
             using (var stream = new MemoryStream(bytes))
             using (var reader = new BsonBinaryReader(stream, readerSettings))
             {
@@ -96,12 +94,10 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
 
         private byte[] EncodeBson(BsonDocument document)
         {
-#pragma warning disable 618
             var writerSettings = new BsonBinaryWriterSettings
             {
                 FixOldBinarySubTypeOnOutput = false,
             };
-#pragma warning restore 618
             using (var stream = new MemoryStream())
             using (var writer = new BsonBinaryWriter(stream, writerSettings))
             {
@@ -113,25 +109,17 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
 
         private string EncodeCanonicalExtendedJson(BsonDocument document)
         {
-#pragma warning disable 618
-            var writerSettings = new JsonWriterSettings
-            {
-                OutputMode = JsonOutputMode.CanonicalExtendedJson,
-            };
-#pragma warning restore 618
-            var json = document.ToJson(writerSettings);
+            var json = document.ToJson(new() { OutputMode = JsonOutputMode.CanonicalExtendedJson });
             return json.Replace(" ", "");
         }
 
         private string EncodeRelaxedExtendedJson(BsonDocument document)
         {
-#pragma warning disable 618
             var writerSettings = new JsonWriterSettings
             {
                 OutputMode = JsonOutputMode.RelaxedExtendedJson,
             };
-#pragma warning restore 618
-            var json = document.ToJson(writerSettings);
+            var json = document.ToJson(new() { OutputMode = JsonOutputMode.RelaxedExtendedJson });
             return json.Replace(" ", "");
         }
 
