@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.Is(StringMethod.ConcatWithStringArray))
             {
-                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments.Single());
+                var argumentTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, arguments.Single());
                 if (argumentTranslation.Ast is AstComputedArrayExpression astArray)
                 {
                     argumentsTranslations = astArray.Items;
