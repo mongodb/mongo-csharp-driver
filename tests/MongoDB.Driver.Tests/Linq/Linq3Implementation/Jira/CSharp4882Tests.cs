@@ -117,28 +117,52 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 2] }, _id : 0 } }")]
-        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }")]
-        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(5, "{ $project : { _v : [2, 3], _id : 0 } }")]
-        [InlineData(6, "{ $project : { _v : { $slice : [[2, 3, 4], { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }")]
-        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        public void Skip_Take_should_work(int scenario, string expectedStage)
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 2] }, _id : 0 } }", false)]
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 2] }, _id : 0 } }", true)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", false)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", true)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(5, "{ $project : { _v : [2, 3], _id : 0 } }", false)]
+        [InlineData(5, "{ $project : { _v : [2, 3], _id : 0 } }", true)]
+        [InlineData(6, "{ $project : { _v : { $slice : [[2, 3, 4], { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(6, "{ $project : { _v : { $slice : [[2, 3, 4], { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", false)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", true)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        public void Skip_Take_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
             var collection = GetCollection();
 
             var queryable = scenario switch
             {
-                1 => collection.AsQueryable().Select(x => x.A.Skip(1).Take(2)),
-                2 => collection.AsQueryable().Select(x => x.A.Skip(1).Take(x.Two)),
-                3 => collection.AsQueryable().Select(x => x.A.Skip(x.One).Take(2)),
-                4 => collection.AsQueryable().Select(x => x.A.Skip(x.One).Take(x.Two)),
-                5 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(1).Take(2)),
-                6 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(1).Take(x.Two)),
-                7 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.One).Take(2)),
-                8 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.One).Take(x.Two)),
+                1 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(1).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(1).Take(2).ToArray()),
+                2 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(1).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(1).Take(x.Two).ToArray()),
+                3 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(x.One).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(x.One).Take(2).ToArray()),
+                4 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(x.One).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(x.One).Take(x.Two).ToArray()),
+                5 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(1).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(1).Take(2).ToArray()),
+                6 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(1).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(1).Take(x.Two).ToArray()),
+                7 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(x.One).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.One).Take(2).ToArray()),
+                8 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(x.One).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.One).Take(x.Two).ToArray()),
                 _ => throw new ArgumentException($"Invalid scenario: {scenario}", nameof(scenario))
             };
 
@@ -150,44 +174,92 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 3, 2] }, _id : 0 } }")]
-        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 2, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }")]
-        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 2, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(5, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, 1, 2] }, _id : 0 } }")]
-        [InlineData(6, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }")]
-        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(9, "{ $project : { _v : [4], _id : 0 } }")]
-        [InlineData(10, "{ $project : { _v : { $slice : [[3, 4], { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(11, "{ $project : { _v : { $slice : [{ $slice : [[3, 4], { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }")]
-        [InlineData(12, "{ $project : { _v : { $slice : [{ $slice : [[3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(13, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, 1, 2] }, _id : 0 } }")]
-        [InlineData(14, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(15, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }")]
-        [InlineData(16, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        public void Skip_Take_Skip_should_work(int scenario, string expectedStage)
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 3, 2] }, _id : 0 } }", false)]
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 3, 2] }, _id : 0 } }", true)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 2, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 2, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 2, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 2, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(5, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, 1, 2] }, _id : 0 } }", false)]
+        [InlineData(5, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, 1, 2] }, _id : 0 } }", true)]
+        [InlineData(6, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(6, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(9, "{ $project : { _v : [4], _id : 0 } }", false)]
+        [InlineData(9, "{ $project : { _v : [4], _id : 0 } }", true)]
+        [InlineData(10, "{ $project : { _v : { $slice : [[3, 4], { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(10, "{ $project : { _v : { $slice : [[3, 4], { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(11, "{ $project : { _v : { $slice : [{ $slice : [[3, 4], { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(11, "{ $project : { _v : { $slice : [{ $slice : [[3, 4], { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(12, "{ $project : { _v : { $slice : [{ $slice : [[3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(12, "{ $project : { _v : { $slice : [{ $slice : [[3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(13, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, 1, 2] }, _id : 0 } }", false)]
+        [InlineData(13, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, 1, 2] }, _id : 0 } }", true)]
+        [InlineData(14, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(14, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, 3] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(15, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(15, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, 1, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(16, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(16, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        public void Skip_Take_Skip_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
             var collection = GetCollection();
 
             var queryable = scenario switch
             {
-                1 => collection.AsQueryable().Select(x => x.A.Skip(2).Take(3).Skip(1)),
-                2 => collection.AsQueryable().Select(x => x.A.Skip(2).Take(3).Skip(x.One)),
-                3 => collection.AsQueryable().Select(x => x.A.Skip(2).Take(x.Three).Skip(1)),
-                4 => collection.AsQueryable().Select(x => x.A.Skip(2).Take(x.Three).Skip(x.One)),
-                5 => collection.AsQueryable().Select(x => x.A.Skip(x.Two).Take(3).Skip(1)),
-                6 => collection.AsQueryable().Select(x => x.A.Skip(x.Two).Take(3).Skip(x.One)),
-                7 => collection.AsQueryable().Select(x => x.A.Skip(x.Two).Take(x.Three).Skip(1)),
-                8 => collection.AsQueryable().Select(x => x.A.Skip(x.Two).Take(x.Three).Skip(x.One)),
-                9 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(2).Take(3).Skip(1)),
-                10 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(2).Take(3).Skip(x.One)),
-                11 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(2).Take(x.Three).Skip(1)),
-                12 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(2).Take(x.Three).Skip(x.One)),
-                13 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.Two).Take(3).Skip(1)),
-                14 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.Two).Take(3).Skip(x.One)),
-                15 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.Two).Take(x.Three).Skip(1)),
-                16 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.Two).Take(x.Three).Skip(x.One)),
+                1 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(2).Take(3).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(2).Take(3).Skip(1).ToArray()),
+                2 =>  withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(2).Take(3).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(2).Take(3).Skip(x.One).ToArray()),
+                3 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(2).Take(x.Three).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(2).Take(x.Three).Skip(1).ToArray()),
+                4 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(2).Take(x.Three).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(2).Take(x.Three).Skip(x.One).ToArray()),
+                5 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(x.Two).Take(3).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(x.Two).Take(3).Skip(1).ToArray()),
+                6 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(x.Two).Take(3).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(x.Two).Take(3).Skip(x.One).ToArray()),
+                7 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(x.Two).Take(x.Three).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(x.Two).Take(x.Three).Skip(1).ToArray()),
+                8 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Skip(x.Two).Take(x.Three).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Skip(x.Two).Take(x.Three).Skip(x.One).ToArray()),
+                9 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(2).Take(3).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(2).Take(3).Skip(1).ToArray()),
+                10 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(2).Take(3).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(2).Take(3).Skip(x.One).ToArray()),
+                11 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(2).Take(x.Three).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(2).Take(x.Three).Skip(1).ToArray()),
+                12 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(2).Take(x.Three).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(2).Take(x.Three).Skip(x.One).ToArray()),
+                13 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(x.Two).Take(3).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.Two).Take(3).Skip(1).ToArray()),
+                14 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(x.Two).Take(3).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.Two).Take(3).Skip(x.One).ToArray()),
+                15 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(x.Two).Take(x.Three).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.Two).Take(x.Three).Skip(1).ToArray()),
+                16 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Skip(x.Two).Take(x.Three).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Skip(x.Two).Take(x.Three).Skip(x.One).ToArray()),
                 _ => throw new ArgumentException($"Invalid scenario: {scenario}", nameof(scenario))
             };
 
@@ -199,20 +271,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1] }, _id : 0 } }")]
-        [InlineData(2, "{ $project : { _v : { $slice : ['$A', { $max : ['$One', 0] }] }, _id : 0 } }")]
-        [InlineData(3, "{ $project : { _v : [1], _id : 0 } }")]
-        [InlineData(4, "{ $project : { _v : { $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }] }, _id : 0 } }")]
-        public void Take_should_work(int scenario, string expectedStage)
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1] }, _id : 0 } }", false)]
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1] }, _id : 0 } }", true)]
+        [InlineData(2, "{ $project : { _v : { $slice : ['$A', { $max : ['$One', 0] }] }, _id : 0 } }", false)]
+        [InlineData(2, "{ $project : { _v : { $slice : ['$A', { $max : ['$One', 0] }] }, _id : 0 } }", true)]
+        [InlineData(3, "{ $project : { _v : [1], _id : 0 } }", false)]
+        [InlineData(3, "{ $project : { _v : [1], _id : 0 } }", true)]
+        [InlineData(4, "{ $project : { _v : { $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }] }, _id : 0 } }", false)]
+        [InlineData(4, "{ $project : { _v : { $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }] }, _id : 0 } }", true)]
+        public void Take_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
             var collection = GetCollection();
 
             var queryable = scenario switch
             {
-                1 => collection.AsQueryable().Select(x => x.A.Take(1)),
-                2 => collection.AsQueryable().Select(x => x.A.Take(x.One)),
-                3 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(1)),
-                4 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.One)),
+                1 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(1).ToArray()),
+                2 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.One).ToArray()),
+                3 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(1).ToArray()),
+                4 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.One).ToArray()),
                 _ => throw new ArgumentException($"Invalid scenario: {scenario}", nameof(scenario))
             };
 
@@ -224,28 +308,52 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 1] }, _id : 0 } }")]
-        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, 1, 2147483647] }, _id : 0 } }")]
-        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(5, "{ $project : { _v : [2], _id : 0 } }")]
-        [InlineData(6, "{ $project : { _v : { $slice : [[1, 2], { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, 1, 2147483647] }, _id : 0 } }")]
-        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }")]
-        public void Take_Skip_should_work(int scenario, string expectedStage)
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 1] }, _id : 0 } }", false)]
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 1] }, _id : 0 } }", true)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, 1, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, 1, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(5, "{ $project : { _v : [2], _id : 0 } }", false)]
+        [InlineData(5, "{ $project : { _v : [2], _id : 0 } }", true)]
+        [InlineData(6, "{ $project : { _v : { $slice : [[1, 2], { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(6, "{ $project : { _v : { $slice : [[1, 2], { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, 1, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, 1, 2147483647] }, _id : 0 } }", true)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", false)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
+        public void Take_Skip_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
             var collection = GetCollection();
 
             var queryable = scenario switch
             {
-                1 => collection.AsQueryable().Select(x => x.A.Take(2).Skip(1)),
-                2 => collection.AsQueryable().Select(x => x.A.Take(2).Skip(x.One)),
-                3 => collection.AsQueryable().Select(x => x.A.Take(x.Two).Skip(1)),
-                4 => collection.AsQueryable().Select(x => x.A.Take(x.Two).Skip(x.One)),
-                5 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(2).Skip(1)),
-                6 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(2).Skip(x.One)),
-                7 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Two).Skip(1)),
-                8 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Two).Skip(x.One)),
+                1 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(2).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(2).Skip(1).ToArray()),
+                2 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(2).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(2).Skip(x.One).ToArray()),
+                3 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.Two).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.Two).Skip(1).ToArray()),
+                4 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.Two).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.Two).Skip(x.One).ToArray()),
+                5 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(2).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(2).Skip(1).ToArray()),
+                6 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(2).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(2).Skip(x.One).ToArray()),
+                7 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.Two).Skip(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Two).Skip(1).ToArray()),
+                8 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.Two).Skip(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Two).Skip(x.One).ToArray()),
                 _ => throw new ArgumentException($"Invalid scenario: {scenario}", nameof(scenario))
             };
 
@@ -257,28 +365,52 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1] }, _id : 0 } }")]
-        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2] }, { $max : ['$One', 0] }] }, _id : 0 } }")]
-        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, 1] }, _id : 0 } }")]
-        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }] }, _id : 0 } }")]
-        [InlineData(5, "{ $project : { _v : [1], _id : 0 } }")]
-        [InlineData(6, "{ $project : { _v : { $slice : [[1, 2], { $max : ['$One', 0] }] }, _id : 0 } }")]
-        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, 1] }, _id : 0 } }")]
-        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }] }, _id : 0 } }")]
-        public void Take_Take_should_work(int scenario, string expectedStage)
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1] }, _id : 0 } }", false)]
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1] }, _id : 0 } }", true)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2] }, { $max : ['$One', 0] }] }, _id : 0 } }", false)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 2] }, { $max : ['$One', 0] }] }, _id : 0 } }", true)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, 1] }, _id : 0 } }", false)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, 1] }, _id : 0 } }", true)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }] }, _id : 0 } }", false)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }] }, _id : 0 } }", true)]
+        [InlineData(5, "{ $project : { _v : [1], _id : 0 } }", false)]
+        [InlineData(5, "{ $project : { _v : [1], _id : 0 } }", true)]
+        [InlineData(6, "{ $project : { _v : { $slice : [[1, 2], { $max : ['$One', 0] }] }, _id : 0 } }", false)]
+        [InlineData(6, "{ $project : { _v : { $slice : [[1, 2], { $max : ['$One', 0] }] }, _id : 0 } }", true)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, 1] }, _id : 0 } }", false)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, 1] }, _id : 0 } }", true)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }] }, _id : 0 } }", false)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }] }, _id : 0 } }", true)]
+        public void Take_Take_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
             var collection = GetCollection();
 
             var queryable = scenario switch
             {
-                1 => collection.AsQueryable().Select(x => x.A.Take(2).Take(1)),
-                2 => collection.AsQueryable().Select(x => x.A.Take(2).Take(x.One)),
-                3 => collection.AsQueryable().Select(x => x.A.Take(x.Two).Take(1)),
-                4 => collection.AsQueryable().Select(x => x.A.Take(x.Two).Take(x.One)),
-                5 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(2).Take(1)),
-                6 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(2).Take(x.One)),
-                7 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Two).Take(1)),
-                8 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Two).Take(x.One)),
+                1 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(2).Take(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(2).Take(1).ToArray()),
+                2 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(2).Take(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(2).Take(x.One).ToArray()),
+                3 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.Two).Take(1).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.Two).Take(1).ToArray()),
+                4 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.Two).Take(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.Two).Take(x.One).ToArray()),
+                5 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(2).Take(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(2).Take(1).ToArray()),
+                6 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(2).Take(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(2).Take(x.One).ToArray()),
+                7 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.Two).Take(1).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Two).Take(1).ToArray()),
+                8 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.Two).Take(x.One).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Two).Take(x.One).ToArray()),
                 _ => throw new ArgumentException($"Invalid scenario: {scenario}", nameof(scenario))
             };
 
@@ -290,44 +422,92 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Theory]
-        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 2] }, _id : 0 } }")]
-        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 1, 2] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 3] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }")]
-        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 3] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(5, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, 1, 2] }, _id : 0 } }")]
-        [InlineData(6, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }")]
-        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(9, "{ $project : { _v : [2, 3], _id : 0 } }")]
-        [InlineData(10, "{ $project : { _v : { $slice : [[2, 3], { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(11, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3], { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }")]
-        [InlineData(12, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3], { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(13, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, 1, 2] }, _id : 0 } }")]
-        [InlineData(14, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        [InlineData(15, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }")]
-        [InlineData(16, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }")]
-        public void Take_Skip_Take_should_work(int scenario, string expectedStage)
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 2] }, _id : 0 } }", false)]
+        [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 2] }, _id : 0 } }", true)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 1, 2] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(2, "{ $project : { _v : { $slice : [{ $slice : ['$A', 1, 2] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 3] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", false)]
+        [InlineData(3, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 3] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", true)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 3] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(4, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', 3] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(5, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, 1, 2] }, _id : 0 } }", false)]
+        [InlineData(5, "{ $project : { _v : { $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, 1, 2] }, _id : 0 } }", true)]
+        [InlineData(6, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(6, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", false)]
+        [InlineData(7, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", true)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : ['$A', { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(9, "{ $project : { _v : [2, 3], _id : 0 } }", false)]
+        [InlineData(9, "{ $project : { _v : [2, 3], _id : 0 } }", true)]
+        [InlineData(10, "{ $project : { _v : { $slice : [[2, 3], { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(10, "{ $project : { _v : { $slice : [[2, 3], { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(11, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3], { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", false)]
+        [InlineData(11, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3], { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", true)]
+        [InlineData(12, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3], { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(12, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3], { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(13, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, 1, 2] }, _id : 0 } }", false)]
+        [InlineData(13, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, 1, 2] }, _id : 0 } }", true)]
+        [InlineData(14, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(14, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, 1, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        [InlineData(15, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", false)]
+        [InlineData(15, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, 2] }, _id : 0 } }", true)]
+        [InlineData(16, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", false)]
+        [InlineData(16, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
+        public void Take_Skip_Take_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
             var collection = GetCollection();
 
             var queryable = scenario switch
             {
-                1 => collection.AsQueryable().Select(x => x.A.Take(3).Skip(1).Take(2)),
-                2 => collection.AsQueryable().Select(x => x.A.Take(3).Skip(1).Take(x.Two)),
-                3 => collection.AsQueryable().Select(x => x.A.Take(3).Skip(x.One).Take(2)),
-                4 => collection.AsQueryable().Select(x => x.A.Take(3).Skip(x.One).Take(x.Two)),
-                5 => collection.AsQueryable().Select(x => x.A.Take(x.Three).Skip(1).Take(2)),
-                6 => collection.AsQueryable().Select(x => x.A.Take(x.Three).Skip(1).Take(x.Two)),
-                7 => collection.AsQueryable().Select(x => x.A.Take(x.Three).Skip(x.One).Take(2)),
-                8 => collection.AsQueryable().Select(x => x.A.Take(x.Three).Skip(x.One).Take(x.Two)),
-                9 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(3).Skip(1).Take(2)),
-                10 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(3).Skip(1).Take(x.Two)),
-                11 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(3).Skip(x.One).Take(2)),
-                12 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(3).Skip(x.One).Take(x.Two)),
-                13 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Three).Skip(1).Take(2)),
-                14 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Three).Skip(1).Take(x.Two)),
-                15 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Three).Skip(x.One).Take(2)),
-                16 => collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Three).Skip(x.One).Take(x.Two)),
+                1 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(3).Skip(1).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(3).Skip(1).Take(2).ToArray()),
+                2 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(3).Skip(1).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(3).Skip(1).Take(x.Two).ToArray()),
+                3 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(3).Skip(x.One).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(3).Skip(x.One).Take(2).ToArray()),
+                4 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(3).Skip(x.One).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(3).Skip(x.One).Take(x.Two).ToArray()),
+                5 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.Three).Skip(1).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.Three).Skip(1).Take(2).ToArray()),
+                6 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.Three).Skip(1).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.Three).Skip(1).Take(x.Two).ToArray()),
+                7 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.Three).Skip(x.One).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.Three).Skip(x.One).Take(2).ToArray()),
+                8 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => x.A.AsQueryable().Take(x.Three).Skip(x.One).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => x.A.Take(x.Three).Skip(x.One).Take(x.Two).ToArray()),
+                9 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(3).Skip(1).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(3).Skip(1).Take(2).ToArray()),
+                10 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(3).Skip(1).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(3).Skip(1).Take(x.Two).ToArray()),
+                11 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(3).Skip(x.One).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(3).Skip(x.One).Take(2).ToArray()),
+                12 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(3).Skip(x.One).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(3).Skip(x.One).Take(x.Two).ToArray()),
+                13 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.Three).Skip(1).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Three).Skip(1).Take(2).ToArray()),
+                14 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.Three).Skip(1).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Three).Skip(1).Take(x.Two).ToArray()),
+                15 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.Three).Skip(x.One).Take(2).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Three).Skip(x.One).Take(2).ToArray()),
+                16 => withNestedAsQueryable ?
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.AsQueryable().Take(x.Three).Skip(x.One).Take(x.Two).ToArray()) :
+                    collection.AsQueryable().Select(x => new[] { 1, 2, 3, 4 }.Take(x.Three).Skip(x.One).Take(x.Two).ToArray()),
                 _ => throw new ArgumentException($"Invalid scenario: {scenario}", nameof(scenario))
             };
 
