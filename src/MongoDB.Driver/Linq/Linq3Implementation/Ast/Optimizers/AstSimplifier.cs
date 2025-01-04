@@ -103,6 +103,50 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             }
         }
 
+        public override AstNode VisitExprFilter(AstExprFilter node)
+        {
+            var optimizedNode = (AstExprFilter)base.VisitExprFilter(node);
+
+            if (optimizedNode.Expression is AstUnaryExpression unaryExpression &&
+                unaryExpression.Operator == AstUnaryOperator.AnyElementTrue &&
+                unaryExpression.Arg is AstMapExpression mapExpression &&
+                mapExpression.Input is AstConstantExpression inputConstant &&
+                inputConstant.Value is BsonArray inputArrayValue &&
+                mapExpression.In is AstBinaryExpression inBinaryExpression &&
+                inBinaryExpression.Operator == AstBinaryOperator.Eq &&
+                TryGetBinaryExpressionArguments(inBinaryExpression, out AstFieldPathExpression fieldPathExpression, out AstVarExpression varExpression) &&
+                fieldPathExpression.Path.Length > 1 && fieldPathExpression.Path[0] == '$' && fieldPathExpression.Path[1] != '$' &&
+                varExpression == mapExpression.As)
+            {
+                return AstFilter.In(AstFilter.Field(fieldPathExpression.Path.Substring(1)), inputArrayValue);
+            }
+
+            return optimizedNode;
+
+            static bool TryGetBinaryExpressionArguments<T1, T2>(AstBinaryExpression binaryExpression, out T1 arg1, out T2 arg2)
+                where T1 : AstNode
+                where T2 : AstNode
+            {
+                if (binaryExpression.Arg1 is T1 arg1AsT1 && binaryExpression.Arg2 is T2 arg2AsT2)
+                {
+                    arg1 = arg1AsT1;
+                    arg2 = arg2AsT2;
+                    return true;
+                }
+
+                if (binaryExpression.Arg1 is T2 arg1AsT2 && binaryExpression.Arg1 is T1 arg2AsT1)
+                {
+                    arg1 = arg2AsT1;
+                    arg2 = arg1AsT2;
+                    return true;
+                }
+
+                arg1 = null;
+                arg2 = null;
+                return false;
+            }
+        }
+
         public override AstNode VisitFieldOperationFilter(AstFieldOperationFilter node)
         {
             node = (AstFieldOperationFilter)base.VisitFieldOperationFilter(node);
