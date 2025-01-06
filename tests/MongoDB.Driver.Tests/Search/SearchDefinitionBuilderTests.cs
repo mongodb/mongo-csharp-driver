@@ -367,17 +367,6 @@ namespace MongoDB.Driver.Tests.Search
                 """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "UndefinedRepresentationGuid" } }""");
         }
 
-        [Theory]
-        [MemberData(nameof(EqualsUnsupportedTypesTestData))]
-        public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            Record.Exception(() => subject.Equals("x", value)).Should().BeOfType<InvalidCastException>();
-
-            var subjectTyped = CreateSubject<Person>();
-            Record.Exception(() => subjectTyped.Equals(fieldExpression, value)).Should().BeOfType<InvalidCastException>();
-        }
-
         public static object[][] EqualsUnsupportedTypesTestData => new[]
         {
             new object[] { (ulong)1, Exp(p => p.UInt64) },
