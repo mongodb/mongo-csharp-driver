@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
 using Xunit;
@@ -249,7 +250,8 @@ namespace MongoDB.Driver.Tests.Search
 
             // Nested
             AssertRendered(
-                subjectFamily.EmbeddedDocument(p => p.Relatives, subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.Text(p => p.FirstName, "Alice"))),
+                subjectFamily.EmbeddedDocument(p => p.Relatives,
+                    subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.Text(p => p.FirstName, "Alice"))),
                 "{ embeddedDocument: { path : 'Relatives', operator : { embeddedDocument: { path : 'Relatives.Children', operator : {  'text' : { path: 'Relatives.Children.fn', query : 'Alice' } } } } } }");
 
             // Multipath
@@ -290,7 +292,7 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Equals("x", value),
                 $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
 
-            //For the Guid we get (correctly): GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified.
+            //TODO For the Guid we get (correctly): GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified.
 
             var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
             AssertRendered(
@@ -321,6 +323,49 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { null, "null", Exp(p => p.Name), nameof(Person.Name) },
             new object[] { "Jim", "\"Jim\"", Exp(p => p.FirstName), "fn" }
         };
+
+        [Fact]
+        public void Equals_should_use_correct_serializers_when_using_attributes_and_expression_path()
+        {
+            var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var subjectTyped = CreateSubject<TestGuidClass>();
+
+            AssertRendered(
+                subjectTyped.Equals(t => t.DefaultGuid, testGuid),
+                """{ "equals" : { "value" : { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, "path" : "DefaultGuid" } } """);
+
+            AssertRendered(
+                subjectTyped.Equals(t => t.StringGuid, testGuid),
+                """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "StringGuid" } }""");
+        }
+
+        [Fact]
+        public void Equals_should_use_correct_serializers_when_using_attributes_and_string_path()
+        {
+            var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var subjectTyped = CreateSubject<TestGuidClass>();
+
+            AssertRendered(
+                subjectTyped.Equals("DefaultGuid", testGuid),
+                """{ "equals" : { "value" : { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, "path" : "DefaultGuid" } } """);
+
+            AssertRendered(
+                subjectTyped.Equals("StringGuid", testGuid),
+                """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "StringGuid" } }""");
+        }
+
+        [Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]
+        public void Equals_should_use_correct_serializers_when_using_serializer_registry()
+        {
+            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
+
+            var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var subjectTyped = CreateSubject<TestGuidClass>();
+
+            AssertRendered(
+                subjectTyped.Equals(t => t.UndefinedRepresentationGuid, testGuid),
+                """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "UndefinedRepresentationGuid" } }""");
+        }
 
         [Theory]
         [MemberData(nameof(EqualsUnsupportedTypesTestData))]
@@ -1259,6 +1304,8 @@ namespace MongoDB.Driver.Tests.Search
             public float Float { get; set; }
             public double Double { get; set; }
             public decimal Decimal { get; set; }
+
+            [BsonGuidRepresentation(GuidRepresentation.Standard)]
             public Guid Guid { get; set; }
             public DateTimeOffset DateTimeOffset { get; set; }
             public TimeSpan TimeSpan { get; set; }
@@ -1312,6 +1359,16 @@ namespace MongoDB.Driver.Tests.Search
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
+
+        public class TestGuidClass
+        {
+            [BsonGuidRepresentation(GuidRepresentation.Standard)]
+            public Guid DefaultGuid { get; set; }
+
+            [BsonRepresentation(BsonType.String)]
+            public Guid StringGuid { get; set; }
+
+            public Guid UndefinedRepresentationGuid { get; set; }
         }
     }
 }
