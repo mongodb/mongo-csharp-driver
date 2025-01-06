@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Search
         /// <param name="score">The score modifier.</param>
         /// <returns>An equality search definition.</returns>
         public SearchDefinition<TDocument> Equals<TField>(
-            FieldDefinition<TDocument, TField> path,
+            FieldDefinition<TDocument, TField> path,  //TODO We should try to uniform this to the In operator for next major (this should be SearchPathDefinition<TDocument>)
             TField value,
             SearchScoreDefinition<TDocument> score = null) =>
                 new EqualsSearchDefinition<TDocument, TField>(path, value, score);

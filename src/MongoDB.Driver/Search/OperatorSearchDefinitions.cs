@@ -19,6 +19,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -238,7 +239,7 @@ namespace MongoDB.Driver.Search
 
     internal sealed class InSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
-        private readonly BsonArray _values;
+        private readonly TField[] _values;
 
         public InSearchDefinition(
            SearchPathDefinition<TDocument> path,
@@ -247,36 +248,38 @@ namespace MongoDB.Driver.Search
                 : base(OperatorType.In, path, score)
         {
             Ensure.IsNotNullOrEmpty(values, nameof(values));
-            var array = new BsonArray(values.Select(ToBsonValue));
-
-            var bsonType = array[0].GetType();
-            _values = Ensure.That(array, arr => arr.All(v => v.GetType() == bsonType), nameof(values), "All values must be of the same type.");
+            _values = values.ToArray();
         }
 
-        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args) =>
-            new("value", _values);
+        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
+        {
+            IBsonSerializer serializer;
 
-        private static BsonValue ToBsonValue(TField value) =>  //TODO probably we need to change also this
-            value switch
+            if (_path is SingleSearchPathDefinition<TDocument> pd)
             {
-                bool v => (BsonBoolean)v,
-                sbyte v => (BsonInt32)v,
-                byte v => (BsonInt32)v,
-                short v => (BsonInt32)v,
-                ushort v => (BsonInt32)v,
-                int v => (BsonInt32)v,
-                uint v => (BsonInt64)v,
-                long v => (BsonInt64)v,
-                float v => (BsonDouble)v,
-                double v => (BsonDouble)v,
-                decimal v => (BsonDecimal128)v,
-                DateTime v => (BsonDateTime)v,
-                DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
-                string v => (BsonString)v,
-                ObjectId v => (BsonObjectId)v,
-                Guid v => new BsonBinaryData(v, GuidRepresentation.Standard),
-                _ => throw new InvalidCastException()
-            };
+                var renderedField = pd.Field.Render(args);
+                serializer = renderedField.FieldSerializer switch
+                {
+                    null => new ArraySerializer<TField>(BsonSerializer.LookupSerializer<TField>()),
+                    IBsonArraySerializer => renderedField.FieldSerializer,
+                    _ => new ArraySerializer<TField>((IBsonSerializer<TField>)renderedField.FieldSerializer)
+                };
+            }
+            else
+            {
+                serializer = new ArraySerializer<TField>(BsonSerializer.LookupSerializer<TField>());
+            }
+
+            var document = new BsonDocument();
+            using var bsonWriter = new BsonDocumentWriter(document);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter);
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteName("value");
+            serializer.Serialize(context, _values);
+            bsonWriter.WriteEndDocument();
+
+            return document;
+        }
     }
 
     internal sealed class MoreLikeThisSearchDefinition<TDocument, TLike> : OperatorSearchDefinition<TDocument>

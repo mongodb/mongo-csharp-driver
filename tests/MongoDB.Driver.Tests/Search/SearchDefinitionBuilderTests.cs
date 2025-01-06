@@ -367,12 +367,6 @@ namespace MongoDB.Driver.Tests.Search
                 """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "UndefinedRepresentationGuid" } }""");
         }
 
-        public static object[][] EqualsUnsupportedTypesTestData => new[]
-        {
-            new object[] { (ulong)1, Exp(p => p.UInt64) },
-            new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
-        };
-
         [Fact]
         public void Exists()
         {
@@ -581,7 +575,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         public static readonly object[][] InTypedTestData =
-       {
+        {
              new object[] { new bool[] { true, false }, new[] { "true", "false" }, Exp(p => p.Retired), "ret" },
              new object[] { new byte[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt8), nameof(Person.UInt8) },
              new object[] { new sbyte[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.Int8), nameof(Person.Int8) },
@@ -595,22 +589,11 @@ namespace MongoDB.Driver.Tests.Search
              new object[] { new decimal[] { 1.5m, 2.5m }, new[] { "NumberDecimal(\"1.5\")", "NumberDecimal(\"2.5\")" }, Exp(p => p.Decimal), nameof(Person.Decimal) },
              new object[] { new[] { "str1", "str2" }, new[] { "'str1'", "'str2'" }, Exp(p => p.FirstName), "fn" },
              new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.Birthday), "dob" },
-             new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset)},
+             new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { """{ "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : 0, "Offset" : 0 } """, """ { "DateTime" : { "$date" : "9999-12-31T23:59:59.999Z" }, "Ticks" : 3155378975999999999, "Offset" : 0 } """ }, Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset)},
              new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" }, Exp(p => p.Id), "_id" },
              new object[] { new[] { Guid.Empty, Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf") }, new[] { """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", """{ "$binary" : { "base64" : "tSrxRLyXRU+leEGKZPqVvw==", "subType" : "04" } }""" }, Exp(p => p.Guid), nameof(Person.Guid) },
-             new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" }, Exp(p => p.Object), nameof(Person.Object) }
+             new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" }, Exp(p => p.Object), nameof(Person.Object) }  //TODO How do we solve this? Should we actually support this?
         };
-
-        [Theory]
-        [MemberData(nameof(InUnsupportedTypesTestData))]
-        public void In_should_throw_on_unsupported_types<T>(T value, Expression<Func<Person, T>> fieldExpression)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            Record.Exception(() => subject.In("x", new[] { value } )).Should().BeOfType<InvalidCastException>();
-
-            var subjectTyped = CreateSubject<Person>();
-            Record.Exception(() => subjectTyped.In(fieldExpression, new[] { value })).Should().BeOfType<InvalidCastException>();
-        }
 
         [Fact]
         public void In_should_throw_when_values_are_invalid()
@@ -624,32 +607,68 @@ namespace MongoDB.Driver.Tests.Search
             Record.Exception(() => subjectTyped.In(p => p.Age, null)).Should().BeOfType<ArgumentNullException>();
         }
 
-        public static object[][] InUnsupportedTypesTestData => new[]
+        [Fact]
+        public void In_should_use_correct_serializers_when_using_attributes_and_expression_path()
         {
-            new object[] { (ulong)1, Exp(p => p.UInt64) },
-            new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
-        };
+            var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var subjectTyped = CreateSubject<TestGuidClass>();
+
+            AssertRendered(
+                subjectTyped.In(t => t.DefaultGuid, [testGuid, testGuid]),
+                """{ "in" : { "value" : [{ "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }], "path" : "DefaultGuid" } } """);
+
+            AssertRendered(
+                subjectTyped.In(t => t.StringGuid, [testGuid, testGuid]),
+                """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "StringGuid" } }""");
+        }
 
         [Fact]
-        public void In_should_throw_when_values_are_not_of_same_type()
+        public void In_should_use_correct_serializers_when_using_attributes_and_string_path()
         {
-            var values = new object[] { 1.5, 1 };
+            var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var subjectTyped = CreateSubject<TestGuidClass>();
 
-            var subject = CreateSubject<BsonDocument>();
-            Record.Exception(() => subject.In("x", values)).Should().BeOfType<ArgumentException>();
+            AssertRendered(
+                subjectTyped.In("DefaultGuid", [testGuid, testGuid]),
+                """{ "in" : { "value" : [{ "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }], "path" : "DefaultGuid" } } """);
 
-            var subjectTyped = CreateSubject<Person>();
-            Record.Exception(() => subjectTyped.In(p => p.Object, values)).Should().BeOfType<ArgumentException>();
+            AssertRendered(
+                subjectTyped.In("StringGuid", [testGuid, testGuid]),
+                """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "StringGuid" } }""");
         }
-        
+
+        [Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]
+        public void In_should_use_correct_serializers_when_using_serializer_registry()
+        {
+            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
+
+            var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var subjectTyped = CreateSubject<TestGuidClass>();
+
+            AssertRendered(
+                subjectTyped.In(t => t.UndefinedRepresentationGuid, [testGuid, testGuid]),
+                """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "UndefinedRepresentationGuid" } }""");
+        }
+
         [Fact]
         public void In_with_array_field_should_render_correctly()
         {
             var subjectTyped = CreateSubject<Person>();
-            
+
             AssertRendered(
                 subjectTyped.In(p => p.Hobbies, ["dance", "ski"]),
                 "{ in: { path: 'hobbies', value: ['dance', 'ski'] } }");
+        }
+
+        [Fact]
+        public void In_with_wildcard_path_should_render_correctly()
+        {
+            var subjectTyped = CreateSubject<Person>();
+
+            var path = new SearchPathDefinitionBuilder<Person>();
+            AssertRendered(
+                subjectTyped.In(path.Wildcard("*"), ["dance"]),
+                "{ in: { path: { wildcard: '*'}, value: ['dance'] } }");
         }
 
         [Fact]
