@@ -21,6 +21,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Search
 {
@@ -119,33 +120,13 @@ namespace MongoDB.Driver.Search
 
     internal sealed class EqualsSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
-        private readonly TField _value;
+        private readonly TField _value;  //TODO Consider changing TFIeld to TValue (more correct)
         private readonly FieldDefinition<TDocument, TField> _field;
         private readonly FieldDefinition<TDocument, IEnumerable<TField>> _arrayField;
-
-        private readonly List<Type> _validTypes =
-        [
-            typeof(bool),
-            typeof(sbyte),
-            typeof(byte),
-            typeof(short),
-            typeof(ushort),
-            typeof(int),
-            typeof(uint),
-            typeof(long),
-            typeof(float),
-            typeof(double),
-            typeof(DateTime),
-            typeof(DateTimeOffset),
-            typeof(ObjectId),
-            typeof(Guid),
-            typeof(string)
-        ];
 
         public EqualsSearchDefinition(FieldDefinition<TDocument, TField> path, TField value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
         {
-            ValidateType();
             _value = value;
             _field = path;
         }
@@ -153,53 +134,34 @@ namespace MongoDB.Driver.Search
         public EqualsSearchDefinition(FieldDefinition<TDocument, IEnumerable<TField>> path, TField value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
         {
-            ValidateType();
             _value = value;
             _arrayField = path;
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
         {
+            IBsonSerializer<TField> valueSerializer;
+
             if (_field is null)
             {
                 var renderedField = _arrayField.Render(args);
-
-                var serializer =
-                    (renderedField.ValueSerializer as FieldValueSerializerHelper.IEnumerableSerializer<TField>)
-                    .ItemSerializer;
-
-                var document = new BsonDocument();
-                using var bsonWriter = new BsonDocumentWriter(document);
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName("value");
-                serializer.Serialize(context, _value);
-                bsonWriter.WriteEndDocument();
-
-                return document;
+                valueSerializer = (IBsonSerializer<TField>)ArraySerializerHelper.GetItemSerializer(renderedField.ValueSerializer);
             }
             else
             {
                 var renderedField = _field.Render(args);
-
-                var document = new BsonDocument();
-                using var bsonWriter = new BsonDocumentWriter(document);
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName("value");
-                renderedField.ValueSerializer.Serialize(context, _value);
-                bsonWriter.WriteEndDocument();
-
-                return document;
+                valueSerializer = renderedField.ValueSerializer;
             }
-        }
 
-        private void ValidateType()
-        {
-            if (!_validTypes.Contains(typeof(TField)))
-            {
-                throw new InvalidCastException();
-            }
+            var document = new BsonDocument();
+            using var bsonWriter = new BsonDocumentWriter(document);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter);
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteName("value");
+            valueSerializer.Serialize(context, _value);
+            bsonWriter.WriteEndDocument();
+
+            return document;
         }
     }
 
