@@ -1002,24 +1002,6 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { DateTime.MinValue, DateTime.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.Birthday), "dob" },
             new object[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) }
         };
-
-        [Theory]
-        [MemberData(nameof(RangeUnsupportedTypesTestData))]
-        public void Range_should_throw_on_unsupported_types<T>(T value, Expression<Func<Person, T>> fieldExpression)
-            where T : struct, IComparable<T>
-        {
-            var subject = CreateSubject<BsonDocument>();
-            Record.Exception(() => subject.Range("age", SearchRangeBuilder.Gte(value).Lt(value))).Should().BeOfType<InvalidCastException>();
-
-            var subjectTyped = CreateSubject<Person>();
-            Record.Exception(() => subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(value).Lt(value))).Should().BeOfType<InvalidCastException>();
-        }
-
-        public static object[][] RangeUnsupportedTypesTestData => new[]
-        {
-            new object[] { (ulong)1, Exp(p => p.UInt64) },
-            new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
-        };
         
         [Fact]
         public void Range_with_array_field_should_render_correctly()

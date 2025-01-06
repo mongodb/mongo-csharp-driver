@@ -141,12 +141,12 @@ namespace MongoDB.Driver.Search
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
         {
-            IBsonSerializer<TField> valueSerializer;
+            IBsonSerializer valueSerializer;
 
             if (_field is null)
             {
                 var renderedField = _arrayField.Render(args);
-                valueSerializer = (IBsonSerializer<TField>)ArraySerializerHelper.GetItemSerializer(renderedField.ValueSerializer);
+                valueSerializer = ArraySerializerHelper.GetItemSerializer(renderedField.ValueSerializer);
             }
             else
             {
@@ -255,9 +255,9 @@ namespace MongoDB.Driver.Search
         {
             IBsonSerializer serializer;
 
-            if (_path is SingleSearchPathDefinition<TDocument> pd)
+            if (_path is SingleSearchPathDefinition<TDocument> searchPathDefinition)
             {
-                var renderedField = pd.Field.Render(args);
+                var renderedField = searchPathDefinition.Field.Render(args);
                 serializer = renderedField.FieldSerializer switch
                 {
                     null => new ArraySerializer<TField>(BsonSerializer.LookupSerializer<TField>()),
@@ -377,8 +377,6 @@ namespace MongoDB.Driver.Search
         where TField : struct, IComparable<TField>
     {
         private readonly SearchRange<TField> _range;
-        private readonly BsonValue _min;
-        private readonly BsonValue _max;
 
         public RangeSearchDefinition(
             SearchPathDefinition<TDocument> path,
@@ -387,34 +385,45 @@ namespace MongoDB.Driver.Search
                 : base(OperatorType.Range, path, score)
         {
             _range = range;
-            _min = ToBsonValue(_range.Min);
-            _max = ToBsonValue(_range.Max);
         }
 
-        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args) =>
-            new()
-            {
-                { _range.IsMinInclusive ? "gte" : "gt", _min, _min != null },
-                { _range.IsMaxInclusive ? "lte" : "lt", _max, _max != null },
-            };
+        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
+        {
+            IBsonSerializer serializer;
 
-        private static BsonValue ToBsonValue(TField? value) =>  //TODO Probably we need to change this too
-            value switch
+            if (_path is SingleSearchPathDefinition<TDocument> searchPathDefinition)
             {
-                sbyte v => (BsonInt32)v,
-                byte v => (BsonInt32)v,
-                short v => (BsonInt32)v,
-                ushort v => (BsonInt32)v,
-                int v => (BsonInt32)v,
-                uint v => (BsonInt64)v,
-                long v => (BsonInt64)v,
-                float v => (BsonDouble)v,
-                double v => (BsonDouble)v,
-                DateTime v => (BsonDateTime)v,
-                DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
-                null => null,
-                _ => throw new InvalidCastException()
-            };
+                var renderedField = searchPathDefinition.Field.Render(args);
+                serializer = renderedField.FieldSerializer switch
+                {
+                    null => BsonSerializer.LookupSerializer<TField>(),
+                    IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedField.FieldSerializer),
+                    _ => renderedField.FieldSerializer
+                };
+            }
+            else
+            {
+                serializer = BsonSerializer.LookupSerializer<TField>();
+            }
+
+            var document = new BsonDocument();
+            using var bsonWriter = new BsonDocumentWriter(document);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter);
+            bsonWriter.WriteStartDocument();
+            if (_range.Min is not null)
+            {
+                bsonWriter.WriteName(_range.IsMinInclusive? "gte" : "gt");
+                serializer.Serialize(context, _range.Min);
+            }
+            if (_range.Max is not null)
+            {
+                bsonWriter.WriteName(_range.IsMaxInclusive? "lte" : "lt");
+                serializer.Serialize(context, _range.Max);
+            }
+            bsonWriter.WriteEndDocument();
+
+            return document;
+        }
     }
 
     internal sealed class RegexSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
