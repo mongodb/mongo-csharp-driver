@@ -21,28 +21,32 @@ using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    internal sealed class UnifiedFailPointOperation : IUnifiedFailPointOperation
+    internal sealed class UnifiedFailPointOperation : IUnifiedSpecialTestOperation
     {
         private readonly bool _async;
         private readonly IMongoClient _client;
+        private readonly UnifiedEntityMap _entityMap;
         private readonly BsonDocument _failPointCommand;
 
         public UnifiedFailPointOperation(
+            UnifiedEntityMap entityMap,
             IMongoClient client,
             BsonDocument failPointCommand,
             bool async)
         {
+            _entityMap = entityMap;
             _async = async;
             _client = Ensure.IsNotNull(client, nameof(client));
             _failPointCommand = Ensure.IsNotNull(failPointCommand, nameof(failPointCommand));
         }
 
-        public void Execute(out FailPoint failPoint)
+        public void Execute()
         {
             var cluster = _client.GetClusterInternal();
             var session = NoCoreSession.NewHandle();
 
-            failPoint = FailPoint.Configure(cluster, session, _failPointCommand, _async);
+            var failPoint = FailPoint.Configure(cluster, session, _failPointCommand, _async);
+            _entityMap.RegisterForDispose(failPoint);
         }
     }
 
@@ -75,7 +79,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedFailPointOperation(client, failPointCommand, _entityMap.Async);
+            return new UnifiedFailPointOperation(_entityMap, client, failPointCommand, _entityMap.Async);
         }
     }
 }

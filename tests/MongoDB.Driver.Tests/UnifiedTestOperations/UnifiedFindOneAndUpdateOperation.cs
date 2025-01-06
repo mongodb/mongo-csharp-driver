@@ -137,6 +137,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 throw new FormatException($"Invalid FindOneAndUpdateOperation update argument: '{argument.Value}'.");
                         }
                         break;
+                    case "upsert":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.IsUpsert = argument.Value.AsBoolean;
+                        break;
                     default:
                         throw new FormatException($"Invalid FindOneAndUpdateOperation argument name: '{argument.Name}'.");
                 }

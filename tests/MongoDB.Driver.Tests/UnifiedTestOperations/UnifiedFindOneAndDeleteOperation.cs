@@ -25,22 +25,27 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly FilterDefinition<BsonDocument> _filter;
         private readonly FindOneAndDeleteOptions<BsonDocument> _options;
+        private readonly IClientSessionHandle _session;
 
         public UnifiedFindOneAndDeleteOperation(
             IMongoCollection<BsonDocument> collection,
             FilterDefinition<BsonDocument> filter,
-            FindOneAndDeleteOptions<BsonDocument> options)
+            FindOneAndDeleteOptions<BsonDocument> options,
+            IClientSessionHandle session)
         {
             _collection = collection;
             _filter = filter;
             _options = options;
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var result = _collection.FindOneAndDelete(_filter, _options, cancellationToken);
+                var result = _session == null
+                    ? _collection.FindOneAndDelete(_filter, _options, cancellationToken)
+                    : _collection.FindOneAndDelete(_session, _filter, _options, cancellationToken);
 
                 return OperationResult.FromResult(result);
             }
@@ -54,7 +59,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var result = await _collection.FindOneAndDeleteAsync(_filter, _options, cancellationToken);
+                var result = _session == null
+                    ? await _collection.FindOneAndDeleteAsync(_filter, _options, cancellationToken)
+                    : await _collection.FindOneAndDeleteAsync(_session, _filter, _options, cancellationToken);
 
                 return OperationResult.FromResult(result);
             }
@@ -80,6 +87,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             FilterDefinition<BsonDocument> filter = null;
             FindOneAndDeleteOptions<BsonDocument> options = null;
+            IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
             {
@@ -100,6 +108,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOneAndDeleteOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
+                    case "session":
+                        session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
                     case "sort":
                         options ??= new FindOneAndDeleteOptions<BsonDocument>();
                         options.Sort = argument.Value.AsBsonDocument;
@@ -109,7 +120,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedFindOneAndDeleteOperation(collection, filter, options);
+            return new UnifiedFindOneAndDeleteOperation(collection, filter, options, session);
         }
     }
 }
