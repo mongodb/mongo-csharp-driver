@@ -105,9 +105,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
         public override AstNode VisitExprFilter(AstExprFilter node)
         {
-            var optimizedNode = (AstExprFilter)base.VisitExprFilter(node);
+            var optimizedNode = base.VisitExprFilter(node);
 
-            if (optimizedNode.Expression is AstUnaryExpression unaryExpression &&
+            if (optimizedNode is AstExprFilter exprFilter &&
+                exprFilter.Expression is AstUnaryExpression unaryExpression &&
                 unaryExpression.Operator == AstUnaryOperator.AnyElementTrue &&
                 unaryExpression.Arg is AstMapExpression mapExpression &&
                 mapExpression.Input is AstConstantExpression inputConstant &&
@@ -118,6 +119,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 fieldPathExpression.Path.Length > 1 && fieldPathExpression.Path[0] == '$' && fieldPathExpression.Path[1] != '$' &&
                 varExpression == mapExpression.As)
             {
+                // { $expr : { $anyElementTrue : { $map : { input : <constantArray>, as : "<var>", in : { $eq : ["$<dottedFieldName>", "$$<var>"] } } } } }
+                //      => { "<dottedFieldName>" : { $in : <constantArray> } }
                 return AstFilter.In(AstFilter.Field(fieldPathExpression.Path.Substring(1)), inputArrayValue);
             }
 
