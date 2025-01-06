@@ -911,6 +911,30 @@ namespace MongoDB.Driver.Tests.Search
                 "{ queryString: { defaultPath: 'hobbies', query: 'foo' } }");
         }
 
+        [Fact]
+        public void RangeDateTime()
+        {
+            var subject = CreateSubject<Person>();
+
+            AssertRendered(
+                subject.Range(
+                    p => p.Birthday,
+                    SearchRangeBuilder
+                        .Gte(new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc))
+                        .Lte(new DateTime(2009, 12, 31, 0, 0, 0, DateTimeKind.Utc))),
+                "{ range: { path: 'dob', gte: { $date: '2000-01-01T00:00:00Z' }, lte: { $date: '2009-12-31T00:00:00Z' } } }");
+        }
+
+        [Fact]
+        public void RangeDouble()
+        {
+            var subject = CreateSubject<Person>();
+
+            AssertRendered(
+                subject.Range(p => p.Age, SearchRangeBuilder.Gt(1.5).Lt(2.5)),
+                "{ range: { path: 'age', gt: 1.5, lt: 2.5 } }");
+        }
+
         [Theory]
         [InlineData(1, null, false, false, "gt: 1")]
         [InlineData(1, null, true, false, "gte: 1")]
@@ -922,21 +946,23 @@ namespace MongoDB.Driver.Tests.Search
         [InlineData(1, 10, true, true, "gte: 1, lte: 10")]
         public void Range_should_render_correct_operator(int? min, int? max, bool minInclusive, bool maxInclusive, string rangeRendered)
         {
-            var searchRange = new SearchRange<int>(min, max, minInclusive, maxInclusive);
-
-            var searchRangev2 = new SearchRangeV2<int>(
-                min.HasValue ? new(min.Value, minInclusive) : null,
-                max.HasValue ? new(max.Value, maxInclusive) : null);
-            
             var subject = CreateSubject<BsonDocument>();
-            
-            var searchRangeQuery = subject.Range("x", searchRange);
-            var searchRangeV2Query = subject.Range("x", searchRangev2);
+            AssertRendered(
+                    subject.Range("x", new SearchRange<int>(min, max, minInclusive, maxInclusive)),
+                    $"{{ range: {{ path: 'x', {rangeRendered} }} }}");
+        }
 
-            var expected = $"{{ range: {{ path: 'x', {rangeRendered} }} }}";
+        [Fact]
+        public void RangeInt32_typed()
+        {
+            var subject = CreateSubject<Person>();
 
-            AssertRendered(searchRangeQuery, expected);
-            AssertRendered(searchRangeV2Query, expected);
+            AssertRendered(
+                subject.Range(x => x.Age, SearchRangeBuilder.Gte(18).Lt(65)),
+                "{ range: { path: 'age', gte: 18, lt: 65 } }");
+            AssertRendered(
+                subject.Range("Age", SearchRangeBuilder.Gte(18).Lt(65)),
+                "{ range: { path: 'age', gte: 18, lt: 65 } }");
         }
 
         [Theory]
@@ -948,16 +974,17 @@ namespace MongoDB.Driver.Tests.Search
             string maxRendered,
             Expression<Func<Person, T>> fieldExpression,
             string fieldRendered)
+            where T : struct, IComparable<T>
         {
             var subject = CreateSubject<BsonDocument>();
             var subjectTyped = CreateSubject<Person>();
 
             AssertRendered(
-                subject.Range("testField", SearchRangeV2Builder.Gte(min).Lt(max)),
-                $"{{ range: {{ path: 'testField', gte: {minRendered}, lt: {maxRendered} }} }}");
+                subject.Range("age", SearchRangeBuilder.Gte(min).Lt(max)),
+                $"{{ range: {{ path: 'age', gte: {minRendered}, lt: {maxRendered} }} }}");
 
             AssertRendered(
-                subjectTyped.Range(fieldExpression, SearchRangeV2Builder.Gte(min).Lt(max)),
+                subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(min).Lt(max)),
                 $"{{ range: {{ path: '{fieldRendered}', gte: {minRendered}, lt: {maxRendered} }} }}");
         }
 
@@ -972,26 +999,8 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { long.MinValue, long.MaxValue, "NumberLong(\"-9223372036854775808\")", "NumberLong(\"9223372036854775807\")", Exp(p => p.Int64), nameof(Person.Int64) },
             new object[] { (float)1, (float)2, "1", "2", Exp(p => p.Float), nameof(Person.Float) },
             new object[] { (double)1, (double)2, "1", "2", Exp(p => p.Double), nameof(Person.Double) },
-            new object[] { "A", "D", "'A'", "'D'", Exp(p => p.FirstName), "fn" },
             new object[] { DateTime.MinValue, DateTime.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.Birthday), "dob" },
             new object[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) }
-        };
-
-        [Theory]
-        [MemberData(nameof(RangeUnsupportedTypesTestData))]
-        public void Range_should_throw_on_unsupported_types<T>(T value, Expression<Func<Person, T>> fieldExpression)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            Record.Exception(() => subject.Range("age", SearchRangeV2Builder.Gte(value).Lt(value)).Render(new RenderArgs<BsonDocument>())).Should().BeOfType<InvalidCastException>();
-
-            var subjectTyped = CreateSubject<Person>();
-            Record.Exception(() => subjectTyped.Range(fieldExpression, SearchRangeV2Builder.Gte(value).Lt(value)).Render(new RenderArgs<Person>())).Should().BeOfType<InvalidCastException>();
-        }
-
-        public static object[][] RangeUnsupportedTypesTestData => new[]
-        {
-            new object[] { (ulong)1, Exp(p => p.UInt64) },
-            new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
         };
         
         [Fact]
@@ -1000,7 +1009,7 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<Person>();
 
             AssertRendered(
-                subject.Range(x => x.SalaryHistory, SearchRangeV2Builder.Gte(1000).Lt(2000)),
+                subject.Range(x => x.SalaryHistory, SearchRangeBuilder.Gte(1000).Lt(2000)),
                 "{ range: { path: 'salaries', gte: 1000, lt: 2000 } }");
         }
 
