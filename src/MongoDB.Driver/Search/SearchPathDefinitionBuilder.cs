@@ -137,6 +137,8 @@ namespace MongoDB.Driver.Search
     {
         private readonly FieldDefinition<TDocument> _field;
 
+        public FieldDefinition<TDocument> Field => _field;
+
         public SingleSearchPathDefinition(FieldDefinition<TDocument> field)
         {
             _field = Ensure.IsNotNull(field, nameof(field));
