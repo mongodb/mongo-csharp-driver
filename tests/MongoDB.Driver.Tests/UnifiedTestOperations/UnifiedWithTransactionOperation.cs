@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "writeConcern":
                         options = options ?? new TransactionOptions();
-                        options = options.With(writeConcern: WriteConcern.FromBsonDocument(argument.Value.AsBsonDocument));
+                        options = options.With(writeConcern: UnifiedEntityMap.ParseWriteConcern(argument.Value.AsBsonDocument));
                         break;
                     default:
                         throw new FormatException($"Invalid WithTransactionOperation argument name: '{argument.Name}'.");

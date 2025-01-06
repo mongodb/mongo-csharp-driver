@@ -24,7 +24,6 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
@@ -41,7 +40,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public sealed class UnifiedTestRunner : IDisposable
     {
         private UnifiedEntityMap _entityMap;
-        private readonly List<FailPoint> _failPoints = new List<FailPoint>();
         private readonly Dictionary<string, object> _additionalArgs;
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
         private readonly IEventsProcessor _eventsProcessor;
@@ -161,13 +159,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             _logger.LogDebug("Disposing");
 
-            if (_failPoints != null)
-            {
-                foreach (var failPoint in _failPoints)
-                {
-                    failPoint?.Dispose();
-                }
-            }
             try
             {
                 KillOpenTransactions(DriverTestConfiguration.Client);
@@ -296,10 +287,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     {
                         operationWithCreateAndRunCallback.Execute(CreateAndRunOperation, cancellationToken);
                     }
-                    break;
-                case IUnifiedFailPointOperation failPointOperation:
-                    failPointOperation.Execute(out var failPoint);
-                    _failPoints.Add(failPoint);
                     break;
                 default:
                     throw new FormatException($"Unexpected operation type: '{operation.GetType()}'.");

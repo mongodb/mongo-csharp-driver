@@ -143,6 +143,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 throw new FormatException($"Invalid BulkWrite Update model update argument: '{argument.Value}'.");
                         }
                         break;
+                    case "upsert":
+                        options ??= new UpdateOptions();
+                        options.IsUpsert = argument.Value.AsBoolean;
+                        break;
                     default:
                         throw new FormatException($"Invalid UpdateManyOperation argument name: '{argument.Name}'.");
                 }

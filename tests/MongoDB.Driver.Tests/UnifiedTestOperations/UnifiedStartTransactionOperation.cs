@@ -23,17 +23,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedStartTransactionOperation : IUnifiedEntityTestOperation
     {
         private readonly IClientSessionHandle _session;
+        private readonly TransactionOptions _transactionOptions;
 
-        public UnifiedStartTransactionOperation(IClientSessionHandle session)
+        public UnifiedStartTransactionOperation(IClientSessionHandle session, TransactionOptions transactionOptions)
         {
             _session = session;
+            _transactionOptions = transactionOptions;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                _session.StartTransaction();
+                _session.StartTransaction(_transactionOptions);
 
                 return OperationResult.Empty();
             }
@@ -61,13 +63,40 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedStartTransactionOperation Build(string targetSessionId, BsonDocument arguments)
         {
             var session = _entityMap.Sessions[targetSessionId];
+            TransactionOptions options = null;
 
             if (arguments != null)
             {
-                throw new FormatException("StartTransactionOperation is not expected to contain arguments.");
+                WriteConcern writeConcern = null;
+                ReadConcern readConcern = null;
+                ReadPreference readPreference = null;
+                TimeSpan? maxCommitTime = null;
+
+                foreach (var argument in arguments)
+                {
+                    switch (argument.Name)
+                    {
+                        case "maxCommitTimeMS":
+                            maxCommitTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                            break;
+                        case "readConcern":
+                            readConcern = ReadConcern.FromBsonDocument(argument.Value.AsBsonDocument);
+                            break;
+                        case "readPreference":
+                            readPreference = ReadPreference.FromBsonDocument(argument.Value.AsBsonDocument);
+                            break;
+                        case "writeConcern":
+                            writeConcern = UnifiedEntityMap.ParseWriteConcern(argument.Value.AsBsonDocument);
+                            break;
+                        default:
+                            throw new FormatException($"Invalid StartTransactionOperation argument name: '{argument.Name}'.");
+                    }
+                }
+
+                options = new TransactionOptions(readConcern, readPreference, writeConcern, maxCommitTime);
             }
 
-            return new UnifiedStartTransactionOperation(session);
+            return new UnifiedStartTransactionOperation(session, options);
         }
     }
 }
