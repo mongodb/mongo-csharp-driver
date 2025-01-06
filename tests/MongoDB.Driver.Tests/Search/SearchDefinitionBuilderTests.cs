@@ -1359,6 +1359,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
+        }
 
         public class TestGuidClass
         {
