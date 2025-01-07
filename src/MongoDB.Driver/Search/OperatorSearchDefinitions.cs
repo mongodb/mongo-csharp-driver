@@ -121,46 +121,31 @@ namespace MongoDB.Driver.Search
 
     internal sealed class EqualsSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
-        private readonly TField _value;  //TODO Consider changing TFIeld to TValue (more correct)
-        private readonly FieldDefinition<TDocument, TField> _field;
-        private readonly FieldDefinition<TDocument, IEnumerable<TField>> _arrayField;
+        private readonly TField _value;
 
-        //TODO I think that if we use the search definition here we can use only one constructor and uniform it to the other two
-        public EqualsSearchDefinition(FieldDefinition<TDocument, TField> path, TField value, SearchScoreDefinition<TDocument> score)
-            : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
+        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TField value, SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.Equals, path, score)
         {
             _value = value;
-            _field = path;
-        }
-
-        public EqualsSearchDefinition(FieldDefinition<TDocument, IEnumerable<TField>> path, TField value, SearchScoreDefinition<TDocument> score)
-            : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
-        {
-            _value = value;
-            _arrayField = path;
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
         {
-            IBsonSerializer valueSerializer;
-
-            if (_field is null)
+            var searchPathDefinition = (SingleSearchPathDefinition<TDocument>)_path;
+            var renderedField = searchPathDefinition.Field.Render(args);
+            var serializer = renderedField.FieldSerializer switch
             {
-                var renderedField = _arrayField.Render(args);
-                valueSerializer = ArraySerializerHelper.GetItemSerializer(renderedField.ValueSerializer);
-            }
-            else
-            {
-                var renderedField = _field.Render(args);
-                valueSerializer = renderedField.ValueSerializer;
-            }
+                null => BsonSerializer.LookupSerializer<TField>(),
+                IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedField.FieldSerializer),
+                _ => renderedField.FieldSerializer
+            };
 
             var document = new BsonDocument();
             using var bsonWriter = new BsonDocumentWriter(document);
             var context = BsonSerializationContext.CreateRoot(bsonWriter);
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName("value");
-            valueSerializer.Serialize(context, _value);
+            serializer.Serialize(context, _value);
             bsonWriter.WriteEndDocument();
 
             return document;
@@ -390,22 +375,14 @@ namespace MongoDB.Driver.Search
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
         {
-            IBsonSerializer serializer;
-
-            if (_path is SingleSearchPathDefinition<TDocument> searchPathDefinition)
+            var searchPathDefinition = (SingleSearchPathDefinition<TDocument>)_path;
+            var renderedField = searchPathDefinition.Field.Render(args);
+            var serializer = renderedField.FieldSerializer switch
             {
-                var renderedField = searchPathDefinition.Field.Render(args);
-                serializer = renderedField.FieldSerializer switch
-                {
-                    null => BsonSerializer.LookupSerializer<TField>(),
-                    IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedField.FieldSerializer),
-                    _ => renderedField.FieldSerializer
-                };
-            }
-            else
-            {
-                serializer = BsonSerializer.LookupSerializer<TField>();
-            }
+                null => BsonSerializer.LookupSerializer<TField>(),
+                IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedField.FieldSerializer),
+                _ => renderedField.FieldSerializer
+            };
 
             var document = new BsonDocument();
             using var bsonWriter = new BsonDocumentWriter(document);
