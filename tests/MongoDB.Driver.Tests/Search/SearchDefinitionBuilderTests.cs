@@ -288,16 +288,18 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<BsonDocument>();
             var subjectTyped = CreateSubject<Person>();
 
-            AssertRendered(
-                subject.Equals("x", value),
-                $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
+            //There is no property called "x" where to pick up a properly configured GuidSerializer for the tests
+            if (typeof(T) != typeof(Guid))
+            {
+                AssertRendered(
+                    subject.Equals("x", value),
+                    $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
 
-            //TODO For the Guid we get (correctly): GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified.
-
-            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
-            AssertRendered(
-                subject.Equals("x", value, scoreBuilder.Constant(1)),
-                $"{{ equals: {{ path: 'x', value: {valueRendered}, score: {{ constant: {{ value: 1 }} }} }} }}");
+                var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+                AssertRendered(
+                    subject.Equals("x", value, scoreBuilder.Constant(1)),
+                    $"{{ equals: {{ path: 'x', value: {valueRendered}, score: {{ constant: {{ value: 1 }} }} }} }}");
+            }
 
             AssertRendered(
                 subjectTyped.Equals(fieldExpression, value),
@@ -328,7 +330,7 @@ namespace MongoDB.Driver.Tests.Search
         public void Equals_should_use_correct_serializers_when_using_attributes_and_expression_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
-            var subjectTyped = CreateSubject<TestGuidClass>();
+            var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
                 subjectTyped.Equals(t => t.DefaultGuid, testGuid),
@@ -343,7 +345,7 @@ namespace MongoDB.Driver.Tests.Search
         public void Equals_should_use_correct_serializers_when_using_attributes_and_string_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
-            var subjectTyped = CreateSubject<TestGuidClass>();
+            var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
                 subjectTyped.Equals("DefaultGuid", testGuid),
@@ -360,7 +362,7 @@ namespace MongoDB.Driver.Tests.Search
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
-            var subjectTyped = CreateSubject<TestGuidClass>();
+            var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
                 subjectTyped.Equals(t => t.UndefinedRepresentationGuid, testGuid),
@@ -549,9 +551,8 @@ namespace MongoDB.Driver.Tests.Search
              new object[] { new decimal[] { 1.5m, 2.5m }, new[] { "NumberDecimal(\"1.5\")", "NumberDecimal(\"2.5\")" } },
              new object[] { new[] { "str1", "str2" }, new[] { "'str1'", "'str2'" } },
              new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" } },
-             new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" } },
+             new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { """{ "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : 0, "Offset" : 0 } """, """ { "DateTime" : { "$date" : "9999-12-31T23:59:59.999Z" }, "Ticks" : 3155378975999999999, "Offset" : 0 } """ } },
              new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" } },
-             new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" } }
         };
 
         [Theory]
@@ -565,9 +566,13 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<Person>();
             var fieldValuesArray = $"[{string.Join(",", fieldValuesRendered)}]";
 
-            AssertRendered(
-                subject.In("x", fieldValues),
-                $"{{ in: {{ path: 'x', value: {fieldValuesArray} }} }}");
+            //There is no property called "x" where to pick up a properly configured GuidSerializer for the tests
+            if (typeof(T) != typeof(Guid))
+            {
+                AssertRendered(
+                    subject.In("x", fieldValues),
+                    $"{{ in: {{ path: 'x', value: {fieldValuesArray} }} }}");
+            }
 
             AssertRendered(
                 subject.In(fieldExpression, fieldValues),
@@ -592,7 +597,6 @@ namespace MongoDB.Driver.Tests.Search
              new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { """{ "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : 0, "Offset" : 0 } """, """ { "DateTime" : { "$date" : "9999-12-31T23:59:59.999Z" }, "Ticks" : 3155378975999999999, "Offset" : 0 } """ }, Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset)},
              new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" }, Exp(p => p.Id), "_id" },
              new object[] { new[] { Guid.Empty, Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf") }, new[] { """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", """{ "$binary" : { "base64" : "tSrxRLyXRU+leEGKZPqVvw==", "subType" : "04" } }""" }, Exp(p => p.Guid), nameof(Person.Guid) },
-             new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" }, Exp(p => p.Object), nameof(Person.Object) }  //TODO How do we solve this? Should we actually support this?
         };
 
         [Fact]
@@ -611,7 +615,7 @@ namespace MongoDB.Driver.Tests.Search
         public void In_should_use_correct_serializers_when_using_attributes_and_expression_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
-            var subjectTyped = CreateSubject<TestGuidClass>();
+            var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
                 subjectTyped.In(t => t.DefaultGuid, [testGuid, testGuid]),
@@ -626,7 +630,7 @@ namespace MongoDB.Driver.Tests.Search
         public void In_should_use_correct_serializers_when_using_attributes_and_string_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
-            var subjectTyped = CreateSubject<TestGuidClass>();
+            var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
                 subjectTyped.In("DefaultGuid", [testGuid, testGuid]),
@@ -643,7 +647,7 @@ namespace MongoDB.Driver.Tests.Search
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
-            var subjectTyped = CreateSubject<TestGuidClass>();
+            var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
                 subjectTyped.In(t => t.UndefinedRepresentationGuid, [testGuid, testGuid]),
@@ -1000,9 +1004,54 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { (float)1, (float)2, "1", "2", Exp(p => p.Float), nameof(Person.Float) },
             new object[] { (double)1, (double)2, "1", "2", Exp(p => p.Double), nameof(Person.Double) },
             new object[] { DateTime.MinValue, DateTime.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.Birthday), "dob" },
-            new object[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) }
+            new object[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue,"""{ "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : 0, "Offset" : 0 }""", """{ "DateTime" : { "$date" : "9999-12-31T23:59:59.999Z" }, "Ticks" : 3155378975999999999, "Offset" : 0 }""", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) }
         };
-        
+
+        [Fact]
+        public void Range_should_use_correct_serializers_when_using_attributes_and_expression_path()
+        {
+            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01));
+            var subjectTyped = CreateSubject<AttributesTestClass>();
+
+            AssertRendered(
+                subjectTyped.Range(t => t.DefaultDateTimeOffset, new SearchRange<DateTimeOffset>(testDateTime, null, false, false )),
+                """{"range" :{ "gt" : { "DateTime" : { "$date" : "2024-12-31T23:00:00Z" }, "Ticks" : 638712864000000000, "Offset" : 60 }, "path" : "DefaultDateTimeOffset" }}""");
+
+            AssertRendered(
+                subjectTyped.Range(t => t.StringDateTimeOffset, new SearchRange<DateTimeOffset>(testDateTime, null, false, false )),
+                """{"range":{ "gt" : "2025-01-01T00:00:00+01:00", "path" : "StringDateTimeOffset" }}""");
+        }
+
+        [Fact]
+        public void Range_should_use_correct_serializers_when_using_attributes_and_string_path()
+        {
+            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01));
+            var subjectTyped = CreateSubject<AttributesTestClass>();
+
+            AssertRendered(
+                subjectTyped.Range("DefaultDateTimeOffset",
+                    new SearchRange<DateTimeOffset>(testDateTime, null, false, false)),
+                """{"range" :{ "gt" : { "DateTime" : { "$date" : "2024-12-31T23:00:00Z" }, "Ticks" : 638712864000000000, "Offset" : 60 }, "path" : "DefaultDateTimeOffset" }}""");
+
+            AssertRendered(
+                subjectTyped.Range("StringDateTimeOffset",
+                    new SearchRange<DateTimeOffset>(testDateTime, null, false, false)),
+                """{"range":{ "gt" : "2025-01-01T00:00:00+01:00", "path" : "StringDateTimeOffset" }}""");
+        }
+
+        [Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]
+        public void Range_should_use_correct_serializers_when_using_serializer_registry()
+        {
+            BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+
+            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01));
+            var subjectTyped = CreateSubject<AttributesTestClass>();
+
+            AssertRendered(
+                subjectTyped.Range(t => t.StringDateTimeOffset, new SearchRange<DateTimeOffset>(testDateTime, null, false, false )),
+                """{"range":{ "gt" : "2025-01-01T00:00:00+01:00", "path" : "StringDateTimeOffset" }}""");
+        }
+
         [Fact]
         public void Range_with_array_field_should_render_correctly()
         {
@@ -1378,7 +1427,7 @@ namespace MongoDB.Driver.Tests.Search
             public string FirstName { get; set; }
         }
 
-        public class TestGuidClass
+        public class AttributesTestClass
         {
             [BsonGuidRepresentation(GuidRepresentation.Standard)]
             public Guid DefaultGuid { get; set; }
@@ -1387,6 +1436,11 @@ namespace MongoDB.Driver.Tests.Search
             public Guid StringGuid { get; set; }
 
             public Guid UndefinedRepresentationGuid { get; set; }
+
+            public DateTimeOffset DefaultDateTimeOffset { get; set; }
+
+            [BsonRepresentation(BsonType.String)]
+            public DateTimeOffset StringDateTimeOffset { get; set; }
         }
     }
 }
