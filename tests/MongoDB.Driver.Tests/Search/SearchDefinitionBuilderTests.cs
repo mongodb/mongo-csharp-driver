@@ -1010,7 +1010,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Range_should_use_correct_serializers_when_using_attributes_and_expression_path()
         {
-            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01));
+            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc));
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
@@ -1025,7 +1025,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Range_should_use_correct_serializers_when_using_attributes_and_string_path()
         {
-            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01));
+            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc));
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
@@ -1044,7 +1044,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 
-            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01));
+            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc));
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
