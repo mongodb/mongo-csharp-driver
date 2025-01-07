@@ -1010,46 +1010,44 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Range_should_use_correct_serializers_when_using_attributes_and_expression_path()
         {
-            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc));
+            var testLong = 23;
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Range(t => t.DefaultDateTimeOffset, new SearchRange<DateTimeOffset>(testDateTime, null, false, false )),
-                """{"range" :{ "gt" : { "DateTime" : { "$date" : "2024-12-31T23:00:00Z" }, "Ticks" : 638712864000000000, "Offset" : 60 }, "path" : "DefaultDateTimeOffset" }}""");
+                subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false )),
+                """{"range" :{ "gt" : 23, "path" : "DefaultLong" }}""");
 
             AssertRendered(
-                subjectTyped.Range(t => t.StringDateTimeOffset, new SearchRange<DateTimeOffset>(testDateTime, null, false, false )),
-                """{"range":{ "gt" : "2025-01-01T00:00:00+01:00", "path" : "StringDateTimeOffset" }}""");
+                subjectTyped.Range(t => t.StringLong, new SearchRange<long>(testLong, null, false, false )),
+                """{"range":{ "gt" : "23", "path" : "StringLong" }}""");
         }
 
         [Fact]
         public void Range_should_use_correct_serializers_when_using_attributes_and_string_path()
         {
-            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc));
+            var testLong = 23;
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Range("DefaultDateTimeOffset",
-                    new SearchRange<DateTimeOffset>(testDateTime, null, false, false)),
-                """{"range" :{ "gt" : { "DateTime" : { "$date" : "2024-12-31T23:00:00Z" }, "Ticks" : 638712864000000000, "Offset" : 60 }, "path" : "DefaultDateTimeOffset" }}""");
+                subjectTyped.Range("DefaultLong", new SearchRange<long>(testLong, null, false, false )),
+                """{"range" :{ "gt" : 23, "path" : "DefaultLong" }}""");
 
             AssertRendered(
-                subjectTyped.Range("StringDateTimeOffset",
-                    new SearchRange<DateTimeOffset>(testDateTime, null, false, false)),
-                """{"range":{ "gt" : "2025-01-01T00:00:00+01:00", "path" : "StringDateTimeOffset" }}""");
+                subjectTyped.Range("StringLong", new SearchRange<long>(testLong, null, false, false )),
+                """{"range":{ "gt" : "23", "path" : "StringLong" }}""");
         }
 
         [Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]
         public void Range_should_use_correct_serializers_when_using_serializer_registry()
         {
-            BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+            BsonSerializer.RegisterSerializer(new Int64Serializer(BsonType.String));
 
-            var testDateTime = new DateTimeOffset(new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc));
+            var testLong = 23;
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Range(t => t.StringDateTimeOffset, new SearchRange<DateTimeOffset>(testDateTime, null, false, false )),
-                """{"range":{ "gt" : "2025-01-01T00:00:00+01:00", "path" : "StringDateTimeOffset" }}""");
+                subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false )),
+                """{"range":{ "gt" : "23", "path" : "DefaultLong" }}""");
         }
 
         [Fact]
@@ -1437,10 +1435,10 @@ namespace MongoDB.Driver.Tests.Search
 
             public Guid UndefinedRepresentationGuid { get; set; }
 
-            public DateTimeOffset DefaultDateTimeOffset { get; set; }
+            public long DefaultLong { get; set; }
 
             [BsonRepresentation(BsonType.String)]
-            public DateTimeOffset StringDateTimeOffset { get; set; }
+            public long StringLong { get; set; }
         }
     }
 }
