@@ -37,6 +37,8 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        // Test that environment metadata is properly captured
+        // https://github.com/mongodb/specifications/blob/master/source/mongodb-handshake/tests/README.md#test-1-test-that-environment-metadata-is-properly-captured
         public async Task Handhake_should_handle_faas_env_variables(
             [Values(
             // Valid AWS
@@ -54,7 +56,9 @@ namespace MongoDB.Driver.Tests
             // Invalid - long string
             "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'AWS_REGION=#longA#'], expected: { 'name' : 'aws.lambda' } }",
             // Invalid - wrong types
-            "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE=big'], expected: { 'name' : 'aws.lambda' } }")]
+            "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE=big'], expected: { 'name' : 'aws.lambda' } }",
+            // Valid container and FaaS provider
+            "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'AWS_REGION=us-east-2', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE=1024', 'KUBERNETES_SERVICE_HOST=1'], expected : { 'name' : 'aws.lambda', 'memory_mb' : 1024, 'region' : 'us-east-2', 'container' : { 'orchestrator' : 'kubernetes' } } }")]
             string environmentVariableDescription,
             [Values(false, true)] bool async)
         {
