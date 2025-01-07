@@ -125,6 +125,7 @@ namespace MongoDB.Driver.Search
         private readonly FieldDefinition<TDocument, TField> _field;
         private readonly FieldDefinition<TDocument, IEnumerable<TField>> _arrayField;
 
+        //TODO I think that if we use the search definition here we can use only one constructor and uniform it to the other two
         public EqualsSearchDefinition(FieldDefinition<TDocument, TField> path, TField value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, new SingleSearchPathDefinition<TDocument>(path), score)
         {
