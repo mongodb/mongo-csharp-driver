@@ -101,6 +101,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return $"{{ SymbolTable : {_symbolTable} }}";
         }
 
+        public TranslationContext WithData(string key, object value)
+        {
+            var data = _data == null ? new TranslationContextData(key, value) : _data.With(key, value);
+            return new TranslationContext(_symbolTable, _nameGenerator, _translationOptions, data);
+        }
+
         public TranslationContext WithSingleSymbol(Symbol newSymbol)
         {
             var newSymbolTable = new SymbolTable(newSymbol);

@@ -194,10 +194,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         public class SpawnDataClass
         {
-            public readonly int Identifier;
+            [BsonElement] public readonly int Identifier;
             public DateTime SpawnDate;
             private string spawnText;
 
+            [BsonConstructor]
             public SpawnDataClass(int identifier, DateTime spawnDate)
             {
                 Identifier = identifier;
@@ -213,10 +214,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         public class SpawnDataClassWithAdditionalParameter
         {
-            public readonly int Identifier;
+            [BsonElement] public readonly int Identifier;
             public DateTime SpawnDate;
             public int AdditionalField;
 
+            [BsonConstructor]
             public SpawnDataClassWithAdditionalParameter(int identifier, DateTime spawnDate, int additionalField)
             {
                 Identifier = identifier;
@@ -233,6 +235,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             private string spawnText;
 
             // this constructor is required for the test to compile
+            [BsonConstructor]
             public SpawnDataStruct(int identifier, DateTime spawnDate)
             {
                 Identifier = identifier;
@@ -258,6 +261,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         public class InheritedSpawnData : SpawnDataClass
         {
+            [BsonConstructor]
             public InheritedSpawnData(int identifier, DateTime spawnDate)
                 : base(identifier, spawnDate)
             {

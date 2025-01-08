@@ -24,10 +24,21 @@ using MongoDB.Bson.Serialization.Serializers;
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
+    ///
+    /// </summary>
+    public interface IBsonClassMapSerializer
+    {
+        /// <summary>
+        ///
+        /// </summary>
+        public BsonClassMap ClassMap { get; }
+    }
+
+    /// <summary>
     /// Represents a serializer for a class map.
     /// </summary>
     /// <typeparam name="TClass">The type of the class.</typeparam>
-    public sealed class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer, IHasDiscriminatorConvention
+    public sealed class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonClassMapSerializer, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer, IHasDiscriminatorConvention
     {
         // private fields
         private readonly BsonClassMap _classMap;
@@ -57,6 +68,9 @@ namespace MongoDB.Bson.Serialization
         }
 
         // public properties
+        /// <inheritdoc/>
+        public BsonClassMap ClassMap => _classMap;
+
         /// <inheritdoc/>
         public IDiscriminatorConvention DiscriminatorConvention => _classMap.GetDiscriminatorConvention();
 

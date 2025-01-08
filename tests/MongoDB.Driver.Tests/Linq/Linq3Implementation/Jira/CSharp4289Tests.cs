@@ -75,6 +75,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         public class R
         {
+            [BsonConstructor]
             public R(string v)
             {
                 V = v;

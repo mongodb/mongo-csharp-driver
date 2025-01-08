@@ -14,6 +14,7 @@
 */
 
 using System.Linq;
+using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -80,6 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         private class D
         {
+            [BsonConstructor]
             public D(int x)
             {
                 X = x;

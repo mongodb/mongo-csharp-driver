@@ -268,10 +268,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
         public class RootView
         {
+            [BsonConstructor]
             public RootView()
             {
             }
 
+            [BsonConstructor]
             public RootView(string property)
             {
                 Property = property;
