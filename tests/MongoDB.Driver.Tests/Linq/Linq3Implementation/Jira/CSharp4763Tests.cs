@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -44,7 +45,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections ?? false)
             {
                 var projection = TranslateFindProjection(collection, find, out var projectionSerializer);
-                projection.Should().BeNull();
+                if (findOptions.TranslationOptions.CompatibilityLevel == ServerVersion.Server42)
+                {
+                    projection.Should().BeNull();
+                }
+                else
+                {
+                    projection.Should().Be("{ _snippets : ['$X'], _id : 0 }");
+                }
                 projectionSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = find.ToList();
@@ -70,8 +78,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool? enableClientSideProjections)
         {
             var collection = GetCollection();
-            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
-            var findOptions = new FindOptions { TranslationOptions = translationOptions };
+            var findOptions = GetFindOptions(useFindOptions, useFindOptions, enableClientSideProjections);
 
             var find = collection
                 .Find("{}", findOptions)
@@ -80,7 +87,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections ?? false)
             {
                 var projection = TranslateFindProjection(collection, find, out var projectionSerializer);
-                projection.Should().BeNull();
+                if (findOptions.TranslationOptions.CompatibilityLevel == ServerVersion.Server42)
+                {
+                    projection.Should().BeNull();
+                }
+                else
+                {
+                    projection.Should().Be("{ _snippets : ['$X'], _id : 0 }");
+                }
                 projectionSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = find.First();
@@ -106,8 +120,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool? enableClientSideProjections)
         {
             var collection = GetCollection();
-            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
-            var findOptions = new FindOptions { TranslationOptions = translationOptions };
+            var findOptions = GetFindOptions(useFindOptions, useFindOptions, enableClientSideProjections);
 
             var find = collection
                 .Find("{}", findOptions)
@@ -116,7 +129,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections ?? false)
             {
                 var projection = TranslateFindProjection(collection, find, out var projectionSerializer);
-                projection.Should().BeNull();
+                if (findOptions.TranslationOptions.CompatibilityLevel == ServerVersion.Server42)
+                {
+                    projection.Should().BeNull();
+                }
+                else
+                {
+                    projection.Should().Be("{ _snippets : ['$X'], _id : 0 }");
+                }
                 projectionSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = find.Single();
@@ -150,7 +170,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections ?? false)
             {
                 var stages = Translate(collection, aggregate, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$X'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = aggregate.ToList();
@@ -184,7 +204,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections ?? false)
             {
                 var stages = Translate(collection, aggregate, out var serializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$X'], _id : 0 } }");
                 serializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = aggregate.First();
@@ -249,7 +269,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections ?? false)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$X'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -283,7 +303,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections ?? false)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$X'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = queryable.First();
@@ -347,7 +367,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections ?? false)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$X'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = queryable.Single();
@@ -458,7 +478,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 (false, _) => null,
                 (true, false) => new AggregateOptions { TranslationOptions = null },
-                (true, true) => new AggregateOptions { TranslationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections } },
+                (true, true) => new AggregateOptions { TranslationOptions = GetTranslationOptions(enableClientSideProjections) },
             };
 
         private IMongoCollection<C> GetCollection()
@@ -470,13 +490,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             return collection;
         }
 
-        private FindOptions GetFindOptions(bool useFindOptions, bool useTranslationOptions, bool? enableClientSideProjections) =>
-            (useFindOptions, useTranslationOptions) switch
+        private FindOptions GetFindOptions(bool useFindOptions, bool useTranslationOptions, bool? enableClientSideProjections)
+        {
+            return (useFindOptions, useTranslationOptions) switch
             {
                 (false, _) => null,
                 (true, false) => new FindOptions { TranslationOptions = null },
-                (true, true) => new FindOptions { TranslationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections } },
+                (true, true) => new FindOptions { TranslationOptions = GetTranslationOptions(enableClientSideProjections) }
             };
+        }
+
+        private ExpressionTranslationOptions GetTranslationOptions(bool? enableClientSideProjections)
+        {
+            var wireVersion = CoreTestConfiguration.MaxWireVersion;
+            var compatibilityLevel = Feature.FindProjectionExpressions.IsSupported(wireVersion) ? (ServerVersion?)null : ServerVersion.Server42;
+            return new ExpressionTranslationOptions
+            {
+                EnableClientSideProjections = enableClientSideProjections,
+                CompatibilityLevel = compatibilityLevel
+            };
+        }
 
         private int MyFunction(int x) => 2 * x;
 

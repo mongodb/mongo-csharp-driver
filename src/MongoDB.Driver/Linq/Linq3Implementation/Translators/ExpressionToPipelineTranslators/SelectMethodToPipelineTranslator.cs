@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -46,19 +47,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 var sourceSerializer = pipeline.OutputSerializer;
+                AstProjectStage projectStage;
+                IBsonSerializer projectionSerializer;
                 try
                 {
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);
-                    var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(selectorTranslation);
-                    pipeline = pipeline.AddStage(projectStage, projectionSerializer);
+                    (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(selectorTranslation);
                 }
                 catch (ExpressionNotSupportedException) when (context.TranslationOptions?.EnableClientSideProjections ?? false)
                 {
-                    var clientSideProjectionDeserializer = ClientSideProjectionDeserializer.Create(sourceSerializer, selectorLambda);
-                    pipeline = pipeline.WithNewOutputSerializer(clientSideProjectionDeserializer);
+                    (projectStage, projectionSerializer) = ClientSideProjectionTranslator.CreateProjectSnippetsStage(context, selectorLambda, sourceSerializer);
                 }
 
-                return pipeline;
+                return projectStage == null ?
+                    pipeline.WithNewOutputSerializer(projectionSerializer) : // project directly off $$ROOT with no $project stage
+                    pipeline.AddStage(projectStage, projectionSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

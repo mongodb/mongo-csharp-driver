@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
@@ -153,21 +154,20 @@ namespace MongoDB.Driver.Linq
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
-            => TranslateExpressionToProjection(expression, sourceSerializer, ProjectionHelper.CreateFindProjection, translationOptions, new AstFindProjectionSimplifier());
+            => TranslateExpressionToProjection(expression, sourceSerializer, translationOptions, forFind: true);
 
         internal static RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
             Expression<Func<TInput, TOutput>> expression,
             IBsonSerializer<TInput> inputSerializer,
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
-            => TranslateExpressionToProjection(expression, inputSerializer, ProjectionHelper.CreateAggregationProjection, translationOptions, new AstSimplifier());
+            => TranslateExpressionToProjection(expression, inputSerializer, translationOptions, forFind: false);
 
         private static RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
             Expression<Func<TInput, TOutput>> expression,
             IBsonSerializer<TInput> inputSerializer,
-            Func<TranslatedExpression, (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer)> projectionCreator,
             ExpressionTranslationOptions translationOptions,
-            AstSimplifier simplifier)
+            bool forFind)
         {
             if (expression.Parameters.Count == 1 && expression.Body == expression.Parameters[0])
             {
@@ -178,19 +178,34 @@ namespace MongoDB.Driver.Linq
             expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(translationOptions);
 
+            var simplifier = forFind ? new AstFindProjectionSimplifier() : new AstSimplifier();
             try
             {
                 var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, inputSerializer, asRoot: true);
-                var (specifications, projectionSerializer) = projectionCreator(translation);
+                var (specifications, projectionSerializer) = forFind ? ProjectionHelper.CreateFindProjection(translation) : ProjectionHelper.CreateAggregationProjection(translation);
                 specifications = simplifier.VisitAndConvert(specifications);
                 var renderedProjection = new BsonDocument(specifications.Select(specification => specification.RenderAsElement()));
                 return new RenderedProjectionDefinition<TOutput>(renderedProjection, (IBsonSerializer<TOutput>)projectionSerializer);
             }
             catch (ExpressionNotSupportedException) when (translationOptions?.EnableClientSideProjections ?? false)
             {
-                var projectorDelegate = expression.Compile();
-                var clientSideProjectionDeserializer = new ClientSideProjectionDeserializer<TInput, TOutput>(inputSerializer, projectorDelegate);
-                return new RenderedProjectionDefinition<TOutput>(document: null, clientSideProjectionDeserializer);
+                AstProjectStage projectStage;
+                IBsonSerializer projectionSerializer;
+
+                var wireVersion = context.TranslationOptions.CompatibilityLevel.ToWireVersion();
+                if (forFind && !Feature.FindProjectionExpressions.IsSupported(wireVersion))
+                {
+                    projectStage = null;
+                    projectionSerializer = ClientSideProjectionDeserializer.Create(inputSerializer, expression);
+                }
+                else
+                {
+                    (projectStage, projectionSerializer) = ClientSideProjectionTranslator.CreateProjectSnippetsStage(context, expression, inputSerializer);
+                    projectStage = simplifier.VisitAndConvert(projectStage);
+                }
+
+                var renderedProjection = projectStage?.Render()["$project"].AsBsonDocument;
+                return new RenderedProjectionDefinition<TOutput>(renderedProjection, (IBsonSerializer<TOutput>)projectionSerializer);
             }
         }
 
