@@ -34,6 +34,8 @@ namespace MongoDB.Bson.Serialization
             _manager = new BsonSerializationManager();
         }
 
+        internal static IBsonSerializationManager Manager => _manager;
+
         // public static properties
         /// <summary>
         /// Gets the serializer registry.

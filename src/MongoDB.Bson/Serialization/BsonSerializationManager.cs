@@ -15,7 +15,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// A class that represents the BSON serialization functionality.
     /// </summary>
-    internal class BsonSerializationManager : IBsonSerializationManager
+    internal class BsonSerializationManager : IBsonSerializationManager, IDisposable
     {
         // private fields
         private ReaderWriterLockSlim __configLock =
@@ -787,6 +787,11 @@ namespace MongoDB.Bson.Serialization
             {
                 __configLock.ExitWriteLock();
             }
+        }
+
+        public void Dispose()
+        {
+            __configLock.Dispose();
         }
 
         // private methods
