@@ -106,6 +106,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Xor_with_two_arguments_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = GetCollection();
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
@@ -115,7 +116,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$P', '$Q'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();

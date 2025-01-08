@@ -20,6 +20,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal class ExpressionIsReferencedVisitor : ExpressionVisitor
     {
+        #region static
+        public static bool IsReferenced(Expression node, Expression expression)
+        {
+            var visitor = new ExpressionIsReferencedVisitor(expression);
+            visitor.Visit(node);
+            return visitor.ExpressionIsReferenced;
+        }
+        #endregion
+
         private readonly Expression _expression;
         private bool _expressionIsReferenced;
 

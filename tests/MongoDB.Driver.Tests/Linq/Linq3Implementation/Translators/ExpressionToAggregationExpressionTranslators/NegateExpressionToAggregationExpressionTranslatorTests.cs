@@ -18,6 +18,8 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -106,6 +108,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Negate_decimal_as_string_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = CreateCollection();
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
@@ -114,7 +117,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$DecimalAsString'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();

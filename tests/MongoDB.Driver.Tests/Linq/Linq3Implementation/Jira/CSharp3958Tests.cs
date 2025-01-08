@@ -73,9 +73,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { Result : { $sortArray : { input : '$Team', sortBy : { 'Age' : -1, Name : 1 } } }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().HaveCount(1);
-            results[0].Result.Select(m => m.Age).Should().Equal(42, 36, 30);
+            var result = queryable.Single();
+            result.Result.Select(m => m.Age).Should().Equal(42, 30, 30);
+            result.Result.Select(m => m.Name).Should().Equal("Pat", "Charlie", "Dallas");
         }
 
         [Fact]
@@ -156,17 +156,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$Team'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = queryable.Single();
-                var exception = Record.Exception(() => result.Result.ToList());
-#if NET472_OR_GREATER
-                // .NET Framework throws a different exception than other target frameworks
-                exception.Should().BeOfType<ArgumentException>(); // TeamMembers are not IComparable
-#else
-                exception.Should().BeOfType<InvalidOperationException>(); // TeamMembers are not IComparable
-#endif
+                result.Result.Select(m => m.Age).Should().Equal(30, 30, 42);
+                result.Result.Select(m => m.Name).Should().Equal("Charlie", "Dallas", "Pat");
             }
             else
             {
@@ -192,17 +187,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$Team'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = queryable.Single();
-                var exception = Record.Exception(() => result.Result.ToList());
-#if NET472_OR_GREATER
-                // .NET Framework throws a different exception than other target frameworks
-                exception.Should().BeOfType<ArgumentException>(); // TeamMembers are not IComparable
-#else
-                exception.Should().BeOfType<InvalidOperationException>(); // TeamMembers are not IComparable
-#endif
+                result.Result.Select(m => m.Age).Should().Equal(30, 30, 42);
+                result.Result.Select(m => m.Name).Should().Equal("Charlie", "Dallas", "Pat");
             }
             else
             {
@@ -228,7 +218,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$Team'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = queryable.Single();
@@ -258,7 +248,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$Team'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var result = queryable.Single();
@@ -318,7 +308,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var result = queryable.Single();
 
             var json = result.ToJson();
-            json.Should().Be("{ \"Result\" : [{ \"Name\" : \"Charlie\", \"Age\" : 42, \"Address\" : { \"Street\" : \"12 French St\", \"City\" : \"New Brunswick\" } }, { \"Name\" : \"Dallas\", \"Age\" : 36, \"Address\" : { \"Street\" : \"12 Cowper St\", \"City\" : \"Palo Alto\" } }, { \"Name\" : \"Pat\", \"Age\" : 30, \"Address\" : { \"Street\" : \"12 Baker St\", \"City\" : \"London\" } }] }");
+            json.Should().Be("{ \"Result\" : [{ \"Name\" : \"Charlie\", \"Age\" : 30, \"Address\" : { \"Street\" : \"12 French St\", \"City\" : \"New Brunswick\" } }, { \"Name\" : \"Dallas\", \"Age\" : 30, \"Address\" : { \"Street\" : \"12 Cowper St\", \"City\" : \"Palo Alto\" } }, { \"Name\" : \"Pat\", \"Age\" : 42, \"Address\" : { \"Street\" : \"12 Baker St\", \"City\" : \"London\" } }] }");
         }
 
         private IMongoCollection<Engineers> CreateEngineersCollection()
@@ -332,9 +322,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     Id = 1,
                     Team = new[]
                     {
-                        new TeamMember { Name = "Pat", Age = 30, Address = new Address { Street = "12 Baker St", City = "London"}},
-                        new TeamMember { Name = "Dallas", Age = 36, Address = new Address { Street = "12 Cowper St", City = "Palo Alto"}},
-                        new TeamMember { Name = "Charlie", Age = 42, Address = new Address { Street = "12 French St", City = "New Brunswick"}}
+                        new TeamMember { Name = "Pat", Age = 42, Address = new Address { Street = "12 Baker St", City = "London"}},
+                        new TeamMember { Name = "Dallas", Age = 30, Address = new Address { Street = "12 Cowper St", City = "Palo Alto"}},
+                        new TeamMember { Name = "Charlie", Age = 30, Address = new Address { Street = "12 French St", City = "New Brunswick"}}
                     }
                 });
 
@@ -347,11 +337,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public TeamMember[] Team { get; set; }
         }
 
-        private class TeamMember
+        private class TeamMember : IComparable<TeamMember>
         {
             public string Name { get; set; }
             public int Age { get; set; }
             public Address Address { get; set; }
+
+            public int CompareTo(TeamMember other) => Age.CompareTo(other.Age);
         }
 
         private class Address

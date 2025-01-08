@@ -165,9 +165,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             if (enableClientSideProjections)
             {
-                var stages = Translate(collection, queryable, out var serializer);
-                AssertStages(stages, Array.Empty<string>());
-                serializer.Should().BeOfType<ClientSideProjectionDeserializer<DocumentWithArray, int>>();
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, "{ $project : { _snippets : ['$A'], _id : 0 } }");
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var exception = Record.Exception(() => queryable.ToList());
                 exception.Should().BeOfType<NotSupportedException>();
@@ -398,7 +398,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$A'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var exception = Record.Exception(() => queryable.ToList());
@@ -1660,7 +1660,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$A'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var exception = Record.Exception(() => queryable.ToList());
@@ -1892,7 +1892,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$A'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var exception = Record.Exception(() => queryable.ToList());
