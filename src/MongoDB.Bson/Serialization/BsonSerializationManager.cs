@@ -15,7 +15,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// A class that represents the BSON serialization functionality.
     /// </summary>
-    internal class BsonSerializationManager
+    internal class BsonSerializationManager : IBsonSerializationManager
     {
         // private fields
         private ReaderWriterLockSlim __configLock =
