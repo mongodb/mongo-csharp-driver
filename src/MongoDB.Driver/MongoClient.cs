@@ -45,13 +45,14 @@ namespace MongoDB.Driver
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
         private readonly ILogger<LogCategories.Client> _logger;
+        private readonly IBsonSerializerRegistry _serializerRegistry;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the MongoClient class.
         /// </summary>
-        public MongoClient()
-            : this(new MongoClientSettings())
+        public MongoClient(IBsonSerializerRegistry serializerRegistry = null)
+            : this(new MongoClientSettings(), serializerRegistry)
         {
         }
 
@@ -59,8 +60,10 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the MongoClient class.
         /// </summary>
         /// <param name="settings">The settings.</param>
-        public MongoClient(MongoClientSettings settings)
+        /// <param name="serializerRegistry"></param> //TODO
+        public MongoClient(MongoClientSettings settings, IBsonSerializerRegistry serializerRegistry = null)
         {
+            _serializerRegistry = serializerRegistry ?? BsonSerializer.SerializerRegistry;
             _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
             _logger = _settings.LoggingSettings?.CreateLogger<LogCategories.Client>();
 
@@ -83,8 +86,9 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the MongoClient class.
         /// </summary>
         /// <param name="url">The URL.</param>
-        public MongoClient(MongoUrl url)
-            : this(MongoClientSettings.FromUrl(url))
+        /// <param name="serializerRegistry"></param>  //TODO
+        public MongoClient(MongoUrl url, IBsonSerializerRegistry serializerRegistry = null)
+            : this(MongoClientSettings.FromUrl(url), serializerRegistry)
         {
         }
 
@@ -92,12 +96,13 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the MongoClient class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public MongoClient(string connectionString)
+        /// <param name="serializerRegistry"></param>  //TODO
+        public MongoClient(string connectionString, IBsonSerializerRegistry serializerRegistry = null)
             : this(MongoClientSettings.FromConnectionString(connectionString))
         {
         }
 
-        internal MongoClient(IOperationExecutor operationExecutor, MongoClientSettings settings)
+        internal MongoClient(IOperationExecutor operationExecutor, MongoClientSettings settings)  //TODO Do we need to add it here too..?
             : this(settings)
         {
             _operationExecutor = operationExecutor;
