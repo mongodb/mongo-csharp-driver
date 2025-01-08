@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 var wrappedValueSerializer = WrappedValueSerializer.Create(fieldName, serializer);
                 var input = getFieldExpression.Input;
 
-                if (input is AstVarExpression varExpression && varExpression.Name == "ROOT")
+                if (input.IsRootVar())
                 {
                     return (fieldName, wrappedValueSerializer);
                 }
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return
                 getFieldExpression.HasSafeFieldName(out _) &&
                 (
-                    (getFieldExpression.Input is AstVarExpression varExpression && varExpression.Name == "ROOT") ||
+                    (getFieldExpression.Input.IsRootVar()) ||
                     (getFieldExpression.Input is AstGetFieldExpression nestedGetFieldExpression && IsGetFieldChainWithSafeFieldNames(nestedGetFieldExpression))
                 );
         }

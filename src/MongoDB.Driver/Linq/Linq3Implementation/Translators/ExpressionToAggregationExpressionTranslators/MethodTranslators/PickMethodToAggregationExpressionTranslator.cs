@@ -260,8 +260,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             return
                 source is AstGetFieldExpression getFieldExpression &&
-                getFieldExpression.Input is AstVarExpression inputVarExpression &&
-                inputVarExpression.Name == "ROOT" &&
+                getFieldExpression.Input.IsRootVar() &&
                 getFieldExpression.FieldName is AstConstantExpression fieldNameConstantExpression &&
                 fieldNameConstantExpression.Value == "_elements";
         }
@@ -269,9 +268,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static bool IsValidKey(AggregationExpression keyTranslation)
         {
             if (keyTranslation.Ast is AstGetFieldExpression getFieldExpression &&
-                getFieldExpression.Input is AstVarExpression inputVarExpression &&
+                getFieldExpression.Input.IsRootVar() &&
                 getFieldExpression.FieldName is AstConstantExpression constantFieldName &&
-                inputVarExpression.Name == "ROOT" &&
                 constantFieldName.Value == "_id")
             {
                 return true;

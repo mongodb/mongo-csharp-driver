@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             {
                 throw new ArgumentException($"ValueType '{parameterSerializer.ValueType.FullName}' of parameterSerializer does not match parameter type '{parameterExpression.Type.FullName}'.", nameof(parameterSerializer));
             }
-            var parameterSymbol = context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true);
+            var parameterSymbol = context.CreateRootSymbol(parameterExpression, parameterSerializer);
             var lambdaContext = context.WithSymbol(parameterSymbol);
             var lambdaBody = ConvertHelper.RemoveConvertToObject(fieldSelectorLambda.Body);
             var fieldSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(lambdaContext, lambdaBody);

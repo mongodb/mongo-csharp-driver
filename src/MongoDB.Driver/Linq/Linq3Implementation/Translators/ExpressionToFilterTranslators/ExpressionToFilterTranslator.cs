@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             var parameterSymbol =
                 asRoot ?
-                    context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true) :
+                    context.CreateRootSymbol(parameterExpression, parameterSerializer) :
                     context.CreateSymbol(parameterExpression, parameterSerializer, isCurrent: true);
 
             var lambdaContext = context.WithSymbol(parameterSymbol);

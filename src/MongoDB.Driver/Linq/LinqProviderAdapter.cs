@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Linq
         {
             var context = TranslationContext.Create(expression, translationOptions); // do not partially evaluate expression
             var parameter = expression.Parameters.Single();
-            var symbol = context.CreateSymbolWithVarName(parameter, varName: "ROOT", documentSerializer, isCurrent: true);
+            var symbol = context.CreateRootSymbol(parameter, documentSerializer);
             context = context.WithSymbol(symbol);
             var setStage = ExpressionToSetStageTranslator.Translate(context, documentSerializer, expression);
             var simplifiedSetStage = AstSimplifier.SimplifyAndConvert(setStage);

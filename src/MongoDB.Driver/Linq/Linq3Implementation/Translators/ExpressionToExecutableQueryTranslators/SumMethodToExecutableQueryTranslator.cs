@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var arguments = expression.Arguments;
 
             if (method.IsOneOf(__sumMethods))
-            { 
+            {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
@@ -131,8 +131,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 else
                 {
                     Ensure.That(sourceSerializer is IWrappedValueSerializer, "Expected sourceSerializer to be an IWrappedValueSerializer.", nameof(sourceSerializer));
-                    var rootVar = AstExpression.Var("ROOT", isCurrent: true);
-                    valueAst = AstExpression.GetField(rootVar, "_v");
+                    valueAst = AstExpression.GetField(AstExpression.RootVar, "_v");
                 }
 
                 var outputValueType = expression.GetResultType();

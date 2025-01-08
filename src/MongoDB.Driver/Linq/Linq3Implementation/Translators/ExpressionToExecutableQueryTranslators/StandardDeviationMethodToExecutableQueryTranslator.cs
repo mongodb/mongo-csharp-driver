@@ -281,8 +281,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 }
                 else
                 {
-                    var root = AstExpression.Var("ROOT", isCurrent: true);
-                    valueAst = AstExpression.GetField(root, "_v");
+                    valueAst = AstExpression.GetField(AstExpression.RootVar, "_v");
                 }
                 var outputValueType = expression.GetResultType();
                 var outputValueSerializer = BsonSerializer.LookupSerializer(outputValueType);

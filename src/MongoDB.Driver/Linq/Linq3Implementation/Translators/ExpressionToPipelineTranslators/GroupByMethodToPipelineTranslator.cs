@@ -113,16 +113,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             }
             else
             {
-                var rootVar = AstExpression.Var("ROOT", isCurrent: true);
-
                 if (sourceSerializer is IWrappedValueSerializer wrappedSerializer)
                 {
-                    elementAst = AstExpression.GetField(rootVar, wrappedSerializer.FieldName);
+                    elementAst = AstExpression.GetField(AstExpression.RootVar, wrappedSerializer.FieldName);
                     elementSerializer = wrappedSerializer.ValueSerializer;
                 }
                 else
                 {
-                    elementAst = rootVar;
+                    elementAst = AstExpression.RootVar;
                     elementSerializer = sourceSerializer;
                 }
             }
@@ -138,12 +136,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             IBsonSerializer elementSerializer)
         {
             var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments.Last());
-            var root = AstExpression.Var("ROOT", isCurrent: true);
             var keyParameter = resultSelectorLambda.Parameters[0];
-            var keyField = AstExpression.GetField(root, "_id");
+            var keyField = AstExpression.GetField(AstExpression.RootVar, "_id");
             var keySymbol = context.CreateSymbol(keyParameter, keyField, keySerializer);
             var elementsParameter = resultSelectorLambda.Parameters[1];
-            var elementsField = AstExpression.GetField(root, "_elements");
+            var elementsField = AstExpression.GetField(AstExpression.RootVar, "_elements");
             var elementsSerializer = IEnumerableSerializer.Create(elementSerializer);
             var elementsSymbol = context.CreateSymbol(elementsParameter, elementsField, elementsSerializer);
             var resultSelectContext = context.WithSymbols(keySymbol, elementsSymbol);

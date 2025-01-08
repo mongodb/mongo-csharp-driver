@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
             var parameterSymbol =
                 asRoot ?
-                    context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true) :
+                    context.CreateRootSymbol(parameterExpression, parameterSerializer) :
                     context.CreateSymbol(parameterExpression, parameterSerializer, isCurrent: false);
 
             return TranslateLambdaBody(context, lambdaExpression, parameterSymbol);

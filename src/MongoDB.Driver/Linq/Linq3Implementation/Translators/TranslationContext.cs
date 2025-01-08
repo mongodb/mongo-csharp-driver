@@ -61,6 +61,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
 
         // public methods
+        public Symbol CreateRootSymbol(ParameterExpression parameter, IBsonSerializer serializer)
+        {
+            return CreateSymbolWithVarName(parameter, varName: "ROOT", serializer, isCurrent: true);
+        }
+
         public Symbol CreateSymbol(ParameterExpression parameter, IBsonSerializer serializer, bool isCurrent = false)
         {
             var parameterName = _nameGenerator.GetParameterName(parameter);

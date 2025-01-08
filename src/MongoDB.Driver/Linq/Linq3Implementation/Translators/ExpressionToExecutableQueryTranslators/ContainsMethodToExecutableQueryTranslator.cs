@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                         wrappedValueSerializer,
                         AstStage.Project(
                             AstProject.ExcludeId(),
-                            AstProject.Set("_v", AstExpression.Var("ROOT"))));
+                            AstProject.Set("_v", AstExpression.RootVar)));
                 }
 
                 var itemExpression = arguments[1];

@@ -66,7 +66,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 var sourceSerializer = pipeline.OutputSerializer;
-                var root = AstExpression.Var("ROOT", isCurrent: true);
                 AstExpression valueAst;
                 IBsonSerializer valueSerializer;
                 if (method.IsOneOf(__maxWithSelectorMethods))
@@ -86,7 +85,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 }
                 else
                 {
-                    valueAst = root;
+                    valueAst = AstExpression.RootVar;
                     valueSerializer = pipeline.OutputSerializer;
                 }
 
@@ -95,7 +94,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.AccumulatorField("_max", AstUnaryAccumulatorOperator.Max, valueAst)),
-                    AstStage.ReplaceRoot(AstExpression.GetField(root, "_max")));
+                    AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_max")));
 
                 return ExecutableQuery.Create(
                     provider,

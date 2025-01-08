@@ -35,6 +35,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static bool IsMaxInt32(this AstExpression expression)
             => expression.IsInt32Constant(out var value) && value == int.MaxValue;
 
+        public static bool IsRootVar(this AstExpression expression)
+            => expression is AstVarExpression varExpression && varExpression.Name == "ROOT" && varExpression.IsCurrent;
+
        public static bool IsZero(this AstExpression expression)
             => expression is AstConstantExpression constantExpression && constantExpression.Value == 0;
     }
