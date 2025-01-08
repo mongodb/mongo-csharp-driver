@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Search
         {
             var searchPathDefinition = (SingleSearchPathDefinition<TDocument>)_path;
             var renderedField = searchPathDefinition.Field.Render(args);
-            var serializer = renderedField.FieldSerializer switch
+            var valueSerializer = renderedField.FieldSerializer switch
             {
                 null => BsonSerializer.LookupSerializer<TField>(),
                 IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedField.FieldSerializer),
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Search
             var context = BsonSerializationContext.CreateRoot(bsonWriter);
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName("value");
-            serializer.Serialize(context, _value);
+            valueSerializer.Serialize(context, _value);
             bsonWriter.WriteEndDocument();
 
             return document;
@@ -239,12 +239,12 @@ namespace MongoDB.Driver.Search
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
         {
-            IBsonSerializer serializer;
+            IBsonSerializer valueSerializer;
 
             if (_path is SingleSearchPathDefinition<TDocument> searchPathDefinition)
             {
                 var renderedField = searchPathDefinition.Field.Render(args);
-                serializer = renderedField.FieldSerializer switch
+                valueSerializer = renderedField.FieldSerializer switch
                 {
                     null => new ArraySerializer<TField>(BsonSerializer.LookupSerializer<TField>()),
                     IBsonArraySerializer => renderedField.FieldSerializer,
@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Search
             }
             else
             {
-                serializer = new ArraySerializer<TField>(BsonSerializer.LookupSerializer<TField>());
+                valueSerializer = new ArraySerializer<TField>(BsonSerializer.LookupSerializer<TField>());
             }
 
             var document = new BsonDocument();
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Search
             var context = BsonSerializationContext.CreateRoot(bsonWriter);
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName("value");
-            serializer.Serialize(context, _values);
+            valueSerializer.Serialize(context, _values);
             bsonWriter.WriteEndDocument();
 
             return document;
@@ -377,7 +377,7 @@ namespace MongoDB.Driver.Search
         {
             var searchPathDefinition = (SingleSearchPathDefinition<TDocument>)_path;
             var renderedField = searchPathDefinition.Field.Render(args);
-            var serializer = renderedField.FieldSerializer switch
+            var valueSerializer = renderedField.FieldSerializer switch
             {
                 null => BsonSerializer.LookupSerializer<TField>(),
                 IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedField.FieldSerializer),
@@ -391,12 +391,12 @@ namespace MongoDB.Driver.Search
             if (_range.Min is not null)
             {
                 bsonWriter.WriteName(_range.IsMinInclusive? "gte" : "gt");
-                serializer.Serialize(context, _range.Min);
+                valueSerializer.Serialize(context, _range.Min);
             }
             if (_range.Max is not null)
             {
                 bsonWriter.WriteName(_range.IsMaxInclusive? "lte" : "lt");
-                serializer.Serialize(context, _range.Max);
+                valueSerializer.Serialize(context, _range.Max);
             }
             bsonWriter.WriteEndDocument();
 
