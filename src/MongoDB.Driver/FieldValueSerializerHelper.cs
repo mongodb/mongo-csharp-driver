@@ -323,12 +323,6 @@ namespace MongoDB.Driver
                 _itemSerializer = itemSerializer;
             }
 
-            public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
-            {
-                serializationInfo = new BsonSerializationInfo(null, _itemSerializer, typeof(TItem));
-                return true;
-            }
-
             public override bool Equals(object obj)
             {
                 if (object.ReferenceEquals(obj, null)) { return false; }
@@ -357,6 +351,12 @@ namespace MongoDB.Driver
                     }
                     bsonWriter.WriteEndArray();
                 }
+            }
+
+            public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
+            {
+                serializationInfo = new BsonSerializationInfo(null, _itemSerializer, typeof(TItem));
+                return true;
             }
         }
 
