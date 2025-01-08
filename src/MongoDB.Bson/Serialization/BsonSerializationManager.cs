@@ -15,7 +15,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// A class that represents the BSON serialization functionality.
     /// </summary>
-    public class BsonSerializerManager
+    internal class BsonSerializationManager
     {
         // private fields
         private ReaderWriterLockSlim __configLock =
@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Serialization
         private bool __useZeroIdChecker = false;
 
         // constructor
-        BsonSerializerManager()
+        public BsonSerializationManager()
         {
             CreateSerializerRegistry();
             RegisterIdGenerators();
