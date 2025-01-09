@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>StringSearchRange.</returns>
         public static StringSearchRange Gt(this StringSearchRange stringSearchRange, string value)
-            => new(min: value, stringSearchRange.Max, isMinInclusive: false, stringSearchRange.IsMaxInclusive);
+            => new(min: value, max: stringSearchRange.Max, isMinInclusive: false, isMaxInclusive: stringSearchRange.IsMaxInclusive);
         
         /// <summary>
         /// Creates a greater than or equal to string search range.
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>StringSearchRange.</returns>
         public static StringSearchRange Gte(this StringSearchRange stringSearchRange, string value)
-            => new(min: value, stringSearchRange.Max, isMinInclusive: true, stringSearchRange.IsMaxInclusive);
+            => new(min: value, max: stringSearchRange.Max, isMinInclusive: true, isMaxInclusive: stringSearchRange.IsMaxInclusive);
         
         /// <summary>
         /// Creates a less than string search range.
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>StringSearchRange.</returns>
         public static StringSearchRange Lt(this StringSearchRange stringSearchRange, string value)
-            => new(stringSearchRange.Min, max: value, stringSearchRange.IsMinInclusive, false);
+            => new(min: stringSearchRange.Min, max: value, isMinInclusive: stringSearchRange.IsMinInclusive, isMaxInclusive: false);
         
         /// <summary>
         /// Creates a less than or equal to string search range.
@@ -124,6 +124,6 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>StringSearchRange.</returns>
         public static StringSearchRange Lte(this StringSearchRange stringSearchRange, string value)
-            => new(stringSearchRange.Min, max: value, stringSearchRange.IsMinInclusive, true);
+            => new(min: stringSearchRange.Min, max: value, isMinInclusive: stringSearchRange.IsMinInclusive, isMaxInclusive: true);
     }
 }
