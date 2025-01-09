@@ -1154,7 +1154,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var parameter = filter.Parameters.Single();
-            var context = TranslationContext.Create(filter, translationOptions: null);
+            var context = TranslationContext.Create(translationOptions: null, serializer);
             var symbol = context.CreateSymbol(parameter, serializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var filterAst = ExpressionToFilterTranslator.Translate(context, filter.Body);

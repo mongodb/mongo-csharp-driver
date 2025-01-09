@@ -13,12 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
@@ -26,36 +28,40 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
     {
         #region static
         public static TranslationContext Create(
-            Expression expression,
             ExpressionTranslationOptions translationOptions,
+            IBsonSerializer knownSerializer,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(symbolTable, nameGenerator, translationOptions, data);
+            return new TranslationContext(translationOptions, [knownSerializer], symbolTable, nameGenerator, data);
         }
         #endregion
 
         // private fields
         private readonly TranslationContextData _data;
+        private readonly IReadOnlyList<IBsonSerializer> _knownSerializers;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
+            ExpressionTranslationOptions translationOptions,
+            IEnumerable<IBsonSerializer> knownSerializers,
             SymbolTable symbolTable,
             NameGenerator nameGenerator,
-            ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
-            _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
+            _knownSerializers = knownSerializers?.AsReadOnlyList() ?? [];
+            _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
             _data = data; // can be null
         }
 
         // public properties
         public TranslationContextData Data => _data;
+        public IReadOnlyList<IBsonSerializer> KnownSerializers => _knownSerializers;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
@@ -96,15 +102,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return CreateSymbol(parameter, name: parameterName, varName, serializer, isCurrent);
         }
 
+        public IBsonSerializer GetKnownSerializer(Type type)
+            => _knownSerializers?.FirstOrDefault(serializer => serializer.ValueType == type);
+
         public override string ToString()
         {
             return $"{{ SymbolTable : {_symbolTable} }}";
         }
 
-        public TranslationContext WithData(string key, object value)
+        public TranslationContext WithKnownSerializer(IBsonSerializer serializer)
         {
-            var data = _data == null ? new TranslationContextData(key, value) : _data.With(key, value);
-            return new TranslationContext(_symbolTable, _nameGenerator, _translationOptions, data);
+            var knownSerializers = _knownSerializers.Prepend(serializer).AsReadOnlyList();
+            return new TranslationContext(_translationOptions, knownSerializers, _symbolTable, _nameGenerator, _data);
         }
 
         public TranslationContext WithSingleSymbol(Symbol newSymbol)
@@ -127,7 +136,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(symbolTable, _nameGenerator, _translationOptions, _data);
+            return new TranslationContext(_translationOptions, _knownSerializers, symbolTable, _nameGenerator, _data);
         }
     }
 }

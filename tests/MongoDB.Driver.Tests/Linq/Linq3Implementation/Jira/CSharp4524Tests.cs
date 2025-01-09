@@ -16,7 +16,6 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -67,10 +66,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         public struct SpawnData
         {
-            [BsonElement] public readonly DateTime Date;
-            [BsonElement] public readonly SpawnPeriod Period;
+            public readonly DateTime Date;
+            public readonly SpawnPeriod Period;
 
-            [BsonConstructor]
             public SpawnData(DateTime date, SpawnPeriod period)
             {
                 // Normally there is more complex handling here, value-type semantics are important, there are custom comparison operators, etc. hence the point of this struct.

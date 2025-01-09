@@ -27,12 +27,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         {
         }
 
-        public TranslationContextData(string key, object value)
-            : this(new Dictionary<string, object>())
-        {
-            _data[key] = value;
-        }
-
         private TranslationContextData(Dictionary<string, object> data)
         {
             _data = Ensure.IsNotNull(data, nameof(data));
@@ -48,10 +42,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return _data.TryGetValue(key, out var value) ? (TValue)value : defaultValue;
         }
 
-        public TranslationContextData With(string key, object value)
+        public TranslationContextData With<TValue>(string key, TValue value)
         {
             var clonedData = new Dictionary<string, object>(_data);
-            clonedData[key] = value;
+            clonedData.Add(key, value);
             return new TranslationContextData(clonedData);
         }
     }

@@ -14,7 +14,6 @@
 */
 
 using FluentAssertions;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -167,7 +166,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         private class View2
         {
-            [BsonConstructor]
             public View2(string id)
             {
                 Id = id;
