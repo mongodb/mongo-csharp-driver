@@ -29,39 +29,34 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         #region static
         public static TranslationContext Create(
             ExpressionTranslationOptions translationOptions,
-            IBsonSerializer knownSerializer,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(translationOptions, [knownSerializer], symbolTable, nameGenerator, data);
+            return new TranslationContext(translationOptions, symbolTable, nameGenerator, data);
         }
         #endregion
 
         // private fields
         private readonly TranslationContextData _data;
-        private readonly IReadOnlyList<IBsonSerializer> _knownSerializers;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
             ExpressionTranslationOptions translationOptions,
-            IEnumerable<IBsonSerializer> knownSerializers,
             SymbolTable symbolTable,
             NameGenerator nameGenerator,
             TranslationContextData data = null)
         {
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
-            _knownSerializers = knownSerializers?.AsReadOnlyList() ?? [];
             _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
             _data = data; // can be null
         }
 
         // public properties
         public TranslationContextData Data => _data;
-        public IReadOnlyList<IBsonSerializer> KnownSerializers => _knownSerializers;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
@@ -102,19 +97,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             return CreateSymbol(parameter, name: parameterName, varName, serializer, isCurrent);
         }
 
-        public IBsonSerializer GetKnownSerializer(Type type)
-            => _knownSerializers?.FirstOrDefault(serializer => serializer.ValueType == type);
-
         public override string ToString()
         {
             return $"{{ SymbolTable : {_symbolTable} }}";
-        }
-
-        public TranslationContext WithKnownSerializer(IBsonSerializer serializer)
-        {
-            Ensure.IsNotNull(serializer, nameof(serializer));
-            var knownSerializers = _knownSerializers.Prepend(serializer).AsReadOnlyList();
-            return new TranslationContext(_translationOptions, knownSerializers, _symbolTable, _nameGenerator, _data);
         }
 
         public TranslationContext WithSingleSymbol(Symbol newSymbol)
@@ -137,7 +122,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(_translationOptions, _knownSerializers, symbolTable, _nameGenerator, _data);
+            return new TranslationContext(_translationOptions, symbolTable, _nameGenerator, _data);
         }
     }
 }

@@ -28,26 +28,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class MemberInitExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression, IBsonSerializer resultSerializer)
         {
             if (expression.Type == typeof(BsonDocument))
             {
                 return NewBsonDocumentExpressionToAggregationExpressionTranslator.Translate(context, expression);
             }
 
-            return Translate(context, expression, expression.NewExpression, expression.Bindings);
+            return Translate(context, expression, expression.NewExpression, expression.Bindings, resultSerializer);
         }
 
         public static AggregationExpression Translate(
             TranslationContext context,
             Expression expression,
             NewExpression newExpression,
-            IReadOnlyList<MemberBinding> bindings)
+            IReadOnlyList<MemberBinding> bindings,
+            IBsonSerializer resultSerializer)
         {
-            var targetSerializer = context.GetKnownSerializer(newExpression.Type);
-            if (targetSerializer != null)
+            if (resultSerializer != null)
             {
-                return TranslateWithTargetSerializer(context, expression, newExpression, bindings, targetSerializer);
+                return TranslateWithTargetSerializer(context, expression, newExpression, bindings, resultSerializer);
             }
 
             var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
@@ -111,18 +111,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             Expression expression,
             NewExpression newExpression,
             IReadOnlyList<MemberBinding> bindings,
-            IBsonSerializer targetSerializer)
+            IBsonSerializer resultSerializer)
         {
-            if (!(targetSerializer is IBsonDocumentSerializer documentSerializer))
+            if (!(resultSerializer is IBsonDocumentSerializer documentSerializer))
             {
-                throw new ExpressionNotSupportedException(expression, because: $"serializer class {targetSerializer.GetType()} does not implement IBsonDocumentSerializer.");
+                throw new ExpressionNotSupportedException(expression, because: $"serializer class {resultSerializer.GetType()} does not implement IBsonDocumentSerializer.");
             }
 
             var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
             var constructorArguments = newExpression.Arguments;
             var computedFields = new List<AstComputedField>();
 
-            if (constructorInfo != null && constructorInfo.GetParameters().Length > 0)
+            if (constructorInfo != null && constructorArguments.Count > 0)
             {
                 var constructorParameters = constructorInfo.GetParameters();
 
@@ -147,8 +147,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         throw new ExpressionNotSupportedException(expression, because: $"couldn't find matching class member for constructor parameter {parameterName}");
                     }
 
-                    var argumentContext = context.WithKnownSerializer(memberSerializer);
-                    var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(argumentContext, argumentExpression);
+                    var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression, memberSerializer);
                     computedFields.Add(AstExpression.ComputedField(elementName, argumentTranslation.Ast));
                 }
             }
@@ -156,20 +155,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             foreach (var binding in bindings)
             {
                 var memberAssignment = (MemberAssignment)binding;
-                var valueExpression = memberAssignment.Expression;
                 var member = memberAssignment.Member;
+                var valueExpression = memberAssignment.Expression;
                 if (!documentSerializer.TryGetMemberSerializationInfo(member.Name, out var memberSerializationInfo))
                 {
                     throw new ExpressionNotSupportedException(valueExpression, expression, because: $"couldn't find member {member.Name}");
                 }
+                var memberSerializer = memberSerializationInfo.Serializer;
 
-                var valueContext = context.WithKnownSerializer(memberSerializationInfo.Serializer);
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(valueContext, valueExpression);
+                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression, memberSerializer);
                 computedFields.Add(AstExpression.ComputedField(memberSerializationInfo.ElementName, valueTranslation.Ast));
             }
 
             var ast = AstExpression.ComputedDocument(computedFields);
-
             return new AggregationExpression(expression, ast, documentSerializer);
         }
 
@@ -273,7 +271,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             IBsonDocumentSerializer documentSerializer,
             string constructorParameterName)
         {
-            // if we have a creatorMap use it
+            // if we have a classMap use it
             if (classMap != null)
             {
                 var memberMap = FindMemberMap(expression, classMap, memberName);

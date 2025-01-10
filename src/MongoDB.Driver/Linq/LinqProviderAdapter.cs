@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq
             TranslationContextData contextData = null)
         {
             expression = (Expression<Func<TSource, TResult>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(translationOptions, sourceSerializer, contextData);
+            var context = TranslationContext.Create(translationOptions, contextData);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, sourceSerializer, asRoot: true);
             var simplifiedAst = AstSimplifier.Simplify(translation.Ast);
 
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Linq
         {
             expression = (LambdaExpression)PartialEvaluator.EvaluatePartially(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(translationOptions, documentSerializer);
+            var context = TranslationContext.Create(translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var body = RemovePossibleConvertToObject(expression.Body);
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Linq
         {
             expression = (Expression<Func<TDocument, TField>>)PartialEvaluator.EvaluatePartially(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(translationOptions, documentSerializer);
+            var context = TranslationContext.Create(translationOptions);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression.Body);
@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions)
         {
             expression = (Expression<Func<TElement, bool>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(translationOptions, elementSerializer);
+            var context = TranslationContext.Create(translationOptions);
             var parameter = expression.Parameters.Single();
             var symbol = context.CreateSymbol(parameter, "@<elem>", elementSerializer);  // @<elem> represents the implied element
             context = context.WithSingleSymbol(symbol); // @<elem> is the only symbol visible inside an $elemMatch
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Linq
             ExpressionTranslationOptions translationOptions)
         {
             expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(translationOptions, documentSerializer);
+            var context = TranslationContext.Create(translationOptions);
             var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer, asRoot: true);
             filter = AstSimplifier.SimplifyAndConvert(filter);
 
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Linq
             }
 
             expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(translationOptions, inputSerializer);
+            var context = TranslationContext.Create(translationOptions);
 
             try
             {
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            var context = TranslationContext.Create(translationOptions, documentSerializer); // do not partially evaluate expression
+            var context = TranslationContext.Create(translationOptions); // do not partially evaluate expression
             var parameter = expression.Parameters.Single();
             var symbol = context.CreateSymbolWithVarName(parameter, varName: "ROOT", documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);

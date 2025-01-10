@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     internal static class ExpressionToAggregationExpressionTranslator
     {
         // public static methods
-        public static AggregationExpression Translate(TranslationContext context, Expression expression)
+        public static AggregationExpression Translate(TranslationContext context, Expression expression, IBsonSerializer resultSerializer = null)
         {
             switch (expression.NodeType)
             {
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case ExpressionType.Conditional:
                     return ConditionalExpressionToAggregationExpressionTranslator.Translate(context, (ConditionalExpression)expression);
                 case ExpressionType.Constant:
-                    return ConstantExpressionToAggregationExpressionTranslator.Translate(context, (ConstantExpression)expression);
+                    return ConstantExpressionToAggregationExpressionTranslator.Translate((ConstantExpression)expression, resultSerializer);
                 case ExpressionType.Index:
                     return IndexExpressionToAggregationExpressionTranslator.Translate(context, (IndexExpression)expression);
                 case ExpressionType.ListInit:
@@ -75,13 +75,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case ExpressionType.MemberAccess:
                     return MemberExpressionToAggregationExpressionTranslator.Translate(context, (MemberExpression)expression);
                 case ExpressionType.MemberInit:
-                    return MemberInitExpressionToAggregationExpressionTranslator.Translate(context, (MemberInitExpression)expression);
+                    return MemberInitExpressionToAggregationExpressionTranslator.Translate(context, (MemberInitExpression)expression, resultSerializer);
                 case ExpressionType.Negate:
                     return NegateExpressionToAggregationExpressionTranslator.Translate(context, (UnaryExpression)expression);
                 case ExpressionType.New:
-                    return NewExpressionToAggregationExpressionTranslator.Translate(context, (NewExpression)expression);
+                    return NewExpressionToAggregationExpressionTranslator.Translate(context, (NewExpression)expression, resultSerializer);
                 case ExpressionType.NewArrayInit:
-                    return NewArrayInitExpressionToAggregationExpressionTranslator.Translate(context, (NewArrayExpression)expression);
+                    return NewArrayInitExpressionToAggregationExpressionTranslator.Translate(context, (NewArrayExpression)expression, resultSerializer);
                 case ExpressionType.Parameter:
                     return ParameterExpressionToAggregationExpressionTranslator.Translate(context, (ParameterExpression)expression);
                 case ExpressionType.TypeIs:

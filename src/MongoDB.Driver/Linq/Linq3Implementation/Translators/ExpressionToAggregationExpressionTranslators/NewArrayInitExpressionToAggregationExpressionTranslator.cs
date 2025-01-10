@@ -24,36 +24,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class NewArrayInitExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, NewArrayExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, NewArrayExpression expression, IBsonSerializer resultSerializer)
         {
             IBsonArraySerializer arraySerializer = null;
             IBsonSerializer itemSerializer = null;
 
-            var targetSerializer = context.GetKnownSerializer(expression.Type);
-            if (targetSerializer != null)
+            if (resultSerializer != null)
             {
-                if ((arraySerializer = targetSerializer as IBsonArraySerializer) == null)
+                if ((arraySerializer = resultSerializer as IBsonArraySerializer) == null)
                 {
-                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {targetSerializer} does not implement IBsonArraySerializer");
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {resultSerializer} does not implement IBsonArraySerializer");
                 }
                 if (!arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                 {
-                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {targetSerializer} returned false for TryGetItemSerializationInfo");
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {resultSerializer} returned false for TryGetItemSerializationInfo");
                 }
 
                 itemSerializer = itemSerializationInfo.Serializer;
             }
 
             var items = new List<AstExpression>();
-            var itemContext = itemSerializer == null ? context : context.WithKnownSerializer(itemSerializer);
             foreach (var itemExpression in expression.Expressions)
             {
-                var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(itemContext, itemExpression);
+                var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, itemExpression, itemSerializer);
                 items.Add(itemTranslation.Ast);
                 if (itemSerializer == null)
                 {
                     itemSerializer = itemTranslation.Serializer;
-                    itemContext = context.WithKnownSerializer(itemSerializer);
                 }
 
                 // make sure all items are serialized using the same serializer

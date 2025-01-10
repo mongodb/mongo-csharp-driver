@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 updateError.Render(new(coll.DocumentSerializer, BsonSerializer.SerializerRegistry))
                     .AsBsonArray
                     .Cast<BsonDocument>();
-            AssertStages(updateStages, "{ $set : { A : ['2', { $arrayElemAt : ['$A', '0'] }] } }");
+            AssertStages(updateStages, "{ $set : { A : ['2', { $arrayElemAt : ['$A', 0] }] } }");
 
             coll.UpdateOne(filter, updateError, new() { IsUpsert = true });
         }

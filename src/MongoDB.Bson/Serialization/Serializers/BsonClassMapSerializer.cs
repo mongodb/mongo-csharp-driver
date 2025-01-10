@@ -24,12 +24,12 @@ using MongoDB.Bson.Serialization.Serializers;
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    ///
+    /// An interface implemented by BsonClassMapSerializer.
     /// </summary>
     public interface IBsonClassMapSerializer
     {
         /// <summary>
-        ///
+        /// Gets the class map for a BsonClassMapSerializer.
         /// </summary>
         public BsonClassMap ClassMap { get; }
     }

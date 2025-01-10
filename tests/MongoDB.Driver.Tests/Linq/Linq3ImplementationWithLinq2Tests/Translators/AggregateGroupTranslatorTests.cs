@@ -546,7 +546,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                 .GroupBy(idProjector)
                 .Select(groupProjector);
 
-            var context = TranslationContext.Create(translationOptions: null, __collection.DocumentSerializer);
+            var context = TranslationContext.Create(translationOptions: null);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, queryable.Expression);
             var optimizedAstPipeline = AstPipelineOptimizer.Optimize(pipeline.Ast);
             pipeline = new TranslatedPipeline(optimizedAstPipeline, pipeline.OutputSerializer);

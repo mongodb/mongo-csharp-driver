@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             out IBsonSerializer<TOutput> outputSerializer)
         {
             var partiallyEvaluatedOutput = (Expression<Func<TGrouping, TOutput>>)PartialEvaluator.EvaluatePartially(_output);
-            var context = TranslationContext.Create(translationOptions, inputSerializer);
+            var context = TranslationContext.Create(translationOptions);
             var outputTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, partiallyEvaluatedOutput, inputSerializer, asRoot: true);
             var (projectStage, projectSerializer) = ProjectionHelper.CreateProjectStage(outputTranslation);
             outputSerializer = (IBsonSerializer<TOutput>)projectSerializer;
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             out IBsonSerializer<IGrouping<TValue, TInput>> groupingOutputSerializer)
         {
             var partiallyEvaluatedGroupBy = (Expression<Func<TInput, TValue>>)PartialEvaluator.EvaluatePartially(_groupBy);
-            var context = TranslationContext.Create(translationOptions, inputSerializer);
+            var context = TranslationContext.Create(translationOptions);
             var groupByTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, partiallyEvaluatedGroupBy, inputSerializer, asRoot: true);
 
             var valueSerializer = (IBsonSerializer<TValue>)groupByTranslation.Serializer;
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             out IBsonSerializer<IGrouping<AggregateBucketAutoResultId<TValue>, TInput>> groupingOutputSerializer)
         {
             var partiallyEvaluatedGroupBy = (Expression<Func<TInput, TValue>>)PartialEvaluator.EvaluatePartially(_groupBy);
-            var context = TranslationContext.Create(translationOptions, inputSerializer);
+            var context = TranslationContext.Create(translationOptions);
             var groupByTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, partiallyEvaluatedGroupBy, inputSerializer, asRoot: true);
 
             var valueSerializer = (IBsonSerializer<TValue>)groupByTranslation.Serializer;
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             out IBsonSerializer<IGrouping<TValue, TInput>> groupingOutputSerializer)
         {
             var partiallyEvaluatedGroupBy = (Expression<Func<TInput, TValue>>)PartialEvaluator.EvaluatePartially(_groupBy);
-            var context = TranslationContext.Create(translationOptions, inputSerializer);
+            var context = TranslationContext.Create(translationOptions);
             var groupByTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, partiallyEvaluatedGroupBy, inputSerializer, asRoot: true);
             var pushElements = AstExpression.AccumulatorField("_elements", AstUnaryAccumulatorOperator.Push, AstExpression.Var("ROOT", isCurrent: true));
             var groupBySerializer = (IBsonSerializer<TValue>)groupByTranslation.Serializer;
