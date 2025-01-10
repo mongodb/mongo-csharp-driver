@@ -112,6 +112,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithKnownSerializer(IBsonSerializer serializer)
         {
+            Ensure.IsNotNull(serializer, nameof(serializer));
             var knownSerializers = _knownSerializers.Prepend(serializer).AsReadOnlyList();
             return new TranslationContext(_translationOptions, knownSerializers, _symbolTable, _nameGenerator, _data);
         }

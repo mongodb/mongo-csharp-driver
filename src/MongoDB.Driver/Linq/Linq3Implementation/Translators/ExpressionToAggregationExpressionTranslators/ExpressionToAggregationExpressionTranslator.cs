@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case ExpressionType.Conditional:
                     return ConditionalExpressionToAggregationExpressionTranslator.Translate(context, (ConditionalExpression)expression);
                 case ExpressionType.Constant:
-                    return ConstantExpressionToAggregationExpressionTranslator.Translate((ConstantExpression)expression);
+                    return ConstantExpressionToAggregationExpressionTranslator.Translate(context, (ConstantExpression)expression);
                 case ExpressionType.Index:
                     return IndexExpressionToAggregationExpressionTranslator.Translate(context, (IndexExpression)expression);
                 case ExpressionType.ListInit:
