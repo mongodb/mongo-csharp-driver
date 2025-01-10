@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public static class BsonSerializer
     {
-        private static readonly BsonSerializationDomain _domain;
+        private static readonly IBsonSerializationDomainInternal _domain;
 
         // static constructor
         static BsonSerializer()
@@ -34,6 +34,7 @@ namespace MongoDB.Bson.Serialization
             _domain = new BsonSerializationDomain();
         }
 
+        //TODO This will need to be public
         internal static IBsonSerializationDomain Domain => _domain;
 
         // public static properties

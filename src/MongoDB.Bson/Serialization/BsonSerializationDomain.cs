@@ -15,7 +15,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// A class that represents the BSON serialization functionality.
     /// </summary>
-    internal class BsonSerializationDomain : IBsonSerializationDomain, IDisposable
+    internal class BsonSerializationDomain : IBsonSerializationDomainInternal, IDisposable
     {
         // private fields
         private ReaderWriterLockSlim __configLock =
@@ -76,7 +76,7 @@ namespace MongoDB.Bson.Serialization
         }
 
         // internal properties
-        internal ReaderWriterLockSlim ConfigLock
+        public ReaderWriterLockSlim ConfigLock
         {
             get { return __configLock; }
         }
@@ -274,7 +274,7 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
-        internal IDiscriminatorConvention GetOrRegisterDiscriminatorConvention(Type type,
+        public IDiscriminatorConvention GetOrRegisterDiscriminatorConvention(Type type,
             IDiscriminatorConvention discriminatorConvention)
         {
             __configLock.EnterReadLock();
@@ -307,7 +307,7 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
-        internal bool IsDiscriminatorConventionRegisteredAtThisLevel(Type type)
+        public bool IsDiscriminatorConventionRegisteredAtThisLevel(Type type)
         {
             __configLock.EnterReadLock();
             try
@@ -756,7 +756,7 @@ namespace MongoDB.Bson.Serialization
         }
 
         // internal methods
-        internal void EnsureKnownTypesAreRegistered(Type nominalType)
+        public void EnsureKnownTypesAreRegistered(Type nominalType)
         {
             if (__typesWithRegisteredKnownTypes.ContainsKey(nominalType))
             {
