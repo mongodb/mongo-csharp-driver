@@ -5,7 +5,7 @@ using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Serialization;
 
-internal interface IBsonSerializationManager
+internal interface IBsonSerializationDomain
 {
     /// <summary>
     /// Gets the serializer registry.
