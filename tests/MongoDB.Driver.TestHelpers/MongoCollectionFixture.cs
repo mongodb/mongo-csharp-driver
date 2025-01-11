@@ -39,12 +39,6 @@ namespace MongoDB.Driver.TestHelpers
 
         public virtual bool ResetOnEachTestCase => false;
 
-        public override void Dispose()
-        {
-            GetDatabase().DropCollection(_collectionName);
-            base.Dispose();
-        }
-
         public override IMongoCollection<T> GetCollection<T>(string collectionName = null)
         {
             if (typeof(T) != typeof(TDocument))
