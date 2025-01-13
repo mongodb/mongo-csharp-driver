@@ -36,7 +36,8 @@ namespace MongoDB.Bson.Serialization
         {
             _writer = writer;
             _isDynamicType = isDynamicType;
-            _domain = domain ?? BsonSerializer.DefaultDomain;  //TODO Should we do it here or higher in the hierarchy...?
+            _domain = domain;
+            // _domain = domain ?? BsonSerializer.DefaultDomain;  //TODO We could do this here, but let's keep it as the previous line to catch errors.
         }
 
         // public properties
