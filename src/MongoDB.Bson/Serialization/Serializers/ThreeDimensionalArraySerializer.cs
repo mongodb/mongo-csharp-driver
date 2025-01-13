@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ThreeDimensionalArraySerializer{TItem}"/> class.
         /// </summary>
         public ThreeDimensionalArraySerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)   //TODO Need a new constructor that takes the domain as input
         {
         }
 

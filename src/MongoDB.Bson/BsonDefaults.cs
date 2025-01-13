@@ -34,7 +34,7 @@ namespace MongoDB.Bson
 
         // public static properties
         /// <summary>
-        /// Gets or sets the dynamic array serializer.  //TODO What to we do with this?
+        /// Gets or sets the dynamic array serializer.
         /// </summary>
         public static IBsonSerializer DynamicArraySerializer
         {
@@ -42,7 +42,7 @@ namespace MongoDB.Bson
             {
                 if (!__dynamicArraySerializerWasSet)
                 {
-                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();
+                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();  //TODO I think we could keep this as is
                 }
                 return __dynamicArraySerializer;
             }
@@ -62,7 +62,7 @@ namespace MongoDB.Bson
             {
                 if (!__dynamicDocumentSerializerWasSet)
                 {
-                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();
+                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();   //TODO I think we could keep this as is
                 }
                 return __dynamicDocumentSerializer;
             }

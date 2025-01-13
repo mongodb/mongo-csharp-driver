@@ -59,6 +59,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="dictionaryRepresentation">The dictionary representation.</param>
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation)
             : this(dictionaryRepresentation, BsonSerializer.LookupSerializer<object>(), BsonSerializer.LookupSerializer<object>())
+        //TODO We could keep this, and add a new constructor DictionarySerializerBase(dictionaryRepresentation, domain)
         {
         }
 
@@ -387,6 +388,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="dictionaryRepresentation">The dictionary representation.</param>
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation)
             : this(dictionaryRepresentation, BsonSerializer.SerializerRegistry)
+        //TODO We could keep this, and add a new constructor DictionarySerializerBase(dictionaryRepresentation, domain)
         {
         }
 

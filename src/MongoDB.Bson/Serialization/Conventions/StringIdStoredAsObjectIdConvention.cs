@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 return;
             }
 
-            var defaultStringSerializer = BsonSerializer.LookupSerializer(typeof(string));
+            var defaultStringSerializer = BsonSerializer.LookupSerializer(typeof(string));  //TODO For this we'd need to add a new Apply(memberMap, domain) method to IMemberMapConvention
             if (memberMap.GetSerializer() != defaultStringSerializer)
             {
                 return;

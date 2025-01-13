@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)   //TODO Need a new constructor that takes the domain as input (also for all the other constructors in here)
         {
         }
 

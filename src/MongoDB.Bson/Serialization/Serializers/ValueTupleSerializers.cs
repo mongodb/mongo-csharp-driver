@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)   //TODO Need a new constructor that takes the domain as input
         {
         }
 

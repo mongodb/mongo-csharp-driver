@@ -284,7 +284,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>All registered class maps.</returns>
         public static IEnumerable<BsonClassMap> GetRegisteredClassMaps()
         {
-            BsonSerializer.ConfigLock.EnterReadLock();
+            BsonSerializer.ConfigLock.EnterReadLock();  //TODO It would make sense to look at this after the PR by Robert is merged
             try
             {
                 return __classMaps.Values.ToList(); // return a copy for thread safety
