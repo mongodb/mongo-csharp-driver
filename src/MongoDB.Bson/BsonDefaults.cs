@@ -34,7 +34,7 @@ namespace MongoDB.Bson
 
         // public static properties
         /// <summary>
-        /// Gets or sets the dynamic array serializer.
+        /// Gets or sets the dynamic array serializer.  //TODO What to we do with this?
         /// </summary>
         public static IBsonSerializer DynamicArraySerializer
         {

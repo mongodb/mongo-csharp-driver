@@ -34,8 +34,10 @@ namespace MongoDB.Bson.Serialization
             _domain = new BsonSerializationDomain();
         }
 
-        //TODO This will need to be public
-        internal static IBsonSerializationDomain Domain => _domain;
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public static IBsonSerializationDomain DefaultDomain => _domain;
 
         // public static properties
         /// <summary>
