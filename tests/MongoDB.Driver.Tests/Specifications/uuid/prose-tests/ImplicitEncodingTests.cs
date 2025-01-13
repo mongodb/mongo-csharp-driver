@@ -116,9 +116,9 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         [Fact]
         public void Implicit_encoding_with_nullable_or_array_guid_should_work_as_expected()
         {
-            var collection = GetCollection<ClassWithNullableGuid>();
+            var collection = GetCollection<ClassWithNullableAndArrayGuid>();
             var guid = Guid.Parse("00112233445566778899aabbccddeeff");
-            var document = new ClassWithNullableGuid { Id = guid, GuidArray = [guid] };
+            var document = new ClassWithNullableAndArrayGuid { Id = guid, GuidArray = [guid] };
 
             DropCollection(collection);
             collection.InsertOne(document);
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
             public Guid Id { get; set; }
         }
 
-        private class ClassWithNullableGuid
+        private class ClassWithNullableAndArrayGuid
         {
             [BsonGuidRepresentation(GuidRepresentation.Standard)]
             public Guid? Id { get; set; }
