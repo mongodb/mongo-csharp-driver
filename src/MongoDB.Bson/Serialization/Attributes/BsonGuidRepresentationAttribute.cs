@@ -50,13 +50,15 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <inheritdoc/>
         public void Apply(BsonMemberMap memberMap)
         {
-            var guidSerializer = memberMap.GetSerializer() as GuidSerializer;
-            if (guidSerializer == null)
+            var reconfiguredSerializer = SerializerConfigurator.ReconfigureSerializerRecursively(memberMap.GetSerializer(), Reconfigure);
+            if (reconfiguredSerializer == null)
             {
                 throw new InvalidOperationException("[BsonGuidRepresentationAttribute] can only be used when the serializer is a GuidSerializer.");
             }
-            var reconfiguredGuidSerializer = guidSerializer.WithGuidRepresentation(_guidRepresentation);
-            memberMap.SetSerializer(reconfiguredGuidSerializer);
+            memberMap.SetSerializer(reconfiguredSerializer);
+
+            IBsonSerializer Reconfigure(IBsonSerializer s)
+                => s is GuidSerializer guidSerializer ? guidSerializer.WithGuidRepresentation(_guidRepresentation) : null;
         }
     }
 }

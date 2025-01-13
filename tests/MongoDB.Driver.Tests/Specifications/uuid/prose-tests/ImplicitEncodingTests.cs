@@ -18,7 +18,6 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
@@ -114,6 +113,27 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
             exception.Should().BeOfType<BsonSerializationException>();
         }
 
+        [Fact]
+        public void Implicit_encoding_with_nullable_or_array_guid_should_work_as_expected()
+        {
+            var collection = GetCollection<ClassWithNullableGuid>();
+            var guid = Guid.Parse("00112233445566778899aabbccddeeff");
+            var document = new ClassWithNullableGuid { Id = guid, GuidArray = [guid] };
+
+            DropCollection(collection);
+            collection.InsertOne(document);
+
+            var insertedDocument = FindSingleDocument(collection);
+            insertedDocument.Id.Should().Be(guid);
+            insertedDocument.GuidArray[0].Should().Be(guid);
+
+            var insertedDocumentAsBsonDocument = FindSingleDocumentAsBsonDocument(collection);
+            var binaryData = (BsonBinaryData)insertedDocumentAsBsonDocument["_id"];
+            binaryData.SubType.Should().Be(BsonBinarySubType.UuidStandard);
+            var binaryData2 = (BsonBinaryData)((BsonArray)insertedDocumentAsBsonDocument["GuidArray"])[0];
+            binaryData2.SubType.Should().Be(BsonBinarySubType.UuidStandard);
+        }
+
         // private methods
         private void DropCollection<TDocument>(IMongoCollection<TDocument> collection)
         {
@@ -170,6 +190,15 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
         {
             [BsonGuidRepresentation(GuidRepresentation.Unspecified)]
             public Guid Id { get; set; }
+        }
+
+        private class ClassWithNullableGuid
+        {
+            [BsonGuidRepresentation(GuidRepresentation.Standard)]
+            public Guid? Id { get; set; }
+
+            [BsonGuidRepresentation(GuidRepresentation.Standard)]
+            public Guid[] GuidArray { get; set; }
         }
     }
 }

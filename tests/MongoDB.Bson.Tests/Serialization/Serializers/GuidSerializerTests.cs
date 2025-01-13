@@ -19,6 +19,7 @@ using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -437,6 +438,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
+        }
+
+        private class TestClass
+        {
+            [BsonGuidRepresentation(GuidRepresentation.Unspecified)]
+            public Guid? UnspecifiedGuid { get; set; }
         }
     }
 }
