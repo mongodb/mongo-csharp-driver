@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization
     public class BsonClassMap
     {
         // private static fields
-        private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
+        private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();  //TODO I think the static fields and methods should not be here, but on the domain
         private readonly static Queue<Type> __knownTypesQueue = new Queue<Type>();
         private static int __freezeNestingLevel = 0;
 

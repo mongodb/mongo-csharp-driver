@@ -96,7 +96,7 @@ namespace MongoDB.Bson.Serialization
                 return DeserializeClass(context);
             }
 
-            var serializer = BsonSerializer.LookupSerializer(actualType);
+            var serializer = context.Domain.LookupSerializer(actualType);
             return (TClass)serializer.Deserialize(context);
         }
 
@@ -392,7 +392,7 @@ namespace MongoDB.Bson.Serialization
                 return;
             }
 
-            var serializer = BsonSerializer.LookupSerializer(actualType);
+            var serializer = context.Domain.LookupSerializer(actualType);
             serializer.Serialize(context, args, value);
         }
 

@@ -147,7 +147,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw new FormatException(message);
                 }
 
-                var serializer = BsonSerializer.LookupSerializer(actualType);
+                var serializer = context.Domain.LookupSerializer(actualType);
                 return (TInterface)serializer.Deserialize(context, args);
             }
         }
