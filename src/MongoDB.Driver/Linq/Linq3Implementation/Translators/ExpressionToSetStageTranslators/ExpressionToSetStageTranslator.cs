@@ -153,7 +153,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
                 }
                 else
                 {
-                    var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                    var resultSerializer = serializationInfo.Serializer;
+                    var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression, resultSerializer);
                     ThrowIfMemberAndValueSerializersAreNotCompatible(valueExpression, memberSerializer, valueTranslation.Serializer);
                     valueAst = valueTranslation.Ast;
                 }

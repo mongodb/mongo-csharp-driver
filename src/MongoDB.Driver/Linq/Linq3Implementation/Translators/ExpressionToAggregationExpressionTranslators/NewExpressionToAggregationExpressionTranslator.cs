@@ -17,12 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
     internal static class NewExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, NewExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, NewExpression expression, IBsonSerializer resultSerializer)
         {
             var expressionType = expression.Type;
 
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 return NewTupleExpressionToAggregationExpressionTranslator.Translate(context, expression);
             }
-            return MemberInitExpressionToAggregationExpressionTranslator.Translate(context, expression, expression, Array.Empty<MemberBinding>());
+            return MemberInitExpressionToAggregationExpressionTranslator.Translate(context, expression, expression, Array.Empty<MemberBinding>(), resultSerializer);
         }
     }
 }
