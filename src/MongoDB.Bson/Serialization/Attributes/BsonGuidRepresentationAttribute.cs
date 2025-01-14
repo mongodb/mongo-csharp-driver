@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the Guid representation to use with the GuidSerializer for this member.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonGuidRepresentationAttribute : Attribute, IBsonMemberMapAttribute
+    public class BsonGuidRepresentationAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
         private readonly GuidRepresentation _guidRepresentation;
@@ -46,19 +46,16 @@ namespace MongoDB.Bson.Serialization.Attributes
             get { return _guidRepresentation; }
         }
 
-        // public methods
+        // protected methods
         /// <inheritdoc/>
-        public void Apply(BsonMemberMap memberMap)
+        protected override IBsonSerializer Apply(IBsonSerializer serializer)
         {
-            var reconfiguredSerializer = SerializerConfigurator.ReconfigureSerializerRecursively(memberMap.GetSerializer(), Reconfigure);
-            if (reconfiguredSerializer == null)
+            if (serializer is GuidSerializer guidSerializer)
             {
-                throw new InvalidOperationException("[BsonGuidRepresentationAttribute] can only be used when the serializer is a GuidSerializer.");
+                return guidSerializer.WithGuidRepresentation(_guidRepresentation);
             }
-            memberMap.SetSerializer(reconfiguredSerializer);
 
-            IBsonSerializer Reconfigure(IBsonSerializer s)
-                => s is GuidSerializer guidSerializer ? guidSerializer.WithGuidRepresentation(_guidRepresentation) : null;
+            return base.Apply(serializer);
         }
     }
 }
