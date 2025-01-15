@@ -196,6 +196,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new AggregateOptions();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
+                    case "maxTimeMS":
+                        options ??= new AggregateOptions();
+                        options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
                     case "pipeline":
                         pipeline = argument.Value.AsBsonArray.Cast<BsonDocument>().ToList();
                         break;

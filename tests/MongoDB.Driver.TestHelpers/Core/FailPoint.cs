@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 throw;
             }
         }
-  
+
         public static FailPoint Configure(IClusterInternal cluster, ICoreSessionHandle session, string name, BsonDocument args, bool? withAsync = null)
         {
             Ensure.IsNotNull(name, nameof(name));
@@ -173,7 +173,10 @@ namespace MongoDB.Driver.Core.TestHelpers
             if (waitForConnected)
             {
                 // server can transition to unknown state during the test, wait until server is connected
-                SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, 1000);
+                if (!SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, 1000))
+                {
+                    throw new InvalidOperationException("Server is not connected.");
+                }
             }
 
             var adminDatabase = new DatabaseNamespace("admin");
@@ -182,6 +185,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 command,
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings());
+
             operation.Execute(_binding, CancellationToken.None);
         }
     }

@@ -88,6 +88,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildCollectionOperation(targetEntityId, operationArguments),
                     "bulkWrite" => new UnifiedBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "count" => new UnifiedCountOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "countDocuments" => new UnifiedCountDocumentsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createChangeStream" => new UnifiedCreateChangeStreamOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createFindCursor" => new UnifiedCreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
