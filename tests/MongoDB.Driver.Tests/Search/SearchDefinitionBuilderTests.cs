@@ -879,6 +879,16 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Range(p => p.Age, SearchRangeBuilder.Gt(1.5).Lt(2.5)),
                 "{ range: { path: 'age', gt: 1.5, lt: 2.5 } }");
         }
+        
+        [Fact]
+        public void RangeString()
+        {
+            var subject = CreateSubject<Person>();
+
+            AssertRendered(
+                subject.Range(p => p.FirstName, StringSearchRangeBuilder.Gt("A").Lt("D")),
+                "{ range: { path: 'fn', gt: 'A', lt: 'D' } }");
+        }
 
         [Theory]
         [InlineData(1, null, false, false, "gt: 1")]

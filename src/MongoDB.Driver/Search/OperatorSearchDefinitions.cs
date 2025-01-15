@@ -438,6 +438,31 @@ namespace MongoDB.Driver.Search
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args) =>
             _clause.Render(args);
     }
+    
+    internal sealed class StringRangeSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    {
+        private readonly StringSearchRange _range;
+        private readonly BsonString _min;
+        private readonly BsonString _max;
+
+        public StringRangeSearchDefinition(
+            SearchPathDefinition<TDocument> path,
+            StringSearchRange range,
+            SearchScoreDefinition<TDocument> score)
+            : base(OperatorType.Range, path, score)
+        {
+            _range = range;
+            _min = _range.Min;
+            _max = _range.Max;
+        }
+
+        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args) =>
+            new()
+            {
+                { _range.IsMinInclusive ? "gte" : "gt", _min, _min != null },
+                { _range.IsMaxInclusive ? "lte" : "lt", _max, _max != null },
+            };
+    }
 
     internal sealed class TextSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
     {
