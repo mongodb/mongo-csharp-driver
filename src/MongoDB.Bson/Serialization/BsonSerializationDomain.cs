@@ -66,6 +66,8 @@ namespace MongoDB.Bson.Serialization
             set { __useNullIdChecker = value; }
         }
 
+        public bool UseNullIdCheckerEnabled => UseNullIdChecker;
+
         /// <summary>
         /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
         /// </summary>
@@ -75,13 +77,23 @@ namespace MongoDB.Bson.Serialization
             set { __useZeroIdChecker = value; }
         }
 
+        public bool UseZeroIdCheckerEnabled => UseZeroIdChecker;
+
         // internal properties
         public ReaderWriterLockSlim ConfigLock
         {
             get { return __configLock; }
         }
 
+        public IBsonSerializationConfiguration SerializationConfiguration => this;
+
         // public methods
+
+        public IBsonCoreSerializer BuildCoreSerializer()
+        {
+            return this;
+        }
+
         /// <summary>
         /// Deserializes an object from a BsonDocument.
         /// </summary>

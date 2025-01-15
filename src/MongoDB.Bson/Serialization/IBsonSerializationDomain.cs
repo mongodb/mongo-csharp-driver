@@ -81,13 +81,18 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
         /// </summary>
-        bool UseNullIdChecker { get; set; } //TODO This should become a getter only property and a method
+        bool UseNullIdChecker { get; set; } //TODO It would be nice if this became a method (SetUseNullIdChecker) and the configuration would have only a getter
 
         /// <summary>
         /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
         /// </summary>
         bool UseZeroIdChecker { get; set; }
 
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <returns></returns>
+        IBsonCoreSerializer BuildCoreSerializer();
     }
 
     /// <summary>
@@ -95,6 +100,11 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public interface IBsonCoreSerializer //TODO Don't like the name but have no better idea at the moment
     {
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        IBsonSerializationConfiguration SerializationConfiguration { get; }
+
         /// <summary>
         /// Deserializes an object from a BsonDocument.
         /// </summary>
@@ -292,6 +302,21 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The Type.</param>
         /// <returns>A serializer for the Type.</returns>
         IBsonSerializer LookupSerializer(Type type);
+
+        /// <summary>
+        /// Gets the serializer registry.
+        /// </summary>
+        IBsonSerializerRegistry SerializerRegistry { get; }
+
+        /// <summary>
+        /// Gets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered is enabled.
+        /// </summary>
+        bool UseNullIdCheckerEnabled { get; }
+
+        /// <summary>
+        /// Gets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered is enabled.
+        /// </summary>
+        bool UseZeroIdCheckerEnabled { get; }
     }
 
     /// <summary>
@@ -299,10 +324,6 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public interface IBsonSerializationDomain : IBsonSerializationConfigurator, IBsonSerializationConfiguration, IBsonCoreSerializer
     {
-        /// <summary>
-        /// Gets the serializer registry.
-        /// </summary>
-        IBsonSerializerRegistry SerializerRegistry { get; }
     }
 
     internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
