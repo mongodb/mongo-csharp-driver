@@ -141,6 +141,7 @@ namespace MongoDB.Driver
             return ConvertIfPossibleSerializer.Create(valueType, fieldType, fieldSerializer, serializerRegistry);
         }
 
+        //TODO Never used
         public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, object value)
         {
             if (!valueType.GetTypeInfo().IsValueType && value == null)
@@ -313,7 +314,7 @@ namespace MongoDB.Driver
             }
         }
 
-        internal class IEnumerableSerializer<TItem> : SerializerBase<IEnumerable<TItem>>
+        internal class IEnumerableSerializer<TItem> : SerializerBase<IEnumerable<TItem>>, IBsonArraySerializer
         {
             private readonly IBsonSerializer<TItem> _itemSerializer;
 
@@ -350,6 +351,12 @@ namespace MongoDB.Driver
                     }
                     bsonWriter.WriteEndArray();
                 }
+            }
+
+            public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
+            {
+                serializationInfo = new BsonSerializationInfo(null, _itemSerializer, typeof(TItem));
+                return true;
             }
         }
 
