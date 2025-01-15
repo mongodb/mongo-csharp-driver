@@ -1869,7 +1869,7 @@ tasks:
             LOCAL_PATH: ${workdir}/efcore
             SCRIPT: |
               ${PREPARE_SHELL}
-              DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
+              CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
 
 axes:
   - id: version
