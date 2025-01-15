@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue}"/> class.
         /// </summary>
         protected EnumerableSerializerBase()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)  //TODO Need a new constructor that takes the domain as input
         {
         }
 
@@ -234,7 +234,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue, TItem}"/> class.
         /// </summary>
         protected EnumerableSerializerBase()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)   //TODO Need a new constructor that takes the domain as input
         {
         }
 

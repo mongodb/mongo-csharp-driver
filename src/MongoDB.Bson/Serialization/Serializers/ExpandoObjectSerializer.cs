@@ -29,14 +29,13 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class ExpandoObjectSerializer : DynamicDocumentBaseSerializer<ExpandoObject>
     {
         // private fields
-        private readonly IBsonSerializer<List<object>> _listSerializer;
+        private IBsonSerializer<List<object>> _listSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExpandoObjectSerializer"/> class.
         /// </summary>
         public ExpandoObjectSerializer()
         {
-            _listSerializer = BsonSerializer.LookupSerializer<List<object>>();
         }
 
         /// <summary>

@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the IEnumerableDeserializingAsCollectionSerializer class.
         /// </summary>
         public IEnumerableDeserializingAsCollectionSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)   //TODO Need a new constructor that takes the domain as input
         {
         }
 

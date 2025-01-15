@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ImpliedImplementationInterfaceSerializer{TInterface, TImplementation}"/> class.
         /// </summary>
         public ImpliedImplementationInterfaceSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)   //TODO Need a new constructor that takes the domain as input
         {
         }
 
@@ -279,7 +279,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var serializer = BsonSerializer.LookupSerializer(actualType);
+                    var serializer = context.Domain.LookupSerializer(actualType);
                     serializer.Serialize(context, value);
                 }
             }

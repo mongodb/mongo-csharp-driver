@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization
     public class BsonClassMap
     {
         // private static fields
-        private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
+        private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();  //TODO I think the static fields and methods should not be here, but on the domain
         private readonly static Queue<Type> __knownTypesQueue = new Queue<Type>();
         private static int __freezeNestingLevel = 0;
 
@@ -284,7 +284,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>All registered class maps.</returns>
         public static IEnumerable<BsonClassMap> GetRegisteredClassMaps()
         {
-            BsonSerializer.ConfigLock.EnterReadLock();
+            BsonSerializer.ConfigLock.EnterReadLock();  //TODO It would make sense to look at this after the PR by Robert is merged
             try
             {
                 return __classMaps.Values.ToList(); // return a copy for thread safety
@@ -375,7 +375,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> RegisterClassMap<TClass>()
+        public static BsonClassMap<TClass> RegisterClassMap<TClass>()  //TODO We should move the static methods here to IBSonSerializerDomain
         {
             return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
         }

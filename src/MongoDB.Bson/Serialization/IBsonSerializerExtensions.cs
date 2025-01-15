@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization
         public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer) =>
             serializer is IHasDiscriminatorConvention hasDiscriminatorConvention
                 ? hasDiscriminatorConvention.DiscriminatorConvention
-                : BsonSerializer.LookupDiscriminatorConvention(serializer.ValueType);
+                : BsonSerializer.LookupDiscriminatorConvention(serializer.ValueType);   //TODO We need another version of this with the domain as input
 
         /// <summary>
         /// Serializes a value.

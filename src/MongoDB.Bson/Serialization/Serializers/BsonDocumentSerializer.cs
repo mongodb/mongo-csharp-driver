@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (bsonDocument.TryGetValue("_id", out idBsonValue))
             {
                 id = idBsonValue;
-                idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
+                idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());  //TODO For this we need add a new GetDocumentId to IBsonIdProvider
 
                 if (idGenerator == null)
                 {

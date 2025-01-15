@@ -35,6 +35,8 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 if (idMemberMap.IdGenerator == null)
                 {
+                    //TODO For this, we either add a new PostProcess method to the IPostProcessingConvention that takes the domain
+                    //or we pass the domain to the BsonClassMap. The first probably makes more sense, but it's messier.
                     var idGenerator = BsonSerializer.LookupIdGenerator(idMemberMap.MemberType);
                     if (idGenerator != null)
                     {

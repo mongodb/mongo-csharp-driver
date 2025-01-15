@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization
     public abstract class BsonSerializationProviderBase : IRegistryAwareBsonSerializationProvider
     {
         /// <inheritdoc/>
-        public virtual IBsonSerializer GetSerializer(Type type)
+        public virtual IBsonSerializer GetSerializer(Type type)  //TODO Need to make another version with the domain as input
         {
             return GetSerializer(type, BsonSerializer.SerializerRegistry);
         }
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializerTypeDefinition">The serializer type definition.</param>
         /// <param name="typeArguments">The type arguments.</param>
         /// <returns>A serializer.</returns>
-        protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] typeArguments)
+        protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] typeArguments)   //TODO We need another version of this with the domain as input
         {
             return CreateGenericSerializer(serializerTypeDefinition, typeArguments, BsonSerializer.SerializerRegistry);
         }
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateSerializer(Type serializerType)
         {
-            return CreateSerializer(serializerType, BsonSerializer.SerializerRegistry);
+            return CreateSerializer(serializerType, BsonSerializer.SerializerRegistry);   //TODO We need another version of this with the domain as input
         }
 
         /// <summary>

@@ -26,17 +26,27 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private readonly Func<Type, bool> _isDynamicType;
         private readonly IBsonWriter _writer;
+        private readonly IBsonSerializationDomain _domain;
 
         // constructors
         private BsonSerializationContext(
             IBsonWriter writer,
-            Func<Type, bool> isDynamicType)
+            Func<Type, bool> isDynamicType,
+            IBsonSerializationDomain domain)
         {
             _writer = writer;
             _isDynamicType = isDynamicType;
+            _domain = domain;
+            // _domain = domain ?? BsonSerializer.DefaultDomain;  //TODO We could do this here, but let's keep it as the previous line to catch errors.
         }
 
         // public properties
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public IBsonSerializationDomain Domain => _domain;
+
         /// <summary>
         /// Gets a function that, when executed, will indicate whether the type 
         /// is a dynamic type.
@@ -105,6 +115,7 @@ namespace MongoDB.Bson.Serialization
             // private fields
             private Func<Type, bool> _isDynamicType;
             private IBsonWriter _writer;
+            private IBsonSerializationDomain _domain;
 
             // constructors
             internal Builder(BsonSerializationContext other, IBsonWriter writer)
@@ -125,6 +136,15 @@ namespace MongoDB.Bson.Serialization
                         (BsonDefaults.DynamicArraySerializer != null && t == BsonDefaults.DynamicArraySerializer.ValueType) ||
                         (BsonDefaults.DynamicDocumentSerializer != null && t == BsonDefaults.DynamicDocumentSerializer.ValueType);
                 }
+            }
+
+            /// <summary>
+            /// //TODO
+            /// </summary>
+            public IBsonSerializationDomain Domain
+            {
+                get => _domain;
+                set => _domain = value;
             }
 
             // properties
@@ -155,7 +175,7 @@ namespace MongoDB.Bson.Serialization
             /// <returns>A BsonSerializationContext.</returns>
             internal BsonSerializationContext Build()
             {
-                return new BsonSerializationContext(_writer, _isDynamicType);
+                return new BsonSerializationContext(_writer, _isDynamicType, _domain);
             }
         }
     }
