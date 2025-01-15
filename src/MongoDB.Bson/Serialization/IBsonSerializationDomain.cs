@@ -10,7 +10,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// //TODO
     /// </summary>
-    public interface ISerializerConfigurator
+    public interface IBsonSerializationConfigurator
     {
         /// <summary>
         /// Registers the discriminator for a type.
@@ -77,12 +77,23 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
         bool TryRegisterSerializer<T>(IBsonSerializer<T> serializer);
+
+        /// <summary>
+        /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
+        /// </summary>
+        bool UseNullIdChecker { get; set; } //TODO This should become a getter only property and a method
+
+        /// <summary>
+        /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
+        /// </summary>
+        bool UseZeroIdChecker { get; set; }
+
     }
 
     /// <summary>
     /// //TODO
     /// </summary>
-    public interface IMainSerializer
+    public interface IBsonCoreSerializer //TODO Don't like the name but have no better idea at the moment
     {
         /// <summary>
         /// Deserializes an object from a BsonDocument.
@@ -237,23 +248,8 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// //TODO
     /// </summary>
-    public interface IBsonSerializationDomain : ISerializerConfigurator, IMainSerializer
+    public interface IBsonSerializationConfiguration
     {
-        /// <summary>
-        /// Gets the serializer registry.
-        /// </summary>
-        IBsonSerializerRegistry SerializerRegistry { get; }
-
-        /// <summary>
-        /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
-        /// </summary>
-        bool UseNullIdChecker { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
-        /// </summary>
-        bool UseZeroIdChecker { get; set; }
-
         /// <summary>
         /// Returns whether the given type has any discriminators registered for any of its subclasses.
         /// </summary>
@@ -296,6 +292,17 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The Type.</param>
         /// <returns>A serializer for the Type.</returns>
         IBsonSerializer LookupSerializer(Type type);
+    }
+
+    /// <summary>
+    /// //TODO
+    /// </summary>
+    public interface IBsonSerializationDomain : IBsonSerializationConfigurator, IBsonSerializationConfiguration, IBsonCoreSerializer
+    {
+        /// <summary>
+        /// Gets the serializer registry.
+        /// </summary>
+        IBsonSerializerRegistry SerializerRegistry { get; }
     }
 
     internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain

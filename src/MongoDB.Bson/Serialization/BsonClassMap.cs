@@ -375,7 +375,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> RegisterClassMap<TClass>()
+        public static BsonClassMap<TClass> RegisterClassMap<TClass>()  //TODO We should move the static methods here to IBSonSerializerDomain
         {
             return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
         }
