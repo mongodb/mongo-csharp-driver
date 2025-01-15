@@ -19,17 +19,23 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5171Tests : Linq3IntegrationTest
+    public class CSharp5171Tests : LinqIntegrationTest<CSharp5171Tests.TestDataFixture>
     {
+        public CSharp5171Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
+            : base(testOutputHelper, fixture)
+        {
+        }
+
         [Fact]
         public void Select_ReadOnlyDictionary_item_with_string_using_compiler_generated_expression_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Dictionary["a"]);
@@ -44,13 +50,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_ReadOnlyDictionary_item_with_string_using_call_to_get_item_should_work()
         {
-            var collection = GetCollection();
-            var x = Expression.Parameter(typeof(C), "x");
+            var collection = Fixture.GetCollection<MyModel>();
+            var x = Expression.Parameter(typeof(MyModel), "x");
             var body = Expression.Call(
-                Expression.Property(x, typeof(C).GetProperty("Dictionary")),
+                Expression.Property(x, typeof(MyModel).GetProperty("Dictionary")),
                 typeof(IReadOnlyDictionary<string, int>).GetProperty("Item").GetGetMethod(),
                 Expression.Constant("a"));
-            var selector = Expression.Lambda<Func<C, int>>(body, [x]);
+            var selector = Expression.Lambda<Func<MyModel, int>>(body, [x]);
 
             var queryable = collection.AsQueryable()
                 .Select(selector);
@@ -65,13 +71,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_ReadOnlyDictionary_item_with_string_using_MakeIndex_should_work()
         {
-            var collection = GetCollection();
-            var x = Expression.Parameter(typeof(C), "x");
+            var collection = Fixture.GetCollection<MyModel>();
+            var x = Expression.Parameter(typeof(MyModel), "x");
             var body = Expression.MakeIndex(
-                Expression.Property(x, typeof(C).GetProperty("Dictionary")),
+                Expression.Property(x, typeof(MyModel).GetProperty("Dictionary")),
                 typeof(IReadOnlyDictionary<string, int>).GetProperty("Item"),
                 [Expression.Constant("a")]);
-            var selector = Expression.Lambda<Func<C, int>>(body, [x]);
+            var selector = Expression.Lambda<Func<MyModel, int>>(body, [x]);
 
             var queryable = collection.AsQueryable()
                 .Select(selector);
@@ -86,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_ReadOnlyDictionary_item_with_string_using_compiler_generated_expression_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.GetCollection<MyModel>();
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Dictionary["a"] == 1);
@@ -101,15 +107,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_ReadOnlyDictionary_item_with_string_using_call_to_get_item_should_work()
         {
-            var collection = GetCollection();
-            var x = Expression.Parameter(typeof(C), "x");
+            var collection = Fixture.GetCollection<MyModel>();
+            var x = Expression.Parameter(typeof(MyModel), "x");
             var body = Expression.Equal(
                 Expression.Call(
-                    Expression.Property(x, typeof(C).GetProperty("Dictionary")),
+                    Expression.Property(x, typeof(MyModel).GetProperty("Dictionary")),
                     typeof(IReadOnlyDictionary<string, int>).GetProperty("Item").GetGetMethod(),
                     Expression.Constant("a")),
                 Expression.Constant(1));
-            var predicate = Expression.Lambda<Func<C, bool>>(body, [x]);
+            var predicate = Expression.Lambda<Func<MyModel, bool>>(body, [x]);
 
             var queryable = collection.AsQueryable()
                 .Where(predicate);
@@ -124,15 +130,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_ReadOnlyDictionary_item_with_string_using_MakeIndex_should_work()
         {
-            var collection = GetCollection();
-            var x = Expression.Parameter(typeof(C), "x");
+            var collection = Fixture.GetCollection<MyModel>();
+            var x = Expression.Parameter(typeof(MyModel), "x");
             var body = Expression.Equal(
                 Expression.MakeIndex(
-                    Expression.Property(x, typeof(C).GetProperty("Dictionary")),
+                    Expression.Property(x, typeof(MyModel).GetProperty("Dictionary")),
                     typeof(IReadOnlyDictionary<string, int>).GetProperty("Item"),
                     [Expression.Constant("a")]),
                 Expression.Constant(1));
-            var predicate = Expression.Lambda<Func<C, bool>>(body, [x]);
+            var predicate = Expression.Lambda<Func<MyModel, bool>>(body, [x]);
 
             var queryable = collection.AsQueryable()
                 .Where(predicate);
@@ -144,20 +150,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, Dictionary = new ReadOnlyDictionary<string, int>(new Dictionary<string, int> { ["a"] = 1 }) },
-                new C { Id = 2, Dictionary = new ReadOnlyDictionary<string, int>(new Dictionary<string, int> { ["b"] = 2 }) });
-            return collection;
-        }
-
-        private class C
+        public class MyModel
         {
             public int Id { get; set; }
             public IReadOnlyDictionary<string, int> Dictionary { get; set; }
+        }
+
+        public sealed class TestDataFixture : MongoCollectionFixture<MyModel>
+        {
+            protected override IEnumerable<MyModel> InitialData =>
+            [
+                new MyModel { Id = 1, Dictionary = new ReadOnlyDictionary<string, int>(new Dictionary<string, int> { ["a"] = 1 }) },
+                new MyModel { Id = 2, Dictionary = new ReadOnlyDictionary<string, int>(new Dictionary<string, int> { ["b"] = 2 }) }
+            ];
         }
     }
 }
