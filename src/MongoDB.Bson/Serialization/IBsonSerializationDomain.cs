@@ -6,26 +6,84 @@ using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Serialization
 {
+
     /// <summary>
     /// //TODO
     /// </summary>
-    public interface IBsonSerializationDomain
+    public interface ISerializerConfigurator
     {
         /// <summary>
-        /// Gets the serializer registry.
+        /// Registers the discriminator for a type.
         /// </summary>
-        IBsonSerializerRegistry SerializerRegistry { get; }
+        /// <param name="type">The type.</param>
+        /// <param name="discriminator">The discriminator.</param>
+        void RegisterDiscriminator(Type type, BsonValue discriminator);
 
         /// <summary>
-        /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
+        /// Registers the discriminator convention for a type.
         /// </summary>
-        bool UseNullIdChecker { get; set; }
+        /// <param name="type">Type type.</param>
+        /// <param name="convention">The discriminator convention.</param>
+        void RegisterDiscriminatorConvention(Type type, IDiscriminatorConvention convention);
 
         /// <summary>
-        /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
+        /// Registers a generic serializer definition for a generic type.
         /// </summary>
-        bool UseZeroIdChecker { get; set; }
+        /// <param name="genericTypeDefinition">The generic type.</param>
+        /// <param name="genericSerializerDefinition">The generic serializer definition.</param>
+        void RegisterGenericSerializerDefinition(
+            Type genericTypeDefinition,
+            Type genericSerializerDefinition);
 
+        /// <summary>
+        /// Registers an IdGenerator for an Id Type.
+        /// </summary>
+        /// <param name="type">The Id Type.</param>
+        /// <param name="idGenerator">The IdGenerator for the Id Type.</param>
+        void RegisterIdGenerator(Type type, IIdGenerator idGenerator);
+
+        /// <summary>
+        /// Registers a serialization provider.
+        /// </summary>
+        /// <param name="provider">The serialization provider.</param>
+        void RegisterSerializationProvider(IBsonSerializationProvider provider);
+
+        /// <summary>
+        /// Registers a serializer for a type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        void RegisterSerializer<T>(IBsonSerializer<T> serializer);
+
+        /// <summary>
+        /// Registers a serializer for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="serializer">The serializer.</param>
+        void RegisterSerializer(Type type, IBsonSerializer serializer);
+
+        /// <summary>
+        /// Tries to register a serializer for a type.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
+        bool TryRegisterSerializer(Type type, IBsonSerializer serializer);
+
+        /// <summary>
+        /// Tries to register a serializer for a type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
+        bool TryRegisterSerializer<T>(IBsonSerializer<T> serializer);
+    }
+
+    /// <summary>
+    /// //TODO
+    /// </summary>
+    public interface IMainSerializer
+    {
         /// <summary>
         /// Deserializes an object from a BsonDocument.
         /// </summary>
@@ -147,6 +205,56 @@ namespace MongoDB.Bson.Serialization
             Action<BsonDeserializationContext.Builder> configurator = null);
 
         /// <summary>
+        /// Serializes a value.
+        /// </summary>
+        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="configurator">The serialization context configurator.</param>
+        /// <param name="args">The serialization args.</param>
+        void Serialize<TNominalType>(
+            IBsonWriter bsonWriter,
+            TNominalType value,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs));
+
+        /// <summary>
+        /// Serializes a value.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="configurator">The serialization context configurator.</param>
+        /// <param name="args">The serialization args.</param>
+        void Serialize(
+            IBsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs));
+    }
+
+    /// <summary>
+    /// //TODO
+    /// </summary>
+    public interface IBsonSerializationDomain : ISerializerConfigurator, IMainSerializer
+    {
+        /// <summary>
+        /// Gets the serializer registry.
+        /// </summary>
+        IBsonSerializerRegistry SerializerRegistry { get; }
+
+        /// <summary>
+        /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
+        /// </summary>
+        bool UseNullIdChecker { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
+        /// </summary>
+        bool UseZeroIdChecker { get; set; }
+
+        /// <summary>
         /// Returns whether the given type has any discriminators registered for any of its subclasses.
         /// </summary>
         /// <param name="type">A Type.</param>
@@ -188,101 +296,6 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type">The Type.</param>
         /// <returns>A serializer for the Type.</returns>
         IBsonSerializer LookupSerializer(Type type);
-
-        /// <summary>
-        /// Registers the discriminator for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="discriminator">The discriminator.</param>
-        void RegisterDiscriminator(Type type, BsonValue discriminator);
-
-        /// <summary>
-        /// Registers the discriminator convention for a type.
-        /// </summary>
-        /// <param name="type">Type type.</param>
-        /// <param name="convention">The discriminator convention.</param>
-        void RegisterDiscriminatorConvention(Type type, IDiscriminatorConvention convention);
-
-        /// <summary>
-        /// Registers a generic serializer definition for a generic type.
-        /// </summary>
-        /// <param name="genericTypeDefinition">The generic type.</param>
-        /// <param name="genericSerializerDefinition">The generic serializer definition.</param>
-        void RegisterGenericSerializerDefinition(
-            Type genericTypeDefinition,
-            Type genericSerializerDefinition);
-
-        /// <summary>
-        /// Registers an IdGenerator for an Id Type.
-        /// </summary>
-        /// <param name="type">The Id Type.</param>
-        /// <param name="idGenerator">The IdGenerator for the Id Type.</param>
-        void RegisterIdGenerator(Type type, IIdGenerator idGenerator);
-
-        /// <summary>
-        /// Registers a serialization provider.
-        /// </summary>
-        /// <param name="provider">The serialization provider.</param>
-        void RegisterSerializationProvider(IBsonSerializationProvider provider);
-
-        /// <summary>
-        /// Registers a serializer for a type.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <param name="serializer">The serializer.</param>
-        void RegisterSerializer<T>(IBsonSerializer<T> serializer);
-
-        /// <summary>
-        /// Registers a serializer for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="serializer">The serializer.</param>
-        void RegisterSerializer(Type type, IBsonSerializer serializer);
-
-        /// <summary>
-        /// Serializes a value.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="configurator">The serialization context configurator.</param>
-        /// <param name="args">The serialization args.</param>
-        void Serialize<TNominalType>(
-            IBsonWriter bsonWriter,
-            TNominalType value,
-            Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs));
-
-        /// <summary>
-        /// Serializes a value.
-        /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="configurator">The serialization context configurator.</param>
-        /// <param name="args">The serialization args.</param>
-        void Serialize(
-            IBsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs));
-
-        /// <summary>
-        /// Tries to register a serializer for a type.
-        /// </summary>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="type">The type.</param>
-        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
-        bool TryRegisterSerializer(Type type, IBsonSerializer serializer);
-
-        /// <summary>
-        /// Tries to register a serializer for a type.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <param name="serializer">The serializer.</param>
-        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
-        bool TryRegisterSerializer<T>(IBsonSerializer<T> serializer);
     }
 
     internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
