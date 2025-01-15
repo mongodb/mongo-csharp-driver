@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Serialization
             get { return __configLock; }
         }
 
-        public IBsonSerializationConfiguration SerializationConfiguration => this;
+        public IBsonCoreSerializerConfiguration SerializationConfiguration => this;
 
         // public methods
 
