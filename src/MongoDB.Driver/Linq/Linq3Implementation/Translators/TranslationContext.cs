@@ -18,7 +18,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
@@ -26,13 +25,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
     {
         #region static
         public static TranslationContext Create(
-            Expression expression,
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(symbolTable, nameGenerator, translationOptions, data);
+            return new TranslationContext(translationOptions, data, symbolTable, nameGenerator);
         }
         #endregion
 
@@ -43,15 +41,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
-            SymbolTable symbolTable,
-            NameGenerator nameGenerator,
             ExpressionTranslationOptions translationOptions,
-            TranslationContextData data = null)
+            TranslationContextData data,
+            SymbolTable symbolTable,
+            NameGenerator nameGenerator)
         {
-            _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
-            _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
             _data = data; // can be null
+            _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
+            _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
         }
 
         // public properties
@@ -126,7 +124,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(symbolTable, _nameGenerator, _translationOptions, _data);
+            return new TranslationContext(_translationOptions, _data, symbolTable, _nameGenerator);
         }
     }
 }
