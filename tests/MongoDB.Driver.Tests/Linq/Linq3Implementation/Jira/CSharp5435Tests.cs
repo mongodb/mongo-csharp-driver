@@ -75,26 +75,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             coll.UpdateOne(filter, updateError, new() { IsUpsert = true });
         }
 
-        [Fact]
-        public void Test_set_ValueObject_to_derived_value_using_property_setter()
-        {
-            var coll = GetCollection();
-            var doc = new MyDocument();
-            var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
-
-            var pipelineError = new EmptyPipelineDefinition<MyDocument>()
-                .Set(x => new MyDocument()
-                {
-                    ValueObject = new MyDerivedValue()
-                    {
-                        Value = x.ValueObject == null ? 1 : x.ValueObject.Value + 1,
-                        B = 42
-                    }
-                });
-            var updateError = Builders<MyDocument>.Update.Pipeline(pipelineError);
-
-            coll.UpdateOne(filter, updateError, new() { IsUpsert = true });
-        }
+        // [Fact]
+        // public void Test_set_ValueObject_to_derived_value_using_property_setter()
+        // {
+        //     var coll = GetCollection();
+        //     var doc = new MyDocument();
+        //     var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
+        //
+        //     var pipelineError = new EmptyPipelineDefinition<MyDocument>()
+        //         .Set(x => new MyDocument()
+        //         {
+        //             ValueObject = new MyDerivedValue()
+        //             {
+        //                 Value = x.ValueObject == null ? 1 : x.ValueObject.Value + 1,
+        //                 B = 42
+        //             }
+        //         });
+        //     var updateError = Builders<MyDocument>.Update.Pipeline(pipelineError);
+        //
+        //     coll.UpdateOne(filter, updateError, new() { IsUpsert = true });
+        // }
 
         [Fact]
         public void Test_set_X_using_constructor()

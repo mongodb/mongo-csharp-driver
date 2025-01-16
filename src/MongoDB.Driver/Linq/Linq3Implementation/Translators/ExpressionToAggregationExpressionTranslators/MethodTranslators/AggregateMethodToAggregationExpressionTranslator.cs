@@ -19,6 +19,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -34,13 +35,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.AggregateWithSeedFuncAndResultSelector
         };
 
-        private static readonly MethodInfo[] __aggregateWithoutSeedMethods =
+        private static readonly MethodInfo[] __aggregateWithFuncMethods =
         {
             EnumerableMethod.AggregateWithFunc,
             QueryableMethod.AggregateWithFunc
         };
 
-        private static readonly MethodInfo[] __aggregateWithSeedMethods =
+        private static readonly MethodInfo[] __aggregateWithSeedAndFuncMethods =
+        {
+            EnumerableMethod.AggregateWithSeedAndFunc,
+            QueryableMethod.AggregateWithSeedAndFunc
+        };
+
+        private static readonly MethodInfo[] __aggregateWithSeedAndFuncAndResultSelectorMethods =
+        {
+            EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
+            QueryableMethod.AggregateWithSeedFuncAndResultSelector
+        };
+
+        private static readonly MethodInfo[] __aggregateIncludingSeedMethods =
         {
             EnumerableMethod.AggregateWithSeedAndFunc,
             EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
@@ -48,13 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.AggregateWithSeedFuncAndResultSelector
         };
 
-        private static readonly MethodInfo[] __aggregateWithSeedFuncAndResultSelectorMethods =
-       {
-            EnumerableMethod.AggregateWithSeedFuncAndResultSelector,
-            QueryableMethod.AggregateWithSeedFuncAndResultSelector
-        };
-
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -62,11 +69,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.IsOneOf(__aggregateMethods))
             {
                 var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                var sourceTargetSerializer = GetSourceTargetSerializer(method, targetSerializer);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression, sourceTargetSerializer);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                if (method.IsOneOf(__aggregateWithoutSeedMethods))
+                if (method.IsOneOf(__aggregateWithFuncMethods))
                 {
                     var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
                     var funcParameters = funcLambda.Parameters;
@@ -75,7 +83,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var itemParameter = funcParameters[1];
                     var itemSymbol = context.CreateSymbolWithVarName(itemParameter, varName: "this", itemSerializer); // note: MQL uses $$this for the item being processed
                     var funcContext = context.WithSymbols(accumulatorSymbol, itemSymbol);
-                    var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcLambda.Body);
+                    var funcTargetSerializer = GetFuncTargetSerializer(method, targetSerializer);
+                    var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcLambda.Body, funcTargetSerializer);
 
                     var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
                     var seedVar = AstExpression.Var("seed");
@@ -95,10 +104,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     return new AggregationExpression(expression, ast, itemSerializer);
                 }
-                else if (method.IsOneOf(__aggregateWithSeedMethods))
+                else if (method.IsOneOf(__aggregateIncludingSeedMethods))
                 {
                     var seedExpression = arguments[1];
-                    var seedTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, seedExpression);
+                    var seedTargetSerializer = GetSeedTargetSerializer(method, targetSerializer);
+                    var seedTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, seedExpression, seedTargetSerializer);
 
                     var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
                     var funcParameters = funcLambda.Parameters;
@@ -108,7 +118,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var itemParameter = funcParameters[1];
                     var itemSymbol = context.CreateSymbolWithVarName(itemParameter, varName: "this", itemSerializer); // note: MQL uses $$this for the item being processed
                     var funcContext = context.WithSymbols(accumulatorSymbol, itemSymbol);
-                    var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcLambda.Body);
+                    var funcTargetSerializer = GetFuncTargetSerializer(method, targetSerializer);
+                    var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcLambda.Body, funcTargetSerializer);
 
                     var ast = AstExpression.Reduce(
                         input: sourceTranslation.Ast,
@@ -116,13 +127,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         @in: funcTranslation.Ast);
                     var serializer = accumulatorSerializer;
 
-                    if (method.IsOneOf(__aggregateWithSeedFuncAndResultSelectorMethods))
+                    if (method.IsOneOf(__aggregateWithSeedAndFuncAndResultSelectorMethods))
                     {
                         var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[3]);
                         var resultSelectorAccumulatorParameter = resultSelectorLambda.Parameters[0];
                         var resultSelectorAccumulatorSymbol = context.CreateSymbol(resultSelectorAccumulatorParameter, accumulatorSerializer);
                         var resultSelectorContext = context.WithSymbol(resultSelectorAccumulatorSymbol);
-                        var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
+                        var resultSelectorTargetSerializer = GetResultSelectorTargetSerializer(method, targetSerializer);
+                        var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body, resultSelectorTargetSerializer);
 
                         ast = AstExpression.Let(
                             var: AstExpression.VarBinding(resultSelectorAccumulatorSymbol.Var, ast),
@@ -135,6 +147,58 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static IBsonSerializer GetFuncTargetSerializer(MethodInfo method, IBsonSerializer targetSerializer)
+        {
+            if (method.IsOneOf(__aggregateWithFuncMethods, __aggregateWithSeedAndFuncMethods))
+            {
+                return targetSerializer;
+            }
+
+            return null;
+        }
+
+        private static IBsonSerializer GetResultSelectorTargetSerializer(MethodInfo method, IBsonSerializer targetSerializer)
+        {
+            if (method.IsOneOf(__aggregateWithSeedAndFuncAndResultSelectorMethods))
+            {
+                return targetSerializer;
+            }
+
+            return null;
+        }
+
+        private static IBsonSerializer GetSeedTargetSerializer(MethodInfo method, IBsonSerializer targetSerializer)
+        {
+            if (method.IsOneOf(__aggregateWithSeedAndFuncMethods))
+            {
+                return targetSerializer;
+            }
+
+            return null;
+        }
+
+        private static IBsonSerializer GetSourceTargetSerializer(MethodInfo method,  IBsonSerializer targetSerializer)
+        {
+            IBsonSerializer itemSerializer = null;
+            if (method.IsOneOf(__aggregateWithFuncMethods))
+            {
+                itemSerializer = targetSerializer;
+            }
+
+            if (method.IsOneOf(__aggregateWithSeedAndFuncMethods))
+            {
+                var genericArguments = method.GetGenericArguments();
+                var sourceType = genericArguments[0];
+                var accumulateType = genericArguments[1];
+                if (sourceType == accumulateType)
+                {
+                    itemSerializer = targetSerializer;
+                }
+            }
+
+            return itemSerializer == null ? null : IEnumerableSerializer.Create(itemSerializer);
         }
     }
 }

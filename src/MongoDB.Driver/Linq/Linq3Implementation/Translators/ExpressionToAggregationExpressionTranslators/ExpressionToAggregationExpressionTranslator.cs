@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case ExpressionType.ArrayLength:
                     return ArrayLengthExpressionToAggregationExpressionTranslator.Translate(context, (UnaryExpression)expression);
                 case ExpressionType.Call:
-                    return MethodCallExpressionToAggregationExpressionTranslator.Translate(context, (MethodCallExpression)expression);
+                    return MethodCallExpressionToAggregationExpressionTranslator.Translate(context, (MethodCallExpression)expression, targetSerializer);
                 case ExpressionType.Conditional:
                     return ConditionalExpressionToAggregationExpressionTranslator.Translate(context, (ConditionalExpression)expression);
                 case ExpressionType.Constant:
@@ -91,19 +91,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ExpressionNotSupportedException(expression);
         }
 
-        public static AggregationExpression TranslateEnumerable(TranslationContext context, Expression expression)
+        public static AggregationExpression TranslateEnumerable(TranslationContext context, Expression expression, IBsonSerializer targetSerializer = null)
         {
-            var aggregateExpression = Translate(context, expression);
+            var aggregateExpression = Translate(context, expression, targetSerializer);
 
-            var serializer = aggregateExpression.Serializer;
-            if (serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
+            var resultSerializer = aggregateExpression.Serializer;
+            if (resultSerializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
             {
                 var enumerableFieldName = wrappedEnumerableSerializer.EnumerableFieldName;
-                var enumerableElementSerializer = wrappedEnumerableSerializer.EnumerableElementSerializer;
-                var enumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
-                var ast = AstExpression.GetField(aggregateExpression.Ast, enumerableFieldName);
+                var itemSerializer = wrappedEnumerableSerializer.EnumerableElementSerializer;
 
-                return new AggregationExpression(aggregateExpression.Expression, ast, enumerableSerializer);
+                var ast = AstExpression.GetField(aggregateExpression.Ast, enumerableFieldName);
+                resultSerializer = IEnumerableSerializer.Create(itemSerializer);
+                return new AggregationExpression(aggregateExpression.Expression, ast, resultSerializer);
             }
 
             return aggregateExpression;

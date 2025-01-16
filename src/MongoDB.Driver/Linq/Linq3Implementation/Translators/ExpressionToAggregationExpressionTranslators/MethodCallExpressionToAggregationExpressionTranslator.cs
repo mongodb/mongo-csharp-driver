@@ -14,20 +14,21 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
     internal static class MethodCallExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             switch (expression.Method.Name)
             {
                 case "Abs": return AbsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Add": return AddMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "AddToSet": return AddToSetMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "Aggregate": return AggregateMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Aggregate": return AggregateMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "All": return AllMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Any": return AnyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "AsQueryable": return AsQueryableMethodToAggregationExpressionTranslator.Translate(context, expression);
