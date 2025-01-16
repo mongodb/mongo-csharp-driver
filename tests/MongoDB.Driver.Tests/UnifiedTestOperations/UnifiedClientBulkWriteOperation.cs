@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "writeConcern":
                         options ??= new ClientBulkWriteOptions();
-                        options.WriteConcern = WriteConcern.FromBsonDocument(argument.Value.AsBsonDocument);
+                        options.WriteConcern = UnifiedEntityMap.ParseWriteConcern(argument.Value.AsBsonDocument);
                         break;
                     default:
                         throw new FormatException($"Invalid BulkWriteOperation argument name: '{argument.Name}'.");

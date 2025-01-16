@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
@@ -156,7 +157,27 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("Serverless", "SupportLoadBalancing")]
         [UnifiedTestsTheory("transactions.tests.unified")]
-        public void Transactions(JsonDrivenTestCase testCase) => Run(testCase);
+        public void Transactions(JsonDrivenTestCase testCase)
+        {
+            if (testCase.Name.Contains("add RetryableWriteError and UnknownTransactionCommitResult labels to connection errors"))
+            {
+                throw new SkipException("Skipped because CSharp Driver has an issue with handling read timeout for sync code-path.");
+            }
+
+            if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded &&
+                (testCase.Name.StartsWith("read-concern.json:only first distinct includes readConcern") ||
+                testCase.Name.StartsWith("read-concern.json:distinct ignores collection readConcern") ||
+                testCase.Name.StartsWith("pin-mongos.json:distinct") ||
+                testCase.Name.StartsWith("reads.json:distinct")))
+            {
+                RequireServer.Check().VersionGreaterThanOrEqualTo(SemanticVersion.Parse("4.4"));
+            }
+
+            Run(testCase);
+        }
+
+        [UnifiedTestsTheory("transactions_convenient_api.tests.unified")]
+        public void TransactionsConvenientApi(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("unified_test_format.tests.valid_fail")]
         public void UnifiedTestFormatValidFail(JsonDrivenTestCase testCase)
