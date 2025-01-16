@@ -173,6 +173,11 @@ namespace MongoDB.Driver.Tests.Specifications
                 RequireServer.Check().VersionGreaterThanOrEqualTo(SemanticVersion.Parse("4.4"));
             }
 
+            if (testCase.Name.Contains("client-bulkWrite.json:client bulkWrite with writeConcern in a transaction causes a transaction error"))
+            {
+                throw new SkipException("CSHARP Driver does not comply with the requirement to throw in case explicit writeConcern were used");
+            }
+
             Run(testCase);
         }
 
