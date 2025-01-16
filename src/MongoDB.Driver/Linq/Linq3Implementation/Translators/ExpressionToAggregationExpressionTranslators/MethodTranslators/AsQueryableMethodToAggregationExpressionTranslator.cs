@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AsQueryableMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -31,12 +31,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.Is(QueryableMethod.AsQueryable))
             {
                 var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                var sourceTargetSerializer = GetSourceTargetSerializer(targetSerializer);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression, sourceTargetSerializer);
 
                 IBsonSerializer serializer;
                 if (sourceTranslation.Serializer is INestedAsQueryableSerializer)
                 {
-                    serializer = sourceTranslation.Serializer; 
+                    serializer = sourceTranslation.Serializer;
                 }
                 else
                 {
@@ -48,6 +49,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static IBsonSerializer GetSourceTargetSerializer(IBsonSerializer targetSerializer)
+        {
+            if (targetSerializer is IBsonArraySerializer arraySerializer)
+            {
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(arraySerializer);
+                return IEnumerableSerializer.Create(itemSerializer);
+            }
+
+            return null;
         }
     }
 }

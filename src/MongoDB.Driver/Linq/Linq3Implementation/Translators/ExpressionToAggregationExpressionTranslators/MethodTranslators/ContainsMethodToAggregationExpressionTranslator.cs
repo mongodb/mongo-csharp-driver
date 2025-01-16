@@ -77,8 +77,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
             NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-            var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+            var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression, itemSerializer);
             var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
 
             return new AggregationExpression(expression, ast, BooleanSerializer.Instance);

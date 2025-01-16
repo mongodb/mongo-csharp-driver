@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var dictionarySerializer = GetDictionarySerializer(expression, dictionaryTranslation);
                 var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
 
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression, dictionarySerializer.ValueSerializer);
                 var (valueBinding, valueAst) = AstExpression.UseVarIfNotSimple("value", valueTranslation.Ast);
 
                 AstExpression ast;

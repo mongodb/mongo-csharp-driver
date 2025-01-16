@@ -30,11 +30,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (IComparableMethod.IsCompareToMethod(method))
             {
                 var objectExpression = expression.Object;
-                var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
                 var otherExpression = arguments[0];
-                var otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression);
+
+                AggregationExpression objectTranslation;
+                AggregationExpression otherTranslation;
+                if (objectExpression is ConstantExpression && otherExpression is not ConstantExpression)
+                {
+                    otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression);
+                    objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression, otherTranslation.Serializer);
+                }
+                else
+                {
+                    objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
+                    otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression, objectTranslation.Serializer);
+                }
                 var ast = AstExpression.Cmp(objectTranslation.Ast, otherTranslation.Ast);
-                return new AggregationExpression(expression, ast, new Int32Serializer());
+
+                return new AggregationExpression(expression, ast, Int32Serializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);

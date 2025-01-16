@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             ValueTupleMethod.Create8
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -59,40 +59,48 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.IsOneOf(__tupleCreateMethods) || method.IsOneOf(__valueTupleCreateMethods))
             {
                 var tupleType = method.ReturnType;
+                var isValueTuple = tupleType.IsValueTuple();
+
+                IBsonTupleSerializer targetTupleSerializer = null;
+                if (targetSerializer != null && (targetTupleSerializer = targetSerializer as IBsonTupleSerializer) == null)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer {targetSerializer.GetType()} does not implement IBsonTupleSerializer");
+                }
 
                 var items = new AstExpression[arguments.Count];
                 var itemSerializers = new IBsonSerializer[arguments.Count];
                 for (var i = 0; i < arguments.Count; i++)
                 {
-                    var valueExpression = arguments[i];
-                    var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                    var itemExpression = arguments[i];
+                    var itemTargetSerializer = targetTupleSerializer?.GetItemSerializer(i);
+                    var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, itemExpression, itemTargetSerializer);
                     AstExpression item;
                     IBsonSerializer itemSerializer;
                     if (i < 7)
                     {
-                        item = valueTranslation.Ast;
-                        itemSerializer = valueTranslation.Serializer;
+                        item = itemTranslation.Ast;
+                        itemSerializer = itemTranslation.Serializer;
                     }
                     else
                     {
-                        item = AstExpression.ComputedArray(valueTranslation.Ast);
-                        itemSerializer = CreateTupleSerializer(tupleType, new[] { valueTranslation.Serializer });
+                        item = AstExpression.ComputedArray(itemTranslation.Ast);
+                        itemSerializer = CreateTupleSerializer(isValueTuple, [itemTranslation.Serializer]);
                     }
                     items[i] = item;
                     itemSerializers[i] = itemSerializer;
                 }
-
                 var ast = AstExpression.ComputedArray(items);
-                var tupleSerializer = CreateTupleSerializer(tupleType, itemSerializers);
-                return new AggregationExpression(expression, ast, tupleSerializer);
+
+                var resultSerializer = targetSerializer ?? CreateTupleSerializer(isValueTuple, itemSerializers);
+                return new AggregationExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static IBsonSerializer CreateTupleSerializer(Type tupleType, IEnumerable<IBsonSerializer> itemSerializers)
+        private static IBsonSerializer CreateTupleSerializer(bool isValueTuple, IEnumerable<IBsonSerializer> itemSerializers)
         {
-            return tupleType.IsTuple() ? TupleSerializer.Create(itemSerializers) : ValueTupleSerializer.Create(itemSerializers);
+            return isValueTuple ? ValueTupleSerializer.Create(itemSerializers) : TupleSerializer.Create(itemSerializers);
         }
     }
 }
