@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 case "Append":
                 case "Prepend":
-                    return AppendOrPrependMethodToAggregationExpressionTranslator.Translate(context, expression);
+                    return AppendOrPrependMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
 
                 case "Bottom":
                 case "BottomN":
