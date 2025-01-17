@@ -20,6 +20,8 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
@@ -29,6 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Test_set_ValueObject_Value_using_creator_map()
         {
+            RequireServer.Check().Supports(Feature.UpdateWithAggregationPipeline);
             var coll = GetCollection();
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
@@ -52,6 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Test_set_ValueObject_Value_using_property_setter()
         {
+            RequireServer.Check().Supports(Feature.UpdateWithAggregationPipeline);
             var coll = GetCollection();
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
@@ -99,6 +103,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Test_set_X_using_constructor()
         {
+            RequireServer.Check().Supports(Feature.UpdateWithAggregationPipeline);
             var coll = GetCollection();
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);
@@ -122,6 +127,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Test_set_A()
         {
+            RequireServer.Check().Supports(Feature.UpdateWithAggregationPipeline);
             var coll = GetCollection();
             var doc = new MyDocument();
             var filter = Builders<MyDocument>.Filter.Eq(x => x.Id, doc.Id);

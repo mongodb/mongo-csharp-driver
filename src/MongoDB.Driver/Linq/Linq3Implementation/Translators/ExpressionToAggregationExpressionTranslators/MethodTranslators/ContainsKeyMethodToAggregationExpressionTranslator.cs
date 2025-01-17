@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             ThrowIfKeyIsNotRepresentedAsAString(expression, keySerializer);
-            var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
+            var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression, keySerializer);
             return keyTranslation.Ast;
         }
 

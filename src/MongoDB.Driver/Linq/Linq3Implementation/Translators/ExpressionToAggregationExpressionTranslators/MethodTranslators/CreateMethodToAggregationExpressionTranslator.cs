@@ -61,8 +61,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var tupleType = method.ReturnType;
                 var isValueTuple = tupleType.IsValueTuple();
 
-                IBsonTupleSerializer targetTupleSerializer = null;
-                if (targetSerializer != null && (targetTupleSerializer = targetSerializer as IBsonTupleSerializer) == null)
+                IBsonTupleSerializer tupleTargetSerializer = null;
+                if (targetSerializer != null && (tupleTargetSerializer = targetSerializer as IBsonTupleSerializer) == null)
                 {
                     throw new ExpressionNotSupportedException(expression, because: $"serializer {targetSerializer.GetType()} does not implement IBsonTupleSerializer");
                 }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 for (var i = 0; i < arguments.Count; i++)
                 {
                     var itemExpression = arguments[i];
-                    var itemTargetSerializer = targetTupleSerializer?.GetItemSerializer(i);
+                    var itemTargetSerializer = tupleTargetSerializer?.GetItemSerializer(i);
                     var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, itemExpression, itemTargetSerializer);
                     AstExpression item;
                     IBsonSerializer itemSerializer;
