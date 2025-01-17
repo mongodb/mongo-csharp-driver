@@ -44,10 +44,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "CovarianceSample": return CovarianceSampleMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Create": return CreateMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "DateFromString": return DateFromStringMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "DefaultIfEmpty": return DefaultIfEmptyMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "DefaultIfEmpty": return DefaultIfEmptyMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "DenseRank": return DenseRankMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Derivative": return DerivativeMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "Distinct": return DistinctMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Distinct": return DistinctMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "DocumentNumber": return DocumentNumberMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Equals": return EqualsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Except": return ExceptMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 case "ElementAt":
                 case "ElementAtOrDefault":
-                    return ElementAtMethodToAggregationExpressionTranslator.Translate(context, expression);
+                    return ElementAtMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
 
                 case "First":
                 case "FirstOrDefault":

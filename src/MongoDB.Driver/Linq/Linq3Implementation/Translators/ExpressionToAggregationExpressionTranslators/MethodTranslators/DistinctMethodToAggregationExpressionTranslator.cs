@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -30,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.Distinct
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.IsOneOf(__distinctMethods))
             {
                 var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression, targetSerializer);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
