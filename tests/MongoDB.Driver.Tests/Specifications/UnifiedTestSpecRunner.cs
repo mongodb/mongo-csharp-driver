@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Tests.Specifications
 
             if (testCase.Name.Contains("client-bulkWrite.json:client bulkWrite with writeConcern in a transaction causes a transaction error"))
             {
-                throw new SkipException("CSHARP Driver does not comply with the requirement to throw in case explicit writeConcern were used");
+                throw new SkipException("CSHARP Driver does not comply with the requirement to throw in case explicit writeConcern were used, see CSHARP-5468");
             }
 
             Run(testCase);
