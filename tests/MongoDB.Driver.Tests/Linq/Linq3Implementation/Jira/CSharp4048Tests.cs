@@ -786,8 +786,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$$ROOT' } } }", // MQL could be optimized further
-                "{ $project : { _id : '$_id', Result : { $setIntersection : '$_elements' } } }",
+                "{ $group : { _id : '$_id', __agg0 : { $addToSet : '$$ROOT' } } }",
+                "{ $project : { _id : '$_id', Result : '$__agg0' } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -811,8 +811,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { _id : '$_id', Result : { $setIntersection : '$_elements' } } }",
+                "{ $group : { _id : '$_id', __agg0 : { $addToSet : '$X' } } }",
+                "{ $project : { _id : '$_id', Result : '$__agg0' } }",
                 "{ $sort : { _id : 1 } }"
             };
             AssertStages(stages, expectedStages);
