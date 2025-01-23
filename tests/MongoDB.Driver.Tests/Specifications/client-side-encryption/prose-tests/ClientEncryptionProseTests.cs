@@ -24,6 +24,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime;
@@ -1421,6 +1422,163 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 else
                 {
                     exception.Should().BeNull();
+                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task KmsRetryTest(
+            [Values("aws", "azure", "gcp")] string kmsProvider,
+            [Values("network", "http")] string failureType,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            const string endpoint = "127.0.0.1:9003";
+
+            var masterKey = kmsProvider switch
+            {
+                "aws" => new BsonDocument
+                {
+                    { "region", "foo" },
+                    { "key", "bar" },
+                    { "endpoint", $"{endpoint}" }
+                },
+                "azure" => new BsonDocument
+                {
+                    { "keyVaultEndpoint", $"{endpoint}" },
+                    { "keyName", "foo" },
+                },
+                "gcp" => new BsonDocument
+                {
+                    { "projectId", "foo" },
+                    { "location", "bar" },
+                    { "keyRing", "baz" },
+                    { "keyName", "qux" },
+                    { "endpoint", $"{endpoint}" }
+                },
+                _ => throw new ArgumentException(nameof(kmsProvider))
+            };
+
+            await ResetServer();
+
+            using var clientEncrypted = ConfigureClientEncrypted();
+            using var clientEncryption = ConfigureClientEncryption(
+                clientEncrypted,
+                kmsProviderFilter: kmsProvider,
+                kmsProviderConfigurator: KmsProviderEndpointConfigurator
+            );
+
+            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
+
+            await SetFailure(failureType, 1);
+
+            Guid dataKey = default;
+            Exception ex;
+            if (async)
+            {
+                ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
+                    .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+            }
+            else
+            {
+                ex = Record.Exception(() => dataKey = clientEncryption
+                    .CreateDataKey(kmsProvider, dataKeyOptions, CancellationToken.None));
+            }
+            ex.Should().BeNull();
+
+            await SetFailure(failureType, 1);
+
+            Exception ex2;
+            if (async)
+            {
+                ex2 = await Record.ExceptionAsync(async () => await clientEncryption.EncryptAsync(new BsonInt32(123),
+                    new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
+            }
+            else
+            {
+                ex2 = Record.Exception(() => clientEncryption.Encrypt(new BsonInt32(123),
+                    new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
+            }
+            ex2.Should().BeNull();
+
+            if (failureType == "network")
+            {
+                await SetFailure("network", 4);
+
+                Exception ex3;
+                if (async)
+                {
+                    ex3 = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
+                        .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+                }
+                else
+                {
+                    ex3 = Record.Exception(() => dataKey = clientEncryption
+                        .CreateDataKey(kmsProvider, dataKeyOptions, CancellationToken.None));
+                }
+                ex3.Should().NotBeNull();
+            }
+
+            return;
+
+            void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
+            {
+                switch (kmsProviderName)
+                {
+                    case "aws":
+                        break;
+                    case "azure":
+                        kmsOptions.Add("identityPlatformEndpoint", endpoint);
+                        break;
+                    case "gcp":
+                        kmsOptions.Add("endpoint", endpoint);
+                        break;
+                    default:
+                        throw new Exception($"Unexpected kmsProvider {endpoint}.");
+                }
+            }
+
+            HttpClient GetClient()
+            {
+                var handler = new HttpClientHandler
+                {
+                    ClientCertificates =
+                    {
+                        new X509Certificate2(Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH")!,
+                            Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD"))
+                    },
+                };
+
+                return new HttpClient(handler);
+            }
+
+            async Task SetFailure(string failure, int count)
+            {
+                using var client = GetClient();
+                var jsonData = new { count }.ToJson();
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                var uri = new Uri($"https://{endpoint}/set_failpoint/{failure}");
+                var response = await client.PostAsync(uri, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error while setting failure!");
+                }
+            }
+
+            async Task ResetServer()
+            {
+                using var client = GetClient();
+                var uri = new Uri($"https://{endpoint}/reset");
+                var response = await client.PostAsync(uri, null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error while resetting!");
                 }
             }
         }
