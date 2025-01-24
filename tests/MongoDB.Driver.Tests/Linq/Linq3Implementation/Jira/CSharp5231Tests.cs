@@ -16,7 +16,6 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -86,18 +85,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public sealed class TestDataFixture : MongoDatabaseFixture
         {
             public IMongoCollection<C> Collection1 { get; private set; }
-
             public IMongoCollection<D> Collection2 { get; private set; }
 
             protected override void InitializeFixture()
             {
-                Collection1 = GetCollection<C>("collection1");
+                Collection1 = CreateCollection<C>("collection1");
                 Collection1.InsertMany([
                     new C { Id = 1, X = 1 },
                     new C { Id = 2, X = 2 },
                     new C { Id = 3, X = 3 }]);
 
-                Collection2 = GetCollection<D>("collection2");
+                Collection2 = CreateCollection<D>("collection2");
                 Collection2.InsertMany([
                     new D { Id = 1, X = 2 },
                     new D { Id = 2, X = 3 },

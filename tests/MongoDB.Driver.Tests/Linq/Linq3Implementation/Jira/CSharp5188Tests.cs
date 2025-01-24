@@ -270,7 +270,5 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public int Z { get; set; }
         }
-
-
     }
 }

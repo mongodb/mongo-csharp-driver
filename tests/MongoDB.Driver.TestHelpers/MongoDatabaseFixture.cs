@@ -22,14 +22,19 @@ namespace MongoDB.Driver.Tests
 {
     public class MongoDatabaseFixture : IDisposable
     {
-        private static readonly string __timeStamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        private static readonly string __timeStamp = DateTime.Now.ToString("MMddHHmm");
 
-        private readonly string _databaseName = $"CSharpDriver-{__timeStamp}";
+        private readonly Lazy<IMongoClient> _client;
+        private readonly Lazy<IMongoDatabase> _database;
+        private readonly string _databaseName = $"Tests{__timeStamp}";
+        private bool _fixtureInialized;
         private readonly HashSet<string> _usedCollections = new();
-        private IMongoClient _client;
 
         public MongoDatabaseFixture()
         {
+            _client = new Lazy<IMongoClient>(CreateClient);
+            _database = new Lazy<IMongoDatabase>(CreateDatabase);
+
             var logCategoriesToExclude = new[]
             {
                 "MongoDB.Command",
@@ -39,61 +44,66 @@ namespace MongoDB.Driver.Tests
             LogsAccumulator = new XUnitOutputAccumulator(logCategoriesToExclude);
         }
 
+        public IMongoClient Client => _client.Value;
+        public IMongoDatabase Database => _database.Value;
+
         internal XUnitOutputAccumulator LogsAccumulator { get; }
 
         public virtual void Dispose()
         {
-            if (_client == null)
+            var client = _client.IsValueCreated ? _client.Value : null;
+            var database = _database.IsValueCreated ? _database.Value : null;
+
+            if (database != null)
             {
-                return;
+                foreach (var collection in _usedCollections)
+                {
+                    database.DropCollection(collection);
+                }
             }
 
-            var database = GetDatabase();
-            foreach (var collection in _usedCollections)
-            {
-                database.DropCollection(collection);
-            }
-
-            var client = _client;
-            _client = null;
-            client.Dispose();
+            client?.Dispose();
         }
 
-        public IMongoClient GetClient()
-            => _client;
-
-        public virtual IMongoDatabase GetDatabase()
-            => GetClient().GetDatabase(_databaseName);
-
-        public virtual IMongoCollection<T> GetCollection<T>(string collectionName = null)
+        public virtual IMongoCollection<TDocument> CreateCollection<TDocument>(string collectionName = null)
         {
             if (string.IsNullOrEmpty(collectionName))
             {
                 var stack = new System.Diagnostics.StackTrace();
-                var frame = stack.GetFrame(2); // skip 2 frames to get the calling method info (this method and IntegrationTest method)
+                var frame = stack.GetFrame(1); // skip 1 frame to get the calling method info
                 var method = frame.GetMethod();
-                collectionName = $"{method.DeclaringType.Name}.{method.Name}_{typeof(T).Name}";
+                collectionName = $"{method.DeclaringType.Name}_{method.Name}";
             }
 
-            var db = GetDatabase();
-            db.DropCollection(collectionName);
+            Database.DropCollection(collectionName);
             _usedCollections.Add(collectionName);
-            return db.GetCollection<T>(collectionName);
+
+            return Database.GetCollection<TDocument>(collectionName);
         }
 
-        protected virtual void ConfigureMongoClient(MongoClientSettings settings)
+        protected virtual void ConfigureMongoClientSettings(MongoClientSettings settings)
         {
             settings.LoggingSettings = new LoggingSettings(new XUnitLoggerFactory(LogsAccumulator), 10000); // Spec test require larger truncation default
         }
 
+        protected virtual IMongoClient CreateClient()
+        {
+            var clientSettings = DriverTestConfiguration.GetClientSettings();
+            ConfigureMongoClientSettings(clientSettings);
+            return new MongoClient(clientSettings);
+        }
+
+        protected virtual IMongoDatabase CreateDatabase()
+        {
+            return Client.GetDatabase(_databaseName);
+        }
+
         internal void Initialize()
         {
-            if (_client == null)
+            if (!_fixtureInialized)
             {
-                var clientSettings = DriverTestConfiguration.GetClientSettings();
-                ConfigureMongoClient(clientSettings);
-                _client = new MongoClient(clientSettings);
                 InitializeFixture();
+                _fixtureInialized = true;
             }
 
             InitializeTestCase();

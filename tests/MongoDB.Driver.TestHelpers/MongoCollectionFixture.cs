@@ -21,8 +21,9 @@ namespace MongoDB.Driver.TestHelpers
 {
     public abstract class MongoCollectionFixture<TDocument> : MongoDatabaseFixture
     {
+        private readonly Lazy<IMongoCollection<TDocument>> _collection;
         private readonly string _collectionName;
-        private bool _collectionInitialized;
+        private bool _dataInitialized;
 
         protected MongoCollectionFixture(string collectionName = null)
         {
@@ -31,42 +32,35 @@ namespace MongoDB.Driver.TestHelpers
             {
                 throw new ArgumentNullException(nameof(collectionName) , "Cannot resolve the collection name. Try to specify the parameter explicitly");
             }
+
+            _collection = new Lazy<IMongoCollection<TDocument>>(CreateCollection);
         }
 
+        public IMongoCollection<TDocument> Collection => _collection.Value;
         public string CollectionName => _collectionName;
-
         protected abstract IEnumerable<TDocument> InitialData { get; }
 
-        public virtual bool ResetOnEachTestCase => false;
+        public virtual bool InitializeDataBeforeEachTestCase => false;
 
-        public override IMongoCollection<T> GetCollection<T>(string collectionName = null)
+        protected virtual IMongoCollection<TDocument> CreateCollection()
         {
-            if (typeof(T) != typeof(TDocument))
-            {
-                throw new ArgumentException("T must be of TDocument type");
-            }
-
-            if (!string.IsNullOrEmpty(collectionName))
-            {
-                throw new NotSupportedException("CollectionFixture does not support explicit collection name.");
-            }
-
-            var db = GetDatabase();
-            return db.GetCollection<T>(CollectionName);
+            return CreateCollection<TDocument>(_collectionName);
         }
 
         protected override void InitializeTestCase()
         {
-            if (ResetOnEachTestCase || !_collectionInitialized)
+            if (InitializeDataBeforeEachTestCase || !_dataInitialized)
             {
+                Collection.Database.DropCollection(_collectionName);
+                Collection.Database.CreateCollection(_collectionName);
+
                 var initialData = InitialData;
                 if (initialData != null)
                 {
-                    var collection = base.GetCollection<TDocument>(CollectionName);
-                    collection.InsertMany(initialData);
+                    Collection.InsertMany(initialData);
                 }
 
-                _collectionInitialized = true;
+                _dataInitialized = true;
             }
         }
 

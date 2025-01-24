@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Filter_ElemMatch_should_work()
         {
-            var collection = Fixture.GetCollection<Entity>();
+            var collection = Fixture.Collection;
             var filter = Builders<Entity>.Filter.ElemMatch(e => e.Values, x => x > 1 && x < 3);
 
             var renderedUpdate = (BsonDocument)filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry)); ;
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Update_PullFilter_should_work()
         {
-            var collection = Fixture.GetCollection<Entity>();
+            var collection = Fixture.Collection;
             var update = Builders<Entity>.Update.PullFilter(e => e.Values, x => x > 1 && x < 3);
 
             var renderedUpdate = (BsonDocument)update.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry)); ;
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new Entity { Id = 2, Values = new List<int> { 4, 5, 6 } }
             ];
 
-            public override bool ResetOnEachTestCase => true;
+            public override bool InitializeDataBeforeEachTestCase => true;
         }
     }
 }

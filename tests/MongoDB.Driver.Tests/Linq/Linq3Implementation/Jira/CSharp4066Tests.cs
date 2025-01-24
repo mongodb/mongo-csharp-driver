@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void String_comparison_in_filter_should_use_custom_serializer()
         {
-            var collection = Fixture.GetCollection<C>();
+            var collection = Fixture.CreateCollection<C>();
 
             var id = "0102030405060708090a0b0c";
             collection.InsertMany(

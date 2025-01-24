@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Mammal_should_work()
         {
-            var collection = Fixture.GetCollection<Animal>();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OfType<Mammal>();
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Dog_should_work()
         {
-            var collection = Fixture.GetCollection<Animal>();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OfType<Dog>();
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Reptile_should_work()
         {
-            var collection = Fixture.GetCollection<Animal>();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OfType<Snake>();

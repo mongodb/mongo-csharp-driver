@@ -32,7 +32,7 @@ public class CSharp5163Tests : LinqIntegrationTest<CSharp5163Tests.TestDataFixtu
     [Fact]
     public void Select_muliply_int_long_should_work()
     {
-        var collection = Fixture.GetCollection<MyModel>();
+        var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
             .Select(x => x.Int * 36000000000L);
@@ -47,7 +47,7 @@ public class CSharp5163Tests : LinqIntegrationTest<CSharp5163Tests.TestDataFixtu
     [Fact]
     public void Select_muliply_byte_short_should_work()
     {
-        var collection = Fixture.GetCollection<MyModel>();
+        var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
             .Select(x => x.Byte * (short)256);
@@ -59,15 +59,15 @@ public class CSharp5163Tests : LinqIntegrationTest<CSharp5163Tests.TestDataFixtu
         result[0].Should().Be(256);
     }
 
-    public class MyModel
+    public class C
     {
         public int Int { get; set; }
         public byte Byte { get; set; }
     }
 
-    public class TestDataFixture : MongoCollectionFixture<MyModel>
+    public class TestDataFixture : MongoCollectionFixture<C>
     {
-        protected override IEnumerable<MyModel> InitialData
-            => [ new MyModel { Int = 1, Byte = 1 } ];
+        protected override IEnumerable<C> InitialData
+            => [ new C { Int = 1, Byte = 1 } ];
     }
 }

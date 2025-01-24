@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Using_same_anonymous_type_twice_should_work()
         {
-            var collection = Fixture.GetCollection<MyModel>();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => new { X = x.X })
@@ -50,17 +50,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(1);
         }
 
-        public class MyModel
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
         }
 
-        public sealed class TestDataFixture : MongoCollectionFixture<MyModel>
+        public sealed class TestDataFixture : MongoCollectionFixture<C>
         {
-            protected override IEnumerable<MyModel> InitialData =>
+            protected override IEnumerable<C> InitialData =>
             [
-                new MyModel { Id = 1, X = 1 }
+                new C { Id = 1, X = 1 }
             ];
         }
     }
