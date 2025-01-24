@@ -1541,23 +1541,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            HttpClient GetClient()
-            {
-                var handler = new HttpClientHandler
-                {
-                    ClientCertificates =
-                    {
-                        new X509Certificate2(Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH")!,
-                            Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD"))
-                    },
-                };
-
-                return new HttpClient(handler);
-            }
-
             async Task SetFailure(string failure, int count)
             {
-                using var client = GetClient();
+                using var client = new HttpClient();
                 var jsonData = new { count }.ToJson();
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
@@ -1572,7 +1558,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             async Task ResetServer()
             {
-                using var client = GetClient();
+                using var client = new HttpClient();
                 var uri = new Uri($"https://{endpoint}/reset");
                 var response = await client.PostAsync(uri, null);
 
