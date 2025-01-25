@@ -40,6 +40,15 @@ namespace MongoDB.Driver.Linq
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The value that results from executing the specified query.</returns>
         Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Translates an IQueryable to MQL.
+        /// </summary>
+        /// <param name="queryable">The IQueryable.</param>
+        /// <param name="outputSerializer">The output serializer.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <returns>An array of MQL pipeline stages represented as BsonDocuments.</returns>
+        BsonDocument[] Translate<TResult>(IQueryable<TResult> queryable, out IBsonSerializer<TResult> outputSerializer);
     }
 
     /// <summary>
