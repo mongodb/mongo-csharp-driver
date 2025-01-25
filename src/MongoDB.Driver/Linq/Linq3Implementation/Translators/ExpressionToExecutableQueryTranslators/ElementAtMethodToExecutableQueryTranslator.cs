@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 var indexValue = indexExpression.GetConstantValue<int>(containingExpression: expression);
 
                 pipeline = pipeline.AddStages(
-                    pipeline.OutputSerializer,
                     AstStage.Skip(indexValue),
-                    AstStage.Limit(1));
+                    AstStage.Limit(1),
+                    pipeline.OutputSerializer);
 
                 return ExecutableQuery.Create(
                     provider,

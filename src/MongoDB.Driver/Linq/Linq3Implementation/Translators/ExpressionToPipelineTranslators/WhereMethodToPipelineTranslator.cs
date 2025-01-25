@@ -39,9 +39,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var predicateLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                 var predicateFilter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer, asRoot: true);
 
-                pipeline = pipeline.AddStages(
-                    pipeline.OutputSerializer,
-                    AstStage.Match(predicateFilter));
+                pipeline = pipeline.AddStage(
+                    AstStage.Match(predicateFilter),
+                    pipeline.OutputSerializer);
 
                 return pipeline;
             }

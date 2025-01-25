@@ -42,9 +42,39 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         public AstPipeline Ast => _ast;
         public IBsonSerializer OutputSerializer => _outputSerializer;
 
+        public TranslatedPipeline AddStage(
+            AstStage newStage,
+            IBsonSerializer newOutputSerializer)
+        {
+            var oldAstStages = _ast.Stages;
+            var newAstPipeline = new AstPipeline(oldAstStages.Append(newStage));
+            return new TranslatedPipeline(newAstPipeline, newOutputSerializer);
+        }
+
         public TranslatedPipeline AddStages(
-            IBsonSerializer newOutputSerializer,
-            params AstStage[] newStages)
+            AstStage newStage1,
+            AstStage newStage2,
+            IBsonSerializer newOutputSerializer)
+            => AddStages([newStage1, newStage2], newOutputSerializer);
+
+        public TranslatedPipeline AddStages(
+            AstStage newStage1,
+            AstStage newStage2,
+            AstStage newStage3,
+            IBsonSerializer newOutputSerializer)
+            => AddStages([newStage1, newStage2, newStage3], newOutputSerializer);
+
+        public TranslatedPipeline AddStages(
+            AstStage newStage1,
+            AstStage newStage2,
+            AstStage newStage3,
+            AstStage newStage4,
+            IBsonSerializer newOutputSerializer)
+            => AddStages([newStage1, newStage2, newStage3, newStage4], newOutputSerializer);
+
+        public TranslatedPipeline AddStages(
+            AstStage[] newStages,
+            IBsonSerializer newOutputSerializer)
         {
             var oldAstStages = _ast.Stages;
             var newAstPipeline = new AstPipeline(oldAstStages.Concat(newStages));
@@ -71,5 +101,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         }
 
         public override string ToString() => _ast.ToString();
+
+        public TranslatedPipeline WithNewOutputSerializer(IBsonSerializer newOutputSerializer)
+        {
+            return new TranslatedPipeline(_ast, newOutputSerializer);
+        }
     }
 }

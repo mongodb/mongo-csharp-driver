@@ -79,11 +79,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var resultWrappedValueSerializer = WrappedValueSerializer.Create("_v", resultValueSerializer);
 
             pipeline = pipeline.AddStages(
-                resultWrappedValueSerializer,
                 AstStage.Project(
                     AstProject.Set("_v", selectorTranslation.Ast),
                     AstProject.ExcludeId()),
-                AstStage.Unwind("_v"));
+                AstStage.Unwind("_v"),
+                resultWrappedValueSerializer);
 
             return pipeline;
         }
@@ -118,11 +118,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var resultWrappedValueSerializer = WrappedValueSerializer.Create("_v", resultValueSerializer);
 
             return pipeline.AddStages(
-                resultWrappedValueSerializer,
                 AstStage.Project(
                     AstProject.Set("_v", collectionSelectorTranslation.Ast),
                     AstProject.ExcludeId()),
-                AstStage.Unwind("_v"));
+                AstStage.Unwind("_v"),
+                resultWrappedValueSerializer);
         }
 
         private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndNonIdentityResultSelector(
@@ -150,11 +150,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 @in: resultSelectorTranslation.Ast);
 
             return pipeline.AddStages(
-                resultWrappedValueSerializer,
                 AstStage.Project(
                     AstProject.Set("_v", resultAst),
                     AstProject.ExcludeId()),
-                AstStage.Unwind("_v"));
+                AstStage.Unwind("_v"),
+                resultWrappedValueSerializer);
         }
     }
 }

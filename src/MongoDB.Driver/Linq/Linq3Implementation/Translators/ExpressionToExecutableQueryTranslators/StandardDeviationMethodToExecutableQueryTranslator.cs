@@ -288,11 +288,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 var outputWrappedValueSerializer = WrappedValueSerializer.Create("_v", outputValueSerializer);
 
                 pipeline = pipeline.AddStages(
-                    outputWrappedValueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
                         AstExpression.AccumulatorField("_v", stdDevOperator, valueAst)),
-                    AstStage.Project(AstProject.ExcludeId()));
+                    AstStage.Project(AstProject.ExcludeId()),
+                    outputWrappedValueSerializer);
 
                 var finalizer = method.IsOneOf(__standardDeviationNullableMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;
 

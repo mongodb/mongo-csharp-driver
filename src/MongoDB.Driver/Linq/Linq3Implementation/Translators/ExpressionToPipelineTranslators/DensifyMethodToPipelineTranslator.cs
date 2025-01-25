@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                 var stage = AstStage.Densify(fieldPath, range, partitionByFieldPaths);
 
-                pipeline = pipeline.AddStages(sourceSerializer, stage);
+                pipeline = pipeline.AddStage(stage, sourceSerializer);
                 return pipeline;
             }
 

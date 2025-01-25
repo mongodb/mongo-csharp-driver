@@ -79,11 +79,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var (elementAst, elementSerializer) = TranslateElement(context, method, arguments, sourceSerializer);
 
                 var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
-                pipeline = pipeline.AddStages(
-                    groupingSerializer,
+                pipeline = pipeline.AddStage(
                     AstStage.Group(
                         id: keySelectorTranslation.Ast,
-                        fields: AstExpression.AccumulatorField("_elements", AstUnaryAccumulatorOperator.Push, elementAst)));
+                        fields: AstExpression.AccumulatorField("_elements", AstUnaryAccumulatorOperator.Push, elementAst)),
+                    groupingSerializer);
 
                 if (method.IsOneOf(__groupByWithResultSelectorMethods))
                 {
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var resultSelectContext = context.WithSymbols(keySymbol, elementsSymbol);
             var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectContext, resultSelectorLambda.Body);
             var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
-            return pipeline.AddStages(projectionSerializer, projectStage);
+            return pipeline.AddStage(projectStage, projectionSerializer);
         }
     }
 }

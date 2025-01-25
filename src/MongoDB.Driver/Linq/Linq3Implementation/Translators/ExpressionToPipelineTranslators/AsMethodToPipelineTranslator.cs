@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var resultType = method.GetGenericArguments()[1];
                 var outputSerializer = resultSerializer ?? BsonSerializer.LookupSerializer(resultType);
 
-                pipeline = pipeline.AddStages(outputSerializer, newStages: Array.Empty<AstStage>());
+                pipeline = pipeline.WithNewOutputSerializer(outputSerializer);
                 return pipeline;
             }
 

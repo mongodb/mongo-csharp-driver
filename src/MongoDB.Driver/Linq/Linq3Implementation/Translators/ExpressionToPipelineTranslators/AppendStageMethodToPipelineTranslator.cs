@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var resultSerializer = resultSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
                 var outputSerializer = resultSerializer ?? renderedStage.OutputSerializer;
 
-                pipeline = pipeline.AddStages(outputSerializer, stage);
+                pipeline = pipeline.AddStage(stage, outputSerializer);
                 return pipeline;
             }
 

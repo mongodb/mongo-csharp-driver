@@ -70,16 +70,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     var predicateLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var predicateFilter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer, asRoot: true);
 
-                    pipeline = pipeline.AddStages(
-                        pipeline.OutputSerializer,
-                        AstStage.Match(predicateFilter));
+                    pipeline = pipeline.AddStage(
+                        AstStage.Match(predicateFilter),
+                        pipeline.OutputSerializer);
                 }
 
-                pipeline = pipeline.AddStages(
-                    pipeline.OutputSerializer,
+                pipeline = pipeline.AddStage(
                     AstStage.Group(
                         id: BsonNull.Value,
-                        fields: AstExpression.AccumulatorField("_last", AstUnaryAccumulatorOperator.Last, AstExpression.RootVar)));
+                        fields: AstExpression.AccumulatorField("_last", AstUnaryAccumulatorOperator.Last, AstExpression.RootVar)),
+                    pipeline.OutputSerializer);
 
                 var finalizer = method.Name == "LastOrDefault" ? __singleOrDefaultFinalizer : __singleFinalizer;
 

@@ -44,9 +44,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     countExpression.GetConstantValue<long>(containingExpression: expression) :
                     countExpression.GetConstantValue<int>(containingExpression: expression);
 
-                pipeline = pipeline.AddStages(
-                    pipeline.OutputSerializer,
-                    AstStage.Limit(count));
+                pipeline = pipeline.AddStage(
+                    AstStage.Limit(count),
+                    pipeline.OutputSerializer);
 
                 return pipeline;
             }

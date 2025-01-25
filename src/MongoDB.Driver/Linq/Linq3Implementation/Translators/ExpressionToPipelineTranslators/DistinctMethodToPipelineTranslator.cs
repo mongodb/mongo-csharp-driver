@@ -38,9 +38,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 ClientSideProjectionHelper.ThrowIfClientSideProjection(expression, pipeline, method);
 
                 pipeline = pipeline.AddStages(
-                    pipeline.OutputSerializer,
                     AstStage.Group(AstExpression.RootVar, Enumerable.Empty<AstAccumulatorField>()),
-                    AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_id")));
+                    AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_id")),
+                    pipeline.OutputSerializer);
 
                 return pipeline;
             }

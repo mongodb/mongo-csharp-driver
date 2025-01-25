@@ -50,12 +50,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 {
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asRoot: true);
                     var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(selectorTranslation);
-                    pipeline = pipeline.AddStages(projectionSerializer, projectStage);
+                    pipeline = pipeline.AddStage(projectStage, projectionSerializer);
                 }
                 catch (ExpressionNotSupportedException) when (context.TranslationOptions?.EnableClientSideProjections ?? false)
                 {
                     var clientSideProjectionDeserializer = ClientSideProjectionDeserializer.Create(sourceSerializer, selectorLambda);
-                    pipeline = pipeline.AddStages(clientSideProjectionDeserializer, Array.Empty<AstStage>());
+                    pipeline = pipeline.WithNewOutputSerializer(clientSideProjectionDeserializer);
                 }
 
                 return pipeline;

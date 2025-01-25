@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         // private static methods
         private static TranslatedPipeline AppendSortStages(TranslatedPipeline pipeline, AstStage[] newSortStages)
         {
-            return pipeline.AddStages(pipeline.OutputSerializer, newSortStages);
+            return pipeline.AddStages(newSortStages, pipeline.OutputSerializer);
         }
 
         private static TranslatedPipeline CombineSortStages(TranslatedPipeline pipeline, AstStage[] newSortStages)

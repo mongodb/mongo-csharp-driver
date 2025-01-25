@@ -90,11 +90,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 }
 
                 pipeline = pipeline.AddStages(
-                    valueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.AccumulatorField("_min", AstUnaryAccumulatorOperator.Min, valueAst)),
-                    AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_min")));
+                    AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_min")),
+                    valueSerializer);
 
                 return ExecutableQuery.Create(
                     provider,

@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                 var serializedDocuments = SerializationHelper.SerializeValues(documentSerializer, documents);
                 var documentsStage = AstStage.Documents(serializedDocuments);
-                pipeline = pipeline.AddStages(documentSerializer, documentsStage);
+                pipeline = pipeline.AddStage(documentsStage, documentSerializer);
 
                 return pipeline;
             }

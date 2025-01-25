@@ -51,9 +51,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                         secondPipeline = null;
                     }
 
-                    pipeline = pipeline.AddStages(
-                        pipeline.OutputSerializer,
-                        AstStage.UnionWith(secondCollectionName, secondPipeline.Ast));
+                    pipeline = pipeline.AddStage(
+                        AstStage.UnionWith(secondCollectionName, secondPipeline.Ast),
+                        pipeline.OutputSerializer);
 
                     return pipeline;
                 }

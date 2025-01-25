@@ -84,10 +84,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var (projectStage, projectSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
 
                 pipeline = pipeline.AddStages(
-                    projectSerializer,
                     wrapOuterStage,
                     lookupStage,
-                    projectStage);
+                    projectStage,
+                    projectSerializer);
 
                 return pipeline;
             }

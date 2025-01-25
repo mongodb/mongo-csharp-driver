@@ -90,11 +90,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 }
 
                 pipeline = pipeline.AddStages(
-                    valueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.AccumulatorField("_max", AstUnaryAccumulatorOperator.Max, valueAst)),
-                    AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_max")));
+                    AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_max")),
+                    valueSerializer);
 
                 return ExecutableQuery.Create(
                     provider,

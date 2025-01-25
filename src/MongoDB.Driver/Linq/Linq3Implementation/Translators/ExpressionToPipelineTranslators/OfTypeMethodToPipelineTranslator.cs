@@ -74,9 +74,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     resultSerializer = WrappedValueSerializer.Create(wrappedValueOutputSerializer.FieldName, resultSerializer);
                 }
 
-                pipeline = pipeline.AddStages(
-                    resultSerializer,
-                    AstStage.Match(filter));
+                pipeline = pipeline.AddStage(
+                    AstStage.Match(filter),
+                    resultSerializer);
 
                 return pipeline;
             }

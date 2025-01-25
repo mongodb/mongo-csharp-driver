@@ -54,10 +54,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     }
 
                     pipeline = pipeline.AddStages(
-                        pipeline.OutputSerializer,
                         AstStage.UnionWith(secondCollectionName, secondPipeline?.Ast),
                         AstStage.Group(AstExpression.RootVar, fields: Array.Empty<AstAccumulatorField>()),
-                        AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_id")));
+                        AstStage.ReplaceRoot(AstExpression.GetField(AstExpression.RootVar, "_id")),
+                        pipeline.OutputSerializer);
 
                     return pipeline;
                 }

@@ -59,11 +59,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 {
                     valueSerializer = pipeline.OutputSerializer;
                     wrappedValueSerializer = WrappedValueSerializer.Create("_v", valueSerializer);
-                    pipeline = pipeline.AddStages(
-                        wrappedValueSerializer,
+                    pipeline = pipeline.AddStage(
                         AstStage.Project(
                             AstProject.ExcludeId(),
-                            AstProject.Set("_v", AstExpression.RootVar)));
+                            AstProject.Set("_v", AstExpression.RootVar)),
+                        wrappedValueSerializer);
                 }
 
                 var itemExpression = arguments[1];
@@ -72,12 +72,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
                 AstFilter filter = AstFilter.Eq(AstFilter.Field("_v"), serializedValue);
                 pipeline = pipeline.AddStages(
-                    __outputSerializer,
                     AstStage.Match(filter),
                     AstStage.Limit(1),
                     AstStage.Project(
                         AstProject.ExcludeId(),
-                        AstProject.Set("_v", BsonNull.Value)));
+                        AstProject.Set("_v", BsonNull.Value)),
+                    __outputSerializer);
 
                 return ExecutableQuery.Create(
                     provider,

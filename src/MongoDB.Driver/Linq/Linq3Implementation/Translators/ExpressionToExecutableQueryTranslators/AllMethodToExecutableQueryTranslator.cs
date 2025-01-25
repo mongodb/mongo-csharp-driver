@@ -53,12 +53,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 var predicateFilter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer, asRoot: true);
 
                 pipeline = pipeline.AddStages(
-                    __outputSerializer,
                     AstStage.Match(AstFilter.Not(predicateFilter)),
                     AstStage.Limit(1),
                     AstStage.Project(
                         AstProject.ExcludeId(),
-                        AstProject.Set("_v", BsonNull.Value)));
+                        AstProject.Set("_v", BsonNull.Value)),
+                    __outputSerializer);
 
                 return ExecutableQuery.Create(
                     provider,

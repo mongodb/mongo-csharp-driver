@@ -149,11 +149,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 var outputWrappedValueSerializer = WrappedValueSerializer.Create("_v", outputValueSerializer);
 
                 pipeline = pipeline.AddStages(
-                    outputWrappedValueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.AccumulatorField("_v", AstUnaryAccumulatorOperator.Avg, valueExpression)),
-                    AstStage.Project(AstProject.ExcludeId()));
+                    AstStage.Project(AstProject.ExcludeId()),
+                    outputWrappedValueSerializer);
 
                 return ExecutableQuery.Create(
                     provider,

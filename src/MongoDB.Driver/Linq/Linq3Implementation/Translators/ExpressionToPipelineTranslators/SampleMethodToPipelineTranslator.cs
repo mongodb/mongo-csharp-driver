@@ -39,9 +39,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var sizeExpression = arguments[1];
                 var size = sizeExpression.GetConstantValue<long>(containingExpression: expression);
 
-                pipeline = pipeline.AddStages(
-                    pipeline.OutputSerializer,
-                    AstStage.Sample(size));
+                pipeline = pipeline.AddStage(
+                    AstStage.Sample(size),
+                    pipeline.OutputSerializer);
 
                 return pipeline;
             }

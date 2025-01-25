@@ -228,9 +228,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     var lookupResultSerializer = LookupResultSerializer.Create(localSerializer, resultSerializer);
 
                     pipeline = pipeline.AddStages(
-                        lookupResultSerializer,
                         wrapLocalStage,
-                        lookupStage);
+                        lookupStage,
+                        lookupResultSerializer);
 
                     return pipeline;
                 }
