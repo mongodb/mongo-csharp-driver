@@ -1880,8 +1880,11 @@ namespace MongoDB.Driver
             }
 
             var renderedFilter = _filter.Render(args.WithNewDocumentType(itemSerializer) with { RenderForElemMatch = true });
+            var renderedElemMatch = new BsonDocument("$elemMatch", renderedFilter);
 
-            return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
+            return renderedField.FieldName == "@<elem>" ?
+                renderedElemMatch :
+                new BsonDocument(renderedField.FieldName, renderedElemMatch);
         }
     }
 
