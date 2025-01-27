@@ -17,62 +17,44 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    ///
+    /// A scalar discriminator convention for class mapped types.
     /// </summary>
-    public class BsonClassMapScalarDiscriminatorConvention : IScalarDiscriminatorConvention
+    public class BsonClassMapScalarDiscriminatorConvention : StandardDiscriminatorConvention, IScalarDiscriminatorConvention
     {
         private readonly BsonClassMap _classMap;
-        private readonly string _elementName;
 
         // cached map
         private readonly ConcurrentDictionary<Type, BsonValue[]> _typeToDiscriminatorsForTypeAndSubTypesMap = new();
 
         /// <summary>
-        ///
+        /// Gets the class map.
         /// </summary>
         public BsonClassMap ClassMap => _classMap;
 
         /// <summary>
-        ///
+        /// Initializes a new instance of BsonClassMapScalarDiscriminatorConvention.
         /// </summary>
-        public string ElementName => _elementName;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="elementName"></param>
-        /// <param name="classMap"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public BsonClassMapScalarDiscriminatorConvention(BsonClassMap classMap, string elementName)
+        /// <param name="elementName">The discriminator element name.</param>
+        /// <param name="classMap">The class map.</param>
+        public BsonClassMapScalarDiscriminatorConvention(string elementName, BsonClassMap classMap)
+            : base(elementName)
         {
             _classMap = classMap ?? throw new ArgumentNullException(nameof(classMap));
-            _elementName = elementName ?? throw new ArgumentNullException(nameof(elementName));
         }
 
         /// <summary>
-        ///
+        /// Gets the actual type.
         /// </summary>
-        /// <param name="bsonReader"></param>
-        /// <param name="nominalType"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType)
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="discriminator">The discriminator value.</param>
+        /// <returns>The actual type.</returns>
+        protected override Type GetActualType(Type nominalType, BsonValue discriminator)
         {
-            BsonSerializer.EnsureKnownTypesAreRegistered(nominalType);
-
-            var discriminator = ReadDiscriminator(bsonReader);
-            if (discriminator == null)
-            {
-                return nominalType;
-            }
-
             if (_classMap.DiscriminatorToTypeMap.TryGetValue(discriminator, out Type actualType))
             {
                 return actualType;
@@ -91,13 +73,12 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        ///
+        /// Gets the discriminator value.
         /// </summary>
-        /// <param name="nominalType"></param>
-        /// <param name="actualType"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public BsonValue GetDiscriminator(Type nominalType, Type actualType)
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The discriminator value.</returns>
+        public override BsonValue GetDiscriminator(Type nominalType, Type actualType)
         {
             if (actualType == nominalType && !_classMap.DiscriminatorIsRequired)
             {
@@ -113,11 +94,10 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        ///
+        /// Gets the discriminator values for a type and all of its sub types.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <param name="type">The type.</param>
+        /// <returns>The discriminator values for a type and all of its sub types.</returns>
         public BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
         {
             return _typeToDiscriminatorsForTypeAndSubTypesMap.GetOrAdd(type, MapTypeToDiscriminatorsForTypeAndSubTypes);
@@ -129,39 +109,14 @@ namespace MongoDB.Bson.Serialization
             foreach (var entry in _classMap.TypeToDiscriminatorMap)
             {
                 var discriminatedType = entry.Key;
-                var discriminator = entry.Value;
                 if (type.IsAssignableFrom(discriminatedType))
                 {
+                    var discriminator = entry.Value;
                     discriminators.Add(discriminator);
                 }
             }
 
             return discriminators.OrderBy(x => x).ToArray();
-        }
-
-        private BsonValue ReadDiscriminator(IBsonReader bsonReader)
-        {
-            // the BsonReader is sitting at the value whose actual type needs to be found
-            var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Document)
-            {
-                var bookmark = bsonReader.GetBookmark();
-                try
-                {
-                    bsonReader.ReadStartDocument();
-                    if (bsonReader.FindElement(_elementName))
-                    {
-                        var context = BsonDeserializationContext.CreateRoot(bsonReader);
-                        return BsonValueSerializer.Instance.Deserialize(context);
-                    }
-                }
-                finally
-                {
-                    bsonReader.ReturnToBookmark(bookmark);
-                }
-            }
-
-            return null;
         }
     }
 }

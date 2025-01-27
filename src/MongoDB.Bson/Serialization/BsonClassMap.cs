@@ -1391,14 +1391,14 @@ namespace MongoDB.Bson.Serialization
 
                 if (_baseClassMap.ClassType == typeof(object))
                 {
-                    return new BsonClassMapScalarDiscriminatorConvention(this, "_t");
+                    return new BsonClassMapScalarDiscriminatorConvention("_t", this);
                 }
                 else
                 {
                     var discriminatorConvention = _baseClassMap.GetDiscriminatorConvention();
                     if (discriminatorConvention is BsonClassMapScalarDiscriminatorConvention)
                     {
-                        return new BsonClassMapScalarDiscriminatorConvention(this, discriminatorConvention.ElementName);
+                        return new BsonClassMapScalarDiscriminatorConvention(discriminatorConvention.ElementName, this);
                     }
                     else
                     {
