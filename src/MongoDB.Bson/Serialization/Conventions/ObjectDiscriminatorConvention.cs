@@ -135,7 +135,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                     {
                         discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                     }
-                    actualType = BsonSerializer.LookupActualType(nominalType, discriminator);  //TODO For this (and other discriminator conventions) we need to add methods to IDiscriminatorConvention to pass the domain
+                    actualType = BsonSerializer.LookupActualType(nominalType, discriminator);  //TODO ??
                 }
                 bsonReader.ReturnToBookmark(bookmark);
                 return actualType;

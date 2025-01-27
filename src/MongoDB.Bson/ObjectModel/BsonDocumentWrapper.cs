@@ -104,7 +104,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonDocumentWrapper.</returns>
         public static BsonDocumentWrapper Create(Type nominalType, object value)
         {
-            var serializer = BsonSerializer.LookupSerializer(nominalType);  //TODO I think this could stay. We can potentially add methods with the domain as input.
+            var serializer = BsonSerializer.LookupSerializer(nominalType);  //TODO ??
             return new BsonDocumentWrapper(value, serializer);
         }
 
@@ -121,7 +121,7 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("values");
             }
 
-            var serializer = BsonSerializer.LookupSerializer(typeof(TNominalType)); //TODO I think this could stay. We can potentially add methods with the domain as input.
+            var serializer = BsonSerializer.LookupSerializer(typeof(TNominalType)); //TODO ??
             return values.Select(v => new BsonDocumentWrapper(v, serializer));
         }
 
@@ -142,7 +142,7 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("values");
             }
 
-            var serializer = BsonSerializer.LookupSerializer(nominalType); //TODO I think this could stay. We can potentially add methods with the domain as input.
+            var serializer = BsonSerializer.LookupSerializer(nominalType); //TODO ??
             return values.Cast<object>().Select(v => new BsonDocumentWrapper(v, serializer));
         }
 

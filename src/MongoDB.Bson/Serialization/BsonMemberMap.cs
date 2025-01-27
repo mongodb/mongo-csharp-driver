@@ -301,7 +301,7 @@ namespace MongoDB.Bson.Serialization
                 // return special serializer for BsonValue members that handles the _csharpnull representation
                 if (_memberTypeIsBsonValue)
                 {
-                    var wrappedSerializer = BsonSerializer.LookupSerializer(_memberType);   //TODO We need another version of this with the domain as input
+                    var wrappedSerializer = BsonSerializer.LookupSerializer(_memberType);  //TODO ??
                     var isBsonArraySerializer = wrappedSerializer is IBsonArraySerializer;
                     var isBsonDocumentSerializer = wrappedSerializer is IBsonDocumentSerializer;
 
@@ -329,7 +329,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    _serializer = BsonSerializer.LookupSerializer(_memberType);
+                    _serializer = BsonSerializer.LookupSerializer(_memberType); //TODO ??
                 }
             }
             return _serializer;

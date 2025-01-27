@@ -42,7 +42,7 @@ namespace MongoDB.Bson
             {
                 if (!__dynamicArraySerializerWasSet)
                 {
-                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();  //TODO I think we could keep this as is
+                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();  //TODO ??
                 }
                 return __dynamicArraySerializer;
             }
@@ -62,7 +62,7 @@ namespace MongoDB.Bson
             {
                 if (!__dynamicDocumentSerializerWasSet)
                 {
-                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();   //TODO I think we could keep this as is
+                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();   //TODO ??
                 }
                 return __dynamicDocumentSerializer;
             }

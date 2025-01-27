@@ -101,10 +101,10 @@ namespace MongoDB.Bson.Serialization.Conventions
             if (bsonType == BsonType.Document)
             {
                 // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
-                BsonSerializer.EnsureKnownTypesAreRegistered(nominalType);
+                BsonSerializer.EnsureKnownTypesAreRegistered(nominalType); //TODO ??
 
                 // we can skip looking for a discriminator if nominalType has no discriminated sub types
-                if (BsonSerializer.IsTypeDiscriminated(nominalType))
+                if (BsonSerializer.IsTypeDiscriminated(nominalType)) //TODO ??
                 {
                     var bookmark = bsonReader.GetBookmark();
                     bsonReader.ReadStartDocument();
@@ -117,7 +117,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                         {
                             discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                         }
-                        actualType = BsonSerializer.LookupActualType(nominalType, discriminator);
+                        actualType = BsonSerializer.LookupActualType(nominalType, discriminator); //TODO ??
                     }
                     bsonReader.ReturnToBookmark(bookmark);
                     return actualType;
