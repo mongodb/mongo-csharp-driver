@@ -13,17 +13,21 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4066Tests : IntegrationTest<MongoDatabaseFixture>
+    public class CSharp4066Tests : IntegrationTest<CSharp4066Tests.TestDataFixture>
     {
-        public CSharp4066Tests(ITestOutputHelper testOutputHelper, MongoDatabaseFixture fixture)
+        private const string IdValue = "0102030405060708090a0b0c";
+
+        public CSharp4066Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
             : base(testOutputHelper, fixture)
         {
         }
@@ -31,24 +35,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void String_comparison_in_filter_should_use_custom_serializer()
         {
-            var collection = Fixture.CreateCollection<C>();
+            var collection = Fixture.Collection;
 
-            var id = "0102030405060708090a0b0c";
-            collection.InsertMany(
-                new[]
-                {
-                    new C { Id = id, X = 1 },
-                    new C { Id = "000000000000000000000000", X = 2 }
-                });
-
-            var find = collection.Find(x => x.Id == id);
-
+            var find = collection.Find(x => x.Id == IdValue);
             var rendered = find.ToString();
             rendered.Should().Be("find({ \"_id\" : { \"$oid\" : \"0102030405060708090a0b0c\" } })");
 
             var results = find.ToList();
             results.Count.Should().Be(1);
-            results[0].Id.Should().Be(id);
+            results[0].Id.Should().Be(IdValue);
             results[0].X.Should().Be(1);
         }
 
@@ -57,6 +52,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.ObjectId)]
             public string Id { get; set; }
             public int X { get; set; }
+        }
+
+        public class TestDataFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData { get; } =
+            [
+                new C { Id = IdValue, X = 1 },
+                new C { Id = "000000000000000000000000", X = 2 }
+            ];
         }
     }
 }

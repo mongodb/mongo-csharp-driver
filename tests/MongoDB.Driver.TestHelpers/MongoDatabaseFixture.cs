@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests
 
         private readonly Lazy<IMongoClient> _client;
         private readonly Lazy<IMongoDatabase> _database;
-        private readonly string _databaseName = $"Tests{__timeStamp}";
+        private readonly string _databaseName = $"CSTests{__timeStamp}";
         private bool _fixtureInialized;
         private readonly HashSet<string> _usedCollections = new();
 
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests
             client?.Dispose();
         }
 
-        public virtual IMongoCollection<TDocument> CreateCollection<TDocument>(string collectionName = null)
+        protected IMongoCollection<TDocument> CreateCollection<TDocument>(string collectionName = null)
         {
             if (string.IsNullOrEmpty(collectionName))
             {
