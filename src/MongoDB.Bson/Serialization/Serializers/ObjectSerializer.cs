@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ObjectSerializer"/> class.
         /// </summary>
         public ObjectSerializer()
-            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object)))   //TODO Need a new constructor that takes the domain as input
+            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object))) //TODO We can keep this as is
         {
         }
 
@@ -96,7 +96,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="allowedTypes">A delegate that determines what types are allowed.</param>
         public ObjectSerializer(Func<Type, bool> allowedTypes)
-            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object)), allowedTypes)   //TODO Need a new constructor that takes the domain as input
+            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object)), allowedTypes) //TODO We can keep this as is
         {
         }
 

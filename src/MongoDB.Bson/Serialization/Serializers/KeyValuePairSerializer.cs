@@ -66,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         public KeyValuePairSerializer(BsonType representation)
-            : this(representation, BsonSerializer.SerializerRegistry)   //TODO Need a new constructor that takes the domain as input
+            : this(representation, BsonSerializer.SerializerRegistry) //TODO We can keep this as is
         {
         }
 

@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var classMapType = classMapDefinition.MakeGenericType(typeof(TInterface));
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
             classMap.AutoMap();
-            classMap.SetDiscriminatorConvention(BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface)));  //TODO This is only called by the constructor, we need a new one with the domain as input
+            classMap.SetDiscriminatorConvention(BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface)));  //TODO ??
             classMap.Freeze();
             return new BsonClassMapSerializer<TInterface>(classMap);
         }
@@ -97,7 +97,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceType = typeof(TInterface);
             _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention();
-            _objectSerializer = BsonSerializer.LookupSerializer<object>();  //TODO We need a new constructor, that takes the domain as input.
+            _objectSerializer = BsonSerializer.LookupSerializer<object>();  //TODO ??
             if (_objectSerializer is ObjectSerializer standardObjectSerializer)
             {
                 _objectSerializer = standardObjectSerializer.WithDiscriminatorConvention(_discriminatorConvention);
