@@ -25,9 +25,9 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5171Tests : LinqIntegrationTest<CSharp5171Tests.TestDataFixture>
+    public class CSharp5171Tests : LinqIntegrationTest<CSharp5171Tests.CollectionFixture>
     {
-        public CSharp5171Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
+        public CSharp5171Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
             : base(testOutputHelper, fixture)
         {
         }
@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public IReadOnlyDictionary<string, int> Dictionary { get; set; }
         }
 
-        public sealed class TestDataFixture : MongoCollectionFixture<C>
+        public sealed class CollectionFixture : MongoCollectionFixture<C>
         {
             protected override IEnumerable<C> InitialData =>
             [

@@ -23,11 +23,11 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4066Tests : IntegrationTest<CSharp4066Tests.TestDataFixture>
+    public class CSharp4066Tests : IntegrationTest<CSharp4066Tests.CollectionFixture>
     {
         private const string IdValue = "0102030405060708090a0b0c";
 
-        public CSharp4066Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
+        public CSharp4066Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
             : base(testOutputHelper, fixture)
         {
         }
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int X { get; set; }
         }
 
-        public class TestDataFixture : MongoCollectionFixture<C>
+        public class CollectionFixture : MongoCollectionFixture<C>
         {
             protected override IEnumerable<C> InitialData { get; } =
             [

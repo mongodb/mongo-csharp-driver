@@ -21,9 +21,9 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5231Tests : LinqIntegrationTest<CSharp5231Tests.TestDataFixture>
+    public class CSharp5231Tests : LinqIntegrationTest<CSharp5231Tests.DatabaseFixture>
     {
-        public CSharp5231Tests(ITestOutputHelper testOutputHelper, TestDataFixture fixture)
+        public CSharp5231Tests(ITestOutputHelper testOutputHelper, DatabaseFixture fixture)
             : base(testOutputHelper, fixture, server => server.Supports(Feature.AggregateUnionWith))
         {
         }
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int X { get; set; }
         }
 
-        public sealed class TestDataFixture : MongoDatabaseFixture
+        public sealed class DatabaseFixture : MongoDatabaseFixture
         {
             public IMongoCollection<C> Collection1 { get; private set; }
             public IMongoCollection<D> Collection2 { get; private set; }
