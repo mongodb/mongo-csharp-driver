@@ -23,12 +23,11 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// </summary>
     public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConvention
     {
-        // public methods
-        /// <summary>
-        /// Applies a post processing modification to the class map.
-        /// </summary>
-        /// <param name="classMap">The class map.</param>
-        public void PostProcess(BsonClassMap classMap)
+        /// <inheritdoc/>
+        public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultDomain);
+
+        /// <inheritdoc/>
+        public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
         {
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null)
@@ -36,7 +35,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 if (idMemberMap.IdGenerator == null)
                 {
                     //or we pass the domain to the BsonClassMap. The first probably makes more sense, but it's messier.
-                    var idGenerator = BsonSerializer.LookupIdGenerator(idMemberMap.MemberType);  //TODO ??
+                    var idGenerator = domain.LookupIdGenerator(idMemberMap.MemberType);
                     if (idGenerator != null)
                     {
                         idMemberMap.SetIdGenerator(idGenerator);

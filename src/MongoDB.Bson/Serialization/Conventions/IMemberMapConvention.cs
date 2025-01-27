@@ -25,5 +25,13 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="memberMap">The member map.</param>
         void Apply(BsonMemberMap memberMap);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="memberMap"></param>
+        /// <param name="domain"></param>
+        void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain);
+
     }
 }
