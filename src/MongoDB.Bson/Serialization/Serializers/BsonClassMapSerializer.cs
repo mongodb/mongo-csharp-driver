@@ -326,6 +326,11 @@ namespace MongoDB.Bson.Serialization
             out object id,
             out Type idNominalType,
             out IIdGenerator idGenerator)
+            => GetDocumentId(document, BsonSerializer.DefaultDomain, out id, out idNominalType, out idGenerator);
+
+        /// <inheritdoc/>
+        public bool GetDocumentId(object document, IBsonSerializationDomain domain, out object id, out Type idNominalType,
+            out IIdGenerator idGenerator)
         {
             var idMemberMap = _classMap.IdMemberMap;
             if (idMemberMap != null)
