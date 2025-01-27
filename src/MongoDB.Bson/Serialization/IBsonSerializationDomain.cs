@@ -9,33 +9,133 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// //TODO
     /// </summary>
-    public interface IBsonSerializationDomain : IBsonCoreSerializerConfigurator, IBsonCoreSerializerConfiguration, IBsonCoreSerializer
-    {
-    }
-
-    internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
-    {
-        ReaderWriterLockSlim ConfigLock { get; }
-
-        void EnsureKnownTypesAreRegistered(Type nominalType);
-
-        IDiscriminatorConvention GetOrRegisterDiscriminatorConvention(Type type,
-            IDiscriminatorConvention discriminatorConvention);
-
-        bool IsDiscriminatorConventionRegisteredAtThisLevel(Type type);
-    }
-
-    /// <summary>
-    /// //TODO
-    /// </summary>
-    public interface IBsonCoreSerializer //TODO Don't like the name but have no better idea at the moment
+    public interface IBsonSerializationDomain
     {
         /// <summary>
-        /// //TODO
+        /// Returns whether the given type has any discriminators registered for any of its subclasses.
         /// </summary>
-        IBsonCoreSerializerConfiguration SerializationConfiguration { get; }
+        /// <param name="type">A Type.</param>
+        /// <returns>True if the type is discriminated.</returns>
+        bool IsTypeDiscriminated(Type type);
 
         /// <summary>
+        /// Looks up the actual type of an object to be deserialized.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="discriminator">The discriminator.</param>
+        /// <returns>The actual type of the object.</returns>
+        Type LookupActualType(Type nominalType, BsonValue discriminator);
+
+        /// <summary>
+        /// Looks up the discriminator convention for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>A discriminator convention.</returns>
+        IDiscriminatorConvention LookupDiscriminatorConvention(Type type);
+
+        /// <summary>
+        /// Looks up an IdGenerator.
+        /// </summary>
+        /// <param name="type">The Id type.</param>
+        /// <returns>An IdGenerator for the Id type.</returns>
+        IIdGenerator LookupIdGenerator(Type type);
+
+        /// <summary>
+        /// Looks up a serializer for a Type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <returns>A serializer for type T.</returns>
+        IBsonSerializer<T> LookupSerializer<T>();
+
+        /// <summary>
+        /// Looks up a serializer for a Type.
+        /// </summary>
+        /// <param name="type">The Type.</param>
+        /// <returns>A serializer for the Type.</returns>
+        IBsonSerializer LookupSerializer(Type type);
+
+        /// <summary>
+        /// Gets the serializer registry.
+        /// </summary>
+        IBsonSerializerRegistry SerializerRegistry { get; }
+
+                /// <summary>
+        /// Registers the discriminator for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="discriminator">The discriminator.</param>
+        void RegisterDiscriminator(Type type, BsonValue discriminator);
+
+        /// <summary>
+        /// Registers the discriminator convention for a type.
+        /// </summary>
+        /// <param name="type">Type type.</param>
+        /// <param name="convention">The discriminator convention.</param>
+        void RegisterDiscriminatorConvention(Type type, IDiscriminatorConvention convention);
+
+        /// <summary>
+        /// Registers a generic serializer definition for a generic type.
+        /// </summary>
+        /// <param name="genericTypeDefinition">The generic type.</param>
+        /// <param name="genericSerializerDefinition">The generic serializer definition.</param>
+        void RegisterGenericSerializerDefinition(
+            Type genericTypeDefinition,
+            Type genericSerializerDefinition);
+
+        /// <summary>
+        /// Registers an IdGenerator for an Id Type.
+        /// </summary>
+        /// <param name="type">The Id Type.</param>
+        /// <param name="idGenerator">The IdGenerator for the Id Type.</param>
+        void RegisterIdGenerator(Type type, IIdGenerator idGenerator);
+
+        /// <summary>
+        /// Registers a serialization provider.
+        /// </summary>
+        /// <param name="provider">The serialization provider.</param>
+        void RegisterSerializationProvider(IBsonSerializationProvider provider);
+
+        /// <summary>
+        /// Registers a serializer for a type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        void RegisterSerializer<T>(IBsonSerializer<T> serializer);
+
+        /// <summary>
+        /// Registers a serializer for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="serializer">The serializer.</param>
+        void RegisterSerializer(Type type, IBsonSerializer serializer);
+
+        /// <summary>
+        /// Tries to register a serializer for a type.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
+        bool TryRegisterSerializer(Type type, IBsonSerializer serializer);
+
+        /// <summary>
+        /// Tries to register a serializer for a type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
+        bool TryRegisterSerializer<T>(IBsonSerializer<T> serializer);
+
+        /// <summary>
+        /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
+        /// </summary>
+        bool UseNullIdChecker { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
+        /// </summary>
+        bool UseZeroIdChecker { get; set; }
+
+                /// <summary>
         /// Deserializes an object from a BsonDocument.
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
@@ -183,157 +283,35 @@ namespace MongoDB.Bson.Serialization
             object value,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs));
-    }
 
-    /// <summary>
-    /// //TODO
-    /// </summary>
-    public interface IBsonCoreSerializerConfigurator
-    {
-        /// <summary>
-        /// Registers the discriminator for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="discriminator">The discriminator.</param>
-        void RegisterDiscriminator(Type type, BsonValue discriminator);
 
-        /// <summary>
-        /// Registers the discriminator convention for a type.
-        /// </summary>
-        /// <param name="type">Type type.</param>
-        /// <param name="convention">The discriminator convention.</param>
-        void RegisterDiscriminatorConvention(Type type, IDiscriminatorConvention convention);
-
-        /// <summary>
-        /// Registers a generic serializer definition for a generic type.
-        /// </summary>
-        /// <param name="genericTypeDefinition">The generic type.</param>
-        /// <param name="genericSerializerDefinition">The generic serializer definition.</param>
-        void RegisterGenericSerializerDefinition(
-            Type genericTypeDefinition,
-            Type genericSerializerDefinition);
-
-        /// <summary>
-        /// Registers an IdGenerator for an Id Type.
-        /// </summary>
-        /// <param name="type">The Id Type.</param>
-        /// <param name="idGenerator">The IdGenerator for the Id Type.</param>
-        void RegisterIdGenerator(Type type, IIdGenerator idGenerator);
-
-        /// <summary>
-        /// Registers a serialization provider.
-        /// </summary>
-        /// <param name="provider">The serialization provider.</param>
-        void RegisterSerializationProvider(IBsonSerializationProvider provider);
-
-        /// <summary>
-        /// Registers a serializer for a type.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <param name="serializer">The serializer.</param>
-        void RegisterSerializer<T>(IBsonSerializer<T> serializer);
-
-        /// <summary>
-        /// Registers a serializer for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="serializer">The serializer.</param>
-        void RegisterSerializer(Type type, IBsonSerializer serializer);
-
-        /// <summary>
-        /// Tries to register a serializer for a type.
-        /// </summary>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="type">The type.</param>
-        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
-        bool TryRegisterSerializer(Type type, IBsonSerializer serializer);
-
-        /// <summary>
-        /// Tries to register a serializer for a type.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <param name="serializer">The serializer.</param>
-        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
-        bool TryRegisterSerializer<T>(IBsonSerializer<T> serializer);
-
-        /// <summary>
-        /// Gets or sets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered.
-        /// </summary>
-        bool UseNullIdChecker { get; set; } //TODO It would be nice if this became a method (SetUseNullIdChecker) and the configuration would have only a getter
-
-        /// <summary>
-        /// Gets or sets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered.
-        /// </summary>
-        bool UseZeroIdChecker { get; set; }
+        //TODO These 3 methods were part of the internal interface before
 
         /// <summary>
         /// //TODO
         /// </summary>
+        /// <param name="nominalType"></param>
+        void EnsureKnownTypesAreRegistered(Type nominalType);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="discriminatorConvention"></param>
         /// <returns></returns>
-        IBsonCoreSerializer BuildCoreSerializer();
+        IDiscriminatorConvention GetOrRegisterDiscriminatorConvention(Type type,
+            IDiscriminatorConvention discriminatorConvention);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        bool IsDiscriminatorConventionRegisteredAtThisLevel(Type type);
     }
 
-    /// <summary>
-    /// //TODO
-    /// </summary>
-    public interface IBsonCoreSerializerConfiguration
+    internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
     {
-        /// <summary>
-        /// Returns whether the given type has any discriminators registered for any of its subclasses.
-        /// </summary>
-        /// <param name="type">A Type.</param>
-        /// <returns>True if the type is discriminated.</returns>
-        bool IsTypeDiscriminated(Type type);
-
-        /// <summary>
-        /// Looks up the actual type of an object to be deserialized.
-        /// </summary>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="discriminator">The discriminator.</param>
-        /// <returns>The actual type of the object.</returns>
-        Type LookupActualType(Type nominalType, BsonValue discriminator);
-
-        /// <summary>
-        /// Looks up the discriminator convention for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>A discriminator convention.</returns>
-        IDiscriminatorConvention LookupDiscriminatorConvention(Type type);
-
-        /// <summary>
-        /// Looks up an IdGenerator.
-        /// </summary>
-        /// <param name="type">The Id type.</param>
-        /// <returns>An IdGenerator for the Id type.</returns>
-        IIdGenerator LookupIdGenerator(Type type);
-
-        /// <summary>
-        /// Looks up a serializer for a Type.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <returns>A serializer for type T.</returns>
-        IBsonSerializer<T> LookupSerializer<T>();
-
-        /// <summary>
-        /// Looks up a serializer for a Type.
-        /// </summary>
-        /// <param name="type">The Type.</param>
-        /// <returns>A serializer for the Type.</returns>
-        IBsonSerializer LookupSerializer(Type type);
-
-        /// <summary>
-        /// Gets the serializer registry.
-        /// </summary>
-        IBsonSerializerRegistry SerializerRegistry { get; }
-
-        /// <summary>
-        /// Gets whether to use the NullIdChecker on reference Id types that don't have an IdGenerator registered is enabled.
-        /// </summary>
-        bool UseNullIdCheckerEnabled { get; }
-
-        /// <summary>
-        /// Gets whether to use the ZeroIdChecker on value Id types that don't have an IdGenerator registered is enabled.
-        /// </summary>
-        bool UseZeroIdCheckerEnabled { get; }
+        ReaderWriterLockSlim ConfigLock { get; }
     }
 }

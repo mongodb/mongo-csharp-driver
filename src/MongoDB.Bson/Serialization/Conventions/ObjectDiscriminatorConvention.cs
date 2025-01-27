@@ -144,6 +144,12 @@ namespace MongoDB.Bson.Serialization.Conventions
             return nominalType;
         }
 
+        /// <inheritdoc />
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Gets the discriminator value for an actual type.
         /// </summary>
@@ -153,6 +159,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         public BsonValue GetDiscriminator(Type nominalType, Type actualType)
         {
             return TypeNameDiscriminator.GetDiscriminator(actualType);
+        }
+
+        /// <inheritdoc />
+        public BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
+        {
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc/>

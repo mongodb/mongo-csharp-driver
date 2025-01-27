@@ -85,15 +85,6 @@ namespace MongoDB.Bson.Serialization
             get { return __configLock; }
         }
 
-        public IBsonCoreSerializerConfiguration SerializationConfiguration => this;
-
-        // public methods
-
-        public IBsonCoreSerializer BuildCoreSerializer()
-        {
-            return this;
-        }
-
         /// <summary>
         /// Deserializes an object from a BsonDocument.
         /// </summary>

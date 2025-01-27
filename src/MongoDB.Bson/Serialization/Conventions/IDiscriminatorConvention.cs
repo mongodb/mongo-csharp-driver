@@ -37,11 +37,30 @@ namespace MongoDB.Bson.Serialization.Conventions
         Type GetActualType(IBsonReader bsonReader, Type nominalType);
 
         /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="bsonReader"></param>
+        /// <param name="nominalType"></param>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain);
+
+        /// <summary>
         /// Gets the discriminator value for an actual type.
         /// </summary>
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
         BsonValue GetDiscriminator(Type nominalType, Type actualType);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="nominalType"></param>
+        /// <param name="actualType"></param>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain);
+
     }
 }

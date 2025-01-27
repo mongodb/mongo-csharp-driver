@@ -94,17 +94,21 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="bsonReader">The reader.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <returns>The actual type.</returns>
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType)
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType) =>
+            GetActualType(bsonReader, nominalType, BsonSerializer.DefaultDomain);
+
+        /// <inheritdoc />
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Document)
             {
                 // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
-                BsonSerializer.EnsureKnownTypesAreRegistered(nominalType); //TODO ??
+                domain.EnsureKnownTypesAreRegistered(nominalType); //TODO ??
 
                 // we can skip looking for a discriminator if nominalType has no discriminated sub types
-                if (BsonSerializer.IsTypeDiscriminated(nominalType)) //TODO ??
+                if (domain.IsTypeDiscriminated(nominalType)) //TODO ??
                 {
                     var bookmark = bsonReader.GetBookmark();
                     bsonReader.ReadStartDocument();
@@ -134,6 +138,9 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
         public abstract BsonValue GetDiscriminator(Type nominalType, Type actualType);
+
+        /// <inheritdoc/>
+        public abstract BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain);
 
         /// <inheritdoc/>
         public override int GetHashCode() => 0;
