@@ -27,12 +27,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class NewBsonDocumentExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, NewExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, NewExpression expression)
         {
             return Translate(context, expression, newExpression: expression, initializers: Array.Empty<(Expression, Expression)>());
         }
 
-        public static AggregationExpression Translate(TranslationContext context, ListInitExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, ListInitExpression expression)
         {
             var initializers = new List<(Expression, Expression)>();
             foreach (var initializer in expression.Initializers)
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return Translate(context, expression, expression.NewExpression, initializers);
         }
 
-        public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MemberInitExpression expression)
         {
             if (expression.Bindings.Count > 0)
             {
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return Translate(context, expression, expression.NewExpression, initializers: Array.Empty<(Expression, Expression)>());
         }
 
-        private static AggregationExpression Translate(
+        private static TranslatedExpression Translate(
             TranslationContext context,
             Expression expression,
             NewExpression newExpression,
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var ast = AstExpression.ComputedDocument(computedFields);
-            return new AggregationExpression(expression, ast, BsonDocumentSerializer.Instance);
+            return new TranslatedExpression(expression, ast, BsonDocumentSerializer.Instance);
 
             static AstComputedField CreateComputedField(TranslationContext context, Expression expression, Expression fieldNameExpression, Expression valueExpression)
             {

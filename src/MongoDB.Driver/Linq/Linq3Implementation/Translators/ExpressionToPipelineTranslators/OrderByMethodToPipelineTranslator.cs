@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             }
         }
 
-        private static AstStage[] CreateSortStages(string methodName, AggregationExpression keySelectorTranslation)
+        private static AstStage[] CreateSortStages(string methodName, TranslatedExpression keySelectorTranslation)
         {
             var sortOrder = ToSortOrder(methodName);
 
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             };
         }
 
-        private static bool TryConvertKeySelectorTranslationToFieldPath(AggregationExpression keySelectorTranslation, out string path)
+        private static bool TryConvertKeySelectorTranslationToFieldPath(TranslatedExpression keySelectorTranslation, out string path)
         {
             if (keySelectorTranslation.Ast is AstGetFieldExpression getFieldExpression &&
                 getFieldExpression.CanBeConvertedToFieldPath())

@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ConstantMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var serializedValue = SerializationHelper.SerializeValue(serializer, value);
                     var ast = AstExpression.Constant(serializedValue);
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
             }
 

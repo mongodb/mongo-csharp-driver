@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     internal static class GetItemMethodToAggregationExpressionTranslator
     {
         // public static methods
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var sourceExpression = expression.Object;
             var method = expression.Method;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return Translate(context, expression, method, sourceExpression, arguments);
         }
 
-        public static AggregationExpression Translate(TranslationContext context, Expression expression, MethodInfo method, Expression sourceExpression, ReadOnlyCollection<Expression> arguments)
+        public static TranslatedExpression Translate(TranslationContext context, Expression expression, MethodInfo method, Expression sourceExpression, ReadOnlyCollection<Expression> arguments)
         {
             if (BsonValueMethod.IsGetItemWithIntMethod(method))
             {
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new InvalidOperationException($"Unable to determine value serializer for dictionary serializer: {serializer.GetType().FullName}.");
         }
 
-        private static AggregationExpression TranslateBsonValueGetItemWithInt(TranslationContext context, Expression expression, Expression sourceExpression, Expression indexExpression)
+        private static TranslatedExpression TranslateBsonValueGetItemWithInt(TranslationContext context, Expression expression, Expression sourceExpression, Expression indexExpression)
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
             var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
@@ -91,34 +91,34 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
             }
             var valueSerializer = BsonValueSerializer.Instance;
-            return new AggregationExpression(expression, ast, valueSerializer);
+            return new TranslatedExpression(expression, ast, valueSerializer);
         }
 
-        private static AggregationExpression TranslateBsonValueGetItemWithString(TranslationContext context, Expression expression, Expression sourceExpression, Expression keyExpression)
+        private static TranslatedExpression TranslateBsonValueGetItemWithString(TranslationContext context, Expression expression, Expression sourceExpression, Expression keyExpression)
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
             var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
             var ast = AstExpression.GetField(sourceTranslation.Ast, keyTranslation.Ast);
             var valueSerializer = BsonValueSerializer.Instance;
-            return new AggregationExpression(expression, ast, valueSerializer);
+            return new TranslatedExpression(expression, ast, valueSerializer);
         }
 
-        private static AggregationExpression TranslateIListGetItemWithInt(TranslationContext context, Expression expression, Expression sourceExpression, Expression indexExpression)
+        private static TranslatedExpression TranslateIListGetItemWithInt(TranslationContext context, Expression expression, Expression sourceExpression, Expression indexExpression)
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
             var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
             var ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
             var serializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-            return new AggregationExpression(expression, ast, serializer);
+            return new TranslatedExpression(expression, ast, serializer);
         }
 
-        private static AggregationExpression TranslateIDictionaryGetItemWithString(TranslationContext context, Expression expression, Expression sourceExpression, Expression keyExpression)
+        private static TranslatedExpression TranslateIDictionaryGetItemWithString(TranslationContext context, Expression expression, Expression sourceExpression, Expression keyExpression)
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
             var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
             var ast = AstExpression.GetField(sourceTranslation.Ast, key); // TODO: verify that dictionary is using Document representation
             var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
-            return new AggregationExpression(expression, ast, valueSerializer);
+            return new TranslatedExpression(expression, ast, valueSerializer);
         }
     }
 }

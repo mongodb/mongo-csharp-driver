@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.AggregateWithSeedFuncAndResultSelector
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                                     initialValue: seedVar,
                                     @in: funcTranslation.Ast))));
 
-                    return new AggregationExpression(expression, ast, itemSerializer);
+                    return new TranslatedExpression(expression, ast, itemSerializer);
                 }
                 else if (method.IsOneOf(__aggregateWithSeedMethods))
                 {
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         serializer = resultSelectorTranslation.Serializer;
                     }
 
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
             }
 

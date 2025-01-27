@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class EqualsMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
 
@@ -58,17 +58,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return method.DeclaringType == typeof(string);
         }
 
-        private static AggregationExpression TranslateInstanceEqualsMethod(TranslationContext context, MethodCallExpression expression)
+        private static TranslatedExpression TranslateInstanceEqualsMethod(TranslationContext context, MethodCallExpression expression)
         {
             var lhsExpression = expression.Object;
             var lhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, lhsExpression);
             var rhsExpression = expression.Arguments[0];
             var rhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rhsExpression);
             var ast = AstExpression.Eq(lhsTranslation.Ast, rhsTranslation.Ast);
-            return new AggregationExpression(expression, ast, new BooleanSerializer());
+            return new TranslatedExpression(expression, ast, new BooleanSerializer());
         }
 
-        private static AggregationExpression TranslateStringEqualsMethod(TranslationContext context, MethodCallExpression expression)
+        private static TranslatedExpression TranslateStringEqualsMethod(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     goto notSupported;
             }
 
-            return new AggregationExpression(expression, ast, new BooleanSerializer());
+            return new TranslatedExpression(expression, ast, new BooleanSerializer());
 
         notSupported:
             throw new ExpressionNotSupportedException(expression);

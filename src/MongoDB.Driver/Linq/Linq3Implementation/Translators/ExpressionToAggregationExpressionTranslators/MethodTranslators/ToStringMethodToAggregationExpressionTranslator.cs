@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             NullableDateTimeMethod.ToStringWithFormatAndTimezoneAndOnNull,
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments.ToArray();
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 method.GetParameters().Length == 0;
         }
 
-        private static AggregationExpression TranslateDateTimeToStringMethod(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression[] arguments)
+        private static TranslatedExpression TranslateDateTimeToStringMethod(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression[] arguments)
         {
 
             var dateTimeExpression = method.IsStatic ? arguments[0] : expression.Object;
@@ -108,15 +108,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var ast = AstExpression.DateToString(dateAst, formatAst, timezoneAst, onNullAst);
-            return new AggregationExpression(expression, ast, StringSerializer.Instance);
+            return new TranslatedExpression(expression, ast, StringSerializer.Instance);
         }
 
-        private static AggregationExpression TranslateInstanceToStringMethodWithNoArguments(TranslationContext context, MethodCallExpression expression)
+        private static TranslatedExpression TranslateInstanceToStringMethodWithNoArguments(TranslationContext context, MethodCallExpression expression)
         {
             var objectExpression = expression.Object;
             var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
             var ast = AstExpression.ToString(objectTranslation.Ast);
-            return new AggregationExpression(expression, ast, StringSerializer.Instance);
+            return new TranslatedExpression(expression, ast, StringSerializer.Instance);
         }
     }
 }

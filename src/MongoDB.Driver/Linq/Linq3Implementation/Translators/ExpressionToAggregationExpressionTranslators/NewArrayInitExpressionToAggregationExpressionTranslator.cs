@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class NewArrayInitExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, NewArrayExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, NewArrayExpression expression)
         {
             var items = new List<AstExpression>();
             IBsonSerializer itemSerializer = null;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(itemType);
             var arraySerializer = (IBsonSerializer)Activator.CreateInstance(arraySerializerType, itemSerializer);
 
-            return new AggregationExpression(expression, ast, arraySerializer);
+            return new TranslatedExpression(expression, ast, arraySerializer);
         }
     }
 }

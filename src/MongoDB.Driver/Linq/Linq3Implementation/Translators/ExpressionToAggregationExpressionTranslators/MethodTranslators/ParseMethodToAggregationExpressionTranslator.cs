@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ParseMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             if (method.Is(DateTimeMethod.Parse))
@@ -34,12 +34,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AggregationExpression TranslateDateTimeParse(TranslationContext context, MethodCallExpression expression)
+        private static TranslatedExpression TranslateDateTimeParse(TranslationContext context, MethodCallExpression expression)
         {
             var stringExpression = expression.Arguments[0];
             var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
             var ast = AstExpression.DateFromString(stringTranslation.Ast);
-            return new AggregationExpression(expression, ast, new DateTimeSerializer());
+            return new TranslatedExpression(expression, ast, new DateTimeSerializer());
         }
     }
 }

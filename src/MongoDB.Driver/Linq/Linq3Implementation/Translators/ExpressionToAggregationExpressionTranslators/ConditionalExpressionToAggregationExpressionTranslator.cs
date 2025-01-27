@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ConditionalExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, ConditionalExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, ConditionalExpression expression)
         {
             if (expression.NodeType == ExpressionType.Conditional)
             {
@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var testTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, testExpression);
 
-                AggregationExpression ifTrueTranslation;
-                AggregationExpression ifFalseTranslation;
+                TranslatedExpression ifTrueTranslation;
+                TranslatedExpression ifFalseTranslation;
                 IBsonSerializer resultSerializer;
                 if (ifTrueExpression is ConstantExpression ifTrueConstantExpression)
                 {
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 var ast = AstExpression.Cond(testTranslation.Ast, ifTrueTranslation.Ast, ifFalseTranslation.Ast);
-                return new AggregationExpression(expression, ast, resultSerializer);
+                return new TranslatedExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

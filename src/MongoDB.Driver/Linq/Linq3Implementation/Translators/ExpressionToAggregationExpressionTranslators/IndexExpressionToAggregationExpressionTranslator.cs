@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     internal static class IndexExpressionToAggregationExpressionTranslator
     {
         // public static methods
-        public static AggregationExpression Translate(TranslationContext context, IndexExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, IndexExpression expression)
         {
             var sourceExpression = expression.Object;
             var method = expression.Indexer.GetMethod;

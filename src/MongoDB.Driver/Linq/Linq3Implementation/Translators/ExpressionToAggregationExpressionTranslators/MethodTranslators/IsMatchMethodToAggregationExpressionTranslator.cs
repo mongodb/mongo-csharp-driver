@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     internal static class IsMatchMethodToAggregationExpressionTranslator
     {
         // public static methods
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (RegexMethod.IsMatchMethod(expression, out var inputExpression, out var regex))
             {
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 var ast = AstExpression.RegexMatch(inputTranslation.Ast, regularExpression.Pattern, regularExpression.Options);
-                return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
+                return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);

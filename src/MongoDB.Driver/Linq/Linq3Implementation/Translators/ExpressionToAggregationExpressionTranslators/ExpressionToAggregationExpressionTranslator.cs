@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     internal static class ExpressionToAggregationExpressionTranslator
     {
         // public static methods
-        public static AggregationExpression Translate(TranslationContext context, Expression expression)
+        public static TranslatedExpression Translate(TranslationContext context, Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ExpressionNotSupportedException(expression);
         }
 
-        public static AggregationExpression TranslateEnumerable(TranslationContext context, Expression expression)
+        public static TranslatedExpression TranslateEnumerable(TranslationContext context, Expression expression)
         {
             var aggregateExpression = Translate(context, expression);
 
@@ -103,13 +103,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var enumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
                 var ast = AstExpression.GetField(aggregateExpression.Ast, enumerableFieldName);
 
-                return new AggregationExpression(aggregateExpression.Expression, ast, enumerableSerializer);
+                return new TranslatedExpression(aggregateExpression.Expression, ast, enumerableSerializer);
             }
 
             return aggregateExpression;
         }
 
-        public static AggregationExpression TranslateLambdaBody(
+        public static TranslatedExpression TranslateLambdaBody(
             TranslationContext context,
             LambdaExpression lambdaExpression,
             IBsonSerializer parameterSerializer,
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return TranslateLambdaBody(context, lambdaExpression, parameterSymbol);
         }
 
-        public static AggregationExpression TranslateLambdaBody(
+        public static TranslatedExpression TranslateLambdaBody(
             TranslationContext context,
             LambdaExpression lambdaExpression,
             Symbol parameterSymbol)
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (lambdaReturnType.IsAssignableFrom(bodyType))
                 {
                     var downcastingSerializer = DowncastingSerializer.Create(baseType: lambdaReturnType, derivedType: bodyType, derivedTypeSerializer: bodySerializer);
-                    translatedBody = new AggregationExpression(translatedBody.Expression, translatedBody.Ast, downcastingSerializer);
+                    translatedBody = new TranslatedExpression(translatedBody.Expression, translatedBody.Ast, downcastingSerializer);
                 }
                 else
                 {

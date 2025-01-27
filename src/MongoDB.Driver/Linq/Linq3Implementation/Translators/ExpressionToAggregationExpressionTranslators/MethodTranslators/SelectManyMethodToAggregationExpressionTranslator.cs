@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.SelectMany
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     initialValue: new BsonArray(),
                     @in: AstExpression.ConcatArrays(valueVar, thisVar));
 
-                return new AggregationExpression(expression, ast, selectorTranslation.Serializer);
+                return new TranslatedExpression(expression, ast, selectorTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

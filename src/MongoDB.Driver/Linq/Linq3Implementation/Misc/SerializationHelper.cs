@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class SerializationHelper
     {
-        public static void EnsureArgumentSerializersAreEqual(Expression expression, AggregationExpression firstArgumentTranslation, AggregationExpression secondArgumentTranslation)
+        public static void EnsureArgumentSerializersAreEqual(Expression expression, TranslatedExpression firstArgumentTranslation, TranslatedExpression secondArgumentTranslation)
         {
             EnsureArgumentSerializersAreEqual(expression, firstArgumentTranslation.Serializer, secondArgumentTranslation.Serializer);
         }
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static void EnsureRepresentationIsBoolean(Expression expression, Expression argumentExpression, AggregationExpression argumentTranslation)
+        public static void EnsureRepresentationIsBoolean(Expression expression, Expression argumentExpression, TranslatedExpression argumentTranslation)
         {
             EnsureRepresentationIsBoolean(expression, argumentExpression, argumentTranslation.Serializer);
         }
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static void EnsureRepresentationIsNumeric(Expression expression, Expression argumentExpression, AggregationExpression argumentTranslation)
+        public static void EnsureRepresentationIsNumeric(Expression expression, Expression argumentExpression, TranslatedExpression argumentTranslation)
         {
             EnsureRepresentationIsNumeric(expression, argumentExpression, argumentTranslation.Serializer);
         }
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return IsIntegerRepresentation(representation);
         }
 
-        public static bool IsRepresentedAsIntegerOrNullableInteger(AggregationExpression translation)
+        public static bool IsRepresentedAsIntegerOrNullableInteger(TranslatedExpression translation)
         {
             return IsRepresentedAsIntegerOrNullableInteger(translation.Serializer);
         }

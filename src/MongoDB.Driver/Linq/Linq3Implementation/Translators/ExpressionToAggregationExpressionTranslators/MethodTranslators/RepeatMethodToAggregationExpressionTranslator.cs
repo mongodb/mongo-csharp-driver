@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class RepeatMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         @in: elementAst));
 
                 var resultSerializer = IEnumerableSerializer.Create(elementTranslation.Serializer);
-                return new AggregationExpression(expression, ast, resultSerializer);
+                return new TranslatedExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

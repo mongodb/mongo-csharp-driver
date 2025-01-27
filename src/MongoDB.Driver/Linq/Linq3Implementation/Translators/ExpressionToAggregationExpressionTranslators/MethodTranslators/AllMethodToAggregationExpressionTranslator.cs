@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.All
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         @as: predicateSymbol.Var,
                         @in: predicateTranslation.Ast));
 
-                return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
+                return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);

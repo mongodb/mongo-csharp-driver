@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class MemberExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MemberExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MemberExpression expression)
         {
             var containerExpression = expression.Expression;
             var member = expression.Member;
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (containerTranslation.Serializer is IWrappedValueSerializer wrappedValueSerializer)
             {
                 var unwrappedValueAst = AstExpression.GetField(containerTranslation.Ast, wrappedValueSerializer.FieldName);
-                containerTranslation = new AggregationExpression(containerExpression, unwrappedValueAst, wrappedValueSerializer.ValueSerializer);
+                containerTranslation = new TranslatedExpression(containerExpression, unwrappedValueAst, wrappedValueSerializer.ValueSerializer);
             }
 
             if (containerExpression.Type.IsTupleOrValueTuple())
@@ -96,10 +96,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     ast = AstExpression.GetField(ast, subFieldName);
                 }
             }
-            return new AggregationExpression(expression, ast, serializationInfo.Serializer);
+            return new TranslatedExpression(expression, ast, serializationInfo.Serializer);
         }
 
-        private static AggregationExpression TranslateTupleItemProperty(MemberExpression expression, AggregationExpression containerTranslation)
+        private static TranslatedExpression TranslateTupleItemProperty(MemberExpression expression, TranslatedExpression containerTranslation)
         {
             if (containerTranslation.Serializer is IBsonTupleSerializer tupleSerializer)
             {
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var ast = AstExpression.ArrayElemAt(containerTranslation.Ast, index: itemNumber - 1);
                     var itemSerializer = tupleSerializer.GetItemSerializer(itemNumber);
-                    return new AggregationExpression(expression, ast, itemSerializer);
+                    return new TranslatedExpression(expression, ast, itemSerializer);
                 }
 
                 throw new ExpressionNotSupportedException(expression, because: $"Item name is not valid: {itemName}");
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ExpressionNotSupportedException(expression, because: $"serializer {containerTranslation.Serializer.GetType().FullName} does not implement IBsonTupleSerializer");
         }
 
-        private static bool TryTranslateCollectionCountProperty(MemberExpression expression, AggregationExpression container, MemberInfo memberInfo, out AggregationExpression result)
+        private static bool TryTranslateCollectionCountProperty(MemberExpression expression, TranslatedExpression container, MemberInfo memberInfo, out TranslatedExpression result)
         {
             if (EnumerableProperty.IsCountProperty(expression))
             {
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var ast = AstExpression.Size(container.Ast);
                 var serializer = Int32Serializer.Instance;
 
-                result = new AggregationExpression(expression, ast, serializer);
+                result = new TranslatedExpression(expression, ast, serializer);
                 return true;
             }
 
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return false;
         }
 
-        private static bool TryTranslateDateTimeProperty(MemberExpression expression, AggregationExpression container, MemberInfo memberInfo, out AggregationExpression result)
+        private static bool TryTranslateDateTimeProperty(MemberExpression expression, TranslatedExpression container, MemberInfo memberInfo, out TranslatedExpression result)
         {
             result = null;
 
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         break;
                 }
 
-                result = new AggregationExpression(expression, ast, serializer);
+                result = new TranslatedExpression(expression, ast, serializer);
                 return true;
             }
 

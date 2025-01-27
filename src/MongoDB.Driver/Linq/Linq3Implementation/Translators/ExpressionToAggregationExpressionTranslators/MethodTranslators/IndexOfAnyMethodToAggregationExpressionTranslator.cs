@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             StringMethod.IndexOfAnyWithStartIndexAndCount,
        };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     ast = AstExpression.Let(stringVar, startIndexVar, countVar, @in: ast);
                 }
 
-                return new AggregationExpression(expression, ast, new Int32Serializer());
+                return new TranslatedExpression(expression, ast, new Int32Serializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

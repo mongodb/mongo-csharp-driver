@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class FieldMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var fieldSerializer = fieldSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
 
                 var ast = AstExpression.GetField(documentTranslation.Ast, fieldName);
-                return new AggregationExpression(expression, ast, fieldSerializer);
+                return new TranslatedExpression(expression, ast, fieldSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

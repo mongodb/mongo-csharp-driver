@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class LengthPropertyToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MemberExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MemberExpression expression)
         {
             // note: array.Length is not handled here but in ArrayLengthExpressionToAggregationExpressionTranslator
 
@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var stringExpression = expression.Expression;
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
                 var ast = AstExpression.StrLenCP(stringTranslation.Ast);
-                return new AggregationExpression(expression, ast, new Int32Serializer());
+                return new TranslatedExpression(expression, ast, new Int32Serializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

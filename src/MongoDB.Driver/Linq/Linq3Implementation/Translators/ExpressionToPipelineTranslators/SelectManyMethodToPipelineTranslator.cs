@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
         private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndIdentityResultSelector(
             TranslatedPipeline pipeline,
-            AggregationExpression collectionSelectorTranslation)
+            TranslatedExpression collectionSelectorTranslation)
         {
             var collectionItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionSelectorTranslation.Serializer);
             var resultValueSerializer = collectionItemSerializer;
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndNonIdentityResultSelector(
             TranslationContext context,
             TranslatedPipeline pipeline,
-            AggregationExpression collectionSelectorTranslation,
+            TranslatedExpression collectionSelectorTranslation,
             LambdaExpression resultSelectorLambda)
 
         {

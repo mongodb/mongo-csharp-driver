@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ConvertExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, UnaryExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, UnaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs)
             {
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AggregationExpression Translate(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        private static TranslatedExpression Translate(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             if (targetType == sourceType)
             {
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ast = AstExpression.Convert(ast, to);
             }
 
-            return new AggregationExpression(expression, ast, serializer);
+            return new TranslatedExpression(expression, ast, serializer);
         }
 
         private static bool IsConvertEnumToEnum(Type sourceType, Type targetType)
@@ -169,27 +169,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 sourceType == underlyingType;
         }
 
-        private static AggregationExpression TranslateConvertToBaseType(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertToBaseType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             var derivedTypeSerializer = sourceTranslation.Serializer;
             var downcastingSerializer = DowncastingSerializer.Create(targetType, sourceType, derivedTypeSerializer);
 
-            return new AggregationExpression(expression, sourceTranslation.Ast, downcastingSerializer);
+            return new TranslatedExpression(expression, sourceTranslation.Ast, downcastingSerializer);
         }
 
-        private static AggregationExpression TranslateConvertToDerivedType(UnaryExpression expression, Type targetType, AggregationExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertToDerivedType(UnaryExpression expression, Type targetType, TranslatedExpression sourceTranslation)
         {
             var serializer = BsonSerializer.LookupSerializer(targetType);
 
-            return new AggregationExpression(expression, sourceTranslation.Ast, serializer);
+            return new TranslatedExpression(expression, sourceTranslation.Ast, serializer);
         }
 
-        private static AggregationExpression TranslateConvertToBsonValue(UnaryExpression expression, AggregationExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertToBsonValue(UnaryExpression expression, TranslatedExpression sourceTranslation)
         {
-            return new AggregationExpression(expression, sourceTranslation.Ast, BsonValueSerializer.Instance);
+            return new TranslatedExpression(expression, sourceTranslation.Ast, BsonValueSerializer.Instance);
         }
 
-        private static AggregationExpression TranslateConvertEnumToEnum(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertEnumToEnum(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             if (!sourceType.IsEnum)
             {
@@ -208,25 +208,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var targetSerializer = EnumSerializer.Create(targetType);
-            return new AggregationExpression(expression, sourceTranslation.Ast, targetSerializer);
+            return new TranslatedExpression(expression, sourceTranslation.Ast, targetSerializer);
         }
 
-        private static AggregationExpression TranslateConvertEnumToUnderlyingType(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertEnumToUnderlyingType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             var enumSerializer = sourceTranslation.Serializer;
             var targetSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
-            return new AggregationExpression(expression, sourceTranslation.Ast, targetSerializer);
+            return new TranslatedExpression(expression, sourceTranslation.Ast, targetSerializer);
         }
 
-        private static AggregationExpression TranslateConvertFromNullableType(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertFromNullableType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             if (sourceType.IsNullable(out var sourceValueType))
             {
                 var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
                 var sourceNullableSerializer = (INullableSerializer)sourceTranslation.Serializer;
                 var sourceValueSerializer = sourceNullableSerializer.ValueSerializer;
-                var sourceValueAggregationExpression = new AggregationExpression(expression.Operand, sourceAst, sourceValueSerializer);
-                var convertTranslation = Translate(expression, sourceValueType, targetType, sourceValueAggregationExpression);
+                var sourceValueTranslation = new TranslatedExpression(expression.Operand, sourceAst, sourceValueSerializer);
+                var convertTranslation = Translate(expression, sourceValueType, targetType, sourceValueTranslation);
 
                 // note: we would have liked to throw a query execution error here if the value is null and the target type is not nullable but there is no way to do that in MQL
                 // so we just return null instead and the user must check for null themselves if they want to define what happens when the value is null
@@ -236,13 +236,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     sourceVarBinding,
                     AstExpression.Cond(AstExpression.Eq(sourceAst, BsonNull.Value), BsonNull.Value, convertTranslation.Ast));
 
-                return new AggregationExpression(expression, ast, convertTranslation.Serializer);
+                return new TranslatedExpression(expression, ast, convertTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression, because: "sourceType is not nullable");
         }
 
-        private static AggregationExpression TranslateConvertToNullableType(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertToNullableType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             if (sourceType.IsNullable())
             {
@@ -254,13 +254,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var convertTranslation = Translate(expression, sourceType, targetValueType, sourceTranslation);
                 var nullableSerializer = NullableSerializer.Create(convertTranslation.Serializer);
-                return new AggregationExpression(expression, convertTranslation.Ast, nullableSerializer);
+                return new TranslatedExpression(expression, convertTranslation.Ast, nullableSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression, because: "targetType is not nullable");
         }
 
-        private static AggregationExpression TranslateConvertUnderlyingTypeToEnum(UnaryExpression expression, Type sourceType, Type targetType, AggregationExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertUnderlyingTypeToEnum(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             var valueSerializer = sourceTranslation.Serializer;
 
@@ -274,7 +274,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 targetSerializer = EnumSerializer.Create(targetType);
             }
 
-            return new AggregationExpression(expression, sourceTranslation.Ast, targetSerializer);
+            return new TranslatedExpression(expression, sourceTranslation.Ast, targetSerializer);
         }
     }
 }

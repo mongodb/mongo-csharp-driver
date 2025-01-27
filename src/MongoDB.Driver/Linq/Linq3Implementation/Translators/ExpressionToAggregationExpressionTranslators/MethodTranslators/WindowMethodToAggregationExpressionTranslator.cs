@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return expression.Method.IsOneOf(__windowMethods);
         }
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var parameters = method.GetParameters();
@@ -282,10 +282,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var @operator = GetNullaryWindowOperator(method);
                     var ast = AstExpression.NullaryWindowExpression(@operator, window);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                AggregationExpression selectorTranslation = null;
+                TranslatedExpression selectorTranslation = null;
                 if (HasArgument<LambdaExpression>(parameters, "selector", arguments, out var selectorLambda))
                 {
                     selectorTranslation = TranslateSelector(context, selectorLambda, inputSerializer);
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var @operator = GetUnaryWindowOperator(method);
                     var ast = AstExpression.UnaryWindowExpression(@operator, selectorTranslation.Ast, window);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
 
                 if (method.IsOneOf(__binaryMethods))
@@ -310,7 +310,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var @operator = GetBinaryWindowOperator(method);
                     var ast = AstExpression.BinaryWindowExpression(@operator, selector1Translation.Ast, selector2Translation.Ast, window);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
 
                 if (method.IsOneOf(__derivativeOrIntegralMethods))
@@ -325,7 +325,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var @operator = GetDerivativeOrIntegralWindowOperator(method);
                     var ast = AstExpression.DerivativeOrIntegralWindowExpression(@operator, selectorTranslation.Ast, unit, window);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
 
                 if (method.IsOneOf(__exponentialMovingAverageMethods))
@@ -336,7 +336,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     var ast = AstExpression.ExponentialMovingAverageWindowExpression(selectorTranslation.Ast, weighting, window);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
 
                 if (method.IsOneOf(__shiftMethods))
@@ -355,7 +355,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     var ast = AstExpression.ShiftWindowExpression(selectorTranslation.Ast, by, defaultValue);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
             }
 
@@ -440,7 +440,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return false;
         }
 
-        private static void ThrowIfSelectorTranslationIsNull(AggregationExpression selectTranslation)
+        private static void ThrowIfSelectorTranslationIsNull(TranslatedExpression selectTranslation)
         {
             if (selectTranslation == null)
             {
@@ -448,7 +448,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
         }
 
-        private static AggregationExpression TranslateSelector(TranslationContext context, LambdaExpression selectorLambda, IBsonSerializer inputSerializer)
+        private static TranslatedExpression TranslateSelector(TranslationContext context, LambdaExpression selectorLambda, IBsonSerializer inputSerializer)
         {
             var selectorParameter = selectorLambda.Parameters[0];
             var selectorSymbol = context.CreateSymbol(selectorParameter, inputSerializer, isCurrent: true);

@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class IsNullOrEmptyMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
                 var ast = AstExpression.In(stringTranslation.Ast, new BsonArray { BsonNull.Value, "" });
 
-                return new AggregationExpression(expression, ast, new BooleanSerializer());
+                return new TranslatedExpression(expression, ast, new BooleanSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

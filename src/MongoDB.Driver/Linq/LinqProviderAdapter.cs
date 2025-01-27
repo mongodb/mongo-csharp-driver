@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Linq
         private static RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
             Expression<Func<TInput, TOutput>> expression,
             IBsonSerializer<TInput> inputSerializer,
-            Func<AggregationExpression, (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer)> projectionCreator,
+            Func<TranslatedExpression, (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer)> projectionCreator,
             ExpressionTranslationOptions translationOptions,
             AstSimplifier simplifier)
         {

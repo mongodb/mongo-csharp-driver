@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class WeekMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var dateExpression = arguments[0];
                 var dateTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dateExpression);
 
-                AggregationExpression timezoneTranslation = null;
+                TranslatedExpression timezoneTranslation = null;
                 if (method.Is(DateTimeMethod.WeekWithTimezone))
                 {
                     var timezoneExpression = arguments[1];
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 var ast = AstExpression.DatePart(AstDatePart.Week, dateTranslation.Ast, timezoneTranslation?.Ast);
-                return new AggregationExpression(expression, ast, Int32Serializer.Instance);
+                return new TranslatedExpression(expression, ast, Int32Serializer.Instance);
             }
             throw new ExpressionNotSupportedException(expression);
         }

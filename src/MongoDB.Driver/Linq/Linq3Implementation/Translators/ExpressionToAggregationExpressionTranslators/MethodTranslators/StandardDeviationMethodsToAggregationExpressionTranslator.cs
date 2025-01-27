@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class StandardDeviationMethodsToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -49,12 +49,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                             @as: selectorParameterSymbol.Var,
                             @in: selectorTranslation.Ast);
                         var selectorResultSerializer = BsonSerializer.LookupSerializer(selectorLambda.ReturnType);
-                        sourceTranslation = new AggregationExpression(selectorLambda, selectorAst, selectorResultSerializer);
+                        sourceTranslation = new TranslatedExpression(selectorLambda, selectorAst, selectorResultSerializer);
                     }
 
                     var ast = AstExpression.StdDev(stddevOperator, sourceTranslation.Ast);
                     var serializer = BsonSerializer.LookupSerializer(expression.Type);
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new TranslatedExpression(expression, ast, serializer);
                 }
             }
 

@@ -22,14 +22,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class IsSubsetOfMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (IsIsSubsetOfMethod(expression, out var sourceExpression, out var otherExpression))
             {
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 var otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression);
                 var ast = AstExpression.SetIsSubset(sourceTranslation.Ast, otherTranslation.Ast);
-                return new AggregationExpression(expression, ast, new BooleanSerializer());
+                return new TranslatedExpression(expression, ast, new BooleanSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

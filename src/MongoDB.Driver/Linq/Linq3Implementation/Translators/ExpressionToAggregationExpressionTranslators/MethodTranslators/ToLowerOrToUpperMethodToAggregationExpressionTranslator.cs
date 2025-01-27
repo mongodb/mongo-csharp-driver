@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ToLowerOrToUpperMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
 
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var ast = method.IsOneOf(StringMethod.ToLower, StringMethod.ToLowerInvariant) ?
                     AstExpression.ToLower(stringTranslation.Ast) :
                     AstExpression.ToUpper(stringTranslation.Ast);
-                return new AggregationExpression(expression, ast, new StringSerializer());
+                return new TranslatedExpression(expression, ast, new StringSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

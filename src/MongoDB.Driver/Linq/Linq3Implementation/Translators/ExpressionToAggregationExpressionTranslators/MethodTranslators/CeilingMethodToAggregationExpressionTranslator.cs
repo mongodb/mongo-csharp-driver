@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class CeilingMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var ast = AstExpression.Ceil(argumentAst);
                 var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
-                return new AggregationExpression(expression, ast, serializer);
+                return new TranslatedExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

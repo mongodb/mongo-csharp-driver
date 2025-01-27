@@ -21,12 +21,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ParameterExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, ParameterExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, ParameterExpression expression)
         {
             var symbolTable = context.SymbolTable;
             if (symbolTable.TryGetSymbol(expression, out Symbol symbol))
             {
-                return new AggregationExpression(expression, symbol.Ast, symbol.Serializer);
+                return new TranslatedExpression(expression, symbol.Ast, symbol.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.Where
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var predicateContext = context.WithSymbol(predicateSymbol);
                 var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
 
-                AggregationExpression limitTranslation = null;
+                TranslatedExpression limitTranslation = null;
                 if (method.Is(MongoEnumerableMethod.WhereWithLimit))
                 {
                     var limitExpression = arguments[2];
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     limitTranslation?.Ast);
 
                 var resultSerializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
-                return new AggregationExpression(expression, ast, resultSerializer);
+                return new TranslatedExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

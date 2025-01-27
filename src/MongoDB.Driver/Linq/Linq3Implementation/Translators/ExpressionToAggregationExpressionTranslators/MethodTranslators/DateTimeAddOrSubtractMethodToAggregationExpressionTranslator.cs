@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return expression.Method.IsOneOf(__dateTimeAddOrSubtractMethods);
         }
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     AstExpression.DateSubtract(thisTranslation.Ast, unit, amount, timezone) :
                     AstExpression.DateAdd(thisTranslation.Ast, unit, amount, timezone);
                 var serializer = DateTimeSerializer.UtcInstance;
-                return new AggregationExpression(expression, ast, serializer);
+                return new TranslatedExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

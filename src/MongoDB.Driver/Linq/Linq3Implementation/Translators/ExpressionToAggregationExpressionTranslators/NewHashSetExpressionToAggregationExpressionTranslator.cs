@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class NewHashSetExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, NewExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, NewExpression expression)
         {
             var hashSetType = expression.Type;
             var hashSetItemType = hashSetType.GetGenericArguments()[0];
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         var hashSetItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionTranslation.Serializer);
                         var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, hashSetItemSerializer);
 
-                        return new AggregationExpression(expression, ast, serializer);
+                        return new TranslatedExpression(expression, ast, serializer);
                     }
                 }
             }

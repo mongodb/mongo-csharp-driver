@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ArrayIndexExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.ArrayIndex)
             {
@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
                 var ast = AstExpression.ArrayElemAt(arrayTranslation.Ast, indexTranslation.Ast);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayTranslation.Serializer);
-                return new AggregationExpression(expression, ast, itemSerializer);
+                return new TranslatedExpression(expression, ast, itemSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
