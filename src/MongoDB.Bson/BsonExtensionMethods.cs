@@ -121,7 +121,7 @@ namespace MongoDB.Bson
             {
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, writerSettings ?? BsonBinaryWriterSettings.Defaults))
                 {
-                    var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator).With(c => c.Domain = domain);
                     serializer.Serialize(context, args, obj);
                 }
                 return memoryStream.ToArray();

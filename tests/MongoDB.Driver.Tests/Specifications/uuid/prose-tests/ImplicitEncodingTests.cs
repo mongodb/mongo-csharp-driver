@@ -82,6 +82,14 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
             binaryData.Bytes.Should().Equal(BsonUtils.ParseHexString("00112233445566778899aabbccddeeff"));
         }
 
+        public class Person
+        {
+            [BsonId]
+            public ObjectId Id { get; set; }
+            public string Name { get; set; }
+            public int Age { get; set; }
+        }
+
         [Fact]
         public void Implicit_encoding_with_standard_representation_should_work_as_expected()
         {
