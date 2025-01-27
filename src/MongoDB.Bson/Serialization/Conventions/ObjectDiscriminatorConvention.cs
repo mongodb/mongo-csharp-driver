@@ -86,7 +86,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="bsonReader">The reader.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <returns>The actual type.</returns>
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType)
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType) =>
+            GetActualType(bsonReader, nominalType, BsonSerializer.DefaultDomain);
+
+        /// <inheritdoc />
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
@@ -135,19 +139,13 @@ namespace MongoDB.Bson.Serialization.Conventions
                     {
                         discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                     }
-                    actualType = BsonSerializer.LookupActualType(nominalType, discriminator);  //TODO ??
+                    actualType = domain.LookupActualType(nominalType, discriminator);
                 }
                 bsonReader.ReturnToBookmark(bookmark);
                 return actualType;
             }
 
             return nominalType;
-        }
-
-        /// <inheritdoc />
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

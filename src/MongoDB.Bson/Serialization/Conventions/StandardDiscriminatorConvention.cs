@@ -121,7 +121,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                         {
                             discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                         }
-                        actualType = BsonSerializer.LookupActualType(nominalType, discriminator); //TODO ??
+                        actualType = domain.LookupActualType(nominalType, discriminator);
                     }
                     bsonReader.ReturnToBookmark(bookmark);
                     return actualType;

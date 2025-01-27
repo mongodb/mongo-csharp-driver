@@ -24,9 +24,9 @@ namespace MongoDB.Bson.Serialization
     public abstract class BsonSerializationProviderBase : IRegistryAwareBsonSerializationProvider
     {
         /// <inheritdoc/>
-        public virtual IBsonSerializer GetSerializer(Type type)  //TODO We can keep this as is
+        public virtual IBsonSerializer GetSerializer(Type type)
         {
-            return GetSerializer(type, BsonSerializer.SerializerRegistry);
+            return GetSerializer(type, BsonSerializer.SerializerRegistry);   //TODO We can keep this as is
         }
 
         /// <inheritdoc/>
@@ -38,9 +38,9 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializerTypeDefinition">The serializer type definition.</param>
         /// <param name="typeArguments">The type arguments.</param>
         /// <returns>A serializer.</returns>
-        protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] typeArguments)   //TODO We can keep this as is
+        protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] typeArguments)
         {
-            return CreateGenericSerializer(serializerTypeDefinition, typeArguments, BsonSerializer.SerializerRegistry);
+            return CreateGenericSerializer(serializerTypeDefinition, typeArguments, BsonSerializer.SerializerRegistry);   //TODO We can keep this as is
         }
 
         /// <summary>
