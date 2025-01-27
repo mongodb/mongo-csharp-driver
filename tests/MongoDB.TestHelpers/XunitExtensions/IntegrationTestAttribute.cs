@@ -15,7 +15,7 @@
 
 namespace MongoDB.TestHelpers.XunitExtensions
 {
-    public class IntegrationTestAttribute : CategoryAttribute
+    public sealed class IntegrationTestAttribute : CategoryAttribute
     {
         public IntegrationTestAttribute()
             : base("Integration")
