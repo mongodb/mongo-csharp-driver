@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -47,6 +48,7 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private MongoCredential _credential;
         private bool _directConnection;
+        private IBsonSerializationDomain _domain;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
@@ -99,6 +101,7 @@ namespace MongoDB.Driver
             _compressors = new CompressorConfiguration[0];
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _directConnection = false;
+            _domain = null;
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
@@ -261,6 +264,23 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _directConnection = value;
+            }
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public IBsonSerializationDomain Domain
+        {
+            get
+            {
+                return _domain;
+            }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _domain = value;
             }
         }
 

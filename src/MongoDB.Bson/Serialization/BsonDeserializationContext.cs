@@ -44,8 +44,7 @@ namespace MongoDB.Bson.Serialization
             _allowDuplicateElementNames = allowDuplicateElementNames;
             _dynamicArraySerializer = dynamicArraySerializer;
             _dynamicDocumentSerializer = dynamicDocumentSerializer;
-            _domain = domain;
-            // _domain = domain ?? BsonSerializer.DefaultDomain;  //TODO We could do this here, but let's keep it as the previous line to catch errors.
+            _domain = domain ?? BsonSerializer.DefaultDomain;
         }
 
         // public properties
