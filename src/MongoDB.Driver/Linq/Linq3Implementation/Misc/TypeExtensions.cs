@@ -253,6 +253,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return type == valueType || type.IsNullableOf(valueType);
         }
 
+        public static bool IsSubclassOfOrImplements(this Type type, Type baseTypeOrInterface)
+        {
+            return
+                type.IsSubclassOf(baseTypeOrInterface) ||
+                type.Implements(baseTypeOrInterface);
+        }
+
         public static bool IsTuple(this Type type)
         {
             return

@@ -82,12 +82,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
         private static bool IsConvertToBaseType(Type fieldType, Type targetType)
         {
-            return fieldType.IsSubclassOf(targetType);
+            return fieldType.IsSubclassOfOrImplements(targetType);
         }
 
         private static bool IsConvertToDerivedType(Type fieldType, Type targetType)
         {
-            return targetType.IsSubclassOf(fieldType);
+            return targetType.IsSubclassOfOrImplements(fieldType);
         }
 
         private static bool IsConvertToNullable(Type fieldType, Type targetType)
