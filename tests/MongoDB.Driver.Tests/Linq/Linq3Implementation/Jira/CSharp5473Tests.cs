@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     public class CSharp5473Tests : Linq3IntegrationTest
     {
         [Fact]
-        public void Select_decimal_divide_should_work()
+        public void Translate_should_work()
         {
             var collection = GetCollection();
 
@@ -34,7 +34,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var stages = provider.Translate(queryable, out var outputSerializer);
             AssertStages(stages, "{ $project : { _v : { $add : ['$X', 1] }, _id : 0 } }");
 
-            var result = queryable.First();
+            var pipeline = new BsonDocumentStagePipelineDefinition<C, int>(stages, outputSerializer);
+            var result = collection.Aggregate(pipeline).Single();
             result.Should().Be(2);
         }
 
