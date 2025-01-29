@@ -905,8 +905,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ParseOption(string name, string value, bool isEscaped)
         {
-            // Should not decode authmechanismproperties before splitting by separator.
-            if (isEscaped)// && !string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
+            if (isEscaped)
             {
                 value = Uri.UnescapeDataString(value);
             }
