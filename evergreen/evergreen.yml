@@ -1521,6 +1521,9 @@ tasks:
           params:
             role_arn: ${LAMBDA_AWS_ROLE_ARN}
             duration_seconds: 3600
+        - func: install-dotnet
+          vars:
+            DOTNET_SDK_VERSION: 8.0
         - command: shell.exec
           params:
             working_dir: mongo-csharp-driver
@@ -1529,6 +1532,7 @@ tasks:
               ${PREPARE_SHELL}
               evergreen/run-deployed-lambda-aws-tests.sh
             env:
+              LAMBDA_STACK_NAME: dbx-csharp-lambda
               TEST_LAMBDA_DIRECTORY: ${PROJECT_DIRECTORY}/tests/FaasTests/LambdaTests
               AWS_REGION: us-east-1
 
@@ -2196,17 +2200,18 @@ task_groups:
       - command: subprocess.exec
         params:
           binary: bash
-          add_expansions_to_env: true
+          env:
+            LAMBDA_STACK_NAME: dbx-csharp-lambda
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update
         params:
           file: atlas-expansion.yml
+          redact_file_expansions: true
     teardown_group:
       - command: subprocess.exec
         params:
           binary: bash
-          add_expansions_to_env: true
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/teardown-atlas-cluster.sh
     tasks:

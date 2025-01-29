@@ -21,7 +21,7 @@ Resources:
     Properties:
       CodeUri: MongoDB.Driver.LambdaTest/
       Handler: MongoDB.Driver.LambdaTest::MongoDB.Driver.LambdaTest.LambdaFunction::LambdaFunctionHandlerAsync
-      Runtime: dotnet6
+      Runtime: dotnet8
       Architectures:
       - x86_64
       Environment:
