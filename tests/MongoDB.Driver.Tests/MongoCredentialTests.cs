@@ -155,5 +155,15 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("awesome", withProperties.GetMechanismProperty<string>("SPN", null));
             Assert.Equal(10, withProperties.GetMechanismProperty<int>("OTHER", 0));
         }
+
+        [Fact]
+        public void TestMechanismPropertyFromConnectionString()
+        {
+            var url = "mongodb+srv://<cluster>/?retryWrites=true&w=1&maxPoolSize=100&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop1:propVal,prop2:ab%2Ccd%2Cef%2Cjh";
+            var mongoConnection = MongoClientSettings.FromConnectionString(url);
+            mongoConnection.Credential.GetMechanismProperty<string>("ENVIRONMENT", "").Should().Be("azure");
+            mongoConnection.Credential.GetMechanismProperty<string>("prop1", "").Should().Be("propVal");
+            mongoConnection.Credential.GetMechanismProperty<string>("prop2", "").Should().Be("ab%2Ccd%2Cef%2Cjh");
+        }
     }
 }
