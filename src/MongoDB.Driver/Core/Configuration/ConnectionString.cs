@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
         }
 
-        internal ConnectionString(string connectionString, bool isInternalRepresentation, IDnsResolver dnsResolver, bool? isEncoded = null)
+        internal ConnectionString(string connectionString, bool isInternalRepresentation, IDnsResolver dnsResolver)
         {
             _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString));
             _isInternalRepresentation = isInternalRepresentation;
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.Configuration
             _authMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _compressorsOptions = new CompressorsOptions(_unknownOptions);
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
-            Parse(isEncoded == true);
+            Parse();
 
             _srvPrefix = $"_{_srvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName}._tcp.";
 
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="connectionString">The connection string.</param>
         /// <param name="isResolved">Whether the connection string is resolved.</param>
         internal ConnectionString(string connectionString, bool isResolved)
-            : this(connectionString, true, DnsClientWrapper.Instance, isResolved)
+            : this(connectionString, true, DnsClientWrapper.Instance)
         {
             if (!isResolved && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
             {
@@ -800,7 +800,7 @@ namespace MongoDB.Driver.Core.Configuration
             return host;
         }
 
-        private void Parse(bool isEscaped)
+        private void Parse()
         {
             const string serverPattern = @"(?<host>((\[[^]]+?\]|[^:@,/?#]+)(:\d+)?))";
             const string serversPattern = serverPattern + @"(," + serverPattern + ")*";
