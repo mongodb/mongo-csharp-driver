@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
         }
 
-        internal ConnectionString(string connectionString, bool isInternalRepresentation, IDnsResolver dnsResolver)
+        internal ConnectionString(string connectionString, bool isInternalRepresentation, IDnsResolver dnsResolver, bool? isEncoded = null)
         {
             _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString));
             _isInternalRepresentation = isInternalRepresentation;
@@ -127,11 +127,11 @@ namespace MongoDB.Driver.Core.Configuration
             _authMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _compressorsOptions = new CompressorsOptions(_unknownOptions);
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
-            Parse();
+            Parse(isEncoded == true);
 
             _srvPrefix = $"_{_srvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName}._tcp.";
 
-            _isResolved = _scheme != ConnectionStringScheme.MongoDBPlusSrv;
+            _isResolved =  _scheme != ConnectionStringScheme.MongoDBPlusSrv;
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="connectionString">The connection string.</param>
         /// <param name="isResolved">Whether the connection string is resolved.</param>
         internal ConnectionString(string connectionString, bool isResolved)
-            : this(connectionString, true, DnsClientWrapper.Instance)
+            : this(connectionString, true, DnsClientWrapper.Instance, isResolved)
         {
             if (!isResolved && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
             {
@@ -754,7 +754,7 @@ namespace MongoDB.Driver.Core.Configuration
             _hosts = endPoints;
         }
 
-        private void ExtractOptions(Match match)
+        private void ExtractOptions(Match match, bool isEscaped)
         {
             foreach (Capture option in match.Groups["option"].Captures)
             {
@@ -762,7 +762,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var name = parts[0].Trim();
                 var value = parts[1].Trim();
                 _allOptions.Add(name, Uri.UnescapeDataString(value));
-                ParseOption(name, value);
+                ParseOption(name, value, isEscaped);
             }
         }
 
@@ -800,7 +800,7 @@ namespace MongoDB.Driver.Core.Configuration
             return host;
         }
 
-        private void Parse()
+        private void Parse(bool isEscaped)
         {
             const string serverPattern = @"(?<host>((\[[^]]+?\]|[^:@,/?#]+)(:\d+)?))";
             const string serversPattern = serverPattern + @"(," + serverPattern + ")*";
@@ -833,7 +833,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             ExtractUsernameAndPassword(match);
             ExtractDatabaseName(match);
-            ExtractOptions(match);
+            ExtractOptions(match, isEscaped);
             ExtractScheme(match);
             ExtractHosts(match);
 
@@ -903,10 +903,10 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        private void ParseOption(string name, string value)
+        private void ParseOption(string name, string value, bool isEscaped)
         {
             // Should not decode authmechanismproperties before splitting by separator.
-            if (!string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
+            if (isEscaped)// && !string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
             {
                 value = Uri.UnescapeDataString(value);
             }
