@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             _srvPrefix = $"_{_srvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName}._tcp.";
 
-            _isResolved =  _scheme != ConnectionStringScheme.MongoDBPlusSrv;
+            _isResolved = _scheme != ConnectionStringScheme.MongoDBPlusSrv;
         }
 
         /// <summary>
