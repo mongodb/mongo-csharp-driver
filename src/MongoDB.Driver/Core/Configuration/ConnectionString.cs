@@ -684,7 +684,7 @@ namespace MongoDB.Driver.Core.Configuration
                 .AllKeys
                 .SelectMany(key => resolvedOptions
                     .GetValues(key)
-                    .Select(value => $"{key}={Uri.EscapeDataString(value)}")));
+                    .Select(value => $"{key}={value}")));
 
             if (mergedOptions.Count > 0)
             {
@@ -761,7 +761,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var parts = option.Value.Split('=');
                 var name = parts[0].Trim();
                 var value = parts[1].Trim();
-                _allOptions.Add(name, Uri.UnescapeDataString(value));
+                _allOptions.Add(name, value);
                 ParseOption(name, value, isEscaped);
             }
         }
@@ -905,7 +905,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ParseOption(string name, string value, bool isEscaped)
         {
-            if (isEscaped)
+            if (!string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
             {
                 value = Uri.UnescapeDataString(value);
             }
