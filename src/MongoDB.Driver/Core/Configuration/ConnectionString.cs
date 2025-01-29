@@ -754,7 +754,7 @@ namespace MongoDB.Driver.Core.Configuration
             _hosts = endPoints;
         }
 
-        private void ExtractOptions(Match match, bool isEscaped)
+        private void ExtractOptions(Match match)
         {
             foreach (Capture option in match.Groups["option"].Captures)
             {
@@ -762,7 +762,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var name = parts[0].Trim();
                 var value = parts[1].Trim();
                 _allOptions.Add(name, value);
-                ParseOption(name, value, isEscaped);
+                ParseOption(name, value);
             }
         }
 
@@ -833,7 +833,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             ExtractUsernameAndPassword(match);
             ExtractDatabaseName(match);
-            ExtractOptions(match, isEscaped);
+            ExtractOptions(match);
             ExtractScheme(match);
             ExtractHosts(match);
 
@@ -903,7 +903,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        private void ParseOption(string name, string value, bool isEscaped)
+        private void ParseOption(string name, string value)
         {
             if (!string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
             {

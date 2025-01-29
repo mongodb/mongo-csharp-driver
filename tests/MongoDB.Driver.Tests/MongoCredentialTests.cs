@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestMechanismPropertyFromResolvedConnectionString2()
+        public void TestMechanismPropertyFromResolvedConnectionString()
         {
             var url = "mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authSource=$external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster";
             var mongoConnection = MongoClientSettings.FromConnectionString(url);
