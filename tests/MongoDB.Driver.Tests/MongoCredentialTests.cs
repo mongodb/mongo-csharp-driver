@@ -157,13 +157,23 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestMechanismPropertyFromConnectionString()
+        public void TestMechanismPropertyFromUnresolvedConnectionString()
         {
-            var url = "mongodb+srv://<cluster>/?retryWrites=true&w=1&maxPoolSize=100&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop1:propVal,prop2:ab%2Ccd%2Cef%2Cjh";
+            var url = "mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster";
             var mongoConnection = MongoClientSettings.FromConnectionString(url);
             mongoConnection.Credential.GetMechanismProperty<string>("ENVIRONMENT", "").Should().Be("azure");
-            mongoConnection.Credential.GetMechanismProperty<string>("prop1", "").Should().Be("propVal");
-            mongoConnection.Credential.GetMechanismProperty<string>("prop2", "").Should().Be("ab%2Ccd%2Cef%2Cjh");
+            mongoConnection.Credential.GetMechanismProperty<string>("prop", "").Should().Be("ab,cd,ef,jh");
+            mongoConnection.Credential.GetMechanismProperty<string>("TOKEN_RESOURCE", "").Should().Be("mongodb://test-cluster");
+        }
+
+        [Fact]
+        public void TestMechanismPropertyFromResolvedConnectionString2()
+        {
+            var url = "mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authSource=$external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster";
+            var mongoConnection = MongoClientSettings.FromConnectionString(url);
+            mongoConnection.Credential.GetMechanismProperty<string>("ENVIRONMENT", "").Should().Be("azure");
+            mongoConnection.Credential.GetMechanismProperty<string>("prop", "").Should().Be("ab,cd,ef,jh");
+            mongoConnection.Credential.GetMechanismProperty<string>("TOKEN_RESOURCE", "").Should().Be("mongodb://test-cluster");
         }
     }
 }
