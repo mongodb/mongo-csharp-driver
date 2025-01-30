@@ -27,8 +27,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void GeneralTest()
         {
+            // At the moment having this uncommented would make the test fail due to the static caching of class maps
             // {
-            //     var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = BsonSerializer.DefaultDomain);
+            //     var client = DriverTestConfiguration.CreateMongoClient();
             //     var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             //     db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             //     var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -49,7 +50,6 @@ namespace MongoDB.Driver.Tests
             {
                 var customDomain = BsonSerializer.CreateDomain();
                 customDomain.RegisterSerializer(new CustomStringSerializer());
-                var registered = customDomain.LookupSerializer<string>();
 
                 var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests
             public int Age { get; set; }
         }
 
-        public class CustomStringSerializer : SealedClassSerializerBase<string>
+        public class CustomStringSerializer : SealedClassSerializerBase<string> //This serializer just adds "test" to any serialised string
         {
             /// <inheritdoc/>
             public override int GetHashCode() => 0;

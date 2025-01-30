@@ -38,10 +38,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             _encoderSettings = encoderSettings;
         }
 
-        protected IBsonSerializationDomain SerializationDomain =>
-            _encoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain,
-                null);
-
         // methods
         public JsonReader CreateJsonReader()
         {
@@ -70,6 +66,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 writerSettings.NewLineChars = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.NewLineChars, "");
                 writerSettings.OutputMode = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.OutputMode, JsonOutputMode.Shell);
                 writerSettings.ShellVersion = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.ShellVersion, new Version(2, 6, 0));
+                writerSettings.SerializationDomain =
+                    _encoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null); //TODO Using null here to find issues faster
             }
             return new JsonWriter(_textWriter, writerSettings);
         }

@@ -188,8 +188,6 @@ namespace MongoDB.Bson
             return values.Cast<object>().Select(v => new BsonDocumentWrapper(v, serializer));
         }
 
-
-
         // public methods
         /// <summary>
         /// Creates a shallow clone of the document (see also DeepClone).

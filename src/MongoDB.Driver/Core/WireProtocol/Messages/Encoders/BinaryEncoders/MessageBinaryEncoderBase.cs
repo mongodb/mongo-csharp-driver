@@ -83,10 +83,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        protected IBsonSerializationDomain SerializationDomain =>
-            _encoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain,
-                null);
-
         // methods
         public BsonBinaryReader CreateBinaryReader()
         {
