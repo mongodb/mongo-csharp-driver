@@ -689,7 +689,7 @@ namespace MongoDB.Bson.Serialization
             }
 
             bsonWriter.WriteName(memberMap.ElementName);
-            memberMap.GetSerializer().Serialize(context, value);
+            memberMap.GetSerializer(context.Domain).Serialize(context, value);
         }
 
         private bool ShouldSerializeDiscriminator(Type nominalType)
