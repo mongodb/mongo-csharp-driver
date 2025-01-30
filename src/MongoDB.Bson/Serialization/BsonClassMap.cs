@@ -1157,7 +1157,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (!_classType.IsAssignableFrom(type))
             {
-                throw new ArgumentException($"Type {type} is not assignable to {_classType}.", nameof(type));
+                throw new ArgumentException($"Type \"{type}\" is not assignable to \"{_classType}\".", nameof(type));
             }
 
             if (_classType == typeof(object) || _classType == typeof(ValueType) || _classType.IsInterface)

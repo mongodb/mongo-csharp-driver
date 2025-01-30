@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Serialization
                 return discriminator;
             }
 
-            throw new BsonSerializationException($"No discriminator value found for type: {actualType}.");
+            throw new BsonSerializationException($"No discriminator value found for type: \"{actualType}\".");
         }
 
         /// <summary>
