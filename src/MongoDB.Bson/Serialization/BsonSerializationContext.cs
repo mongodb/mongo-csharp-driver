@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Serialization
         {
             _writer = writer;
             _isDynamicType = isDynamicType;
-            _domain = domain ?? BsonSerializer.DefaultDomain;
+            _domain = writer.Settings.SerializationDomain ?? BsonSerializer.DefaultDomain;  //TODO This is to simplify finding errors
         }
 
         // public properties
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Serialization
             // private fields
             private Func<Type, bool> _isDynamicType;
             private IBsonWriter _writer;
-            private IBsonSerializationDomain _domain;
+            private IBsonSerializationDomain _domain;  //TODO Maybe we can remove this...
 
             // constructors
             internal Builder(BsonSerializationContext other, IBsonWriter writer)

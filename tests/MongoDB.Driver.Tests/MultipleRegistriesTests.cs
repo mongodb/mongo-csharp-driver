@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Tests
             {
                 var customDomain = BsonSerializer.CreateDomain();
                 customDomain.RegisterSerializer(new CustomStringSerializer());
+                var registered = customDomain.LookupSerializer<string>();
 
                 var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);

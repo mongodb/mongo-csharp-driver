@@ -945,6 +945,7 @@ namespace MongoDB.Driver
             clone._retryReads = _retryReads;
             clone._retryWrites = _retryWrites;
             clone._scheme = _scheme;
+            clone._serializationDomain = _serializationDomain;
             clone._serverApi = _serverApi;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._serverMonitoringMode = _serverMonitoringMode;

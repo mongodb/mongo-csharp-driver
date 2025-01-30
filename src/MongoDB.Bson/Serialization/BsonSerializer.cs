@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Serialization
         // static constructor
         static BsonSerializer()
         {
-            _domain = new BsonSerializationDomain();
+            _domain = new BsonSerializationDomain("MAIN");
         }
 
         /// <summary>

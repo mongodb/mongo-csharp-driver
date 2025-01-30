@@ -42,11 +42,14 @@ namespace MongoDB.Bson.Serialization
         private bool __useZeroIdChecker = false;
 
         // constructor
-        public BsonSerializationDomain()
+        public BsonSerializationDomain(string name = null) //TODO for testing
         {
             CreateSerializerRegistry();
             RegisterIdGenerators();
+            Name = name ?? "CUSTOM";
         }
+
+        public string Name { get; private set; }
 
         // public properties
         /// <summary>

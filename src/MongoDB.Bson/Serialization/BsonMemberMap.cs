@@ -336,7 +336,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    _serializer = BsonSerializer.LookupSerializer(_memberType); //TODO ??
+                    _serializer = domain.LookupSerializer(_memberType);
                 }
             }
             return _serializer;
