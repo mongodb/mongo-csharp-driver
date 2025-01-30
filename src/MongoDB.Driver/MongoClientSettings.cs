@@ -48,7 +48,6 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private MongoCredential _credential;
         private bool _directConnection;
-        private IBsonSerializationDomain _domain;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
@@ -68,6 +67,7 @@ namespace MongoDB.Driver
         private bool _retryReads;
         private bool _retryWrites;
         private ConnectionStringScheme _scheme;
+        private IBsonSerializationDomain _serializationDomain;
         private ServerApi _serverApi;
         private List<MongoServerAddress> _servers;
         private ServerMonitoringMode _serverMonitoringMode;
@@ -101,7 +101,6 @@ namespace MongoDB.Driver
             _compressors = new CompressorConfiguration[0];
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _directConnection = false;
-            _domain = null;
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
@@ -120,6 +119,7 @@ namespace MongoDB.Driver
             _retryReads = true;
             _retryWrites = true;
             _scheme = ConnectionStringScheme.MongoDB;
+            _serializationDomain = BsonSerializer.DefaultDomain;
             _serverApi = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serverMonitoringMode = ServerMonitoringMode.Auto;
@@ -264,23 +264,6 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _directConnection = value;
-            }
-        }
-
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
-        public IBsonSerializationDomain Domain
-        {
-            get
-            {
-                return _domain;
-            }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _domain = value;
             }
         }
 
@@ -488,6 +471,21 @@ namespace MongoDB.Driver
                     throw new ArgumentNullException("value");
                 }
                 _readPreference = value;
+            }
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public IBsonSerializationDomain SerializationDomain
+        {
+            get => _serializationDomain;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _serializationDomain = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
 

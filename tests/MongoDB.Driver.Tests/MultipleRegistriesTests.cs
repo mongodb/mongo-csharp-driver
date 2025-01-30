@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests
         public void GeneralTest()
         {
             // {
-            //     var client = DriverTestConfiguration.CreateMongoClient(c => c.Domain = BsonSerializer.DefaultDomain);
+            //     var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = BsonSerializer.DefaultDomain);
             //     var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             //     db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             //     var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests
                 var customDomain = BsonSerializer.CreateDomain();
                 customDomain.RegisterSerializer(new CustomStringSerializer());
 
-                var client = DriverTestConfiguration.CreateMongoClient(c => c.Domain = customDomain);
+                var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
                 var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);

@@ -117,10 +117,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public IBsonSerializerRegistry SerializerRegistry =>
-            _serializationDomain.HasBeenSet
-                ? SerializationDomain.SerializerRegistry
-                : BsonSerializer.SerializerRegistry;
+        public IBsonSerializerRegistry SerializerRegistry => SerializationDomain.SerializerRegistry;
 
         /// <summary>
         /// //TODO
@@ -315,6 +312,10 @@ namespace MongoDB.Driver
             if (!_readPreference.HasBeenSet)
             {
                 ReadPreference = databaseSettings.ReadPreference;
+            }
+            if (!_serializationDomain.HasBeenSet)
+            {
+                SerializationDomain = databaseSettings.SerializationDomain;
             }
             if (!_writeConcern.HasBeenSet)
             {
