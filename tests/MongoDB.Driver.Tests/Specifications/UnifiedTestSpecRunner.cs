@@ -159,11 +159,6 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("transactions.tests.unified")]
         public void Transactions(JsonDrivenTestCase testCase)
         {
-            if (testCase.Name.Contains("add RetryableWriteError and UnknownTransactionCommitResult labels to connection errors"))
-            {
-                throw new SkipException("Skipped because CSharp Driver has an issue with handling read timeout for sync code-path.");
-            }
-
             if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded &&
                 (testCase.Name.StartsWith("read-concern.json:only first distinct includes readConcern") ||
                 testCase.Name.StartsWith("read-concern.json:distinct ignores collection readConcern") ||
@@ -260,7 +255,14 @@ namespace MongoDB.Driver.Tests.Specifications
             "hello with speculativeAuthenticate",
             "hello without speculativeAuthenticate is always observed",
             "legacy hello with speculativeAuthenticate",
-            "legacy hello without speculativeAuthenticate is always observed"
+            "legacy hello without speculativeAuthenticate is always observed",
+
+            // transactions
+            // Skipped because CSharp Driver has an issue with handling read timeout for sync code-path. CSHARP-3662
+            "add RetryableWriteError and UnknownTransactionCommitResult labels to connection errors",
+
+            // CSHARP Driver does not comply with the requirement to throw in case explicit writeConcern were used, see CSHARP-5468
+            "client bulkWrite with writeConcern in a transaction causes a transaction error",
         });
 
         #region CMAP helpers
