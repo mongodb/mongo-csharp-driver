@@ -14,39 +14,40 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
     internal static class MethodCallExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             switch (expression.Method.Name)
             {
                 case "Abs": return AbsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Add": return AddMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "AddToSet": return AddToSetMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "Aggregate": return AggregateMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Aggregate": return AggregateMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "All": return AllMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Any": return AnyMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "AsQueryable": return AsQueryableMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "AsQueryable": return AsQueryableMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "Average": return AverageMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Ceiling": return CeilingMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "CompareTo": return CompareToMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "Concat": return ConcatMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Concat": return ConcatMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "Constant": return ConstantMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Contains": return ContainsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ContainsKey": return ContainsKeyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ContainsValue": return ContainsValueMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "CovariancePopulation": return CovariancePopulationMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "CovarianceSample": return CovarianceSampleMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "Create": return CreateMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Create": return CreateMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "DateFromString": return DateFromStringMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "DefaultIfEmpty": return DefaultIfEmptyMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "DefaultIfEmpty": return DefaultIfEmptyMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "DenseRank": return DenseRankMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Derivative": return DerivativeMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "Distinct": return DistinctMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Distinct": return DistinctMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
                 case "DocumentNumber": return DocumentNumberMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Equals": return EqualsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Except": return ExceptMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -122,7 +123,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 case "Append":
                 case "Prepend":
-                    return AppendOrPrependMethodToAggregationExpressionTranslator.Translate(context, expression);
+                    return AppendOrPrependMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
 
                 case "Bottom":
                 case "BottomN":
@@ -140,7 +141,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 case "ElementAt":
                 case "ElementAtOrDefault":
-                    return ElementAtMethodToAggregationExpressionTranslator.Translate(context, expression);
+                    return ElementAtMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
 
                 case "First":
                 case "FirstOrDefault":

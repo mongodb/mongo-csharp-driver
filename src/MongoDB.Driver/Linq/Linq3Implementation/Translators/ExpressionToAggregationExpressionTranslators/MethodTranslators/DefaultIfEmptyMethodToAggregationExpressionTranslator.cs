@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -40,31 +41,43 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.DefaultIfEmptyWithDefaultValue,
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
+            IBsonSerializer resultSerializer = null;
+            IBsonSerializer itemSerializer = null;
+            if (targetSerializer != null)
+            {
+                if (!(targetSerializer is IBsonArraySerializer arraySerializer))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"the target serializer {targetSerializer.GetType()} does not implement IBsonArraySerializer.");
+                }
+
+                resultSerializer = targetSerializer;
+                itemSerializer = ArraySerializerHelper.GetItemSerializer(arraySerializer);
+            }
+
             if (method.IsOneOf(__defaultIfEmptyMethods))
             {
                 var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression, targetSerializer);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                itemSerializer ??= ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
                 var (sourceVarBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
                 AstExpression defaultValueAst;
                 if (method.IsOneOf(__defaultIfEmptyWithDefaultValueMethods))
                 {
                     var defaultValueExpression = arguments[1];
-                    var defaultValueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, defaultValueExpression);
-                    defaultValueAst = AstExpression.ComputedArray(new[] { defaultValueTranslation.Ast });
+                    var defaultValueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, defaultValueExpression, itemSerializer);
+                    defaultValueAst = AstExpression.ComputedArray([defaultValueTranslation.Ast]);
                 }
                 else
                 {
-                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                    var defaultValue = sourceItemSerializer.ValueType.GetDefaultValue();
-                    var serializedDefaultValue = SerializationHelper.SerializeValue(sourceItemSerializer, defaultValue);
+                    var defaultValue = itemSerializer.ValueType.GetDefaultValue();
+                    var serializedDefaultValue = SerializationHelper.SerializeValue(itemSerializer, defaultValue);
                     defaultValueAst = AstExpression.Constant(new BsonArray { serializedDefaultValue });
                 }
                 var ast = AstExpression.Let(
@@ -74,8 +87,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         defaultValueAst,
                         sourceAst));
 
-                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
-                return new AggregationExpression(expression, ast, serializer);
+                resultSerializer ??= NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
+                return new AggregationExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

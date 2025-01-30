@@ -14,16 +14,17 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal static class ConcatMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             if (EnumerableConcatMethodToAggregationExpressionTranslator.CanTranslate(expression))
             {
-                return EnumerableConcatMethodToAggregationExpressionTranslator.Translate(context, expression);
+                return EnumerableConcatMethodToAggregationExpressionTranslator.Translate(context, expression, targetSerializer);
             }
 
             if (StringConcatMethodToAggregationExpressionTranslator.CanTranslate(expression, out var method, out var arguments))

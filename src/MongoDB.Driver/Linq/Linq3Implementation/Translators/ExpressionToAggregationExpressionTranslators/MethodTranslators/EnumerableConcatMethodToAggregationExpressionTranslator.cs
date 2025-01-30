@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -33,7 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         public static bool CanTranslate(MethodCallExpression expression)
             => expression.Method.IsOneOf(__concatMethods);
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression, IBsonSerializer targetSerializer)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -41,10 +42,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.IsOneOf(__concatMethods))
             {
                 var firstExpression = arguments[0];
-                var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression);
+                var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression, targetSerializer);
                 NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, firstTranslation);
                 var secondExpression = arguments[1];
-                var secondTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, secondExpression);
+                var secondTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, secondExpression, firstTranslation.Serializer);
                 var ast = AstExpression.ConcatArrays(firstTranslation.Ast, secondTranslation.Ast);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(firstTranslation.Serializer);
                 var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);

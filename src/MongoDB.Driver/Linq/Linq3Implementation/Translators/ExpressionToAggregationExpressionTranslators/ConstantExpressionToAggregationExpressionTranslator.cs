@@ -17,25 +17,27 @@ using System.Linq.Expressions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
     internal static class ConstantExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(ConstantExpression constantExpression)
+        public static AggregationExpression Translate(ConstantExpression constantExpression, IBsonSerializer targetSerializer)
         {
-            var constantType = constantExpression.Type;
-            var constantSerializer = StandardSerializers.TryGetSerializer(constantType, out var serializer) ? serializer : BsonSerializer.LookupSerializer(constantType);
-            return Translate(constantExpression, constantSerializer);
-       }
+            var resultSerializer = targetSerializer;
+            if (resultSerializer == null)
+            {
+                var constantType = constantExpression.Type;
+                resultSerializer = StandardSerializers.TryGetSerializer(constantType, out var serializer) ? serializer : BsonSerializer.LookupSerializer(constantType);
+            }
 
-        public static AggregationExpression Translate(ConstantExpression constantExpression, IBsonSerializer constantSerializer)
-        {
-            var constantValue = constantExpression.Value;
-            var serializedValue = constantSerializer.ToBsonValue(constantValue);
+            var value = constantExpression.Value;
+            var serializedValue = SerializationHelper.SerializeValue(resultSerializer, value);
             var ast = AstExpression.Constant(serializedValue);
-            return new AggregationExpression(constantExpression, ast, constantSerializer);
+
+            return new AggregationExpression(constantExpression, ast, resultSerializer);
         }
     }
 }

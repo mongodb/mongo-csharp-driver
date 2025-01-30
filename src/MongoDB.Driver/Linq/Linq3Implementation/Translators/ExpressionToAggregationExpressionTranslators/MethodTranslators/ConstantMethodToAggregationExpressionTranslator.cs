@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var valueExpression = arguments[0];
                 var value = valueExpression.GetConstantValue<object>(expression);
 
-                IBsonSerializer serializer = null;
+                IBsonSerializer resultSerializer = null;
                 if (method.Is(MqlMethod.ConstantWithRepresentation))
                 {
                     var representationExpression = arguments[1];
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var registeredSerializer = BsonSerializer.LookupSerializer(valueExpression.Type);
                     if (registeredSerializer is IRepresentationConfigurable representationConfigurableSerializer)
                     {
-                        serializer = representationConfigurableSerializer.WithRepresentation(representation);
+                        resultSerializer = representationConfigurableSerializer.WithRepresentation(representation);
                     }
                     else
                     {
@@ -53,14 +53,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 else if (method.Is(MqlMethod.ConstantWithSerializer))
                 {
                     var serializerExpression = arguments[1];
-                    serializer = serializerExpression.GetConstantValue<IBsonSerializer>(expression);
+                    resultSerializer = serializerExpression.GetConstantValue<IBsonSerializer>(expression);
                 }
 
-                if (serializer != null)
+                if (resultSerializer != null)
                 {
-                    var serializedValue = SerializationHelper.SerializeValue(serializer, value);
+                    var serializedValue = SerializationHelper.SerializeValue(resultSerializer, value);
                     var ast = AstExpression.Constant(serializedValue);
-                    return new AggregationExpression(expression, ast, serializer);
+                    return new AggregationExpression(expression, ast, resultSerializer);
                 }
             }
 
