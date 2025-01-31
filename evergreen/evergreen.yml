@@ -2071,8 +2071,6 @@ task_groups:
             - "AWS_ACCESS_KEY_ID"
             - "AWS_SECRET_ACCESS_KEY"
             - "AWS_SESSION_TOKEN"
-          env:
-            VAULT_NAME: "azurekms"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/csfle/azurekms/setup-secrets.sh
       - command: subprocess.exec
@@ -2119,8 +2117,6 @@ task_groups:
             - "AWS_ACCESS_KEY_ID"
             - "AWS_SECRET_ACCESS_KEY"
             - "AWS_SESSION_TOKEN"
-          env:
-            VAULT_NAME: "gcpkms"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms/setup-secrets.sh
       - command: subprocess.exec
@@ -2165,10 +2161,9 @@ task_groups:
             - "AWS_ACCESS_KEY_ID"
             - "AWS_SECRET_ACCESS_KEY"
             - "AWS_SESSION_TOKEN"
-          env:
-            VAULT_NAME: "atlas"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-secrets.sh
+            - "atlas"
       - command: subprocess.exec
         params:
           binary: bash
