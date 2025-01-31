@@ -431,7 +431,7 @@ namespace MongoDB.Driver.Encryption.Tests
             using (var cryptClient = CryptClientFactory.Create(cryptOptions))
             using (var context = cryptClient.StartCreateDataKeyContext(keyId))
             {
-                var request = context.GetKmsMessageRequests().Single();
+                var request = context.GetNextKmsMessageRequest();
                 request.KmsProvider.Should().Be(kmsName);
             }
         }
@@ -632,10 +632,9 @@ namespace MongoDB.Driver.Encryption.Tests
 
                 case CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS:
                     {
-                        var requests = context.GetKmsMessageRequests();
-                        foreach (var req in requests)
+                        while (context.GetNextKmsMessageRequest() is { } request)
                         {
-                            using var binary = req.GetMessage();
+                            using var binary = request.GetMessage();
                             _output.WriteLine("Key Document: " + binary);
                             var postRequest = binary.ToString();
                             // TODO: add different hosts handling
@@ -643,11 +642,11 @@ namespace MongoDB.Driver.Encryption.Tests
 
                             var reply = ReadHttpTestFile(isKmsDecrypt ? "kms-decrypt-reply.txt" : "kms-encrypt-reply.txt");
                             _output.WriteLine("Reply: " + reply);
-                            req.Feed(Encoding.UTF8.GetBytes(reply));
-                            req.BytesNeeded.Should().Be(0);
+                            request.Feed(Encoding.UTF8.GetBytes(reply));
+                            request.BytesNeeded.Should().Be(0);
                         }
 
-                        requests.MarkDone();
+                        context.MarkKmsDone();
                         return (CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS, null, null);
                     }
 
