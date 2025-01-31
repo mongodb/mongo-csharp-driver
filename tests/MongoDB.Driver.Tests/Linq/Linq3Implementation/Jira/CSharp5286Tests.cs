@@ -50,8 +50,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        public CSharp5286Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
-            : base(testOutputHelper, fixture)
+        public CSharp5286Tests(CollectionFixture fixture)
+            : base(fixture)
         {
         }
 

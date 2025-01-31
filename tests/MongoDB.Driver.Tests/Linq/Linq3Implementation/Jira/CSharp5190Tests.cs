@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp5190Tests : LinqIntegrationTest<CSharp5190Tests.CollectionFixture>
     {
-        public CSharp5190Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
-            : base(testOutputHelper, fixture)
+        public CSharp5190Tests(CollectionFixture fixture)
+            : base(fixture)
         {
         }
 

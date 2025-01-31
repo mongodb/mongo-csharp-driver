@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.TestHelpers.Logging;
 
 namespace MongoDB.Driver.Tests
 {
@@ -34,26 +32,14 @@ namespace MongoDB.Driver.Tests
         {
             _client = new Lazy<IMongoClient>(CreateClient);
             _database = new Lazy<IMongoDatabase>(CreateDatabase);
-
-            var logCategoriesToExclude = new[]
-            {
-                "MongoDB.Command",
-                "MongoDB.Connection"
-            };
-
-            LogsAccumulator = new XUnitOutputAccumulator(logCategoriesToExclude);
         }
 
         public IMongoClient Client => _client.Value;
         public IMongoDatabase Database => _database.Value;
 
-        internal XUnitOutputAccumulator LogsAccumulator { get; }
-
         public virtual void Dispose()
         {
-            var client = _client.IsValueCreated ? _client.Value : null;
             var database = _database.IsValueCreated ? _database.Value : null;
-
             if (database != null)
             {
                 foreach (var collection in _usedCollections)
@@ -61,8 +47,6 @@ namespace MongoDB.Driver.Tests
                     database.DropCollection(collection);
                 }
             }
-
-            client?.Dispose();
         }
 
         protected IMongoCollection<TDocument> CreateCollection<TDocument>(string collectionName = null)
@@ -81,17 +65,8 @@ namespace MongoDB.Driver.Tests
             return Database.GetCollection<TDocument>(collectionName);
         }
 
-        protected virtual void ConfigureMongoClientSettings(MongoClientSettings settings)
-        {
-            settings.LoggingSettings = new LoggingSettings(new XUnitLoggerFactory(LogsAccumulator), 10000); // Spec test require larger truncation default
-        }
-
         protected virtual IMongoClient CreateClient()
-        {
-            var clientSettings = DriverTestConfiguration.GetClientSettings();
-            ConfigureMongoClientSettings(clientSettings);
-            return new MongoClient(clientSettings);
-        }
+            => DriverTestConfiguration.Client;
 
         protected virtual IMongoDatabase CreateDatabase()
         {

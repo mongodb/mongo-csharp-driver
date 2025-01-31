@@ -20,14 +20,13 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp5172Tests : LinqIntegrationTest<CSharp5172Tests.CollectionFixture>
     {
-        public CSharp5172Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
-            : base(testOutputHelper, fixture)
+        public CSharp5172Tests(CollectionFixture fixture)
+            : base(fixture)
         {
         }
 

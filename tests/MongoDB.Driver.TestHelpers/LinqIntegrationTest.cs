@@ -29,8 +29,8 @@ namespace MongoDB.Driver.Tests
     public abstract class LinqIntegrationTest<TFixture> : IntegrationTest<TFixture>
         where TFixture : MongoDatabaseFixture
     {
-        public LinqIntegrationTest(ITestOutputHelper testOutputHelper, TFixture fixture, Action<RequireServer> requireServerCheck = null)
-            : base(testOutputHelper, fixture, requireServerCheck)
+        public LinqIntegrationTest(TFixture fixture, Action<RequireServer> requireServerCheck = null)
+            : base(fixture, requireServerCheck)
         {
         }
 

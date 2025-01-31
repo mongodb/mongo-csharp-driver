@@ -14,22 +14,19 @@
 */
 
 using System;
-using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
     [IntegrationTest]
-    public abstract class IntegrationTest<TFixture> : LoggableTestClass, IClassFixture<TFixture>
+    public abstract class IntegrationTest<TFixture> : IClassFixture<TFixture>
         where TFixture : MongoDatabaseFixture
     {
         private readonly TFixture _fixture;
 
-        protected IntegrationTest(ITestOutputHelper testOutput, TFixture fixture, Action<RequireServer> requireServerCheck = null)
-            : base(testOutput, fixture.LogsAccumulator)
+        protected IntegrationTest(TFixture fixture, Action<RequireServer> requireServerCheck = null)
         {
             _fixture = fixture;
             requireServerCheck?.Invoke(RequireServer.Check());

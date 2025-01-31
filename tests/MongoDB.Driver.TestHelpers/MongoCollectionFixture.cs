@@ -22,52 +22,54 @@ namespace MongoDB.Driver.TestHelpers
     public abstract class MongoCollectionFixture<TDocument> : MongoDatabaseFixture
     {
         private readonly Lazy<IMongoCollection<TDocument>> _collection;
-        private readonly string _collectionName;
         private bool _dataInitialized;
 
-        protected MongoCollectionFixture(string collectionName = null)
+        protected MongoCollectionFixture()
         {
-            _collectionName = collectionName ?? GetCollectionName();
-            if (string.IsNullOrEmpty(_collectionName))
-            {
-                throw new ArgumentNullException(nameof(collectionName) , "Cannot resolve the collection name. Try to specify the parameter explicitly");
-            }
-
             _collection = new Lazy<IMongoCollection<TDocument>>(CreateCollection);
         }
 
         public IMongoCollection<TDocument> Collection => _collection.Value;
-        public string CollectionName => _collectionName;
+
         protected abstract IEnumerable<TDocument> InitialData { get; }
 
         public virtual bool InitializeDataBeforeEachTestCase => false;
-
-        protected virtual IMongoCollection<TDocument> CreateCollection()
-        {
-            return CreateCollection<TDocument>(_collectionName);
-        }
 
         protected override void InitializeTestCase()
         {
             if (InitializeDataBeforeEachTestCase || !_dataInitialized)
             {
-                Collection.Database.DropCollection(_collectionName);
-                Collection.Database.CreateCollection(_collectionName);
+                Collection.Database.DropCollection(Collection.CollectionNamespace.CollectionName);
 
-                var initialData = InitialData;
-                if (initialData != null)
+                if (InitialData == null)
                 {
-                    Collection.InsertMany(initialData);
+                    Collection.Database.CreateCollection(Collection.CollectionNamespace.CollectionName);
+                }
+                else
+                {
+                    Collection.InsertMany(InitialData);
                 }
 
                 _dataInitialized = true;
             }
         }
 
-        private string GetCollectionName()
+        protected virtual string GetCollectionName()
         {
             var currentType = GetType();
-            return currentType.DeclaringType?.Name;
+            var result = currentType.DeclaringType?.Name;
+
+            if (string.IsNullOrEmpty(result))
+            {
+                throw new InvalidOperationException("Cannot resolve the collection name. Try to override GetCollectionName for custom collection name resolution.");
+            }
+
+            return result;
+        }
+
+        private IMongoCollection<TDocument> CreateCollection()
+        {
+            return CreateCollection<TDocument>(GetCollectionName());
         }
     }
 }

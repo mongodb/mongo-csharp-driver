@@ -19,7 +19,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
@@ -27,8 +26,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     {
         private const string IdValue = "0102030405060708090a0b0c";
 
-        public CSharp4066Tests(ITestOutputHelper testOutputHelper, CollectionFixture fixture)
-            : base(testOutputHelper, fixture)
+        public CSharp4066Tests(CollectionFixture fixture)
+            : base(fixture)
         {
         }
 

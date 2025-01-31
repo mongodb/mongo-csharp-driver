@@ -23,8 +23,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     public class CSharp5231Tests : LinqIntegrationTest<CSharp5231Tests.DatabaseFixture>
     {
-        public CSharp5231Tests(ITestOutputHelper testOutputHelper, DatabaseFixture fixture)
-            : base(testOutputHelper, fixture, server => server.Supports(Feature.AggregateUnionWith))
+        public CSharp5231Tests(DatabaseFixture fixture)
+            : base(fixture, server => server.Supports(Feature.AggregateUnionWith))
         {
         }
 
