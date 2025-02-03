@@ -61,12 +61,15 @@ namespace MongoDB.Driver.Tests
                 var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
                 collection.InsertOne(person);
 
-                var retrieved = bsonCollection.FindSync("{}").ToList().Single();
-                var toString = retrieved.ToString();
+                var retrievedAsBson = bsonCollection.FindSync("{}").ToList().Single();
+                var toString = retrievedAsBson.ToString();
 
                 var expectedVal =
                     """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "Name" : "Mariotest", "Age" : 24 }""";
                 Assert.Equal(expectedVal, toString);
+
+                var retrievedTyped = collection.FindSync("{}").ToList().Single();
+                Assert.Equal("Mario", retrievedTyped.Name);
             }
         }
 
@@ -89,8 +92,7 @@ namespace MongoDB.Driver.Tests
                 var bsonType = bsonReader.GetCurrentBsonType();
                 return bsonType switch
                 {
-                    BsonType.String => bsonReader.ReadString(),
-                    BsonType.Symbol => bsonReader.ReadSymbol(),
+                    BsonType.String => bsonReader.ReadString().Replace("test", ""),
                     _ => throw CreateCannotDeserializeFromBsonTypeException(bsonType)
                 };
             }
