@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests
         {
             _fixture = fixture;
             requireServerCheck?.Invoke(RequireServer.Check());
-            _fixture.Initialize();
+            _fixture.BeforeTestCase();
         }
 
         public TFixture Fixture => _fixture;

@@ -31,16 +31,16 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
     [DebuggerStepThrough]
     public abstract class LoggableTestClass : IDisposable, ILoggingService, ITestExceptionHandler
     {
-        private static readonly string[] __defaultCategoriesToExclude = ["MongoDB.Command", "MongoDB.Connection"];
-
         public LoggableTestClass(ITestOutputHelper output, bool includeAllCategories = false)
-            : this (output, new XUnitOutputAccumulator(includeAllCategories ? null : __defaultCategoriesToExclude))
-        {}
-
-        internal LoggableTestClass(ITestOutputHelper output, XUnitOutputAccumulator logAccumulator)
         {
+            var logCategoriesToExclude = includeAllCategories ? null : new[]
+            {
+                "MongoDB.Command",
+                "MongoDB.Connection"
+            };
+
             TestOutput = Ensure.IsNotNull(output, nameof(output));
-            Accumulator = logAccumulator;
+            Accumulator = new XUnitOutputAccumulator(logCategoriesToExclude);
             MinLogLevel = LogLevel.Warning;
 
             LoggingSettings = new LoggingSettings(new XUnitLoggerFactory(Accumulator), 10000); // Spec test require larger truncation default

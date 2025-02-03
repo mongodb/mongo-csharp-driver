@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests
             return Client.GetDatabase(_databaseName);
         }
 
-        internal void Initialize()
+        internal void BeforeTestCase()
         {
             if (!_fixtureInialized)
             {
