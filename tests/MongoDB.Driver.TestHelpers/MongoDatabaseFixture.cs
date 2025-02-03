@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests
         {
             if (string.IsNullOrEmpty(collectionName))
             {
-                throw new ArgumentNullException(nameof(collectionName));
+                throw new ArgumentException($"{nameof(collectionName)} should be non-empty string.", nameof(collectionName));
             }
 
             Database.DropCollection(collectionName);
