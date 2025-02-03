@@ -22,11 +22,11 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4066Tests : IntegrationTest<CSharp4066Tests.CollectionFixture>
+    public class CSharp4066Tests : IntegrationTest<CSharp4066Tests.ClassFixture>
     {
         private const string IdValue = "0102030405060708090a0b0c";
 
-        public CSharp4066Tests(CollectionFixture fixture)
+        public CSharp4066Tests(ClassFixture fixture)
             : base(fixture)
         {
         }
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int X { get; set; }
         }
 
-        public class CollectionFixture : MongoCollectionFixture<C>
+        public sealed class ClassFixture : MongoCollectionFixture<C>
         {
             protected override IEnumerable<C> InitialData { get; } =
             [

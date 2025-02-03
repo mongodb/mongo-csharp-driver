@@ -25,9 +25,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5180Tests : LinqIntegrationTest<CSharp5180Tests.CollectionFixture>
+    public class CSharp5180Tests : LinqIntegrationTest<CSharp5180Tests.ClassFixture>
     {
-        public CSharp5180Tests(CollectionFixture fixture)
+        public CSharp5180Tests(ClassFixture fixture)
             : base(fixture)
         {
         }
@@ -1053,7 +1053,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public long? NullableLong { get; set; }
         }
 
-        public sealed class CollectionFixture : MongoCollectionFixture<C>
+        public sealed class ClassFixture : MongoCollectionFixture<C>
         {
             protected override IEnumerable<C> InitialData =>
             [

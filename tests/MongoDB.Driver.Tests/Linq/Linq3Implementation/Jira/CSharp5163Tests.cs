@@ -21,9 +21,9 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira;
 
-public class CSharp5163Tests : LinqIntegrationTest<CSharp5163Tests.CollectionFixture>
+public class CSharp5163Tests : LinqIntegrationTest<CSharp5163Tests.ClassFixture>
 {
-    public CSharp5163Tests(CollectionFixture fixture)
+    public CSharp5163Tests(ClassFixture fixture)
         : base(fixture)
     {
     }
@@ -64,7 +64,7 @@ public class CSharp5163Tests : LinqIntegrationTest<CSharp5163Tests.CollectionFix
         public byte Byte { get; set; }
     }
 
-    public class CollectionFixture : MongoCollectionFixture<C>
+    public sealed class ClassFixture : MongoCollectionFixture<C>
     {
         protected override IEnumerable<C> InitialData
             => [ new C { Int = 1, Byte = 1 } ];
