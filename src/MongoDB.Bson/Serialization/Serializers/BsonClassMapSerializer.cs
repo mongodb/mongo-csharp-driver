@@ -571,7 +571,7 @@ namespace MongoDB.Bson.Serialization
         {
             try
             {
-                return memberMap.GetSerializer().Deserialize(context);
+                return memberMap.GetSerializer(context.Domain).Deserialize(context);
             }
             catch (Exception ex)
             {

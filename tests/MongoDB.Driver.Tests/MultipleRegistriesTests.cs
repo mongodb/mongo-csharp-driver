@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests
     public class MultipleRegistriesTests
     {
         [Fact]
-        public void GeneralTest()
+        public void TestSerialization()
         {
             // At the moment having this uncommented would make the test fail due to the static caching of class maps
             // {
@@ -73,7 +73,40 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [Fact]
+        public void TestDeserialization()
+        {
+            {
+                var client = DriverTestConfiguration.CreateMongoClient();
+                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+                db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                var collection = db.GetCollection<Person1>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+                var person = new Person1 { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mariotest", Age = 24 };
+                collection.InsertOne(person);
+            }
+
+            {
+                var customDomain = BsonSerializer.CreateDomain();
+                customDomain.RegisterSerializer(new CustomStringSerializer());
+
+                var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+                var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+                var retrievedTyped = collection.FindSync("{}").ToList().Single();
+                Assert.Equal("Mario", retrievedTyped.Name);
+            }
+        }
+
         public class Person
+        {
+            [BsonId] public ObjectId Id { get; set; }
+            public string Name { get; set; }
+            public int Age { get; set; }
+        }
+
+        public class Person1
         {
             [BsonId] public ObjectId Id { get; set; }
             public string Name { get; set; }
