@@ -49,14 +49,11 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        protected IMongoCollection<TDocument> CreateCollection<TDocument>(string collectionName = null)
+        protected IMongoCollection<TDocument> CreateCollection<TDocument>(string collectionName)
         {
             if (string.IsNullOrEmpty(collectionName))
             {
-                var stack = new System.Diagnostics.StackTrace();
-                var frame = stack.GetFrame(1); // skip 1 frame to get the calling method info
-                var method = frame.GetMethod();
-                collectionName = $"{method.DeclaringType.Name}_{method.Name}";
+                throw new ArgumentNullException(nameof(collectionName));
             }
 
             Database.DropCollection(collectionName);
