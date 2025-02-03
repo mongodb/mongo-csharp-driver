@@ -18,25 +18,21 @@ namespace MongoDB.Bson.Serialization
     internal class BsonSerializationDomain : IBsonSerializationDomainInternal, IDisposable
     {
         // private fields
-        private ReaderWriterLockSlim _configLock =
-            new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private ReaderWriterLockSlim _configLock = new(LockRecursionPolicy.SupportsRecursion);
 
-        private Dictionary<Type, IIdGenerator> _idGenerators = new Dictionary<Type, IIdGenerator>();
+        private Dictionary<Type, IIdGenerator> _idGenerators = new();
 
-        private Dictionary<Type, IDiscriminatorConvention> _discriminatorConventions =
-            new Dictionary<Type, IDiscriminatorConvention>();
+        private Dictionary<Type, IDiscriminatorConvention> _discriminatorConventions = new();
 
-        private Dictionary<BsonValue, HashSet<Type>> _discriminators =
-            new Dictionary<BsonValue, HashSet<Type>>();
+        private Dictionary<BsonValue, HashSet<Type>> _discriminators = new();
 
-        private HashSet<Type> _discriminatedTypes = new HashSet<Type>();
+        private HashSet<Type> _discriminatedTypes = new();
         private BsonSerializerRegistry _serializerRegistry;
 
         private TypeMappingSerializationProvider _typeMappingSerializationProvider;
 
         // ConcurrentDictionary<Type, object> is being used as a concurrent set of Type. The values will always be null.
-        private ConcurrentDictionary<Type, object> _typesWithRegisteredKnownTypes =
-            new ConcurrentDictionary<Type, object>();
+        private ConcurrentDictionary<Type, object> _typesWithRegisteredKnownTypes = new();
 
         private bool _useNullIdChecker = false;
         private bool _useZeroIdChecker = false;

@@ -67,7 +67,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonReaderSettings CloneImplementation()
         {
-            var clone = new BsonDocumentReaderSettings();
+            var clone = new BsonDocumentReaderSettings { SerializationDomain = SerializationDomain }; //TODO This can be improved
             return clone;
         }
     }
