@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var collection = GetCollection<Document>();
             var deviceFilter = Builders<Device>.Filter.Regex(x => x.DeviceName, new BsonRegularExpression(".Name0."));
-            var deviceArrayFilter = Builders<Device[]>.Filter.ElemMatch("@<elem>", deviceFilter);
+            var deviceArrayFilter = Builders<Device[]>.Filter.ElemMatch(deviceFilter);
             var filter = Builders<Document>.Filter.ElemMatch(x => x.Details.A, deviceArrayFilter);
 
             var find = collection.Find(filter);
