@@ -293,7 +293,6 @@ namespace MongoDB.Bson.Serialization
 
     internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
     {
-
         /// <summary>
         /// //TODO
         /// </summary>

@@ -105,10 +105,10 @@ namespace MongoDB.Bson.Serialization.Conventions
             if (bsonType == BsonType.Document)
             {
                 // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
-                domain.EnsureKnownTypesAreRegistered(nominalType); //TODO ??
+                (domain as IBsonSerializationDomainInternal)!.EnsureKnownTypesAreRegistered(nominalType);  //TODO Should we move Ensure... to the public interface?
 
                 // we can skip looking for a discriminator if nominalType has no discriminated sub types
-                if (domain.IsTypeDiscriminated(nominalType)) //TODO ??
+                if (domain.IsTypeDiscriminated(nominalType))
                 {
                     var bookmark = bsonReader.GetBookmark();
                     bsonReader.ReadStartDocument();
