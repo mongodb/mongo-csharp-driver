@@ -288,7 +288,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// //TODO
         /// </summary>
-        IBsonClassMapDomain ClassMapDomain { get; }
+        IBsonClassMapDomain BsonClassMap { get; }
     }
 
     internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain

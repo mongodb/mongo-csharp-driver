@@ -732,7 +732,7 @@ namespace MongoDB.Bson.Serialization
             serializer.Serialize(context, args, value);
         }
 
-        public IBsonClassMapDomain ClassMapDomain => _classMapDomain;
+        public IBsonClassMapDomain BsonClassMap => _classMapDomain;
 
         /// <summary>
         /// Tries to register a serializer for a type.
