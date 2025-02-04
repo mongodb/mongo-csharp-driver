@@ -27,18 +27,36 @@ namespace MongoDB.Driver.Tests
     {
         [Theory]
         [MemberData(nameof(DataCtor))]
-        public void Ctor_should_create_new_instance(Func<QueryVector> creator, BsonArray expectedArray)
+        public void Ctor_should_create_new_instance(Func<QueryVector> creator, BsonValue expectedBsonValue)
         {
             var vector = creator();
-            vector.Array.Should().Be(expectedArray);
+            vector.Vector.Should().Be(expectedBsonValue);
+        }
+
+        [Fact]
+        public void Ctor_should_throw_on_null_binaryData()
+        {
+            BsonBinaryData bsonBinaryData = null;
+            var exception = Record.Exception(() => new QueryVector(bsonBinaryData));
+            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            e.ParamName.Should().Be("bsonBinaryData");
+        }
+
+        [Fact]
+        public void Ctor_should_throw_on_invalid_binaryData_subtype()
+        {
+            var bsonBinaryData = new BsonBinaryData([1], BsonBinarySubType.Binary);
+            var exception = Record.Exception(() => new QueryVector(bsonBinaryData));
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.ParamName.Should().Be(nameof(bsonBinaryData.SubType));
         }
 
         [Theory]
         [MemberData(nameof(DataImplicitCast))]
-        public void Implicit_conversion_should_return_new_instance(Func<QueryVector> conversion, BsonArray expectedArray)
+        public void Implicit_conversion_should_return_new_instance(Func<QueryVector> conversion, BsonValue expectedBsonValue)
         {
             var vector = conversion();
-            vector.Array.Should().Be(expectedArray);
+            vector.Vector.Should().Be(expectedBsonValue);
         }
 
         [Theory]
@@ -60,12 +78,12 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [MemberData(nameof(DataImplicitCast))]
-        public void Vector_should_be_serialized_correctly(Func<QueryVector> conversion, BsonArray expectedArray)
+        public void Vector_should_be_serialized_correctly(Func<QueryVector> conversion, BsonValue expectedBsonValue)
         {
             var vector = conversion();
 
-            var objectActual = new { Array = vector.Array };
-            var objectExpected = new { Array = expectedArray };
+            var objectActual = new { Vector = vector.Vector };
+            var objectExpected = new { Vector = expectedBsonValue };
 
             var bsonActual = objectActual.ToBson();
             var bsonExpected = objectExpected.ToBson();
@@ -73,28 +91,30 @@ namespace MongoDB.Driver.Tests
         }
 
         public static IEnumerable<object[]> DataImplicitCast =>
-            new[]
-            {
-                new object[] { () => (QueryVector)(new[] { 1.1, 2.2 }), ToBsonArray(new[] { 1.1, 2.2 }) },
-                new object[] { () => (QueryVector)(new[] { 1.1f, 2.2f }), ToBsonArray(new[] { 1.1f, 2.2f }) },
-                new object[] { () => (QueryVector)(new[] { 1, 2 }), ToBsonArray(new[] { 1.0, 2.0 }) },
-                new object[] { () => (QueryVector)(new ReadOnlyMemory<double>(new[] { 1.1, 2.2 })), ToBsonArray(new[] { 1.1, 2.2 }) },
-                new object[] { () => (QueryVector)(new ReadOnlyMemory<float>(new[] { 1.1f, 2.2f })), ToBsonArray(new[] { 1.1f, 2.2f }) },
-                new object[] { () => (QueryVector)(new ReadOnlyMemory<int>(new[] { 1, 2 })), ToBsonArray(new[] { 1, 2 }) },
-            };
+            [
+                [() => (QueryVector)(new[] { 1.1, 2.2 }), ToBsonArray(new[] { 1.1, 2.2 })],
+                [() => (QueryVector)(new[] { 1.1f, 2.2f }), ToBsonArray(new[] { 1.1f, 2.2f })],
+                [() => (QueryVector)(new[] { 1, 2 }), ToBsonArray(new[] { 1.0, 2.0 })],
+                [() => (QueryVector)new ReadOnlyMemory<double>([1.1, 2.2]), ToBsonArray(new[] { 1.1, 2.2 })],
+                [() => (QueryVector)new ReadOnlyMemory<float>([1.1f, 2.2f]), ToBsonArray(new[] { 1.1f, 2.2f })],
+                [() => (QueryVector)new ReadOnlyMemory<int>([1, 2]), ToBsonArray(new[] { 1, 2 })],
+                [() => (QueryVector)new BsonVectorInt8(new byte[] { 1, 2 }), new BsonVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()],
+                [() => (QueryVector)new BsonVectorFloat32(new float[] { 1.1f, 2.2f }), new BsonVectorFloat32(new float[] { 1.1f, 2.2f }).ToBsonBinaryData()],
+                [() => (QueryVector)new BsonVectorPackedBit(new byte[] { 1, 2 }, 0), new BsonVectorPackedBit(new byte[] { 1, 2 }, 0).ToBsonBinaryData()]
+            ];
 
         public static IEnumerable<object[]> DataCtor =>
-            new[]
-            {
-                new object[] { () => new QueryVector(new[] { 1.1, 2.2 }), ToBsonArray(new[] { 1.1, 2.2 }) },
-                new object[] { () => new QueryVector(new[] { 1.1f, 2.2f }), ToBsonArray(new[] { 1.1f, 2.2f }) },
-                new object[] { () => new QueryVector(new[] { 1, 2 }), ToBsonArray(new[] { 1.0, 2.0 }) },
-                new object[] { () => new QueryVector(new ReadOnlyMemory<double>(new[] { 1.1, 2.2 })), ToBsonArray(new[] { 1.1, 2.2 }) },
-                new object[] { () => new QueryVector(new ReadOnlyMemory<float>(new[] { 1.1f, 2.2f })), ToBsonArray(new[] { 1.1f, 2.2f }) },
-                new object[] { () => new QueryVector(new ReadOnlyMemory<int>(new[] { 1, 2 })), ToBsonArray(new[] { 1, 2 }) },
-            };
+            [
+                [() => new QueryVector(new[] { 1.1, 2.2 }), ToBsonArray(new[] { 1.1, 2.2 })],
+                [() => new QueryVector(new[] { 1.1f, 2.2f }), ToBsonArray(new[] { 1.1f, 2.2f })],
+                [() => new QueryVector(new[] { 1, 2 }), ToBsonArray(new[] { 1.0, 2.0 })],
+                [() => new QueryVector(new ReadOnlyMemory<double>([1.1, 2.2])), ToBsonArray(new[] { 1.1, 2.2 })],
+                [() => new QueryVector(new ReadOnlyMemory<float>([1.1f, 2.2f])), ToBsonArray(new[] { 1.1f, 2.2f })],
+                [() => new QueryVector(new ReadOnlyMemory<int>([1, 2])), ToBsonArray(new[] { 1, 2 })],
+                [() => new QueryVector(new BsonVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()), new BsonVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()]
+            ];
 
         private static BsonArray ToBsonArray<T>(T[] array) where T : struct, IConvertible =>
-            new BsonArray(array.Select(v => v.ToDouble(null)));
+            new(array.Select(v => v.ToDouble(null)));
     }
 }

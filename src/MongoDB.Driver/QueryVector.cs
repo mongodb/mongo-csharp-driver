@@ -29,14 +29,27 @@ namespace MongoDB.Driver
     public sealed class QueryVector
     {
         /// <summary>
-        /// Gets the underlying BSON array.
+        /// Gets the underlying bson value representing the vector.
+        /// Possible values are <see cref="BsonArray"/> or <see cref="BsonBinaryData"/> encoding <see cref="BsonVectorBase{TItem}"/>
         /// </summary>
-        internal BsonArray Array { get; } // do not make public because in the case of ReadOnlyMemory the BsonArray subclass is not fully functional
+        internal BsonValue Vector { get; } // do not make public because in the case of ReadOnlyMemory the BsonArray subclass is not fully functional
 
         private QueryVector(BsonArray array)
         {
             Ensure.IsNotNullOrEmpty(array, nameof(array));
-            Array = array;
+            Vector = array;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryVector"/> class.
+        /// </summary>
+        /// <param name="bsonBinaryData">The bson binary data.</param>
+        public QueryVector(BsonBinaryData bsonBinaryData)
+        {
+            Ensure.IsNotNull(bsonBinaryData, nameof(bsonBinaryData));
+            Ensure.IsEqualTo(bsonBinaryData.SubType, BsonBinarySubType.Vector, nameof(bsonBinaryData.SubType));
+
+            Vector = bsonBinaryData;
         }
 
         /// <summary>
@@ -94,7 +107,7 @@ namespace MongoDB.Driver
         public static implicit operator QueryVector(float[] array) => new(array);
 
         /// <summary>
-        /// Performs an implicit conversion from a of <see cref="ReadOnlyMemory{T}"/> to <see cref="QueryVector"/>.
+        /// Performs an implicit conversion from a of <see cref="ReadOnlyMemory{Single}"/> to <see cref="QueryVector"/>.
         /// </summary>
         /// <param name="readOnlyMemory">The readOnlyMemory.</param>
         /// <returns>
@@ -112,13 +125,40 @@ namespace MongoDB.Driver
         public static implicit operator QueryVector(int[] array) => new(array);
 
         /// <summary>
-        /// Performs an implicit conversion from a of <see cref="ReadOnlyMemory{T}"/> to <see cref="QueryVector"/>.
+        /// Performs an implicit conversion from a of <see cref="ReadOnlyMemory{Int32}"/> to <see cref="QueryVector"/>.
         /// </summary>
         /// <param name="readOnlyMemory">The readOnlyMemory.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
         public static implicit operator QueryVector(ReadOnlyMemory<int> readOnlyMemory) => new(readOnlyMemory);
+
+        /// <summary>
+        /// Performs an implicit conversion from a of <see cref="BsonVectorInt8" /> to <see cref="QueryVector" />.
+        /// </summary>
+        /// <param name="bsonVectorInt8">The bson vector int8.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator QueryVector(BsonVectorInt8 bsonVectorInt8) => bsonVectorInt8.ToQueryVector();
+
+        /// <summary>
+        /// Performs an implicit conversion from a of <see cref="BsonVectorFloat32" /> to <see cref="QueryVector" />.
+        /// </summary>
+        /// <param name="bsonVectorFloat32">The bson vector float32.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator QueryVector(BsonVectorFloat32 bsonVectorFloat32) => bsonVectorFloat32.ToQueryVector();
+
+        /// <summary>
+        /// Performs an implicit conversion from a of <see cref="BsonVectorPackedBit" /> to <see cref="QueryVector" />.
+        /// </summary>
+        /// <param name="bsonVectorPackedBit">The bson vector packed bit.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator QueryVector(BsonVectorPackedBit bsonVectorPackedBit) => bsonVectorPackedBit.ToQueryVector();
     }
 
     // WARNING: this class is a very partial implementation of a BsonArray subclass
