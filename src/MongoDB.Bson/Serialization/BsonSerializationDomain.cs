@@ -19,16 +19,12 @@ namespace MongoDB.Bson.Serialization
     {
         // private fields
         private ReaderWriterLockSlim _configLock = new(LockRecursionPolicy.SupportsRecursion);
-
+        private IBsonClassMapDomain _classMapDomain;
         private Dictionary<Type, IIdGenerator> _idGenerators = new();
-
         private Dictionary<Type, IDiscriminatorConvention> _discriminatorConventions = new();
-
         private Dictionary<BsonValue, HashSet<Type>> _discriminators = new();
-
         private HashSet<Type> _discriminatedTypes = new();
         private BsonSerializerRegistry _serializerRegistry;
-
         private TypeMappingSerializationProvider _typeMappingSerializationProvider;
 
         // ConcurrentDictionary<Type, object> is being used as a concurrent set of Type. The values will always be null.
@@ -38,10 +34,11 @@ namespace MongoDB.Bson.Serialization
         private bool _useZeroIdChecker = false;
 
         // constructor
-        public BsonSerializationDomain(string name = null) //TODO for testing
+        public BsonSerializationDomain(string name = null) //TODO name is used for testing
         {
             CreateSerializerRegistry();
             RegisterIdGenerators();
+            _classMapDomain = new BsonClassMapDomain();
             Name = name ?? "CUSTOM";
         }
 
@@ -734,6 +731,8 @@ namespace MongoDB.Bson.Serialization
             var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
             serializer.Serialize(context, args, value);
         }
+
+        public IBsonClassMapDomain ClassMapDomain => _classMapDomain;
 
         /// <summary>
         /// Tries to register a serializer for a type.

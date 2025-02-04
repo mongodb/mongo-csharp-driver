@@ -285,7 +285,14 @@ namespace MongoDB.Bson.Serialization
             BsonSerializationArgs args = default(BsonSerializationArgs));
 
 
-        //TODO These 3 methods were part of the internal interface before
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        IBsonClassMapDomain ClassMapDomain { get; }
+    }
+
+    internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
+    {
 
         /// <summary>
         /// //TODO
@@ -308,10 +315,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="type"></param>
         /// <returns></returns>
         bool IsDiscriminatorConventionRegisteredAtThisLevel(Type type);
-    }
 
-    internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
-    {
         ReaderWriterLockSlim ConfigLock { get; }
     }
 }
