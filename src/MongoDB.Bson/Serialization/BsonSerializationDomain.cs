@@ -798,7 +798,7 @@ namespace MongoDB.Bson.Serialization
         // private methods
         private void CreateSerializerRegistry()
         {
-            _serializerRegistry = new BsonSerializerRegistry();
+            _serializerRegistry = new BsonSerializerRegistry(this);
             _typeMappingSerializationProvider = new TypeMappingSerializationProvider();
 
             // order matters. It's in reverse order of how they'll get consumed

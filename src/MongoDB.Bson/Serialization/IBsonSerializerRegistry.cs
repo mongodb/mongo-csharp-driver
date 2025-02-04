@@ -23,6 +23,11 @@ namespace MongoDB.Bson.Serialization
     public interface IBsonSerializerRegistry
     {
         /// <summary>
+        /// //TODO
+        /// </summary>
+        public IBsonSerializationDomain SerializationDomain { get; }
+
+        /// <summary>
         /// Gets the serializer for the specified <paramref name="type"/>.
         /// </summary>
         /// <param name="type">The type.</param>

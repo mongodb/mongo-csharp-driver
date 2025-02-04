@@ -117,7 +117,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public IBsonSerializerRegistry SerializerRegistry => SerializationDomain.SerializerRegistry;
+        public IBsonSerializerRegistry SerializerRegistry => SerializationDomain.SerializerRegistry;  //TODO We should try passing down the domain instead of the registry...
 
         /// <summary>
         /// //TODO

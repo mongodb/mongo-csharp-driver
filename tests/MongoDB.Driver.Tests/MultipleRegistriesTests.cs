@@ -27,25 +27,26 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestSerialization()
         {
-            // At the moment having this uncommented would make the test fail due to the static caching of class maps
-            // {
-            //     var client = DriverTestConfiguration.CreateMongoClient();
-            //     var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            //     db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            //     var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            //     var bsonCollection =
-            //         db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            //
-            //     var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
-            //     collection.InsertOne(person);
-            //
-            //     var retrieved = bsonCollection.FindSync("{}").ToList().Single();
-            //     var toString = retrieved.ToString();
-            //
-            //     var expectedVal =
-            //         """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "Name" : "Mario", "Age" : 24 }""";
-            //     Assert.Equal(expectedVal, toString);
-            // }
+            {
+                var client = DriverTestConfiguration.CreateMongoClient();
+                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+                db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                var bsonCollection =
+                    db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+                var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
+                collection.InsertOne(person);
+
+                var retrieved = bsonCollection.FindSync("{}").ToList().Single();
+                var toString = retrieved.ToString();
+
+                var expectedVal =
+                    """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "Name" : "Mario", "Age" : 24 }""";
+                Assert.Equal(expectedVal, toString);
+            }
+
+            //The first section demonstrates that the class maps are also separated
 
             {
                 var customDomain = BsonSerializer.CreateDomain();
