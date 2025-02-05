@@ -18,17 +18,22 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5172Tests : Linq3IntegrationTest
+    public class CSharp5172Tests : LinqIntegrationTest<CSharp5172Tests.ClassFixture>
     {
+        public CSharp5172Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Filter_ElemMatch_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var filter = Builders<Entity>.Filter.ElemMatch(e => e.Values, x => x > 1 && x < 3);
 
             var renderedUpdate = (BsonDocument)filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry)); ;
@@ -41,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Update_PullFilter_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var update = Builders<Entity>.Update.PullFilter(e => e.Values, x => x > 1 && x < 3);
 
             var renderedUpdate = (BsonDocument)update.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry)); ;
@@ -56,20 +61,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             updatedDocuments[1].Values.Should().Equal(4, 5, 6);
         }
 
-        private IMongoCollection<Entity> GetCollection()
-        {
-            var collection = GetCollection<Entity>("test");
-            CreateCollection(
-                collection,
-                new Entity { Id = 1, Values = new List<int> { 1, 2, 3 } },
-                new Entity { Id = 2, Values = new List<int> { 4, 5, 6 } });
-            return collection;
-        }
-
-        private class Entity
+        public class Entity
         {
             public int Id { get; set; }
             public List<int> Values { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Entity>
+        {
+            protected override IEnumerable<Entity> InitialData =>
+            [
+                new Entity { Id = 1, Values = new List<int> { 1, 2, 3 } },
+                new Entity { Id = 2, Values = new List<int> { 4, 5, 6 } }
+            ];
+
+            public override bool InitializeDataBeforeEachTestCase => true;
         }
     }
 }

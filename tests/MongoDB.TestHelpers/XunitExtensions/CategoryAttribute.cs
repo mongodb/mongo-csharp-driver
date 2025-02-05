@@ -23,7 +23,7 @@ namespace MongoDB.TestHelpers.XunitExtensions
 {
     [TraitDiscoverer("MongoDB.TestHelpers.XunitExtensions.CategoryTraitDiscoverer", "MongoDB.TestHelpers")]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public sealed class CategoryAttribute : Attribute, ITraitAttribute
+    public class CategoryAttribute : Attribute, ITraitAttribute
     {
         public CategoryAttribute(params string[] categories)
         {
