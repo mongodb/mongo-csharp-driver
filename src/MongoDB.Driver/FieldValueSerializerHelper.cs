@@ -139,7 +139,7 @@ namespace MongoDB.Driver
 
             // if we can't return a value serializer based on the field serializer return a converting serializer
             return ConvertIfPossibleSerializer.Create(valueType, fieldType, fieldSerializer, serializerRegistry);
-        }s
+        }
 
         // private static methods
         private static bool HasStringRepresentation(IBsonSerializer serializer)
