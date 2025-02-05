@@ -119,11 +119,11 @@ namespace MongoDB.Driver.Search
         }
     }
 
-    internal sealed class EqualsSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
+    internal sealed class EqualsSearchDefinition<TDocument, TValue> : OperatorSearchDefinition<TDocument>
     {
-        private readonly TField _value;
+        private readonly TValue _value;
 
-        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TField value, SearchScoreDefinition<TDocument> score)
+        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TValue value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, path, score)
         {
             _value = value;
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Search
             var renderedField = searchPathDefinition.Field.Render(args);
             var valueSerializer = renderedField.FieldSerializer switch
             {
-                null => BsonSerializer.LookupSerializer<TField>(),
+                null => BsonSerializer.LookupSerializer<TValue>(),
                 IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedField.FieldSerializer),
                 _ => renderedField.FieldSerializer
             };
@@ -223,13 +223,13 @@ namespace MongoDB.Driver.Search
             new(_area.Render());
     }
 
-    internal sealed class InSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
+    internal sealed class InSearchDefinition<TDocument, TValue> : OperatorSearchDefinition<TDocument>
     {
-        private readonly TField[] _values;
+        private readonly TValue[] _values;
 
         public InSearchDefinition(
            SearchPathDefinition<TDocument> path,
-           IEnumerable<TField> values,
+           IEnumerable<TValue> values,
            SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.In, path, score)
         {
@@ -246,14 +246,14 @@ namespace MongoDB.Driver.Search
                 var renderedField = searchPathDefinition.Field.Render(args);
                 valueSerializer = renderedField.FieldSerializer switch
                 {
-                    null => new ArraySerializer<TField>(BsonSerializer.LookupSerializer<TField>()),
+                    null => new ArraySerializer<TValue>(BsonSerializer.LookupSerializer<TValue>()),
                     IBsonArraySerializer => renderedField.FieldSerializer,
-                    _ => new ArraySerializer<TField>((IBsonSerializer<TField>)renderedField.FieldSerializer)
+                    _ => new ArraySerializer<TValue>((IBsonSerializer<TValue>)renderedField.FieldSerializer)
                 };
             }
             else
             {
-                valueSerializer = new ArraySerializer<TField>(BsonSerializer.LookupSerializer<TField>());
+                valueSerializer = new ArraySerializer<TValue>(BsonSerializer.LookupSerializer<TValue>());
             }
 
             var document = new BsonDocument();
@@ -359,14 +359,14 @@ namespace MongoDB.Driver.Search
             };
     }
 
-    internal sealed class RangeSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
-        where TField : struct, IComparable<TField>
+    internal sealed class RangeSearchDefinition<TDocument, TValue> : OperatorSearchDefinition<TDocument>
+        where TValue : struct, IComparable<TValue>
     {
-        private readonly SearchRange<TField> _range;
+        private readonly SearchRange<TValue> _range;
 
         public RangeSearchDefinition(
             SearchPathDefinition<TDocument> path,
-            SearchRange<TField> range,
+            SearchRange<TValue> range,
             SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.Range, path, score)
         {
@@ -379,7 +379,7 @@ namespace MongoDB.Driver.Search
             var renderedField = searchPathDefinition.Field.Render(args);
             var valueSerializer = renderedField.FieldSerializer switch
             {
-                null => BsonSerializer.LookupSerializer<TField>(),
+                null => BsonSerializer.LookupSerializer<TValue>(),
                 IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedField.FieldSerializer),
                 _ => renderedField.FieldSerializer
             };
