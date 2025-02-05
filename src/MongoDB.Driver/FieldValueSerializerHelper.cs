@@ -139,20 +139,7 @@ namespace MongoDB.Driver
 
             // if we can't return a value serializer based on the field serializer return a converting serializer
             return ConvertIfPossibleSerializer.Create(valueType, fieldType, fieldSerializer, serializerRegistry);
-        }
-
-        //TODO Never used
-        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, object value)
-        {
-            if (!valueType.GetTypeInfo().IsValueType && value == null)
-            {
-                return fieldSerializer;
-            }
-            else
-            {
-                return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false);
-            }
-        }
+        }s
 
         // private static methods
         private static bool HasStringRepresentation(IBsonSerializer serializer)
