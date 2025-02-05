@@ -778,6 +778,28 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        // internal static methods
+        internal static BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
+        {
+            List<BsonValue> discriminators = new List<BsonValue>();
+
+            foreach (var entry in __discriminators)
+            {
+                var discriminator = entry.Key;
+                var actualTypes = entry.Value;
+
+                foreach (var actualType in actualTypes)
+                {
+                    if (actualType == type || actualType.IsSubclassOf(type))
+                    {
+                        discriminators.Add(discriminator);
+                    }
+                }
+            }
+
+            return discriminators.OrderBy(x => x).ToArray();
+        }
+
         // private static methods
         private static void CreateSerializerRegistry()
         {

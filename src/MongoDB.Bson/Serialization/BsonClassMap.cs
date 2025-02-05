@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -61,9 +60,6 @@ namespace MongoDB.Bson.Serialization
         private BsonMemberMap _extraElementsMemberMap;
         private int _extraElementsMemberIndex = -1;
         private List<Type> _knownTypes = new List<Type>();
-
-        private ConcurrentDictionary<BsonValue, Type> _discriminatorToTypeMap = new();
-        private ConcurrentDictionary<Type, BsonValue> _typeToDiscriminatorMap = new();
 
         // constructors
         /// <summary>
@@ -231,10 +227,6 @@ namespace MongoDB.Bson.Serialization
         {
             get { return _isRootClass; }
         }
-
-        internal ConcurrentDictionary<BsonValue, Type> DiscriminatorToTypeMap => _discriminatorToTypeMap;
-
-        internal ConcurrentDictionary<Type, BsonValue> TypeToDiscriminatorMap => _typeToDiscriminatorMap;
 
         /// <summary>
         /// Gets the known types of this class.
@@ -703,11 +695,6 @@ namespace MongoDB.Bson.Serialization
                         }
                         _frozen = true;
 
-                        if (_discriminator != null)
-                        {
-                            AddKnownDiscriminator(_discriminator, _classType);
-                        }
-
                         // use a queue to postpone processing of known types until we get back to the first level call to Freeze
                         // this avoids infinite recursion when going back down the inheritance tree while processing known types
                         foreach (var knownType in _knownTypes)
@@ -1153,36 +1140,6 @@ namespace MongoDB.Bson.Serialization
             _extraElementsMemberMap = memberMap;
         }
 
-        internal void AddKnownDiscriminator(BsonValue discriminator, Type type)
-        {
-            if (!_classType.IsAssignableFrom(type))
-            {
-                throw new ArgumentException($"Type \"{type}\" is not assignable to \"{_classType}\".", nameof(type));
-            }
-
-            if (_classType == typeof(object) || _classType == typeof(ValueType) || _classType.IsInterface)
-            {
-                return;
-            }
-
-            if (_baseClassMap != null)
-            {
-                _baseClassMap.AddKnownDiscriminator(discriminator, type);
-            }
-
-            var knownType = _discriminatorToTypeMap.GetOrAdd(discriminator, type);
-            if (knownType != type)
-            {
-                throw new ArgumentException($"Duplicate discriminator value \"{discriminator}\".", nameof(discriminator));
-            }
-
-            var knownDiscriminator = _typeToDiscriminatorMap.GetOrAdd(type, discriminator);
-            if (!knownDiscriminator.Equals(discriminator))
-            {
-                throw new ArgumentException($"Duplicate derived type \"{type}\".", nameof(type));
-            }
-        }
-
         /// <summary>
         /// Adds a known type to the class map.
         /// </summary>
@@ -1374,37 +1331,31 @@ namespace MongoDB.Bson.Serialization
 
             IDiscriminatorConvention LookupDiscriminatorConvention()
             {
-                if (_discriminatorConvention != null)
+                var classMap = this;
+                while (classMap != null)
                 {
-                    return _discriminatorConvention;
-                }
-
-                if (BsonSerializer.IsDiscriminatorConventionRegisteredAtThisLevel(_classType))
-                {
-                    return BsonSerializer.LookupDiscriminatorConvention(_classType);
-                }
-
-                if (_isRootClass)
-                {
-                    return StandardDiscriminatorConvention.Hierarchical;
-                }
-
-                if (_baseClassMap.ClassType == typeof(object))
-                {
-                    return new BsonClassMapScalarDiscriminatorConvention("_t", this);
-                }
-                else
-                {
-                    var discriminatorConvention = _baseClassMap.GetDiscriminatorConvention();
-                    if (discriminatorConvention is BsonClassMapScalarDiscriminatorConvention)
+                    if (classMap._discriminatorConvention != null)
                     {
-                        return new BsonClassMapScalarDiscriminatorConvention(discriminatorConvention.ElementName, this);
+                        return classMap._discriminatorConvention;
                     }
-                    else
+
+                    if (BsonSerializer.IsDiscriminatorConventionRegisteredAtThisLevel(classMap._classType))
                     {
-                        return discriminatorConvention;
+                        // in this case LookupDiscriminatorConvention below will find it
+                        break;
                     }
+
+                    if (classMap._isRootClass)
+                    {
+                        // in this case auto-register a hierarchical convention for the root class and look it up as usual below
+                        BsonSerializer.GetOrRegisterDiscriminatorConvention(classMap._classType, StandardDiscriminatorConvention.Hierarchical);
+                        break;
+                    }
+
+                    classMap = classMap._baseClassMap;
                 }
+
+                return BsonSerializer.LookupDiscriminatorConvention(_classType);
             }
         }
 
