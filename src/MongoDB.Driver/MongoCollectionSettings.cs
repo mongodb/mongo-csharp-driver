@@ -180,6 +180,7 @@ namespace MongoDB.Driver
             clone._readPreference = _readPreference.Clone();
             clone._writeConcern = _writeConcern.Clone();
             clone._writeEncoding = _writeEncoding.Clone();
+            clone._serializationDomain = _serializationDomain;  //TODO .clone...?
             return clone;
         }
 

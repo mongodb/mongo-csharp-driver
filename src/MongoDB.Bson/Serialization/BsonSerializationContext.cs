@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Serialization
         {
             _writer = writer;
             _isDynamicType = isDynamicType;
-            _domain = writer.Settings.SerializationDomain ?? BsonSerializer.DefaultDomain;
+            _domain = writer.Settings?.SerializationDomain ?? BsonSerializer.DefaultDomain;
         }
 
         // public properties
