@@ -418,16 +418,15 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The frozen class map.</returns>
         public BsonClassMap Freeze() => Freeze(BsonSerializer.DefaultDomain);
 
-
         internal BsonClassMap Freeze(IBsonSerializationDomain domain)
         {
-            var freezeContext = new FreezeContext() { SerializationDomain = domain };
+            var freezeContext = new FreezeContext { SerializationDomain = domain };
             return Freeze(freezeContext);
         }
 
-        private BsonClassMap Freeze(FreezeContext context)
+        private BsonClassMap Freeze(FreezeContext context)  //TODO This is not completely correct, because LookupClassMap calls freeze
         {
-            var configLock = (context.SerializationDomain as IBsonSerializationDomainInternal)!.ConfigLock;
+            var configLock = (context.SerializationDomain as IBsonSerializationDomainInternal)!.ConfigLock;  //TODO This is ugly
             configLock.EnterReadLock();
             try
             {
