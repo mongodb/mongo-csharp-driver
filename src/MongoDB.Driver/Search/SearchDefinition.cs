@@ -123,9 +123,7 @@ namespace MongoDB.Driver.Search
             QueryString,
             Range,
             Regex,
-            Search,  //TODO This is never used, should we remove them?
             Span,
-            Term, //TODO This is never used, should we remove them?
             Text,
             Wildcard
         }
