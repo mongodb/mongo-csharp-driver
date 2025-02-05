@@ -22,7 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5356Tests : Linq3IntegrationTest
+    public class CSharp5481Tests : Linq3IntegrationTest
     {
         [Fact]
         public void Documents_should_be_serialized_as_expected()
