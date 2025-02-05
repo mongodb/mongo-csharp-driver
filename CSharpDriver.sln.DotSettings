@@ -1,5 +1,12 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=AWS/@EntryIndexedValue">AWS</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=2CBD6971A7955044AD2624B84FB49E38/Position/@EntryValue">9</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=567DCF4B487C244A9F6BB46E4E9F3B84/Position/@EntryValue">6</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=58D5EB70DF984241A0863E67D7E33F3D/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=58D5EB70DF984241A0863E67D7E33F3D/EntryName/@EntryValue">Class</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=58D5EB70DF984241A0863E67D7E33F3D/Position/@EntryValue">10</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=7F2A1BE8D0078241A9AE7802038BAD3C/Position/@EntryValue">7</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=C4795E57DDEC1C4F97BBC8C7173EBBCA/Position/@EntryValue">8</s:Int64>
 	
 
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=020B98D17DF67944A12E1EE5B68E5A81/@KeyIndexDefined">True</s:Boolean>
@@ -73,6 +80,79 @@ namespace $NAMESPACE$
 {
   public record $RECORD$($END$);
 }</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Applicability/=File/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/CustomProperties/=Category/@EntryIndexedValue">Primary</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/CustomProperties/=Extension/@EntryIndexedValue">cs</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/CustomProperties/=FileName/@EntryIndexedValue">LinqIntegrationTest</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/CustomProperties/=ValidateFileName/@EntryIndexedValue">True</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Description/@EntryValue">&amp;Linq Integration Test</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS/Expression/@EntryValue">getAlphaNumericFileNameWithoutExtension()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS/InitialRange/@EntryValue">-1</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS/Order/@EntryValue">0</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=NAMESPACE/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=NAMESPACE/Expression/@EntryValue">fileDefaultNamespace()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=NAMESPACE/InitialRange/@EntryValue">-1</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=NAMESPACE/Order/@EntryValue">1</s:Int64>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Image/@EntryValue">CSharp</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Reformat/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Scope/=E8F0594528C33E45BBFEC6CFE851095D/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Scope/=E8F0594528C33E45BBFEC6CFE851095D/Type/@EntryValue">InCSharpProjectFile</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Text/@EntryValue">/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System.Collections.Generic;
+using MongoDB.Driver.TestHelpers;
+using Xunit;
+
+namespace $NAMESPACE$
+{
+    public class $CLASS$ : LinqIntegrationTest&lt;$CLASS$.ClassFixture&gt;
+    {
+        public $CLASS$(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
+        [Fact]
+        public void Test1()
+        {
+            var collection = Fixture.Collection;
+
+        }
+
+        public class C
+        {
+           $END$
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture&lt;C&gt;
+        {
+            protected override IEnumerable&lt;C&gt; InitialData =&gt;
+            [
+                new C
+                {
+                    
+                }
+            ];
+        }
+    }
+}</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/UITag/@EntryValue">Class/Interface</s:String>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6DCBB4DD2349E149B01440190986BD55/@KeyIndexDefined">True</s:Boolean>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6DCBB4DD2349E149B01440190986BD55/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6DCBB4DD2349E149B01440190986BD55/Description/@EntryValue">Equals for derived class</s:String>
