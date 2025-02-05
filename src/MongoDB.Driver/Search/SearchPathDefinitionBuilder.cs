@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Search
         }
 
         public override BsonValue Render(RenderArgs<TDocument> args) =>
-            new BsonDocument()
+            new BsonDocument
             {
                 {  "value", RenderField(_field, args) },
                 {  "multi", _analyzerName }
