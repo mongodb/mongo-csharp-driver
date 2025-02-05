@@ -20,24 +20,24 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Contains extensions methods for <see cref="BsonVectorBase{TItem}"/>
+    /// Contains extensions methods for <see cref="BinaryVectorBase{TItem}"/>
     /// </summary>
-    public static class BsonVectorDriverExtensions
+    public static class BinaryVectorDriverExtensions
     {
         /// <summary>
-        /// Converts <see cref="BsonVectorBase{TItem}"/> to <see cref="BsonBinaryData"/>.
+        /// Converts <see cref="BinaryVectorBase{TItem}"/> to <see cref="BsonBinaryData"/>.
         /// </summary>
         /// <typeparam name="TItem"></typeparam>
-        /// <param name="bsonVector">The BSON vector.</param>
+        /// <param name="binaryVector">The binary vector.</param>
         /// <returns>A <see cref="BsonBinaryData"/> instance.</returns>
-        public static QueryVector ToQueryVector<TItem>(this BsonVectorBase<TItem> bsonVector)
+        public static QueryVector ToQueryVector<TItem>(this BinaryVectorBase<TItem> binaryVector)
             where TItem  : struct =>
-            bsonVector switch
+            binaryVector switch
             {
-                BsonVectorFloat32 bsonVectorFloat32 => new(bsonVectorFloat32.ToBsonBinaryData()),
-                BsonVectorInt8 bsonVectorInt8 => new(bsonVectorInt8.ToBsonBinaryData()),
-                BsonVectorPackedBit bsonVectorPackedBit => new(bsonVectorPackedBit.ToBsonBinaryData()),
-                _ => throw new InvalidOperationException($"Invalidate Bson Vector type {bsonVector?.GetType()}")
+                BinaryVectorFloat32 binaryVectorFloat32 => new(binaryVectorFloat32.ToBsonBinaryData()),
+                BinaryVectorInt8 binaryVectorInt8 => new(binaryVectorInt8.ToBsonBinaryData()),
+                BinaryVectorPackedBit binaryVectorPackedBit => new(binaryVectorPackedBit.ToBsonBinaryData()),
+                _ => throw new InvalidOperationException($"Invalid binary vector type {binaryVector?.GetType()}")
             };
     }
 }

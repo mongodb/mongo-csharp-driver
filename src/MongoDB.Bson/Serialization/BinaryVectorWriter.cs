@@ -15,34 +15,33 @@
 
 using System;
 using System.Runtime.InteropServices;
-using MongoDB.Bson.ObjectModel;
 
 namespace MongoDB.Bson.Serialization
 {
-    internal static class BsonVectorWriter
+    internal static class BinaryVectorWriter
     {
-        public static byte[] WriteToBytes<TItem>(BsonVectorBase<TItem> bsonVector)
+        public static byte[] WriteToBytes<TItem>(BinaryVectorBase<TItem> binaryVector)
             where TItem : struct
         {
             byte padding = 0;
-            if (bsonVector is BsonVectorPackedBit bsonVectorPackedBit)
+            if (binaryVector is BinaryVectorPackedBit binaryVectorPackedBit)
             {
-                padding = bsonVectorPackedBit.Padding;
+                padding = binaryVectorPackedBit.Padding;
             }
 
-            return WriteToBytes(bsonVector.Data.Span, bsonVector.DataType, padding);
+            return WriteToBytes(binaryVector.Data.Span, binaryVector.DataType, padding);
         }
 
-        public static byte[] WriteToBytes<TItem>(ReadOnlySpan<TItem> vectorData, BsonVectorDataType bsonVectorDataType, byte padding)
+        public static byte[] WriteToBytes<TItem>(ReadOnlySpan<TItem> vectorData, BinaryVectorDataType binaryVectorDataType, byte padding)
             where TItem : struct
         {
             if (!BitConverter.IsLittleEndian)
             {
-                throw new NotSupportedException("Bson Vector data is not supported on Big Endian architecture yet.");
+                throw new NotSupportedException("Binary vector data is not supported on Big Endian architecture yet.");
             }
 
             var vectorDataBytes = MemoryMarshal.Cast<TItem, byte>(vectorData);
-            byte[] result = [(byte)bsonVectorDataType, padding, .. vectorDataBytes];
+            byte[] result = [(byte)binaryVectorDataType, padding, .. vectorDataBytes];
 
             return result;
         }

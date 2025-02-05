@@ -98,9 +98,9 @@ namespace MongoDB.Driver.Tests
                 [() => (QueryVector)new ReadOnlyMemory<double>([1.1, 2.2]), ToBsonArray(new[] { 1.1, 2.2 })],
                 [() => (QueryVector)new ReadOnlyMemory<float>([1.1f, 2.2f]), ToBsonArray(new[] { 1.1f, 2.2f })],
                 [() => (QueryVector)new ReadOnlyMemory<int>([1, 2]), ToBsonArray(new[] { 1, 2 })],
-                [() => (QueryVector)new BsonVectorInt8(new byte[] { 1, 2 }), new BsonVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()],
-                [() => (QueryVector)new BsonVectorFloat32(new float[] { 1.1f, 2.2f }), new BsonVectorFloat32(new float[] { 1.1f, 2.2f }).ToBsonBinaryData()],
-                [() => (QueryVector)new BsonVectorPackedBit(new byte[] { 1, 2 }, 0), new BsonVectorPackedBit(new byte[] { 1, 2 }, 0).ToBsonBinaryData()]
+                [() => (QueryVector)new BinaryVectorInt8(new byte[] { 1, 2 }), new BinaryVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()],
+                [() => (QueryVector)new BinaryVectorFloat32(new float[] { 1.1f, 2.2f }), new BinaryVectorFloat32(new float[] { 1.1f, 2.2f }).ToBsonBinaryData()],
+                [() => (QueryVector)new BinaryVectorPackedBit(new byte[] { 1, 2 }, 0), new BinaryVectorPackedBit(new byte[] { 1, 2 }, 0).ToBsonBinaryData()]
             ];
 
         public static IEnumerable<object[]> DataCtor =>
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Tests
                 [() => new QueryVector(new ReadOnlyMemory<double>([1.1, 2.2])), ToBsonArray(new[] { 1.1, 2.2 })],
                 [() => new QueryVector(new ReadOnlyMemory<float>([1.1f, 2.2f])), ToBsonArray(new[] { 1.1f, 2.2f })],
                 [() => new QueryVector(new ReadOnlyMemory<int>([1, 2])), ToBsonArray(new[] { 1, 2 })],
-                [() => new QueryVector(new BsonVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()), new BsonVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()]
+                [() => new QueryVector(new BinaryVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()), new BinaryVectorInt8(new byte[] { 1, 2 }).ToBsonBinaryData()]
             ];
 
         private static BsonArray ToBsonArray<T>(T[] array) where T : struct, IConvertible =>

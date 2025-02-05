@@ -48,19 +48,19 @@ namespace MongoDB.Driver.Tests.Search
         protected override void DisposeInternal() => _mongoClient.Dispose();
 
         [Theory]
-        [MemberData(nameof(BsonVectorSearchTestData))]
-        public void BsonVectorSearch<T>(BsonVectorBase<T> bsonVector, string fieldName)
+        [MemberData(nameof(BinaryVectorSearchTestData))]
+        public void BinaryVectorSearch<T>(BinaryVectorBase<T> binaryVector, string fieldName)
             where T : struct
         {
             const int Limit = 5;
-            var collection = _mongoClient.GetDatabase("csharpExtraTests").GetCollection<BsonVectorSearchItem>("binaryVectorTests");
+            var collection = _mongoClient.GetDatabase("csharpExtraTests").GetCollection<BinaryVectorSearchItem>("binaryVectorTests");
 
-            var options = new VectorSearchOptions<BsonVectorSearchItem>() { IndexName = "vector_search_index" };
+            var options = new VectorSearchOptions<BinaryVectorSearchItem>() { IndexName = "vector_search_index" };
 
             var result = collection
                 .Aggregate()
-                .VectorSearch(fieldName, bsonVector.ToQueryVector(), Limit, options)
-                .Project<BsonVectorSearchItem>(Builders<BsonVectorSearchItem>.Projection.MetaVectorSearchScore(p => p.Score))
+                .VectorSearch(fieldName, binaryVector.ToQueryVector(), Limit, options)
+                .Project<BinaryVectorSearchItem>(Builders<BinaryVectorSearchItem>.Projection.MetaVectorSearchScore(p => p.Score))
                 .ToList();
 
             result.Count.Should().Be(Limit);
@@ -69,10 +69,10 @@ namespace MongoDB.Driver.Tests.Search
             result[0].Score.Should().Be(1);
         }
 
-        public static IEnumerable<object[]> BsonVectorSearchTestData =>
+        public static IEnumerable<object[]> BinaryVectorSearchTestData =>
            [
-                [new BsonVectorInt8(new byte[] { 0, 1, 2, 3, 4 }), "int8Vector"],
-                [new BsonVectorFloat32(new float[] { 0.0001f, 1.12345f, 2.23456f, 3.34567f, 4.45678f }), "float32Vector"],
+                [new BinaryVectorInt8(new byte[] { 0, 1, 2, 3, 4 }), "int8Vector"],
+                [new BinaryVectorFloat32(new float[] { 0.0001f, 1.12345f, 2.23456f, 3.34567f, 4.45678f }), "float32Vector"],
            ];
 
         [Fact]
@@ -157,13 +157,13 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [BsonIgnoreExtraElements]
-        public class BsonVectorSearchItem
+        public class BinaryVectorSearchItem
         {
             [BsonElement("int8Vector")]
-            public BsonVectorInt8 VectorInt8 { get; set; }
+            public BinaryVectorInt8 VectorInt8 { get; set; }
 
             [BsonElement("float32Vector")]
-            public BsonVectorFloat32 VectorFloat32 { get; set; }
+            public BinaryVectorFloat32 VectorFloat32 { get; set; }
 
             [BsonElement("year")]
             public double Year { get; set; }

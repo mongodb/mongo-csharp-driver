@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     {
         /// <summary>
         /// Gets the underlying bson value representing the vector.
-        /// Possible values are <see cref="BsonArray"/> or <see cref="BsonBinaryData"/> encoding <see cref="BsonVectorBase{TItem}"/>
+        /// Possible values are <see cref="BsonArray"/> or <see cref="BsonBinaryData"/> encoding <see cref="BinaryVectorBase{TItem}"/>
         /// </summary>
         internal BsonValue Vector { get; } // do not make public because in the case of ReadOnlyMemory the BsonArray subclass is not fully functional
 
@@ -134,31 +134,31 @@ namespace MongoDB.Driver
         public static implicit operator QueryVector(ReadOnlyMemory<int> readOnlyMemory) => new(readOnlyMemory);
 
         /// <summary>
-        /// Performs an implicit conversion from a of <see cref="BsonVectorInt8" /> to <see cref="QueryVector" />.
+        /// Performs an implicit conversion from a of <see cref="BinaryVectorInt8" /> to <see cref="QueryVector" />.
         /// </summary>
-        /// <param name="bsonVectorInt8">The bson vector int8.</param>
+        /// <param name="binaryVectorInt8">The binary vector int8.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator QueryVector(BsonVectorInt8 bsonVectorInt8) => bsonVectorInt8.ToQueryVector();
+        public static implicit operator QueryVector(BinaryVectorInt8 binaryVectorInt8) => binaryVectorInt8.ToQueryVector();
 
         /// <summary>
-        /// Performs an implicit conversion from a of <see cref="BsonVectorFloat32" /> to <see cref="QueryVector" />.
+        /// Performs an implicit conversion from a of <see cref="BinaryVectorFloat32" /> to <see cref="QueryVector" />.
         /// </summary>
-        /// <param name="bsonVectorFloat32">The bson vector float32.</param>
+        /// <param name="binaryVectorFloat32">The binary vector float32.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator QueryVector(BsonVectorFloat32 bsonVectorFloat32) => bsonVectorFloat32.ToQueryVector();
+        public static implicit operator QueryVector(BinaryVectorFloat32 binaryVectorFloat32) => binaryVectorFloat32.ToQueryVector();
 
         /// <summary>
-        /// Performs an implicit conversion from a of <see cref="BsonVectorPackedBit" /> to <see cref="QueryVector" />.
+        /// Performs an implicit conversion from a of <see cref="BinaryVectorPackedBit" /> to <see cref="QueryVector" />.
         /// </summary>
-        /// <param name="bsonVectorPackedBit">The bson vector packed bit.</param>
+        /// <param name="binaryVectorPackedBit">The binary vector packed bit.</param>
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator QueryVector(BsonVectorPackedBit bsonVectorPackedBit) => bsonVectorPackedBit.ToQueryVector();
+        public static implicit operator QueryVector(BinaryVectorPackedBit binaryVectorPackedBit) => binaryVectorPackedBit.ToQueryVector();
     }
 
     // WARNING: this class is a very partial implementation of a BsonArray subclass

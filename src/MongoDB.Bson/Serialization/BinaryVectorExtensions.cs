@@ -16,20 +16,20 @@
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    /// Contains extensions methods for <see cref="BsonVectorBase{TItem}"/>
+    /// Contains extensions methods for <see cref="BinaryVectorBase{TItem}"/>
     /// </summary>
-    public static class BsonVectorExtensions
+    public static class BinaryVectorExtensions
     {
         /// <summary>
-        /// Converts <see cref="BsonVectorBase{TItem}"/> to <see cref="BsonBinaryData"/>.
+        /// Converts <see cref="BinaryVectorBase{TItem}"/> to <see cref="BsonBinaryData"/>.
         /// </summary>
-        /// <typeparam name="TItem"></typeparam>
-        /// <param name="bsonVector">The BSON vector.</param>
+        /// <typeparam name="TItem">The .NET data type.</typeparam>
+        /// <param name="binaryVector">The binary vector.</param>
         /// <returns>A <see cref="BsonBinaryData"/> instance.</returns>
-        public static BsonBinaryData ToBsonBinaryData<TItem>(this BsonVectorBase<TItem> bsonVector)
+        public static BsonBinaryData ToBsonBinaryData<TItem>(this BinaryVectorBase<TItem> binaryVector)
             where TItem : struct
         {
-            var bytes = BsonVectorWriter.WriteToBytes(bsonVector);
+            var bytes = BinaryVectorWriter.WriteToBytes(binaryVector);
             var binaryData = new BsonBinaryData(bytes, BsonBinarySubType.Vector);
 
             return binaryData;

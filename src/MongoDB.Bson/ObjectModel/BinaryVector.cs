@@ -14,22 +14,21 @@
 */
 
 using System;
-using MongoDB.Bson.ObjectModel;
 
 namespace MongoDB.Bson
 {
     /// <summary>
-    /// Represents a BSON vector.
+    /// Represents a binary vector.
     /// </summary>
-    public abstract class BsonVectorBase<TItem>
+    public abstract class BinaryVectorBase<TItem>
          where TItem : struct
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonVectorBase{TItem}"/> class.
+        /// Initializes a new instance of the <see cref="BinaryVectorBase{TItem}"/> class.
         /// </summary>
         /// <param name="data">The vector data.</param>
         /// <param name="dataType">Type of the vector data.</param>
-        private protected BsonVectorBase(ReadOnlyMemory<TItem> data, BsonVectorDataType dataType)
+        private protected BinaryVectorBase(ReadOnlyMemory<TItem> data, BinaryVectorDataType dataType)
         {
             DataType = dataType;
             Data = data;
@@ -38,7 +37,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the vector data type.
         /// </summary>
-        public BsonVectorDataType DataType { get; }
+        public BinaryVectorDataType DataType { get; }
 
         /// <summary>
         /// Gets the vector data.
@@ -49,12 +48,12 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a vector of <see cref="float"/> values.
     /// </summary>
-    public sealed class BsonVectorFloat32 : BsonVectorBase<float>
+    public sealed class BinaryVectorFloat32 : BinaryVectorBase<float>
     {
         /// <summary>
-        /// Initializes a new instance of the BsonVectorFloat32 class.
+        /// Initializes a new instance of the <see cref="BinaryVectorFloat32"/> class.
         /// </summary>
-        public BsonVectorFloat32(ReadOnlyMemory<float> data) : base(data, BsonVectorDataType.Float32)
+        public BinaryVectorFloat32(ReadOnlyMemory<float> data) : base(data, BinaryVectorDataType.Float32)
         {
         }
     }
@@ -62,12 +61,12 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a vector of <see cref="byte"/> values.
     /// </summary>
-    public sealed class BsonVectorInt8 : BsonVectorBase<byte>
+    public sealed class BinaryVectorInt8 : BinaryVectorBase<byte>
     {
         /// <summary>
-        /// Initializes a new instance of the BsonVectorInt8 class.
+        /// Initializes a new instance of the <see cref="BinaryVectorInt8"/> class.
         /// </summary>
-        public BsonVectorInt8(ReadOnlyMemory<byte> data) : base(data, BsonVectorDataType.Int8)
+        public BinaryVectorInt8(ReadOnlyMemory<byte> data) : base(data, BinaryVectorDataType.Int8)
         {
         }
     }
@@ -76,12 +75,12 @@ namespace MongoDB.Bson
     /// Represents a vector of 0/1 values.
     /// The vector values are packed into groups of 8 (a byte).
     /// </summary>
-    public sealed class BsonVectorPackedBit : BsonVectorBase<byte>
+    public sealed class BinaryVectorPackedBit : BinaryVectorBase<byte>
     {
         /// <summary>
-        /// Initializes a new instance of the BsonVectorPackedBit class.
+        /// Initializes a new instance of the <see cref="BinaryVectorPackedBit"/> class.
         /// </summary>
-        public BsonVectorPackedBit(ReadOnlyMemory<byte> data, byte padding) : base(data, BsonVectorDataType.PackedBit)
+        public BinaryVectorPackedBit(ReadOnlyMemory<byte> data, byte padding) : base(data, BinaryVectorDataType.PackedBit)
         {
             if (padding > 7)
             {

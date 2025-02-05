@@ -14,21 +14,20 @@
 */
 
 using System;
-using MongoDB.Bson.ObjectModel;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Attributes
 {
     /// <summary>
-    /// Sets the representation for this field or property as a BSON Vector with the specified data type.
+    /// Sets the representation for this field or property as a binary vector with the specified data type.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public sealed class BsonVectorAttribute : Attribute, IBsonMemberMapAttribute
+    public sealed class BinaryVectorAttribute : Attribute, IBsonMemberMapAttribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonVectorAttribute"/> class.
+        /// Initializes a new instance of the <see cref="BinaryVectorAttribute"/> class.
         /// </summary>
-        public BsonVectorAttribute(BsonVectorDataType dataType)
+        public BinaryVectorAttribute(BinaryVectorDataType dataType)
         {
             DataType = dataType;
         }
@@ -36,7 +35,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <summary>
         /// Gets the vector data type.
         /// </summary>
-        public BsonVectorDataType DataType { get; init; }
+        public BinaryVectorDataType DataType { get; init; }
 
         /// <summary>
         /// Applies the attribute to the member map.
@@ -48,6 +47,6 @@ namespace MongoDB.Bson.Serialization.Attributes
             memberMap.SetSerializer(serializer);
         }
 
-        private IBsonSerializer CreateSerializer(Type type) => BsonVectorSerializer.CreateSerializer(type, DataType);
+        private IBsonSerializer CreateSerializer(Type type) => BinaryVectorSerializer.CreateSerializer(type, DataType);
     }
 }

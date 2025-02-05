@@ -13,13 +13,13 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Bson.ObjectModel
+namespace MongoDB.Bson
 {
     /// <summary>
-    /// Represents the data type of a BSON Vector.
+    /// Represents the data type of a binary Vector.
     /// </summary>
-    /// <seealso cref="BsonVectorBase{TItem}"/>
-    public enum BsonVectorDataType
+    /// <seealso cref="BinaryVectorBase{TItem}"/>
+    public enum BinaryVectorDataType
     {
         /// <summary>
         /// Data type is float32.

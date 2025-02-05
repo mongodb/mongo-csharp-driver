@@ -18,14 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.ObjectModel;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.bson_corpus
 {
-    public class BsonVectorTestRunner
+    public class BinaryVectorTestRunner
     {
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
@@ -65,7 +64,7 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
         private void RunValidTest(BsonDocument test, string testKey)
         {
             var vector = test["vector"].AsBsonArray;
-            var dataType = (BsonVectorDataType)Convert.ToInt32(test["dtype_hex"].AsString, 16);
+            var dataType = (BinaryVectorDataType)Convert.ToInt32(test["dtype_hex"].AsString, 16);
             var padding = (byte)test["padding"].AsInt32;
             var canonicalBson = test["canonical_bson"].AsString;
 
@@ -76,39 +75,39 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
         private void RunInvalidTest(BsonDocument test, string testKey)
         {
             var vector = test["vector"].AsBsonArray;
-            var dataType = (BsonVectorDataType)Convert.ToInt32(test["dtype_hex"].AsString, 16);
+            var dataType = (BinaryVectorDataType)Convert.ToInt32(test["dtype_hex"].AsString, 16);
             var padding = (byte)test["padding"].AsInt32;
 
             var exception = Record.Exception(() => AssertEncoding(testKey, vector, padding, dataType, default));
             exception.Should().BeAssignableTo<ArgumentException>();
         }
 
-        private void AssertEncoding(string testKey, BsonArray vector, int padding, BsonVectorDataType dataType, string canonicalBson)
+        private void AssertEncoding(string testKey, BsonArray vector, int padding, BinaryVectorDataType dataType, string canonicalBson)
         {
             BsonBinaryData vectorBinaryData;
 
             switch (dataType)
             {
-                case BsonVectorDataType.Float32:
+                case BinaryVectorDataType.Float32:
                     {
                         var values = ToFloats(vector);
-                        var vectorFloat32 = new BsonVectorFloat32(values);
+                        var vectorFloat32 = new BinaryVectorFloat32(values);
 
                         vectorBinaryData = vectorFloat32.ToBsonBinaryData();
                         break;
                     }
-                case BsonVectorDataType.Int8:
+                case BinaryVectorDataType.Int8:
                     {
                         var values = vector.Select(v => (byte)v).ToArray();
-                        var vectorInt8 = new BsonVectorInt8(values);
+                        var vectorInt8 = new BinaryVectorInt8(values);
 
                         vectorBinaryData = vectorInt8.ToBsonBinaryData();
                         break;
                     }
-                case BsonVectorDataType.PackedBit:
+                case BinaryVectorDataType.PackedBit:
                     {
                         var values = vector.Select(v => (byte)v).ToArray();
-                        var vectorInt8 = new BsonVectorPackedBit(values, (byte)padding);
+                        var vectorInt8 = new BinaryVectorPackedBit(values, (byte)padding);
 
                         vectorBinaryData = vectorInt8.ToBsonBinaryData();
                         break;
@@ -123,13 +122,13 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
             encodedDocumentBsonHex.Should().Be(canonicalBson);
         }
 
-        private void AssertDecoding(string testKey, BsonArray vector, byte padding, BsonVectorDataType dataType, string canonicalBson)
+        private void AssertDecoding(string testKey, BsonArray vector, byte padding, BinaryVectorDataType dataType, string canonicalBson)
         {
             var canonicalBsonBytes = BsonUtils.ParseHexString(canonicalBson);
             var decodedDocument = BsonSerializer.Deserialize<BsonDocument>(canonicalBsonBytes);
             var vectorBsonData = decodedDocument[testKey].AsBsonBinaryData;
 
-            var (_, actualPaddingActual, actualVectorDataType) = vectorBsonData.ToBsonVectorAsBytes();
+            var (_, actualPaddingActual, actualVectorDataType) = vectorBsonData.ToBinaryVectorAsBytes();
 
             actualVectorDataType.Should().Be(dataType);
             actualPaddingActual.Should().Be(padding);
@@ -139,18 +138,18 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
 
             switch (dataType)
             {
-                case BsonVectorDataType.Float32:
+                case BinaryVectorDataType.Float32:
                     {
-                        var actualVector = vectorBsonData.ToBsonVector<float>();
+                        var actualVector = vectorBsonData.ToBinaryVector<float>();
                         actualArray = actualVector.Data.ToArray();
                         expectedArray = ToFloats(vector);
 
                         break;
                     }
-                case BsonVectorDataType.Int8:
-                case BsonVectorDataType.PackedBit:
+                case BinaryVectorDataType.Int8:
+                case BinaryVectorDataType.PackedBit:
                     {
-                        var actualVector = vectorBsonData.ToBsonVector<byte>();
+                        var actualVector = vectorBsonData.ToBinaryVector<byte>();
                         actualArray = actualVector.Data.ToArray();
                         expectedArray = vector.Select(v => (byte)v).ToArray();
                         break;

@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson.ObjectModel;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -24,47 +23,47 @@ namespace MongoDB.Bson.Serialization
     public static class BsonBinaryDataExtensions
     {
         /// <summary>
-        /// Converts <see cref="BsonBinaryData"/> to <see cref="BsonVectorBase{TItem}"/>.
+        /// Converts <see cref="BsonBinaryData"/> to <see cref="BinaryVectorBase{TItem}"/>.
         /// </summary>
-        /// <typeparam name="TItem">Data type of the Bson vector.</typeparam>
+        /// <typeparam name="TItem">Data type of the binary vector.</typeparam>
         /// <param name="binaryData">The binary data.</param>
-        /// <returns>A <see cref="BsonVectorBase{TItem}"/> instance.</returns>
-        public static BsonVectorBase<TItem> ToBsonVector<TItem>(this BsonBinaryData binaryData)
+        /// <returns>A <see cref="BinaryVectorBase{TItem}"/> instance.</returns>
+        public static BinaryVectorBase<TItem> ToBinaryVector<TItem>(this BsonBinaryData binaryData)
             where TItem : struct
         {
-            EnsureBsonVectorSubType(binaryData);
+            EnsureBinaryVectorSubType(binaryData);
 
-            return BsonVectorReader.ReadBsonVector<TItem>(binaryData.Bytes);
+            return BinaryVectorReader.ReadBinaryVector<TItem>(binaryData.Bytes);
         }
 
         /// <summary>
-        /// Extracts Bson vector data from <see cref="BsonBinaryData"/> as bytes, padding and data type.
+        /// Extracts binary vector data from <see cref="BsonBinaryData"/> as bytes, padding and data type.
         /// The result bytes should be interpreted according to the vector data type.
         /// </summary>
         /// <param name="binaryData">The binary data.</param>
         /// <returns>Vector bytes, padding and datatype</returns>
-        public static (ReadOnlyMemory<byte> Bytes, byte Padding, BsonVectorDataType VectorDataType) ToBsonVectorAsBytes(this BsonBinaryData binaryData)
+        public static (ReadOnlyMemory<byte> Bytes, byte Padding, BinaryVectorDataType VectorDataType) ToBinaryVectorAsBytes(this BsonBinaryData binaryData)
         {
-            EnsureBsonVectorSubType(binaryData);
+            EnsureBinaryVectorSubType(binaryData);
 
-            return BsonVectorReader.ReadBsonVectorAsBytes(binaryData.Bytes);
+            return BinaryVectorReader.ReadBinaryVectorAsBytes(binaryData.Bytes);
         }
 
         /// <summary>
-        /// Extracts Bson vector data from <see cref="BsonBinaryData"/> as an array of <typeparamref name="TItem"/>, padding and data type.
+        /// Extracts binary vector data from <see cref="BsonBinaryData"/> as an array of <typeparamref name="TItem"/>, padding and data type.
         /// The result bytes should be interpreted according to the vector data type.
         /// </summary>
         /// <param name="binaryData">The binary data.</param>
         /// <returns>Vector data, padding and datatype</returns>
-        public static (TItem[] Items, byte Padding, BsonVectorDataType VectorDataType) ToBsonVectorAsArray<TItem>(this BsonBinaryData binaryData)
+        public static (TItem[] Items, byte Padding, BinaryVectorDataType VectorDataType) ToBinaryVectorAsArray<TItem>(this BsonBinaryData binaryData)
             where TItem : struct
         {
-            EnsureBsonVectorSubType(binaryData);
+            EnsureBinaryVectorSubType(binaryData);
 
-            return BsonVectorReader.ReadBsonVectorAsArray<TItem>(binaryData.Bytes);
+            return BinaryVectorReader.ReadBinaryVectorAsArray<TItem>(binaryData.Bytes);
         }
 
-        private static void EnsureBsonVectorSubType(BsonBinaryData binaryData)
+        private static void EnsureBinaryVectorSubType(BsonBinaryData binaryData)
         {
             if (binaryData.SubType != BsonBinarySubType.Vector)
             {
