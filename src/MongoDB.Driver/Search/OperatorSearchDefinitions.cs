@@ -385,12 +385,21 @@ namespace MongoDB.Driver.Search
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
             RenderedFieldDefinition renderedFieldDefinition = null)
         {
-            var valueSerializer = renderedFieldDefinition!.FieldSerializer switch
+            IBsonSerializer valueSerializer;
+
+            if (_path is SingleSearchPathDefinition<TDocument>)
             {
-                null => BsonSerializer.LookupSerializer<TValue>(),
-                IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedFieldDefinition.FieldSerializer),
-                _ => renderedFieldDefinition.FieldSerializer
-            };
+                valueSerializer = renderedFieldDefinition!.FieldSerializer switch
+                {
+                    null => BsonSerializer.LookupSerializer<TValue>(),
+                    IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedFieldDefinition.FieldSerializer),
+                    _ => renderedFieldDefinition.FieldSerializer
+                };
+            }
+            else
+            {
+                valueSerializer = BsonSerializer.LookupSerializer<TValue>();
+            }
 
             var document = new BsonDocument();
             using var bsonWriter = new BsonDocumentWriter(document);
