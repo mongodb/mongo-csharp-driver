@@ -154,13 +154,26 @@ namespace MongoDB.Driver.Search
         /// <inheritdoc />
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedArgs = RenderArguments(args);
-            renderedArgs.Add("path", () => _path.Render(args), _path != null);
-            renderedArgs.Add("score", () => _score.Render(args), _score != null);
+            BsonDocument renderedArgs;
 
+            if (_path is SingleSearchPathDefinition<TDocument> singleSearchPathDefinition)
+            {
+                // Special case for SingleSearchPathDefinition in order to avoid rendering the path twice
+                var (renderedPath, renderedField) = _path.GetRenderedFieldAndStringPath(singleSearchPathDefinition.Field, args);
+                renderedArgs = RenderArguments(args, renderedField);
+                renderedArgs.Add("path", renderedPath);
+            }
+            else
+            {
+                renderedArgs = RenderArguments(args);
+                renderedArgs.Add("path", () => _path.Render(args), _path != null);
+            }
+
+            renderedArgs.Add("score", () => _score.Render(args), _score != null);
             return new(_operatorType.ToCamelCase(), renderedArgs);
         }
 
-        private protected virtual BsonDocument RenderArguments(RenderArgs<TDocument> args) => new();
+        private protected virtual BsonDocument RenderArguments(RenderArgs<TDocument> args,
+            RenderedFieldDefinition renderedFieldDefinition = null) => new();
     }
 }
