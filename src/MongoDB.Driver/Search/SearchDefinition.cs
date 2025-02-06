@@ -157,17 +157,15 @@ namespace MongoDB.Driver.Search
         {
             BsonDocument renderedArgs;
 
-            if (_path is SingleSearchPathDefinition<TDocument> singleSearchPathDefinition)
+            if (_path is null)
             {
-                // Special case for SingleSearchPathDefinition in order to avoid rendering the path twice
-                var (renderedPath, renderedField) = _path.GetRenderedFieldAndStringPath(singleSearchPathDefinition.Field, args);
-                renderedArgs = RenderArguments(args, renderedField.FieldSerializer);
-                renderedArgs.Add("path", renderedPath);
+                renderedArgs = RenderArguments(args);
             }
             else
             {
-                renderedArgs = RenderArguments(args);
-                renderedArgs.Add("path", () => _path.Render(args), _path != null);
+                var (renderedPath, fieldSerializer) = _path.RenderAndGetFieldSerializer(args);
+                renderedArgs = RenderArguments(args, fieldSerializer);
+                renderedArgs.Add("path", renderedPath);
             }
 
             renderedArgs.Add("score", () => _score.Render(args), _score != null);
