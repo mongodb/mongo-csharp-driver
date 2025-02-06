@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -160,7 +161,7 @@ namespace MongoDB.Driver.Search
             {
                 // Special case for SingleSearchPathDefinition in order to avoid rendering the path twice
                 var (renderedPath, renderedField) = _path.GetRenderedFieldAndStringPath(singleSearchPathDefinition.Field, args);
-                renderedArgs = RenderArguments(args, renderedField);
+                renderedArgs = RenderArguments(args, renderedField.FieldSerializer);
                 renderedArgs.Add("path", renderedPath);
             }
             else
@@ -174,6 +175,6 @@ namespace MongoDB.Driver.Search
         }
 
         private protected virtual BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) => new();
+            IBsonSerializer fieldSerializer = null) => new();
     }
 }

@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
            new()
            {
                 { "query", _query.Render() },
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null)
+            IBsonSerializer fieldSerializer = null)
         {
             return new()
             {
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null)
+            IBsonSerializer fieldSerializer = null)
         {
             // Add base path to all nested operator paths
             var pathPrefix = _path.Render(args).AsString;
@@ -133,23 +133,14 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null)
+            IBsonSerializer fieldSerializer = null)
         {
-            IBsonSerializer valueSerializer;
-
-            if (_path is SingleSearchPathDefinition<TDocument>)
+            var valueSerializer = fieldSerializer switch
             {
-                valueSerializer = renderedFieldDefinition!.FieldSerializer switch
-                {
-                    null => BsonSerializer.LookupSerializer<TValue>(),
-                    IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedFieldDefinition.FieldSerializer),
-                    _ => renderedFieldDefinition.FieldSerializer
-                };
-            }
-            else
-            {
-                valueSerializer = BsonSerializer.LookupSerializer<TValue>();
-            }
+                null => args.SerializerRegistry.GetSerializer<TValue>(),
+                IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(fieldSerializer),
+                _ => fieldSerializer
+            };
 
             var document = new BsonDocument();
             using var bsonWriter = new BsonDocumentWriter(document);
@@ -184,7 +175,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
             new()
             {
                 { "operator", _operator.Render(args) },
@@ -210,7 +201,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
             new()
             {
                 { "geometry", _geometry.ToBsonDocument() },
@@ -233,7 +224,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
             new(_area.Render());
     }
 
@@ -252,23 +243,14 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null)
+            IBsonSerializer fieldSerializer = null)
         {
-            IBsonSerializer valueSerializer;
-
-            if (_path is SingleSearchPathDefinition<TDocument>)
+            var valueSerializer = fieldSerializer switch
             {
-                valueSerializer = renderedFieldDefinition!.FieldSerializer switch
-                {
-                    null => new ArraySerializer<TValue>(BsonSerializer.LookupSerializer<TValue>()),
-                    IBsonArraySerializer => renderedFieldDefinition.FieldSerializer,
-                    _ => new ArraySerializer<TValue>((IBsonSerializer<TValue>)renderedFieldDefinition.FieldSerializer)
-                };
-            }
-            else
-            {
-                valueSerializer = new ArraySerializer<TValue>(BsonSerializer.LookupSerializer<TValue>());
-            }
+                null => new ArraySerializer<TValue>(args.SerializerRegistry.GetSerializer<TValue>()),
+                IBsonArraySerializer => fieldSerializer,
+                _ => new ArraySerializer<TValue>((IBsonSerializer<TValue>)fieldSerializer)
+            };
 
             var document = new BsonDocument();
             using var bsonWriter = new BsonDocumentWriter(document);
@@ -293,7 +275,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null)
+            IBsonSerializer fieldSerializer = null)
         {
             var likeSerializer = typeof(TLike) switch
             {
@@ -323,7 +305,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
            new()
            {
                 { "origin", _origin },
@@ -348,7 +330,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
             new()
             {
                 { "query", _query.Render() },
@@ -369,7 +351,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
             new()
             {
                 { "defaultPath", _defaultPath.Render(args) },
@@ -392,23 +374,14 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null)
+            IBsonSerializer fieldSerializer = null)
         {
-            IBsonSerializer valueSerializer;
-
-            if (_path is SingleSearchPathDefinition<TDocument>)
+            var valueSerializer = fieldSerializer switch
             {
-                valueSerializer = renderedFieldDefinition!.FieldSerializer switch
-                {
-                    null => BsonSerializer.LookupSerializer<TValue>(),
-                    IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(renderedFieldDefinition.FieldSerializer),
-                    _ => renderedFieldDefinition.FieldSerializer
-                };
-            }
-            else
-            {
-                valueSerializer = BsonSerializer.LookupSerializer<TValue>();
-            }
+                null => args.SerializerRegistry.GetSerializer<TValue>(),
+                IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(fieldSerializer),
+                _ => fieldSerializer
+            };
 
             var document = new BsonDocument();
             using var bsonWriter = new BsonDocumentWriter(document);
@@ -447,7 +420,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
             new()
             {
                 { "query", _query.Render() },
@@ -466,7 +439,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
             _clause.Render(args);
     }
 
@@ -490,7 +463,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
             new()
             {
                 { "query", _query.Render() },
@@ -516,7 +489,7 @@ namespace MongoDB.Driver.Search
         }
 
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            RenderedFieldDefinition renderedFieldDefinition = null) =>
+            IBsonSerializer fieldSerializer = null) =>
            new()
            {
                 { "query", _query.Render() },
