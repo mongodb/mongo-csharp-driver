@@ -130,8 +130,12 @@ namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
             var insertedDocumentAsBsonDocument = FindSingleDocumentAsBsonDocument(collection);
             var binaryData = (BsonBinaryData)insertedDocumentAsBsonDocument["_id"];
             binaryData.SubType.Should().Be(BsonBinarySubType.UuidStandard);
+            binaryData.Bytes.Should().Equal(0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb,
+                0xcc, 0xdd, 0xee, 0xff);
             var binaryData2 = (BsonBinaryData)((BsonArray)insertedDocumentAsBsonDocument["GuidArray"])[0];
             binaryData2.SubType.Should().Be(BsonBinarySubType.UuidStandard);
+            binaryData2.Bytes.Should().Equal(0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb,
+                0xcc, 0xdd, 0xee, 0xff);
         }
 
         // private methods
