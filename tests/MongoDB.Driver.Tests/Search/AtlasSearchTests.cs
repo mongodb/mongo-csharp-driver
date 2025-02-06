@@ -441,8 +441,8 @@ namespace MongoDB.Driver.Tests.Search
         {
             var results = GeoSearch(
                 GeoBuilders.Search.Compound().Must(
-                    GeoBuilders.Search.Range(x => x.Bedrooms, SearchRangeBuilder.Gt(2).Lt(4)),
-                    GeoBuilders.Search.Range(x => x.Beds, SearchRangeBuilder.Gte(14).Lte(14))));
+                    GeoBuilders.Search.Range(x => x.Bedrooms, SearchRangeV2Builder.Gt(2).Lt(4)),
+                    GeoBuilders.Search.Range(x => x.Beds, SearchRangeV2Builder.Gte(14).Lte(14))));
 
             results.Should().ContainSingle().Which.Name.Should().Be("House close to station & direct to opera house....");
         }
@@ -451,7 +451,7 @@ namespace MongoDB.Driver.Tests.Search
         public void RangeString()
         {
             var results = GetSynonymTestCollection().Aggregate()
-                .Search(Builders<Movie>.Search.Range(p => p.Title, StringSearchRangeBuilder.Gt("city").Lt("country")))
+                .Search(Builders<Movie>.Search.Range(p => p.Title, SearchRangeV2Builder.Gt("city").Lt("country")))
                 .Limit(5)
                 .Project<Movie>(Builders<Movie>.Projection.Include(p => p.Title))
                 .ToList();
