@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -137,8 +138,6 @@ namespace MongoDB.Driver.Search
     {
         private readonly FieldDefinition<TDocument> _field;
 
-        public FieldDefinition<TDocument> Field => _field;
-
         public SingleSearchPathDefinition(FieldDefinition<TDocument> field)
         {
             _field = Ensure.IsNotNull(field, nameof(field));
@@ -146,6 +145,9 @@ namespace MongoDB.Driver.Search
 
         public override BsonValue Render(RenderArgs<TDocument> args) =>
             RenderField(_field, args);
+
+        internal override (BsonValue, IBsonSerializer) RenderAndGetFieldSerializer(RenderArgs<TDocument> args)
+            => RenderFieldWithSerializer(_field, args);
     }
 
     internal sealed class WildcardSearchPathDefinition<TDocument> : SearchPathDefinition<TDocument>
