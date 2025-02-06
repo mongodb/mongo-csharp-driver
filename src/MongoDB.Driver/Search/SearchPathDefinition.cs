@@ -104,11 +104,15 @@ namespace MongoDB.Driver.Search
         /// <param name="args">The render arguments.</param>
         /// <returns>The rendered field.</returns>
         protected string RenderField(FieldDefinition<TDocument> fieldDefinition, RenderArgs<TDocument> args)
+            => GetRenderedFieldAndStringPath(fieldDefinition, args).renderedPath;
+
+        internal (string renderedPath, RenderedFieldDefinition renderedFieldDefinition) GetRenderedFieldAndStringPath(FieldDefinition<TDocument> fieldDefinition, RenderArgs<TDocument> args)
         {
             var renderedField = fieldDefinition.Render(args);
             var prefix = args.PathRenderArgs.PathPrefix;
+            var renderedString = prefix == null ? renderedField.FieldName : $"{prefix}.{renderedField.FieldName}";
 
-            return prefix == null ? renderedField.FieldName : $"{prefix}.{renderedField.FieldName}";
+            return (renderedString, renderedField);
         }
     }
 }
