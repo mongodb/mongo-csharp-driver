@@ -61,10 +61,12 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>A reconfigured serializer.</returns>
         protected override IBsonSerializer Apply(IBsonSerializer serializer)
         {
-            return SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure) ?? base.Apply(serializer);
+            if (serializer is DateOnlySerializer dateOnlySerializer)
+            {
+                return dateOnlySerializer.WithRepresentation(_representation, _documentFormat);
+            }
 
-            IBsonSerializer Reconfigure(IBsonSerializer s)
-                => s is DateOnlySerializer dos ? dos.WithRepresentation(_representation, _documentFormat) : null;
+            return base.Apply(serializer);
         }
     }
 #endif

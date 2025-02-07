@@ -52,18 +52,16 @@ namespace MongoDB.Bson.Serialization.Attributes
         protected virtual IBsonSerializer Apply(IBsonSerializer serializer)
         {
             // if none of the overrides applied the attribute to the serializer see if it can be applied to a child serializer
-            var childSerializerConfigurable = serializer as IChildSerializerConfigurable;
-            if (childSerializerConfigurable != null)
+            if (serializer is IChildSerializerConfigurable childSerializerConfigurable)
             {
                 var childSerializer = childSerializerConfigurable.ChildSerializer;
                 var reconfiguredChildSerializer = Apply(childSerializer);
                 return childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer);
             }
 
-            var message = string.Format(
-                "A serializer of type '{0}' is not configurable using an attribute of type '{1}'.",
-                BsonUtils.GetFriendlyTypeName(serializer.GetType()),
-                BsonUtils.GetFriendlyTypeName(this.GetType()));
+            var message =
+                $"A serializer of type '{BsonUtils.GetFriendlyTypeName(serializer.GetType())}' is not configurable" +
+                $" using an attribute of type '{BsonUtils.GetFriendlyTypeName(GetType())}'.";
             throw new NotSupportedException(message);
         }
     }
