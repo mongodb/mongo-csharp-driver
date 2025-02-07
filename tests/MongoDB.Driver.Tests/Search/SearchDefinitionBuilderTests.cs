@@ -867,14 +867,21 @@ namespace MongoDB.Driver.Tests.Search
         [InlineData(1, 10, true, true, "gte: 1, lte: 10")]
         public void Range_should_render_correct_operator(int? min, int? max, bool minInclusive, bool maxInclusive, string rangeRendered)
         {
-            var searchRange = new SearchRangeV2<int>(
-                min.HasValue ? new Bound<int>(min.Value, minInclusive) : null,
-                max.HasValue ? new Bound<int>(max.Value, maxInclusive) : null);
+            var searchRange = new SearchRange<int>(min, max, minInclusive, maxInclusive);
+
+            var searchRangev2 = new SearchRangeV2<int>(
+                min.HasValue ? new (min.Value, minInclusive) : null,
+                max.HasValue ? new (max.Value, maxInclusive) : null);
             
             var subject = CreateSubject<BsonDocument>();
-            AssertRendered(
-                    subject.Range("x", searchRange),
-                    $"{{ range: {{ path: 'x', {rangeRendered} }} }}");
+            
+            var searchRangeQuery = subject.Range("x", searchRange);
+            var searchRangeV2Query = subject.Range("x", searchRangev2);
+
+            var expected = $"{{ range: {{ path: 'x', {rangeRendered} }} }}";
+
+            AssertRendered(searchRangeQuery, expected);
+            AssertRendered(searchRangeV2Query, expected);
         }
 
         [Theory]

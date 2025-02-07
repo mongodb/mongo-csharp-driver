@@ -641,9 +641,9 @@ namespace MongoDB.Driver.Search
             where TField : struct, IComparable<TField> =>
             Range(
                 path,
-                new SearchRangeV2<TField?>(
-                    new Bound<TField?>(range.Min, range.IsMinInclusive),
-                    new Bound<TField?>(range.Max, range.IsMaxInclusive)), 
+                new SearchRangeV2<TField>(
+                    range.Min.HasValue ? new (range.Min.Value, range.IsMinInclusive) : null,
+                    range.Max.HasValue ? new (range.Max.Value, range.IsMaxInclusive) : null), 
                 score);
         
         /// <summary>
@@ -677,6 +677,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>

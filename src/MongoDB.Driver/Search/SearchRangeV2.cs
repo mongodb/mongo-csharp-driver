@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
         public static SearchRangeV2<TValue> Gt<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
-            => new(min: new Bound<TValue>(value), searchRange.Max);
+            => new(min: new (value), searchRange.Max);
 
         /// <summary>
         /// Creates a greater or equal than search range.
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
         public static SearchRangeV2<TValue> Gte<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
-            => new(min: new Bound<TValue>(value, inclusive: true), searchRange.Max);
+            => new(min: new (value, inclusive: true), searchRange.Max);
 
         /// <summary>
         /// Creates a less than search range.
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
         public static SearchRangeV2<TValue> Lt<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
-            => new(searchRange.Min, max: new Bound<TValue>(value));
+            => new(searchRange.Min, max: new (value));
 
         /// <summary>
         /// Creates a less than or equal search range.
@@ -150,6 +150,6 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>search range.</returns>
         public static SearchRangeV2<TValue> Lte<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
-            => new(searchRange.Min, max: new Bound<TValue>(value, inclusive: true));
+            => new(searchRange.Min, max: new (value, inclusive: true));
     }
 }
