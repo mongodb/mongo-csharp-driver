@@ -18,7 +18,8 @@ namespace MongoDB.Bson.IO
     internal class BsonDocumentWriterContext
     {
         // private fields
-        private BsonDocumentWriterContext _parentContext;
+        private readonly BsonDocumentWriterContext _parentContext;
+        private BsonDocumentWriterContext _cachedPushContext;
         private ContextType _contextType;
         private BsonDocument _document;
         private BsonArray _array;
@@ -36,23 +37,17 @@ namespace MongoDB.Bson.IO
             _document = document;
         }
 
-        internal BsonDocumentWriterContext(
+        private BsonDocumentWriterContext(
             BsonDocumentWriterContext parentContext,
             ContextType contextType,
-            BsonArray array)
-        {
-            _parentContext = parentContext;
-            _contextType = contextType;
-            _array = array;
-        }
-
-        internal BsonDocumentWriterContext(
-            BsonDocumentWriterContext parentContext,
-            ContextType contextType,
+            BsonDocument document,
+            BsonArray array,
             string code)
         {
             _parentContext = parentContext;
             _contextType = contextType;
+            _document = document;
+            _array = array;
             _code = code;
         }
 
@@ -86,6 +81,41 @@ namespace MongoDB.Bson.IO
         internal string Code
         {
             get { return _code; }
+        }
+
+        internal BsonDocumentWriterContext PopContext()
+        {
+            return _parentContext;
+        }
+
+        internal BsonDocumentWriterContext PushContext(ContextType contextType, BsonDocument document)
+        {
+            return PushContext(contextType, document, null, null);
+        }
+
+        internal BsonDocumentWriterContext PushContext(ContextType contextType, BsonArray array)
+        {
+            return PushContext(contextType, null, array, null);
+        }
+
+        internal BsonDocumentWriterContext PushContext(ContextType contextType, string code)
+        {
+            return PushContext(contextType, null, null, code);
+        }
+
+        private BsonDocumentWriterContext PushContext(ContextType contextType, BsonDocument document, BsonArray array, string code)
+        {
+            if (_cachedPushContext == null)
+                _cachedPushContext = new BsonDocumentWriterContext(this, contextType, document, array, code);
+            else
+            {
+                _cachedPushContext._contextType = contextType;
+                _cachedPushContext._document = document;
+                _cachedPushContext._array = array;
+                _cachedPushContext._code = code;
+                _cachedPushContext._name = null;
+            }
+            return _cachedPushContext;
         }
     }
 }
