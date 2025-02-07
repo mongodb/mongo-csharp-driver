@@ -451,7 +451,7 @@ namespace MongoDB.Driver.Search
         private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args) =>
             _clause.Render(args);
     }
-    
+
     internal sealed class TextSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
     {
         private readonly SearchFuzzyOptions _fuzzy;
