@@ -13,42 +13,43 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using FluentAssertions;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp1585Tests
+    public class CSharp1585Tests : Linq3IntegrationTest
     {
         [Fact]
-        public void Nested_Any_should_translate_correctly()
+        public void Filter_Builder_Where_should_translate_correctly()
         {
-            var expression = (Expression<Func<Document, bool>>)(document => document.Details.A.Any(x => x.Any(y => Regex.IsMatch(y.DeviceName, @".Name0."))));
-            var parameter = expression.Parameters[0];
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var documentSerializer = serializerRegistry.GetSerializer<Document>();
-            var context = TranslationContext.Create(translationOptions: null);
-            var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
-            context = context.WithSymbol(symbol);
-            var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);
-            var simplifiedFilter = AstSimplifier.Simplify(filter);
+            var collection = GetCollection<Document>();
+            var filter = Builders<Document>.Filter.Where(
+                document => document.Details.A.Any(x => x.Any(y => Regex.IsMatch(y.DeviceName, @".Name0."))));
 
-            var rendered = simplifiedFilter.Render();
+            var find = collection.Find(filter);
 
-            rendered.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+        }
+
+        [Fact]
+        public void Filter_Builder_ElemMatch_ElemMatch_should_translate_correctly()
+        {
+            var collection = GetCollection<Document>();
+            var deviceFilter = Builders<Device>.Filter.Regex(x => x.DeviceName, new BsonRegularExpression(".Name0."));
+            var deviceArrayFilter = Builders<Device[]>.Filter.ElemMatch(deviceFilter);
+            var filter = Builders<Document>.Filter.ElemMatch(x => x.Details.A, deviceArrayFilter);
+
+            var find = collection.Find(filter);
+
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
         }
 
         [Fact]
