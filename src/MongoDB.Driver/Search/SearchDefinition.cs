@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -123,9 +124,7 @@ namespace MongoDB.Driver.Search
             QueryString,
             Range,
             Regex,
-            Search,
             Span,
-            Term,
             Text,
             Wildcard
         }
@@ -156,13 +155,24 @@ namespace MongoDB.Driver.Search
         /// <inheritdoc />
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedArgs = RenderArguments(args);
-            renderedArgs.Add("path", () => _path.Render(args), _path != null);
-            renderedArgs.Add("score", () => _score.Render(args), _score != null);
+            BsonDocument renderedArgs;
 
+            if (_path is null)
+            {
+                renderedArgs = RenderArguments(args);
+            }
+            else
+            {
+                var (renderedPath, fieldSerializer) = _path.RenderAndGetFieldSerializer(args);
+                renderedArgs = RenderArguments(args, fieldSerializer);
+                renderedArgs.Add("path", renderedPath);
+            }
+
+            renderedArgs.Add("score", () => _score.Render(args), _score != null);
             return new(_operatorType.ToCamelCase(), renderedArgs);
         }
 
-        private protected virtual BsonDocument RenderArguments(RenderArgs<TDocument> args) => new();
+        private protected virtual BsonDocument RenderArguments(RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer = null) => new();
     }
 }

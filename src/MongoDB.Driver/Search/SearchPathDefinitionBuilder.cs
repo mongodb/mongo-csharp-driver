@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -113,7 +114,7 @@ namespace MongoDB.Driver.Search
         }
 
         public override BsonValue Render(RenderArgs<TDocument> args) =>
-            new BsonDocument()
+            new BsonDocument
             {
                 {  "value", RenderField(_field, args) },
                 {  "multi", _analyzerName }
@@ -144,6 +145,9 @@ namespace MongoDB.Driver.Search
 
         public override BsonValue Render(RenderArgs<TDocument> args) =>
             RenderField(_field, args);
+
+        internal override (BsonValue, IBsonSerializer) RenderAndGetFieldSerializer(RenderArgs<TDocument> args)
+            => RenderFieldAndGetFieldSerializer(_field, args);
     }
 
     internal sealed class WildcardSearchPathDefinition<TDocument> : SearchPathDefinition<TDocument>
