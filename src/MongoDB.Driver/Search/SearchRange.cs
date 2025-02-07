@@ -22,7 +22,6 @@ namespace MongoDB.Driver.Search
     /// Object that specifies range of scalar and DateTime values.
     /// </summary>
     /// <typeparam name="TValue">The type of the range value.</typeparam>
-    [Obsolete("Use SearchRangeV2 instead.")]
     public struct SearchRange<TValue> where TValue : struct, IComparable<TValue>
     {
         #region static
@@ -66,7 +65,6 @@ namespace MongoDB.Driver.Search
     /// <summary>
     /// A builder for a SearchRange.
     /// </summary>
-    [Obsolete("Use SearchRangeV2Builder instead.")]
     public static class SearchRangeBuilder
     {
         /// <summary>

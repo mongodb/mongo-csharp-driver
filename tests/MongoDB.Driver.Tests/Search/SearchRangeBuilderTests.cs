@@ -18,8 +18,6 @@ using FluentAssertions;
 using MongoDB.Driver.Search;
 using Xunit;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 namespace MongoDB.Driver.Tests.Search
 {
     public class SearchRangeBuilderTests

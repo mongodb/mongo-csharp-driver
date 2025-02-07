@@ -604,7 +604,6 @@ namespace MongoDB.Driver.Search
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
-        [Obsolete("Use Range method with SearchRangeV2 instead.")]
         public SearchDefinition<TDocument> Range<TField>(
             Expression<Func<TDocument, TField>> path,
             SearchRange<TField> range,
@@ -622,8 +621,9 @@ namespace MongoDB.Driver.Search
         /// <returns>A range search definition.</returns>
         public SearchDefinition<TDocument> Range<TField>(
             Expression<Func<TDocument, IEnumerable<TField>>> path,
-            SearchRangeV2<TField> range,
-            SearchScoreDefinition<TDocument> score = null) =>
+            SearchRange<TField> range,
+            SearchScoreDefinition<TDocument> score = null)
+            where TField : struct, IComparable<TField> =>
             Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
 
         /// <summary>
@@ -634,15 +634,17 @@ namespace MongoDB.Driver.Search
         /// <param name="range">The field range.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A range search definition.</returns>
-        [Obsolete("Use Range method with SearchRangeV2 instead.")]
         public SearchDefinition<TDocument> Range<TField>(
             SearchPathDefinition<TDocument> path,
             SearchRange<TField> range,
             SearchScoreDefinition<TDocument> score = null)
             where TField : struct, IComparable<TField> =>
-            new RangeSearchDefinition<TDocument, TField?>(path,
-                new SearchRangeV2<TField?>(new Bound<TField?>(range.Min, range.IsMinInclusive),
-                    new Bound<TField?>(range.Max, range.IsMaxInclusive)), score);
+            Range(
+                path,
+                new SearchRangeV2<TField?>(
+                    new Bound<TField?>(range.Min, range.IsMinInclusive),
+                    new Bound<TField?>(range.Max, range.IsMaxInclusive)), 
+                score);
         
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
@@ -654,6 +656,20 @@ namespace MongoDB.Driver.Search
         /// <returns>A range search definition.</returns>
         public SearchDefinition<TDocument> Range<TField>(
             Expression<Func<TDocument, TField>> path,
+            SearchRangeV2<TField> range,
+            SearchScoreDefinition<TDocument> score = null) =>
+            Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
+        
+        /// <summary>
+        /// Creates a search definition that queries for documents where a field is in the specified range.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="range">The field range.</param>
+        /// <param name="score">The score modifier.</param>
+        /// <returns>A range search definition.</returns>
+        public SearchDefinition<TDocument> Range<TField>(
+            Expression<Func<TDocument, IEnumerable<TField>>> path,
             SearchRangeV2<TField> range,
             SearchScoreDefinition<TDocument> score = null) =>
             Range(new ExpressionFieldDefinition<TDocument>(path), range, score);

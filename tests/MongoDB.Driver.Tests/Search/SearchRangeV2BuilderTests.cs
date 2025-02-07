@@ -50,10 +50,10 @@ namespace MongoDB.Driver.Tests.Search
                 }
             }
 
-            subject.Value.Min.Value.Should().Be(min);
-            subject.Value.Max.Value.Should().Be(max);
-            subject.Value.Min.Inclusive.Should().Be(minInclusive);
-            subject.Value.Max.Inclusive.Should().Be(maxInclusive);
+            subject.Value.Min?.Value.Should().Be(min);
+            subject.Value.Max?.Value.Should().Be(max);
+            subject.Value.Min?.Inclusive.Should().Be(minInclusive);
+            subject.Value.Max?.Inclusive.Should().Be(maxInclusive);
         }
     }
 }
