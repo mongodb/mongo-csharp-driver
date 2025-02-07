@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Search
             RenderField(_field, args);
 
         internal override (BsonValue, IBsonSerializer) RenderAndGetFieldSerializer(RenderArgs<TDocument> args)
-            => RenderFieldWithSerializer(_field, args);
+            => RenderFieldAndGetFieldSerializer(_field, args);
     }
 
     internal sealed class WildcardSearchPathDefinition<TDocument> : SearchPathDefinition<TDocument>
