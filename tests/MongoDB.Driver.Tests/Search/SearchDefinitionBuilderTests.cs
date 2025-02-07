@@ -288,7 +288,8 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<BsonDocument>();
             var subjectTyped = CreateSubject<Person>();
 
-            //There is no property called "x" where to pick up a properly configured GuidSerializer for the tests
+            //When using an untyped query, the default GuidSerializer is used, and that will throw an exception
+            //because the GuidRepresentation is Unspecified.
             if (typeof(T) != typeof(Guid))
             {
                 AssertRendered(
