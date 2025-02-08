@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 collection.AsQueryable().Select(x => x.A.OfType<B2>().ToArray());
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $filter : { input : '$A', as : 'this', cond : { $cond : { if : { $eq : [{ $type : '$$this._t' }, 'array'] }, then : { $in : ['B2', '$$this._t'] }, else : { $eq : ['$$this._t', 'B2'] } } } } }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $filter : { input : '$A', as : 'item', cond : { $cond : { if : { $eq : [{ $type : '$$item._t' }, 'array'] }, then : { $in : ['B2', '$$item._t'] }, else : { $eq : ['$$item._t', 'B2'] } } } } }, _id : 0 } }");
 
             var result = queryable.Single();
             result.Select(x => x.Id).Should().Equal(2);
