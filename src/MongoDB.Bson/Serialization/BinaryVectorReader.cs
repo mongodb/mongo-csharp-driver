@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace MongoDB.Bson.Serialization
@@ -50,6 +52,11 @@ namespace MongoDB.Bson.Serialization
                     }
                     break;
                 case BinaryVectorDataType.Int8:
+                    {
+                        var itemsSpan = MemoryMarshal.Cast<byte, TItem>(vectorDataBytes.Span);
+                        items = (TItem[])(object)itemsSpan.ToArray();
+                        break;
+                    }
                 case BinaryVectorDataType.PackedBit:
                     items = (TItem[])(object)vectorDataBytes.ToArray();
                     break;
@@ -87,7 +94,7 @@ namespace MongoDB.Bson.Serialization
                 case BinaryVectorDataType.Float32:
                     return new BinaryVectorFloat32(AsTypedArrayOrThrow<float>()) as BinaryVectorBase<TItem>;
                 case BinaryVectorDataType.Int8:
-                    return new BinaryVectorInt8(AsTypedArrayOrThrow<byte>()) as BinaryVectorBase<TItem>;
+                    return new BinaryVectorInt8(AsTypedArrayOrThrow<sbyte>()) as BinaryVectorBase<TItem>;
                 case BinaryVectorDataType.PackedBit:
                     return new BinaryVectorPackedBit(AsTypedArrayOrThrow<byte>(), padding) as BinaryVectorBase<TItem>;
                 default:
@@ -107,17 +114,17 @@ namespace MongoDB.Bson.Serialization
 
         public static void ValidateItemType<TItem>(BinaryVectorDataType binaryVectorDataType)
         {
-            var expectedItemType = binaryVectorDataType switch
+            IEnumerable<Type> expectedItemTypes = binaryVectorDataType switch
             {
-                BinaryVectorDataType.Float32 => typeof(float),
-                BinaryVectorDataType.Int8 => typeof(byte),
-                BinaryVectorDataType.PackedBit => typeof(byte),
+                BinaryVectorDataType.Float32 => [typeof(float)],
+                BinaryVectorDataType.Int8 => [typeof(byte), typeof(sbyte)],
+                BinaryVectorDataType.PackedBit => [typeof(byte)],
                 _ => throw new ArgumentException(nameof(binaryVectorDataType), "Unsupported vector datatype.")
             };
 
-            if (expectedItemType != typeof(TItem))
+            if (!expectedItemTypes.Contains(typeof(TItem)))
             {
-                throw new NotSupportedException($"Item type {typeof(TItem)} is not supported with {binaryVectorDataType} vector type, expected item type to be {expectedItemType}.");
+                throw new NotSupportedException($"Item type {typeof(TItem)} is not supported with {binaryVectorDataType} vector type, expected item type to be {string.Join(",", expectedItemTypes)}.");
             }
         }
     }

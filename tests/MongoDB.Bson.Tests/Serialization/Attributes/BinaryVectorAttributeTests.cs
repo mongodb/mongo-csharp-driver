@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             var classMap = BsonClassMap.LookupClassMap(typeof(ArrayHolder));
 
             AssertSerializer<ArrayAsBinaryVectorSerializer<byte>, byte[], byte>(classMap, nameof(ArrayHolder.ValuesByte), BinaryVectorDataType.Int8);
+            AssertSerializer<ArrayAsBinaryVectorSerializer<sbyte>, sbyte[], sbyte>(classMap, nameof(ArrayHolder.ValuesSByte), BinaryVectorDataType.Int8);
             AssertSerializer<ArrayAsBinaryVectorSerializer<byte>, byte[], byte>(classMap, nameof(ArrayHolder.ValuesPackedBit), BinaryVectorDataType.PackedBit);
             AssertSerializer<ArrayAsBinaryVectorSerializer<float>, float[], float>(classMap, nameof(ArrayHolder.ValuesFloat), BinaryVectorDataType.Float32);
         }
@@ -40,7 +41,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(BinaryVectorHolder));
 
-            AssertSerializer<BinaryVectorSerializer<BinaryVectorInt8, byte>, BinaryVectorInt8, byte>(classMap, nameof(BinaryVectorHolder.ValuesInt8), BinaryVectorDataType.Int8);
+            AssertSerializer<BinaryVectorSerializer<BinaryVectorInt8, sbyte>, BinaryVectorInt8, sbyte>(classMap, nameof(BinaryVectorHolder.ValuesInt8), BinaryVectorDataType.Int8);
             AssertSerializer<BinaryVectorSerializer<BinaryVectorPackedBit, byte>, BinaryVectorPackedBit, byte>(classMap, nameof(BinaryVectorHolder.ValuesPackedBit), BinaryVectorDataType.PackedBit);
             AssertSerializer<BinaryVectorSerializer<BinaryVectorFloat32, float>, BinaryVectorFloat32, float>(classMap, nameof(BinaryVectorHolder.ValuesFloat), BinaryVectorDataType.Float32);
         }
@@ -51,6 +52,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             var classMap = BsonClassMap.LookupClassMap(typeof(MemoryHolder));
 
             AssertSerializer<MemoryAsBinaryVectorSerializer<byte>, Memory<byte>, byte>(classMap, nameof(MemoryHolder.ValuesByte), BinaryVectorDataType.Int8);
+            AssertSerializer<MemoryAsBinaryVectorSerializer<sbyte>, Memory<sbyte>, sbyte>(classMap, nameof(MemoryHolder.ValuesSByte), BinaryVectorDataType.Int8);
             AssertSerializer<MemoryAsBinaryVectorSerializer<byte>, Memory<byte>, byte>(classMap, nameof(MemoryHolder.ValuesPackedBit), BinaryVectorDataType.PackedBit);
             AssertSerializer<MemoryAsBinaryVectorSerializer<float>, Memory<float>, float>(classMap, nameof(MemoryHolder.ValuesFloat), BinaryVectorDataType.Float32);
         }
@@ -61,6 +63,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             var classMap = BsonClassMap.LookupClassMap(typeof(ReadOnlyMemoryHolder));
 
             AssertSerializer<ReadOnlyMemoryAsBinaryVectorSerializer<byte>, ReadOnlyMemory<byte>, byte>(classMap, nameof(ReadOnlyMemoryHolder.ValuesByte), BinaryVectorDataType.Int8);
+            AssertSerializer<ReadOnlyMemoryAsBinaryVectorSerializer<sbyte>, ReadOnlyMemory<sbyte>, sbyte>(classMap, nameof(ReadOnlyMemoryHolder.ValuesSByte), BinaryVectorDataType.Int8);
             AssertSerializer<ReadOnlyMemoryAsBinaryVectorSerializer<byte>, ReadOnlyMemory<byte>, byte>(classMap, nameof(ReadOnlyMemoryHolder.ValuesPackedBit), BinaryVectorDataType.PackedBit);
             AssertSerializer<ReadOnlyMemoryAsBinaryVectorSerializer<float>, ReadOnlyMemory<float>, float>(classMap, nameof(ReadOnlyMemoryHolder.ValuesFloat), BinaryVectorDataType.Float32);
         }
@@ -84,7 +87,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(BinaryVectorNoAttributeHolder));
 
-            AssertSerializer<BinaryVectorSerializer<BinaryVectorInt8, byte>, BinaryVectorInt8, byte>(classMap, nameof(BinaryVectorNoAttributeHolder.ValuesInt8), BinaryVectorDataType.Int8);
+            AssertSerializer<BinaryVectorSerializer<BinaryVectorInt8, sbyte>, BinaryVectorInt8, sbyte>(classMap, nameof(BinaryVectorNoAttributeHolder.ValuesInt8), BinaryVectorDataType.Int8);
             AssertSerializer<BinaryVectorSerializer<BinaryVectorPackedBit, byte>, BinaryVectorPackedBit, byte>(classMap, nameof(BinaryVectorNoAttributeHolder.ValuesPackedBit), BinaryVectorDataType.PackedBit);
             AssertSerializer<BinaryVectorSerializer<BinaryVectorFloat32, float>, BinaryVectorFloat32, float>(classMap, nameof(BinaryVectorNoAttributeHolder.ValuesFloat), BinaryVectorDataType.Float32);
         }
@@ -105,6 +108,9 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             [BinaryVector(BinaryVectorDataType.Int8)]
             public byte[] ValuesByte { get; set; }
+
+            [BinaryVector(BinaryVectorDataType.Int8)]
+            public sbyte[] ValuesSByte { get; set; }
 
             [BinaryVector(BinaryVectorDataType.PackedBit)]
             public byte[] ValuesPackedBit { get; set; }
@@ -139,6 +145,9 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             [BinaryVector(BinaryVectorDataType.Int8)]
             public Memory<byte> ValuesByte { get; set; }
 
+            [BinaryVector(BinaryVectorDataType.Int8)]
+            public Memory<sbyte> ValuesSByte { get; set; }
+
             [BinaryVector(BinaryVectorDataType.PackedBit)]
             public Memory<byte> ValuesPackedBit { get; set; }
 
@@ -150,6 +159,9 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             [BinaryVector(BinaryVectorDataType.Int8)]
             public ReadOnlyMemory<byte> ValuesByte { get; set; }
+
+            [BinaryVector(BinaryVectorDataType.Int8)]
+            public ReadOnlyMemory<sbyte> ValuesSByte { get; set; }
 
             [BinaryVector(BinaryVectorDataType.PackedBit)]
             public ReadOnlyMemory<byte> ValuesPackedBit { get; set; }

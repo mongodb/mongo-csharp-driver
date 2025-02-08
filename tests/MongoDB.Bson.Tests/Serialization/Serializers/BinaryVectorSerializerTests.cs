@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -34,8 +35,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = new ArrayAsBinaryVectorSerializer<T>(dataType);
 
-            var (vector, vectorBson) = GetTestData<T>(dataType, elementCount, 0);
-            var expectedArray = vector.Data.ToArray();
+            var (expectedArray, vectorBson) = GetTestData<T>(dataType, elementCount, 0);
 
             var actualArray = DeserializeFromBinaryData<T[]>(vectorBson, subject);
 
@@ -49,8 +49,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = new ArrayAsBinaryVectorSerializer<T>(dataType);
 
-            var (vector, expectedBson) = GetTestData<T>(dataType, elementCount, 0);
-            var array = vector.Data.ToArray();
+            var (array, expectedBson) = GetTestData<T>(dataType, elementCount, 0);
 
             var binaryData = SerializeToBinaryData(array, subject);
 
@@ -63,8 +62,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = new ArrayAsBinaryVectorSerializer<byte>(BinaryVectorDataType.PackedBit);
 
-            var (vector, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
-            var expectedArray = vector.Data.ToArray();
+            var (expectedArray, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
 
             var exception = Record.Exception(() => DeserializeFromBinaryData<byte[]>(vectorBson, subject));
             exception.Should().BeOfType<FormatException>();
@@ -78,7 +76,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = CreateBinaryVectorSerializer<T>(dataType);
 
-            var (vector, expectedBson) = GetTestData<T>(dataType, elementsCount, (byte)bitsPadding);
+            var (vector, expectedBson) = GetTestDataBinaryVector<T>(dataType, elementsCount, (byte)bitsPadding);
 
             var binaryData = SerializeToBinaryData(vector, subject);
 
@@ -93,7 +91,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = CreateBinaryVectorSerializer<T>(dataType);
 
-            var (vector, vectorBson) = GetTestData<T>(dataType, elementsCount, (byte)bitsPadding);
+            var (vector, vectorBson) = GetTestDataBinaryVector<T>(dataType, elementsCount, (byte)bitsPadding);
             var expectedArray = vector.Data.ToArray();
             var expectedType = (dataType) switch
             {
@@ -114,7 +112,6 @@ namespace MongoDB.Bson.Tests.Serialization
             }
         }
 
-
         [Theory]
         [InlineData(BinaryVectorDataType.Int8, typeof(BinaryVectorSerializer<BinaryVectorFloat32, float>))]
         [InlineData(BinaryVectorDataType.Int8, typeof(ArrayAsBinaryVectorSerializer<int>))]
@@ -124,7 +121,8 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(BinaryVectorDataType.PackedBit, typeof(ArrayAsBinaryVectorSerializer<int>))]
         [InlineData(BinaryVectorDataType.PackedBit, typeof(ReadOnlyMemoryAsBinaryVectorSerializer<float>))]
         [InlineData(BinaryVectorDataType.PackedBit, typeof(MemoryAsBinaryVectorSerializer<double>))]
-        [InlineData(BinaryVectorDataType.Float32, typeof(BinaryVectorSerializer<BinaryVectorInt8, byte>))]
+        [InlineData(BinaryVectorDataType.PackedBit, typeof(MemoryAsBinaryVectorSerializer<sbyte>))]
+        [InlineData(BinaryVectorDataType.Float32, typeof(BinaryVectorSerializer<BinaryVectorInt8, sbyte>))]
         [InlineData(BinaryVectorDataType.Float32, typeof(ArrayAsBinaryVectorSerializer<int>))]
         [InlineData(BinaryVectorDataType.Float32, typeof(ReadOnlyMemoryAsBinaryVectorSerializer<byte>))]
         [InlineData(BinaryVectorDataType.Float32, typeof(MemoryAsBinaryVectorSerializer<double>))]
@@ -145,7 +143,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var binaryVectorHolder = new BinaryVectorNoAttributeHolder()
             {
                 ValuesFloat = new BinaryVectorFloat32(new float[] { 1.1f, 2.2f, 3.3f }),
-                ValuesInt8 = new BinaryVectorInt8(new byte[] { 1, 2, 3 }),
+                ValuesInt8 = new BinaryVectorInt8(new sbyte[] { -1, 2, 3 }),
                 ValuesPackedBit = new BinaryVectorPackedBit(new byte[] { 1, 2, 3 }, 0)
             };
 
@@ -165,8 +163,8 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = new MemoryAsBinaryVectorSerializer<T>(dataType);
 
-            var (vector, expectedBson) = GetTestData<T>(dataType, elementCount, 0);
-            var memory = new Memory<T>(vector.Data.ToArray());
+            var (elements, expectedBson) = GetTestData<T>(dataType, elementCount, 0);
+            var memory = new Memory<T>(elements);
 
             var binaryData = SerializeToBinaryData(memory, subject);
 
@@ -181,8 +179,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = new MemoryAsBinaryVectorSerializer<T>(dataType);
 
-            var (vector, vectorBson) = GetTestData<T>(dataType, elementCount, 0);
-            var expectedArray = vector.Data.ToArray();
+            var (expectedArray, vectorBson) = GetTestData<T>(dataType, elementCount, 0);
 
             var actualMemory = DeserializeFromBinaryData<Memory<T>>(vectorBson, subject);
 
@@ -194,8 +191,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = new ReadOnlyMemoryAsBinaryVectorSerializer<byte>(BinaryVectorDataType.PackedBit);
 
-            var (vector, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
-            var expectedArray = vector.Data.ToArray();
+            var (expectedArray, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
 
             var exception = Record.Exception(() => DeserializeFromBinaryData<Memory<byte>>(vectorBson, subject));
             exception.Should().BeOfType<FormatException>();
@@ -204,14 +200,15 @@ namespace MongoDB.Bson.Tests.Serialization
 
         [Theory]
         [MemberData(nameof(TestData))]
-        public void ReadonlyMemoryAsBinaryVectorSerializer_should_serialize_bson_vector<T>(BinaryVectorDataType dataType, int elementCount, T _)
+        public void ReadOnlyMemoryAsBinaryVectorSerializer_should_serialize_bson_vector<T>(BinaryVectorDataType dataType, int elementCount, T _)
            where T : struct
         {
             var subject = new ReadOnlyMemoryAsBinaryVectorSerializer<T>(dataType);
 
-            var (vector, expectedBson) = GetTestData<T>(dataType, elementCount, 0);
+            var (elements, expectedBson) = GetTestData<T>(dataType, elementCount, 0);
+            var memory = new ReadOnlyMemory<T>(elements);
 
-            var binaryData = SerializeToBinaryData(vector.Data, subject);
+            var binaryData = SerializeToBinaryData(memory, subject);
 
             Assert.Equal(BsonBinarySubType.Vector, binaryData.SubType);
             Assert.Equal(expectedBson, binaryData.Bytes);
@@ -219,13 +216,12 @@ namespace MongoDB.Bson.Tests.Serialization
 
         [Theory]
         [MemberData(nameof(TestData))]
-        public void ReadonlyMemoryAsBinaryVectorSerializer_should_deserialize_bson_vector<T>(BinaryVectorDataType dataType, int elementCount, T _)
+        public void ReadOnlyMemoryAsBinaryVectorSerializer_should_deserialize_bson_vector<T>(BinaryVectorDataType dataType, int elementCount, T _)
            where T : struct
         {
             var subject = new ReadOnlyMemoryAsBinaryVectorSerializer<T>(dataType);
 
-            var (vector, vectorBson) = GetTestData<T>(dataType, elementCount, 0);
-            var expectedArray = vector.Data.ToArray();
+            var (expectedArray, vectorBson) = GetTestData<T>(dataType, elementCount, 0);
 
             var readonlyMemory = DeserializeFromBinaryData<ReadOnlyMemory<T>>(vectorBson, subject);
 
@@ -237,8 +233,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = new ReadOnlyMemoryAsBinaryVectorSerializer<byte>(BinaryVectorDataType.PackedBit);
 
-            var (vector, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
-            var expectedArray = vector.Data.ToArray();
+            var (expectedArray, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
 
             var exception = Record.Exception(() => DeserializeFromBinaryData<ReadOnlyMemory<byte>>(vectorBson, subject));
             exception.Should().BeOfType<FormatException>();
@@ -348,6 +343,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public readonly static IEnumerable<object[]> TestData =
         [
+            [BinaryVectorDataType.Int8, 1, sbyte.MaxValue],
+            [BinaryVectorDataType.Int8, 55, sbyte.MaxValue],
             [BinaryVectorDataType.Int8, 1, byte.MaxValue],
             [BinaryVectorDataType.Int8, 55, byte.MaxValue],
             [BinaryVectorDataType.Float32, 1, float.MaxValue],
@@ -356,8 +353,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public readonly static IEnumerable<object[]> TestDataBinaryVector =
         [
-            [BinaryVectorDataType.Int8, 1, 0, byte.MaxValue],
-            [BinaryVectorDataType.Int8, 55, 0, byte.MaxValue],
+            [BinaryVectorDataType.Int8, 1, 0, sbyte.MaxValue],
+            [BinaryVectorDataType.Int8, 55, 0, sbyte.MaxValue],
             [BinaryVectorDataType.Float32, 1, 0, float.MaxValue],
             [BinaryVectorDataType.Float32, 55, 0, float.MaxValue],
             [BinaryVectorDataType.PackedBit, 1, 0, byte.MaxValue],
@@ -365,32 +362,33 @@ namespace MongoDB.Bson.Tests.Serialization
             [BinaryVectorDataType.PackedBit, 128, 7, byte.MaxValue],
         ];
 
-        private static (BinaryVectorBase<T> Vector, byte[] VectorBson) GetTestData<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
+        private static (T[], byte[] VectorBson) GetTestData<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
             where T : struct
         {
+            var elementsSpan = new ReadOnlySpan<T>(Enumerable.Range(0, elementsCount).Select(i => Convert.ChangeType(i, typeof(T)).As<T>()).ToArray());
+            byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. MemoryMarshal.Cast<T, byte>(elementsSpan)];
+
+            return (elementsSpan.ToArray(), vectorBsonData);
+        }
+
+        private static (BinaryVectorBase<T>, byte[] VectorBson) GetTestDataBinaryVector<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
+           where T : struct
+        {
+            var (items, vectorBsonData) = GetTestData<T>(dataType, elementsCount, bitsPadding);
+
             switch (dataType)
             {
                 case BinaryVectorDataType.Int8:
                     {
-                        var elements = Enumerable.Range(0, elementsCount).Select(i => (byte)i).ToArray();
-                        byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. elements];
-
-                        return (new BinaryVectorInt8(elements) as BinaryVectorBase<T>, vectorBsonData);
+                        return (new BinaryVectorInt8(items.Cast<sbyte>().ToArray()) as BinaryVectorBase<T>, vectorBsonData);
                     }
                 case BinaryVectorDataType.PackedBit:
                     {
-                        var elements = Enumerable.Range(0, elementsCount).Select(i => (byte)i).ToArray();
-                        byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. elements];
-
-                        return (new BinaryVectorPackedBit(elements, bitsPadding) as BinaryVectorBase<T>, vectorBsonData);
+                        return (new BinaryVectorPackedBit(items.Cast<byte>().ToArray(), bitsPadding) as BinaryVectorBase<T>, vectorBsonData);
                     }
                 case BinaryVectorDataType.Float32:
                     {
-                        var elements = Enumerable.Range(0, elementsCount).Select(i => (float)i).ToArray();
-                        var vectorDataElements = elements.SelectMany(BitConverter.GetBytes);
-                        byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. vectorDataElements];
-
-                        return (new BinaryVectorFloat32(elements) as BinaryVectorBase<T>, vectorBsonData);
+                        return (new BinaryVectorFloat32(items.Cast<float>().ToArray()) as BinaryVectorBase<T>, vectorBsonData);
                     }
                 default:
                     throw new ArgumentOutOfRangeException(nameof(dataType));
@@ -403,7 +401,7 @@ namespace MongoDB.Bson.Tests.Serialization
             IBsonSerializer serializer = dataType switch
             {
                 BinaryVectorDataType.Float32 => new BinaryVectorSerializer<BinaryVectorFloat32, float>(dataType),
-                BinaryVectorDataType.Int8 => new BinaryVectorSerializer<BinaryVectorInt8, byte>(dataType),
+                BinaryVectorDataType.Int8 => new BinaryVectorSerializer<BinaryVectorInt8, sbyte>(dataType),
                 BinaryVectorDataType.PackedBit => new BinaryVectorSerializer<BinaryVectorPackedBit, byte>(dataType),
                 _ => throw new ArgumentOutOfRangeException(nameof(dataType))
             };

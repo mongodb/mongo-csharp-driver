@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     internal static class BinaryVectorSerializer
     {
         public static BinaryVectorSerializer<BinaryVectorFloat32, float> BinaryVectorFloat32Serializer { get; } = new BinaryVectorSerializer<BinaryVectorFloat32, float>(BinaryVectorDataType.Float32);
-        public static BinaryVectorSerializer<BinaryVectorInt8, byte> BinaryVectorInt8Serializer { get; } = new BinaryVectorSerializer<BinaryVectorInt8, byte>(BinaryVectorDataType.Int8);
+        public static BinaryVectorSerializer<BinaryVectorInt8, sbyte> BinaryVectorInt8Serializer { get; } = new BinaryVectorSerializer<BinaryVectorInt8, sbyte>(BinaryVectorDataType.Int8);
         public static BinaryVectorSerializer<BinaryVectorPackedBit, byte> BinaryVectorPackedBitSerializer { get; } = new BinaryVectorSerializer<BinaryVectorPackedBit, byte>(BinaryVectorDataType.PackedBit);
 
         public static IBsonSerializer CreateArraySerializer(Type itemType, BinaryVectorDataType binaryVectorDataType) =>

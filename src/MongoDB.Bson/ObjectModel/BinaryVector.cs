@@ -61,12 +61,13 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a vector of <see cref="byte"/> values.
     /// </summary>
-    public sealed class BinaryVectorInt8 : BinaryVectorBase<byte>
+    [CLSCompliant(false)]
+    public sealed class BinaryVectorInt8 : BinaryVectorBase<sbyte>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BinaryVectorInt8"/> class.
         /// </summary>
-        public BinaryVectorInt8(ReadOnlyMemory<byte> data) : base(data, BinaryVectorDataType.Int8)
+        public BinaryVectorInt8(ReadOnlyMemory<sbyte> data) : base(data, BinaryVectorDataType.Int8)
         {
         }
     }
