@@ -52,11 +52,9 @@ namespace MongoDB.Bson.Serialization
                     }
                     break;
                 case BinaryVectorDataType.Int8:
-                    {
-                        var itemsSpan = MemoryMarshal.Cast<byte, TItem>(vectorDataBytes.Span);
-                        items = (TItem[])(object)itemsSpan.ToArray();
-                        break;
-                    }
+                    var itemsSpan = MemoryMarshal.Cast<byte, TItem>(vectorDataBytes.Span);
+                    items = (TItem[])(object)itemsSpan.ToArray();
+                    break;
                 case BinaryVectorDataType.PackedBit:
                     items = (TItem[])(object)vectorDataBytes.ToArray();
                     break;
