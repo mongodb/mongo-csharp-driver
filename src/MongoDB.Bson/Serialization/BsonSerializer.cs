@@ -788,12 +788,10 @@ namespace MongoDB.Bson.Serialization
                 var discriminator = entry.Key;
                 var actualTypes = entry.Value;
 
-                foreach (var actualType in actualTypes)
+                var matchingType = actualTypes.SingleOrDefault(t => t == type || t.IsSubclassOf(type));
+                if (matchingType != null)
                 {
-                    if (actualType == type || actualType.IsSubclassOf(type))
-                    {
-                        discriminators.Add(discriminator);
-                    }
+                    discriminators.Add(discriminator);
                 }
             }
 
