@@ -358,31 +358,43 @@ namespace MongoDB.Driver.Search
     }
 
     internal sealed class RangeSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
-        where TField : struct, IComparable<TField>
     {
-        private readonly SearchRange<TField> _range;
-        private readonly BsonValue _min;
-        private readonly BsonValue _max;
-
+        private readonly SearchRangeV2<TField> _range;
+        
         public RangeSearchDefinition(
             SearchPathDefinition<TDocument> path,
-            SearchRange<TField> range,
+            SearchRangeV2<TField> range,
             SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.Range, path, score)
         {
             _range = range;
-            _min = ToBsonValue(_range.Min);
-            _max = ToBsonValue(_range.Max);
         }
 
-        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args) =>
-            new()
+        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args)
+        {
+            BsonValue min = null, max = null;
+            bool minInclusive = false, maxInclusive = false;
+            
+            if (_range.Min != null)
             {
-                { _range.IsMinInclusive ? "gte" : "gt", _min, _min != null },
-                { _range.IsMaxInclusive ? "lte" : "lt", _max, _max != null },
+                min = ToBsonValue(_range.Min.Value);
+                minInclusive = _range.Min.Inclusive;
+            }
+            
+            if (_range.Max != null)
+            {
+                max = ToBsonValue(_range.Max.Value);
+                maxInclusive = _range.Max.Inclusive;
+            }
+            
+            return new()
+            {
+                { minInclusive ? "gte" : "gt", min, min != null },
+                { maxInclusive ? "lte" : "lt", max, max != null }
             };
-
-        private static BsonValue ToBsonValue(TField? value) =>
+        }
+        
+        private static BsonValue ToBsonValue(TField value) =>
             value switch
             {
                 sbyte v => (BsonInt32)v,
@@ -396,6 +408,7 @@ namespace MongoDB.Driver.Search
                 double v => (BsonDouble)v,
                 DateTime v => (BsonDateTime)v,
                 DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
+                string v => (BsonString)v,
                 null => null,
                 _ => throw new InvalidCastException()
             };
