@@ -1996,7 +1996,7 @@ namespace MongoDB.Driver
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var vectorSearchOperator = new BsonDocument
                     {
-                        { "queryVector", queryVector.Array },
+                        { "queryVector", queryVector.Vector },
                         { "path", field.Render(args).FieldName },
                         { "limit", limit },
                         { "numCandidates", options?.NumberOfCandidates ?? limit * 10, options?.Exact != true },
