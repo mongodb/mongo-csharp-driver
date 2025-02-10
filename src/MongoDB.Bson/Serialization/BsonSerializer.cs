@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Serialization
         /// //TODO
         /// </summary>
         /// <returns></returns>
-        public static IBsonSerializationDomain CreateDomain() => new BsonSerializationDomain();
+        public static IBsonSerializationDomain CreateSerializationDomain() => new BsonSerializationDomain();
 
         /// <summary>
         /// Deserializes an object from a BsonDocument.
