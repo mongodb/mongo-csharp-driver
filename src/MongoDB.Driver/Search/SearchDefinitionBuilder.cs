@@ -642,8 +642,8 @@ namespace MongoDB.Driver.Search
             Range(
                 path,
                 new SearchRangeV2<TField>(
-                    range.Min.HasValue ? new (range.Min.Value, range.IsMinInclusive) : null,
-                    range.Max.HasValue ? new (range.Max.Value, range.IsMaxInclusive) : null), 
+                    range.Min.HasValue ? new(range.Min.Value, range.IsMinInclusive) : null,
+                    range.Max.HasValue ? new(range.Max.Value, range.IsMaxInclusive) : null), 
                 score);
         
         /// <summary>

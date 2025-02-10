@@ -870,8 +870,8 @@ namespace MongoDB.Driver.Tests.Search
             var searchRange = new SearchRange<int>(min, max, minInclusive, maxInclusive);
 
             var searchRangev2 = new SearchRangeV2<int>(
-                min.HasValue ? new (min.Value, minInclusive) : null,
-                max.HasValue ? new (max.Value, maxInclusive) : null);
+                min.HasValue ? new(min.Value, minInclusive) : null,
+                max.HasValue ? new(max.Value, maxInclusive) : null);
             
             var subject = CreateSubject<BsonDocument>();
             
