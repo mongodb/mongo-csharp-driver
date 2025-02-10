@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 

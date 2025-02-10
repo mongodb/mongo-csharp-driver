@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     {
         /// <summary>
         /// Gets the underlying bson value representing the vector.
-        /// Possible values are <see cref="BsonArray"/> or <see cref="BsonBinaryData"/> encoding <see cref="BinaryVectorBase{TItem}"/>
+        /// Possible values are <see cref="BsonArray"/> or <see cref="BsonBinaryData"/> encoding <see cref="BinaryVector{TItem}"/>
         /// </summary>
         internal BsonValue Vector { get; } // do not make public because in the case of ReadOnlyMemory the BsonArray subclass is not fully functional
 

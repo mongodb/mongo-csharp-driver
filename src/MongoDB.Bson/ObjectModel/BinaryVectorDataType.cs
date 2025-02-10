@@ -18,7 +18,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the data type of a binary Vector.
     /// </summary>
-    /// <seealso cref="BinaryVectorBase{TItem}"/>
+    /// <seealso cref="BinaryVector{TItem}"/>
     public enum BinaryVectorDataType
     {
         /// <summary>

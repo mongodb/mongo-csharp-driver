@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory]
         [MemberData(nameof(BinaryVectorSearchTestData))]
-        public void BinaryVectorSearch<T>(BinaryVectorBase<T> binaryVector, string fieldName)
+        public void BinaryVectorSearch<T>(BinaryVector<T> binaryVector, string fieldName)
             where T : struct
         {
             const int Limit = 5;

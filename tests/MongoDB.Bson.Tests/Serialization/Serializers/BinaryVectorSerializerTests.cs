@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 _ => throw new ArgumentOutOfRangeException(nameof(dataType))
             };
 
-            var binaryVector = DeserializeFromBinaryData<BinaryVectorBase<T>>(vectorBson, subject);
+            var binaryVector = DeserializeFromBinaryData<BinaryVector<T>>(vectorBson, subject);
 
             binaryVector.Should().BeOfType(expectedType);
             binaryVector.Data.ToArray().ShouldBeEquivalentTo(expectedArray);
@@ -371,7 +371,7 @@ namespace MongoDB.Bson.Tests.Serialization
             return (elementsSpan.ToArray(), vectorBsonData);
         }
 
-        private static (BinaryVectorBase<T>, byte[] VectorBson) GetTestDataBinaryVector<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
+        private static (BinaryVector<T>, byte[] VectorBson) GetTestDataBinaryVector<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
            where T : struct
         {
             var (items, vectorBsonData) = GetTestData<T>(dataType, elementsCount, bitsPadding);
@@ -380,15 +380,15 @@ namespace MongoDB.Bson.Tests.Serialization
             {
                 case BinaryVectorDataType.Int8:
                     {
-                        return (new BinaryVectorInt8(items.Cast<sbyte>().ToArray()) as BinaryVectorBase<T>, vectorBsonData);
+                        return (new BinaryVectorInt8(items.Cast<sbyte>().ToArray()) as BinaryVector<T>, vectorBsonData);
                     }
                 case BinaryVectorDataType.PackedBit:
                     {
-                        return (new BinaryVectorPackedBit(items.Cast<byte>().ToArray(), bitsPadding) as BinaryVectorBase<T>, vectorBsonData);
+                        return (new BinaryVectorPackedBit(items.Cast<byte>().ToArray(), bitsPadding) as BinaryVector<T>, vectorBsonData);
                     }
                 case BinaryVectorDataType.Float32:
                     {
-                        return (new BinaryVectorFloat32(items.Cast<float>().ToArray()) as BinaryVectorBase<T>, vectorBsonData);
+                        return (new BinaryVectorFloat32(items.Cast<float>().ToArray()) as BinaryVector<T>, vectorBsonData);
                     }
                 default:
                     throw new ArgumentOutOfRangeException(nameof(dataType));

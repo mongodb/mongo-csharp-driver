@@ -23,12 +23,12 @@ namespace MongoDB.Bson.Serialization
     public static class BsonBinaryDataExtensions
     {
         /// <summary>
-        /// Converts <see cref="BsonBinaryData"/> to <see cref="BinaryVectorBase{TItem}"/>.
+        /// Converts <see cref="BsonBinaryData"/> to <see cref="BinaryVector{TItem}"/>.
         /// </summary>
         /// <typeparam name="TItem">Data type of the binary vector.</typeparam>
         /// <param name="binaryData">The binary data.</param>
-        /// <returns>A <see cref="BinaryVectorBase{TItem}"/> instance.</returns>
-        public static BinaryVectorBase<TItem> ToBinaryVector<TItem>(this BsonBinaryData binaryData)
+        /// <returns>A <see cref="BinaryVector{TItem}"/> instance.</returns>
+        public static BinaryVector<TItem> ToBinaryVector<TItem>(this BsonBinaryData binaryData)
             where TItem : struct
         {
             EnsureBinaryVectorSubType(binaryData);

@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization
 {
     internal static class BinaryVectorReader
     {
-        public static BinaryVectorBase<TItem> ReadBinaryVector<TItem>(ReadOnlyMemory<byte> vectorData)
+        public static BinaryVector<TItem> ReadBinaryVector<TItem>(ReadOnlyMemory<byte> vectorData)
             where TItem : struct
         {
             var (items, padding, vectorDataType) = ReadBinaryVectorAsArray<TItem>(vectorData);
@@ -95,20 +95,20 @@ namespace MongoDB.Bson.Serialization
             return (vectorData.Slice(2), padding, vectorDataType);
         }
 
-        private static BinaryVectorBase<TItem> CreateBinaryVector<TItem>(TItem[] items, byte padding, BinaryVectorDataType vectorDataType)
+        private static BinaryVector<TItem> CreateBinaryVector<TItem>(TItem[] items, byte padding, BinaryVectorDataType vectorDataType)
             where TItem : struct
         {
             switch (vectorDataType)
             {
                 case BinaryVectorDataType.Float32:
                     ValidateItemTypeForBinaryVector<TItem, float, BinaryVectorFloat32>();
-                    return new BinaryVectorFloat32(AsTypedArrayOrThrow<float>()) as BinaryVectorBase<TItem>;
+                    return new BinaryVectorFloat32(AsTypedArrayOrThrow<float>()) as BinaryVector<TItem>;
                 case BinaryVectorDataType.Int8:
                     ValidateItemTypeForBinaryVector<TItem, sbyte, BinaryVectorInt8>();
-                    return new BinaryVectorInt8(AsTypedArrayOrThrow<sbyte>()) as BinaryVectorBase<TItem>;
+                    return new BinaryVectorInt8(AsTypedArrayOrThrow<sbyte>()) as BinaryVector<TItem>;
                 case BinaryVectorDataType.PackedBit:
                     ValidateItemTypeForBinaryVector<TItem, byte, BinaryVectorPackedBit>();
-                    return new BinaryVectorPackedBit(AsTypedArrayOrThrow<byte>(), padding) as BinaryVectorBase<TItem>;
+                    return new BinaryVectorPackedBit(AsTypedArrayOrThrow<byte>(), padding) as BinaryVector<TItem>;
                 default:
                     throw new NotSupportedException($"Vector data type {vectorDataType} is not supported.");
             }

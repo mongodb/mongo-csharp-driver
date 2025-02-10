@@ -14,9 +14,10 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.Bson.Serialization.Attributes
+namespace MongoDB.Bson
 {
     /// <summary>
     /// Sets the representation for this field or property as a binary vector with the specified data type.

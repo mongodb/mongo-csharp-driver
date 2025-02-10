@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for TItemContainer values represented as a BinaryVector.
     /// </summary>
-    /// <typeparam name="TItemContainer">The items container, for example <see cref="BinaryVectorBase{TItem}"/> or <see cref="Memory{TItem}"/>.</typeparam>
+    /// <typeparam name="TItemContainer">The items container, for example <see cref="BinaryVector{TItem}"/> or <see cref="Memory{TItem}"/>.</typeparam>
     /// <typeparam name="TItem">The .NET data type.</typeparam>
     public abstract class BinaryVectorSerializerBase<TItemContainer, TItem> : SerializerBase<TItemContainer>
          where TItem : struct
@@ -139,12 +139,12 @@ namespace MongoDB.Bson.Serialization.Serializers
     }
 
     /// <summary>
-    /// Represents a serializer for <see cref="BinaryVectorBase{TItem}"/>.
+    /// Represents a serializer for <see cref="BinaryVector{TItem}"/>.
     /// </summary>
-    /// <typeparam name="TItemContainer">The concrete type derived from <see cref="BinaryVectorBase{TItem}"/>.</typeparam>
+    /// <typeparam name="TItemContainer">The concrete type derived from <see cref="BinaryVector{TItem}"/>.</typeparam>
     /// <typeparam name="TItem">The .NET data type.</typeparam>
     public sealed class BinaryVectorSerializer<TItemContainer, TItem> : BinaryVectorSerializerBase<TItemContainer, TItem>
-        where TItemContainer : BinaryVectorBase<TItem>
+        where TItemContainer : BinaryVector<TItem>
         where TItem : struct
     {
         /// <summary>

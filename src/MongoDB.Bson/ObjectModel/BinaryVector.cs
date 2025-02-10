@@ -20,15 +20,15 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a binary vector.
     /// </summary>
-    public abstract class BinaryVectorBase<TItem>
+    public abstract class BinaryVector<TItem>
          where TItem : struct
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryVectorBase{TItem}"/> class.
+        /// Initializes a new instance of the <see cref="BinaryVector{TItem}"/> class.
         /// </summary>
         /// <param name="data">The vector data.</param>
         /// <param name="dataType">Type of the vector data.</param>
-        private protected BinaryVectorBase(ReadOnlyMemory<TItem> data, BinaryVectorDataType dataType)
+        private protected BinaryVector(ReadOnlyMemory<TItem> data, BinaryVectorDataType dataType)
         {
             DataType = dataType;
             Data = data;
@@ -48,7 +48,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a vector of <see cref="float"/> values.
     /// </summary>
-    public sealed class BinaryVectorFloat32 : BinaryVectorBase<float>
+    public sealed class BinaryVectorFloat32 : BinaryVector<float>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BinaryVectorFloat32"/> class.
@@ -62,7 +62,7 @@ namespace MongoDB.Bson
     /// Represents a vector of <see cref="byte"/> values.
     /// </summary>
     [CLSCompliant(false)]
-    public sealed class BinaryVectorInt8 : BinaryVectorBase<sbyte>
+    public sealed class BinaryVectorInt8 : BinaryVector<sbyte>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BinaryVectorInt8"/> class.
@@ -76,7 +76,7 @@ namespace MongoDB.Bson
     /// Represents a vector of 0/1 values.
     /// The vector values are packed into groups of 8 (a byte).
     /// </summary>
-    public sealed class BinaryVectorPackedBit : BinaryVectorBase<byte>
+    public sealed class BinaryVectorPackedBit : BinaryVector<byte>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BinaryVectorPackedBit"/> class.

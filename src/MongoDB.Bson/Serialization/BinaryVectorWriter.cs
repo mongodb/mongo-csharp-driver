@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization
 {
     internal static class BinaryVectorWriter
     {
-        public static byte[] WriteToBytes<TItem>(BinaryVectorBase<TItem> binaryVector)
+        public static byte[] WriteToBytes<TItem>(BinaryVector<TItem> binaryVector)
             where TItem : struct
         {
             byte padding = 0;
