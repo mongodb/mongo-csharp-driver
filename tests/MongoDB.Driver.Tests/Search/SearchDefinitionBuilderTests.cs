@@ -927,10 +927,10 @@ namespace MongoDB.Driver.Tests.Search
         public void Range_should_throw_on_unsupported_types<T>(T value, Expression<Func<Person, T>> fieldExpression)
         {
             var subject = CreateSubject<BsonDocument>();
-            Record.Exception(() => subject.Range("age", SearchRangeV2Builder.Gte(value).Lt(value))).Should().BeOfType<InvalidCastException>();
+            Record.Exception(() => subject.Range("age", SearchRangeV2Builder.Gte(value).Lt(value)).Render(new RenderArgs<BsonDocument>())).Should().BeOfType<InvalidCastException>();
 
             var subjectTyped = CreateSubject<Person>();
-            Record.Exception(() => subjectTyped.Range(fieldExpression, SearchRangeV2Builder.Gte(value).Lt(value))).Should().BeOfType<InvalidCastException>();
+            Record.Exception(() => subjectTyped.Range(fieldExpression, SearchRangeV2Builder.Gte(value).Lt(value)).Render(new RenderArgs<Person>())).Should().BeOfType<InvalidCastException>();
         }
 
         public static object[][] RangeUnsupportedTypesTestData => new[]
