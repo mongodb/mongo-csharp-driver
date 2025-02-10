@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a registry of conventions.
     /// </summary>
-    public static class ConventionRegistry
+    public static class ConventionRegistry  //TODO Probably this should get the same treatment as BsonSerializer....
     {
         // private static fields
         private readonly static List<ConventionPackContainer> __conventionPacks = new List<ConventionPackContainer>();

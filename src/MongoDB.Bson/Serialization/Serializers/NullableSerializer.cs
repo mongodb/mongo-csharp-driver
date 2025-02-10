@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="NullableSerializer{T}"/> class.
         /// </summary>
         public NullableSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
         {
         }
 

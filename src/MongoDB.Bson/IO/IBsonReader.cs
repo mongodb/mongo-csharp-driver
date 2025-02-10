@@ -62,7 +62,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Pops the settings.
         /// </summary>
-        void PopSettings();
+        void PopSettings();  //TODO Why do we have push and pop methods? They are not used
 
         /// <summary>
         /// Pushes new settings for the reader.
@@ -245,6 +245,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="bookmark">The bookmark.</param>
         void ReturnToBookmark(BsonReaderBookmark bookmark);
+
+        /// <summary>
+        /// Gets the settings of the reader.
+        /// </summary>
+        BsonReaderSettings Settings { get;  }
 
         /// <summary>
         /// Skips the name (reader must be positioned on a name).

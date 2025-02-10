@@ -33,6 +33,7 @@ namespace MongoDB.Driver
         private Setting<ReadPreference> _readPreference;
         private Setting<WriteConcern> _writeConcern;
         private Setting<UTF8Encoding> _writeEncoding;
+        private Setting<IBsonSerializationDomain> _serializationDomain;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -101,9 +102,23 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public IBsonSerializerRegistry SerializerRegistry
+        public IBsonSerializerRegistry SerializerRegistry => SerializationDomain.SerializerRegistry;
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public IBsonSerializationDomain SerializationDomain
         {
-            get { return BsonSerializer.SerializerRegistry; }
+            get => _serializationDomain.Value;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _serializationDomain.Value = value;
+            }
         }
 
         /// <summary>
@@ -149,6 +164,7 @@ namespace MongoDB.Driver
             clone._readPreference = _readPreference.Clone();
             clone._writeConcern = _writeConcern.Clone();
             clone._writeEncoding = _writeEncoding.Clone();
+            clone._serializationDomain = _serializationDomain;
             return clone;
         }
 
@@ -274,6 +290,10 @@ namespace MongoDB.Driver
             if (!_readPreference.HasBeenSet)
             {
                 ReadPreference = clientSettings.ReadPreference;
+            }
+            if (!_serializationDomain.HasBeenSet)
+            {
+                SerializationDomain = clientSettings.SerializationDomain;
             }
             if (!_writeConcern.HasBeenSet)
             {

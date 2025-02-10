@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var actualType = value.GetType();
-                var serializer = BsonSerializer.LookupSerializer(actualType);
+                var serializer = context.SerializationDomain.LookupSerializer(actualType);
                 args.NominalType = actualType;
                 serializer.Serialize(context, args, value);
             }

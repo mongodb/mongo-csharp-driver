@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using Xunit;
 
@@ -116,6 +117,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             }
 
             public override BsonValue GetDiscriminator(Type nominalType, Type actualType) => throw new NotImplementedException();
+            public override BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public class DerivedFromConcreteStandardDiscriminatorConvention : ConcreteStandardDiscriminatorConvention
