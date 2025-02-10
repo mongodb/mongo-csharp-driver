@@ -13,21 +13,28 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5481Tests : Linq3IntegrationTest
+    public class CSharp5481Tests : LinqIntegrationTest<CSharp5481Tests.ClassFixture>
     {
+        public CSharp5481Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Documents_should_be_serialized_as_expected()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var documents = collection.AsQueryable().As(BsonDocumentSerializer.Instance).ToList();
 
@@ -40,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Animal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OfType<Animal>();
@@ -55,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Mammal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OfType<Mammal>();
@@ -70,7 +77,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Cat_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OfType<Cat>();
@@ -85,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Reptile_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OfType<Reptile>();
@@ -100,7 +107,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OfType_Snake_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .OfType<Snake>();
@@ -115,7 +122,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_is_Animal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x is Animal);
@@ -130,7 +137,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_is_Mammal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x is Mammal);
@@ -145,7 +152,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_is_Cat_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x is Cat);
@@ -160,7 +167,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_is_Reptile_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x is Reptile);
@@ -175,7 +182,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_is_Snake_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x is Snake);
@@ -190,7 +197,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_not_is_Animal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => !(x is Animal));
@@ -205,7 +212,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_not_is_Mammal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => !(x is Mammal));
@@ -220,7 +227,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_not_is_Cat_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => !(x is Cat));
@@ -235,7 +242,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_not_is_Reptile_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => !(x is Reptile));
@@ -250,7 +257,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_not_is_Snake_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => !(x is Snake));
@@ -265,7 +272,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_OfType_Animal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -285,7 +292,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_OfType_Mammal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -305,7 +312,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_OfType_Cat_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -325,7 +332,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_OfType_Reptile_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -345,7 +352,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_OfType_Snake_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -365,7 +372,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_is_Animal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -385,7 +392,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_is_Mammal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -405,7 +412,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_is_Cat_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -425,7 +432,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_is_Reptile_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -445,7 +452,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_is_Snake_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -465,7 +472,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_not_is_Animal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -485,7 +492,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_not_is_Mammal_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -505,7 +512,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_not_is_Cat_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -525,7 +532,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_not_is_Reptile_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -545,7 +552,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Array_Where_not_is_Snake_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => 1, (key, grouping) => grouping.ToArray())
@@ -562,45 +569,44 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Select(x => x.Id).Should().Equal(1, 2);
         }
 
-        private IMongoCollection<Animal> GetCollection()
-        {
-            var collection = GetCollection<Animal>("test");
-            CreateCollection(
-                collection,
-                new Cat { Id = 1 },
-                new Dog { Id = 2 },
-                new Snake { Id = 3 });
-            return collection;
-        }
-
         [BsonKnownTypes(typeof(Mammal))]
         [BsonKnownTypes(typeof(Cat))]
         [BsonKnownTypes(typeof(Dog))]
         [BsonKnownTypes(typeof(Reptile))]
         [BsonKnownTypes(typeof(Snake))]
-        private abstract class Animal
+        public abstract class Animal
         {
             public int Id { get; set; }
         }
 
-        private abstract class Mammal : Animal
+        public abstract class Mammal : Animal
         {
         }
 
-        private class Cat : Mammal
+        public class Cat : Mammal
         {
         }
 
-        private class Dog : Mammal
+        public class Dog : Mammal
         {
         }
 
-        private class Reptile : Animal
+        public class Reptile : Animal
         {
         }
 
-        private class Snake : Reptile
+        public class Snake : Reptile
         {
         }
-    }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Animal>
+        {
+            protected override IEnumerable<Animal> InitialData
+                =>
+                [
+                    new Cat { Id = 1 },
+                    new Dog { Id = 2 },
+                    new Snake { Id = 3 }
+                ];
+        }    }
 }
