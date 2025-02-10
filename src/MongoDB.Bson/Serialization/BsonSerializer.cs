@@ -781,18 +781,29 @@ namespace MongoDB.Bson.Serialization
         // internal static methods
         internal static BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
         {
+            // note: EnsureKnownTypesAreRegistered handles its own locking so call from outside any lock
+            EnsureKnownTypesAreRegistered(type);
+
             List<BsonValue> discriminators = new List<BsonValue>();
 
-            foreach (var entry in __discriminators)
+            __configLock.EnterReadLock();
+            try
             {
-                var discriminator = entry.Key;
-                var actualTypes = entry.Value;
-
-                var matchingType = actualTypes.SingleOrDefault(t => t == type || t.IsSubclassOf(type));
-                if (matchingType != null)
+                foreach (var entry in __discriminators)
                 {
-                    discriminators.Add(discriminator);
+                    var discriminator = entry.Key;
+                    var actualTypes = entry.Value;
+
+                    var matchingType = actualTypes.SingleOrDefault(t => t == type || t.IsSubclassOf(type));
+                    if (matchingType != null)
+                    {
+                        discriminators.Add(discriminator);
+                    }
                 }
+            }
+            finally
+            {
+                __configLock.ExitReadLock();
             }
 
             return discriminators.OrderBy(x => x).ToArray();
