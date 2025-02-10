@@ -60,6 +60,10 @@ namespace MongoDB.Bson
         /// </summary>
         Sensitive = 0x08,
         /// <summary>
+        /// Vector data.
+        /// </summary>
+        Vector = 0x09,
+        /// <summary>
         /// User defined binary data.
         /// </summary>
         UserDefined = 0x80

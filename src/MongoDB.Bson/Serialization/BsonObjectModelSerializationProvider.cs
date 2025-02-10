@@ -52,7 +52,10 @@ namespace MongoDB.Bson.Serialization
                 { typeof(BsonSymbol), BsonSymbolSerializer.Instance },
                 { typeof(BsonTimestamp), BsonTimestampSerializer.Instance },
                 { typeof(BsonUndefined), BsonUndefinedSerializer.Instance },
-                { typeof(BsonValue), BsonValueSerializer.Instance }
+                { typeof(BsonValue), BsonValueSerializer.Instance },
+                { typeof(BinaryVectorFloat32), BinaryVectorSerializer.BinaryVectorFloat32Serializer },
+                { typeof(BinaryVectorInt8), BinaryVectorSerializer.BinaryVectorInt8Serializer },
+                { typeof(BinaryVectorPackedBit), BinaryVectorSerializer.BinaryVectorPackedBitSerializer },
             };
         }
 
