@@ -284,7 +284,6 @@ namespace MongoDB.Bson.Serialization
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs));
 
-
         /// <summary>
         /// //TODO
         /// </summary>

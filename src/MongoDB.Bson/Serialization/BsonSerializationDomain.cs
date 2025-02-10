@@ -30,8 +30,8 @@ namespace MongoDB.Bson.Serialization
         // ConcurrentDictionary<Type, object> is being used as a concurrent set of Type. The values will always be null.
         private ConcurrentDictionary<Type, object> _typesWithRegisteredKnownTypes = new();
 
-        private bool _useNullIdChecker = false;
-        private bool _useZeroIdChecker = false;
+        private bool _useNullIdChecker;
+        private bool _useZeroIdChecker;
 
         // constructor
         public BsonSerializationDomain(string name = null) //TODO name is used for testing
@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Serialization
             CreateSerializerRegistry();
             RegisterIdGenerators();
             _classMapDomain = new BsonClassMapDomain();
-            Name = name ?? "CUSTOM";
+            Name = name ?? "CUSTOM";  //TODO remove after testing is done
         }
 
         public string Name { get; private set; }
