@@ -29,7 +29,7 @@ Each JSON file contains three top-level keys.
 
 - `description`: string describing the test.
 - `valid`: boolean indicating if the vector, dtype, and padding should be considered a valid input.
-- `vector`: list of numbers
+- `vector`: (required if valid is true) list of numbers
 - `dtype_hex`: string defining the data type in hex (e.g. "0x10", "0x27")
 - `dtype_alias`: (optional) string defining the data dtype, perhaps as Enum.
 - `padding`: (optional) integer for byte padding. Defaults to 0.
@@ -50,7 +50,10 @@ MUST assert that the input float array is the same after encoding and decoding.
 
 #### To prove correct in an invalid case (`valid:false`), one MUST
 
-- raise an exception when attempting to encode a document from the numeric values, dtype, and padding.
+- if the vector field is present, raise an exception when attempting to encode a document from the numeric values,
+    dtype, and padding.
+- if the canonical_bson field is present, raise an exception when attempting to deserialize it into the corresponding
+    numeric values, as the field contains corrupted data.
 
 ## FAQ
 

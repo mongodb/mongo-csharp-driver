@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
         private void RunValidTest(BsonDocument test, string testKey)
         {
             var vector = test["vector"].AsBsonArray;
-            var dataType = (BinaryVectorDataType)Convert.ToInt32(test["dtype_hex"].AsString, 16);
+            var dataType = ReadVectorDataType(test);
             var padding = (byte)test["padding"].AsInt32;
             var canonicalBson = test["canonical_bson"].AsString;
 
@@ -74,15 +74,25 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
 
         private void RunInvalidTest(BsonDocument test, string testKey)
         {
-            var vector = test["vector"].AsBsonArray;
-            var dataType = (BinaryVectorDataType)Convert.ToInt32(test["dtype_hex"].AsString, 16);
-            var padding = (byte)test["padding"].AsInt32;
+            var dataType = ReadVectorDataType(test);
 
-            var exception = Record.Exception(() => AssertEncoding(testKey, vector, padding, dataType, default));
-            exception.Should().BeAssignableTo<ArgumentException>();
+            if (test.TryGetValue("vector", out var vectorElements))
+            {
+                var padding = (byte)test["padding"].AsInt32;
+                var exception = Record.Exception(() => AssertEncoding(testKey, vectorElements?.AsBsonArray, padding, dataType, default));
+                exception.Should().BeAssignableTo<ArgumentException>();
+                exception.Source.Should().Be("MongoDB.Bson");
+            }
+
+            if (test.TryGetValue("canonical_bson", out var canonicalBson))
+            {
+                var exception = Record.Exception(() => AssertDecoding(testKey, default, default, dataType, canonicalBson.AsString));
+                exception.Should().BeAssignableTo<FormatException>();
+                exception.Source.Should().Be("MongoDB.Bson");
+            }
         }
 
-        private void AssertEncoding(string testKey, BsonArray vector, int padding, BinaryVectorDataType dataType, string canonicalBson)
+        private void AssertEncoding(string testKey, BsonArray vector, byte padding, BinaryVectorDataType dataType, string canonicalBson)
         {
             BsonBinaryData vectorBinaryData;
 
@@ -98,7 +108,7 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
                     }
                 case BinaryVectorDataType.Int8:
                     {
-                        var values = vector.Select(v => (byte)v).ToArray();
+                        var values = vector.Select(v => (sbyte)v).ToArray();
                         var vectorInt8 = new BinaryVectorInt8(values);
 
                         vectorBinaryData = vectorInt8.ToBsonBinaryData();
@@ -107,7 +117,7 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
                 case BinaryVectorDataType.PackedBit:
                     {
                         var values = vector.Select(v => (byte)v).ToArray();
-                        var vectorInt8 = new BinaryVectorPackedBit(values, (byte)padding);
+                        var vectorInt8 = new BinaryVectorPackedBit(values, padding);
 
                         vectorBinaryData = vectorInt8.ToBsonBinaryData();
                         break;
@@ -147,6 +157,12 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
                         break;
                     }
                 case BinaryVectorDataType.Int8:
+                    {
+                        var actualVector = vectorBsonData.ToBinaryVector<sbyte>();
+                        actualArray = actualVector.Data.ToArray();
+                        expectedArray = vector.Select(v => (sbyte)v).ToArray();
+                        break;
+                    }
                 case BinaryVectorDataType.PackedBit:
                     {
                         var actualVector = vectorBsonData.ToBinaryVector<byte>();
@@ -166,6 +182,9 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
                 (bsonString.AsString == "-inf" ? float.NegativeInfinity :
                 bsonString.AsString == "inf" ? float.PositiveInfinity : throw new Exception("Unsupported value")) :
                 (float)v.AsDouble).ToArray();
+
+        private BinaryVectorDataType ReadVectorDataType(BsonDocument test) =>
+            (BinaryVectorDataType)Convert.ToInt32(test["dtype_hex"].AsString, 16);
 
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {

@@ -140,6 +140,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the conversion.
         /// </returns>
+        [CLSCompliant(false)]
         public static implicit operator QueryVector(BinaryVectorInt8 binaryVectorInt8) => binaryVectorInt8.ToQueryVector();
 
         /// <summary>

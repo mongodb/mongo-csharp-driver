@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests.Search
 
         public static IEnumerable<object[]> BinaryVectorSearchTestData =>
            [
-                [new BinaryVectorInt8(new byte[] { 0, 1, 2, 3, 4 }), "int8Vector"],
+                [new BinaryVectorInt8(new sbyte[] { 0, 1, 2, 3, 4 }), "int8Vector"],
                 [new BinaryVectorFloat32(new float[] { 0.0001f, 1.12345f, 2.23456f, 3.34567f, 4.45678f }), "float32Vector"],
            ];
 
