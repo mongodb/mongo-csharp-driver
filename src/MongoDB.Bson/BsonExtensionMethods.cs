@@ -69,7 +69,7 @@ namespace MongoDB.Bson
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs),
-            int estimatedBsonSize = 0) => ToBson(obj, nominalType, BsonSerializer.DefaultDomain, writerSettings,
+            int estimatedBsonSize = 0) => ToBson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings,
             serializer, configurator, args, estimatedBsonSize);
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace MongoDB.Bson
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs)) => ToBsonDocument(obj, nominalType,
-            BsonSerializer.DefaultDomain, serializer, configurator, args);
+            BsonSerializer.DefaultSerializationDomain, serializer, configurator, args);
 
         /// <summary>
         /// //TODO
@@ -273,7 +273,7 @@ namespace MongoDB.Bson
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs))
-            => ToJson(obj, nominalType, BsonSerializer.DefaultDomain, writerSettings, serializer, configurator, args);
+            => ToJson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings, serializer, configurator, args);
 
         /// <summary>
         /// //TODO

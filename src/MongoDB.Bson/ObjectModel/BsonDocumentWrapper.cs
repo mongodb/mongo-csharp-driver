@@ -92,7 +92,7 @@ namespace MongoDB.Bson
         /// <param name="value">The wrapped object.</param>
         /// <returns>A BsonDocumentWrapper.</returns>
         public static BsonDocumentWrapper Create<TNominalType>(TNominalType value) =>
-            Create(value, BsonSerializer.DefaultDomain);
+            Create(value, BsonSerializer.DefaultSerializationDomain);
 
         /// <summary>
         /// //TODO
@@ -113,7 +113,7 @@ namespace MongoDB.Bson
         /// <param name="value">The wrapped object.</param>
         /// <returns>A BsonDocumentWrapper.</returns>
         public static BsonDocumentWrapper Create(Type nominalType, object value) =>
-            Create(nominalType, value, BsonSerializer.DefaultDomain);
+            Create(nominalType, value, BsonSerializer.DefaultSerializationDomain);
 
         /// <summary>
         /// //TODO
@@ -135,7 +135,7 @@ namespace MongoDB.Bson
         /// <param name="values">A list of wrapped objects.</param>
         /// <returns>A list of BsonDocumentWrappers.</returns>
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values) =>
-            CreateMultiple(values, BsonSerializer.DefaultDomain);
+            CreateMultiple(values, BsonSerializer.DefaultSerializationDomain);
 
         /// <summary>
         /// //TODO
@@ -163,7 +163,7 @@ namespace MongoDB.Bson
         /// <param name="values">A list of wrapped objects.</param>
         /// <returns>A list of BsonDocumentWrappers.</returns>
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values) =>
-            CreateMultiple(nominalType, values, BsonSerializer.DefaultDomain);
+            CreateMultiple(nominalType, values, BsonSerializer.DefaultSerializationDomain);
 
         /// <summary>
         /// //TODO

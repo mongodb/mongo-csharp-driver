@@ -279,7 +279,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var serializer = context.Domain.LookupSerializer(actualType);
+                    var serializer = context.SerializationDomain.LookupSerializer(actualType);
                     serializer.Serialize(context, value);
                 }
             }

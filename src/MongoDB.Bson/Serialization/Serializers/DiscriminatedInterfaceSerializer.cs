@@ -87,7 +87,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention, IBsonSerializer<TInterface> interfaceSerializer)
-            : this(discriminatorConvention, interfaceSerializer, BsonSerializer.DefaultDomain)
+            : this(discriminatorConvention, interfaceSerializer, BsonSerializer.DefaultSerializationDomain)
         {
         }
 
@@ -162,7 +162,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw new FormatException(message);
                 }
 
-                var serializer = context.Domain.LookupSerializer(actualType);
+                var serializer = context.SerializationDomain.LookupSerializer(actualType);
                 return (TInterface)serializer.Deserialize(context, args);
             }
         }

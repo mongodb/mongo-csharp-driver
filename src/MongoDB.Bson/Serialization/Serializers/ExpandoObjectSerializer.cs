@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ExpandoObjectSerializer"/> class.
         /// </summary>
         public ExpandoObjectSerializer()
-            :this(BsonSerializer.DefaultDomain.SerializerRegistry)
+            :this(BsonSerializer.DefaultSerializationDomain.SerializerRegistry)
         {
         }
 

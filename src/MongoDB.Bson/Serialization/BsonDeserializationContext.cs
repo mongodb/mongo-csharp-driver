@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Serialization
         private readonly IBsonSerializer _dynamicArraySerializer;
         private readonly IBsonSerializer _dynamicDocumentSerializer;
         private readonly IBsonReader _reader;
-        private readonly IBsonSerializationDomain _domain;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         private BsonDeserializationContext(
@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Serialization
             _allowDuplicateElementNames = allowDuplicateElementNames;
             _dynamicArraySerializer = dynamicArraySerializer;
             _dynamicDocumentSerializer = dynamicDocumentSerializer;
-            _domain = reader.Settings?.SerializationDomain ?? BsonSerializer.DefaultDomain;
+            _serializationDomain = reader.Settings?.SerializationDomain ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         // public properties
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// //TODO
         /// </summary>
-        public IBsonSerializationDomain Domain => _domain;
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the dynamic array serializer.
@@ -145,7 +145,6 @@ namespace MongoDB.Bson.Serialization
             private IBsonSerializer _dynamicArraySerializer;
             private IBsonSerializer _dynamicDocumentSerializer;
             private IBsonReader _reader;
-            private IBsonSerializationDomain _domain;
 
             // constructors
             internal Builder(BsonDeserializationContext other, IBsonReader reader)
@@ -161,7 +160,6 @@ namespace MongoDB.Bson.Serialization
                     _allowDuplicateElementNames = other.AllowDuplicateElementNames;
                     _dynamicArraySerializer = other.DynamicArraySerializer;
                     _dynamicDocumentSerializer = other.DynamicDocumentSerializer;
-                    _domain = other.Domain;
                 }
                 else
                 {

@@ -294,7 +294,7 @@ namespace MongoDB.Bson.Serialization
         /// Gets the serializer.
         /// </summary>
         /// <returns>The serializer.</returns>
-        public IBsonSerializer GetSerializer() => GetSerializer(BsonSerializer.DefaultDomain);
+        public IBsonSerializer GetSerializer() => GetSerializer(BsonSerializer.DefaultSerializationDomain);
 
         /// <summary>
         /// //TODO

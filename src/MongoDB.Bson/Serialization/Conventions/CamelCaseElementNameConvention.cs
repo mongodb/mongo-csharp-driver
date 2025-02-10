@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     {
         // public methods
         /// <inheritdoc />
-        public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultDomain);
+        public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
         public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)

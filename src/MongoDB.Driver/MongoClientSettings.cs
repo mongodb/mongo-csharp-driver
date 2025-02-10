@@ -119,7 +119,7 @@ namespace MongoDB.Driver
             _retryReads = true;
             _retryWrites = true;
             _scheme = ConnectionStringScheme.MongoDB;
-            _serializationDomain = BsonSerializer.DefaultDomain;
+            _serializationDomain = BsonSerializer.DefaultSerializationDomain;
             _serverApi = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serverMonitoringMode = ServerMonitoringMode.Auto;

@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private readonly Func<Type, bool> _isDynamicType;
         private readonly IBsonWriter _writer;
-        private readonly IBsonSerializationDomain _domain;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         private BsonSerializationContext(
@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Serialization
         {
             _writer = writer;
             _isDynamicType = isDynamicType;
-            _domain = writer.Settings?.SerializationDomain ?? BsonSerializer.DefaultDomain;
+            _serializationDomain = writer.Settings?.SerializationDomain ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         // public properties
@@ -43,7 +43,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// //TODO
         /// </summary>
-        public IBsonSerializationDomain Domain => _domain;
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets a function that, when executed, will indicate whether the type 

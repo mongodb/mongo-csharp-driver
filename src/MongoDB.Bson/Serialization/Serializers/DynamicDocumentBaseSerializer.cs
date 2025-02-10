@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var name = bsonReader.ReadName();
-                        var value = GetObjectSerializer(context.Domain).Deserialize(dynamicContext);
+                        var value = GetObjectSerializer(context.SerializationDomain).Deserialize(dynamicContext);
                         SetValueForMember(document, name, value);
                     }
                     bsonReader.ReadEndDocument();
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (TryGetValueForMember(value, memberName, out memberValue))
                 {
                     bsonWriter.WriteName(memberName);
-                    GetObjectSerializer(context.Domain).Serialize(dynamicContext, memberValue);
+                    GetObjectSerializer(context.SerializationDomain).Serialize(dynamicContext, memberValue);
                 }
             }
             bsonWriter.WriteEndDocument();

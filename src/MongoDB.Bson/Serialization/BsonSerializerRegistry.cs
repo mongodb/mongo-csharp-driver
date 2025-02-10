@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Serialization
         /// Initializes a new instance of the <see cref="BsonSerializerRegistry"/> class.
         /// </summary>
         public BsonSerializerRegistry():
-            this(BsonSerializer.DefaultDomain)
+            this(BsonSerializer.DefaultSerializationDomain)
         {
         }
 

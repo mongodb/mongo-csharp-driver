@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="nominalType">The nominal type.</param>
         /// <returns>The actual type.</returns>
         public Type GetActualType(IBsonReader bsonReader, Type nominalType) =>
-            GetActualType(bsonReader, nominalType, BsonSerializer.DefaultDomain);
+            GetActualType(bsonReader, nominalType, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
         public Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)

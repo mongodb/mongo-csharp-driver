@@ -87,7 +87,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
             }
 
-            public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultDomain);
+            public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
 
             public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
             {
@@ -102,7 +102,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
             }
 
-            public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultDomain);
+            public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
 
             public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
             {

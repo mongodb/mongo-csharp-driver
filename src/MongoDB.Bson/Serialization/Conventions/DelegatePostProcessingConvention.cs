@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a post processing modification to the class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultDomain);
+        public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
         public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)

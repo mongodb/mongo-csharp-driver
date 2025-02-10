@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConvention
     {
         /// <inheritdoc/>
-        public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultDomain);
+        public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc/>
         public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)

@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
         public override BsonValue GetDiscriminator(Type nominalType, Type actualType) =>
-            GetDiscriminator(nominalType, actualType, BsonSerializer.DefaultDomain);
+            GetDiscriminator(nominalType, actualType, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
         public override BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
