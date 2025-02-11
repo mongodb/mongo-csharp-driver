@@ -47,8 +47,7 @@ namespace MongoDB.Driver.Search
 
         private protected override BsonDocument RenderArguments(
             RenderArgs<TDocument> args,
-            IBsonSerializer fieldSerializer) =>
-           new()
+            IBsonSerializer fieldSerializer) => new()
            {
                 { "query", _query.Render() },
                 { "tokenOrder", _tokenOrder.ToCamelCase(), _tokenOrder != SearchAutocompleteTokenOrder.Any },
@@ -139,6 +138,11 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
+            if (!_useDefaultSerialization)
+            {
+                return new BsonDocument("value", ToBsonValue(_value));
+            }
+
             var valueSerializer = fieldSerializer switch
             {
                 null => args.SerializerRegistry.GetSerializer<TValue>(),
@@ -253,6 +257,12 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
+            if (!_useDefaultSerialization)
+            {
+                var values = new BsonArray(_values.Select(ToBsonValue));
+                return new BsonDocument("value", values);
+            }
+
             var valueSerializer = fieldSerializer switch
             {
                 null => new ArraySerializer<TValue>(args.SerializerRegistry.GetSerializer<TValue>()),
@@ -386,6 +396,18 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
+            if (!_useDefaultSerialization)
+            {
+                var min = ToBsonValue(_range.Min);
+                var max = ToBsonValue(_range.Max);
+
+                return new BsonDocument
+                {
+                    { _range.IsMinInclusive ? "gte" : "gt", min, min != BsonNull.Value },
+                    { _range.IsMaxInclusive ? "lte" : "lt", max, max != BsonNull.Value },
+                };
+            }
+
             var valueSerializer = fieldSerializer switch
             {
                 null => args.SerializerRegistry.GetSerializer<TValue>(),
