@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Search
         /// <param name="args">The render arguments.</param>
         /// <returns>The rendered field.</returns>
         protected string RenderField(FieldDefinition<TDocument> fieldDefinition, RenderArgs<TDocument> args)
-            => RenderFieldAndGetFieldSerializer(fieldDefinition, args, out _);
+            => RenderField(fieldDefinition, args, out _);
 
         internal virtual BsonValue RenderAndGetFieldSerializer(
             RenderArgs<TDocument> args,
@@ -115,17 +115,16 @@ namespace MongoDB.Driver.Search
             return Render(args);
         }
 
-        internal string RenderFieldAndGetFieldSerializer(
+        internal string RenderField(
             FieldDefinition<TDocument> fieldDefinition,
             RenderArgs<TDocument> args,
             out IBsonSerializer fieldSerializer)
         {
             var renderedField = fieldDefinition.Render(args);
             var prefix = args.PathRenderArgs.PathPrefix;
-            var renderedString = prefix == null ? renderedField.FieldName : $"{prefix}.{renderedField.FieldName}";
-            fieldSerializer = renderedField.FieldSerializer;
 
-            return renderedString;
+            fieldSerializer = renderedField.FieldSerializer;
+            return prefix == null ? renderedField.FieldName : $"{prefix}.{renderedField.FieldName}";
         }
     }
 }
