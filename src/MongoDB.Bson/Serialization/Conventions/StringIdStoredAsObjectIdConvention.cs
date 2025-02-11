@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 return;
             }
 
-            var defaultStringSerializer = domain.LookupSerializer(typeof(string));  //TODO ??
+            var defaultStringSerializer = domain.LookupSerializer(typeof(string));
             if (memberMap.GetSerializer() != defaultStringSerializer)
             {
                 return;
