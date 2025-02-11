@@ -460,7 +460,7 @@ namespace MongoDB.Driver.Tests.Search
             results[1].Title.Should().Be("Clash of the Wolves");
             results[2].Title.Should().Be("City Lights");
             results[3].Title.Should().Be("Comradeship");
-            results[4].Title.Should().Be("Come and Get it");
+            results[4].Title.Should().Be("Come and Get It");
         }
 
         [Fact]
