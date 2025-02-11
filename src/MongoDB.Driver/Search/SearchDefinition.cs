@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Search
 
             if (_path is null)
             {
-                renderedArgs = RenderArguments(args);
+                renderedArgs = RenderArguments(args, null);
             }
             else
             {
@@ -173,6 +173,6 @@ namespace MongoDB.Driver.Search
         }
 
         private protected virtual BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            IBsonSerializer fieldSerializer = null) => new();
+            IBsonSerializer fieldSerializer) => new();
     }
 }
