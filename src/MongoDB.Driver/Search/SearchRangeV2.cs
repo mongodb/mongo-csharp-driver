@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,59 +13,69 @@
 * limitations under the License.
 */
 
-using System;
-using MongoDB.Driver.Core.Misc;
-
 namespace MongoDB.Driver.Search
 {
     /// <summary>
-    /// Object that specifies range of scalar and DateTime values.
+    /// Object that specifies the boundaries for a range query. 
     /// </summary>
     /// <typeparam name="TValue">The type of the range value.</typeparam>
-    public struct SearchRange<TValue> where TValue : struct, IComparable<TValue>
+    public struct SearchRangeV2<TValue>
     {
         #region static
         /// <summary>Empty range.</summary>
-        public static SearchRange<TValue> Empty { get; } = new(default, default, default, default);
+        internal static SearchRangeV2<TValue> Empty { get; } = new(null, null);
         #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SearchRange{TValue}"/> class.
+        /// Initializes a new instance of the <see cref="SearchRangeV2{TValue}"/> class.
         /// </summary>
         /// <param name="min">The lower bound of the range.</param>
-        /// <param name="max">The upper bound of the range</param>
-        /// <param name="isMinInclusive">Indicates whether the lower bound of the range is inclusive.</param>
-        /// <param name="isMaxInclusive">Indicates whether the upper bound of the range is inclusive.</param>
-        public SearchRange(TValue? min, TValue? max, bool isMinInclusive, bool isMaxInclusive)
+        /// <param name="max">The upper bound of the range.</param>
+        public SearchRangeV2(Bound<TValue> min, Bound<TValue> max)
         {
-            if (min != null && max != null)
-            {
-                Ensure.IsGreaterThanOrEqualTo(max.Value, min.Value, nameof(max));
-            }
-
             Min = min;
             Max = max;
-            IsMinInclusive = isMinInclusive;
-            IsMaxInclusive = isMaxInclusive;
         }
 
-        /// <summary>Gets the value that indicates whether the upper bound of the range is inclusive.</summary>
-        public bool IsMaxInclusive { get; }
-
-        /// <summary>Gets the value that indicates whether the lower bound of the range is inclusive.</summary>
-        public bool IsMinInclusive { get; }
-
         /// <summary>Gets the upper bound of the range.</summary>
-        public TValue? Max { get; }
+        public Bound<TValue> Max { get; }
 
         /// <summary>Gets the lower bound of the range.</summary>
-        public TValue? Min { get; }
+        public Bound<TValue> Min { get; }
     }
-
+    
     /// <summary>
-    /// A builder for a SearchRange.
+    /// Represents a bound value.
     /// </summary>
-    public static class SearchRangeBuilder
+    /// <typeparam name="TValue">The type of the bound value.</typeparam>
+    public sealed class Bound<TValue>
+    {
+        /// <summary>
+        /// Gets the bound value.
+        /// </summary>
+        public TValue Value { get; }
+        
+        /// <summary>
+        /// Gets whether the bound is inclusive or not.
+        /// </summary>
+        public bool Inclusive { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Bound{TValue}"/> class.
+        /// </summary>
+        /// <param name="value">The value of the bound.</param>
+        /// <param name="inclusive">Indicates whether the bound is inclusive or not.</param>
+        public Bound(TValue value, bool inclusive = false)
+        {
+            Value = value;
+            Inclusive = inclusive;
+        }
+    }
+    
+    /// <summary>
+    /// A builder for a SearchRangeV2.
+    /// </summary>
+    public static class SearchRangeV2Builder
     {
         /// <summary>
         /// Creates a greater than search range.
@@ -73,8 +83,7 @@ namespace MongoDB.Driver.Search
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
-        public static SearchRange<TValue> Gt<TValue>(TValue value) where TValue : struct, IComparable<TValue>
-            => SearchRange<TValue>.Empty.Gt(value);
+        public static SearchRangeV2<TValue> Gt<TValue>(TValue value) => SearchRangeV2<TValue>.Empty.Gt(value);
 
         /// <summary>
         /// Adds a greater than value to a search range.
@@ -83,8 +92,8 @@ namespace MongoDB.Driver.Search
         /// <param name="searchRange">Search range.</param>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
-        public static SearchRange<TValue> Gt<TValue>(this SearchRange<TValue> searchRange, TValue value) where TValue : struct, IComparable<TValue>
-            => new(min: value, searchRange.Max, isMinInclusive: false, searchRange.IsMaxInclusive);
+        public static SearchRangeV2<TValue> Gt<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
+            => new(min: new (value), searchRange.Max);
 
         /// <summary>
         /// Creates a greater or equal than search range.
@@ -92,8 +101,8 @@ namespace MongoDB.Driver.Search
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
-        public static SearchRange<TValue> Gte<TValue>(TValue value) where TValue : struct, IComparable<TValue>
-            => SearchRange<TValue>.Empty.Gte(value);
+        public static SearchRangeV2<TValue> Gte<TValue>(TValue value)
+            => SearchRangeV2<TValue>.Empty.Gte(value);
 
         /// <summary>
         /// Adds a greater or equal than value to a search range.
@@ -102,8 +111,8 @@ namespace MongoDB.Driver.Search
         /// <param name="searchRange">Search range.</param>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
-        public static SearchRange<TValue> Gte<TValue>(this SearchRange<TValue> searchRange, TValue value) where TValue : struct, IComparable<TValue>
-            => new(min: value, searchRange.Max, isMinInclusive: true, searchRange.IsMaxInclusive);
+        public static SearchRangeV2<TValue> Gte<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
+            => new(min: new(value, inclusive: true), searchRange.Max);
 
         /// <summary>
         /// Creates a less than search range.
@@ -111,8 +120,8 @@ namespace MongoDB.Driver.Search
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
-        public static SearchRange<TValue> Lt<TValue>(TValue value) where TValue : struct, IComparable<TValue>
-            => SearchRange<TValue>.Empty.Lt(value);
+        public static SearchRangeV2<TValue> Lt<TValue>(TValue value)
+            => SearchRangeV2<TValue>.Empty.Lt(value);
 
         /// <summary>
         /// Adds a less than value to a search range.
@@ -121,8 +130,8 @@ namespace MongoDB.Driver.Search
         /// <param name="searchRange">Search range.</param>
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
-        public static SearchRange<TValue> Lt<TValue>(this SearchRange<TValue> searchRange, TValue value) where TValue : struct, IComparable<TValue>
-            => new(searchRange.Min, max: value, searchRange.IsMinInclusive, isMaxInclusive: false);
+        public static SearchRangeV2<TValue> Lt<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
+            => new(searchRange.Min, max: new(value));
 
         /// <summary>
         /// Creates a less than or equal search range.
@@ -130,8 +139,8 @@ namespace MongoDB.Driver.Search
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <param name="value">The value.</param>
         /// <returns>search range.</returns>
-        public static SearchRange<TValue> Lte<TValue>(TValue value) where TValue : struct, IComparable<TValue>
-            => SearchRange<TValue>.Empty.Lte(value);
+        public static SearchRangeV2<TValue> Lte<TValue>(TValue value)
+            => SearchRangeV2<TValue>.Empty.Lte(value);
 
         /// <summary>
         /// Adds a less than or equal value to a search range.
@@ -140,7 +149,7 @@ namespace MongoDB.Driver.Search
         /// <param name="searchRange">Search range.</param>
         /// <param name="value">The value.</param>
         /// <returns>search range.</returns>
-        public static SearchRange<TValue> Lte<TValue>(this SearchRange<TValue> searchRange, TValue value) where TValue : struct, IComparable<TValue>
-            => new(searchRange.Min, max: value, searchRange.IsMinInclusive, isMaxInclusive: true);
+        public static SearchRangeV2<TValue> Lte<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
+            => new(searchRange.Min, max: new(value, inclusive: true));
     }
 }
