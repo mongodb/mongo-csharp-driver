@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Search
             }
             else
             {
-                var (renderedPath, fieldSerializer) = _path.RenderAndGetFieldSerializer(args);
+                var renderedPath = _path.RenderAndGetFieldSerializer(args, out var fieldSerializer);
                 renderedArgs = RenderArguments(args, fieldSerializer);
                 renderedArgs.Add("path", renderedPath);
             }
