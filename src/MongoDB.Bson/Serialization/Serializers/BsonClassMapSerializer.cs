@@ -96,7 +96,7 @@ namespace MongoDB.Bson.Serialization
                 return DeserializeClass(context);
             }
 
-            var serializer = BsonSerializer.LookupSerializer(actualType);
+            var serializer = context.SerializationDomain.LookupSerializer(actualType);
             return (TClass)serializer.Deserialize(context);
         }
 
@@ -326,6 +326,11 @@ namespace MongoDB.Bson.Serialization
             out object id,
             out Type idNominalType,
             out IIdGenerator idGenerator)
+            => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id, out idNominalType, out idGenerator);
+
+        /// <inheritdoc/>
+        public bool GetDocumentId(object document, IBsonSerializationDomain domain, out object id, out Type idNominalType,
+            out IIdGenerator idGenerator)
         {
             var idMemberMap = _classMap.IdMemberMap;
             if (idMemberMap != null)
@@ -392,7 +397,7 @@ namespace MongoDB.Bson.Serialization
                 return;
             }
 
-            var serializer = BsonSerializer.LookupSerializer(actualType);
+            var serializer = context.SerializationDomain.LookupSerializer(actualType);
             serializer.Serialize(context, args, value);
         }
 
@@ -566,7 +571,7 @@ namespace MongoDB.Bson.Serialization
         {
             try
             {
-                return memberMap.GetSerializer().Deserialize(context);
+                return memberMap.GetSerializer(context.SerializationDomain).Deserialize(context);
             }
             catch (Exception ex)
             {
@@ -684,7 +689,7 @@ namespace MongoDB.Bson.Serialization
             }
 
             bsonWriter.WriteName(memberMap.ElementName);
-            memberMap.GetSerializer().Serialize(context, value);
+            memberMap.GetSerializer(context.SerializationDomain).Serialize(context, value);
         }
 
         private bool ShouldSerializeDiscriminator(Type nominalType)

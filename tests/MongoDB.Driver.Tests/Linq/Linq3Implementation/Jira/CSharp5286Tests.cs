@@ -155,7 +155,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 };
             }
 
+            public Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
+            {
+                throw new NotImplementedException();
+            }
+
             public BsonValue GetDiscriminator(Type nominalType, Type actualType) => actualType.Name;
+            public BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
+            {
+                throw new NotImplementedException();
+            }
 
             public BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
             {

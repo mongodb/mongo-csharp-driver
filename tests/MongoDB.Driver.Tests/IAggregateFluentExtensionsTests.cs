@@ -671,6 +671,7 @@ namespace MongoDB.Driver.Tests
         {
             var database = CreateDatabase();
             var settings = new MongoCollectionSettings();
+            settings.SerializationDomain = BsonSerializer.CreateSerializationDomain();
             var mockCollection = new Mock<IMongoCollection<T>>();
             mockCollection.SetupGet(c => c.CollectionNamespace).Returns(new CollectionNamespace(new DatabaseNamespace("test"), collectionName ?? typeof(T).Name));
             mockCollection.SetupGet(c => c.Database).Returns(database);

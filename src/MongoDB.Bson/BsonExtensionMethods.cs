@@ -69,6 +69,31 @@ namespace MongoDB.Bson
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs),
+            int estimatedBsonSize = 0) => ToBson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings,
+            serializer, configurator, args, estimatedBsonSize);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="nominalType"></param>
+        /// <param name="domain"></param>
+        /// <param name="writerSettings"></param>
+        /// <param name="serializer"></param>
+        /// <param name="configurator"></param>
+        /// <param name="args"></param>
+        /// <param name="estimatedBsonSize"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static byte[] ToBson(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationDomain domain,
+            BsonBinaryWriterSettings writerSettings = null,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs),
             int estimatedBsonSize = 0)
         {
             if (estimatedBsonSize < 0)
@@ -84,7 +109,7 @@ namespace MongoDB.Bson
 
             if (serializer == null)
             {
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = domain.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
@@ -138,6 +163,27 @@ namespace MongoDB.Bson
             Type nominalType,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs)) => ToBsonDocument(obj, nominalType,
+            BsonSerializer.DefaultSerializationDomain, serializer, configurator, args);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="nominalType"></param>
+        /// <param name="domain"></param>
+        /// <param name="serializer"></param>
+        /// <param name="configurator"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static BsonDocument ToBsonDocument(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationDomain domain,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs))
         {
             if (nominalType == null)
@@ -165,7 +211,7 @@ namespace MongoDB.Bson
                     return convertibleToBsonDocument.ToBsonDocument(); // use the provided ToBsonDocument method
                 }
 
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = domain.LookupSerializer(nominalType);  //TODO ??
             }
             if (serializer.ValueType != nominalType)
             {
@@ -227,6 +273,29 @@ namespace MongoDB.Bson
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs))
+            => ToJson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings, serializer, configurator, args);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="nominalType"></param>
+        /// <param name="domain"></param>
+        /// <param name="writerSettings"></param>
+        /// <param name="serializer"></param>
+        /// <param name="configurator"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static string ToJson(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationDomain domain,
+            JsonWriterSettings writerSettings = null,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs))
         {
             if (nominalType == null)
             {
@@ -236,7 +305,7 @@ namespace MongoDB.Bson
 
             if (serializer == null)
             {
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = domain.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
