@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -53,6 +54,31 @@ namespace MongoDB.Driver.Search
         /// </returns>
         public static implicit operator SearchDefinition<TDocument>(string json) =>
             json != null ? new JsonSearchDefinition<TDocument>(json) : null;
+    }
+
+    /// <summary>
+    /// Extensions for SearchDefinition
+    /// </summary>
+    public static class SearchDefinitionExtensions
+    {
+        /// <summary>
+        /// Sets the use of default serialization for the specified <see cref="SearchDefinition{TDocument}"/>.
+        /// When set to true, the default serializers will be used to serialize the values of certain Atlas Search operators, such as "Equals", "In" and "Range". This will become the default behaviour in version 4.0 of the library.
+        /// If not enabled, then a default conversion will be used.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="searchDefinition">The search definition instance.</param>
+        /// <param name="useDefaultSerialization">Whether to use the default serialization or not.</param>
+        /// <returns>The same <see cref="SearchDefinition{TDocument}"/> instance with default serialization enabled.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if <paramref name="searchDefinition"/> is not of a valid type/>.</exception>
+        public static SearchDefinition<TDocument> WithDefaultSerialization<TDocument>(this SearchDefinition<TDocument> searchDefinition, bool useDefaultSerialization)
+        {
+            if (searchDefinition is not OperatorSearchDefinition<TDocument> op)
+                throw new InvalidOperationException("Default serialization cannot be used with the current SearchDefinition type");
+
+            op.SetUseDefaultSerialization(useDefaultSerialization);
+            return searchDefinition;
+        }
     }
 
     /// <summary>
@@ -134,6 +160,8 @@ namespace MongoDB.Driver.Search
         protected readonly SearchPathDefinition<TDocument> _path;
         protected readonly SearchScoreDefinition<TDocument> _score;
 
+        protected bool _useDefaultSerialization = false;
+
         private protected OperatorSearchDefinition(OperatorType operatorType)
             : this(operatorType, null)
         {
@@ -172,7 +200,36 @@ namespace MongoDB.Driver.Search
             return new(_operatorType.ToCamelCase(), renderedArgs);
         }
 
-        private protected virtual BsonDocument RenderArguments(RenderArgs<TDocument> args,
+        private protected virtual BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer) => new();
+
+        internal void SetUseDefaultSerialization(bool useDefaultSerialization)
+        {
+            _useDefaultSerialization = useDefaultSerialization;
+        }
+
+        protected static BsonValue ToBsonValue<T>(T value) =>
+            value switch
+            {
+                bool v => (BsonBoolean)v,
+                sbyte v => (BsonInt32)v,
+                byte v => (BsonInt32)v,
+                short v => (BsonInt32)v,
+                ushort v => (BsonInt32)v,
+                int v => (BsonInt32)v,
+                uint v => (BsonInt64)v,
+                long v => (BsonInt64)v,
+                float v => (BsonDouble)v,
+                double v => (BsonDouble)v,
+                decimal v => (BsonDecimal128)v,
+                DateTime v => (BsonDateTime)v,
+                DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
+                ObjectId v => (BsonObjectId)v,
+                Guid v => new BsonBinaryData(v, GuidRepresentation.Standard),
+                string v => (BsonString)v,
+                null => BsonNull.Value,
+                _ => throw new InvalidCastException()
+            };
     }
 }

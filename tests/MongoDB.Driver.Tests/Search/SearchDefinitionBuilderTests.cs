@@ -288,26 +288,71 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<BsonDocument>();
             var subjectTyped = CreateSubject<Person>();
 
-            //When using an untyped query, the default GuidSerializer is used, and that will throw an exception
-            //because the GuidRepresentation is Unspecified.
-            if (typeof(T) != typeof(Guid))
-            {
-                AssertRendered(
-                    subject.Equals("x", value),
-                    $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
+            AssertRendered(
+                subject.Equals("x", value),
+                $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
 
-                var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
-                AssertRendered(
-                    subject.Equals("x", value, scoreBuilder.Constant(1)),
-                    $"{{ equals: {{ path: 'x', value: {valueRendered}, score: {{ constant: {{ value: 1 }} }} }} }}");
-            }
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            AssertRendered(
+                subject.Equals("x", value, scoreBuilder.Constant(1)),
+                $"{{ equals: {{ path: 'x', value: {valueRendered}, score: {{ constant: {{ value: 1 }} }} }} }}");
 
             AssertRendered(
                 subjectTyped.Equals(fieldExpression, value),
                 $"{{ equals: {{ path: '{fieldRendered}', value: {valueRendered} }} }}");
         }
 
+        [Theory]
+        [MemberData(nameof(EqualsWithDefaultSerializerSupportedTypesTestData))]
+        public void Equals_with_default_serializer_should_render_supported_type<T>(
+            T value,
+            string valueRendered,
+            Expression<Func<Person, T>> fieldExpression,
+            string fieldRendered)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var subjectTyped = CreateSubject<Person>();
+
+            //When using an untyped query, the default GuidSerializer is used, and that will throw an exception
+            //because the GuidRepresentation is Unspecified.
+            if (typeof(T) != typeof(Guid))
+            {
+                AssertRendered(
+                    subject.Equals("x", value).WithDefaultSerialization(true),
+                    $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
+
+                var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+                AssertRendered(
+                    subject.Equals("x", value, scoreBuilder.Constant(1)).WithDefaultSerialization(true),
+                    $"{{ equals: {{ path: 'x', value: {valueRendered}, score: {{ constant: {{ value: 1 }} }} }} }}");
+            }
+
+            AssertRendered(
+                subjectTyped.Equals(fieldExpression, value).WithDefaultSerialization(true),
+                $"{{ equals: {{ path: '{fieldRendered}', value: {valueRendered} }} }}");
+        }
+
         public static object[][] EqualsSupportedTypesTestData => new[]
+        {
+            new object[] { true, "true", Exp(p => p.Retired), "ret" },
+            new object[] { (sbyte)1, "1", Exp(p => p.Int8), nameof(Person.Int8), },
+            new object[] { (byte)1, "1", Exp(p => p.UInt8), nameof(Person.UInt8), },
+            new object[] { (short)1, "1", Exp(p => p.Int16), nameof(Person.Int16) },
+            new object[] { (ushort)1, "1", Exp(p => p.UInt16), nameof(Person.UInt16) },
+            new object[] { (int)1, "1", Exp(p => p.Int32), nameof(Person.Int32) },
+            new object[] { (uint)1, "1", Exp(p => p.UInt32), nameof(Person.UInt32) },
+            new object[] { long.MaxValue, "NumberLong(\"9223372036854775807\")", Exp(p => p.Int64), nameof(Person.Int64) },
+            new object[] { (float)1, "1", Exp(p => p.Float), nameof(Person.Float) },
+            new object[] { (double)1, "1", Exp(p => p.Double), nameof(Person.Double) },
+            new object[] { DateTime.MinValue, "ISODate(\"0001-01-01T00:00:00Z\")", Exp(p => p.Birthday), "dob" },
+            new object[] { DateTimeOffset.MaxValue, "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) },
+            new object[] { ObjectId.Empty, "{ $oid: '000000000000000000000000' }", Exp(p => p.Id), "_id" },
+            new object[] { Guid.Empty, """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", Exp(p => p.Guid), nameof(Person.Guid) },
+            new object[] { null, "null", Exp(p => p.Name), nameof(Person.Name) },
+            new object[] { "Jim", "\"Jim\"", Exp(p => p.FirstName), "fn" }
+        };
+
+        public static object[][] EqualsWithDefaultSerializerSupportedTypesTestData => new[]
         {
             new object[] { true, "true", Exp(p => p.Retired), "ret" },
             new object[] { (sbyte)1, "1", Exp(p => p.Int8), nameof(Person.Int8), },
@@ -328,32 +373,32 @@ namespace MongoDB.Driver.Tests.Search
         };
 
         [Fact]
-        public void Equals_should_use_correct_serializers_when_using_attributes_and_expression_path()
+        public void Equals_with_default_serializer_should_use_correct_serializers_when_using_attributes_and_expression_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Equals(t => t.DefaultGuid, testGuid),
+                subjectTyped.Equals(t => t.DefaultGuid, testGuid).WithDefaultSerialization(true),
                 """{ "equals" : { "value" : { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, "path" : "DefaultGuid" } } """);
 
             AssertRendered(
-                subjectTyped.Equals(t => t.StringGuid, testGuid),
+                subjectTyped.Equals(t => t.StringGuid, testGuid).WithDefaultSerialization(true),
                 """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "StringGuid" } }""");
         }
 
         [Fact]
-        public void Equals_should_use_correct_serializers_when_using_attributes_and_string_path()
+        public void Equals_with_default_serializer_should_use_correct_serializers_when_using_attributes_and_string_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Equals("DefaultGuid", testGuid),
+                subjectTyped.Equals("DefaultGuid", testGuid).WithDefaultSerialization(true),
                 """{ "equals" : { "value" : { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, "path" : "DefaultGuid" } } """);
 
             AssertRendered(
-                subjectTyped.Equals("StringGuid", testGuid),
+                subjectTyped.Equals("StringGuid", testGuid).WithDefaultSerialization(true),
                 """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "StringGuid" } }""");
         }
 
@@ -366,7 +411,7 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Equals(t => t.UndefinedRepresentationGuid, testGuid),
+                subjectTyped.Equals(t => t.UndefinedRepresentationGuid, testGuid).WithDefaultSerialization(true),
                 """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "UndefinedRepresentationGuid" } }""");
         }
 
@@ -537,28 +582,79 @@ namespace MongoDB.Driver.Tests.Search
                 $"{{ in: {{ path: 'x', value: [{string.Join(",", fieldsRendered)}] }} }}");
         }
 
+        [Theory]
+        [MemberData(nameof(InWithDefaultSerializationTestData))]
+        public void InWithDefaultSerialization<T>(T[] fieldValues, string[] fieldsRendered)
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            AssertRendered(
+                subject.In("x", fieldValues).WithDefaultSerialization(true),
+                $"{{ in: {{ path: 'x', value: [{string.Join(",", fieldsRendered)}] }} }}");
+        }
+
         public static readonly object[][] InTestData =
         {
-             new object[] { new bool[] { true, false }, new[] { "true", "false" } },
-             new object[] { new byte[] { 1, 2 }, new[] { "1", "2" } },
-             new object[] { new sbyte[] { 1, 2 }, new[] { "1", "2" } },
-             new object[] { new short[] { 1, 2 }, new[] { "1", "2" } },
-             new object[] { new ushort[] { 1, 2 }, new[] { "1", "2" } },
-             new object[] { new int[] { 1, 2 }, new[] { "1", "2" } },
-             new object[] { new uint[] { 1, 2 }, new[] { "1", "2" } },
-             new object[] { new long[] { long.MaxValue, long.MinValue }, new[] { "NumberLong(\"9223372036854775807\")", "NumberLong(\"-9223372036854775808\")" } },
-             new object[] { new float[] { 1.5f, 2.5f }, new[] { "1.5", "2.5" } },
-             new object[] { new double[] { 1.5, 2.5 }, new[] { "1.5", "2.5" } },
-             new object[] { new decimal[] { 1.5m, 2.5m }, new[] { "NumberDecimal(\"1.5\")", "NumberDecimal(\"2.5\")" } },
-             new object[] { new[] { "str1", "str2" }, new[] { "'str1'", "'str2'" } },
-             new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" } },
-             new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { """{ "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : 0, "Offset" : 0 } """, """ { "DateTime" : { "$date" : "9999-12-31T23:59:59.999Z" }, "Ticks" : 3155378975999999999, "Offset" : 0 } """ } },
-             new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" } },
+            new object[] { new bool[] { true, false }, new[] { "true", "false" } },
+            new object[] { new byte[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new sbyte[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new short[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new ushort[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new int[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new uint[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new long[] { long.MaxValue, long.MinValue }, new[] { "NumberLong(\"9223372036854775807\")", "NumberLong(\"-9223372036854775808\")" } },
+            new object[] { new float[] { 1.5f, 2.5f }, new[] { "1.5", "2.5" } },
+            new object[] { new double[] { 1.5, 2.5 }, new[] { "1.5", "2.5" } },
+            new object[] { new decimal[] { 1.5m, 2.5m }, new[] { "NumberDecimal(\"1.5\")", "NumberDecimal(\"2.5\")" } },
+            new object[] { new[] { "str1", "str2" }, new[] { "'str1'", "'str2'" } },
+            new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" } },
+            new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" } },
+            new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" } },
+            new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" } }
+        };
+
+        public static readonly object[][] InWithDefaultSerializationTestData =
+        {
+            new object[] { new bool[] { true, false }, new[] { "true", "false" } },
+            new object[] { new byte[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new sbyte[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new short[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new ushort[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new int[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new uint[] { 1, 2 }, new[] { "1", "2" } },
+            new object[] { new long[] { long.MaxValue, long.MinValue }, new[] { "NumberLong(\"9223372036854775807\")", "NumberLong(\"-9223372036854775808\")" } },
+            new object[] { new float[] { 1.5f, 2.5f }, new[] { "1.5", "2.5" } },
+            new object[] { new double[] { 1.5, 2.5 }, new[] { "1.5", "2.5" } },
+            new object[] { new decimal[] { 1.5m, 2.5m }, new[] { "NumberDecimal(\"1.5\")", "NumberDecimal(\"2.5\")" } },
+            new object[] { new[] { "str1", "str2" }, new[] { "'str1'", "'str2'" } },
+            new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" } },
+            new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { """{ "DateTime" : { "$date" : { "$numberLong" : "-62135596800000" } }, "Ticks" : 0, "Offset" : 0 } """, """ { "DateTime" : { "$date" : "9999-12-31T23:59:59.999Z" }, "Ticks" : 3155378975999999999, "Offset" : 0 } """ } },
+            new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" } },
         };
 
         [Theory]
         [MemberData(nameof(InTypedTestData))]
         public void In_typed<T>(
+            T[] fieldValues,
+            string[] fieldValuesRendered,
+            Expression<Func<Person, T>> fieldExpression,
+            string fieldNameRendered)
+        {
+            var subjectTyped = CreateSubject<Person>();
+            var fieldValuesArray = $"[{string.Join(",", fieldValuesRendered)}]";
+
+            AssertRendered(
+                subjectTyped.In("x", fieldValues),
+                $"{{ in: {{ path: 'x', value: {fieldValuesArray} }} }}");
+
+            AssertRendered(
+                subjectTyped.In(fieldExpression, fieldValues),
+                $"{{ in: {{path: '{fieldNameRendered}', value: {fieldValuesArray} }} }}");
+        }
+
+        [Theory]
+        [MemberData(nameof(InTypedWithDefaultSerializationTestData))]
+        public void InWithDefaultSerialization_typed<T>(
             T[] fieldValues,
             string[] fieldValuesRendered,
             Expression<Func<Person, T>> fieldExpression,
@@ -571,16 +667,37 @@ namespace MongoDB.Driver.Tests.Search
             if (typeof(T) != typeof(Guid))
             {
                 AssertRendered(
-                    subject.In("x", fieldValues),
+                    subject.In("x", fieldValues).WithDefaultSerialization(true),
                     $"{{ in: {{ path: 'x', value: {fieldValuesArray} }} }}");
             }
 
             AssertRendered(
-                subject.In(fieldExpression, fieldValues),
+                subject.In(fieldExpression, fieldValues).WithDefaultSerialization(true),
                 $"{{ in: {{path: '{fieldNameRendered}', value: {fieldValuesArray} }} }}");
         }
 
         public static readonly object[][] InTypedTestData =
+        {
+             new object[] { new bool[] { true, false }, new[] { "true", "false" }, Exp(p => p.Retired), "ret" },
+             new object[] { new byte[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt8), nameof(Person.UInt8) },
+             new object[] { new sbyte[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.Int8), nameof(Person.Int8) },
+             new object[] { new short[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.Int16), nameof(Person.Int16) },
+             new object[] { new ushort[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt16), nameof(Person.UInt16) },
+             new object[] { new int[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.Int32), nameof(Person.Int32) },
+             new object[] { new uint[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt32), nameof(Person.UInt32) },
+             new object[] { new long[] { long.MaxValue, long.MinValue }, new[] { "NumberLong(\"9223372036854775807\")", "NumberLong(\"-9223372036854775808\")" }, Exp(p => p.Int64), nameof(Person.Int64) },
+             new object[] { new float[] { 1.5f, 2.5f }, new[] { "1.5", "2.5" }, Exp(p => p.Float), nameof(Person.Float) },
+             new object[] { new double[] { 1.5, 2.5 }, new[] { "1.5", "2.5" }, Exp(p => p.Double), nameof(Person.Double) },
+             new object[] { new decimal[] { 1.5m, 2.5m }, new[] { "NumberDecimal(\"1.5\")", "NumberDecimal(\"2.5\")" }, Exp(p => p.Decimal), nameof(Person.Decimal) },
+             new object[] { new[] { "str1", "str2" }, new[] { "'str1'", "'str2'" }, Exp(p => p.FirstName), "fn" },
+             new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.Birthday), "dob" },
+             new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset)},
+             new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" }, Exp(p => p.Id), "_id" },
+             new object[] { new[] { Guid.Empty, Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf") }, new[] { """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", """{ "$binary" : { "base64" : "tSrxRLyXRU+leEGKZPqVvw==", "subType" : "04" } }""" }, Exp(p => p.Guid), nameof(Person.Guid) },
+             new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" }, Exp(p => p.Object), nameof(Person.Object) }
+        };
+
+        public static readonly object[][] InTypedWithDefaultSerializationTestData =
         {
              new object[] { new bool[] { true, false }, new[] { "true", "false" }, Exp(p => p.Retired), "ret" },
              new object[] { new byte[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt8), nameof(Person.UInt8) },
@@ -613,37 +730,37 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
-        public void In_should_use_correct_serializers_when_using_attributes_and_expression_path()
+        public void In_with_default_serialization_should_use_correct_serializers_when_using_attributes_and_expression_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.In(t => t.DefaultGuid, [testGuid, testGuid]),
+                subjectTyped.In(t => t.DefaultGuid, [testGuid, testGuid]).WithDefaultSerialization(true),
                 """{ "in" : { "value" : [{ "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }], "path" : "DefaultGuid" } } """);
 
             AssertRendered(
-                subjectTyped.In(t => t.StringGuid, [testGuid, testGuid]),
+                subjectTyped.In(t => t.StringGuid, [testGuid, testGuid]).WithDefaultSerialization(true),
                 """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "StringGuid" } }""");
         }
 
         [Fact]
-        public void In_should_use_correct_serializers_when_using_attributes_and_string_path()
+        public void In_with_default_serialization_should_use_correct_serializers_when_using_attributes_and_string_path()
         {
             var testGuid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.In("DefaultGuid", [testGuid, testGuid]),
+                subjectTyped.In("DefaultGuid", [testGuid, testGuid]).WithDefaultSerialization(true),
                 """{ "in" : { "value" : [{ "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }], "path" : "DefaultGuid" } } """);
 
             AssertRendered(
-                subjectTyped.In("StringGuid", [testGuid, testGuid]),
+                subjectTyped.In("StringGuid", [testGuid, testGuid]).WithDefaultSerialization(true),
                 """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "StringGuid" } }""");
         }
 
         [Fact(Skip = "This should only be run manually due to the use of BsonSerializer.RegisterSerializer")]
-        public void In_should_use_correct_serializers_when_using_serializer_registry()
+        public void In_with_default_serialization_should_use_correct_serializers_when_using_serializer_registry()
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 
@@ -651,7 +768,7 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.In(t => t.UndefinedRepresentationGuid, [testGuid, testGuid]),
+                subjectTyped.In(t => t.UndefinedRepresentationGuid, [testGuid, testGuid]).WithDefaultSerialization(true),
                 """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "UndefinedRepresentationGuid" } }""");
         }
 
@@ -993,7 +1110,45 @@ namespace MongoDB.Driver.Tests.Search
                 $"{{ range: {{ path: '{fieldRendered}', gte: {minRendered}, lt: {maxRendered} }} }}");
         }
 
+        [Theory]
+        [MemberData(nameof(RangeWithDefaultSerializationSupportedTypesTestData))]
+        public void Range_with_default_serialization_should_render_supported_types<T>(
+            T min,
+            T max,
+            string minRendered,
+            string maxRendered,
+            Expression<Func<Person, T>> fieldExpression,
+            string fieldRendered)
+            where T : struct, IComparable<T>
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var subjectTyped = CreateSubject<Person>();
+
+            AssertRendered(
+                subject.Range("age", SearchRangeBuilder.Gte(min).Lt(max)).WithDefaultSerialization(true),
+                $"{{ range: {{ path: 'age', gte: {minRendered}, lt: {maxRendered} }} }}");
+
+            AssertRendered(
+                subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(min).Lt(max)).WithDefaultSerialization(true),
+                $"{{ range: {{ path: '{fieldRendered}', gte: {minRendered}, lt: {maxRendered} }} }}");
+        }
+
         public static object[][] RangeSupportedTypesTestData => new[]
+        {
+            new object[] { (sbyte)1, (sbyte)2, "1", "2", Exp(p => p.Int8), nameof(Person.Int8) },
+            new object[] { (byte)1, (byte)2, "1", "2", Exp(p => p.UInt8), nameof(Person.UInt8) },
+            new object[] { (short)1, (short)2, "1", "2", Exp(p => p.Int16), nameof(Person.Int16) },
+            new object[] { (ushort)1, (ushort)2, "1", "2", Exp(p => p.UInt16), nameof(Person.UInt16) },
+            new object[] { (int)1, (int)2, "1", "2", Exp(p => p.Int32), nameof(Person.Int32) },
+            new object[] { (uint)1, (uint)2, "1", "2", Exp(p => p.UInt32), nameof(Person.UInt32) },
+            new object[] { long.MinValue, long.MaxValue, "NumberLong(\"-9223372036854775808\")", "NumberLong(\"9223372036854775807\")", Exp(p => p.Int64), nameof(Person.Int64) },
+            new object[] { (float)1, (float)2, "1", "2", Exp(p => p.Float), nameof(Person.Float) },
+            new object[] { (double)1, (double)2, "1", "2", Exp(p => p.Double), nameof(Person.Double) },
+            new object[] { DateTime.MinValue, DateTime.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.Birthday), "dob" },
+            new object[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) }
+        };
+
+        public static object[][] RangeWithDefaultSerializationSupportedTypesTestData => new[]
         {
             new object[] { (sbyte)1, (sbyte)2, "1", "2", Exp(p => p.Int8), nameof(Person.Int8) },
             new object[] { (byte)1, (byte)2, "1", "2", Exp(p => p.UInt8), nameof(Person.UInt8) },
@@ -1009,32 +1164,36 @@ namespace MongoDB.Driver.Tests.Search
         };
 
         [Fact]
-        public void Range_should_use_correct_serializers_when_using_attributes_and_expression_path()
+        public void Range_with_default_serialization_should_use_correct_serializers_when_using_attributes_and_expression_path()
         {
             var testLong = 23;
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false ))
+                    .WithDefaultSerialization(true),
                 """{"range" :{ "gt" : 23, "path" : "DefaultLong" }}""");
 
             AssertRendered(
-                subjectTyped.Range(t => t.StringLong, new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range(t => t.StringLong, new SearchRange<long>(testLong, null, false, false ))
+                    .WithDefaultSerialization(true),
                 """{"range":{ "gt" : "23", "path" : "StringLong" }}""");
         }
 
         [Fact]
-        public void Range_should_use_correct_serializers_when_using_attributes_and_string_path()
+        public void Range_with_default_serialization_should_use_correct_serializers_when_using_attributes_and_string_path()
         {
             var testLong = 23;
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Range("DefaultLong", new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range("DefaultLong", new SearchRange<long>(testLong, null, false, false ))
+                    .WithDefaultSerialization(true),
                 """{"range" :{ "gt" : 23, "path" : "DefaultLong" }}""");
 
             AssertRendered(
-                subjectTyped.Range("StringLong", new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range("StringLong", new SearchRange<long>(testLong, null, false, false ))
+                    .WithDefaultSerialization(true),
                 """{"range":{ "gt" : "23", "path" : "StringLong" }}""");
         }
 
