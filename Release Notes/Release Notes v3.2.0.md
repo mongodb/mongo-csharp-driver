@@ -5,11 +5,8 @@ This is the general availability release for the 3.2.0 version of the driver.
 The main new features in 3.2.0 include:
 
 + Support casting from an interface to a concrete type in a filter expression - [CSHARP-4572](https://jira.mongodb.org/browse/CSHARP-4572)
-+ Support for BSON Binary Vector subtype - [CSHARP-5202](https://jira.mongodb.org/browse/CSHARP-5202)
-+ Support Append method in LINQ - [CSHARP-4872](https://jira.mongodb.org/browse/CSHARP-4872)
-+ Support OfType method in LINQ - [CSHARP-4876](https://jira.mongodb.org/browse/CSHARP-4876)
-+ Support Repeat method in LINQ - [CSHARP-4878](https://jira.mongodb.org/browse/CSHARP-4878)
-+ Support SequenceEqual method in LINQ - [CSHARP-4880](https://jira.mongodb.org/browse/CSHARP-4880)
++ Support for BSON Binary Vector subtype that helps make MongoDB Vector Search more efficient and easy to work with - [CSHARP-5202](https://jira.mongodb.org/browse/CSHARP-5202)
++ Support for additional methods in LINQ, such as Append, OfType, Repeat, SequenceEqual - [CSHARP-4872](https://jira.mongodb.org/browse/CSHARP-4872), [CSHARP-4876](https://jira.mongodb.org/browse/CSHARP-4876), [CSHARP-4878](https://jira.mongodb.org/browse/CSHARP-4878), [CSHARP-4880](https://jira.mongodb.org/browse/CSHARP-4880)
 + Support strings with "Range" operator for Atlas Search - [CSHARP-5429](https://jira.mongodb.org/browse/CSHARP-5429)
 + Added `ObjectSerializerAllowedTypesConvention` to more easily configure allowed types for `ObjectSerializer` - [CSHARP-4495](https://jira.mongodb.org/browse/CSHARP-4495)
 + Added Kubernetes Support for OIDC - [CSHARP-5026](https://jira.mongodb.org/browse/CSHARP-5026)
