@@ -20,6 +20,7 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private ReaderWriterLockSlim _configLock = new(LockRecursionPolicy.SupportsRecursion);
         private IBsonClassMapDomain _classMapDomain;
+        private IConventionRegistryDomain _conventionRegistryDomain;
         private Dictionary<Type, IIdGenerator> _idGenerators = new();
         private Dictionary<Type, IDiscriminatorConvention> _discriminatorConventions = new();
         private Dictionary<BsonValue, HashSet<Type>> _discriminators = new();
@@ -39,6 +40,7 @@ namespace MongoDB.Bson.Serialization
             CreateSerializerRegistry();
             RegisterIdGenerators();
             _classMapDomain = new BsonClassMapDomain();
+            _conventionRegistryDomain = new ConventionRegistryDomain();
             Name = name ?? "CUSTOM";  //TODO remove after testing is done
         }
 
@@ -733,6 +735,8 @@ namespace MongoDB.Bson.Serialization
         }
 
         public IBsonClassMapDomain BsonClassMap => _classMapDomain;
+
+        public IConventionRegistryDomain ConventionRegistry => _conventionRegistryDomain;
 
         /// <summary>
         /// Tries to register a serializer for a type.
