@@ -213,7 +213,14 @@ namespace MongoDB.Driver.Encryption
         {
             while (context.GetNextKmsMessageRequest() is { } request)
             {
-                SendKmsRequest(request, cancellationToken);
+                try
+                {
+                    SendKmsRequest(request, cancellationToken);
+                }
+                finally
+                {
+                    request.Dispose();
+                }
             }
             context.MarkKmsDone();
         }
@@ -222,7 +229,14 @@ namespace MongoDB.Driver.Encryption
         {
             while (context.GetNextKmsMessageRequest() is { } request)
             {
-                await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
+                }
+                finally
+                {
+                    request.Dispose();
+                }
             }
             context.MarkKmsDone();
         }
