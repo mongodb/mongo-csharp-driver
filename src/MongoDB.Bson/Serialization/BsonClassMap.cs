@@ -34,7 +34,6 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private readonly Type _classType;
         private readonly List<BsonCreatorMap> _creatorMaps;
-        private readonly IConventionPack _conventionPack;
         private readonly bool _isAnonymous;
         private readonly List<BsonMemberMap> _allMemberMaps; // includes inherited member maps
         private readonly ReadOnlyCollection<BsonMemberMap> _allMemberMapsReadonly;
@@ -65,7 +64,6 @@ namespace MongoDB.Bson.Serialization
         {
             _classType = classType;
             _creatorMaps = new List<BsonCreatorMap>();
-            _conventionPack = ConventionRegistry.Lookup(classType);
             _isAnonymous = classType.IsAnonymousType();
             _allMemberMaps = new List<BsonMemberMap>();
             _allMemberMapsReadonly = _allMemberMaps.AsReadOnly();
@@ -117,14 +115,6 @@ namespace MongoDB.Bson.Serialization
         public IEnumerable<BsonCreatorMap> CreatorMaps
         {
             get { return _creatorMaps; }
-        }
-
-        /// <summary>
-        /// Gets the conventions used for auto mapping.
-        /// </summary>
-        public IConventionPack ConventionPack
-        {
-            get { return _conventionPack; }
         }
 
         /// <summary>
@@ -359,10 +349,16 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Automaps the class.
         /// </summary>
-        public void AutoMap()
+        public void AutoMap() => AutoMap(BsonSerializer.DefaultSerializationDomain);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="serializationDomain"></param>
+        public void AutoMap(IBsonSerializationDomain serializationDomain)
         {
             if (_frozen) { ThrowFrozenException(); }
-            AutoMapClass();
+            AutoMapClass(serializationDomain);
         }
 
         /// <summary>
@@ -1208,9 +1204,10 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private methods
-        private void AutoMapClass()
+        private void AutoMapClass(IBsonSerializationDomain serializationDomain)
         {
-            new ConventionRunner(_conventionPack).Apply(this);
+            var conventionPack = serializationDomain.ConventionRegistry.Lookup(_classType);
+            new ConventionRunner(conventionPack).Apply(this);
 
             foreach (var memberMap in _declaredMemberMaps)
             {

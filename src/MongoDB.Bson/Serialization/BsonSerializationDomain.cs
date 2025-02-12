@@ -38,9 +38,8 @@ namespace MongoDB.Bson.Serialization
         public BsonSerializationDomain(string name = null) //TODO name is used for testing
         {
             CreateSerializerRegistry();
+            CreateSubDomains();
             RegisterIdGenerators();
-            _classMapDomain = new BsonClassMapDomain();
-            _conventionRegistryDomain = new ConventionRegistryDomain();
             Name = name ?? "CUSTOM";  //TODO remove after testing is done
         }
 
@@ -813,6 +812,12 @@ namespace MongoDB.Bson.Serialization
             _serializerRegistry.RegisterSerializationProvider(new AttributedSerializationProvider());
             _serializerRegistry.RegisterSerializationProvider(_typeMappingSerializationProvider);
             _serializerRegistry.RegisterSerializationProvider(new BsonObjectModelSerializationProvider());
+        }
+
+        private void CreateSubDomains()
+        {
+            _classMapDomain = new BsonClassMapDomain(this);
+            _conventionRegistryDomain = new ConventionRegistryDomain();
         }
 
         private void RegisterIdGenerators()

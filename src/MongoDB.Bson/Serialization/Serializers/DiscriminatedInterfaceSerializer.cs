@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var classMapDefinition = typeof(BsonClassMap<>);
             var classMapType = classMapDefinition.MakeGenericType(typeof(TInterface));
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
-            classMap.AutoMap();
+            classMap.AutoMap(domain);
             classMap.SetDiscriminatorConvention(domain.LookupDiscriminatorConvention(typeof(TInterface)));
             classMap.Freeze(domain);
             return new BsonClassMapSerializer<TInterface>(classMap);

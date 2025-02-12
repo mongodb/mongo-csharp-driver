@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var constructorInfo = newExpression.Constructor; // note: can be null when using the default constructor with a struct
             var constructorArguments = newExpression.Arguments;
             var computedFields = new List<AstComputedField>();
-            var classMap = CreateClassMap(newExpression.Type, constructorInfo, out var creatorMap);
+            var classMap = CreateClassMap(context, newExpression.Type, constructorInfo, out var creatorMap);
 
             if (constructorInfo != null && creatorMap != null)
             {
@@ -100,12 +100,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return new AggregationExpression(expression, ast, serializer);
         }
 
-        private static BsonClassMap CreateClassMap(Type classType, ConstructorInfo constructorInfo, out BsonCreatorMap creatorMap)
+        private static BsonClassMap CreateClassMap(TranslationContext context, Type classType, ConstructorInfo constructorInfo, out BsonCreatorMap creatorMap)
         {
             BsonClassMap baseClassMap = null;
             if (classType.BaseType != null)
             {
-                baseClassMap = CreateClassMap(classType.BaseType, null, out _);
+                baseClassMap = CreateClassMap(context, classType.BaseType, null, out _);
             }
 
             var classMapType = typeof(BsonClassMap<>).MakeGenericType(classType);
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 creatorMap = null;
             }
 
-            classMap.AutoMap();
+            classMap.AutoMap(context.SerializationDomain);
             classMap.IdMemberMap?.SetElementName("_id"); // normally happens when Freeze is called but we need it sooner here
 
             return classMap;

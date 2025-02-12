@@ -8,7 +8,13 @@ namespace MongoDB.Bson.Serialization;
 internal class BsonClassMapDomain : IBsonClassMapDomain
 {
     // private fields
+    private readonly IBsonSerializationDomain _serializationDomain;
     private readonly Dictionary<Type, BsonClassMap> _classMaps = new();
+
+    public BsonClassMapDomain(BsonSerializationDomain serializationDomain)
+    {
+        _serializationDomain = serializationDomain;
+    }
 
     /// <summary>
     /// Gets all registered class maps.
@@ -83,7 +89,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         var classMapDefinition = typeof(BsonClassMap<>);
         var classMapType = classMapDefinition.MakeGenericType(classType);
         var newClassMap = (BsonClassMap)Activator.CreateInstance(classMapType);
-        newClassMap.AutoMap();
+        newClassMap.AutoMap(_serializationDomain);
 
         BsonSerializer.ConfigLock.EnterWriteLock();
         try
@@ -109,7 +115,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
     /// <returns>The class map.</returns>
     public BsonClassMap<TClass> RegisterClassMap<TClass>()
     {
-        return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
+        return RegisterClassMap<TClass>(cm => { cm.AutoMap(_serializationDomain); });
     }
 
     /// <summary>
@@ -156,12 +162,12 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
     /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
     public bool TryRegisterClassMap<TClass>()
     {
-        return TryRegisterClassMap(ClassMapFactory);
+        return TryRegisterClassMap(() => ClassMapFactory(_serializationDomain));
 
-        static BsonClassMap<TClass> ClassMapFactory()
+        static BsonClassMap<TClass> ClassMapFactory(IBsonSerializationDomain serializationDomain)
         {
             var classMap = new BsonClassMap<TClass>();
-            classMap.AutoMap();
+            classMap.AutoMap(serializationDomain);
             return classMap;
         }
     }
