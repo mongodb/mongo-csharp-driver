@@ -9,7 +9,19 @@ if [ -z "$PACKAGE_VERSION" ]; then
   echo Calculated PACKAGE_VERSION value: "$PACKAGE_VERSION"
 fi
 
-BASELINE_VERSION="${PACKAGE_VERSION%%.*}.0.0"
+if [[ $PACKAGE_VERSION == *"-"* ]]; then
+  # PACKAGE_VERSION contains "-" (M.m.p-1-ab1cdce23456) - we are doing build of intermediate package, to calculate the baseline version need to simply cut on first "-"
+  BASELINE_VERSION="${PACKAGE_VERSION%%-*}"
+else
+  # PACKAGE_VERSION is "clear" version (M.m.p) - baseline version should be set to the previous minor version.
+  VERSION_COMPONENTS=( ${PACKAGE_VERSION//./ } )
+  if [[ VERSION_COMPONENTS[1] -gt 0 ]]; then
+    ((VERSION_COMPONENTS[1]--))
+  fi
+
+  BASELINE_VERSION="${VERSION_COMPONENTS[0]}.${VERSION_COMPONENTS[1]}.0"
+fi
+
 if [ "$PACKAGE_VERSION" == "$BASELINE_VERSION" ]; then
   echo "Skipping package validation for major release."
   exit 0
