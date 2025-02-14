@@ -13,51 +13,42 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4876Tests : Linq3IntegrationTest
+    public class CSharp4876Tests : LinqIntegrationTest<CSharp4876Tests.ClassFixture>
     {
+        public CSharp4876Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void OfType_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().OfType<B2>().ToArray()) :
                 collection.AsQueryable().Select(x => x.A.OfType<B2>().ToArray());
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $filter : { input : '$A', as : 'this', cond : { $cond : { if : { $eq : [{ $type : '$$this._t' }, 'array'] }, then : { $in : ['B2', '$$this._t'] }, else : { $eq : ['$$this._t', 'B2'] } } } } }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $filter : { input : '$A', as : 'item', cond : { $cond : { if : { $eq : [{ $type : '$$item._t' }, 'array'] }, then : { $in : ['B2', '$$item._t'] }, else : { $eq : ['$$item._t', 'B2'] } } } } }, _id : 0 } }");
 
             var result = queryable.Single();
             result.Select(x => x.Id).Should().Equal(2);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C
-                {
-                    Id = 1, A =
-                        [
-                            new B1 { Id = 1 },
-                            new B2 { Id = 2 }
-                        ]
-                });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public B[] A { get; set; }
@@ -75,6 +66,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         public class B2 : B
         {
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C
+                {
+                    Id = 1,
+                    A =
+                    [
+                        new B1 { Id = 1 },
+                        new B2 { Id = 2 }
+                    ]
+                }
+            ];
         }
     }
 }

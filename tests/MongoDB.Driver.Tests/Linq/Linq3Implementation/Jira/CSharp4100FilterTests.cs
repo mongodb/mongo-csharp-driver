@@ -14,22 +14,28 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4100FilterTests : Linq3IntegrationTest
+    public class CSharp4100FilterTests : LinqIntegrationTest<CSharp4100FilterTests.ClassFixture>
     {
+        public CSharp4100FilterTests(ClassFixture fixture) : base(fixture)
+        {
+        }
+
         [Fact]
         public void Contains_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains('A'));
 
@@ -41,19 +47,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains('A'));
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 
         [Fact]
         public void Contains_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains(x.CS));
 
@@ -65,7 +71,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains(x.CS));
 
@@ -77,7 +83,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_char_field_not_represented_as_string_should_throw()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains(x.CC));
 
@@ -90,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_char_field_not_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains(x.CC));
 
@@ -105,7 +111,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { S : /A/is } }")]
         public void Contains_with_string_field_and_char_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains('A', comparisonType));
 
@@ -121,13 +127,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
         public void Contains_with_string_constant_and_char_constant_and_comparisonType_should_work(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains('A', comparisonType));
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 #endif
 
@@ -137,7 +143,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $gte : [{ $indexOfCP : [{ $toLower :'$S' }, { $toLower : '$CS' }] }, 0] } } }")]
         public void Contains_with_string_field_and_char_field_represented_as_string_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains(x.CS, comparisonType));
 
@@ -153,7 +159,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['abc', { $toLower : '$CS' }] }, 0] } } }")]
         public void Contains_with_string_constant_and_char_field_represented_as_string_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains(x.CS, comparisonType));
 
@@ -169,7 +175,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
         public void Contains_with_string_field_and_char_value_not_represented_as_string_and_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains(x.CC, comparisonType));
 
@@ -186,7 +192,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
         public void Contains_with_string_constant_and_char_value_not_represented_as_string_and_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains(x.CC, comparisonType));
 
@@ -205,7 +211,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void Contains_with_string_field_and_char_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains('A', comparisonType));
 
@@ -224,20 +230,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void Contains_with_string_constant_and_char_value_and_invalid_comparisonType_should_work(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains('A', comparisonType));
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $match : { } }");
+           AssertStages(stages);
         }
 #endif
 
         [Fact]
         public void Contains_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains("aBc"));
 
@@ -249,7 +255,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains("aBc"));
 
@@ -261,7 +267,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains(x.T));
 
@@ -273,7 +279,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains(x.T));
 
@@ -288,7 +294,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { S : /aBc/is } }")]
         public void Contains_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains("aBc", comparisonType));
 
@@ -301,10 +307,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, null)]
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains("aBc", comparisonType));
 
@@ -320,7 +326,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $gte : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] } } }")]
         public void Contains_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains(x.T, comparisonType));
 
@@ -336,7 +342,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] } } }")]
         public void Contains_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains(x.T, comparisonType));
 
@@ -354,7 +360,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void Contains_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.Contains("aBc", comparisonType));
 
@@ -368,12 +374,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.InvariantCulture, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.InvariantCultureIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.InvariantCultureIgnoreCase, null)]
         [InlineData(StringComparison.Ordinal, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.OrdinalIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.OrdinalIgnoreCase, null)]
         public void Contains_with_string_constant_and_string_value_and_invalid_comparisonType_should_(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".Contains("aBc", comparisonType));
 
@@ -387,7 +393,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith('A'));
 
@@ -401,7 +407,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith('A'));
 
@@ -415,7 +421,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith(x.CS));
 
@@ -429,7 +435,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith(x.CS));
 
@@ -443,7 +449,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_char_field_not_represented_as_string_should_throw()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith(x.CC));
 
@@ -458,7 +464,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_char_field_not_represented_as_string_should_throw()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith(x.CC));
 
@@ -472,7 +478,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith("aBc"));
 
@@ -484,7 +490,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith("aBc"));
 
@@ -496,7 +502,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith(x.T));
 
@@ -508,7 +514,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith(x.T));
 
@@ -522,7 +528,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $match : { S : /aBc$/is } }")]
         public void EndsWith_with_string_field_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith("aBc", ignoreCase, CultureInfo.CurrentCulture));
 
@@ -533,10 +539,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void EndsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith("aBc", ignoreCase, CultureInfo.CurrentCulture));
 
@@ -550,7 +556,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $match : { $expr : { $let : { vars : { string : { $toLower : '$S' }, substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', '$$substring', '$$start'] }, '$$start'] }] } } } } } } }")]
         public void EndsWith_with_string_field_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith(x.T, ignoreCase, CultureInfo.CurrentCulture));
 
@@ -564,7 +570,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $match : { $expr : { $let : { vars : { substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [3, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['abc', '$$substring', '$$start'] }, '$$start'] }] } } } } } } }")]
         public void EndsWith_with_string_constant_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith(x.T, ignoreCase, CultureInfo.CurrentCulture));
 
@@ -578,7 +584,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true)]
         public void EndsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith("aBc", ignoreCase, notCurrentCulture));
@@ -591,10 +597,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void EndsWith_with_string_constant_and_string_value_and_ignoreCase_and_invalid_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith("aBc", ignoreCase, CultureInfo.InvariantCulture));
 
@@ -608,7 +614,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { S : /aBc$/is } }")]
         public void EndsWith_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith("aBc", comparisonType));
 
@@ -619,10 +625,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, null)]
         public void EndsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith("aBc", comparisonType));
 
@@ -636,7 +642,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $let : { vars : { string : { $toLower : '$S' }, substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', '$$substring', '$$start'] }, '$$start'] }] } } } } } } }")]
         public void EndsWith_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith(x.T, comparisonType));
 
@@ -650,7 +656,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $let : { vars : { substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [3, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['abc', '$$substring', '$$start'] }, '$$start'] }] } } } } } } }")]
         public void EndsWith_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith(x.T, comparisonType));
 
@@ -666,7 +672,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void EndsWith_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.EndsWith(x.T, comparisonType));
 
@@ -683,7 +689,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void EndsWith_with_string_constant_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".EndsWith(x.T, comparisonType));
 
@@ -697,7 +703,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith('A'));
 
@@ -711,13 +717,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith('A'));
 
             var stages = Translate(collection, queryable);
 
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 #endif
 
@@ -725,7 +731,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith(x.CS));
 
@@ -739,7 +745,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith(x.CS));
 
@@ -753,7 +759,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_char_field_not_represented_as_string_should_throw()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith(x.CC));
 
@@ -768,7 +774,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_char_field_not_represented_as_string_should_throw()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith(x.CC));
 
@@ -782,7 +788,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith("aBc"));
 
@@ -794,7 +800,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith("aBc"));
 
@@ -806,7 +812,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith(x.T));
 
@@ -818,7 +824,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith(x.T));
 
@@ -832,7 +838,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $match : { S : /^aBc/is } }")]
         public void StartsWith_with_string_field_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith("aBc", ignoreCase, CultureInfo.CurrentCulture));
 
@@ -843,10 +849,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void StartsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith("aBc", ignoreCase, CultureInfo.CurrentCulture));
 
@@ -860,7 +866,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $match : { $expr : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] } } }")]
         public void StartsWith_with_string_field_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith(x.T, ignoreCase, CultureInfo.CurrentCulture));
 
@@ -874,7 +880,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $match : { $expr : { $eq : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0]  } } }")]
         public void StartsWith_with_string_constant_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith(x.T, ignoreCase, CultureInfo.CurrentCulture));
 
@@ -888,7 +894,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true)]
         public void StartsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith("aBc", ignoreCase, notCurrentCulture));
@@ -901,10 +907,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void StartsWith_with_string_constant_and_string_value_and_ignoreCase_and_invalid_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith("aBc", ignoreCase, CultureInfo.InvariantCulture));
 
@@ -918,7 +924,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { S : /^aBc/is } }")]
         public void StartsWith_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith("aBc", comparisonType));
 
@@ -929,10 +935,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase, null)]
         public void StartsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith("aBc", comparisonType));
 
@@ -946,7 +952,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] } } }")]
         public void StartsWith_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith(x.T, comparisonType));
 
@@ -960,7 +966,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $eq : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] } } }")]
         public void StartsWith_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith(x.T, comparisonType));
 
@@ -976,7 +982,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void StartsWith_with_string_field_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.S.StartsWith(x.T, comparisonType));
 
@@ -993,7 +999,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void StartsWith_with_string_constant_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection<Test>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => "ABC".StartsWith(x.T, comparisonType));
 
@@ -1019,6 +1025,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.String)] public char CS { get; set; }
             public string S { get; set; }
             public string T { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Test>
+        {
+            protected override IEnumerable<Test> InitialData => null;
         }
     }
 }

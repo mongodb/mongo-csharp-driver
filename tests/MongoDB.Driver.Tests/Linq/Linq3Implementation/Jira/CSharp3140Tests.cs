@@ -13,17 +13,24 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3140Tests : Linq3IntegrationTest
+    public class CSharp3140Tests : LinqIntegrationTest<CSharp3140Tests.ClassFixture>
     {
+        public CSharp3140Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void AndAlso_with_first_clause_that_evaluates_to_true_should_simplify_to_second_clause()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = new Factory { Id = 1 } };
             var queryable = collection.AsQueryable()
                 .Where(x => currentUser.Factory != null && x.FactoryId == currentUser.Factory.Id);
@@ -35,7 +42,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AndAlso_with_first_clause_that_evaluates_to_false_should_simplify_to_false_and_should_not_evaluate_second_clause()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = null };
             var queryable = collection.AsQueryable()
                 .Where(x => currentUser.Factory != null && x.FactoryId == currentUser.Factory.Id);
@@ -47,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AndAlso_with_second_clause_that_evaluates_to_true_should_simplify_to_first_cluase()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = new Factory { Id = 1 } };
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId == currentUser.Factory.Id && currentUser.Factory != null);
@@ -59,7 +66,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AndAlso_with_second_clause_that_evaluates_to_false_should_simplify_to_false()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = null };
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId != 0 && currentUser.Factory != null);
@@ -71,7 +78,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AndAlso_with_neither_clause_a_constant_should_work()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId != 0 && x.FactoryId != 1);
 
@@ -82,7 +89,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Conditional_with_test_that_evaluates_to_true_should_simplify_to_if_true_clause()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = null };
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId == (currentUser.Factory == null ? 0 : currentUser.Factory.Id));
@@ -94,7 +101,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Conditional_with_test_that_evaluates_to_false_should_simplify_to_if_true_clause()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = new Factory { Id = 1 } };
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId == (currentUser.Factory == null ? 0 : currentUser.Factory.Id));
@@ -106,7 +113,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Conditional_with_test_that_is_not_a_constant_should_work()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId == (x.Id == 0 ? 0 : 1));
 
@@ -117,7 +124,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrElse_with_first_clause_that_evaluates_to_false_should_simplify_to_second_clause()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = new Factory { Id = 1 } };
             var queryable = collection.AsQueryable()
                 .Where(x => currentUser.Factory == null || x.FactoryId == currentUser.Factory.Id);
@@ -129,19 +136,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrElse_with_first_clause_that_evaluates_to_true_should_simplify_to_true_and_should_not_evaluate_second_clause()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = null };
             var queryable = collection.AsQueryable()
                 .Where(x => currentUser.Factory == null || x.FactoryId == currentUser.Factory.Id);
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 
         [Fact]
         public void OrElse_with_second_clause_that_evaluates_to_false_should_simplify_to_first_cluase()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = new Factory { Id = 1 } };
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId == currentUser.Factory.Id || currentUser.Factory == null);
@@ -153,19 +160,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrElse_with_second_clause_that_evaluates_to_true_should_simplify_to_true()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var currentUser = new User { Id = 1, Factory = null };
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId != 0 || currentUser.Factory == null);
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { } }");
+            AssertStages(stages);
         }
 
         [Fact]
         public void OrElse_with_neither_clause_a_constant_should_work()
         {
-            var collection = GetCollection<Order>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.FactoryId == 0 || x.FactoryId == 1);
 
@@ -188,6 +195,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class Factory
         {
             public int Id { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Order>
+        {
+            protected override IEnumerable<Order> InitialData => null;
         }
     }
 }

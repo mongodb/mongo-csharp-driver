@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -22,13 +25,12 @@ using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    internal static class WhereMethodToAggregationExpressionTranslator
+    internal static class OfTypeMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __whereMethods =
+        private static MethodInfo[] __ofTypeMethods =
         {
-            EnumerableMethod.Where,
-            MongoEnumerableMethod.WhereWithLimit,
-            QueryableMethod.Where
+            EnumerableMethod.OfType,
+            QueryableMethod.OfType
         };
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -36,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__whereMethods))
+            if (method.IsOneOf(__ofTypeMethods))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
@@ -51,26 +53,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
 
-                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                var predicateParameter = predicateLambda.Parameters[0];
-                var predicateSymbol = context.CreateSymbol(predicateParameter, itemSerializer);
-                var predicateContext = context.WithSymbol(predicateSymbol);
-                var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+                var nominalType = itemSerializer.ValueType;
+                var nominalTypeSerializer = itemSerializer;
+                var actualType = method.GetGenericArguments().Single();
+                var actualTypeSerializer = BsonSerializer.LookupSerializer(actualType);
 
-                TranslatedExpression limitTranslation = null;
-                if (method.Is(MongoEnumerableMethod.WhereWithLimit))
+                AstExpression ast;
+                if (nominalType == actualType)
                 {
-                    var limitExpression = arguments[2];
-                    limitTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, limitExpression);
+                    ast = sourceAst;
+                }
+                else
+                {
+                    var discriminatorConvention = nominalTypeSerializer.GetDiscriminatorConvention();
+                    var itemVar = AstExpression.Var("item");
+                    var discriminatorField = AstExpression.GetField(itemVar, discriminatorConvention.ElementName);
+
+                    var ofTypeExpression = discriminatorConvention switch
+                    {
+                        IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstExpression.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
+                        IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstExpression.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                        _ => throw new ExpressionNotSupportedException(expression, because: "OfType is not supported with the configured discriminator convention")
+                    };
+
+                    ast = AstExpression.Filter(
+                        input: sourceAst,
+                        cond: ofTypeExpression,
+                        @as: "item");
                 }
 
-                var ast = AstExpression.Filter(
-                    sourceAst,
-                    predicateTranslation.Ast,
-                    @as: predicateSymbol.Var.Name,
-                    limitTranslation?.Ast);
-
-                var resultSerializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);
+                var resultSerializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, actualTypeSerializer);
                 return new TranslatedExpression(expression, ast, resultSerializer);
             }
 
