@@ -177,6 +177,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Take":
                     return SkipOrTakeMethodToAggregationExpressionTranslator.Translate(context, expression);
 
+                case "SkipWhile":
+                case "TakeWhile":
+                    return SkipWhileOrTakeWhileMethodToAggregationExpressionTranslator.Translate(context, expression);
+
                 case "StandardDeviationPopulation":
                 case "StandardDeviationSample":
                     return StandardDeviationMethodsToAggregationExpressionTranslator.Translate(context, expression);

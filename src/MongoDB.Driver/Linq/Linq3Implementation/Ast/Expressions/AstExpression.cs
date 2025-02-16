@@ -868,6 +868,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Sum, array);
         }
 
+        public static AstExpression Switch(IEnumerable<AstSwitchExpressionBranch> branches, AstExpression @default = null)
+        {
+            return new AstSwitchExpression(branches, @default);
+        }
+
+        public static AstExpression Switch(IEnumerable<(AstExpression Case, AstExpression Then)> branches, AstExpression @default = null)
+        {
+            return new AstSwitchExpression(branches.Select(branch => new AstSwitchExpressionBranch(branch.Case, branch.Then)), @default);
+        }
+
         public static AstExpression ToLower(AstExpression arg)
         {
             if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
