@@ -1,0 +1,167 @@
+﻿/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
+using Xunit;
+
+namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
+{
+    public class CSharp4883Tests : LinqIntegrationTest<CSharp4883Tests.ClassFixture>
+    {
+        public CSharp4883Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void SkipWhile_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.A.AsQueryable().SkipWhile(x => x < 3).ToArray()) :
+                collection.AsQueryable().Select(x => x.A.SkipWhile(x => x < 3).ToArray());
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                """
+                {
+                    $project :
+                    {
+                        _v :
+                        {
+                            $slice :
+                            [
+                                "$A",
+                                {
+                                    $let :
+                                    {
+                                        vars :
+                                        {
+                                            this :
+                                            {
+                                                $reduce :
+                                                {
+                                                     input : "$A",
+                                                     initialValue : { p : true, n : 0 },
+                                                     in :
+                                                     {
+                                                         $cond :
+                                                         {
+                                                             if : { $and : ["$$value.p", { $lt : ["$$this", 3] }] },
+                                                             then : { p : true, n : { $add : ["$$value.n", 1] } },
+                                                             else : "$$value"
+                                                         }
+                                                     }
+                                                 }
+                                            }
+                                        },
+                                        in : "$$this.n"
+                                    }
+                                },
+                                2147483647
+                            ]
+                        },
+                        _id : 0
+                    }
+                }
+                """);
+
+            var result = queryable.Single();
+            result.Should().Equal(3, 4, 5);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TakeWhile_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.A.AsQueryable().TakeWhile(x => x < 3).ToArray()) :
+                collection.AsQueryable().Select(x => x.A.TakeWhile(x => x < 3).ToArray());
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                """
+                {
+                    $project :
+                    {
+                        _v :
+                        {
+                            $slice :
+                            [
+                                "$A",
+                                {
+                                    $let :
+                                    {
+                                        vars :
+                                        {
+                                            this :
+                                            {
+                                                $reduce :
+                                                {
+                                                     input : "$A",
+                                                     initialValue : { p : true, n : 0 },
+                                                     in :
+                                                     {
+                                                         $cond :
+                                                         {
+                                                             if : { $and : ["$$value.p", { $lt : ["$$this", 3] }] },
+                                                             then : { p : true, n : { $add : ["$$value.n", 1] } },
+                                                             else : "$$value"
+                                                         }
+                                                     }
+                                                 }
+                                            }
+                                        },
+                                        in : "$$this.n"
+                                    }
+                                }
+                            ]
+                        },
+                        _id : 0
+                    }
+                }
+                """);
+
+            var result = queryable.Single();
+            result.Should().Equal(1, 2);
+        }
+
+        public class C
+        {
+            public int Id { get; set; }
+            public int[] A { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData { get; } =
+            [
+                new C { Id = 1, A = [1, 2, 3, 4, 5] }
+            ];
+        }
+    }
+}
