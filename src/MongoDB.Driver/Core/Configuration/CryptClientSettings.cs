@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// //TODO
         /// </summary>
-        public long? DekCacheLifetimeMs { private set; get; }
+        public long? DekCacheLifetimeMs { get; }
 
         /// <summary>
         /// Gets the encrypted fields map.
