@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Encryption
         /// //TODO
         /// </summary>
         /// <param name="dekCacheLifetimeMs"></param>
-        public void SetDekCacheLifetimeMs(long dekCacheLifetimeMs)
+        public void SetDekCacheLifetimeMs(long? dekCacheLifetimeMs)
         {
             _dekCacheLifetimeMs = dekCacheLifetimeMs;
         }

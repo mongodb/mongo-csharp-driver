@@ -164,7 +164,7 @@ namespace MongoDB.Driver
         /// //TODO
         /// </summary>
         /// <param name="dekCacheLifetimeMs"></param>
-        public void SetDekCacheLifetimeMs(long dekCacheLifetimeMs) //TODO We need to decide on a name too
+        public void SetDekCacheLifetimeMs(long? dekCacheLifetimeMs) //TODO We need to decide on a name too
         {
             _dekCacheLifetimeMs = dekCacheLifetimeMs;
         }
