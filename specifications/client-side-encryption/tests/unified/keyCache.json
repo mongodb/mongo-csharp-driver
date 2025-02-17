@@ -1,122 +1,105 @@
 {
-  "runOn": [
+  "description": "keyCache-explicit",
+  "schemaVersion": "1.22",
+  "runOnRequirements": [
     {
-      "minServerVersion": "4.1.10"
+      "csfle": true
     }
   ],
-  "database_name": "default",
-  "collection_name": "default",
-  "data": [],
-  "json_schema": {
-    "properties": {
-      "encrypted_w_altname": {
-        "encrypt": {
-          "keyId": "/altname",
-          "bsonType": "string",
-          "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-        }
-      },
-      "encrypted_string": {
-        "encrypt": {
-          "keyId": [
-            {
-              "$binary": {
-                "base64": "AAAAAAAAAAAAAAAAAAAAAA==",
-                "subType": "04"
-              }
+  "createEntities": [
+    {
+      "client": {
+        "id": "client0",
+        "observeEvents": [
+          "commandStartedEvent"
+        ]
+      }
+    },
+    {
+      "clientEncryption": {
+        "id": "clientEncryption0",
+        "clientEncryptionOpts": {
+          "keyVaultClient": "client0",
+          "keyVaultNamespace": "keyvault.datakeys",
+          "kmsProviders": {
+            "local": {
+              "key": "OCTP9uKPPmvuqpHlqq83gPk4U6rUPxKVRRyVtrjFmVjdoa4Xzm1SzUbr7aIhNI42czkUBmrCtZKF31eaaJnxEBkqf0RFukA9Mo3NEHQWgAQ2cn9duOcRbaFUQo2z0/rB"
             }
-          ],
-          "bsonType": "string",
-          "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
-        }
-      },
-      "random": {
-        "encrypt": {
-          "keyId": [
-            {
-              "$binary": {
-                "base64": "AAAAAAAAAAAAAAAAAAAAAA==",
-                "subType": "04"
-              }
-            }
-          ],
-          "bsonType": "string",
-          "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-        }
-      },
-      "encrypted_string_equivalent": {
-        "encrypt": {
-          "keyId": [
-            {
-              "$binary": {
-                "base64": "AAAAAAAAAAAAAAAAAAAAAA==",
-                "subType": "04"
-              }
-            }
-          ],
-          "bsonType": "string",
-          "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+          },
+          "keyExpirationMS": 1
         }
       }
     },
-    "bsonType": "object"
-  },
-  "key_vault_data": [
     {
-      "status": 1,
-      "_id": {
-        "$binary": {
-          "base64": "AAAAAAAAAAAAAAAAAAAAAA==",
-          "subType": "04"
+      "database": {
+        "id": "database0",
+        "client": "client0",
+        "databaseName": "keyvault"
+      }
+    },
+    {
+      "collection": {
+        "id": "collection0",
+        "database": "database0",
+        "collectionName": "datakeys"
+      }
+    }
+  ],
+  "initialData": [
+    {
+      "databaseName": "keyvault",
+      "collectionName": "datakeys",
+      "documents": [
+        {
+          "_id": {
+            "$binary": {
+              "base64": "a+YWzdygTAG62/cNUkqZiQ==",
+              "subType": "04"
+            }
+          },
+          "keyAltNames": [],
+          "keyMaterial": {
+            "$binary": {
+              "base64": "iocBkhO3YBokiJ+FtxDTS71/qKXQ7tSWhWbcnFTXBcMjarsepvALeJ5li+SdUd9ePuatjidxAdMo7vh1V2ZESLMkQWdpPJ9PaJjA67gKQKbbbB4Ik5F2uKjULvrMBnFNVRMup4JNUwWFQJpqbfMveXnUVcD06+pUpAkml/f+DSXrV3e5rxciiNVtz03dAG8wJrsKsFXWj6vTjFhsfknyBA==",
+              "subType": "00"
+            }
+          },
+          "creationDate": {
+            "$date": {
+              "$numberLong": "1552949630483"
+            }
+          },
+          "updateDate": {
+            "$date": {
+              "$numberLong": "1552949630483"
+            }
+          },
+          "status": {
+            "$numberInt": "0"
+          },
+          "masterKey": {
+            "provider": "local"
+          }
         }
-      },
-      "masterKey": {
-        "provider": "aws",
-        "key": "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0",
-        "region": "us-east-1"
-      },
-      "updateDate": {
-        "$date": {
-          "$numberLong": "1552949630483"
-        }
-      },
-      "keyMaterial": {
-        "$binary": {
-          "base64": "AQICAHhQNmWG2CzOm1dq3kWLM+iDUZhEqnhJwH9wZVpuZ94A8gEqnsxXlR51T5EbEVezUqqKAAAAwjCBvwYJKoZIhvcNAQcGoIGxMIGuAgEAMIGoBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDHa4jo6yp0Z18KgbUgIBEIB74sKxWtV8/YHje5lv5THTl0HIbhSwM6EqRlmBiFFatmEWaeMk4tO4xBX65eq670I5TWPSLMzpp8ncGHMmvHqRajNBnmFtbYxN3E3/WjxmdbOOe+OXpnGJPcGsftc7cB2shRfA4lICPnE26+oVNXT6p0Lo20nY5XC7jyCO",
-          "subType": "00"
-        }
-      },
-      "creationDate": {
-        "$date": {
-          "$numberLong": "1552949630483"
-        }
-      },
-      "keyAltNames": [
-        "altname",
-        "another_altname"
       ]
     }
   ],
   "tests": [
     {
-      "description": "Insert with deterministic encryption, then find it",
-      "clientOptions": {
-        "autoEncryptOpts": {
-          "kmsProviders": {
-            "aws": {}
-          },
-          "keyExpirationMS": 1
-        }
-      },
+      "description": "decrypt, wait, and decrypt again",
       "operations": [
         {
-          "name": "insertOne",
+          "name": "decrypt",
+          "object": "clientEncryption0",
           "arguments": {
-            "document": {
-              "_id": 1,
-              "encrypted_string": "string0"
+            "value": {
+              "$binary": {
+                "base64": "AWvmFs3coEwButv3DVJKmYkCJ6lUzRX9R28WNlw5uyndb+8gurA+p8q14s7GZ04K2ZvghieRlAr5UwZbow3PMq27u5EIhDDczwBFcbdP1amllw==",
+                "subType": "06"
+              }
             }
-          }
+          },
+          "expectResult": "foobar"
         },
         {
           "name": "wait",
@@ -126,145 +109,90 @@
           }
         },
         {
-          "name": "find",
+          "name": "decrypt",
+          "object": "clientEncryption0",
           "arguments": {
-            "filter": {
-              "_id": 1
+            "value": {
+              "$binary": {
+                "base64": "AWvmFs3coEwButv3DVJKmYkCJ6lUzRX9R28WNlw5uyndb+8gurA+p8q14s7GZ04K2ZvghieRlAr5UwZbow3PMq27u5EIhDDczwBFcbdP1amllw==",
+                "subType": "06"
+              }
             }
           },
-          "result": [
-            {
-              "_id": 1,
-              "encrypted_string": "string0"
-            }
-          ]
+          "expectResult": "foobar"
         }
       ],
-      "expectations": [
+      "expectEvents": [
         {
-          "command_started_event": {
-            "command": {
-              "listCollections": 1,
-              "filter": {
-                "name": "default"
-              }
-            },
-            "command_name": "listCollections"
-          }
-        },
-        {
-          "command_started_event": {
-            "command": {
-              "find": "datakeys",
-              "filter": {
-                "$or": [
-                  {
-                    "_id": {
-                      "$in": [
-                        {
-                          "$binary": {
-                            "base64": "AAAAAAAAAAAAAAAAAAAAAA==",
-                            "subType": "04"
-                          }
+          "client": "client0",
+          "events": [
+            {
+              "commandStartedEvent": {
+                "command": {
+                  "find": "datakeys",
+                  "filter": {
+                    "$or": [
+                      {
+                        "_id": {
+                          "$in": [
+                            {
+                              "$binary": {
+                                "base64": "a+YWzdygTAG62/cNUkqZiQ==",
+                                "subType": "04"
+                              }
+                            }
+                          ]
                         }
-                      ]
-                    }
+                      },
+                      {
+                        "keyAltNames": {
+                          "$in": []
+                        }
+                      }
+                    ]
                   },
-                  {
-                    "keyAltNames": {
-                      "$in": []
-                    }
-                  }
-                ]
-              },
-              "$db": "keyvault",
-              "readConcern": {
-                "level": "majority"
-              }
-            },
-            "command_name": "find"
-          }
-        },
-        {
-          "command_started_event": {
-            "command": {
-              "insert": "default",
-              "documents": [
-                {
-                  "_id": 1,
-                  "encrypted_string": {
-                    "$binary": {
-                      "base64": "AQAAAAAAAAAAAAAAAAAAAAACwj+3zkv2VM+aTfk60RqhXq6a/77WlLwu/BxXFkL7EppGsju/m8f0x5kBDD3EZTtGALGXlym5jnpZAoSIkswHoA==",
-                      "subType": "06"
-                    }
+                  "$db": "keyvault",
+                  "readConcern": {
+                    "level": "majority"
                   }
                 }
-              ],
-              "ordered": true
-            },
-            "command_name": "insert"
-          }
-        },
-        {
-          "command_started_event": {
-            "command": {
-              "find": "default",
-              "filter": {
-                "_id": 1
               }
             },
-            "command_name": "find"
-          }
-        },
-        {
-          "command_started_event": {
-            "command": {
-              "find": "datakeys",
-              "filter": {
-                "$or": [
-                  {
-                    "_id": {
-                      "$in": [
-                        {
-                          "$binary": {
-                            "base64": "AAAAAAAAAAAAAAAAAAAAAA==",
-                            "subType": "04"
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "keyAltNames": {
-                      "$in": []
-                    }
-                  }
-                ]
-              },
-              "$db": "keyvault",
-              "readConcern": {
-                "level": "majority"
-              }
-            },
-            "command_name": "find"
-          }
-        }
-      ],
-      "outcome": {
-        "collection": {
-          "data": [
             {
-              "_id": 1,
-              "encrypted_string": {
-                "$binary": {
-                  "base64": "AQAAAAAAAAAAAAAAAAAAAAACwj+3zkv2VM+aTfk60RqhXq6a/77WlLwu/BxXFkL7EppGsju/m8f0x5kBDD3EZTtGALGXlym5jnpZAoSIkswHoA==",
-                  "subType": "06"
+              "commandStartedEvent": {
+                "command": {
+                  "find": "datakeys",
+                  "filter": {
+                    "$or": [
+                      {
+                        "_id": {
+                          "$in": [
+                            {
+                              "$binary": {
+                                "base64": "a+YWzdygTAG62/cNUkqZiQ==",
+                                "subType": "04"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "keyAltNames": {
+                          "$in": []
+                        }
+                      }
+                    ]
+                  },
+                  "$db": "keyvault",
+                  "readConcern": {
+                    "level": "majority"
+                  }
                 }
               }
             }
           ]
         }
-      }
+      ]
     }
   ]
 }
