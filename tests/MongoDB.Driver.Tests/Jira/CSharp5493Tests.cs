@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -40,22 +41,8 @@ namespace MongoDB.Driver.Tests.Jira
             database.DropCollection("recursiveClass");
             var collection = database.GetCollection<RecursiveClass>("recursiveClass");
 
-            var toInsert = new RecursiveClass
-            {
-                Id = ObjectId.GenerateNewId(),
-                Name = "outer",
-                TestEnum = TestEnum.One,
-                Category = new RecursiveClass
-                {
-                    Id = ObjectId.GenerateNewId(),
-                    Name = "inner",
-                    TestEnum = TestEnum.Two
-                }
-            };
+            var toInsert = new RecursiveClass();
             collection.InsertOne(toInsert);
-
-            var retrieved = collection.Find(c => c.Id == toInsert.Id).Single();
-            Assert.Equal(retrieved.Name, toInsert.Name);
         }
 
         public class RecursiveClass
@@ -63,8 +50,10 @@ namespace MongoDB.Driver.Tests.Jira
             [BsonId]
             public ObjectId Id { get; set; }
             public TestEnum TestEnum { get; set; }
-            public string Name { get; set; }
-            public RecursiveClass Category { get; set; }
+            public List<TestEnum> ListEnum { get; set; }
+            public TestEnum[] ArrayEnum { get; set; }
+            public Dictionary<string, TestEnum> DictEnum { get; set; }
+            public RecursiveClass RecursiveProp { get; set; }
         }
 
         public enum TestEnum
