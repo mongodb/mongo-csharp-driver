@@ -70,11 +70,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         public void Apply(BsonMemberMap memberMap)
         {
             var memberType = memberMap.MemberType;
-            var memberTypeInfo = memberType.GetTypeInfo();
 
-            if (memberType.IsEnum || memberType.IsArray || typeof(IEnumerable).IsAssignableFrom(memberType))
+            if (!memberType.IsEnum && Nullable.GetUnderlyingType(memberType) == null && !memberType.IsArray &&
+                !typeof(IEnumerable).IsAssignableFrom(memberType))
             {
-                
+                return;
             }
 
             var serializer = memberMap.GetSerializer();
