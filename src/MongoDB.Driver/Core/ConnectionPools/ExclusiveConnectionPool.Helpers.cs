@@ -752,6 +752,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public PooledConnection Acquire()
             {
                 PooledConnection result = null;
+                List<PooledConnection> connectionsToRemove = null;
 
                 lock (_lock)
                 {
@@ -762,7 +763,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         _connections.RemoveAt(lastIndex);
                         if (connection.IsExpired)
                         {
-                            RemoveConnection(connection);
+                            connectionsToRemove ??= new List<PooledConnection>();
+                            connectionsToRemove.Add(connection);
                         }
                         else
                         {
@@ -776,12 +778,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 if (result != null)
                 {
                     TrackInUseConnection(result);
+                }
 
-                    // This connection can be expired and not disposed by Prune. Dispose if needed
-                    if (result.IsExpired)
+                if (connectionsToRemove != null)
+                {
+                    foreach (var connection in connectionsToRemove)
                     {
-                        RemoveConnection(result);
-                        result = null;
+                        RemoveConnection(connection);
                     }
                 }
 
