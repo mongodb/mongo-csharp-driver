@@ -39,11 +39,10 @@ namespace MongoDB.Bson.Serialization
         }
 
         // public properties
-
         /// <summary>
         /// //TODO
         /// </summary>
-        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
+        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets a function that, when executed, will indicate whether the type 

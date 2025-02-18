@@ -247,11 +247,6 @@ namespace MongoDB.Bson.IO
         void ReturnToBookmark(BsonReaderBookmark bookmark);
 
         /// <summary>
-        /// Gets the settings of the reader.
-        /// </summary>
-        BsonReaderSettings Settings { get;  }
-
-        /// <summary>
         /// Skips the name (reader must be positioned on a name).
         /// </summary>
         void SkipName();

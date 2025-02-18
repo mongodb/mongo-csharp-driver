@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Serialization
             _allowDuplicateElementNames = allowDuplicateElementNames;
             _dynamicArraySerializer = dynamicArraySerializer;
             _dynamicDocumentSerializer = dynamicDocumentSerializer;
-            _serializationDomain = reader.Settings?.SerializationDomain ?? BsonSerializer.DefaultSerializationDomain;
+            _serializationDomain = (reader as BsonReader)!.Settings?.SerializationDomain ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         // public properties
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// //TODO
         /// </summary>
-        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
+        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the dynamic array serializer.
