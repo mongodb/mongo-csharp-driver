@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 creatorMap = null;
             }
 
-            classMap.AutoMap(context.SerializationDomain);
+            classMap.AutoMap();
             classMap.IdMemberMap?.SetElementName("_id"); // normally happens when Freeze is called but we need it sooner here
 
             return classMap;

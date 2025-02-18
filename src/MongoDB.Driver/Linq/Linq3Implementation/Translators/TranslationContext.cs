@@ -32,14 +32,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(symbolTable, nameGenerator, translationOptions, BsonSerializer.DefaultSerializationDomain, data); //TODO It'll be annoying to pass the serialization domain in the call here
+            return new TranslationContext(symbolTable, nameGenerator, translationOptions, data); //TODO It'll be annoying to pass the serialization domain in the call here
         }
         #endregion
 
         // private fields
         private readonly TranslationContextData _data;
         private readonly NameGenerator _nameGenerator;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
@@ -47,20 +46,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             SymbolTable symbolTable,
             NameGenerator nameGenerator,
             ExpressionTranslationOptions translationOptions,
-            IBsonSerializationDomain serializationDomain,
             TranslationContextData data = null)
         {
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
             _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
             _data = data; // can be null
         }
 
         // public properties
         public TranslationContextData Data => _data;
         public NameGenerator NameGenerator => _nameGenerator;
-        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
 
