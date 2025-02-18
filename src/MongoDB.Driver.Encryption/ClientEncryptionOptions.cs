@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Encryption
         // public properties
 
         /// <summary>
-        /// //TODO
+        /// Gets the value of the expiration time for the DEK cache in ms.
         /// </summary>
         public long? DekCacheLifetimeMs => _dekCacheLifetimeMs;
 
@@ -127,9 +127,10 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// //TODO
+        /// Sets the expiration time for the DEK cache. If not set, it defaults to 60 seconds.
+        /// If set to 0, the cache never expires.
         /// </summary>
-        /// <param name="dekCacheLifetimeMs"></param>
+        /// <param name="dekCacheLifetimeMs">The expiration time for the DEK cache in ms.</param>
         public void SetDekCacheLifetimeMs(long? dekCacheLifetimeMs)
         {
             _dekCacheLifetimeMs = dekCacheLifetimeMs;

@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Configuration
         public string CryptSharedLibSearchPath { get; }
 
         /// <summary>
-        /// //TODO
+        /// Gets the value of the expiration time for the DEK cache in ms.
         /// </summary>
         public long? DekCacheLifetimeMs { get; }
 
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="isCryptSharedLibRequired">Value indicating whether crypt shared library is required.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
         /// <param name="schemaMap">The schema map.</param>
-        /// <param name="dekCacheLifetimeMs">//TODO</param>
+        /// <param name="dekCacheLifetimeMs">The value of the expiration time for the DEK cache in ms.</param>
         public CryptClientSettings(
             bool? bypassQueryAnalysis,
             string cryptSharedLibPath,
