@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Encryption
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
-            : this(keyVaultClient, keyVaultNamespace, kmsProviders, tlsOptions, default)
+            : this(keyVaultClient, keyVaultNamespace, kmsProviders, tlsOptions, dekCacheLifetimeMs: null)
         {
         }
 
