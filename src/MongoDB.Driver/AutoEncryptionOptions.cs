@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         // private fields
         private readonly bool _bypassAutoEncryption;
         private readonly bool? _bypassQueryAnalysis;
+        private long? _dekCacheLifetimeMs;
         private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
         private readonly IReadOnlyDictionary<string, object> _extraOptions;
         private readonly IMongoClient _keyVaultClient;
@@ -65,11 +66,27 @@ namespace MongoDB.Driver
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default,
             Optional<bool?> bypassQueryAnalysis = default)
+            :this(keyVaultNamespace, kmsProviders, bypassAutoEncryption, extraOptions, keyVaultClient, schemaMap, tlsOptions, encryptedFieldsMap, bypassQueryAnalysis, dekCacheLifetimeMs: null)
+        {
+        }
+
+        private AutoEncryptionOptions(
+            CollectionNamespace keyVaultNamespace,
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
+            Optional<bool> bypassAutoEncryption,
+            Optional<IReadOnlyDictionary<string, object>> extraOptions,
+            Optional<IMongoClient> keyVaultClient,
+            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap,
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions,
+            Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap,
+            Optional<bool?> bypassQueryAnalysis,
+            Optional<long?> dekCacheLifetimeMs)
         {
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _bypassAutoEncryption = bypassAutoEncryption.WithDefault(false);
             _bypassQueryAnalysis = bypassQueryAnalysis.WithDefault(null);
+            _dekCacheLifetimeMs = dekCacheLifetimeMs.WithDefault(null);
             _extraOptions = extraOptions.WithDefault(null);
             _keyVaultClient = keyVaultClient.WithDefault(null);
             _schemaMap = schemaMap.WithDefault(null);
@@ -95,6 +112,11 @@ namespace MongoDB.Driver
         /// Gets a value indicating whether to bypass query analysis.
         /// </summary>
         public bool? BypassQueryAnalysis => _bypassQueryAnalysis;
+
+        /// <summary>
+        /// Gets the value of the expiration time for the DEK cache in ms.
+        /// </summary>
+        public long? DekCacheLifetimeMs => _dekCacheLifetimeMs;
 
         /// <summary>
         /// Gets the encrypted fields map.
@@ -155,6 +177,16 @@ namespace MongoDB.Driver
         public IReadOnlyDictionary<string, BsonDocument> SchemaMap => _schemaMap;
 
         /// <summary>
+        /// Sets the expiration time for the DEK cache. If not set, it defaults to 60 seconds.
+        /// If set to 0, the cache never expires.
+        /// </summary>
+        /// <param name="dekCacheLifetimeMs">The expiration time for the DEK cache in ms.</param>
+        public void SetDekCacheLifetimeMs(long? dekCacheLifetimeMs)
+        {
+            _dekCacheLifetimeMs = dekCacheLifetimeMs;
+        }
+
+        /// <summary>
         /// Returns a new instance of the <see cref="AutoEncryptionOptions"/> class.
         /// </summary>
         /// <param name="keyVaultNamespace">The keyVault namespace.</param>
@@ -187,7 +219,8 @@ namespace MongoDB.Driver
                 Optional.Create(schemaMap.WithDefault(_schemaMap)),
                 Optional.Create(tlsOptions.WithDefault(_tlsOptions)),
                 Optional.Create(encryptedFieldsMap.WithDefault(_encryptedFieldsMap)),
-                Optional.Create(bypassQueryAnalysis.WithDefault(_bypassQueryAnalysis)));
+                Optional.Create(bypassQueryAnalysis.WithDefault(_bypassQueryAnalysis)),
+                _dekCacheLifetimeMs);
         }
 
         /// <inheritdoc />
@@ -199,6 +232,7 @@ namespace MongoDB.Driver
             return
                 _bypassAutoEncryption.Equals(rhs._bypassAutoEncryption) &&
                 _bypassQueryAnalysis == rhs._bypassQueryAnalysis &&
+                _dekCacheLifetimeMs == rhs._dekCacheLifetimeMs &&
                 ExtraOptionsEquals(_extraOptions, rhs._extraOptions) &&
                 object.ReferenceEquals(_keyVaultClient, rhs._keyVaultClient) &&
                 _keyVaultNamespace.Equals(rhs._keyVaultNamespace) &&
@@ -214,6 +248,7 @@ namespace MongoDB.Driver
             return new Hasher()
                 .Hash(_bypassAutoEncryption)
                 .Hash(_bypassQueryAnalysis)
+                .Hash(_dekCacheLifetimeMs)
                 .HashElements(_extraOptions)
                 .Hash(_keyVaultClient)
                 .Hash(_keyVaultNamespace)
@@ -235,6 +270,10 @@ namespace MongoDB.Driver
             if (_bypassQueryAnalysis.HasValue)
             {
                 sb.AppendFormat("BypassQueryAnalysis : {0}, ", _bypassQueryAnalysis.Value);
+            }
+            if (_dekCacheLifetimeMs.HasValue)
+            {
+                sb.AppendFormat("DekCacheLifetimeMs : {0}, ", _dekCacheLifetimeMs.Value);
             }
             sb.AppendFormat("KmsProviders : {0}, ", _kmsProviders.ToJson(jsonWriterSettings));
             if (_keyVaultNamespace != null)
@@ -271,7 +310,8 @@ namespace MongoDB.Driver
                 _encryptedFieldsMap,
                 EncryptionExtraOptionsHelper.ExtractCryptSharedLibRequired(ExtraOptions),
                 _kmsProviders,
-                _schemaMap);
+                _schemaMap,
+                _dekCacheLifetimeMs);
 
         // private methods
         private bool ExtraOptionsEquals(IReadOnlyDictionary<string, object> x, IReadOnlyDictionary<string, object> y)
