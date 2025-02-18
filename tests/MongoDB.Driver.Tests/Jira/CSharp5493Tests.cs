@@ -29,12 +29,8 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         private void Test()
         {
-            BsonSerializer.TryRegisterSerializer(new ObjectSerializer(_ => true));
             var pack = new ConventionPack { new EnumRepresentationConvention(BsonType.String) };
-            ConventionRegistry.Register(
-                "enum",
-                pack,
-                t => true);
+            ConventionRegistry.Register("enumRecursive", pack, t => t == typeof(RecursiveClass));
 
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("test");
@@ -43,6 +39,8 @@ namespace MongoDB.Driver.Tests.Jira
 
             var toInsert = new RecursiveClass();
             collection.InsertOne(toInsert);
+
+            ConventionRegistry.Remove("enumRecursive");
         }
 
         public class RecursiveClass
