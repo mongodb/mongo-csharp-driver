@@ -296,7 +296,6 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("EncryptedFieldsMap : {0}, ", _encryptedFieldsMap.ToJson(jsonWriterSettings));
             }
-            //TODO Need to fix ToString and Equals for all
             sb.Remove(sb.Length - 2, 2);
             sb.Append(" }");
             return sb.ToString();
