@@ -17,6 +17,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -67,28 +68,34 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var (sourceBinding, sourceAst) = AstExpression.UseVarIfNotSimple("source", sourceTranslation.Ast);
 
                 var valueVar = AstExpression.Var("value");
+                var valuePredicateField = AstExpression.GetField(valueVar, "predicate");
+                var valueCountField = AstExpression.GetField(valueVar, "count");
+
                 var reduceAst = AstExpression.Reduce(
                     input: sourceAst,
-                    initialValue: new BsonDocument { { "p", true }, { "n", 0 } },
-                    @in: AstExpression.Cond(
-                        @if: AstExpression.And(AstExpression.GetField(valueVar, "p"), predicateTranslation.Ast),
-                        @then: AstExpression.ComputedDocument(
+                    initialValue: new BsonDocument { { "predicate", true }, { "count", 0 } },
+                    @in: AstExpression.Switch(
+                        branches:
                         [
-                            AstExpression.ComputedField("p", true),
-                            AstExpression.ComputedField("n", AstExpression.Add(AstExpression.GetField(valueVar, "n"), 1))
-                        ]),
-                        @else: valueVar));
-                var countAst = AstExpression.GetField(reduceAst, "n");
+                            (AstExpression.Not(valuePredicateField), valueVar),
+                            (predicateTranslation.Ast, AstExpression.ComputedDocument([new AstComputedField("predicate", true), new AstComputedField("count", AstExpression.Add(valueCountField, 1))]))
+                        ],
+                        @default: AstExpression.ComputedDocument([new AstComputedField("predicate", false), new AstComputedField("count", valueCountField)])));
+
+                var whileVar = AstExpression.Var("while");
+                var whileBinding = AstExpression.VarBinding(whileVar, reduceAst);
+                var whileCountField = AstExpression.GetField(whileVar, "count");
 
                 var sliceAst = method switch
                 {
-                    _ when method.IsOneOf(__skipWhileMethods) => AstExpression.Slice(sourceTranslation.Ast, countAst, int.MaxValue),
-                    _ when method.IsOneOf(__takeWhileMethods) => AstExpression.Slice(sourceTranslation.Ast, countAst),
+                    _ when method.IsOneOf(__skipWhileMethods) => AstExpression.Slice(sourceAst, whileCountField, int.MaxValue),
+                    _ when method.IsOneOf(__takeWhileMethods) => AstExpression.Slice(sourceAst, whileCountField),
                     _ => throw new ExpressionNotSupportedException(expression)
                 };
 
                 var ast = AstExpression.Let(
                     sourceBinding,
+                    whileBinding,
                     sliceAst);
 
                 var resultSerializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer);

@@ -49,37 +49,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     {
                         _v :
                         {
-                            $slice :
-                            [
-                                "$A",
+                            $let :
+                            {
+                                vars :
                                 {
-                                    $let :
+                                    "while" :
                                     {
-                                        vars :
+                                        $reduce :
                                         {
-                                            this :
-                                            {
-                                                $reduce :
-                                                {
-                                                     input : "$A",
-                                                     initialValue : { p : true, n : 0 },
-                                                     in :
-                                                     {
-                                                         $cond :
-                                                         {
-                                                             if : { $and : ["$$value.p", { $lt : ["$$this", 3] }] },
-                                                             then : { p : true, n : { $add : ["$$value.n", 1] } },
-                                                             else : "$$value"
-                                                         }
-                                                     }
+                                             input : "$A",
+                                             initialValue : { predicate : true, count : 0 },
+                                             in :
+                                             {
+                                                 $switch :
+                                                 {
+                                                    branches :
+                                                    [
+                                                        { case : { $not : "$$value.predicate" }, then : "$$value" },
+                                                        { case : { $lt : ["$$this", 3] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
+                                                    ],
+                                                    default : { predicate : false, count : "$$value.count" }
                                                  }
-                                            }
-                                        },
-                                        in : "$$this.n"
+                                             }
+                                         }
                                     }
                                 },
-                                2147483647
-                            ]
+                                in : { $slice : ["$A", "$$while.count", 2147483647] }
+                            }
                         },
                         _id : 0
                     }
@@ -87,7 +83,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 """);
 
             var result = queryable.Single();
-            result.Should().Equal(3, 4, 5);
+            result.Should().Equal(3, 2, 1);
         }
 
         [Theory]
@@ -110,36 +106,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     {
                         _v :
                         {
-                            $slice :
-                            [
-                                "$A",
+                            $let :
+                            {
+                                vars :
                                 {
-                                    $let :
+                                    "while" :
                                     {
-                                        vars :
+                                        $reduce :
                                         {
-                                            this :
-                                            {
-                                                $reduce :
-                                                {
-                                                     input : "$A",
-                                                     initialValue : { p : true, n : 0 },
-                                                     in :
-                                                     {
-                                                         $cond :
-                                                         {
-                                                             if : { $and : ["$$value.p", { $lt : ["$$this", 3] }] },
-                                                             then : { p : true, n : { $add : ["$$value.n", 1] } },
-                                                             else : "$$value"
-                                                         }
-                                                     }
+                                             input : "$A",
+                                             initialValue : { predicate : true, count : 0 },
+                                             in :
+                                             {
+                                                 $switch :
+                                                 {
+                                                    branches :
+                                                    [
+                                                        { case : { $not : "$$value.predicate" }, then : "$$value" },
+                                                        { case : { $lt : ["$$this", 3] }, then : { predicate : true, count : { $add : ["$$value.count", 1] } } },
+                                                    ],
+                                                    default : { predicate : false, count : "$$value.count" }
                                                  }
-                                            }
-                                        },
-                                        in : "$$this.n"
+                                             }
+                                         }
                                     }
-                                }
-                            ]
+                                },
+                                in : { $slice : ["$A", "$$while.count"] }
+                            }
                         },
                         _id : 0
                     }
@@ -160,7 +153,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             protected override IEnumerable<C> InitialData { get; } =
             [
-                new C { Id = 1, A = [1, 2, 3, 4, 5] }
+                new C { Id = 1, A = [1, 2, 3, 2, 1] }
             ];
         }
     }
