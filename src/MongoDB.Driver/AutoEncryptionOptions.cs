@@ -66,7 +66,7 @@ namespace MongoDB.Driver
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default,
             Optional<bool?> bypassQueryAnalysis = default)
-        :this(keyVaultNamespace, kmsProviders, bypassAutoEncryption, extraOptions, keyVaultClient, schemaMap, tlsOptions, encryptedFieldsMap, bypassQueryAnalysis, dekCacheLifetimeMs: null)
+            :this(keyVaultNamespace, kmsProviders, bypassAutoEncryption, extraOptions, keyVaultClient, schemaMap, tlsOptions, encryptedFieldsMap, bypassQueryAnalysis, dekCacheLifetimeMs: null)
         {
         }
 
