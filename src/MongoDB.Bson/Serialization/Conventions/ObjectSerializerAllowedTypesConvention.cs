@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -152,6 +153,14 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
+            var memberType = memberMap.MemberType;
+
+            if (memberType != typeof(object) && Nullable.GetUnderlyingType(memberType) == null && !memberType.IsArray &&
+                !typeof(IEnumerable).IsAssignableFrom(memberType))
+            {
+                return;
+            }
+
             var serializer = memberMap.GetSerializer();
 
             var reconfiguredSerializer = Reconfigure(serializer);
