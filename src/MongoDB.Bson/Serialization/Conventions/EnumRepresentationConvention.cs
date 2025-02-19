@@ -70,8 +70,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var memberType = memberMap.MemberType;
 
-            if (!memberType.IsEnum && Nullable.GetUnderlyingType(memberType) == null && !memberType.IsArray &&
-                !typeof(IEnumerable).IsAssignableFrom(memberType))
+            if (!(memberType.IsEnum || memberType.IsNullableEnum() || memberType.IsArray || typeof(IEnumerable).IsAssignableFrom(memberType)))
             {
                 return;
             }
