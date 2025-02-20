@@ -346,7 +346,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         }
 
         [Fact]
-        public void Convention_should_not_make_infinite_loop_with_recursive_class()
+        public void Convention_should_work_with_recursive_type()
         {
             var pack = new ConventionPack { new ObjectSerializerAllowedTypesConvention() };
             ConventionRegistry.Register("objectRecursive", pack, t => t == typeof(TestClass));
