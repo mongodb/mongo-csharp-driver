@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public object ObjectProp { get; set; }
             public object[] ArrayOfObjectProp { get; set; }
             public object[][] ArrayOfArrayOfObjectProp { get; set; }
+            public TestClass RecursiveProp { get; set; }
         }
 
         [Fact]
@@ -342,6 +343,17 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             typedSerializer.AllowedSerializationTypes(typeof(EnumSerializer)).Should().BeFalse();
 
             ConventionRegistry.Remove(conventionName);
+        }
+
+        [Fact]
+        public void Convention_should_work_with_recursive_type()
+        {
+            var pack = new ConventionPack { new ObjectSerializerAllowedTypesConvention() };
+            ConventionRegistry.Register("objectRecursive", pack, t => t == typeof(TestClass));
+
+            _ = new BsonClassMap<TestClass>(cm => cm.AutoMap()).Freeze();
+
+            ConventionRegistry.Remove("enumRecursive");
         }
 
         // private methods

@@ -41,6 +41,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public int I { get; set; }
             public int NI { get; set; }
             public int[] ArrayInt { get; set; }
+            public C RecursiveProp { get; set; }
         }
 
         [Theory]
@@ -202,6 +203,17 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             subject.Apply(memberMap);
 
             memberMap.GetSerializer().Should().BeSameAs(serializer);
+        }
+
+        [Fact]
+        public void Convention_should_work_with_recursive_type()
+        {
+            var pack = new ConventionPack { new EnumRepresentationConvention(BsonType.String) };
+            ConventionRegistry.Register("enumRecursive", pack, t => t == typeof(C));
+
+            _ = new BsonClassMap<C>(cm => cm.AutoMap()).Freeze();
+
+            ConventionRegistry.Remove("enumRecursive");
         }
 
         [Theory]
