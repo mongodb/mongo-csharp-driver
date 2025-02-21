@@ -246,15 +246,22 @@ functions:
         file: mo-expansion.yml
 
   download-and-promote-augmented-sbom-to-s3-bucket:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${kondukto_role_arn}
     - command: shell.exec
       params:
         working_dir: "mongo-csharp-driver"
         include_expansions_in_env:
-          - "SILK_CLIENT_ID"
-          - "SILK_CLIENT_SECRET"
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           ${PREPARE_SHELL}
           ./evergreen/download-augmented-sbom.sh
+    - command: ec2.assume_role
+      params:
+        role_arn: ${UPLOAD_SSDLC_RELEASE_ASSETS_ROLE_ARN}
     - command: s3.put
       params:
         aws_key: ${AWS_ACCESS_KEY_ID}
