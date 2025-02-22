@@ -125,6 +125,14 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> GeoNear<TPoint>(
+            TPoint near,
+            GeoNearOptions<TResult> options = null) where TPoint : class
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> GraphLookup<TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult>(
             IMongoCollection<TFrom> from,
             FieldDefinition<TFrom, TConnectFrom> connectFromField,

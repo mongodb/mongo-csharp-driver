@@ -15,14 +15,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -603,6 +604,64 @@ namespace MongoDB.Driver
             params AggregateFacet<TInput>[] facets)
         {
             return Facet<TInput, TOutput>((IEnumerable<AggregateFacet<TInput>>)facets);
+        }
+        
+        /// <summary>
+        /// Creates a $geoNear stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <typeparam name="TPoint">The type of the point. This could be a <see cref="GeoJsonPoint{TCoordinates}"/>, a 2d array or embedded document.</typeparam>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TOutput, TPoint>(
+            TPoint near,
+            GeoNearOptions<TOutput> options = null) where TPoint : class
+        {
+            Ensure.IsNotNull(near, nameof(near));
+            
+            const string operatorName = "$geoNear";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var pointSerializer = args.SerializerRegistry.GetSerializer<TPoint>();
+                    var outputRenderArgs = args.WithNewDocumentType(args.SerializerRegistry.GetSerializer<TOutput>());
+                    var geoNearOptions = new BsonDocument
+                    {
+                        { "near", pointSerializer.ToBsonValue(near)},
+                        { "distanceField", options?.DistanceField, options?.DistanceField != null },
+                        { "maxDistance", () => options?.MaxDistance.Value, options?.MaxDistance != null },
+                        { "minDistance", () => options?.MinDistance.Value, options?.MinDistance != null },
+                        { "distanceMultiplier", () => options?.DistanceMultiplier.Value, options?.DistanceMultiplier != null },
+                        { "key", options?.Key, options?.Key != null },
+                        { "query", options?.Query?.Render(outputRenderArgs), options?.Query != null },
+                        { "includeLocs", options?.IncludeLocs, options?.IncludeLocs != null },
+                        { "spherical", () => options?.Spherical.Value, options?.Spherical != null }
+                    };
+                    
+                    var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
+                    return new RenderedPipelineStageDefinition<TOutput>(operatorName, new BsonDocument(operatorName, geoNearOptions), outputSerializer);
+                });
+            
+            return stage;
+        }
+        
+        /// <summary>
+        /// Creates a $geoNear stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TPoint">The type of the point. This could be a <see cref="GeoJsonPoint{TCoordinates}"/>, a 2d array or embedded document.</typeparam>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> GeoNear<TInput, TPoint>(
+            TPoint near,
+            GeoNearOptions<TInput> options = null) where TPoint : class
+        {
+            return GeoNear<TInput, TInput, TPoint>(near, options);
         }
 
         /// <summary>

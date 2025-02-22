@@ -129,6 +129,13 @@ namespace MongoDB.Driver
         {
             return WithPipeline(_pipeline.Facet(facets, options));
         }
+        
+        public override IAggregateFluent<TResult> GeoNear<TPoint>(
+            TPoint near,
+            GeoNearOptions<TResult> options = null)
+        {
+            return WithPipeline(_pipeline.GeoNear(near, options));
+        }
 
         public override IAggregateFluent<TNewResult> GraphLookup<TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult>(
             IMongoCollection<TFrom> from,

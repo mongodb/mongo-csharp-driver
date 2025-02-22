@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
@@ -482,6 +483,25 @@ namespace MongoDB.Driver
         public static PipelineDefinition<TInput, TInput> For<TInput>(IBsonSerializer<TInput> inputSerializer = null)
         {
             return new EmptyPipelineDefinition<TInput>(inputSerializer);
+        }
+        
+        /// <summary>
+        /// Appends a $geoNear stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <typeparam name="TPoint">The type of the point. This could be a <see cref="GeoJsonPoint{TCoordinates}"/>, a 2d array or embedded document.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> GeoNear<TInput, TOutput, TPoint>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            TPoint near,
+            GeoNearOptions<TOutput> options = null) where TPoint : class
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.GeoNear(near, options));
         }
 
         /// <summary>
