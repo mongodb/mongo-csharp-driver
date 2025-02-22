@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace MongoDB.Driver
 {
@@ -250,6 +251,25 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             return aggregate.AppendStage(PipelineStageDefinitionBuilder.Facet<TResult, TNewResult>(facets));
+        }
+
+        /// <summary>
+        /// Appends a $geoNear stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TPoint">The type of the point. This could be a <see cref="GeoJsonPoint{TCoordinates}"/>, a 2d array or embedded document.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GeoNear<TResult, TNewResult, TPoint>(
+            this IAggregateFluent<TResult> aggregate,
+            TPoint near,
+            GeoNearOptions<TNewResult> options = null) where TPoint : class
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GeoNear<TResult, TNewResult, TPoint>(near, options));
         }
 
         /// <summary>

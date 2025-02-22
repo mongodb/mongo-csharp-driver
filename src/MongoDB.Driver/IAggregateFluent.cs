@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
@@ -175,6 +176,17 @@ namespace MongoDB.Driver
             IEnumerable<AggregateFacet<TResult>> facets,
             AggregateFacetOptions<TNewResult> options = null);
 
+        /// <summary>
+        /// Appends a $geoNear stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TPoint">The type of the point. This could be a <see cref="GeoJsonPoint{TCoordinates}"/>, a 2d array or embedded document.</typeparam>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> GeoNear<TPoint>(
+            TPoint near,
+            GeoNearOptions<TResult> options = null) where TPoint : class;
+        
         /// <summary>
         /// Appends a $graphLookup stage to the pipeline.
         /// </summary>
