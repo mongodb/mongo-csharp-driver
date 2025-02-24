@@ -14,20 +14,27 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4405Tests : Linq3IntegrationTest
+    public class CSharp4405Tests : LinqIntegrationTest<CSharp4405Tests.ClassFixture>
     {
+        public CSharp4405Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Week_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -43,7 +50,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Week_with_timezone_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -56,23 +63,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(0, 52);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, D = DateTime.Parse("2022-01-01T00:00:00Z", null, DateTimeStyles.AdjustToUniversal), TZ = "UTC" },
-                new C { Id = 2, D = DateTime.Parse("2022-01-01T00:00:00Z", null, DateTimeStyles.AdjustToUniversal), TZ = "America/New_York" });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public DateTime D { get; set; }
             public string TZ { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, D = DateTime.Parse("2022-01-01T00:00:00Z", null, DateTimeStyles.AdjustToUniversal), TZ = "UTC" },
+                new C { Id = 2, D = DateTime.Parse("2022-01-01T00:00:00Z", null, DateTimeStyles.AdjustToUniversal), TZ = "America/New_York" }
+            ];
         }
     }
 }

@@ -13,19 +13,26 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5403Tests : Linq3IntegrationTest
+    public class CSharp5403Tests : LinqIntegrationTest<CSharp5403Tests.ClassFixture>
     {
+        public CSharp5403Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Project_Id_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var find = collection
                 .Find(Builders<GridFSFileInfo>.Filter.Where(x => x.Id == ObjectId.Parse("111111111111111111111111")))
@@ -45,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_IdAsBsonValue_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var find = collection
                 .Find(Builders<GridFSFileInfo>.Filter.Where(x => x.IdAsBsonValue == new BsonObjectId(ObjectId.Parse("111111111111111111111111"))))
@@ -62,14 +69,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 #pragma warning restore CS0618 // Type or member is obsolete
 
-        private IMongoCollection<GridFSFileInfo> GetCollection()
+        public sealed class ClassFixture : MongoCollectionFixture<BsonDocument, GridFSFileInfo>
         {
-            var collection = GetCollection<GridFSFileInfo>("test");
-            CreateCollection(
-                collection.Database.GetCollection<BsonDocument>(collection.CollectionNamespace.CollectionName),
+            protected override IEnumerable<BsonDocument> InitialData =>
+            [
                 BsonDocument.Parse("{ _id : { $oid : '111111111111111111111111' }, filename : 'One' }"),
-                BsonDocument.Parse("{ _id : { $oid : '222222222222222222222222' }, filename : 'Two' }"));
-            return collection;
+                BsonDocument.Parse("{ _id : { $oid : '222222222222222222222222' }, filename : 'Two' }")
+            ];
         }
     }
 }

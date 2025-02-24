@@ -14,20 +14,26 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4609Tests : Linq3IntegrationTest
+    public class CSharp4609Tests : LinqIntegrationTest<CSharp4609Tests.ClassFixture>
     {
+        public CSharp4609Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Project_dictionary_value_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             Expression<Func<MeasurementDetails, object>> field = x => x.CreationDate;
             var myValue = "2023-04-13T01:02:03Z";
             var filter = Builders<MeasurementDetails>.Filter.Lt(field, myValue);
@@ -41,20 +47,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<MeasurementDetails> CreateCollection()
-        {
-            var collection = GetCollection<MeasurementDetails>("test");
-            CreateCollection(
-                collection,
-                new MeasurementDetails { Id = 1, CreationDate = new DateTime(2023, 04, 13, 1, 2, 2, DateTimeKind.Utc) },
-                new MeasurementDetails { Id = 2, CreationDate = new DateTime(2023, 04, 13, 1, 2, 3, DateTimeKind.Utc) });
-            return collection;
-        }
-
-        private class MeasurementDetails
+        public class MeasurementDetails
         {
             public int Id { get; set; }
             public DateTime CreationDate { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<MeasurementDetails>
+        {
+            protected override IEnumerable<MeasurementDetails> InitialData =>
+            [
+                new MeasurementDetails { Id = 1, CreationDate = new DateTime(2023, 04, 13, 1, 2, 2, DateTimeKind.Utc) },
+                new MeasurementDetails { Id = 2, CreationDate = new DateTime(2023, 04, 13, 1, 2, 3, DateTimeKind.Utc) }
+            ];
         }
     }
 }

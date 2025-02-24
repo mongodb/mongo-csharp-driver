@@ -16,18 +16,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5081Tests : Linq3IntegrationTest
+    public class CSharp5081Tests : LinqIntegrationTest<CSharp5081Tests.ClassFixture>
     {
+        public CSharp5081Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void SelectMany_chained_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .SelectMany(series => series.Books)
@@ -58,7 +63,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void SelectMany_nested_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().SelectMany(series => series.Books.AsQueryable().SelectMany(book => book.Chapters.Select(chapter => chapter.Title))) :
@@ -85,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Aggregate_Project_SelectMany_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = withNestedAsQueryable ?
                 collection.Aggregate().Project(Series => Series.Books.AsQueryable().SelectMany(book => book.Chapters.Select(chapter => chapter.Title)).ToList()) :
@@ -108,54 +113,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 "Book 3 Chapter 2");
         }
 
-        private IMongoCollection<Series> GetCollection()
-        {
-            var collection = GetCollection<Series>("series");
-            var document1 = new Series
-            {
-                Id = 1,
-                Books = new List<Book>
-                {
-                    new Book
-                    {
-                        Title = "Book1",
-                        Chapters = new List<Chapter>
-                        {
-                            new Chapter { Title = "Book 1 Chapter 1"},
-                            new Chapter { Title = "Book 1 Chapter 2"}
-                        }
-                    },
-                    new Book
-                    {
-                        Title = "Book2",
-                        Chapters = new List<Chapter>
-                        {
-                            new Chapter { Title = "Book 2 Chapter 1"},
-                            new Chapter { Title = "Book 2 Chapter 2"}
-                        }
-                    }
-                }
-            };
-            var document2 = new Series
-            {
-                Id = 2,
-                Books = new List<Book>
-                {
-                    new Book
-                    {
-                        Title = "Book3",
-                        Chapters = new List<Chapter>
-                        {
-                            new Chapter { Title = "Book 3 Chapter 1"},
-                            new Chapter { Title = "Book 3 Chapter 2"}
-                        }
-                    }
-                }
-            };
-            CreateCollection(collection, document1, document2);
-            return collection;
-        }
-
         public class Series
         {
             public int Id { get; set; }
@@ -171,6 +128,54 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class Chapter
         {
             public string Title { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Series>
+        {
+            protected override IEnumerable<Series> InitialData =>
+            [
+                new Series
+                {
+                    Id = 1,
+                    Books = new List<Book>
+                    {
+                        new Book
+                        {
+                            Title = "Book1",
+                            Chapters = new List<Chapter>
+                            {
+                                new Chapter { Title = "Book 1 Chapter 1"},
+                                new Chapter { Title = "Book 1 Chapter 2"}
+                            }
+                        },
+                        new Book
+                        {
+                            Title = "Book2",
+                            Chapters = new List<Chapter>
+                            {
+                                new Chapter { Title = "Book 2 Chapter 1"},
+                                new Chapter { Title = "Book 2 Chapter 2"}
+                            }
+                        }
+                    }
+                },
+                new Series
+                {
+                    Id = 2,
+                    Books = new List<Book>
+                    {
+                        new Book
+                        {
+                            Title = "Book3",
+                            Chapters = new List<Chapter>
+                            {
+                                new Chapter { Title = "Book 3 Chapter 1"},
+                                new Chapter { Title = "Book 3 Chapter 2"}
+                            }
+                        }
+                    }
+                }
+            ];
         }
     }
 }

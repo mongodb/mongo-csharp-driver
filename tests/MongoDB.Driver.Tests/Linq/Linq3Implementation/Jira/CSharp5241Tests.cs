@@ -15,19 +15,23 @@
 
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5241Tests : Linq3IntegrationTest
+    public class CSharp5241Tests : LinqIntegrationTest<CSharp5241Tests.ClassFixture>
     {
+        public CSharp5241Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Join_with_equality_match_and_correlated_document_result_should_work()
         {
-            var localCollection = GetOuterCollection();
-            var foreignCollection = GetInnerCollection();
+            var localCollection = Fixture.OuterCollection;
+            var foreignCollection = Fixture.InnerCollection;
 
             var queryable = localCollection.AsQueryable()
                 .Join(foreignCollection, outer => outer.Local, inner => inner.Foreign, (outer, inner) => new { OuterId = outer.Id, InnerId = inner.Id });
@@ -44,8 +48,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Join_with_equality_match_and_correlated_scalar_result_should_work()
         {
-            var localCollection = GetOuterCollection();
-            var foreignCollection = GetInnerCollection();
+            var localCollection = Fixture.OuterCollection;
+            var foreignCollection = Fixture.InnerCollection;
 
             var queryable = localCollection.AsQueryable()
                 .Join(foreignCollection, outer => outer.Local, inner => inner.Foreign, (outer, inner) => outer.Id);
@@ -65,8 +69,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Join_with_equality_match_and_uncorrelated_document_result_should_work()
         {
-            var localCollection = GetOuterCollection();
-            var foreignCollection = GetInnerCollection();
+            var localCollection = Fixture.OuterCollection;
+            var foreignCollection = Fixture.InnerCollection;
 
             var queryable = localCollection.AsQueryable()
                 .Join(foreignCollection, outer => outer.Local, inner => inner.Foreign, (outer, inner) => new { InnerId = inner.Id });
@@ -86,8 +90,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Join_with_equality_match_and_uncorrelated_scalar_result_should_work()
         {
-            var localCollection = GetOuterCollection();
-            var foreignCollection = GetInnerCollection();
+            var localCollection = Fixture.OuterCollection;
+            var foreignCollection = Fixture.InnerCollection;
 
             var queryable = localCollection.AsQueryable()
                 .Join(foreignCollection, outer => outer.Local, inner => inner.Foreign, (outer, inner) => inner.Id);
@@ -107,8 +111,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Join_with_equality_match_and_uncorrelated_identity_result_should_work()
         {
-            var localCollection = GetOuterCollection();
-            var foreignCollection = GetInnerCollection();
+            var localCollection = Fixture.OuterCollection;
+            var foreignCollection = Fixture.InnerCollection;
 
             var queryable = localCollection.AsQueryable()
                 .Join(foreignCollection, outer => outer.Local, inner => inner.Foreign, (outer, inner) => inner);
@@ -125,35 +129,39 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2, 3);
         }
 
-        private IMongoCollection<Outer> GetOuterCollection()
-        {
-            var collection = GetCollection<Outer>("outer");
-            CreateCollection(
-                collection,
-                new Outer { Id = 1, Local = 4 });
-            return collection;
-        }
-
-        private IMongoCollection<Inner> GetInnerCollection()
-        {
-            var collection = GetCollection<Inner>("inner");
-            CreateCollection(
-                collection,
-                new Inner { Id = 2, Foreign = 4 },
-                new Inner { Id = 3, Foreign = 4 });
-            return collection;
-        }
-
-        private class Outer
+        public class Outer
         {
             public int Id { get; set; }
             public int Local { get; set; }
         }
 
-        private class Inner
+        public class Inner
         {
             public int Id { get; set; }
             public int Foreign { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoDatabaseFixture
+        {
+            public IMongoCollection<Inner> InnerCollection { get; private set; }
+
+            public IMongoCollection<Outer> OuterCollection { get; private set; }
+
+            protected override void InitializeFixture()
+            {
+                InnerCollection = CreateCollection<Inner>("inner");
+                InnerCollection.InsertMany(
+                [
+                    new Inner { Id = 2, Foreign = 4 },
+                    new Inner { Id = 3, Foreign = 4 }
+                ]);
+
+                OuterCollection = CreateCollection<Outer>("outer");
+                OuterCollection.InsertMany(
+                [
+                    new Outer { Id = 1, Local = 4 }
+                ]);
+            }
         }
     }
 }

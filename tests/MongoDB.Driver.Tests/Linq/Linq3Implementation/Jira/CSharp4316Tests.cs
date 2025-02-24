@@ -13,19 +13,24 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4316Tests : Linq3IntegrationTest
+    public class CSharp4316Tests : LinqIntegrationTest<CSharp4316Tests.ClassFixture>
     {
+        public CSharp4316Tests(ClassFixture fixture) : base(fixture)
+        {
+        }
+
         [Fact]
         public void Value_and_HasValue_should_work_when_properties_on_Nullable_type()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var matchStage = "{ $match : { 'ActualNullable' : { $ne : null } } }";
             var projectStage = "{ $project : { _id : '$_id', Value : '$ActualNullable', HasValue : { $ne : ['$ActualNullable', null] } } }";
 
@@ -43,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Value_and_HasValue_should_work_when_properties_not_on_Nullable_type()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var matchStage = "{ $match : { 'OnlyLooksLikeNullable.HasValue' : true } }";
             var projectStage = "{ $project : { _id : '$_id', Value : '$OnlyLooksLikeNullable.Value', HasValue : '$OnlyLooksLikeNullable.HasValue' } }";
 
@@ -59,29 +64,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, OnlyLooksLikeNullable = new OnlyLooksLikeNullable { Value = "SomeValue", HasValue = true }, ActualNullable = null },
-                new C { Id = 2, OnlyLooksLikeNullable = new OnlyLooksLikeNullable { Value = null, HasValue = false }, ActualNullable = true });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public OnlyLooksLikeNullable OnlyLooksLikeNullable { get; set; }
             public bool? ActualNullable { get; set; }
         }
 
-        private class OnlyLooksLikeNullable
+        public class OnlyLooksLikeNullable
         {
             public string Value { get; set; }
             public bool HasValue { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, OnlyLooksLikeNullable = new OnlyLooksLikeNullable { Value = "SomeValue", HasValue = true }, ActualNullable = null },
+                new C { Id = 2, OnlyLooksLikeNullable = new OnlyLooksLikeNullable { Value = null, HasValue = false }, ActualNullable = true }
+            ];
         }
     }
 }

@@ -13,20 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4466Tests : Linq3IntegrationTest
+    public class CSharp4466Tests : LinqIntegrationTest<CSharp4466Tests.ClassFixture>
     {
+        public CSharp4466Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void AppendStage_with_null_resultSerializer_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable =
                 collection.AsQueryable()
@@ -44,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AppendStage_with_resultSerializer_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var resultSerializer = BsonSerializer.LookupSerializer<D>();
 
             var queryable =
@@ -60,19 +67,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.X).Should().Equal(1, 2);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1 },
-                new C { Id = 2 });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
         }
@@ -80,6 +75,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         private class D
         {
             public int X { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1 },
+                new C { Id = 2 }
+            ];
         }
     }
 }

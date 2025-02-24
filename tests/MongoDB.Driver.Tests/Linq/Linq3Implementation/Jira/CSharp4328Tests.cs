@@ -14,22 +14,28 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4328Tests : Linq3IntegrationTest
+    public class CSharp4328Tests : LinqIntegrationTest<CSharp4328Tests.ClassFixture>
     {
+        public CSharp4328Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData(null)]
         [InlineData("USA")]
         public void Filter_using_First_should_work(string country)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var startTargetDeliveryDate = new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             var endTargetDeliveryDate = new DateTime(2022, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
@@ -65,12 +71,37 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Equal(2);
         }
 
-        private IMongoCollection<SubscriptionRepositorySubscriptionModel> CreateCollection()
+        public class SubscriptionRepositorySubscriptionModel
         {
-            var collection = GetCollection<SubscriptionRepositorySubscriptionModel>();
+            public int Id { get; set; }
+            public int CustomerId { get; set; }
+            public SubscriptionStatus SubscriptionStatus { get; set; }
+            public Order[] UpcomingOrders { get; set; }
+            public Address ShippingAddress { get; set; }
+        }
 
-            var documents = new SubscriptionRepositorySubscriptionModel[]
-            {
+        public class Order
+        {
+            public DateTime NextTargetDeliveryDate { get; set; }
+        }
+
+        public class Address
+        {
+            public string CountryCode { get; set; }
+        }
+
+#pragma warning disable CA1717
+        public enum SubscriptionStatus
+        {
+            Inactive = 0,
+            Active = 1
+        }
+#pragma warning restore CA1717
+
+        public sealed class ClassFixture : MongoCollectionFixture<SubscriptionRepositorySubscriptionModel>
+        {
+            protected override IEnumerable<SubscriptionRepositorySubscriptionModel> InitialData =>
+            [
                 new SubscriptionRepositorySubscriptionModel
                 {
                     Id = 1,
@@ -87,36 +118,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     UpcomingOrders = new Order[] { new Order { NextTargetDeliveryDate = new DateTime(2022, 12, 1, 0, 0, 0, DateTimeKind.Utc) } },
                     ShippingAddress = new Address { CountryCode = "USA" }
                 }
-
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
-        private class SubscriptionRepositorySubscriptionModel
-        {
-            public int Id { get; set; }
-            public int CustomerId { get; set; }
-            public SubscriptionStatus SubscriptionStatus { get; set; }
-            public Order[] UpcomingOrders { get; set; }
-            public Address ShippingAddress { get; set; }
-        }
-
-        private class Order
-        {
-            public DateTime NextTargetDeliveryDate { get; set; }
-        }
-
-        private class Address
-        {
-            public string CountryCode { get; set; }
-        }
-
-        private enum SubscriptionStatus
-        {
-            Inactive = 0,
-            Active = 1
+            ];
         }
     }
 }

@@ -14,22 +14,26 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4126Tests : Linq3IntegrationTest
+    public class CSharp4126Tests : LinqIntegrationTest<CSharp4126Tests.ClassFixture>
     {
+        public CSharp4126Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Test()
         {
-            var collection = GetCollection<C>();
-            CreateCollection(
-                collection,
-                new C { Id = 1, A = new[] { 1, -2, -3 } });
-
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(_p0 => new { Id = _p0.Id, A = _p0.A.Select(_p1 => Math.Abs(_p1)) });
 
@@ -46,6 +50,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public int Id { get; set; }
             public int[] A { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, A = new[] { 1, -2, -3 } }
+            ];
         }
     }
 }

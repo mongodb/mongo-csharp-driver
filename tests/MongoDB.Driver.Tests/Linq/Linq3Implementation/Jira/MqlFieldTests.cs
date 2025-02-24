@@ -22,12 +22,17 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class MqlFieldTests : Linq3IntegrationTest
+    public class MqlFieldTests : LinqIntegrationTest<MqlFieldTests.ClassFixture>
     {
+        public MqlFieldTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_Mql_Field_should_work_with_BsonDocument()
         {
-            var collection = GetCollection<BsonDocument>();
+            var collection = Fixture.GetCollection<BsonDocument>();
 
             var queryable = collection.AsQueryable()
                 .Select(root => Mql.Field(root, "X", Int32Serializer.Instance) + 1); // like root.X except BsonDocument does not have a property called X
@@ -42,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_Mql_Field_should_work_with_POCO()
         {
-            var collection = GetCollection<C>();
+            var collection = Fixture.GetCollection<C>();
 
             var queryable = collection.AsQueryable()
                 .Select(root => Mql.Field(root, "X", Int32Serializer.Instance) + 1); // like root.X except C does not have a property called X
@@ -57,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Mql_Field_should_work_with_BsonDocument()
         {
-            var collection = GetCollection<BsonDocument>();
+            var collection = Fixture.GetCollection<BsonDocument>();
 
             var queryable = collection.AsQueryable()
                 .Where(root => Mql.Field(root, "X", Int32Serializer.Instance) == 1); // like root.X except BsonDocument does not have a property called X
@@ -72,7 +77,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Mql_Field_should_work_with_POCO()
         {
-            var collection = GetCollection<C>();
+            var collection = Fixture.GetCollection<C>();
 
             var queryable = collection.AsQueryable()
                 .Where(root => Mql.Field(root, "X", Int32Serializer.Instance) == 1); // like root.X except C does not have a property called X
@@ -84,23 +89,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<TDocument> GetCollection<TDocument>()
-        {
-            var collection = GetCollection<BsonDocument>("test");
-            CreateCollection(
-                collection,
-                new BsonDocument { { "_id", 1 }, { "X", 1 } },
-                new BsonDocument { { "_id", 2 }, { "X", 2 } });
-
-            var database = collection.Database;
-            var collectionName = collection.CollectionNamespace.CollectionName;
-            return database.GetCollection<TDocument>(collectionName);
-        }
-
         [BsonIgnoreExtraElements]
-        private class C
+        public class C
         {
             public int Id { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoDatabaseFixture
+        {
+            private readonly string CollectionName = nameof(MqlFieldTests);
+
+            public IMongoCollection<TDocument> GetCollection<TDocument>()
+                => Database.GetCollection<TDocument>(CollectionName);
+
+            protected override void InitializeFixture()
+            {
+                var collection = CreateCollection<BsonDocument>(CollectionName);
+                collection.InsertMany([
+                    new BsonDocument { { "_id", 1 }, { "X", 1 } },
+                    new BsonDocument { { "_id", 2 }, { "X", 2 } }
+                ]);
+            }
         }
     }
 }

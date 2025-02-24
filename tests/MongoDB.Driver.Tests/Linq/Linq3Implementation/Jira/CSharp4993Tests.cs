@@ -13,21 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4993Tests : Linq3IntegrationTest
+    public class CSharp4993Tests : LinqIntegrationTest<CSharp4993Tests.ClassFixture>
     {
+        public CSharp4993Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_decimal_divide_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.D / 1.3M);
@@ -39,19 +45,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(769.23076923076923076923076923M);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, D = 1000.0M });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             [BsonRepresentation(BsonType.Decimal128)] public decimal D { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, D = 1000.0M }
+            ];
         }
     }
 }

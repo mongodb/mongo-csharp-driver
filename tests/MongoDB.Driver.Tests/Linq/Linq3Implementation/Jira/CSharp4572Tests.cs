@@ -13,20 +13,27 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     [Collection(RegisterObjectSerializerFixture.CollectionName)]
-    public class CSharp4572Tests : Linq3IntegrationTest
+    public class CSharp4572Tests : LinqIntegrationTest<CSharp4572Tests.ClassFixture>
     {
+        public CSharp4572Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Builders_Filter_Eq_with_downcast_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var filter = Builders<IMyInterface>.Filter.Eq(x => ((MyClass)x).TestValue, 42);
 
             var find = collection.Find(filter);
@@ -41,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_downcast_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var filter = Builders<IMyInterface>.Filter.Eq(x => ((MyClass)x).TestValue, 42);
 
             var queryable = collection.AsQueryable()
@@ -54,16 +61,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        private IMongoCollection<IMyInterface> GetCollection()
-        {
-            var collection = GetCollection<IMyInterface>("test");
-            CreateCollection(
-                collection,
-                new MyClass { Id = 1, TestValue = 1 },
-                new MyClass { Id = 2, TestValue = 42 });
-            return collection;
-        }
-
         public interface IMyInterface
         {
             int Id { get; set; }
@@ -73,6 +70,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public int Id { get; set; }
             public int TestValue { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<IMyInterface>
+        {
+            protected override IEnumerable<IMyInterface> InitialData =>
+            [
+                new MyClass { Id = 1, TestValue = 1 },
+                new MyClass { Id = 2, TestValue = 42 }
+            ];
         }
     }
 }

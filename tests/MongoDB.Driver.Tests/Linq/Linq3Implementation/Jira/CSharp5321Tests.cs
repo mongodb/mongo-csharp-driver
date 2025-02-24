@@ -13,20 +13,26 @@
  * limitations under the License.
  */
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5321Tests : Linq3IntegrationTest
+    public class CSharp5321Tests : LinqIntegrationTest<CSharp5321Tests.ClassFixture>
     {
+        public CSharp5321Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Client_side_projection_should_fetch_only_needed_fields()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = GetTranslationOptions();
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -42,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Client_side_projection_should_compute_sum_server_side()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = GetTranslationOptions();
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -53,15 +59,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var result = queryable.Single();
             result.Should().Be(10);
-        }
-
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 1, A = [1, 2, 3] });
-            return collection;
         }
 
         private ExpressionTranslationOptions GetTranslationOptions()
@@ -77,11 +74,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         private static int Add(int x, int y) => x + y;
 
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
             public int[] A { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 1, A = [1, 2, 3] }
+            ];
         }
     }
 }

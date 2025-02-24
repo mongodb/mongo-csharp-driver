@@ -19,7 +19,11 @@ using MongoDB.Driver.Tests;
 
 namespace MongoDB.Driver.TestHelpers
 {
-    public abstract class MongoCollectionFixture<TDocument> : MongoDatabaseFixture
+    public abstract class MongoCollectionFixture<TDocument> : MongoCollectionFixture<TDocument, TDocument>
+    {
+    }
+
+    public abstract class MongoCollectionFixture<TInitial, TDocument> : MongoDatabaseFixture
     {
         private readonly Lazy<IMongoCollection<TDocument>> _collection;
         private bool _dataInitialized;
@@ -31,7 +35,7 @@ namespace MongoDB.Driver.TestHelpers
 
         public IMongoCollection<TDocument> Collection => _collection.Value;
 
-        protected abstract IEnumerable<TDocument> InitialData { get; }
+        protected abstract IEnumerable<TInitial> InitialData { get; }
 
         public virtual bool InitializeDataBeforeEachTestCase => false;
 
@@ -47,7 +51,8 @@ namespace MongoDB.Driver.TestHelpers
                 }
                 else
                 {
-                    Collection.InsertMany(InitialData);
+                    var collection = Database.GetCollection<TInitial>(Collection.CollectionNamespace.CollectionName);
+                    collection.InsertMany(InitialData);
                 }
 
                 _dataInitialized = true;
