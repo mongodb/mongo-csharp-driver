@@ -155,8 +155,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var memberType = memberMap.MemberType;
 
-            if (memberType != typeof(object) && Nullable.GetUnderlyingType(memberType) == null && !memberType.IsArray &&
-                !typeof(IEnumerable).IsAssignableFrom(memberType))
+            if (!CouldApply(memberType))
             {
                 return;
             }
@@ -168,6 +167,13 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 memberMap.SetSerializer(reconfiguredSerializer);
             }
+        }
+
+        // private methods
+        private bool CouldApply(Type memberType)
+        {
+            return memberType == typeof(object) || memberType.IsNullable() || memberType.IsArray ||
+                   typeof(IEnumerable).IsAssignableFrom(memberType);
         }
 
         private IBsonSerializer Reconfigure(IBsonSerializer serializer)
