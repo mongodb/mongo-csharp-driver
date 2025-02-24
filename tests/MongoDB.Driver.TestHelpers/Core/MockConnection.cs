@@ -60,7 +60,6 @@ namespace MongoDB.Driver.Core.TestHelpers
         public MockConnection(ServerId serverId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber, TaskCompletionSource<bool> isExpiredTaskCompletionSource = null)
             : this(new ConnectionId(serverId), connectionSettings, eventSubscriber, isExpiredTaskCompletionSource)
         {
-
         }
 
         public MockConnection(ConnectionId connectionId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber, TaskCompletionSource<bool> isExpiredTaskCompletionSource = null)

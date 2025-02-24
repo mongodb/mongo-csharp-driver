@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Configuration
             var expectedServerMonitorSocketTimeout = TimeSpan.FromMilliseconds(expectedServerMonitorSocketTimeoutMilliseconds);
             var subject = new ClusterBuilder()
                 .ConfigureTcp(s => s.With(connectTimeout: connectTimeout))
-                .ConfigureConnection(s => s.With(authenticatorFactory: authenticatorFactory))
+                .ConfigureConnection(s => s.WithInternal(authenticatorFactory: authenticatorFactory))
                 .ConfigureServer(s => s.With(heartbeatTimeout: heartbeatTimeout, serverMonitoringMode: serverMonitoringMode));
 
             var result = (ServerMonitorFactory)subject.CreateServerMonitorFactory();

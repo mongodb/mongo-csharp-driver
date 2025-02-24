@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Configuration
 {
     public class ConnectionSettingsTests
     {
-        private static readonly ConnectionSettings __defaults = new ConnectionSettings();
+        private static readonly ConnectionSettings __defaults = new();
 
         [Fact]
         public void constructor_should_initialize_instance()
@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactory.Should().BeNull();
             subject.Compressors.Should().BeEmpty();
+            subject.ConnectionIdLocalValueProvider.Should().NotBeNull();
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMinutes(10));
             subject.MaxLifeTime.Should().Be(TimeSpan.FromMinutes(30));
@@ -90,6 +91,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().Be("app");
             subject.AuthenticatorFactory.Should().Be(__defaults.AuthenticatorFactory);
             subject.Compressors.Should().Equal(__defaults.Compressors);
+            subject.ConnectionIdLocalValueProvider.Should().NotBeNull();
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
@@ -105,6 +107,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactory.Should().Be(authenticatorFactory);
             subject.Compressors.Should().BeEquivalentTo(__defaults.Compressors);
+            subject.ConnectionIdLocalValueProvider.Should().NotBeNull();
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
@@ -120,6 +123,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactory.Should().BeNull();
             subject.Compressors.Should().Equal(compressors);
+            subject.ConnectionIdLocalValueProvider.Should().NotBeNull();
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
@@ -133,6 +137,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactory.Should().Be(__defaults.AuthenticatorFactory);
             subject.Compressors.Should().Equal(__defaults.Compressors);
+            subject.ConnectionIdLocalValueProvider.Should().NotBeNull();
             subject.LibraryInfo.Should().Be(new LibraryInfo("lib", "1.0"));
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
@@ -148,6 +153,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactory.Should().BeNull();
             subject.Compressors.Should().Equal(__defaults.Compressors);
+            subject.ConnectionIdLocalValueProvider.Should().NotBeNull();
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(maxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
@@ -163,6 +169,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthenticatorFactory.Should().BeNull();
             subject.Compressors.Should().Equal(__defaults.Compressors);
+            subject.ConnectionIdLocalValueProvider.Should().NotBeNull();
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(maxLifeTime);
@@ -180,6 +187,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(newApplicationName);
             result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(__defaults.Compressors);
+            result.ConnectionIdLocalValueProvider.Should().Be(subject.ConnectionIdLocalValueProvider);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
@@ -193,11 +201,12 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ConnectionSettings(authenticatorFactory: oldAuthenticatorFactory);
 
-            var result = subject.With(authenticatorFactory: Optional.Create(newAuthenticatorFactory));
+            var result = subject.WithInternal(authenticatorFactory: Optional.Create(newAuthenticatorFactory));
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactory.Should().Be(newAuthenticatorFactory);
             result.Compressors.Should().Equal(subject.Compressors);
+            result.ConnectionIdLocalValueProvider.Should().Be(subject.ConnectionIdLocalValueProvider);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
@@ -215,6 +224,24 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(newCompressors);
+            result.ConnectionIdLocalValueProvider.Should().Be(subject.ConnectionIdLocalValueProvider);
+            result.LibraryInfo.Should().BeNull();
+            result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
+            result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
+        }
+
+        [Fact]
+        public void With_ConnectionIdLocalValueProvider_should_return_expected_result()
+        {
+            Func<long> connectIdLocalValueProvider = () => 1;
+            var subject = new ConnectionSettings();
+
+            var result = subject.WithInternal(connectionIdLocalValueProvider: connectIdLocalValueProvider);
+
+            result.ApplicationName.Should().Be(subject.ApplicationName);
+            result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
+            result.Compressors.Should().Equal(subject.Compressors);
+            result.ConnectionIdLocalValueProvider.Should().Be(connectIdLocalValueProvider);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
@@ -232,6 +259,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(__defaults.Compressors);
+            result.ConnectionIdLocalValueProvider.Should().Be(subject.ConnectionIdLocalValueProvider);
             result.LibraryInfo.Should().Be(newlibraryInfo);
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
@@ -249,6 +277,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(subject.Compressors);
+            result.ConnectionIdLocalValueProvider.Should().Be(subject.ConnectionIdLocalValueProvider);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(newMaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
@@ -266,6 +295,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactory.Should().Be(subject.AuthenticatorFactory);
             result.Compressors.Should().Equal(subject.Compressors);
+            result.ConnectionIdLocalValueProvider.Should().Be(subject.ConnectionIdLocalValueProvider);
             result.LibraryInfo.Should().BeNull();
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(newMaxLifeTime);
