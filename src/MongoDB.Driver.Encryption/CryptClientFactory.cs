@@ -162,9 +162,9 @@ namespace MongoDB.Driver.Encryption
                     Library.mongocrypt_setopt_append_crypt_shared_lib_search_path(handle, options.CryptSharedLibSearchPath);
                 }
 
-                if (options.DekCacheLifetimeMs != null)
+                if (options.KeyExpirationMs != null)
                 {
-                    Library.mongocrypt_setopt_key_expiration(handle, (ulong)options.DekCacheLifetimeMs.Value);
+                    Library.mongocrypt_setopt_key_expiration(handle, (ulong)options.KeyExpirationMs.Value);
                 }
 
                 Library.mongocrypt_setopt_use_need_kms_credentials_state(handle);
