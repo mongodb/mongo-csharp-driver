@@ -13,21 +13,30 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4289Tests : Linq3IntegrationTest
+    public class CSharp4289Tests : LinqIntegrationTest<CSharp4289Tests.ClassFixture>
     {
+        public CSharp4289Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_using_anonymous_class_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => new { V = x.Id, W = x.Id });
@@ -43,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_using_named_class_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => new R(x.Id) { W = x.Id });
@@ -54,17 +63,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var results = queryable.ToList();
             results.Select(r => r.V).Should().Equal("111111111111111111111111");
             results.Select(r => r.W).Should().Equal("111111111111111111111111");
-        }
-
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            CreateCollection(
-                collection,
-                new C { Id = "111111111111111111111111" });
-
-            return collection;
         }
 
         public class C
@@ -82,6 +80,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             [BsonElement("v")] public string V { get; set; }
             [BsonElement("w")] public string W { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = "111111111111111111111111" }
+            ];
         }
     }
 }

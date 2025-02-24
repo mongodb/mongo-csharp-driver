@@ -13,20 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4445Tests : Linq3IntegrationTest
+    public class CSharp4445Tests : LinqIntegrationTest<CSharp4445Tests.ClassFixture>
     {
+        public CSharp4445Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void AggregateFluent_Limit_with_int_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             int limit = 1;
 
             var aggregate =
@@ -45,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AggregateFluent_Limit_with_long_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             long limit = 1;
 
             var aggregate =
@@ -64,7 +71,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AggregateFluent_Skip_with_int_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             int skip = 1;
 
             var aggregate =
@@ -83,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AggregateFluent_Skip_with_long_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             long limit = 1;
 
             var aggregate =
@@ -102,7 +109,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void PipelineDefinitionBuilder_Limit_with_int_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             int limit = 1;
 
             var pipeline =
@@ -121,7 +128,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void PipelineDefinitionBuilder_Limit_with_long_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             long limit = 1;
 
             var pipeline =
@@ -140,7 +147,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void PipelineDefinitionBuilder_Skip_with_int_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             int skip = 1;
 
             var pipeline =
@@ -159,7 +166,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void PipelineDefinitionBuilder_Skip_with_long_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             long skip = 1;
 
             var pipeline =
@@ -178,7 +185,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_Skip_with_int_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             int count = 1;
 
             var queryable =
@@ -197,7 +204,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_Skip_with_long_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             long count = 1;
 
             var queryable =
@@ -216,7 +223,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_Take_with_int_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             int count = 1;
 
             var queryable =
@@ -235,7 +242,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_Take_with_long_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             long count = 1;
 
             var queryable =
@@ -251,21 +258,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1 },
-                new C { Id = 2 });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1 },
+                new C { Id = 2 }
+            ];
         }
     }
 }

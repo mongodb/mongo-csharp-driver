@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -21,17 +21,23 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4957Tests : Linq3IntegrationTest
+    public class CSharp4957Tests : LinqIntegrationTest<CSharp4957Tests.ClassFixture>
     {
+        public CSharp4957Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void New_array_with_zero_items_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (new int[] { }));
@@ -47,7 +53,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void New_array_with_one_items_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (new[] { x.X }));
@@ -63,7 +69,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void New_array_with_two_items_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (new[] { x.X, x.X + 1 }));
@@ -82,7 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -105,20 +111,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 1, Y = 2 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
             [BsonRepresentation(BsonType.String)] public int Y { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 1, Y = 2 }
+            ];
         }
     }
 }

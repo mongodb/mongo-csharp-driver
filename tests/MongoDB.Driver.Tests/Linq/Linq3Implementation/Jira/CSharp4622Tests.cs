@@ -13,36 +13,41 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4622Tests : Linq3IntegrationTest
+    public class CSharp4622Tests : LinqIntegrationTest<CSharp4622Tests.ClassFixture>
     {
+        public CSharp4622Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void ReplaceOne()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var options = new ReplaceOptions { IsUpsert = true };
-            var data = new Data { Id = 8, Text = "updated" };
+            var data = new C { Id = 8, Text = "updated" };
 
             var result = collection.ReplaceOne(d => true, data, options);
 
             result.UpsertedId.Should().Be(8);
         }
 
-        private IMongoCollection<Data> GetCollection()
-        {
-            var collection = GetCollection<Data>("test");
-            CreateCollection(collection);
-            return collection;
-        }
-
-        private class Data
+        public class C
         {
             public int Id { get; set; }
             public string Text { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData => null;
         }
     }
 }

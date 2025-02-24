@@ -14,15 +14,21 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4509Tests : Linq3IntegrationTest
+    public class CSharp4509Tests : LinqIntegrationTest<CSharp4509Tests.ClassFixture>
     {
+        public CSharp4509Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData(JobSortColumn.DriverName, "DriverName")]
         [InlineData(JobSortColumn.JobNumber, "JobNumber")]
@@ -30,7 +36,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             JobSortColumn sortOrder,
             string expectedSortField)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             Expression<Func<DbJob, object>> selector = sortOrder switch
             {
@@ -47,12 +53,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, $"{{ $sort : {{ {expectedSortField} : -1 }} }}");
         }
 
-        private IMongoCollection<DbJob> CreateCollection()
-        {
-            var collection = GetCollection<DbJob>("jobs");
-            return collection;
-        }
-
         public class DbJob
         {
             public int JobNumber { get; set; }
@@ -60,5 +60,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         public enum JobSortColumn { JobNumber, DriverName }
+
+        public sealed class ClassFixture : MongoCollectionFixture<DbJob>
+        {
+            protected override IEnumerable<DbJob> InitialData => null;
+        }
     }
 }

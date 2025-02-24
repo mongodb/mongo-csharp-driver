@@ -14,21 +14,28 @@
 */
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4524Tests : Linq3IntegrationTest
+    public class CSharp4524Tests : LinqIntegrationTest<CSharp4524Tests.ClassFixture>
     {
+        public CSharp4524Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_with_projection_should_work()
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var find = collection.Find("{}").Project(x => new SpawnData(x.StartDate, x.SpawnPeriod));
 
             var results = find.ToList();
@@ -42,17 +49,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().HaveCount(1);
             results[0].Date.Should().Be(new DateTime(2023, 1, 2, 3, 4, 5, DateTimeKind.Utc));
             results[0].Period.Should().Be(SpawnPeriod.LIVE);
-        }
-
-        private IMongoCollection<MyData> CreateCollection()
-        {
-            var collection = GetCollection<MyData>("data");
-
-            CreateCollection(
-                collection,
-                new MyData { Id = 1, StartDate = new DateTime(2023, 1, 2, 3, 4, 5, DateTimeKind.Utc), SpawnPeriod = SpawnPeriod.LIVE });
-
-            return collection;
         }
 
         public class MyData
@@ -77,6 +73,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
 
             public bool Equals(SpawnData other) => Date == other.Date && Period == other.Period;
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<MyData>
+        {
+            protected override IEnumerable<MyData> InitialData =>
+            [
+                new MyData { Id = 1, StartDate = new DateTime(2023, 1, 2, 3, 4, 5, DateTimeKind.Utc), SpawnPeriod = SpawnPeriod.LIVE }
+            ];
         }
     }
 }

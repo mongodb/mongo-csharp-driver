@@ -17,17 +17,22 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp702Tests : Linq3IntegrationTest
+    public class CSharp4702Tests : LinqIntegrationTest<CSharp4702Tests.ClassFixture>
     {
+        public CSharp4702Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Query1_using_list_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -43,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Query2_using_list_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -59,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Query1_using_hashset_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -75,7 +80,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Query2_using_hashset_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var lookingFor = new List<string> { "value1", "value2" };
 
             var queryable = collection.AsQueryable()
@@ -88,27 +93,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(model => model.Id).Should().BeEquivalentTo(4, 5);
         }
 
-        private IMongoCollection<Model> GetCollection()
+        public class C
         {
-            var collection = GetCollection<Model>("test");
-            var documentsCollection = GetCollection<BsonDocument>("test");
-            CreateCollection(
-                documentsCollection,
+            public int Id { get; set; }
+            public List<string> List { get; set; }
+            public HashSet<string> HashSet { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<BsonDocument, C>
+        {
+            protected override IEnumerable<BsonDocument> InitialData =>
+            [
                 BsonDocument.Parse("{ _id : 1 }"),
                 BsonDocument.Parse("{ _id : 2, List : null, HashSet : null }"),
                 BsonDocument.Parse("{ _id : 3, List : [], HashSet : [] }"),
                 BsonDocument.Parse("{ _id : 4, List : ['value1'], HashSet : ['value1'] }"),
                 BsonDocument.Parse("{ _id : 5, List : ['value1', 'value2'], HashSet : ['value1', 'value2'] }"),
                 BsonDocument.Parse("{ _id : 6, List : ['value3'], HashSet : ['value3'] }"),
-                BsonDocument.Parse("{ _id : 7, List : ['value3', 'value4'], HashSet : ['value3', 'value4'] }"));
-            return collection;
-        }
-
-        private class Model
-        {
-            public int Id { get; set; }
-            public List<string> List { get; set; }
-            public HashSet<string> HashSet { get; set; }
+                BsonDocument.Parse("{ _id : 7, List : ['value3', 'value4'], HashSet : ['value3', 'value4'] }")
+            ];
         }
     }
 }

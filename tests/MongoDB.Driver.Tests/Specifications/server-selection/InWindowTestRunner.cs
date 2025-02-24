@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
             public IDictionary<string, double> expected_frequencies  { get; set; }
         }
 
-        private sealed class TestData
+        private sealed class TestC
         {
             public string _path { get; set; }
             public BsonDocument topology_description { get; set; }
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
         public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
             var testDefinition = testCase.Test;
-            var testData = BsonSerializer.Deserialize<TestData>(testDefinition);
+            var testData = BsonSerializer.Deserialize<TestC>(testDefinition);
             var clusterDescription = ServerSelectionTestHelper.BuildClusterDescription(testData.topology_description);
 
             using var cluster = CreateAndSetupCluster(clusterDescription, testData.mocked_topology_state);

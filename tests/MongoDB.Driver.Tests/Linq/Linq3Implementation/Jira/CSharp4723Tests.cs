@@ -13,25 +13,32 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4723Tests : Linq3IntegrationTest
+    public class CSharp4723Tests : LinqIntegrationTest<CSharp4723Tests.ClassFixture>
     {
+        public CSharp4723Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_projection_in_findoneandupdate_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
-            var update = Builders<A>.Update.Set("Value", "updated");
-            var options = new FindOneAndUpdateOptions<A>
+            var update = Builders<C>.Update.Set("Value", "updated");
+            var options = new FindOneAndUpdateOptions<C>
             {
-                Projection = Builders<A>.Projection.Expression(x => x)
+                Projection = Builders<C>.Projection.Expression(x => x)
             };
 
-            var result = collection.FindOneAndUpdate<A, A>(x => x.Id == 1, update, options);
+            var result = collection.FindOneAndUpdate<C, C>(x => x.Id == 1, update, options);
 
             result.Id.Should().Be(1);
             result.Value.Should().Be("1");
@@ -40,13 +47,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_projection_in_findoneandreplace_should_work()
         {
-            var collection = GetCollection();
-            var options = new FindOneAndReplaceOptions<A, A>
+            var collection = Fixture.Collection;
+            var options = new FindOneAndReplaceOptions<C, C>
             {
-                Projection = Builders<A>.Projection.Expression(x => x)
+                Projection = Builders<C>.Projection.Expression(x => x)
             };
 
-            var result = collection.FindOneAndReplace<A, A>(x => x.Id == 1, new A { Id = 1, Value = "updated" }, options);
+            var result = collection.FindOneAndReplace<C, C>(x => x.Id == 1, new C { Id = 1, Value = "updated" }, options);
 
             result.Id.Should().Be(1);
             result.Value.Should().Be("1");
@@ -55,33 +62,34 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_projection_in_findoneanddelete_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
-            var options = new FindOneAndDeleteOptions<A>
+            var options = new FindOneAndDeleteOptions<C>
             {
-                Projection = Builders<A>.Projection.Expression(x => x),
+                Projection = Builders<C>.Projection.Expression(x => x),
             };
 
-            var result = collection.FindOneAndDelete<A, A>(x => x.Id == 1, options);
+            var result = collection.FindOneAndDelete<C, C>(x => x.Id == 1, options);
 
             result.Id.Should().Be(1);
             result.Value.Should().Be("1");
         }
 
-        private IMongoCollection<A> GetCollection()
-        {
-            var collection = GetCollection<A>("test");
-            CreateCollection(
-                collection,
-                new A { Id = 1, Value = "1"});
-            return collection;
-        }
-
-        private class A
+        public class C
         {
             public int Id { get; set; }
 
             public string Value { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            public override bool InitializeDataBeforeEachTestCase => true;
+
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, Value = "1" }
+            ];
         }
     }
 }

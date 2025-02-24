@@ -16,17 +16,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4592Tests : Linq3IntegrationTest
+    public class CSharp4592Tests : LinqIntegrationTest<CSharp4592Tests.ClassFixture>
     {
+        public CSharp4592Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Project_dictionary_value_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Dict["test"]);
@@ -38,20 +43,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(3, 0); // missing values deserialize as 0
         }
 
-        private IMongoCollection<ExampleClass> CreateCollection()
-        {
-            var collection = GetCollection<ExampleClass>("test");
-            CreateCollection(
-                collection,
-                new ExampleClass { Id = 1, Dict = new Dictionary<string, int> { ["test"] = 3 } },
-                new ExampleClass { Id = 2, Dict = new Dictionary<string, int> { ["a"] = 4 } });
-            return collection;
-        }
-
-        private class ExampleClass
+        public class ExampleClass
         {
             public int Id { get; set; }
             public IDictionary<string, int> Dict { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<ExampleClass>
+        {
+            protected override IEnumerable<ExampleClass> InitialData =>
+            [
+                new ExampleClass { Id = 1, Dict = new Dictionary<string, int> { ["test"] = 3 } },
+                new ExampleClass { Id = 2, Dict = new Dictionary<string, int> { ["a"] = 4 } }
+            ];
         }
     }
 }

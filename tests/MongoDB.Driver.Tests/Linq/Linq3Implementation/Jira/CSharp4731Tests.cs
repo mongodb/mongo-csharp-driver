@@ -13,23 +13,27 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4731Tests : Linq3IntegrationTest
+    public class CSharp4731Tests : LinqIntegrationTest<CSharp4731Tests.ClassFixture>
     {
+        public CSharp4731Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_setting_IList_from_List_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -49,7 +53,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_setting_IReadOnlyList_from_List_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -66,33 +70,32 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.IReadOnlyList.Should().Equal(E.A, E.B);
         }
 
-        private IMongoCollection<Test> GetCollection()
-        {
-            var collection = GetCollection<Test>("test");
-            CreateCollection(
-                collection,
-                new Test { Id = 1, List = new List<E> { E.A, E.B } },
-                new Test { Id = 2, List = new List<E> { E.C, E.D } });
-            return collection;
-        }
-
-        private class Test
+        public class Test
         {
             public int Id { get; set; }
             [BsonRepresentation(BsonType.String)]
             public List<E> List { get; set; }
         }
 
-        private class P
+        public class P
         {
             public IList<E> IList { get; set; }
         }
 
-        private class Q
+        public class Q
         {
             public IReadOnlyList<E> IReadOnlyList { get; set; }
         }
 
-        private enum E { A, B, C, D };
+        public enum E { A, B, C, D }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Test>
+        {
+            protected override IEnumerable<Test> InitialData =>
+            [
+                new Test { Id = 1, List = new List<E> { E.A, E.B } },
+                new Test { Id = 2, List = new List<E> { E.C, E.D } }
+            ];
+        }
     }
 }

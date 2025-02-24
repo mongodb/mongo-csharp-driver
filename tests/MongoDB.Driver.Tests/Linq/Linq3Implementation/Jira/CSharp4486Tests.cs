@@ -14,22 +14,29 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4486Tests : Linq3IntegrationTest
+    public class CSharp4486Tests : LinqIntegrationTest<CSharp4486Tests.ClassFixture>
     {
+        public CSharp4486Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void And_with_two_arguments_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.P & x.Q);
@@ -44,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void And_with_three_arguments_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.P & x.Q & x.R);
@@ -59,7 +66,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Not_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => !x.P);
@@ -74,7 +81,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Or_with_two_arguments_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.P | x.Q);
@@ -89,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Or_with_three_arguments_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.P | x.Q | x.R);
@@ -107,7 +114,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -134,7 +141,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BitAnd_with_two_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.BitwiseOperators);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.X & x.Z);
@@ -150,7 +157,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BitAnd_with_three_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.BitwiseOperators);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.X & x.Y & x.Z);
@@ -168,7 +175,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BitNot_should_work()
         {
             RequireServer.Check().Supports(Feature.BitwiseOperators);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => ~x.X);
@@ -184,7 +191,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BitOr_with_two_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.BitwiseOperators);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.X | x.Z);
@@ -200,7 +207,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BitOr_with_three_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.BitwiseOperators);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.X | x.Y | x.Z);
@@ -216,7 +223,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BitXor_with_two_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.BitwiseOperators);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.X ^ x.Z);
@@ -232,7 +239,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void BitXor_with_three_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.BitwiseOperators);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.X ^ x.Y ^ x.Z);
@@ -244,16 +251,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(0);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, P = true, Q = true, R = false, X = 1, Y = 2, Z = 3 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public bool P { get; set; }
@@ -262,6 +260,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int X { get; set; }
             public int Y { get; set; }
             public int Z { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, P = true, Q = true, R = false, X = 1, Y = 2, Z = 3 }
+            ];
         }
     }
 }

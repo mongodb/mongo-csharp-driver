@@ -14,21 +14,28 @@
 */
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4809Tests : Linq3IntegrationTest
+    public class CSharp4809Tests : LinqIntegrationTest<CSharp4809Tests.ClassFixture>
     {
+        public CSharp4809Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Filter_by_Id_with_custom_serializer_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var id = "111111111111111111111111";
 
             var filter = Builders<RootDocument>.Filter.Where(x => x.Id == id);
@@ -40,17 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.X.Should().Be(1);
         }
 
-        private IMongoCollection<RootDocument> GetCollection()
-        {
-            var collection = GetCollection<RootDocument>("test");
-            CreateCollection(
-                collection,
-                new RootDocument { Id = "111111111111111111111111", X = 1 },
-                new RootDocument { Id = "222222222222222222222222", X = 2 });
-            return collection;
-        }
-
-        private class RootDocument
+        public class RootDocument
         {
             [BsonSerializer(typeof(CustomStringRepresentedAsObjectIdSerializer))]
             public string Id { get; set; }
@@ -90,6 +87,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     return ObjectId.Empty;
                 }
             }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<RootDocument>
+        {
+            protected override IEnumerable<RootDocument> InitialData =>
+            [
+                new RootDocument { Id = "111111111111111111111111", X = 1 },
+                new RootDocument { Id = "222222222222222222222222", X = 2 }
+            ];
         }
     }
 }

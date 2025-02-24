@@ -91,6 +91,10 @@ namespace $NAMESPACE$
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS/Expression/@EntryValue">getAlphaNumericFileNameWithoutExtension()</s:String>
 	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS/InitialRange/@EntryValue">-1</s:Int64>
 	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS/Order/@EntryValue">0</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS2/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS2/Expression/@EntryValue">typeName()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS2/InitialRange/@EntryValue">-1</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=CLASS2/Order/@EntryValue">2</s:Int64>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=NAMESPACE/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=NAMESPACE/Expression/@EntryValue">fileDefaultNamespace()</s:String>
 	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=58D5EB70DF984241A0863E67D7E33F3D/Field/=NAMESPACE/InitialRange/@EntryValue">-1</s:Int64>
@@ -117,11 +121,12 @@ namespace $NAMESPACE$
 
 using System.Collections.Generic;
 using MongoDB.Driver.TestHelpers;
+using FluentAssertions;
 using Xunit;
 
 namespace $NAMESPACE$
 {
-    public class $CLASS$ : LinqIntegrationTest&lt;$CLASS$.ClassFixture&gt;
+    public class $CLASS$ : LinqIntegrationTest&lt;$CLASS2$.ClassFixture&gt;
     {
         public $CLASS$(ClassFixture fixture)
             : base(fixture)

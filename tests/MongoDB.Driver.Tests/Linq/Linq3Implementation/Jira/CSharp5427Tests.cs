@@ -13,20 +13,27 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5427Tests : Linq3IntegrationTest
+    public class CSharp5427Tests : LinqIntegrationTest<CSharp5427Tests.ClassFixture>
     {
+        public CSharp5427Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_Mql_Exists_with_property_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => Mql.Exists(x.X));
@@ -41,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Mql_Exists_with_shadow_property_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => Mql.Exists(Mql.Field(x, "X", new NullableSerializer<int>(Int32Serializer.Instance))));
@@ -56,7 +63,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Mql_IsMissing_with_property_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => Mql.IsMissing(x.X));
@@ -71,7 +78,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Mql_IsMissing_with_shadow_property_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => Mql.IsMissing(Mql.Field(x, "X", new NullableSerializer<int>(Int32Serializer.Instance))));
@@ -86,7 +93,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Mql_IsNullOrMissing_with_property_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => Mql.IsNullOrMissing(x.X));
@@ -101,7 +108,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Mql_IsNullOrMissing_with_shadow_property_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => Mql.IsNullOrMissing(Mql.Field(x, "X", new NullableSerializer<int>(Int32Serializer.Instance))));
@@ -113,21 +120,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection.Database.GetCollection<BsonDocument>("test"),
-                BsonDocument.Parse("{ _id : 1 }"),
-                BsonDocument.Parse("{ _id : 2, X : null }"),
-                BsonDocument.Parse("{ _id : 3, X : 3 }"));
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int? X { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<BsonDocument, C>
+        {
+            protected override IEnumerable<BsonDocument> InitialData =>
+            [
+                BsonDocument.Parse("{ _id : 1 }"),
+                BsonDocument.Parse("{ _id : 2, X : null }"),
+                BsonDocument.Parse("{ _id : 3, X : 3 }")
+            ];
         }
     }
 }

@@ -13,21 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4888Tests : Linq3IntegrationTest
+    public class CSharp4888Tests : LinqIntegrationTest<CSharp4888Tests.ClassFixture>
     {
+        public CSharp4888Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void GroupBy_Select_with_int_enum_representation_in_conditional_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => 0)
@@ -51,7 +57,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void GroupBy_Select_with_string_enum_representation_in_conditional_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => 0)
@@ -72,16 +78,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.SuvCarCount.Should().Be(0);
         }
 
-        private IMongoCollection<Car> GetCollection()
-        {
-            var collection = GetCollection<Car>("test");
-            CreateCollection(
-                collection,
-                new Car { Id = 1, LicensePlate = "abcdef", CarType = CarType.Sport, CarTypeString = CarType.Sport });
-            return collection;
-        }
-
-        private class Car
+        public class Car
         {
             public int Id { get; set; }
             public string LicensePlate { get; set; }
@@ -89,11 +86,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.String)] public CarType CarTypeString { get; set; }
         }
 
-        private enum CarType
+        public enum CarType
         {
             Undefined = 0,
             Sport = 1,
             Suv = 2
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Car>
+        {
+            protected override IEnumerable<Car> InitialData =>
+            [
+                new Car { Id = 1, LicensePlate = "abcdef", CarType = CarType.Sport, CarTypeString = CarType.Sport }
+            ];
         }
     }
 }
