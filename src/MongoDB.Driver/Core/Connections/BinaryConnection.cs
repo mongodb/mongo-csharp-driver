@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Connections
             _connectionInitializer = Ensure.IsNotNull(connectionInitializer, nameof(connectionInitializer));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _connectionId = new ConnectionId(serverId, settings.ConnectionIdProvider());
+            _connectionId = new ConnectionId(serverId, settings.ConnectionIdLocalValueProvider());
             _receiveLock = new SemaphoreSlim(1);
             _sendLock = new SemaphoreSlim(1);
             _state = new InterlockedInt32(State.Initial);

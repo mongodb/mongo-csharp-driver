@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly string _applicationName;
         private readonly IAuthenticatorFactory _authenticatorFactory;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
-        private readonly Func<long> _connectionIdProvider;
+        private readonly Func<long> _connectionIdLocalValueProvider;
         private readonly LibraryInfo _libraryInfo;
         private readonly bool _loadBalanced;
         private readonly TimeSpan _maxIdleTime;
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<string> applicationName = default(Optional<string>))
         {
             _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<CompressorConfiguration>()), nameof(compressors)).ToList();
-            _connectionIdProvider = LongIdGenerator<ConnectionId>.GetNextId;
+            _connectionIdLocalValueProvider = LongIdGenerator<ConnectionId>.GetNextId;
             _libraryInfo = libraryInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
             _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Configuration
         internal ConnectionSettings(
             IAuthenticatorFactory authenticatorFactory,
             Optional<IEnumerable<CompressorConfiguration>> compressors = default,
-            Optional<Func<long>> connectionIdProvider = default,
+            Optional<Func<long>> connectionIdLocalValueProvider = default,
             Optional<LibraryInfo> libraryInfo = default,
             Optional<bool> loadBalanced = default,
             Optional<TimeSpan> maxIdleTime = default,
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             _authenticatorFactory = authenticatorFactory;
             _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<CompressorConfiguration>()), nameof(compressors)).ToList();
-            _connectionIdProvider = connectionIdProvider.WithDefault(LongIdGenerator<ConnectionId>.GetNextId);
+            _connectionIdLocalValueProvider = connectionIdLocalValueProvider.WithDefault(LongIdGenerator<ConnectionId>.GetNextId);
             _libraryInfo = libraryInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
             _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
@@ -121,9 +121,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the connection identifier provider.
         /// </summary>
-        internal Func<long> ConnectionIdProvider
+        internal Func<long> ConnectionIdLocalValueProvider
         {
-            get { return _connectionIdProvider; }
+            get { return _connectionIdLocalValueProvider; }
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Core.Configuration
         internal ConnectionSettings WithInternal(
             Optional<IAuthenticatorFactory> authenticatorFactory = default,
             Optional<IEnumerable<CompressorConfiguration>> compressors = default,
-            Optional<Func<long>> connectionIdProvider = default,
+            Optional<Func<long>> connectionIdLocalValueProvider = default,
             Optional<LibraryInfo> libraryInfo = default,
             Optional<bool> loadBalanced = default,
             Optional<TimeSpan> maxIdleTime = default,
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Core.Configuration
             return new ConnectionSettings(
                 authenticatorFactory: authenticatorFactory.WithDefault(_authenticatorFactory),
                 compressors: Optional.Enumerable(compressors.WithDefault(_compressors)),
-                connectionIdProvider: connectionIdProvider.WithDefault(_connectionIdProvider),
+                connectionIdLocalValueProvider: connectionIdLocalValueProvider.WithDefault(_connectionIdLocalValueProvider),
                 libraryInfo: libraryInfo.WithDefault(_libraryInfo),
                 loadBalanced: loadBalanced.WithDefault(_loadBalanced),
                 maxIdleTime: maxIdleTime.WithDefault(_maxIdleTime),

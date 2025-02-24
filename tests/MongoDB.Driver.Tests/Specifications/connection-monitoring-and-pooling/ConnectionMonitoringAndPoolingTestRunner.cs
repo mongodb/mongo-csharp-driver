@@ -676,7 +676,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         waitQueueTimeout: connectionPoolSettings.WaitQueueTimeout))
                     .ConfigureConnection(s => s.WithInternal(
                         applicationName: $"{connectionSettings.ApplicationName}_async_{async}",
-                        connectionIdProvider: connectionIdProvider))
+                        connectionIdLocalValueProvider: connectionIdProvider))
                     .Subscribe(eventCapturer));
 
                 var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
