@@ -67,7 +67,7 @@ namespace MongoDB.Driver
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default,
             Optional<bool?> bypassQueryAnalysis = default)
-            :this(keyVaultNamespace, kmsProviders, bypassAutoEncryption, extraOptions, keyVaultClient, schemaMap, tlsOptions, encryptedFieldsMap, bypassQueryAnalysis, dekCacheLifetimeMs: null)
+            :this(keyVaultNamespace, kmsProviders, bypassAutoEncryption, extraOptions, keyVaultClient, schemaMap, tlsOptions, encryptedFieldsMap, bypassQueryAnalysis, keyExpiration: null)
         {
         }
 
@@ -81,13 +81,13 @@ namespace MongoDB.Driver
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions,
             Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap,
             Optional<bool?> bypassQueryAnalysis,
-            Optional<TimeSpan?> dekCacheLifetimeMs)
+            Optional<TimeSpan?> keyExpiration)
         {
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _bypassAutoEncryption = bypassAutoEncryption.WithDefault(false);
             _bypassQueryAnalysis = bypassQueryAnalysis.WithDefault(null);
-            _keyExpiration = dekCacheLifetimeMs.WithDefault(null);
+            _keyExpiration = keyExpiration.WithDefault(null);
             _extraOptions = extraOptions.WithDefault(null);
             _keyVaultClient = keyVaultClient.WithDefault(null);
             _schemaMap = schemaMap.WithDefault(null);
@@ -274,7 +274,7 @@ namespace MongoDB.Driver
             }
             if (_keyExpiration.HasValue)
             {
-                sb.AppendFormat("DekCacheLifetimeMs : {0}, ", _keyExpiration.Value);
+                sb.AppendFormat("KeyExpiration : {0}, ", _keyExpiration.Value);
             }
             sb.AppendFormat("KmsProviders : {0}, ", _kmsProviders.ToJson(jsonWriterSettings));
             if (_keyVaultNamespace != null)
