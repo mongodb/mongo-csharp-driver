@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var subject = new ConnectionSettings(authenticatorFactory: oldAuthenticatorFactory);
 
-            var result = subject.With(authenticatorFactory: Optional.Create(newAuthenticatorFactory));
+            var result = subject.WithInternal(authenticatorFactory: Optional.Create(newAuthenticatorFactory));
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.AuthenticatorFactory.Should().Be(newAuthenticatorFactory);

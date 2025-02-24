@@ -142,8 +142,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             var (connectionPool, failPoint, cluster, eventsFilter) = SetupConnectionData(test, eventCapturer, isUnit);
             using var disposableBundle = new DisposableBundle(failPoint, connectionPool, cluster);
 
-            ResetConnectionId();
-
             var operations = testCase.Test.GetValue(Schema.operations).AsBsonArray;
             var async = testCase.Test.GetValue(Schema.async).ToBoolean();
             Exception exception = null;
@@ -625,11 +623,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             }
         }
 
-        private void ResetConnectionId()
-        {
-            LongIdGeneratorReflector.__lastId(0);
-        }
-
         private (IConnectionPool, FailPoint, IClusterInternal, Func<object, bool>) SetupConnectionData(BsonDocument test, EventCapturer eventCapturer, bool isUnit)
         {
             ParseSettings(test, out var connectionPoolSettings, out var connectionSettings);
@@ -638,6 +631,9 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             IClusterInternal cluster = null;
             FailPoint failPoint = null;
             Func<object, bool> eventsFilter = _ => true;
+
+            var connectionLocalValue = 0L;
+            var connectionIdProvider = () => Interlocked.Increment(ref connectionLocalValue);
 
             if (isUnit)
             {
@@ -651,7 +647,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     .Setup(c => c.CreateConnection(serverId, endPoint))
                     .Returns(() =>
                     {
-                        var connection = new MockConnection(serverId, connectionSettings, eventCapturer);
+                        var connectionId = new ConnectionId(serverId, connectionIdProvider());
+                        var connection = new MockConnection(connectionId, connectionSettings, eventCapturer);
                         return connection;
                     });
 
@@ -677,7 +674,9 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         minConnections: connectionPoolSettings.MinConnections,
                         maintenanceInterval: connectionPoolSettings.MaintenanceInterval,
                         waitQueueTimeout: connectionPoolSettings.WaitQueueTimeout))
-                    .ConfigureConnection(s => s.With(applicationName: $"{connectionSettings.ApplicationName}_async_{async}"))
+                    .ConfigureConnection(s => s.WithInternal(
+                        applicationName: $"{connectionSettings.ApplicationName}_async_{async}",
+                        connectionIdProvider: connectionIdProvider))
                     .Subscribe(eventCapturer));
 
                 var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
@@ -747,6 +746,9 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     }
                 }
             }
+
+            // Reset connection id after initial setup
+            connectionLocalValue = 0;
 
             return (connectionPool, failPoint, cluster, eventsFilter);
         }
@@ -857,11 +859,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
         {
             return (ServerId)Reflector.GetPropertyValue(@event, nameof(ServerId), BindingFlags.Public | BindingFlags.Instance);
         }
-    }
-
-    internal static class LongIdGeneratorReflector
-    {
-        public static void __lastId(int value) => Reflector.SetStaticFieldValue(typeof(LongIdGenerator<ConnectionId>), nameof(__lastId), value);
     }
 
     internal static class IServerReflector

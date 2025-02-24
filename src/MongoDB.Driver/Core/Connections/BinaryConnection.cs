@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,7 +23,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Buffers.Binary;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Authentication;
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Connections
             _connectionInitializer = Ensure.IsNotNull(connectionInitializer, nameof(connectionInitializer));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _connectionId = new ConnectionId(serverId);
+            _connectionId = new ConnectionId(serverId, settings.ConnectionIdProvider());
             _receiveLock = new SemaphoreSlim(1);
             _sendLock = new SemaphoreSlim(1);
             _state = new InterlockedInt32(State.Initial);

@@ -118,7 +118,7 @@ namespace MongoDB.Driver
                 authenticatorFactory = new AuthenticatorFactory(() => clusterKey.Credential.ToAuthenticator(endPoints, clusterKey.ServerApi));
             }
 
-            return settings.With(
+            return settings.WithInternal(
                 authenticatorFactory: Optional.Create(authenticatorFactory),
                 compressors: Optional.Enumerable(clusterKey.Compressors),
                 libraryInfo: clusterKey.LibraryInfo,

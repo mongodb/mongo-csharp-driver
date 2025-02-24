@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void Stop_should_trigger_immidiate_maintenace_call(
+        public void Stop_should_trigger_immediate_maintenance_call(
             [Values(false, true)] bool checkOutConnection,
             [Values(false, true)] bool closeInUseConnection)
         {
