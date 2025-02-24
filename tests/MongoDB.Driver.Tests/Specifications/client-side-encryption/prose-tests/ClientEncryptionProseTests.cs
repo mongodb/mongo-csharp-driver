@@ -2511,6 +2511,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("provider");
         }
 
+        [Fact]
+        public void TestLookup()
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void ViewAreProhibitedTest([Values(false, true)] bool async)
