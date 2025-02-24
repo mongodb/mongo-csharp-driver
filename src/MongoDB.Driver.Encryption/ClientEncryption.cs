@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Encryption
                 isCryptSharedLibRequired: null,
                 kmsProviders: clientEncryptionOptions.KmsProviders,
                 schemaMap: null,
-                dekCacheLifetimeMs: clientEncryptionOptions.DekCacheLifetimeMs);
+                keyExpiration: clientEncryptionOptions.KeyExpiration);
 
             _cryptClient = CryptClientFactory.Create(cryptClientSettings);
 

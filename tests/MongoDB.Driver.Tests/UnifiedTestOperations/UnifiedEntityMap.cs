@@ -757,8 +757,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             Ensure.IsNotNull(keyVaultCollectionNamespace, nameof(keyVaultCollectionNamespace)),
                             Ensure.IsNotNull(kmsProviders, nameof(kmsProviders)),
                             tlsOptions: tlsOptions);
-                        options.SetDekCacheLifetimeMs(cacheLifetimeMs);
-
+                        options.SetKeyExpiration(cacheLifetimeMs is { } ms ? TimeSpan.FromMilliseconds(ms) : null);
                         break;
                     default:
                         throw new FormatException($"Invalid {nameof(ClientEncryptionOptions)} argument name: '{element.Name}'.");

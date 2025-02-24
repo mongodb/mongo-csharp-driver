@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Encryption;
@@ -40,9 +41,9 @@ namespace MongoDB.Driver.Core.Configuration
         public string CryptSharedLibSearchPath { get; }
 
         /// <summary>
-        /// Gets the value of the expiration time for the DEK cache in ms.
+        /// Gets the data encryption key cache expiration time.
         /// </summary>
-        public long? DekCacheLifetimeMs { get; }
+        public TimeSpan? KeyExpiration { get; }
 
         /// <summary>
         /// Gets the encrypted fields map.
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Core.Configuration
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             IReadOnlyDictionary<string, BsonDocument> schemaMap)
             : this(bypassQueryAnalysis, cryptSharedLibPath, cryptSharedLibSearchPath, encryptedFieldsMap,
-                isCryptSharedLibRequired, kmsProviders, schemaMap, dekCacheLifetimeMs: null)
+                isCryptSharedLibRequired, kmsProviders, schemaMap, keyExpiration: null)
         {
         }
 
@@ -97,7 +98,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="isCryptSharedLibRequired">Value indicating whether crypt shared library is required.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
         /// <param name="schemaMap">The schema map.</param>
-        /// <param name="dekCacheLifetimeMs">The value of the expiration time for the DEK cache in ms.</param>
+        /// <param name="keyExpiration">The data encryption key cache expiration time.</param>
         public CryptClientSettings(
             bool? bypassQueryAnalysis,
             string cryptSharedLibPath,
@@ -106,7 +107,7 @@ namespace MongoDB.Driver.Core.Configuration
             bool? isCryptSharedLibRequired,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             IReadOnlyDictionary<string, BsonDocument> schemaMap,
-            long? dekCacheLifetimeMs)
+            TimeSpan? keyExpiration)
         {
             BypassQueryAnalysis = bypassQueryAnalysis;
             CryptSharedLibPath = cryptSharedLibPath;
@@ -115,7 +116,7 @@ namespace MongoDB.Driver.Core.Configuration
             IsCryptSharedLibRequired = isCryptSharedLibRequired;
             KmsProviders = kmsProviders;
             SchemaMap = schemaMap;
-            DekCacheLifetimeMs = dekCacheLifetimeMs;
+            KeyExpiration = keyExpiration;
         }
 
         // methods
@@ -137,7 +138,7 @@ namespace MongoDB.Driver.Core.Configuration
                 BypassQueryAnalysis == rhs.BypassQueryAnalysis && // fail fast
                 CryptSharedLibPath == rhs.CryptSharedLibPath &&
                 CryptSharedLibSearchPath == rhs.CryptSharedLibSearchPath &&
-                DekCacheLifetimeMs == rhs.DekCacheLifetimeMs &&
+                KeyExpiration == rhs.KeyExpiration &&
                 EncryptedFieldsMap.IsEquivalentTo(rhs.EncryptedFieldsMap, object.Equals) &&
                 IsCryptSharedLibRequired == rhs.IsCryptSharedLibRequired &&
                 KmsProvidersEqualityHelper.Equals(KmsProviders, rhs.KmsProviders) &&
