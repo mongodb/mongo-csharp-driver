@@ -311,7 +311,6 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the hedged reads feature.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
         public static Feature HedgedReads => __hedgedReads;
 
         /// <summary>
