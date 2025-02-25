@@ -2591,8 +2591,25 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
             noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
 
+            var pipeline1 = """
+                            [
+                                { "$match": { "csfle": "csfle" } },
+                                {
+                                    "$lookup": {
+                                        "from": "no_schema",
+                                        "as": "matched",
+                                        "pipeline": [
+                                            { "$match": { "no_schema": "no_schema" } },
+                                            { "$project": { "_id": 0 } }
+                                        ]
+                                    }
+                                },
+                                { "$project": { "_id": 0 } }
+                            ]
+                            """;
 
-            var result = csfleCollectionEncrypted.Aggregate<BsonDocument>(pipeline).ToListAsync();
+            var result = csfleCollectionEncrypted.Aggregate<BsonDocument>(CreatePipeline(pipeline1)).Single();
+            result.ToString().Should().Be("""{"csfle" : "csfle", "matched" : [ {"no_schema" : "no_schema"} ]}""");
 
             PipelineDefinition<BsonDocument, BsonDocument> CreatePipeline(string pipelineJson)
             {
