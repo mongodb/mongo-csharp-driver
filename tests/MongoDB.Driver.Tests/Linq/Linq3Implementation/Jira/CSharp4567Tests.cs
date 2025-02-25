@@ -14,21 +14,28 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4567Tests : Linq3IntegrationTest
+    public class CSharp4567Tests : LinqIntegrationTest<CSharp4567Tests.ClassFixture>
     {
+        public CSharp4567Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Projection_to_derived_type_should_work()
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             Expression<Func<C, object>> projection = x => new R { X = x.Id };
 
             var find = collection.Find("{}").Project(projection);
@@ -40,16 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.X.Should().Be(1);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
         }
@@ -57,6 +55,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         private class R
         {
             public int X { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1 }
+            ];
         }
     }
 }

@@ -13,22 +13,29 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4538Tests : Linq3IntegrationTest
+    public class CSharp4538Tests : LinqIntegrationTest<CSharp4538Tests.ClassFixture>
     {
+        public CSharp4538Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Project_with_nullable_value_should_work()
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var find = collection
                 .Find(_ => true)
@@ -45,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Project_with_anonymous_class_with_nullable_value_should_work()
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var find = collection
                 .Find(_ => true)
@@ -58,24 +65,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.V).Should().Equal(1.0, null, null);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            var bsonDocumentCollection = collection.Database.GetCollection<BsonDocument>(collection.CollectionNamespace.CollectionName);
-            CreateCollection(
-                bsonDocumentCollection,
-                new BsonDocument { { "_id", 1 }, { "D", 1.0 } },
-                new BsonDocument { { "_id", 2 }, { "D", BsonNull.Value } },
-                new BsonDocument { { "_id", 3 } });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public double? D { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<BsonDocument, C>
+        {
+            protected override IEnumerable<BsonDocument> InitialData =>
+            [
+                new BsonDocument { { "_id", 1 }, { "D", 1.0 } },
+                new BsonDocument { { "_id", 2 }, { "D", BsonNull.Value } },
+                new BsonDocument { { "_id", 3 } }
+            ];
         }
     }
 }

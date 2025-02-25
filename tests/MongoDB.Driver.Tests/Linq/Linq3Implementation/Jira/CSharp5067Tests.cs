@@ -14,24 +14,30 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5067Tests : Linq3IntegrationTest
+    public class CSharp5067Tests : LinqIntegrationTest<CSharp5067Tests.ClassFixture>
     {
+        public CSharp5067Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Where_with_bool_field_represented_as_boolean_should_work(
             [Values(false, true)] bool justField)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = justField ?
                 collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsBoolean) :
@@ -49,7 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_bool_field_represented_as_int32_should_work(
             [Values(false, true)] bool justField)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = justField ?
                 collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsInt32) :
@@ -67,7 +73,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_bool_field_represented_as_string_should_work(
             [Values(false, true)] bool justField)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = justField ?
                 collection.AsQueryable().Where(x => x.BoolFieldRepresentedAsString) :
@@ -83,7 +89,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_bool_array_field_represented_as_booleans_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayFieldRepresentedAsBoolean.Any(p => p));
 
@@ -97,7 +103,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_bool_array_field_represented_as_int32s_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayFieldRepresentedAsInt32.Any(p => p));
 
@@ -111,7 +117,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_bool_array_field_represented_as_strings_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayFieldRepresentedAsString.Any(p => p));
 
@@ -127,7 +133,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_bool_property_represented_as_boolean_should_work(
             [Values(false, true)] bool justProperty)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = justProperty ?
                 collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsBoolean) :
@@ -145,7 +151,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_bool_property_represented_as_int32_should_work(
             [Values(false, true)] bool justProperty)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = justProperty ?
                 collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsInt32) :
@@ -163,7 +169,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_bool_property_represented_as_string_should_work(
             [Values(false, true)] bool justProperty)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = justProperty ?
                 collection.AsQueryable().Where(x => x.BoolPropertyRepresentedAsString) :
@@ -179,7 +185,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_bool_array_property_represented_as_booleans_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayPropertyRepresentedAsBoolean.Any(p => p));
 
@@ -193,7 +199,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_bool_array_property_represented_as_int32s_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayPropertyRepresentedAsInt32.Any(p => p));
 
@@ -207,7 +213,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_bool_array_property_represented_as_strings_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Where(x => x.BoolArrayPropertyRepresentedAsString.Any(p => p));
 
@@ -230,7 +236,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             string expectedStage,
             int[] expectedResults)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = expression switch
             {
@@ -262,7 +268,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             string expectedStage,
             int[] expectedResults)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = expression switch
             {
@@ -294,7 +300,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             string expectedStage,
             int[] expectedResults)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = expression switch
             {
@@ -314,11 +320,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(expectedResults);
         }
 
-        private IMongoCollection<C> GetCollection()
+        public class C
         {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
+            public int Id { get; set; }
+            public bool[] BoolArrayFieldRepresentedAsBoolean;
+            [BsonRepresentation(BsonType.Int32)] public bool[] BoolArrayFieldRepresentedAsInt32;
+            [BsonRepresentation(BsonType.String)] public bool[] BoolArrayFieldRepresentedAsString;
+            public bool[] BoolArrayPropertyRepresentedAsBoolean;
+            [BsonRepresentation(BsonType.Int32)] public bool[] BoolArrayPropertyRepresentedAsInt32;
+            [BsonRepresentation(BsonType.String)] public bool[] BoolArrayPropertyRepresentedAsString;
+            public bool BoolFieldRepresentedAsBoolean;
+            [BsonRepresentation(BsonType.Int32)] public bool BoolFieldRepresentedAsInt32;
+            [BsonRepresentation(BsonType.String)] public bool BoolFieldRepresentedAsString;
+            public bool BoolPropertyRepresentedAsBoolean { get; set; }
+            [BsonRepresentation(BsonType.Int32)] public bool BoolPropertyRepresentedAsInt32 { get; set; }
+            [BsonRepresentation(BsonType.String)] public bool BoolPropertyRepresentedAsString { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
                 new C
                 {
                     Id = 1,
@@ -349,25 +371,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     BoolPropertyRepresentedAsBoolean = true,
                     BoolPropertyRepresentedAsInt32 = true,
                     BoolPropertyRepresentedAsString = true
-                });
-            return collection;
-        }
-
-        private class C
-        {
-            public int Id { get; set; }
-            public bool[] BoolArrayFieldRepresentedAsBoolean;
-            [BsonRepresentation(BsonType.Int32)] public bool[] BoolArrayFieldRepresentedAsInt32;
-            [BsonRepresentation(BsonType.String)] public bool[] BoolArrayFieldRepresentedAsString;
-            public bool[] BoolArrayPropertyRepresentedAsBoolean;
-            [BsonRepresentation(BsonType.Int32)] public bool[] BoolArrayPropertyRepresentedAsInt32;
-            [BsonRepresentation(BsonType.String)] public bool[] BoolArrayPropertyRepresentedAsString;
-            public bool BoolFieldRepresentedAsBoolean;
-            [BsonRepresentation(BsonType.Int32)] public bool BoolFieldRepresentedAsInt32;
-            [BsonRepresentation(BsonType.String)] public bool BoolFieldRepresentedAsString;
-            public bool BoolPropertyRepresentedAsBoolean { get; set; }
-            [BsonRepresentation(BsonType.Int32)] public bool BoolPropertyRepresentedAsInt32 { get; set; }
-            [BsonRepresentation(BsonType.String)] public bool BoolPropertyRepresentedAsString { get; set; }
+                }
+            ];
         }
     }
 }

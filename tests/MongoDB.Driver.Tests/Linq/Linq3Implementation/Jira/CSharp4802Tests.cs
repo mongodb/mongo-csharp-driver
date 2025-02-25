@@ -13,17 +13,24 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4802Tests : Linq3IntegrationTest
+    public class CSharp4802Tests : LinqIntegrationTest<CSharp4802Tests.ClassFixture>
     {
+        public CSharp4802Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_with_projection_of_subfield_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var find = collection.Find(d => d.Status == "a").Project(d => d.SubDocument.Id);
 
@@ -34,17 +41,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(11);
         }
 
-        private IMongoCollection<Document> GetCollection()
-        {
-            var collection = GetCollection<Document>("test");
-            CreateCollection(
-                collection,
-                new Document { Id = 1, Status = "a", SubDocument = new SubDocument { Id = 11 } },
-                new Document { Id = 2, Status = "b", SubDocument = new SubDocument { Id = 22 } });
-            return collection;
-        }
-
-        private class Document
+        public class Document
         {
             public int Id { get; set; }
             public string Status { get; set; }
@@ -54,6 +51,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class SubDocument
         {
             public int Id { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Document>
+        {
+            protected override IEnumerable<Document> InitialData =>
+            [
+                new Document { Id = 1, Status = "a", SubDocument = new SubDocument { Id = 11 } },
+                new Document { Id = 2, Status = "b", SubDocument = new SubDocument { Id = 22 } }
+            ];
         }
     }
 }

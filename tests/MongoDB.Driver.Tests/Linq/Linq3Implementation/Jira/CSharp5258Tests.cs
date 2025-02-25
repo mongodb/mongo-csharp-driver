@@ -13,18 +13,25 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5258Tests : Linq3IntegrationTest
+    public class CSharp5258Tests : LinqIntegrationTest<CSharp5258Tests.ClassFixture>
     {
+        public CSharp5258Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_First_with_predicate_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(_x => _x.List.First(_y => _y > 2));
@@ -39,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_Where_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(_x => _x.List.Where(_y => _y % 2 == 0));
@@ -53,20 +60,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].Should().Equal(2, 4, 6);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, List = [1, 3, 5] },
-                new C { Id = 2, List = [2, 4, 6] });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] List { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, List = [1, 3, 5] },
+                new C { Id = 2, List = [2, 4, 6] }
+            ];
         }
     }
 }

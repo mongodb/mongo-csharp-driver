@@ -13,17 +13,23 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson;
 using Xunit;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4391Tests : Linq3IntegrationTest
+    public class CSharp4391Tests : LinqIntegrationTest<CSharp4391Tests.ClassFixture>
     {
+        public CSharp4391Tests(ClassFixture fixture) : base(fixture)
+        {
+        }
+
         [Fact]
         public void Serializing_struct_with_constructor_should_work()
         {
@@ -91,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_with_struct_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable();
@@ -106,7 +112,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_with_projected_struct_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -119,19 +125,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(new S(1, 3, 4), new S(2, 4, 5));
         }
 
-        private IMongoCollection<S> CreateCollection()
-        {
-            var collection = GetCollection<S>("C");
-
-            CreateCollection(
-                collection,
-                new S(1, 2, 3),
-                new S(2, 3, 4));
-
-            return collection;
-        }
-
-        private struct S
+        public struct S
         {
             public S(int id, int x, int y)
             {
@@ -165,6 +159,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int Id { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<S>
+        {
+            protected override IEnumerable<S> InitialData =>
+            [
+                new S(1, 2, 3),
+                new S(2, 3, 4)
+            ];
         }
     }
 }

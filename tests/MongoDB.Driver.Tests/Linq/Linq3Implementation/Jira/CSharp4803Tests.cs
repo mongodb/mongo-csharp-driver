@@ -14,18 +14,25 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4803Tests : Linq3IntegrationTest
+    public class CSharp4803Tests : LinqIntegrationTest<CSharp4803Tests.ClassFixture>
     {
+        public CSharp4803Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_filter_with_nonnullable_date_fields_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var fromDate = new DateTime(2023, 9, 27, 0, 0, 0, DateTimeKind.Utc);
             Expression<Func<C, bool>> filter = ft => ft.Date >= fromDate;
 
@@ -38,7 +45,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_filter_with_nullable_date_fields_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var fromDate = new DateTime(2023, 9, 27, 0, 0, 0, DateTimeKind.Utc);
             Expression<Func<C, bool>> filter = ft => ft.NullableDate >= fromDate;
 
@@ -48,17 +55,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             renderedFilter.Should().Be("{ NullableDate : { $gte : ISODate('2023-09-27T00:00:00Z') } }");
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public DateTime Date { get; set; }
             public DateTime? NullableDate { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData => null;
         }
     }
 }

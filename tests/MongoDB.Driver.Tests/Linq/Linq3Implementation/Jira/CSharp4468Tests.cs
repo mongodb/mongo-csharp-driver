@@ -14,18 +14,26 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4468Tests : Linq3IntegrationTest
+    public class CSharp4468Tests : LinqIntegrationTest<CSharp4468Tests.ClassFixture>
     {
+        public CSharp4468Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Query1_should_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable =
                 collection.AsQueryable()
@@ -52,7 +60,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Query2_should_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable =
                 collection.AsQueryable()
@@ -73,12 +81,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, expectedStages);
         }
 
-        private IMongoCollection<OrderDao> CreateCollection()
-        {
-            var collection = GetCollection<OrderDao>();
-            return collection;
-        }
-
         public class OrderDao
         {
             public OrderLineDao[] Lines { get; set; }
@@ -97,6 +99,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public Guid Id { get; set; }
             public decimal TotalAmount { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<OrderDao>
+        {
+            protected override IEnumerable<OrderDao> InitialData => null;
         }
     }
 }

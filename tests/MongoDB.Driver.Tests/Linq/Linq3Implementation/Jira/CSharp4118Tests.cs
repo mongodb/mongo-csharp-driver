@@ -13,19 +13,26 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4118Tests : Linq3IntegrationTest
+    public class CSharp4118Tests : LinqIntegrationTest<CSharp4118Tests.ClassFixture>
     {
+        public CSharp4118Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Known_serializers_should_not_propagate_past_anonymous_class()
         {
-            var collection = GetCollection<C>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { S = "abc", HasId = x.Id != "000000000000000000000000" });
 
@@ -37,7 +44,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Known_serializers_should_not_propagate_past_class_with_member_initializers()
         {
-            var collection = GetCollection<C>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new R { S = "abc", HasId = x.Id != "000000000000000000000000" });
 
@@ -46,7 +53,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $project : { S : 'abc', HasId : { $ne : ['$_id', ObjectId('000000000000000000000000')] }, _id : 0 } }");
         }
 
-        private class C
+        public class C
         {
             [BsonRepresentation(BsonType.ObjectId)] public string Id { get; set; }
         }
@@ -55,6 +62,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public string S { get; set; }
             public bool HasId { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData => null;
         }
     }
 }

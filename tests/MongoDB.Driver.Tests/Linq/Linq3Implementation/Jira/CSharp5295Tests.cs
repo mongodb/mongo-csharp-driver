@@ -13,21 +13,28 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5295Tests : Linq3IntegrationTest
+    public class CSharp5295Tests : LinqIntegrationTest<CSharp5295Tests.ClassFixture>
     {
+        public CSharp5295Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Subtract_two_decimals_with_decimal_representation_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.D2 - x.D1);
@@ -42,7 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Subtract_two_decimals_with_left_string_representation_should_throw()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DS2 - x.D1);
@@ -55,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Subtract_two_decimals_with_right_string_representation_should_throw()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.D2 - x.DS1);
@@ -65,22 +72,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             exception.Message.Should().Be("Expression not supported: (x.D2 - x.DS1) because x.DS1 uses a non-numeric representation: String.");
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, D1 = 1.0M, D2 = 2.0M, DS1 = 3.0M, DS2 = 4.0M });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             [BsonRepresentation(BsonType.Decimal128)] public decimal D1 { get; set; }
             [BsonRepresentation(BsonType.Decimal128)] public decimal D2 { get; set; }
             [BsonRepresentation(BsonType.String)] public decimal DS1 { get; set; }
             [BsonRepresentation(BsonType.String)] public decimal DS2 { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, D1 = 1.0M, D2 = 2.0M, DS1 = 3.0M, DS2 = 4.0M }
+            ];
         }
     }
 }

@@ -17,17 +17,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4772Tests : Linq3IntegrationTest
+    public class CSharp4772Tests : LinqIntegrationTest<CSharp4772Tests.ClassFixture>
     {
+        public CSharp4772Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_with_Any_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -45,7 +50,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_with_Array_Exists_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -63,7 +68,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_with_List_Exists_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -81,7 +86,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_Any_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -99,7 +104,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_Array_Exists_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -117,7 +122,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_List_Exists_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var organizationId = 1;
 
             var queryable = collection.AsQueryable()
@@ -132,49 +137,48 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<Account> GetCollection()
+        public class Account
         {
-            var collection = GetCollection<Account>("test");
-            CreateCollection(
-                collection,
+            public int Id { get; set; }
+            public ProfileDto[] ProfilesArray { get; set; }
+            public List<ProfileDto> ProfilesList { get; set; }
+        }
+
+        public class ProfileDto
+        {
+            public int[] OrganizationIdsArray { get; set; }
+            public List<int> OrganizationIdsList { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Account>
+        {
+            protected override IEnumerable<Account> InitialData =>
+            [
                 new Account
                 {
                     Id = 1,
-                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[] { 1 } } },
-                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int> { 1 } } }
+                    ProfilesArray = new ProfileDto[] { new ProfileDto { OrganizationIdsArray = new int[] { 1 } } },
+                    ProfilesList = new List<ProfileDto> { new ProfileDto { OrganizationIdsList = new List<int> { 1 } } }
                 },
                 new Account
                 {
                     Id = 2,
-                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[] { 2 } } },
-                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int> { 2 } } }
+                    ProfilesArray = new ProfileDto[] { new ProfileDto { OrganizationIdsArray = new int[] { 2 } } },
+                    ProfilesList = new List<ProfileDto> { new ProfileDto { OrganizationIdsList = new List<int> { 2 } } }
                 },
                 new Account
                 {
                     Id = 3,
-                    ProfilesArray = new Profile[0],
-                    ProfilesList = new List<Profile>()
+                    ProfilesArray = new ProfileDto[0],
+                    ProfilesList = new List<ProfileDto>()
                 },
                 new Account
                 {
                     Id = 4,
-                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[0] } },
-                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int>() } }
-                });
-            return collection;
-        }
-
-        private class Account
-        {
-            public int Id { get; set; }
-            public Profile[] ProfilesArray { get; set; }
-            public List<Profile> ProfilesList { get; set; }
-        }
-
-        private class Profile
-        {
-            public int[] OrganizationIdsArray { get; set; }
-            public List<int> OrganizationIdsList { get; set; }
+                    ProfilesArray = new ProfileDto[] { new ProfileDto { OrganizationIdsArray = new int[0] } },
+                    ProfilesList = new List<ProfileDto> { new ProfileDto { OrganizationIdsList = new List<int>() } }
+                }
+            ];
         }
     }
 }

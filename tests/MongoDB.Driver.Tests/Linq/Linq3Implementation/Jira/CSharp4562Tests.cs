@@ -14,16 +14,22 @@
 */
 
 using System.Collections.Generic;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4562Tests : Linq3IntegrationTest
+    public class CSharp4562Tests : LinqIntegrationTest<CSharp4562Tests.ClassFixture>
     {
+        public CSharp4562Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void SortBy_using_constant_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = GetTranslationsSortedByEnglish(collection);
 
@@ -34,7 +40,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void SortBy_using_parameter_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var language = "sp";
 
             var aggregate = GetSortedTranslations(collection, language);
@@ -43,13 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $sort : { 'Text.sp' : 1 } }");
         }
 
-        private IMongoCollection<Translation> CreateCollection()
-        {
-            var collection = GetCollection<Translation>("test");
-            return collection;
-        }
-
-        private class Translation
+        public class Translation
         {
             public int Id { get; set; }
             public Dictionary<string, string> Text { get; set; }
@@ -65,6 +65,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             return collection.Aggregate()
                 .SortBy(c => c.Text["en"]);
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Translation>
+        {
+            protected override IEnumerable<Translation> InitialData => null;
         }
     }
 }

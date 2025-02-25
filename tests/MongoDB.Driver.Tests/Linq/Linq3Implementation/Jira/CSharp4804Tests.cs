@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4804Tests : Linq3IntegrationTest
+    public class CSharp4804Tests : LinqIntegrationTest<CSharp4804Tests.ClassFixture>
     {
+        public CSharp4804Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_Slice_with_field_name_and_limit_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Slice("A", 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -40,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_Slice_with_field_expression_and_limit_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Slice(x => x.A, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -55,7 +61,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_Slice_with_field_name_and_skip_and_limit_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Slice("A", 1, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -70,7 +76,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_Slice_with_field_expression_and_skip_and_limit_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Slice(x => x.A, 1, 3);
 
             var find = collection.Find("{}").Project(projection);
@@ -85,7 +91,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Aggregate_Slice_with_field_name_and_limit_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Slice("A", 3);
 
             var aggregate = collection.Aggregate()
@@ -101,7 +107,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Aggregate_Slice_with_field_expression_and_limit_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Slice(x => x.A, 3);
 
             var aggregate = collection.Aggregate()
@@ -117,7 +123,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void AggregateSlice_with_field_name_and_skip_and_limit_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Slice("A", 1, 3);
 
             var aggregate = collection.Aggregate()
@@ -133,7 +139,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Aggregate_Slice_with_field_expression_and_skip_and_limit_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Slice(x => x.A, 1, 3);
 
             var aggregate = collection.Aggregate()
@@ -146,19 +152,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result["A"].AsBsonArray.Select(i => i.AsInt32).Should().Equal(2, 3, 4);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, A = new[] { 1, 2, 3, 4, 5 } });
-            return collection;
-        }
-
         public class C
         {
             public int Id { get; set; }
             public int[] A { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, A = new[] { 1, 2, 3, 4, 5 } }
+            ];
         }
     }
 }

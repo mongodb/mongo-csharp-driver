@@ -14,15 +14,21 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5375Tests : Linq3IntegrationTest
+    public class CSharp5375Tests : LinqIntegrationTest<CSharp5375Tests.ClassFixture>
     {
+        public CSharp5375Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData(1, "{ $project : { _v : null, _id : 0 } }", new string[] { null, null })]
         [InlineData(2, "{ $project : { _v : 's2', _id : 0 } }", new string[] { "s2", "s2" })]
@@ -35,7 +41,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(9, "{ $project : { _v : { $ifNull : ['$String1', '$String2'] }, _id : 0 } }", new string[] { "a2", "b1" })]
         public void Coalesce_with_reference_types_should_work(int scenario, string expectedStage, string[] expectedResults)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             string constant1 = "s1";
             string constant2 = "s2";
             string @null = null;
@@ -73,7 +79,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(9, "{ $project : { _v : { $ifNull : ['$NullableInt1', '$NullableInt2'] }, _id : 0 } }", new int[] { 2, 3 })]
         public void Coalesce_with_nullable_and_nullable_types_should_work(int scenario, string expectedStage, int[] expectedResults)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             int? constant1 = 5;
             int? constant2 = 6;
             int? @null = null;
@@ -108,7 +114,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(6, "{ $project : { _v : { $ifNull : ['$NullableInt1', '$Int2'] }, _id : 0 } }", new int[] { 2, 3 })]
          public void Coalesce_with_nullable_and_non_nullable_types_should_work(int scenario, string expectedStage, int[] expectedResults)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             int? constant1 = 5;
             int constant2 = 6;
             int? @null = null;
@@ -131,17 +137,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(expectedResults.Select(x => x == -1 ? (int?)null : x));
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, NullableInt1 = null, NullableInt2 = 2, Int2 = 2, String1 = null, String2 = "a2" },
-                new C { Id = 2, NullableInt1 = 3, NullableInt2 = 4, Int2 = 4, String1 = "b1", String2 = "b2"});
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int Int2 { get; set; }
@@ -149,6 +145,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int? NullableInt2 { get; set; }
             public string String1 { get; set; }
             public string String2 { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, NullableInt1 = null, NullableInt2 = 2, Int2 = 2, String1 = null, String2 = "a2" },
+                new C { Id = 2, NullableInt1 = 3, NullableInt2 = 4, Int2 = 4, String1 = "b1", String2 = "b2"}
+            ];
         }
     }
 }

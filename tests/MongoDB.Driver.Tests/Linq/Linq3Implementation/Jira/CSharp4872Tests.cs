@@ -13,21 +13,28 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4872Tests : Linq3IntegrationTest
+    public class CSharp4872Tests : LinqIntegrationTest<CSharp4872Tests.ClassFixture>
     {
+        public CSharp4872Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Append_constant_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Append(4).ToList()) :
@@ -45,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Append_expression_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Append(x.B).ToList()) :
@@ -63,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Prepend_constant_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Prepend(4).ToList()) :
@@ -81,7 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Prepend_expression_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Prepend(x.B).ToList()) :
@@ -94,20 +101,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Equal(4, 1, 2, 3);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, A = [1, 2, 3], B = 4 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] A { get; set; }
             public int B { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, A = [1, 2, 3], B = 4 }
+            ];
         }
     }
 }

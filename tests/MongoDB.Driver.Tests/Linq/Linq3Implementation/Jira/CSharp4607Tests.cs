@@ -16,16 +16,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4607Tests : Linq3IntegrationTest
+    public class CSharp4607Tests : LinqIntegrationTest<CSharp4607Tests.ClassFixture>
     {
+        public CSharp4607Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Constant_All_Enumerable_Contains_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             IList<int> values = new int[] { 1, 2, 3 };
 
             var filter = Builders<C>.Filter.Where(c => values.All(e => c.A.Contains(e)));
@@ -37,7 +43,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Constant_All_IList_Contains_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             IList<int> values = new int[] { 1, 2, 3 };
 
             var filter = Builders<C>.Filter.Where(c => values.All(e => c.L.Contains(e)));
@@ -46,21 +52,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             translatedFilter.Should().Be("{ L : { $all : [1, 2, 3] } }");
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("test");
-            //CreateCollection(
-            //    collection,
-            //    new SimpleContact { Id = 1, Dict = new Dictionary<string, int> { ["test"] = 3 } },
-            //    new SimpleContact { Id = 2, Dict = new Dictionary<string, int> { ["a"] = 4 } });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] A { get; set; }
             public IList<int> L { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData => null;
         }
     }
 }

@@ -13,23 +13,29 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4658Tests : Linq3IntegrationTest
+    public class CSharp4658Tests : LinqIntegrationTest<CSharp4658Tests.ClassFixture>
     {
+        public CSharp4658Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_new_Model_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => x.Name)
                 .Select(x =>
-                    new Model
+                    new C
                     {
                         NotId = string.Empty,
                         Name = x.Key
@@ -45,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_new_ModelAggregated_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
                 .Group(
@@ -53,7 +59,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     g => new { Count = g.Count()}
                 )
                 .Project(
-                    x => new ModelAggregated
+                    x => new CAggregated
                     {
                         NotId = string.Empty,
                         Count = x.Count
@@ -67,22 +73,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 "{ $project : { NotId : '', Count : '$Count', _id : 0 } }");
         }
 
-        private IMongoCollection<Model> GetCollection()
-        {
-            var collection = GetCollection<Model>("test");
-            return collection;
-        }
-
-        private class Model
+        public class C
         {
             public string NotId { get; set; }
             public string Name { get; set; }
         }
 
-        private class ModelAggregated
+        public class CAggregated
         {
             public string NotId { get; set; }
             public int Count { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData => null;
         }
     }
 }

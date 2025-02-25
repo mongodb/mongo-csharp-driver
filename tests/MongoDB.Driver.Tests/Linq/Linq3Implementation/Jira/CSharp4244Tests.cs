@@ -13,22 +13,28 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4244Tests : Linq3IntegrationTest
+    public class CSharp4244Tests : LinqIntegrationTest<CSharp4244Tests.ClassFixture>
     {
+        public CSharp4244Tests(ClassFixture fixture)
+            : base(fixture, server => server.VersionGreaterThanOrEqualTo("6.0"))
+        {
+        }
+
         [Fact]
         public void Where_with_root_should_work()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("6.0");
-
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var person = new Person { Id = 2, Name = "Jane Doe" };
 
             var queryable = collection
@@ -42,22 +48,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Single().ShouldBeEquivalentTo(person);
         }
 
-        private IMongoCollection<Person> CreateCollection()
-        {
-            var collection = GetCollection<Person>("C");
-
-            CreateCollection(
-                collection,
-                new Person { Id = 1, Name = "John Doe" },
-                new Person { Id = 2, Name = "Jane Doe" });
-
-            return collection;
-        }
-
-        private class Person
+        public class Person
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Person>
+        {
+            protected override IEnumerable<Person> InitialData =>
+            [
+                new Person { Id = 1, Name = "John Doe" },
+                new Person { Id = 2, Name = "Jane Doe" }
+            ];
         }
     }
 }

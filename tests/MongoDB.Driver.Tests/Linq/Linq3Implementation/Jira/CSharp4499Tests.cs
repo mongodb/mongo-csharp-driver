@@ -13,17 +13,24 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4499Tests : Linq3IntegrationTest
+    public class CSharp4499Tests : LinqIntegrationTest<CSharp4499Tests.ClassFixture>
     {
+        public CSharp4499Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void ExpressionFieldDefinition_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var fieldDefinition = new ExpressionFieldDefinition<ConcreteClass, object>(x => x.InternalId);
 
             var queryable = collection.Aggregate()
@@ -33,15 +40,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             AssertStages(stages, "{ $sort : { InternalId : 1 } }");
         }
 
-        private IMongoCollection<ConcreteClass> CreateCollection()
-        {
-            var collection = GetCollection<ConcreteClass>("C");
-            return collection;
-        }
-
-        private class ConcreteClass
+        public class ConcreteClass
         {
             public ObjectId InternalId { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<ConcreteClass>
+        {
+            protected override IEnumerable<ConcreteClass> InitialData => null;
         }
     }
 }

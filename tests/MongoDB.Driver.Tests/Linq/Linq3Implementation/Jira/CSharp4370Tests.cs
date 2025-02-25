@@ -13,21 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4370Tests : Linq3IntegrationTest
+    public class CSharp4370Tests : LinqIntegrationTest<CSharp4370Tests.ClassFixture>
     {
+        public CSharp4370Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_with_Id_represented_as_ObjectId_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.SomeId == "bbbbbbbbbbbbbbbbbbbbbbbb");
@@ -39,24 +45,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.Id).Should().Equal(2);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("products");
-            var database = collection.Database;
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, SomeId = "aaaaaaaaaaaaaaaaaaaaaaaa" },
-                new C { Id = 2, SomeId = "bbbbbbbbbbbbbbbbbbbbbbbb" });
-
-            return collection;
-        }
-
         public class C
         {
             public int Id { get; set; }
             [BsonRepresentation(BsonType.ObjectId)]
             public string SomeId { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, SomeId = "aaaaaaaaaaaaaaaaaaaaaaaa" },
+                new C { Id = 2, SomeId = "bbbbbbbbbbbbbbbbbbbbbbbb" }
+            ];
         }
     }
 }

@@ -13,20 +13,26 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4744Tests : Linq3IntegrationTest
+    public class CSharp4744Tests : LinqIntegrationTest<CSharp4744Tests.ClassFixture>
     {
+        public CSharp4744Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void ReplaceOne()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => x.FooName, (x, y) => new Summary()
@@ -40,13 +46,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 stages,
                 "{ $group: { _id : '$FooName', __agg0 : { $sum : { $cond : { if : { $eq : ['$State', 'Running'] }, then : 1, else : 0 } } } } }",
                 "{ $project : { FooName : '$_id', Count : '$__agg0', _id : 0 } }");
-        }
-
-        private IMongoCollection<Foo> GetCollection()
-        {
-            var collection = GetCollection<Foo>("test");
-            CreateCollection(collection);
-            return collection;
         }
 
         public enum State
@@ -67,6 +66,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public string FooName;
             public int Count;
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Foo>
+        {
+            protected override IEnumerable<Foo> InitialData => null;
         }
     }
 }

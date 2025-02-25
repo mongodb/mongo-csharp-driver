@@ -13,18 +13,25 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4878Tests : Linq3IntegrationTest
+    public class CSharp4878Tests : LinqIntegrationTest<CSharp4878Tests.ClassFixture>
     {
+        public CSharp4878Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Repeat_with_constant_and_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => Enumerable.Repeat(2, 3));
 
@@ -38,7 +45,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Repeat_with_constant_and_expression_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => Enumerable.Repeat(2, x.Y));
 
@@ -52,7 +59,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Repeat_with_expression_and_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => Enumerable.Repeat(x.X, 3));
 
@@ -66,7 +73,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Repeat_with_expression_and_expression_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => Enumerable.Repeat(x.X, x.Y));
 
@@ -77,20 +84,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Equal(2, 2, 2);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 2, Y = 3 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 2, Y = 3 }
+            ];
         }
     }
 }

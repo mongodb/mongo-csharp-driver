@@ -13,19 +13,26 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4742Tests : Linq3IntegrationTest
+    public class CSharp4742Tests : LinqIntegrationTest<CSharp4742Tests.ClassFixture>
     {
+        public CSharp4742Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_with_identity_projection_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Expression(x => x);
 
             var find = collection
@@ -43,7 +50,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Aggregate_Project_with_identity_projection_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = Builders<C>.Projection.Expression(x => x);
 
             var aggregate = collection
@@ -63,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void ExpressionProjectionDefinition_with_identity_projection_Render_should_work(
             [Values(true, false)] bool renderForFind)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = new ExpressionProjectionDefinition<C, C>(x => x);
             var sourceSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
@@ -79,7 +86,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void FindExpressionProjectionDefinition_with_identity_projection_Render_should_work(
             [Values(true, false)] bool renderForFind)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var projection = new FindExpressionProjectionDefinition<C, C>(x => x);
             var sourceSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
@@ -90,19 +97,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 2 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 2 }
+            ];
         }
     }
 }

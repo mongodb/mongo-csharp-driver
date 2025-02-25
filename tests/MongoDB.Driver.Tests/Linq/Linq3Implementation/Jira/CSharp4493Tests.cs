@@ -18,16 +18,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4493Tests : Linq3IntegrationTest
+    public class CSharp4493Tests : LinqIntegrationTest<CSharp4493Tests.ClassFixture>
     {
+        public CSharp4493Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_with_predicate_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             string[] emails = { "email4@test.net" };
             string[] addresses = { "495 pacific street plymouth, ma 02360" };
             Expression<Func<Customer, bool>> filterByAddressAndEmails =
@@ -45,12 +51,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2);
         }
 
-        private IMongoCollection<Customer> CreateCollection()
+        public class Customer
         {
-            var collection = GetCollection<Customer>("C");
+            public int Id { get; set; }
+            public AddressMetadata Address { get; set; }
+            public IList<EmailMetadata> Emails { get; set; }
+        }
 
-            CreateCollection(
-                collection,
+        public sealed record AddressMetadata
+        {
+            public string FullAddress { get; set; }
+        }
+
+        public sealed record EmailMetadata
+        {
+            public string Email { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Customer>
+        {
+            protected override IEnumerable<Customer> InitialData =>
+            [
                 new Customer {
                     Id = 1,
                     Address = new AddressMetadata
@@ -94,26 +115,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                             Email = "notEmail4@test.net"
                         }
                     }
-                });
-
-            return collection;
-        }
-
-        public class Customer
-        {
-            public int Id { get; set; }
-            public AddressMetadata Address { get; set; }
-            public IList<EmailMetadata> Emails { get; set; }
-        }
-
-        public sealed record AddressMetadata
-        {
-            public string FullAddress { get; set; }
-        }
-
-        public sealed record EmailMetadata
-        {
-            public string Email { get; set; }
+                }
+            ];
         }
     }
 }

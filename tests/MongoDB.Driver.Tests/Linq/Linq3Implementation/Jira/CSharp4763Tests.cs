@@ -14,16 +14,23 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4763Tests : Linq3IntegrationTest
+    public class CSharp4763Tests : LinqIntegrationTest<CSharp4763Tests.ClassFixture>
     {
+        public CSharp4763Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData(false, false, null)]
         [InlineData(true, false, null)]
@@ -35,7 +42,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var findOptions = GetFindOptions(useFindOptions, useTranslationOptions, enableClientSideProjections);
 
             var find = collection
@@ -77,7 +84,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var findOptions = GetFindOptions(useFindOptions, useFindOptions, enableClientSideProjections);
 
             var find = collection
@@ -119,7 +126,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var findOptions = GetFindOptions(useFindOptions, useFindOptions, enableClientSideProjections);
 
             var find = collection
@@ -161,7 +168,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var aggregate = collection.Aggregate(aggregateOptions)
@@ -195,7 +202,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var aggregate = collection.Aggregate(aggregateOptions)
@@ -229,7 +236,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var aggregate = collection.Aggregate(aggregateOptions)
@@ -260,7 +267,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var queryable = collection.AsQueryable(aggregateOptions)
@@ -294,7 +301,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var queryable = collection.AsQueryable(aggregateOptions)
@@ -328,7 +335,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var queryable = collection.AsQueryable(aggregateOptions)
@@ -358,7 +365,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var queryable = collection.AsQueryable(aggregateOptions)
@@ -392,7 +399,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var queryable = collection.AsQueryable(aggregateOptions)
@@ -422,7 +429,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var queryable = collection.AsQueryable(aggregateOptions)
@@ -453,7 +460,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool useTranslationOptions,
             bool? enableClientSideProjections)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var aggregateOptions = GetAggregateOptions(useAggregateOptions, useTranslationOptions, enableClientSideProjections);
 
             var queryable = collection.AsQueryable(aggregateOptions)
@@ -481,15 +488,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 (true, true) => new AggregateOptions { TranslationOptions = GetTranslationOptions(enableClientSideProjections) },
             };
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 1 });
-            return collection;
-        }
-
         private FindOptions GetFindOptions(bool useFindOptions, bool useTranslationOptions, bool? enableClientSideProjections)
         {
             return (useFindOptions, useTranslationOptions) switch
@@ -513,10 +511,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
         private int MyFunction(int x) => 2 * x;
 
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 1 }
+            ];
         }
     }
 }

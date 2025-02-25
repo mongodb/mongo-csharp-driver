@@ -13,18 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4681Tests : Linq3IntegrationTest
+    public class CSharp4681Tests : LinqIntegrationTest<CSharp4681Tests.ClassFixture>
     {
+        public CSharp4681Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_projection_render_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var fluentFind = collection.Find(a => a.Id == "1").Project(a => a.Id);
 
@@ -36,19 +43,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be("1");
         }
 
-        private IMongoCollection<A> GetCollection()
-        {
-            var collection = GetCollection<A>("test");
-            CreateCollection(
-                collection,
-                new A { Id = "1" },
-                new A { Id = "2" });
-            return collection;
-        }
-
-        private class A
+        public class C
         {
             public string Id { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = "1" },
+                new C { Id = "2" }
+            ];
         }
     }
 }
