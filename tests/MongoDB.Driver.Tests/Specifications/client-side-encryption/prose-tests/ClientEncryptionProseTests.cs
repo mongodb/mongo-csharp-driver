@@ -29,7 +29,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
@@ -2511,16 +2510,93 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("provider");
         }
 
+        private void TestLookupSetup()
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            var keyVaultCollectionNamespace = new CollectionNamespace("db", "keyvault");
+            var csfleNamespace = new CollectionNamespace("db", "csfle");
+            var csfle2Namespace = new CollectionNamespace("db", "csfle2");
+            var qeNamespace = new CollectionNamespace("db", "qe");
+            var qe2Namespace = new CollectionNamespace("db", "qe2");
+            var noSchemaNamespace = new CollectionNamespace("db", "no_schema");
+            var noSchema2Namespace = new CollectionNamespace("db", "no_schema2");
+
+            var keyDoc = JsonFileReader.Instance.Documents["etc.data.lookup.key-doc.json"];
+            var schemaCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle.json"];
+            var schemaCsfle2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle2.json"];
+            var schemaQe = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe.json"];
+            var schemaQe2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe2.json"];
+
+            // Setup
+            using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                       keyVaultCollectionNamespace: keyVaultCollectionNamespace))
+            {
+                using var client = ConfigureClient();
+
+                DropCollection(keyVaultCollectionNamespace);
+                DropCollection(csfleNamespace);
+                DropCollection(csfle2Namespace);
+                DropCollection(qeNamespace);
+                DropCollection(qe2Namespace);
+                DropCollection(noSchemaNamespace);
+                DropCollection(noSchema2Namespace);
+
+                CreateCollection(clientEncrypted, csfleNamespace,
+                    validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
+                CreateCollection(clientEncrypted, csfle2Namespace,
+                    validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle2));
+                CreateCollection(clientEncrypted, qeNamespace, encryptedFields: schemaQe);
+                CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
+                CreateCollection(clientEncrypted, noSchemaNamespace);
+                CreateCollection(clientEncrypted, noSchema2Namespace);
+
+                // Collections from encrypted client
+                var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
+                var csfleCollectionEncrypted = GetCollection(clientEncrypted, csfleNamespace);
+                var csfle2CollectionEncrypted = GetCollection(clientEncrypted, csfle2Namespace);
+                var qeCollectionEncrypted = GetCollection(clientEncrypted, qeNamespace);
+                var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
+                var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
+                var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
+
+                // Collections from plain (unencrypted) client
+                var csfleCollection = GetCollection(client, csfleNamespace);
+                var csfle2Collection = GetCollection(client, csfle2Namespace);
+                var qeCollection = GetCollection(client, qeNamespace);
+                var qe2Collection = GetCollection(client, qe2Namespace);
+
+                keyVaultCollectionEncrypted.InsertOne(keyDoc);
+
+                // Insert with encrypted and retrieve with plain client
+                var emptyFilter = new BsonDocument();
+
+                csfleCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle": "csfle"}"""));
+                var c1 = Find(csfleCollection, emptyFilter, false).Single();
+                c1["csfle"].BsonType.Should().Be(BsonType.Binary);
+
+                csfle2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle2": "csfle2"}"""));
+                var c2 = Find(csfle2Collection, emptyFilter, false).Single();
+                c2["csfle2"].BsonType.Should().Be(BsonType.Binary);
+
+                qeCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe": "qe"}"""));
+                var q1 = Find(qeCollection, emptyFilter, false).Single();
+                q1["qe"].BsonType.Should().Be(BsonType.Binary);
+
+                qe2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe2": "qe2"}"""));
+                var q2 = Find(qe2Collection, emptyFilter, false).Single();
+                q2["qe2"].BsonType.Should().Be(BsonType.Binary);
+
+                noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
+                noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
+            }
+        }
+
+        // 25. Test $lookup (cases 1-9)
         [Fact]
         public void TestLookup()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
-            // const string keyVaultCollectionName = "keyvault";
-            // const string csfleCollectionName = "csfle";
-            // const string csfle2CollectionName = "csfle2";
-            // const string qeCollectionName = "qe";
-            // const string qe2CollectionName = "qe2";
 
             const string dbName = "db";
 
@@ -2529,8 +2605,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var csfle2Namespace = new CollectionNamespace(dbName, "csfle2");
             var qeNamespace = new CollectionNamespace(dbName, "qe");
             var qe2Namespace = new CollectionNamespace(dbName, "qe2");
-            var noSchemaNamespace = new CollectionNamespace(dbName, "noSchema");
-            var noSchema2Namespace = new CollectionNamespace(dbName, "noSchema2");
+            var noSchemaNamespace = new CollectionNamespace(dbName, "no_schema");
+            var noSchema2Namespace = new CollectionNamespace(dbName, "no_schema2");
 
             var keyDoc = JsonFileReader.Instance.Documents["etc.data.lookup.key-doc.json"];
             var schemaCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle.json"];
@@ -2538,78 +2614,344 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var schemaQe = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe.json"];
             var schemaQe2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe2.json"];
 
-            using var client = ConfigureClient();
-            using var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local", keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+            // Setup
+            using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                       keyVaultCollectionNamespace: keyVaultCollectionNamespace))
+            {
+                using var client = ConfigureClient();
 
-            DropCollection(keyVaultCollectionNamespace);
-            DropCollection(csfleNamespace);
-            DropCollection(csfle2Namespace);
-            DropCollection(qeNamespace);
-            DropCollection(qe2Namespace);
+                DropCollection(keyVaultCollectionNamespace);
+                DropCollection(csfleNamespace);
+                DropCollection(csfle2Namespace);
+                DropCollection(qeNamespace);
+                DropCollection(qe2Namespace);
+                DropCollection(noSchemaNamespace);
+                DropCollection(noSchema2Namespace);
 
-            CreateCollection(clientEncrypted, csfleNamespace, validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
-            CreateCollection(clientEncrypted, csfle2Namespace, validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle2));
-            CreateCollection(clientEncrypted, qeNamespace, encryptedFields: schemaQe);
-            CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
+                CreateCollection(clientEncrypted, csfleNamespace,
+                    validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
+                CreateCollection(clientEncrypted, csfle2Namespace,
+                    validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle2));
+                CreateCollection(clientEncrypted, qeNamespace, encryptedFields: schemaQe);
+                CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
+                CreateCollection(clientEncrypted, noSchemaNamespace);
+                CreateCollection(clientEncrypted, noSchema2Namespace);
 
-            // Collections from encrypted client
-            var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
-            var csfleCollectionEncrypted = GetCollection(clientEncrypted, csfleNamespace);
-            var csfle2CollectionEncrypted = GetCollection(clientEncrypted, csfle2Namespace);
-            var qeCollectionEncrypted = GetCollection(clientEncrypted, qeNamespace);
-            var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
-            var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
-            var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
+                // Collections from encrypted client
+                var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
+                var csfleCollectionEncrypted = GetCollection(clientEncrypted, csfleNamespace);
+                var csfle2CollectionEncrypted = GetCollection(clientEncrypted, csfle2Namespace);
+                var qeCollectionEncrypted = GetCollection(clientEncrypted, qeNamespace);
+                var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
+                var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
+                var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
 
-            // Collections from plain (unencrypted) client
-            var csfleCollection = GetCollection(client, csfleNamespace);
-            var csfle2Collection = GetCollection(client, csfle2Namespace);
-            var qeCollection = GetCollection(client, qeNamespace);
-            var qe2Collection = GetCollection(client, qe2Namespace);
+                // Collections from plain (unencrypted) client
+                var csfleCollection = GetCollection(client, csfleNamespace);
+                var csfle2Collection = GetCollection(client, csfle2Namespace);
+                var qeCollection = GetCollection(client, qeNamespace);
+                var qe2Collection = GetCollection(client, qe2Namespace);
 
-            keyVaultCollectionEncrypted.InsertOne(keyDoc);
+                keyVaultCollectionEncrypted.InsertOne(keyDoc);
 
-            // Insert with encrypted and retrieve with plain client
-            var emptyFilter = new BsonDocument();
+                // Insert with encrypted and retrieve with plain client
+                var emptyFilter = new BsonDocument();
 
-            csfleCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle": "csfle"}"""));
-            var c1 = Find(csfleCollection, emptyFilter, false).Single();
-            c1["csfle"].BsonType.Should().Be(BsonType.Binary);
+                csfleCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle": "csfle"}"""));
+                var c1 = Find(csfleCollection, emptyFilter, false).Single();
+                c1["csfle"].BsonType.Should().Be(BsonType.Binary);
 
-            csfle2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle2": "csfle2"}"""));
-            var c2 = Find(csfle2Collection, emptyFilter, false).Single();
-            c2["csfle2"].BsonType.Should().Be(BsonType.Binary);
+                csfle2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle2": "csfle2"}"""));
+                var c2 = Find(csfle2Collection, emptyFilter, false).Single();
+                c2["csfle2"].BsonType.Should().Be(BsonType.Binary);
 
-            qeCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe": "qe"}"""));
-            var q1 = Find(qeCollection, emptyFilter, false).Single();
-            q1["qe"].BsonType.Should().Be(BsonType.Binary);
+                qeCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe": "qe"}"""));
+                var q1 = Find(qeCollection, emptyFilter, false).Single();
+                q1["qe"].BsonType.Should().Be(BsonType.Binary);
 
-            qe2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe2": "qe2"}"""));
-            var q2 = Find(qe2Collection, emptyFilter, false).Single();
-            q2["qe2"].BsonType.Should().Be(BsonType.Binary);
+                qe2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe2": "qe2"}"""));
+                var q2 = Find(qe2Collection, emptyFilter, false).Single();
+                q2["qe2"].BsonType.Should().Be(BsonType.Binary);
 
-            noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
-            noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
+                noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
+                noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
+            }
 
+            // Case 1: db.csfle joins db.no_schema
             var pipeline1 = """
+                           [
+                               { "$match": { "csfle": "csfle" } },
+                               {
+                                   "$lookup": {
+                                       "from": "no_schema",
+                                       "as": "matched",
+                                       "pipeline": [
+                                           { "$match": { "no_schema": "no_schema" } },
+                                           { "$project": { "_id": 0 } }
+                                       ]
+                                   }
+                               },
+                               { "$project": { "_id": 0 } }
+                           ]
+                           """;
+            var expectedResult1 ="""{"csfle" : "csfle", "matched" : [ {"no_schema" : "no_schema"} ]}""";
+            RunTestCase(csfleNamespace, pipeline1, expectedResult1);
+
+            // Case 2: db.qe joins db.no_schema
+            var pipeline2 = """
+                           [
+                               {"$match" : {"qe" : "qe"}},
+                               {
+                                  "$lookup" : {
+                                     "from" : "no_schema",
+                                     "as" : "matched",
+                                     "pipeline" :
+                                        [ {"$match" : {"no_schema" : "no_schema"}}, {"$project" : {"_id" : 0, "__safeContent__" : 0}} ]
+                                  }
+                               },
+                               {"$project" : {"_id" : 0, "__safeContent__" : 0}}
+                           ]
+                           """;
+            var expectedResult2 ="""{"qe" : "qe", "matched" : [ {"no_schema" : "no_schema"} ]}""";
+            RunTestCase(qeNamespace, pipeline2, expectedResult2);
+
+            // Case 3: db.no_schema joins db.csfle
+            var pipeline3 = """
+                           [
+                               {"$match" : {"no_schema" : "no_schema"}},
+                               {
+                                   "$lookup" : {
+                                       "from" : "csfle",
+                                       "as" : "matched",
+                                       "pipeline" : [ {"$match" : {"csfle" : "csfle"}}, {"$project" : {"_id" : 0}} ]
+                                   }
+                               },
+                               {"$project" : {"_id" : 0}}
+                           ]
+                           """;
+            var expectedResult3 ="""{"no_schema" : "no_schema", "matched" : [ {"csfle" : "csfle"} ]}""";
+            RunTestCase(noSchemaNamespace, pipeline3, expectedResult3);
+
+            // Case 4: db.no_schema joins db.qe
+            var pipeline4 = """
+                           [
+                              {"$match" : {"no_schema" : "no_schema"}},
+                              {
+                                 "$lookup" : {
+                                    "from" : "qe",
+                                    "as" : "matched",
+                                    "pipeline" : [ {"$match" : {"qe" : "qe"}}, {"$project" : {"_id" : 0, "__safeContent__" : 0}} ]
+                                 }
+                              },
+                              {"$project" : {"_id" : 0}}
+                           ]
+                           """;
+            var expectedResult4 ="""{"no_schema" : "no_schema", "matched" : [ {"qe" : "qe"} ]}""";
+            RunTestCase(noSchemaNamespace, pipeline4, expectedResult4);
+
+            // Case 5: db.csfle joins db.csfle2
+            var pipeline5 = """
+                           [
+                              {"$match" : {"csfle" : "csfle"}},
+                              {
+                                 "$lookup" : {
+                                    "from" : "csfle2",
+                                    "as" : "matched",
+                                    "pipeline" : [ {"$match" : {"csfle2" : "csfle2"}}, {"$project" : {"_id" : 0}} ]
+                                 }
+                              },
+                              {"$project" : {"_id" : 0}}
+                           ]
+                           """;
+            var expectedResult5 ="""{"csfle" : "csfle", "matched" : [ {"csfle2" : "csfle2"} ]}""";
+            RunTestCase(csfleNamespace, pipeline5, expectedResult5);
+
+            // Case 6: db.qe joins db.qe2
+            var pipeline6 = """
+                           [
+                              {"$match" : {"qe" : "qe"}},
+                              {
+                                 "$lookup" : {
+                                    "from" : "qe2",
+                                    "as" : "matched",
+                                    "pipeline" : [ {"$match" : {"qe2" : "qe2"}}, {"$project" : {"_id" : 0, "__safeContent__" : 0}} ]
+                                 }
+                              },
+                              {"$project" : {"_id" : 0, "__safeContent__" : 0}}
+                           ]
+                           """;
+            var expectedResult6 ="""{"qe" : "qe", "matched" : [ {"qe2" : "qe2"} ]}""";
+            RunTestCase(qeNamespace, pipeline6, expectedResult6);
+
+            // Case 7: db.no_schema joins db.no_schema2
+            var pipeline7 = """
+                           [
+                               {"$match" : {"no_schema" : "no_schema"}},
+                               {
+                                   "$lookup" : {
+                                       "from" : "no_schema2",
+                                       "as" : "matched",
+                                       "pipeline" : [ {"$match" : {"no_schema2" : "no_schema2"}}, {"$project" : {"_id" : 0}} ]
+                                   }
+                               },
+                               {"$project" : {"_id" : 0}}
+                           ]
+                           """;
+            var expectedResult7 ="""{"no_schema" : "no_schema", "matched" : [ {"no_schema2" : "no_schema2"} ]}""";
+            RunTestCase(noSchemaNamespace, pipeline7, expectedResult7);
+
+            // Case 8: db.csfle joins db.qe
+            var pipeline8 = """
                             [
-                                { "$match": { "csfle": "csfle" } },
+                                {"$match" : {"csfle" : "qe"}},
                                 {
-                                    "$lookup": {
-                                        "from": "no_schema",
-                                        "as": "matched",
-                                        "pipeline": [
-                                            { "$match": { "no_schema": "no_schema" } },
-                                            { "$project": { "_id": 0 } }
-                                        ]
+                                    "$lookup" : {
+                                        "from" : "qe",
+                                        "as" : "matched",
+                                        "pipeline" : [ {"$match" : {"qe" : "qe"}}, {"$project" : {"_id" : 0}} ]
                                     }
                                 },
-                                { "$project": { "_id": 0 } }
+                                {"$project" : {"_id" : 0}}
                             ]
                             """;
 
-            var result = csfleCollectionEncrypted.Aggregate<BsonDocument>(CreatePipeline(pipeline1)).Single();
-            result.ToString().Should().Be("""{"csfle" : "csfle", "matched" : [ {"no_schema" : "no_schema"} ]}""");
+            var exception = Record.Exception(() => RunTestCase(csfleNamespace, pipeline8, null));
+            exception.Should().NotBeNull();
+            exception.Message.Should().Contain("not supported");
+
+            void RunTestCase(CollectionNamespace collectionNamespace, string pipeline, string expectedResult)
+            {
+                using var mongoClient = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                    keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+                var collection = GetCollection(mongoClient, collectionNamespace);
+                var result = collection.Aggregate(CreatePipeline(pipeline)).Single();
+                var expectedBsonResult = BsonDocument.Parse(expectedResult);
+                result.Should().Be(expectedBsonResult);
+            }
+
+            PipelineDefinition<BsonDocument, BsonDocument> CreatePipeline(string pipelineJson)
+            {
+                return Bson.Serialization.BsonSerializer.Deserialize<List<BsonDocument>>(pipelineJson);
+            }
+        }
+
+
+        // 25. Test $lookup (case 9)
+        [Fact]
+        public void TestLookupUnsupported()
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireServer.Check().VersionLessThan("8.1.0");
+
+            const string dbName = "db";
+
+            var keyVaultCollectionNamespace = new CollectionNamespace(dbName, "keyvault");
+            var csfleNamespace = new CollectionNamespace(dbName, "csfle");
+            var csfle2Namespace = new CollectionNamespace(dbName, "csfle2");
+            var qeNamespace = new CollectionNamespace(dbName, "qe");
+            var qe2Namespace = new CollectionNamespace(dbName, "qe2");
+            var noSchemaNamespace = new CollectionNamespace(dbName, "no_schema");
+            var noSchema2Namespace = new CollectionNamespace(dbName, "no_schema2");
+
+            var keyDoc = JsonFileReader.Instance.Documents["etc.data.lookup.key-doc.json"];
+            var schemaCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle.json"];
+            var schemaCsfle2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle2.json"];
+            var schemaQe = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe.json"];
+            var schemaQe2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe2.json"];
+
+            // Setup
+            using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                       keyVaultCollectionNamespace: keyVaultCollectionNamespace))
+            {
+                using var client = ConfigureClient();
+
+                DropCollection(keyVaultCollectionNamespace);
+                DropCollection(csfleNamespace);
+                DropCollection(csfle2Namespace);
+                DropCollection(qeNamespace);
+                DropCollection(qe2Namespace);
+                DropCollection(noSchemaNamespace);
+                DropCollection(noSchema2Namespace);
+
+                CreateCollection(clientEncrypted, csfleNamespace,
+                    validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
+                CreateCollection(clientEncrypted, csfle2Namespace,
+                    validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle2));
+                CreateCollection(clientEncrypted, qeNamespace, encryptedFields: schemaQe);
+                CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
+                CreateCollection(clientEncrypted, noSchemaNamespace);
+                CreateCollection(clientEncrypted, noSchema2Namespace);
+
+                // Collections from encrypted client
+                var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
+                var csfleCollectionEncrypted = GetCollection(clientEncrypted, csfleNamespace);
+                var csfle2CollectionEncrypted = GetCollection(clientEncrypted, csfle2Namespace);
+                var qeCollectionEncrypted = GetCollection(clientEncrypted, qeNamespace);
+                var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
+                var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
+                var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
+
+                // Collections from plain (unencrypted) client
+                var csfleCollection = GetCollection(client, csfleNamespace);
+                var csfle2Collection = GetCollection(client, csfle2Namespace);
+                var qeCollection = GetCollection(client, qeNamespace);
+                var qe2Collection = GetCollection(client, qe2Namespace);
+
+                keyVaultCollectionEncrypted.InsertOne(keyDoc);
+
+                // Insert with encrypted and retrieve with plain client
+                var emptyFilter = new BsonDocument();
+
+                csfleCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle": "csfle"}"""));
+                var c1 = Find(csfleCollection, emptyFilter, false).Single();
+                c1["csfle"].BsonType.Should().Be(BsonType.Binary);
+
+                csfle2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle2": "csfle2"}"""));
+                var c2 = Find(csfle2Collection, emptyFilter, false).Single();
+                c2["csfle2"].BsonType.Should().Be(BsonType.Binary);
+
+                qeCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe": "qe"}"""));
+                var q1 = Find(qeCollection, emptyFilter, false).Single();
+                q1["qe"].BsonType.Should().Be(BsonType.Binary);
+
+                qe2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe2": "qe2"}"""));
+                var q2 = Find(qe2Collection, emptyFilter, false).Single();
+                q2["qe2"].BsonType.Should().Be(BsonType.Binary);
+
+                noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
+                noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
+            }
+
+            RequireServer.Check().VersionGreaterThanOrEqualTo("8.0.0");
+
+            // Case 9: test error with <8.1
+            var pipeline9 = """
+                            [
+                                {"$match" : {"csfle" : "qe"}},
+                                {
+                                    "$lookup" : {
+                                        "from" : "qe",
+                                        "as" : "matched",
+                                        "pipeline" : [ {"$match" : {"qe" : "qe"}}, {"$project" : {"_id" : 0}} ]
+                                    }
+                                },
+                                {"$project" : {"_id" : 0}}
+                            ]
+                            """;
+
+            var exception = Record.Exception(() => RunTestCase(csfleNamespace, pipeline9, null));
+            exception.Should().NotBeNull();
+            exception.Message.Should().Contain("Upgrade");
+
+            void RunTestCase(CollectionNamespace collectionNamespace, string pipeline, string expectedResult)
+            {
+                using var mongoClient = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                    keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+                var collection = GetCollection(mongoClient, collectionNamespace);
+                var result = collection.Aggregate(CreatePipeline(pipeline)).Single();
+                var expectedBsonResult = BsonDocument.Parse(expectedResult);
+                result.Should().Be(expectedBsonResult);
+            }
 
             PipelineDefinition<BsonDocument, BsonDocument> CreatePipeline(string pipelineJson)
             {
