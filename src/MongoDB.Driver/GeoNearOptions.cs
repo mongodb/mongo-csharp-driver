@@ -21,12 +21,13 @@ namespace MongoDB.Driver
     public class GeoNearOptions<TDocument>
     {
         /// <summary>
-        /// Gets or sets the distance field. Required if querying a time-series collection.
+        /// Gets or sets the output field that contains the calculated distance. Required if querying a time-series collection.
+        /// Optional for non-time series collections in MongoDB 8.1+
         /// </summary>
         public string DistanceField { get; set; }
     
         /// <summary>
-        /// Gets or sets the distance multiplier.
+        /// Gets or sets the factor to multiply all distances returned by the query.
         /// </summary>
         public double? DistanceMultiplier { get; set; }
     
@@ -59,6 +60,5 @@ namespace MongoDB.Driver
         /// Gets or sets the spherical option which determines how to calculate the distance between two points.
         /// </summary>
         public bool? Spherical { get; set; }
-    
     }
 }
