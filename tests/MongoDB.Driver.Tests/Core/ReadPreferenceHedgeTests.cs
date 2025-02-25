@@ -19,6 +19,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Tests
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     public class ReadPreferenceHedgeTests
     {
         [Fact]
@@ -126,4 +127,5 @@ namespace MongoDB.Driver.Core.Tests
             result.Should().Be(expectedResult);
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }
