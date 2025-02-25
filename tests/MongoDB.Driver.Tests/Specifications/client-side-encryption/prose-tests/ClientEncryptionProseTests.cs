@@ -2516,6 +2516,88 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
+            // const string keyVaultCollectionName = "keyvault";
+            // const string csfleCollectionName = "csfle";
+            // const string csfle2CollectionName = "csfle2";
+            // const string qeCollectionName = "qe";
+            // const string qe2CollectionName = "qe2";
+
+            const string dbName = "db";
+
+            var keyVaultCollectionNamespace = new CollectionNamespace(dbName, "keyvault");
+            var csfleNamespace = new CollectionNamespace(dbName, "csfle");
+            var csfle2Namespace = new CollectionNamespace(dbName, "csfle2");
+            var qeNamespace = new CollectionNamespace(dbName, "qe");
+            var qe2Namespace = new CollectionNamespace(dbName, "qe2");
+            var noSchemaNamespace = new CollectionNamespace(dbName, "noSchema");
+            var noSchema2Namespace = new CollectionNamespace(dbName, "noSchema2");
+
+            var keyDoc = JsonFileReader.Instance.Documents["etc.data.lookup.key-doc.json"];
+            var schemaCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle.json"];
+            var schemaCsfle2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle2.json"];
+            var schemaQe = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe.json"];
+            var schemaQe2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe2.json"];
+
+            using var client = ConfigureClient();
+            using var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local", keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+
+            DropCollection(keyVaultCollectionNamespace);
+            DropCollection(csfleNamespace);
+            DropCollection(csfle2Namespace);
+            DropCollection(qeNamespace);
+            DropCollection(qe2Namespace);
+
+            CreateCollection(clientEncrypted, csfleNamespace, validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
+            CreateCollection(clientEncrypted, csfle2Namespace, validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle2));
+            CreateCollection(clientEncrypted, qeNamespace, encryptedFields: schemaQe);
+            CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
+
+            // Collections from encrypted client
+            var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
+            var csfleCollectionEncrypted = GetCollection(clientEncrypted, csfleNamespace);
+            var csfle2CollectionEncrypted = GetCollection(clientEncrypted, csfle2Namespace);
+            var qeCollectionEncrypted = GetCollection(clientEncrypted, qeNamespace);
+            var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
+            var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
+            var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
+
+            // Collections from plain (unencrypted) client
+            var csfleCollection = GetCollection(client, csfleNamespace);
+            var csfle2Collection = GetCollection(client, csfle2Namespace);
+            var qeCollection = GetCollection(client, qeNamespace);
+            var qe2Collection = GetCollection(client, qe2Namespace);
+
+            keyVaultCollectionEncrypted.InsertOne(keyDoc);
+
+            // Insert with encrypted and retrieve with plain client
+            var emptyFilter = new BsonDocument();
+
+            csfleCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle": "csfle"}"""));
+            var c1 = Find(csfleCollection, emptyFilter, false).Single();
+            c1["csfle"].BsonType.Should().Be(BsonType.Binary);
+
+            csfle2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle2": "csfle2"}"""));
+            var c2 = Find(csfle2Collection, emptyFilter, false).Single();
+            c2["csfle2"].BsonType.Should().Be(BsonType.Binary);
+
+            qeCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe": "qe"}"""));
+            var q1 = Find(qeCollection, emptyFilter, false).Single();
+            q1["qe"].BsonType.Should().Be(BsonType.Binary);
+
+            qe2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe2": "qe2"}"""));
+            var q2 = Find(qe2Collection, emptyFilter, false).Single();
+            q2["qe2"].BsonType.Should().Be(BsonType.Binary);
+
+            noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
+            noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
+
+
+            var result = csfleCollectionEncrypted.Aggregate<BsonDocument>(pipeline).ToListAsync();
+
+            PipelineDefinition<BsonDocument, BsonDocument> CreatePipeline(string pipelineJson)
+            {
+                return Bson.Serialization.BsonSerializer.Deserialize<List<BsonDocument>>(pipelineJson);
+            }
         }
 
         [Theory]
@@ -2692,7 +2774,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             where TInnerException : Exception
             => AssertInnerEncryptionException<TInnerException>(ex, e => e.Message.Should().Contain(exceptionMessageContains));
 
-        private IMongoClient ConfigureClient(
+        private IMongoClient ConfigureClient( //TODO Am I wrong or both this method and ConfigureClientEncrypted can create an encrypted client? It's confusing
             bool clearCollections = true,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
@@ -2724,7 +2806,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
             bool? retryReads = null,
-            Func<AutoEncryptionOptions, AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null)
+            Func<AutoEncryptionOptions, AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null,
+            CollectionNamespace keyVaultCollectionNamespace = null)
         {
             var configuredSettings = ConfigureClientEncryptedSettings(
                 schemaMap,
@@ -2735,7 +2818,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 bypassAutoEncryption,
                 bypassQueryAnalysis,
                 maxPoolSize,
-                retryReads);
+                retryReads,
+                keyVaultCollectionNamespace);
 
             if (autoEncryptionOptionsConfigurator != null)
             {
@@ -2754,7 +2838,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool bypassAutoEncryption = false,
             bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
-            bool? retryReads = null)
+            bool? retryReads = null,
+            CollectionNamespace keyVaultCollectionNamespace = null)
         {
             var kmsProviders = EncryptionTestHelper.GetKmsProviders(filter: kmsProviderFilter);
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
@@ -2764,7 +2849,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             var clientEncryptedSettings =
                 CreateMongoClientSettings(
-                    keyVaultNamespace: __keyVaultCollectionNamespace,
+                    keyVaultNamespace: keyVaultCollectionNamespace ??__keyVaultCollectionNamespace,
                     schemaMapDocument: schemaMap,
                     kmsProviders: kmsProviders,
                     externalKeyVaultClient: externalKeyVaultClient,
