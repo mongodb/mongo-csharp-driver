@@ -18,7 +18,7 @@
   "data": [],
   "tests": [
     {
-      "description": "commitTransaction is retried after WriteConcernFailed timeout error",
+      "description": "commitTransaction is retried after WriteConcernTimeout timeout error",
       "failPoint": {
         "configureFailPoint": "failCommand",
         "mode": {
@@ -30,7 +30,6 @@
           ],
           "writeConcernError": {
             "code": 64,
-            "codeName": "WriteConcernFailed",
             "errmsg": "waiting for replication timed out",
             "errInfo": {
               "wtimeout": true
@@ -156,7 +155,7 @@
       }
     },
     {
-      "description": "commitTransaction is retried after WriteConcernFailed non-timeout error",
+      "description": "commitTransaction is retried after WriteConcernTimeout non-timeout error",
       "failPoint": {
         "configureFailPoint": "failCommand",
         "mode": {
@@ -168,7 +167,6 @@
           ],
           "writeConcernError": {
             "code": 64,
-            "codeName": "WriteConcernFailed",
             "errmsg": "multiple errors reported"
           }
         }

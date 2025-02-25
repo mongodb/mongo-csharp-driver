@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(ServerErrorCode.HostUnreachable, true)]
         [InlineData(ServerErrorCode.NetworkTimeout, true)]
         [InlineData(ServerErrorCode.SocketException, true)]
-        [InlineData(ServerErrorCode.WriteConcernFailed, false)]
+        [InlineData(ServerErrorCode.WriteConcernTimeout, false)]
         [InlineData(ServerErrorCode.ExceededTimeLimit, true)]
         public void AddRetryableWriteErrorLabelIfRequired_should_add_RetryableWriteError_for_MongoWriteConcernException_when_required(int errorCode, bool shouldAddErrorLabel)
         {
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(ServerErrorCode.HostUnreachable, true)]
         [InlineData(ServerErrorCode.NetworkTimeout, true)]
         [InlineData(ServerErrorCode.SocketException, true)]
-        [InlineData(ServerErrorCode.WriteConcernFailed, false)]
+        [InlineData(ServerErrorCode.WriteConcernTimeout, false)]
         [InlineData(ServerErrorCode.ExceededTimeLimit, true)]
         public void AddRetryableWriteErrorLabelIfRequired_should_add_RetryableWriteError_when_required(object exceptionDescription, bool shouldAddErrorLabel)
         {
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(ServerErrorCode.RetryChangeStream, true)]
         [InlineData(ServerErrorCode.FailedToSatisfyReadPreference, true)]
         [InlineData(ServerErrorCode.ElectionInProgress, false)]
-        [InlineData(ServerErrorCode.WriteConcernFailed, false)]
+        [InlineData(ServerErrorCode.WriteConcernTimeout, false)]
         [InlineData(ServerErrorCode.CappedPositionLost, false)]
         [InlineData(ServerErrorCode.CursorKilled, false)]
         [InlineData(ServerErrorCode.Interrupted, false)]
