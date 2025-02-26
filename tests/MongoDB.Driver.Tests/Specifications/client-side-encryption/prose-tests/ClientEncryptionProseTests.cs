@@ -2515,7 +2515,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void TestLookup()
         {
             RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet);
-            RequireServer.Check().VersionGreaterThanOrEqualTo("8.0.0"); //TODO This should be 8.1.0
+            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 1, 0, "alpha2-67-gd329906"));
 
             TestLookupSetup();
 
@@ -2687,7 +2687,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void TestLookupUnsupported()
         {
             RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet);
-            RequireServer.Check().VersionLessThan("8.0.0"); //TODO This should be 8.1.0
+            RequireServer.Check().VersionLessThan(new SemanticVersion(8, 1, 0, "alpha2-67-gd329906"));
 
             TestLookupSetup();
 
@@ -2709,18 +2709,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             ]
                             """;
 
-            var exception = Record.Exception(() => RunTestCase(csfleNamespace, pipeline9, null));
+            var exception = Record.Exception(() => RunTestCase(csfleNamespace, pipeline9));
             exception.Should().NotBeNull();
             exception.Message.Should().Contain("Upgrade");
 
-            void RunTestCase(CollectionNamespace collectionNamespace, string pipeline, string expectedResult)
+            void RunTestCase(CollectionNamespace collectionNamespace, string pipeline)
             {
                 using var mongoClient = ConfigureClientEncrypted(kmsProviderFilter: "local",
                     keyVaultCollectionNamespace: keyVaultCollectionNamespace);
                 var collection = GetCollection(mongoClient, collectionNamespace);
-                var result = collection.Aggregate(CreatePipeline(pipeline)).Single();
-                var expectedBsonResult = BsonDocument.Parse(expectedResult);
-                result.Should().Be(expectedBsonResult);
+                collection.Aggregate(CreatePipeline(pipeline)).Single();
             }
 
             PipelineDefinition<BsonDocument, BsonDocument> CreatePipeline(string pipelineJson)
