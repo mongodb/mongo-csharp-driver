@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var memberType = memberMap.MemberType;
 
-            if (!(memberType.IsEnum || memberType.IsNullableEnum() || memberType.IsArray || typeof(IEnumerable).IsAssignableFrom(memberType)))
+            if (!CouldApply(memberType))
             {
                 return;
             }
@@ -87,6 +87,9 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             IBsonSerializer Reconfigure(IBsonSerializer s)
                 => s.ValueType.IsEnum ? (s as IRepresentationConfigurable)?.WithRepresentation(_representation) : null;
+
+            bool CouldApply(Type type)
+                => type.IsEnum || type.IsNullableEnum() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
         }
 
         // private methods
