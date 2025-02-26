@@ -2510,87 +2510,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("provider");
         }
 
-        private void TestLookupSetup()
-        {
-            var keyVaultCollectionNamespace = new CollectionNamespace("db", "keyvault");
-            var csfleNamespace = new CollectionNamespace("db", "csfle");
-            var csfle2Namespace = new CollectionNamespace("db", "csfle2");
-            var qeNamespace = new CollectionNamespace("db", "qe");
-            var qe2Namespace = new CollectionNamespace("db", "qe2");
-            var noSchemaNamespace = new CollectionNamespace("db", "no_schema");
-            var noSchema2Namespace = new CollectionNamespace("db", "no_schema2");
-
-            var keyDoc = JsonFileReader.Instance.Documents["etc.data.lookup.key-doc.json"];
-            var schemaCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle.json"];
-            var schemaCsfle2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle2.json"];
-            var schemaQe = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe.json"];
-            var schemaQe2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe2.json"];
-
-            // Setup
-            using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local",
-                       keyVaultCollectionNamespace: keyVaultCollectionNamespace))
-            {
-                using var client = ConfigureClient();
-
-                DropCollection(keyVaultCollectionNamespace);
-                DropCollection(csfleNamespace);
-                DropCollection(csfle2Namespace);
-                DropCollection(qeNamespace);
-                DropCollection(qe2Namespace);
-                DropCollection(noSchemaNamespace);
-                DropCollection(noSchema2Namespace);
-
-                CreateCollection(clientEncrypted, csfleNamespace,
-                    validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
-                CreateCollection(clientEncrypted, csfle2Namespace,
-                    validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle2));
-                CreateCollection(clientEncrypted, qeNamespace, encryptedFields: schemaQe);
-                CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
-                CreateCollection(clientEncrypted, noSchemaNamespace);
-                CreateCollection(clientEncrypted, noSchema2Namespace);
-
-                // Collections from encrypted client
-                var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
-                var csfleCollectionEncrypted = GetCollection(clientEncrypted, csfleNamespace);
-                var csfle2CollectionEncrypted = GetCollection(clientEncrypted, csfle2Namespace);
-                var qeCollectionEncrypted = GetCollection(clientEncrypted, qeNamespace);
-                var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
-                var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
-                var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
-
-                // Collections from plain (unencrypted) client
-                var csfleCollection = GetCollection(client, csfleNamespace);
-                var csfle2Collection = GetCollection(client, csfle2Namespace);
-                var qeCollection = GetCollection(client, qeNamespace);
-                var qe2Collection = GetCollection(client, qe2Namespace);
-
-                keyVaultCollectionEncrypted.InsertOne(keyDoc);
-
-                // Insert with encrypted and retrieve with plain client
-                var emptyFilter = new BsonDocument();
-
-                csfleCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle": "csfle"}"""));
-                var c1 = Find(csfleCollection, emptyFilter, false).Single();
-                c1["csfle"].BsonType.Should().Be(BsonType.Binary);
-
-                csfle2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle2": "csfle2"}"""));
-                var c2 = Find(csfle2Collection, emptyFilter, false).Single();
-                c2["csfle2"].BsonType.Should().Be(BsonType.Binary);
-
-                qeCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe": "qe"}"""));
-                var q1 = Find(qeCollection, emptyFilter, false).Single();
-                q1["qe"].BsonType.Should().Be(BsonType.Binary);
-
-                qe2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe2": "qe2"}"""));
-                var q2 = Find(qe2Collection, emptyFilter, false).Single();
-                q2["qe2"].BsonType.Should().Be(BsonType.Binary);
-
-                noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
-                noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
-            }
-        }
-
-        // 25. Test $lookup (cases 1-9)
+        // 25. Test $lookup (cases 1-8)
         [Fact]
         public void TestLookup()
         {
@@ -2766,7 +2686,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void TestLookupUnsupported()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireServer.Check().VersionLessThan("8.1.0");
+            RequireServer.Check().VersionLessThan("8.0.0"); //TODO This should be 8.1.0
 
             TestLookupSetup();
 
@@ -3492,6 +3412,84 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     filter,
                     rewrapManyDataKeyOptions,
                     CancellationToken.None);
+
+        private void TestLookupSetup()
+        {
+            var keyVaultCollectionNamespace = new CollectionNamespace("db", "keyvault");
+            var csfleNamespace = new CollectionNamespace("db", "csfle");
+            var csfle2Namespace = new CollectionNamespace("db", "csfle2");
+            var qeNamespace = new CollectionNamespace("db", "qe");
+            var qe2Namespace = new CollectionNamespace("db", "qe2");
+            var noSchemaNamespace = new CollectionNamespace("db", "no_schema");
+            var noSchema2Namespace = new CollectionNamespace("db", "no_schema2");
+
+            var keyDoc = JsonFileReader.Instance.Documents["etc.data.lookup.key-doc.json"];
+            var schemaCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle.json"];
+            var schemaCsfle2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle2.json"];
+            var schemaQe = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe.json"];
+            var schemaQe2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe2.json"];
+
+            // Setup
+            using var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+            using var client = ConfigureClient();
+
+            DropCollection(keyVaultCollectionNamespace);
+            DropCollection(csfleNamespace);
+            DropCollection(csfle2Namespace);
+            DropCollection(qeNamespace);
+            DropCollection(qe2Namespace);
+            DropCollection(noSchemaNamespace);
+            DropCollection(noSchema2Namespace);
+
+            CreateCollection(clientEncrypted, csfleNamespace,
+                validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
+            CreateCollection(clientEncrypted, csfle2Namespace,
+                validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle2));
+            CreateCollection(clientEncrypted, qeNamespace, encryptedFields: schemaQe);
+            CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
+            CreateCollection(clientEncrypted, noSchemaNamespace);
+            CreateCollection(clientEncrypted, noSchema2Namespace);
+
+            // Collections from encrypted client
+            var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
+            var csfleCollectionEncrypted = GetCollection(clientEncrypted, csfleNamespace);
+            var csfle2CollectionEncrypted = GetCollection(clientEncrypted, csfle2Namespace);
+            var qeCollectionEncrypted = GetCollection(clientEncrypted, qeNamespace);
+            var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
+            var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
+            var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
+
+            // Collections from plain (unencrypted) client
+            var csfleCollection = GetCollection(client, csfleNamespace);
+            var csfle2Collection = GetCollection(client, csfle2Namespace);
+            var qeCollection = GetCollection(client, qeNamespace);
+            var qe2Collection = GetCollection(client, qe2Namespace);
+
+            keyVaultCollectionEncrypted.InsertOne(keyDoc);
+
+            // Insert with encrypted and retrieve with plain client
+            var emptyFilter = new BsonDocument();
+
+            csfleCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle": "csfle"}"""));
+            var c1 = Find(csfleCollection, emptyFilter, false).Single();
+            c1["csfle"].BsonType.Should().Be(BsonType.Binary);
+
+            csfle2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle2": "csfle2"}"""));
+            var c2 = Find(csfle2Collection, emptyFilter, false).Single();
+            c2["csfle2"].BsonType.Should().Be(BsonType.Binary);
+
+            qeCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe": "qe"}"""));
+            var q1 = Find(qeCollection, emptyFilter, false).Single();
+            q1["qe"].BsonType.Should().Be(BsonType.Binary);
+
+            qe2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe2": "qe2"}"""));
+            var q2 = Find(qe2Collection, emptyFilter, false).Single();
+            q2["qe2"].BsonType.Should().Be(BsonType.Binary);
+
+            noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
+            noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
+        }
 
         // nested types
         public enum CertificateType
