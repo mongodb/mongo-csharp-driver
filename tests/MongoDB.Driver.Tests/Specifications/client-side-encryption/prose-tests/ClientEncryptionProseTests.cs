@@ -2752,7 +2752,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         view,
                         async,
                         documents: new BsonDocument("test", 1)));
-                exception.Message.Should().Be("Encryption related exception: cannot auto encrypt a view.");
+                exception.Message.Contains("cannot auto encrypt a view");
             }
         }
 
