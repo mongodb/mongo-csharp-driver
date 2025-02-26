@@ -14,41 +14,62 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp1585Tests
+    public class CSharp1585Tests : LinqIntegrationTest<CSharp1585Tests.ClassFixture>
     {
-        [Fact]
-        public void Nested_Any_should_translate_correctly()
+        public CSharp1585Tests(ClassFixture fixture)
+            : base(fixture)
         {
-            var expression = (Expression<Func<Document, bool>>)(document => document.Details.A.Any(x => x.Any(y => Regex.IsMatch(y.DeviceName, @".Name0."))));
-            var parameter = expression.Parameters[0];
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var documentSerializer = serializerRegistry.GetSerializer<Document>();
-            var context = TranslationContext.Create(translationOptions: null);
-            var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
-            context = context.WithSymbol(symbol);
-            var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);
-            var simplifiedFilter = AstSimplifier.Simplify(filter);
+        }
 
-            var rendered = simplifiedFilter.Render();
+        [Fact]
+        public void Filter_Builder_Where_should_translate_correctly()
+        {
+            var collection = Fixture.Collection;
+            var filter = Builders<Document>.Filter.Where(
+                document => document.Details.A.Any(x => x.Any(y => Regex.IsMatch(y.DeviceName, @".Name0."))));
 
-            rendered.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+            var find = collection.Find(filter);
+
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+        }
+
+        [Fact]
+        public void Filter_Builder_ElemMatch_ElemMatch_should_translate_correctly()
+        {
+            var collection = Fixture.Collection;
+            var deviceFilter = Builders<Device>.Filter.Regex(x => x.DeviceName, new BsonRegularExpression(".Name0."));
+            var deviceArrayFilter = Builders<Device[]>.Filter.ElemMatch(deviceFilter);
+            var filter = Builders<Document>.Filter.ElemMatch(x => x.Details.A, deviceArrayFilter);
+
+            var find = collection.Find(filter);
+
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+        }
+
+        [Fact]
+        public void Filter_Builder_ElemMatch_when_TDocument_does_not_implement_IEnumerable_should_throw()
+        {
+            var impliedElementFilter = Builders<int>.Filter.Where(x => x == 0);
+
+            var exception = Record.Exception(() => Builders<Document>.Filter.ElemMatch(impliedElementFilter));
+
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Contain("ElemMatch without a field name requires that MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira.CSharp1585Tests+Document implement IEnumerable<System.Int32>.");
         }
 
         [Fact]
@@ -81,6 +102,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class Device
         {
             public string DeviceName { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Document>
+        {
+            protected override IEnumerable<Document> InitialData => null;
         }
     }
 }

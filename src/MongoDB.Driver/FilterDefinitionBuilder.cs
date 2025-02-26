@@ -24,10 +24,9 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
-using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 namespace MongoDB.Driver
@@ -471,6 +470,35 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> BitsAnySet(Expression<Func<TDocument, object>> field, long bitmask)
         {
             return BitsAnySet(new ExpressionFieldDefinition<TDocument>(field), bitmask);
+        }
+
+        /// <summary>
+        /// Creates an element match filter for an array value.
+        /// </summary>
+        /// <remarks>TDocument must implement IEnumerable{TITem} when using this overload of ElemMatch.</remarks>
+        /// <param name="impliedElementFilter">The implied element filter.</param>
+        /// <returns>An element match filter.</returns>
+        public FilterDefinition<TDocument> ElemMatch<TItem>(FilterDefinition<TItem> impliedElementFilter)
+            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        {
+            var ienumerableItem = typeof(IEnumerable<>).MakeGenericType(typeof(TItem));
+            if (!typeof(TDocument).Implements(ienumerableItem))
+            {
+                throw new ArgumentException($"ElemMatch without a field name requires that {typeof(TDocument)} implement IEnumerable<{typeof(TItem)}>.");
+            }
+
+            return ElemMatch(new ElemMatchImpliedElementField<TDocument>(), impliedElementFilter);
+        }
+
+        /// <summary>
+        /// Creates an element match filter for an array value.
+        /// </summary>
+        /// <remarks>TDocument must implement IEnumerable{TITem} when using this overload of ElemMatch.</remarks>
+        /// <param name="impliedElementFilter">The implied element filter.</param>
+        /// <returns>An element match filter.</returns>
+        public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TItem, bool>> impliedElementFilter)
+        {
+            return ElemMatch(new ExpressionFilterDefinition<TItem>(impliedElementFilter));
         }
 
         /// <summary>
@@ -1880,8 +1908,11 @@ namespace MongoDB.Driver
             }
 
             var renderedFilter = _filter.Render(args.WithNewDocumentType(itemSerializer) with { RenderForElemMatch = true });
+            var renderedElemMatchOperation = new BsonDocument("$elemMatch", renderedFilter);
 
-            return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
+            return _field is ElemMatchImpliedElementField<TDocument> ?
+                renderedElemMatchOperation :
+                new BsonDocument(renderedField.FieldName, renderedElemMatchOperation);
         }
     }
 
