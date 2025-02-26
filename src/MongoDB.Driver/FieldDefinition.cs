@@ -454,12 +454,4 @@ namespace MongoDB.Driver
             return new RenderedFieldDefinition(rendered.FieldName, rendered.UnderlyingSerializer);
         }
     }
-
-    internal sealed class ElemMatchImpliedElementField<TItem> : FieldDefinition<TItem>
-    {
-        public override RenderedFieldDefinition Render(RenderArgs<TItem> args)
-        {
-            return new RenderedFieldDefinition("@<elem>", args.DocumentSerializer);
-        }
-    }
 }

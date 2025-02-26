@@ -487,7 +487,7 @@ namespace MongoDB.Driver
                 throw new ArgumentException($"ElemMatch without a field name requires that {typeof(TDocument)} implement IEnumerable<{typeof(TItem)}>.");
             }
 
-            return ElemMatch(new ElemMatchImpliedElementField<TDocument>(), impliedElementFilter);
+            return ElemMatch((FieldDefinition<TDocument>)null, impliedElementFilter);
         }
 
         /// <summary>
@@ -1882,22 +1882,36 @@ namespace MongoDB.Driver
 
         public ElementMatchFilterDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
+            _field = field;
             _filter = filter;
         }
 
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedField = _field.Render(args);
+            string fieldName = null;
+            IBsonSerializer fieldSerializer;
+
+            if (_field == null)
+            {
+                fieldSerializer = args.DocumentSerializer;
+            }
+            else
+            {
+                var renderedField = _field.Render(args);
+                fieldName = renderedField.FieldName;
+                fieldSerializer = renderedField.FieldSerializer;
+            }
 
             IBsonSerializer<TItem> itemSerializer;
-            if (renderedField.FieldSerializer != null)
+            if (fieldSerializer != null)
             {
-                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
+                var arraySerializer = fieldSerializer as IBsonArraySerializer;
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
+                    var message = fieldName == null ?
+                        string.Format($"The serializer '{fieldSerializer.GetType()}' must implement IBsonArraySerializer and provide item serialization info.") :
+                        string.Format($"The serializer for field '{fieldName}' must implement IBsonArraySerializer and provide item serialization info.");
                     throw new InvalidOperationException(message);
                 }
                 itemSerializer = (IBsonSerializer<TItem>)itemSerializationInfo.Serializer;
@@ -1910,9 +1924,9 @@ namespace MongoDB.Driver
             var renderedFilter = _filter.Render(args.WithNewDocumentType(itemSerializer) with { RenderForElemMatch = true });
             var renderedElemMatchOperation = new BsonDocument("$elemMatch", renderedFilter);
 
-            return _field is ElemMatchImpliedElementField<TDocument> ?
+            return fieldName == null ?
                 renderedElemMatchOperation :
-                new BsonDocument(renderedField.FieldName, renderedElemMatchOperation);
+                new BsonDocument(fieldName, renderedElemMatchOperation);
         }
     }
 
