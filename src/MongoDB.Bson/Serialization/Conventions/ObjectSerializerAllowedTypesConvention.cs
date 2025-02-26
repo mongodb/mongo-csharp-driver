@@ -167,15 +167,12 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 memberMap.SetSerializer(reconfiguredSerializer);
             }
+
+            bool CouldApply(Type type)
+                => type == typeof(object) || type.IsNullable() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
         }
 
         // private methods
-        private bool CouldApply(Type memberType)
-        {
-            return memberType == typeof(object) || memberType.IsNullable() || memberType.IsArray ||
-                   typeof(IEnumerable).IsAssignableFrom(memberType);
-        }
-
         private IBsonSerializer Reconfigure(IBsonSerializer serializer)
         {
             if (serializer is IChildSerializerConfigurable childSerializerConfigurable)
