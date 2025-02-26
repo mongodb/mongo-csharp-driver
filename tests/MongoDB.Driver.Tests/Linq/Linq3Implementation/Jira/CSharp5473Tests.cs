@@ -23,14 +23,34 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
     public class CSharp5473Tests : Linq3IntegrationTest
     {
         [Fact]
-        public void Translate_should_work()
+        public void Translate_queryable_should_work()
         {
             var collection = GetCollection();
-
             var queryable = collection.AsQueryable()
                 .Select(x => x.X + 1);
-
             var provider = (IMongoQueryProvider)queryable.Provider;
+
+            var stages = provider.Translate(queryable, out var outputSerializer);
+            AssertStages(stages, "{ $project : { _v : { $add : ['$X', 1] }, _id : 0 } }");
+
+            var pipeline = new BsonDocumentStagePipelineDefinition<C, int>(stages, outputSerializer);
+            var result = collection.Aggregate(pipeline).Single();
+            result.Should().Be(2);
+        }
+
+        [Fact]
+        public void Translate_expression_should_work()
+        {
+            var collection = GetCollection();
+            var queryable = collection.AsQueryable()
+                .Select(x => x.X + 1);
+            var expression = queryable.Expression; // collection was just used as an easy way to create the Expression
+
+            // this is an example of how to translate an Expression using a dummyQueryable
+            var client = DriverTestConfiguration.Client;
+            var dummyDatabase = client.GetDatabase("dummy");
+            var dummyQueryable = dummyDatabase.AsQueryable().Provider.CreateQuery<C>(expression);
+            var provider = (IMongoQueryProvider)dummyQueryable.Provider;
             var stages = provider.Translate(queryable, out var outputSerializer);
             AssertStages(stages, "{ $project : { _v : { $add : ['$X', 1] }, _id : 0 } }");
 
