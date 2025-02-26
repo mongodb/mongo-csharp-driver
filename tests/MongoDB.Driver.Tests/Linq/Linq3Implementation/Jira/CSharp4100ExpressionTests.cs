@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
@@ -22,17 +23,22 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4100ExpressionTests : Linq3IntegrationTest
+    public class CSharp4100ExpressionTests : LinqIntegrationTest<CSharp4100ExpressionTests.ClassFixture>
     {
+        public CSharp4100ExpressionTests(ClassFixture fixture) : base(fixture)
+        {
+        }
+
         [Fact]
         public void Contains_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains('A') });
 
@@ -44,7 +50,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains('A') });
 
@@ -56,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains(x.CS) });
 
@@ -68,7 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains(x.CS) });
 
@@ -83,7 +89,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -109,7 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -135,7 +141,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : [{ $toLower : '$S' }, 'a'] }, 0] }, _id : 0 } }")]
         public void Contains_with_string_field_and_char_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains('A', comparisonType) });
 
@@ -151,7 +157,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void Contains_with_string_constant_and_char_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains('A', comparisonType) });
 
@@ -167,7 +173,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : [{ $toLower :'$S' }, { $toLower : '$CS' }] }, 0] } , _id : 0 } }")]
         public void Contains_with_string_field_and_char_field_represented_as_string_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains(x.CS, comparisonType) });
 
@@ -183,7 +189,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : ['abc', { $toLower : '$CS' }] }, 0] } , _id : 0 } }")]
         public void Contains_with_string_constant_and_char_field_represented_as_string_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains(x.CS, comparisonType) });
 
@@ -203,7 +209,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -237,7 +243,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -275,7 +281,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -307,7 +313,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void Contains_with_string_constant_and_char_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains('A', comparisonType) });
 
@@ -320,7 +326,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains("aBc") });
 
@@ -332,7 +338,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains("aBc") });
 
@@ -344,7 +350,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains(x.T) });
 
@@ -356,7 +362,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains(x.T) });
 
@@ -371,7 +377,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : [{ $toLower : '$S' }, 'abc'] }, 0] }, _id : 0 } }")]
         public void Contains_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains("aBc", comparisonType) });
 
@@ -387,7 +393,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains("aBc", comparisonType) });
 
@@ -403,7 +409,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void Contains_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.Contains(x.T, comparisonType) });
 
@@ -419,7 +425,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $gte : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void Contains_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains(x.T, comparisonType) });
 
@@ -443,7 +449,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -475,7 +481,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void Contains_with_string_constant_and_string_value_and_invalid_comparisonType_should_throw(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".Contains("aBc", comparisonType) });
 
@@ -489,7 +495,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith('A') });
 
@@ -503,7 +509,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith('A') });
 
@@ -517,7 +523,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith(x.CS) });
 
@@ -531,7 +537,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith(x.CS) });
 
@@ -548,7 +554,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -579,7 +585,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -606,7 +612,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith("aBc") });
 
@@ -618,7 +624,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith("aBc") });
 
@@ -630,7 +636,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith(x.T) });
 
@@ -642,7 +648,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void EndsWith_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith(x.T) });
 
@@ -656,7 +662,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $let : { vars : { string : { $toLower : '$S' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, 3] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', 'abc', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_field_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith("aBc", ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -670,7 +676,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith("aBc", ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -684,7 +690,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $let : { vars : { string : { $toLower : '$S' }, substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', '$$substring', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_field_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith(x.T, ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -698,7 +704,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $let : { vars : { substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [3, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['abc', '$$substring', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith(x.T, ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -714,7 +720,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
             var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
 
@@ -743,7 +749,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith("aBc", ignoreCase, CultureInfo.InvariantCulture) });
 
@@ -757,7 +763,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $let : { vars : { string : { $toLower : '$S' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, 3] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', 'abc', '$$start'] }, '$$start'] }] } } } } }, _id : 0  } }")]
         public void EndsWith_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith("aBc", comparisonType) });
 
@@ -771,7 +777,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith("aBc", comparisonType) });
 
@@ -785,7 +791,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $let : { vars : { string : { $toLower : '$S' }, substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [{ $strLenCP : '$$string' }, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['$$string', '$$substring', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith(x.T, comparisonType) });
 
@@ -799,7 +805,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $let : { vars : { substring : { $toLower : '$T' } }, in : { $let : { vars : { start : { $subtract : [3, { $strLenCP : '$$substring' }] } }, in : { $and : [{ $gte : ['$$start', 0] }, { $eq : [{ $indexOfCP : ['abc', '$$substring', '$$start'] }, '$$start'] }] } } } } }, _id : 0 } }")]
         public void EndsWith_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".EndsWith(x.T, comparisonType) });
 
@@ -821,7 +827,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -857,7 +863,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -884,7 +890,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_char_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith('A') });
 
@@ -898,7 +904,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_char_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith('A') });
 
@@ -912,7 +918,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith(x.CS) });
 
@@ -926,7 +932,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_char_field_represented_as_string_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith(x.CS) });
 
@@ -943,7 +949,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -974,7 +980,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -1001,7 +1007,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_string_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith("aBc") });
 
@@ -1013,7 +1019,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_string_constant_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith("aBc") });
 
@@ -1025,7 +1031,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_field_and_string_field_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith(x.T) });
 
@@ -1037,7 +1043,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void StartsWith_with_string_constant_and_string_field_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith(x.T) });
 
@@ -1051,7 +1057,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, 'abc'] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_field_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith("aBc", ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -1065,7 +1071,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith("aBc", ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -1079,7 +1085,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_field_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith(x.T, ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -1093,7 +1099,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { R : { $eq : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_field_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith(x.T, ignoreCase, CultureInfo.CurrentCulture) });
 
@@ -1109,7 +1115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
             var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
 
@@ -1138,7 +1144,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(true, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith("aBc", ignoreCase, CultureInfo.InvariantCulture) });
 
@@ -1152,7 +1158,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, 'abc'] }, 0] }, _id : 0  } }")]
         public void StartsWith_with_string_field_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith("aBc", comparisonType) });
 
@@ -1166,7 +1172,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { _v : { $literal : { R : true } }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith("aBc", comparisonType) });
 
@@ -1180,7 +1186,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $eq : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_field_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith(x.T, comparisonType) });
 
@@ -1194,7 +1200,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $project : { R : { $eq : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] }, _id : 0 } }")]
         public void StartsWith_with_string_constant_and_string_field_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = "ABC".StartsWith(x.T, comparisonType) });
 
@@ -1215,7 +1221,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -1251,7 +1257,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -1274,13 +1280,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<Test> GetCollection()
-        {
-            var collection = GetCollection<Test>();
-            CreateCollection(collection);
-            return collection;
-        }
-
         private CultureInfo GetACultureThatIsNotTheCurrentCulture()
         {
             var notCurrentCulture = CultureInfo.GetCultureInfo("zu-ZA");
@@ -1297,6 +1296,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.String)] public char CS { get; set; }
             public string S { get; set; }
             public string T { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Test>
+        {
+            protected override IEnumerable<Test> InitialData => null;
         }
     }
 }

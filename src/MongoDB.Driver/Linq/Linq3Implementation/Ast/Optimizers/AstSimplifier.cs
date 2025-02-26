@@ -18,7 +18,9 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 {
@@ -351,6 +353,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             }
         }
 
+        public override AstNode VisitFilterExpression(AstFilterExpression node)
+        {
+            var inputExpression = VisitAndConvert(node.Input);
+            var condExpression = VisitAndConvert(node.Cond);
+            var limitExpression = VisitAndConvert(node.Limit);
+
+            if (condExpression is AstConstantExpression condConstantExpression &&
+                condConstantExpression.Value is BsonBoolean condBsonBoolean)
+            {
+                if (condBsonBoolean.Value)
+                {
+                    // { $filter : { input : <input>, as : "x", cond : true } } => <input>
+                    if (limitExpression == null)
+                    {
+                        return inputExpression;
+                    }
+                }
+                else
+                {
+                    // { $filter : { input : <input>, as : "x", cond : false, optional-limit } } => []
+                    return AstExpression.Constant(new BsonArray());
+                }
+            }
+
+            return node.Update(inputExpression, condExpression, limitExpression);
+        }
+
         public override AstNode VisitGetFieldExpression(AstGetFieldExpression node)
         {
             if (TrySimplifyAsFieldPath(node, out var simplified))
@@ -448,6 +477,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             return base.VisitNotFilterOperation(node);
         }
 
+        public override AstNode VisitPipeline(AstPipeline node)
+        {
+            var stages = VisitAndConvert(node.Stages);
+
+            // { $match : { } } => remove redundant stage
+            if (stages.Any(stage => IsMatchEverythingStage(stage)))
+            {
+                stages = stages.Where(stage => !IsMatchEverythingStage(stage)).AsReadOnlyList();
+            }
+
+            return node.Update(stages);
+
+            static bool IsMatchEverythingStage(AstStage stage)
+            {
+                return
+                    stage is AstMatchStage matchStage &&
+                    matchStage.Filter is AstMatchesEverythingFilter;
+            }
+        }
+
         public override AstNode VisitSliceExpression(AstSliceExpression node)
         {
             node = (AstSliceExpression)base.VisitSliceExpression(node);
@@ -498,15 +547,34 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
         public override AstNode VisitUnaryExpression(AstUnaryExpression node)
         {
+            var arg = VisitAndConvert(node.Arg);
+
             // { $first : <arg> } => { $arrayElemAt : [<arg>, 0] } (or -1 for $last)
             if (node.Operator == AstUnaryOperator.First || node.Operator == AstUnaryOperator.Last)
             {
-                var simplifiedArg = VisitAndConvert(node.Arg);
                 var index = node.Operator == AstUnaryOperator.First ? 0 : -1;
-                return AstExpression.ArrayElemAt(simplifiedArg, index);
+                return AstExpression.ArrayElemAt(arg, index);
             }
 
-            return base.VisitUnaryExpression(node);
+            // { $not : booleanConstant } => !booleanConstant
+            if (node.Operator is AstUnaryOperator.Not &&
+                arg is AstConstantExpression argConstantExpression &&
+                argConstantExpression.Value is BsonBoolean argBsonBoolean)
+            {
+                return AstExpression.Constant(!argBsonBoolean.Value);
+            }
+
+            // { $not : { $eq : [expr1, expr2] } } => { $ne : [expr1, expr2] }
+            // { $not : { $ne : [expr1, expr2] } } => { $eq : [expr1, expr2] }
+            if (node.Operator is AstUnaryOperator.Not &&
+                arg is AstBinaryExpression argBinaryExpression &&
+                argBinaryExpression.Operator is AstBinaryOperator.Eq or AstBinaryOperator.Ne)
+            {
+                var oppositeComparisonOperator = argBinaryExpression.Operator == AstBinaryOperator.Eq ? AstBinaryOperator.Ne : AstBinaryOperator.Eq;
+                return AstExpression.Binary(oppositeComparisonOperator, argBinaryExpression.Arg1, argBinaryExpression.Arg2);
+            }
+
+            return node.Update(arg);
         }
     }
 }

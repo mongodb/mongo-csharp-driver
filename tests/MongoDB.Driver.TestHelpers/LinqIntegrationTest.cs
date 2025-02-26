@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests
 
         protected void AssertStages(IEnumerable<BsonDocument> stages, IEnumerable<string> expectedStages)
         {
-            stages.Should().Equal(expectedStages.Select(json => BsonDocument.Parse(json)));
+            stages.Should().Equal(expectedStages.Where(s => s != null).Select(json => BsonDocument.Parse(json)));
         }
 
         protected static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate) =>

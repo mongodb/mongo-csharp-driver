@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
         }
 
-        [BsonDiscriminator("D~", RootClass = true)]
+        [BsonDiscriminator("D~")]
         private class D : A
         {
         }
@@ -212,7 +212,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             D d = new D { P = "x" };
             var json = d.ToJson<D>();
-            var expected = ("{ '_t' : 'D~', 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = d.ToBson<D>();
@@ -329,7 +329,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             G g = new G { P = "x" };
             var json = g.ToJson<object>();
-            var expected = ("{ '_t' : ['D~', 'G~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'G~', 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = g.ToBson<object>();
@@ -342,7 +342,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             G g = new G { P = "x" };
             var json = g.ToJson<A>();
-            var expected = ("{ '_t' : ['D~', 'G~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'G~', 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = g.ToBson<A>();
@@ -355,7 +355,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             G g = new G { P = "x" };
             var json = g.ToJson<D>();
-            var expected = ("{ '_t' : ['D~', 'G~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'G~', 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = g.ToBson<D>();
@@ -368,7 +368,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             G g = new G { P = "x" };
             var json = g.ToJson<G>();
-            var expected = ("{ '_t' : ['D~', 'G~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = g.ToBson<G>();
@@ -381,7 +381,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             H h = new H { P = "x" };
             var json = h.ToJson<object>();
-            var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'H~', 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = h.ToBson<object>();
@@ -394,7 +394,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             H h = new H { P = "x" };
             var json = h.ToJson<A>();
-            var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'H~', 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = h.ToBson<A>();
@@ -407,7 +407,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             H h = new H { P = "x" };
             var json = h.ToJson<D>();
-            var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'H~', 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = h.ToBson<D>();
@@ -420,7 +420,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             H h = new H { P = "x" };
             var json = h.ToJson<G>();
-            var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ '_t' : 'H~', 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = h.ToBson<G>();
@@ -433,7 +433,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             H h = new H { P = "x" };
             var json = h.ToJson<H>();
-            var expected = ("{ '_t' : ['D~', 'G~', 'H~'], 'P' : 'x' }").Replace("'", "\"");
+            var expected = ("{ 'P' : 'x' }").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = h.ToBson<H>();
