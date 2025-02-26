@@ -2515,6 +2515,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void TestLookup()
         {
             RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet);
+            RequireServer.Check().VersionGreaterThanOrEqualTo("8.0.0"); //TODO This should be 8.1.0
 
             TestLookupSetup();
 

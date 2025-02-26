@@ -24,7 +24,7 @@
 
     <Target Name="DownloadAllNativeBinaries" BeforeTargets="BeforeBuild" Condition="'$(AnyBinaryMissing)' == 'true' and '$(LibMongoCryptAllSourceUrl)' != ''">
         <PropertyGroup>
-            <LibMongoCryptTmpPath>$(MSBuildProjectDirectory)/temp</LibMongoCryptTmpPath>
+            <LibMongoCryptTmpPath>$(MSBuildProjectDirectory.Replace('\', '/'))/temp</LibMongoCryptTmpPath>
         </PropertyGroup>
 
         <ItemGroup>
