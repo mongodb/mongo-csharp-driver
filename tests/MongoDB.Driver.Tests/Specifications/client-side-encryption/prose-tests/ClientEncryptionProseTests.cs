@@ -872,10 +872,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            Guid CreateDataKeyTestCaseStep(ClientEncryption testCaseClientEncription, BsonDocument masterKey, bool async)
+            Guid CreateDataKeyTestCaseStep(ClientEncryption testCaseClientEncryption, BsonDocument masterKey, bool async)
             {
                 var dataKeyOptions = new DataKeyOptions(masterKey: masterKey);
-                return CreateDataKey(testCaseClientEncription, kmsType, dataKeyOptions, async);
+                return CreateDataKey(testCaseClientEncryption, kmsType, dataKeyOptions, async);
             }
 
             void InvalidKmsEndpointConfigurator(string kt, Dictionary<string, object> ko)
@@ -912,15 +912,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            void TestCase(ClientEncryption testCaseClientEncription, BsonDocument masterKey, bool async)
+            void TestCase(ClientEncryption testCaseClientEncryption, BsonDocument masterKey, bool async)
             {
-                var dataKey = CreateDataKeyTestCaseStep(testCaseClientEncription, masterKey, async);
+                var dataKey = CreateDataKeyTestCaseStep(testCaseClientEncryption, masterKey, async);
                 var encryptOptions = new EncryptOptions(
                     algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
                     keyId: dataKey);
                 var value = "test";
-                var encrypted = ExplicitEncrypt(testCaseClientEncription, encryptOptions, value, async);
-                var decrypted = ExplicitDecrypt(testCaseClientEncription, encrypted, async);
+                var encrypted = ExplicitEncrypt(testCaseClientEncryption, encryptOptions, value, async);
+                var decrypted = ExplicitDecrypt(testCaseClientEncryption, encrypted, async);
                 decrypted.Should().Be(BsonValue.Create(value));
             }
         }
