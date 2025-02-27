@@ -397,13 +397,25 @@ namespace MongoDB.Driver.Search
         {
             if (!_useDefaultSerialization)
             {
-                var min = ToBsonValue(_range.Min);
-                var max = ToBsonValue(_range.Max);
+                BsonValue min = null, max = null;
+                bool minInclusive = false, maxInclusive = false;
 
-                return new BsonDocument
+                if (_range.Min != null)
                 {
-                    { _range.IsMinInclusive ? "gte" : "gt", min, min != BsonNull.Value },
-                    { _range.IsMaxInclusive ? "lte" : "lt", max, max != BsonNull.Value },
+                    min = ToBsonValue(_range.Min.Value);
+                    minInclusive = _range.Min.Inclusive;
+                }
+
+                if (_range.Max != null)
+                {
+                    max = ToBsonValue(_range.Max.Value);
+                    maxInclusive = _range.Max.Inclusive;
+                }
+
+                return new()
+                {
+                    { minInclusive ? "gte" : "gt", min, min != null },
+                    { maxInclusive ? "lte" : "lt", max, max != null }
                 };
             }
 
@@ -418,15 +430,15 @@ namespace MongoDB.Driver.Search
             using var bsonWriter = new BsonDocumentWriter(document);
             var context = BsonSerializationContext.CreateRoot(bsonWriter);
             bsonWriter.WriteStartDocument();
-            if (_range.Min is not null)
+            if (_range.Min != null)
             {
-                bsonWriter.WriteName(_range.IsMinInclusive? "gte" : "gt");
-                valueSerializer.Serialize(context, _range.Min);
+                bsonWriter.WriteName(_range.Min.Inclusive? "gte" : "gt");
+                valueSerializer.Serialize(context, _range.Min.Value);
             }
             if (_range.Max is not null)
             {
-                bsonWriter.WriteName(_range.IsMaxInclusive? "lte" : "lt");
-                valueSerializer.Serialize(context, _range.Max);
+                bsonWriter.WriteName(_range.Max.Inclusive? "lte" : "lt");
+                valueSerializer.Serialize(context, _range.Max.Value);
             }
             bsonWriter.WriteEndDocument();
 
