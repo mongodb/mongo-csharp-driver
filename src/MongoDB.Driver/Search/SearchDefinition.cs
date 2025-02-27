@@ -62,21 +62,21 @@ namespace MongoDB.Driver.Search
     public static class SearchDefinitionExtensions
     {
         /// <summary>
-        /// Sets the use of default serialization for the specified <see cref="SearchDefinition{TDocument}"/>.
-        /// When set to true, the default serializers will be used to serialize the values of certain Atlas Search operators, such as "Equals", "In" and "Range". This will become the default behaviour in version 4.0 of the library.
+        /// Sets the use of the configured serialization for the specified <see cref="SearchDefinition{TDocument}"/>.
+        /// When set to true, the configured serializers will be used to serialize the values of certain Atlas Search operators, such as "Equals", "In" and "Range". This will become the default behaviour in version 4.0 of the library.
         /// If not enabled, then a default conversion will be used.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="searchDefinition">The search definition instance.</param>
-        /// <param name="useDefaultSerialization">Whether to use the default serialization or not.</param>
+        /// <param name="useDefaultSerialization">Whether to use the configured serialization or not.</param>
         /// <returns>The same <see cref="SearchDefinition{TDocument}"/> instance with default serialization enabled.</returns>
         /// <exception cref="InvalidOperationException">Thrown if <paramref name="searchDefinition"/> is not of a valid type/>.</exception>
-        public static SearchDefinition<TDocument> WithDefaultSerialization<TDocument>(this SearchDefinition<TDocument> searchDefinition, bool useDefaultSerialization)
+        public static SearchDefinition<TDocument> WithConfiguredSerialization<TDocument>(this SearchDefinition<TDocument> searchDefinition, bool useDefaultSerialization)
         {
             if (searchDefinition is not OperatorSearchDefinition<TDocument> op)
                 throw new InvalidOperationException("Default serialization cannot be used with the current SearchDefinition type");
 
-            op.SetUseDefaultSerialization(useDefaultSerialization);
+            op.SetUseConfiguredSerialization(useDefaultSerialization);
             return searchDefinition;
         }
     }
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Search
         protected readonly SearchPathDefinition<TDocument> _path;
         protected readonly SearchScoreDefinition<TDocument> _score;
 
-        protected bool _useDefaultSerialization = false;
+        protected bool _useConfiguredSerialization = false;
 
         private protected OperatorSearchDefinition(OperatorType operatorType)
             : this(operatorType, null)
@@ -204,9 +204,9 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer) => new();
 
-        internal void SetUseDefaultSerialization(bool useDefaultSerialization)
+        internal void SetUseConfiguredSerialization(bool useDefaultSerialization)
         {
-            _useDefaultSerialization = useDefaultSerialization;
+            _useConfiguredSerialization = useDefaultSerialization;
         }
 
         protected static BsonValue ToBsonValue<T>(T value) =>

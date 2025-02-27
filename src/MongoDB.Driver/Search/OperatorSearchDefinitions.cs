@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
-            if (!_useDefaultSerialization)
+            if (!_useConfiguredSerialization)
             {
                 return new BsonDocument("value", ToBsonValue(_value));
             }
@@ -257,7 +257,7 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
-            if (!_useDefaultSerialization)
+            if (!_useConfiguredSerialization)
             {
                 var values = new BsonArray(_values.Select(ToBsonValue));
                 return new BsonDocument("value", values);
@@ -395,7 +395,7 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
-            if (!_useDefaultSerialization)
+            if (!_useConfiguredSerialization)
             {
                 BsonValue min = null, max = null;
                 bool minInclusive = false, maxInclusive = false;
