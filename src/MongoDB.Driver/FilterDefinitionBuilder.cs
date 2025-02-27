@@ -481,13 +481,7 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> ElemMatch<TItem>(FilterDefinition<TItem> impliedElementFilter)
             // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
-            var ienumerableItem = typeof(IEnumerable<>).MakeGenericType(typeof(TItem));
-            if (!typeof(TDocument).Implements(ienumerableItem))
-            {
-                throw new ArgumentException($"ElemMatch without a field name requires that {typeof(TDocument)} implement IEnumerable<{typeof(TItem)}>.");
-            }
-
-            return ElemMatch((FieldDefinition<TDocument>)null, impliedElementFilter);
+            return new ElementMatchFilterDefinition<TDocument, TItem>(impliedElementFilter);
         }
 
         /// <summary>
@@ -497,6 +491,7 @@ namespace MongoDB.Driver
         /// <param name="impliedElementFilter">The implied element filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TItem, bool>> impliedElementFilter)
+            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
             return ElemMatch(new ExpressionFilterDefinition<TItem>(impliedElementFilter));
         }
@@ -509,6 +504,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
+            // where TField : IEnumerable<TItem> (can only be checked at runtime)
         {
             return new ElementMatchFilterDefinition<TDocument, TItem>(field, filter);
         }
@@ -521,6 +517,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TItem> filter)
+            // where TField : IEnumerable<TItem> (can only be checked at runtime)
         {
             return ElemMatch(new ExpressionFieldDefinition<TDocument>(field), filter);
         }
@@ -1880,37 +1877,60 @@ namespace MongoDB.Driver
         private readonly FieldDefinition<TDocument> _field;
         private readonly FilterDefinition<TItem> _filter;
 
-        public ElementMatchFilterDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
+        public ElementMatchFilterDefinition(FilterDefinition<TItem> filter)
+            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
-            _field = field;
             _filter = filter;
+
+            var ienumerableItem = typeof(IEnumerable<>).MakeGenericType(typeof(TItem));
+            if (!typeof(TDocument).Implements(ienumerableItem))
+            {
+                throw new ArgumentException($"ElemMatch without a field name requires that {typeof(TDocument)} implement IEnumerable<{typeof(TItem)}>.");
+            }
+        }
+
+        public ElementMatchFilterDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
+            // where TField : IEnumerable<TItem> (checked in Render)
+        {
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _filter = filter;
+
+            var fieldType = field.GetFieldType();
+            if (fieldType != null) // for some implementations of FieldDefinition TField is not known
+            {
+                var ienumerableItem = typeof(IEnumerable<>).MakeGenericType(typeof(TItem));
+                if (!fieldType.Implements(ienumerableItem))
+                {
+                    throw new ArgumentException($"ElemMatch requires that {fieldType} implement IEnumerable<{typeof(TItem)}>.");
+                }
+            }
         }
 
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
             string fieldName = null;
-            IBsonSerializer fieldSerializer;
+            IBsonSerializer enumerableSerializer;
 
             if (_field == null)
             {
-                fieldSerializer = args.DocumentSerializer;
+                enumerableSerializer = args.DocumentSerializer; // note that TDocument : IEnumerable<TItem>
             }
             else
             {
                 var renderedField = _field.Render(args);
                 fieldName = renderedField.FieldName;
-                fieldSerializer = renderedField.FieldSerializer;
+                enumerableSerializer = renderedField.FieldSerializer; // note that TField : IEnumerable<TItem>
             }
 
             IBsonSerializer<TItem> itemSerializer;
-            if (fieldSerializer != null)
+            if (enumerableSerializer != null)
             {
-                var arraySerializer = fieldSerializer as IBsonArraySerializer;
+                var arraySerializer = enumerableSerializer as IBsonArraySerializer;
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
                     var message = fieldName == null ?
-                        string.Format($"The serializer '{fieldSerializer.GetType()}' must implement IBsonArraySerializer and provide item serialization info.") :
+                        string.Format($"The serializer '{enumerableSerializer.GetType()}' must implement IBsonArraySerializer and provide item serialization info.") :
                         string.Format($"The serializer for field '{fieldName}' must implement IBsonArraySerializer and provide item serialization info.");
                     throw new InvalidOperationException(message);
                 }
