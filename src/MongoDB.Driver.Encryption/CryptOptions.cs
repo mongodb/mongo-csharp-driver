@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Encryption
         public bool BypassQueryAnalysis { get; }
         public string CryptSharedLibPath { get; }
         public string CryptSharedLibSearchPath { get; }
+        public long? KeyExpirationMs { get; }
         public byte[] EncryptedFieldsMap { get; }
         public bool IsCryptSharedLibRequired { get; }
         public IReadOnlyList<KmsCredentials> KmsCredentials { get; }
@@ -40,7 +41,7 @@ namespace MongoDB.Driver.Encryption
 
         public CryptOptions(
             IEnumerable<KmsCredentials> credentials,
-            byte[] schema) : this(credentials, null, schema, false, null, null, false)
+            byte[] schema) : this(credentials, null, schema, false, null, null, false, null)
         {
         }
 
@@ -51,11 +52,13 @@ namespace MongoDB.Driver.Encryption
             bool bypassQueryAnalysis,
             string cryptSharedLibPath,
             string cryptSharedLibSearchPath,
-            bool isCryptSharedLibRequired)
+            bool isCryptSharedLibRequired,
+            long? keyExpirationMs)
         {
             BypassQueryAnalysis = bypassQueryAnalysis;
             CryptSharedLibPath = cryptSharedLibPath;
             CryptSharedLibSearchPath = cryptSharedLibSearchPath;
+            KeyExpirationMs = keyExpirationMs;
             IsCryptSharedLibRequired = isCryptSharedLibRequired;
             EncryptedFieldsMap = encryptedFieldsMap;
             KmsCredentials = new ReadOnlyCollection<KmsCredentials>((credentials ?? throw new ArgumentNullException(nameof(credentials))).ToList());
