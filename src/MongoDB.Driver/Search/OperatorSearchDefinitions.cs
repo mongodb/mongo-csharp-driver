@@ -379,13 +379,12 @@ namespace MongoDB.Driver.Search
     }
 
     internal sealed class RangeSearchDefinition<TDocument, TValue> : OperatorSearchDefinition<TDocument>
-        where TValue : struct, IComparable<TValue>
     {
-        private readonly SearchRange<TValue> _range;
+        private readonly SearchRangeV2<TValue> _range;
 
         public RangeSearchDefinition(
             SearchPathDefinition<TDocument> path,
-            SearchRange<TValue> range,
+            SearchRangeV2<TValue> range,
             SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.Range, path, score)
         {
