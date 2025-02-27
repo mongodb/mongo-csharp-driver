@@ -2901,7 +2901,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             where TInnerException : Exception
             => AssertInnerEncryptionException<TInnerException>(ex, e => e.Message.Should().Contain(exceptionMessageContains));
 
-        private IMongoClient ConfigureClient( //TODO Am I wrong or both this method and ConfigureClientEncrypted can create an encrypted client? It's confusing
+        private IMongoClient ConfigureClient(
             bool clearCollections = true,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,

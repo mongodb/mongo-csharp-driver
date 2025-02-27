@@ -13,50 +13,6 @@
     <NoWarn>CA1060;CA2101;CA1307;SYSLIB0022;SYSLIB0004</NoWarn>
   </PropertyGroup>
 
-<!--    <PropertyGroup>-->
-<!--        <AnyBinaryMissing Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/osx/native/libmongocrypt.dylib')-->
-<!--        or !Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/x64/libmongocrypt.so')-->
-<!--        or !Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/arm64/libmongocrypt.so')-->
-<!--        or !Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/alpine/libmongocrypt.so')-->
-<!--        or !Exists('$(MSBuildProjectDirectory)/runtimes/win/native/mongocrypt.dll')">true</AnyBinaryMissing>-->
-<!--        <LibMongoCryptAllSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt/all/master/33fdf65cce5a0c0cdd293c64ed40e4a8205c3ce0/libmongocrypt-all.tar.gz</LibMongoCryptAllSourceUrl>-->
-<!--    </PropertyGroup>-->
-
-<!--    <Target Name="DownloadAllNativeBinaries" BeforeTargets="BeforeBuild" Condition="'$(AnyBinaryMissing)' == 'true' and '$(LibMongoCryptAllSourceUrl)' != ''">-->
-<!--        <PropertyGroup>-->
-<!--            <LibMongoCryptTmpPath>$(IntermediateOutputPath.Replace('\', '/'))/temp</LibMongoCryptTmpPath>-->
-<!--        </PropertyGroup>-->
-
-<!--        <ItemGroup>-->
-<!--            <BinaryMap Include="macos">-->
-<!--                <Source>macos/lib/libmongocrypt.dylib</Source>-->
-<!--                <Destination>runtimes/osx/native</Destination>-->
-<!--            </BinaryMap>-->
-<!--            <BinaryMap Include="ubuntu-x64">-->
-<!--                <Source>ubuntu1804-64/nocrypto/lib/libmongocrypt.so</Source>-->
-<!--                <Destination>runtimes/linux/native/x64</Destination>-->
-<!--            </BinaryMap>-->
-<!--            <BinaryMap Include="ubuntu-arm64">-->
-<!--                <Source>ubuntu1804-arm64/nocrypto/lib/libmongocrypt.so</Source>-->
-<!--                <Destination>runtimes/linux/native/arm64</Destination>-->
-<!--            </BinaryMap>-->
-<!--            <BinaryMap Include="alpine-arm64">-->
-<!--                <Source>alpine-arm64-earthly/nocrypto/lib/libmongocrypt.so</Source>-->
-<!--                <Destination>runtimes/linux/native/alpine</Destination>-->
-<!--            </BinaryMap>-->
-<!--            <BinaryMap Include="windows">-->
-<!--                <Source>windows-test/bin/mongocrypt.dll</Source>-->
-<!--                <Destination>runtimes/win/native</Destination>-->
-<!--            </BinaryMap>-->
-<!--        </ItemGroup>-->
-
-<!--        <MakeDir Directories="$(LibMongoCryptTmpPath)" />-->
-<!--        <DownloadFile SourceUrl="$(LibMongoCryptAllSourceUrl)" DestinationFolder="$(LibMongoCryptTmpPath)"/>-->
-<!--        <Exec Command="tar -zxvf $(LibMongoCryptTmpPath)/libmongocrypt-all.tar.gz -C $(LibMongoCryptTmpPath)" />-->
-<!--        <Copy SourceFiles="$(LibMongoCryptTmpPath)/%(BinaryMap.Source)" DestinationFolder="$(MSBuildProjectDirectory)/%(BinaryMap.Destination)" />-->
-<!--        <RemoveDir Directories="$(LibMongoCryptTmpPath)" />-->
-<!--    </Target>-->
-
   <Target Name="DownloadNativeBinaries_MacOS"
           BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/osx/native/libmongocrypt.dylib')">
     <PropertyGroup>
