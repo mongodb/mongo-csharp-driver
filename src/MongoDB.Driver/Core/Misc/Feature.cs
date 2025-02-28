@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
+        private static readonly Feature __csfle2Qev2Lookup = new Feature("csfle2Qev2Lookup", WireVersion.Server81);
         private static readonly Feature __csfle2Qev2RangeAlgorithm = new Feature("csfle2Qev2RangeAlgorithm", WireVersion.Server80);
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
         private static readonly Feature __csfle2Qev2 = new Feature("Csfle2Qev2", WireVersion.Server70, notSupportedMessage: "Driver support of Queryable Encryption is incompatible with server. Upgrade server to use Queryable Encryption.");
@@ -216,6 +217,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the client side field level encryption 2 queryable encryption v2 feature.
         /// </summary>
         public static Feature Csfle2QEv2 => __csfle2Qev2;
+
+        /// <summary>
+        /// Gets the csfle2 $lookup support feature.
+        /// </summary>
+        public static Feature Csfle2QEv2Lookup => __csfle2Qev2Lookup;
 
         /// <summary>
         /// Gets the csfle2 range algorithm feature.

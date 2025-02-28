@@ -2514,8 +2514,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [Fact]
         public void TestLookup()
         {
-            RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet);
-            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(8, 1, 0, "alpha2-67-gd329906"));
+            RequireServer.Check().Supports(Feature.Csfle2QEv2Lookup)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             TestLookupSetup();
 
@@ -2686,8 +2686,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [Fact]
         public void TestLookupUnsupported()
         {
-            RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet);
-            RequireServer.Check().VersionLessThan(new SemanticVersion(8, 1, 0, "alpha2-67-gd329906"));
+            RequireServer.Check().Supports(Feature.Csfle2QEv2).DoesNotSupport(Feature.Csfle2QEv2Lookup)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             TestLookupSetup();
 
