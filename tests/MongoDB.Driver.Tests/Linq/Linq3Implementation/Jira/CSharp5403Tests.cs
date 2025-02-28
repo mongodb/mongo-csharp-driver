@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 #pragma warning restore CS0618 // Type or member is obsolete
 
-        public sealed class ClassFixture : MongoCollectionFixture<BsonDocument, GridFSFileInfo>
+        public sealed class ClassFixture : MongoCollectionFixture<GridFSFileInfo, BsonDocument>
         {
             protected override IEnumerable<BsonDocument> InitialData =>
             [

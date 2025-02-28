@@ -23,7 +23,7 @@ namespace MongoDB.Driver.TestHelpers
     {
     }
 
-    public abstract class MongoCollectionFixture<TInitial, TDocument> : MongoDatabaseFixture
+    public abstract class MongoCollectionFixture<TDocument, TInitial> : MongoDatabaseFixture
     {
         private readonly Lazy<IMongoCollection<TDocument>> _collection;
         private bool _dataInitialized;

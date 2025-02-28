@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public HashSet<string> HashSet { get; set; }
         }
 
-        public sealed class ClassFixture : MongoCollectionFixture<BsonDocument, C>
+        public sealed class ClassFixture : MongoCollectionFixture<C, BsonDocument>
         {
             protected override IEnumerable<BsonDocument> InitialData =>
             [
