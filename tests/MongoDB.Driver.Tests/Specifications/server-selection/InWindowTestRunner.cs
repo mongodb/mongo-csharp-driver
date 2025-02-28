@@ -125,6 +125,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
                         serverDescriptionDisconnected = serverDescriptionDisconnected.With(replicaSetConfig: replicaSetConfig);
                     }
                     var serverDescriptionConnected = serverDescriptionDisconnected.With(state: ServerState.Connected);
+                    
 
                     var operationsCount = operationsCounts.Single(o => endpoint.ToString().EndsWith(o.address));
 
