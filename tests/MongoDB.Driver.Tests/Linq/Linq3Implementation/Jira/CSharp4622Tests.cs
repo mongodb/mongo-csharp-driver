@@ -32,22 +32,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var collection = Fixture.Collection;
             var options = new ReplaceOptions { IsUpsert = true };
-            var data = new C { Id = 8, Text = "updated" };
+            var data = new Data { Id = 8, Text = "updated" };
 
             var result = collection.ReplaceOne(d => true, data, options);
 
             result.UpsertedId.Should().Be(8);
         }
 
-        public class C
+        public class Data
         {
             public int Id { get; set; }
             public string Text { get; set; }
         }
 
-        public sealed class ClassFixture : MongoCollectionFixture<C>
+        public sealed class ClassFixture : MongoCollectionFixture<Data>
         {
-            protected override IEnumerable<C> InitialData => null;
+            protected override IEnumerable<Data> InitialData => null;
         }
     }
 }

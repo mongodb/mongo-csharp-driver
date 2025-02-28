@@ -140,11 +140,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class Account
         {
             public int Id { get; set; }
-            public ProfileDto[] ProfilesArray { get; set; }
-            public List<ProfileDto> ProfilesList { get; set; }
+            public Profile[] ProfilesArray { get; set; }
+            public List<Profile> ProfilesList { get; set; }
         }
 
-        public class ProfileDto
+        public class Profile
         {
             public int[] OrganizationIdsArray { get; set; }
             public List<int> OrganizationIdsList { get; set; }
@@ -157,26 +157,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 new Account
                 {
                     Id = 1,
-                    ProfilesArray = new ProfileDto[] { new ProfileDto { OrganizationIdsArray = new int[] { 1 } } },
-                    ProfilesList = new List<ProfileDto> { new ProfileDto { OrganizationIdsList = new List<int> { 1 } } }
+                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[] { 1 } } },
+                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int> { 1 } } }
                 },
                 new Account
                 {
                     Id = 2,
-                    ProfilesArray = new ProfileDto[] { new ProfileDto { OrganizationIdsArray = new int[] { 2 } } },
-                    ProfilesList = new List<ProfileDto> { new ProfileDto { OrganizationIdsList = new List<int> { 2 } } }
+                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[] { 2 } } },
+                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int> { 2 } } }
                 },
                 new Account
                 {
                     Id = 3,
-                    ProfilesArray = new ProfileDto[0],
-                    ProfilesList = new List<ProfileDto>()
+                    ProfilesArray = new Profile[0],
+                    ProfilesList = new List<Profile>()
                 },
                 new Account
                 {
                     Id = 4,
-                    ProfilesArray = new ProfileDto[] { new ProfileDto { OrganizationIdsArray = new int[0] } },
-                    ProfilesList = new List<ProfileDto> { new ProfileDto { OrganizationIdsList = new List<int>() } }
+                    ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[0] } },
+                    ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int>() } }
                 }
             ];
         }

@@ -126,7 +126,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
                     }
                     var serverDescriptionConnected = serverDescriptionDisconnected.With(state: ServerState.Connected);
 
-
                     var operationsCount = operationsCounts.Single(o => endpoint.ToString().EndsWith(o.address));
 
                     var server = new Mock<IClusterableServer>();

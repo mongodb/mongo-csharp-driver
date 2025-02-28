@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var queryable = collection.AsQueryable()
                 .GroupBy(x => x.Name)
                 .Select(x =>
-                    new C
+                    new Model
                     {
                         NotId = string.Empty,
                         Name = x.Key
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     g => new { Count = g.Count()}
                 )
                 .Project(
-                    x => new CAggregated
+                    x => new ModelAggregated
                     {
                         NotId = string.Empty,
                         Count = x.Count
@@ -73,21 +73,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 "{ $project : { NotId : '', Count : '$Count', _id : 0 } }");
         }
 
-        public class C
+        public class Model
         {
             public string NotId { get; set; }
             public string Name { get; set; }
         }
 
-        public class CAggregated
+        public class ModelAggregated
         {
             public string NotId { get; set; }
             public int Count { get; set; }
         }
 
-        public sealed class ClassFixture : MongoCollectionFixture<C>
+        public sealed class ClassFixture : MongoCollectionFixture<Model>
         {
-            protected override IEnumerable<C> InitialData => null;
+            protected override IEnumerable<Model> InitialData => null;
         }
     }
 }

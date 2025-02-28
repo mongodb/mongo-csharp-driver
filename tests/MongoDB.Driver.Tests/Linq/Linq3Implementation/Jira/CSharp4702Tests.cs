@@ -93,14 +93,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(model => model.Id).Should().BeEquivalentTo(4, 5);
         }
 
-        public class C
+        public class Model
         {
             public int Id { get; set; }
             public List<string> List { get; set; }
             public HashSet<string> HashSet { get; set; }
         }
 
-        public sealed class ClassFixture : MongoCollectionFixture<C, BsonDocument>
+        public sealed class ClassFixture : MongoCollectionFixture<Model, BsonDocument>
         {
             protected override IEnumerable<BsonDocument> InitialData =>
             [

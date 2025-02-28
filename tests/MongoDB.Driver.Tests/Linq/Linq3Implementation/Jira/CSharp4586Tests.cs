@@ -35,11 +35,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var collection = Fixture.Collection;
             var id = "a";
-            var filter = Builders<C>.Filter.Eq(m => m.Id, id);
+            var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
             var find = collection
                 .Find(filter)
-                .Project(Builders<C>.Projection.Expression(m => new View1(m.Id)));
+                .Project(Builders<Model>.Projection.Expression(m => new View1(m.Id)));
 
             var projection = TranslateFindProjection(collection, find);
             projection.Should().Be("{ _id : 1 }");
@@ -57,11 +57,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var collection = Fixture.Collection;
             var id = "a";
-            var filter = Builders<C>.Filter.Eq(m => m.Id, id);
+            var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
             var find = collection
                 .Find(filter)
-                .Project(Builders<C>.Projection.Expression(m => new View1(m.Id) { }));
+                .Project(Builders<Model>.Projection.Expression(m => new View1(m.Id) { }));
 
             var projection = TranslateFindProjection(collection, find);
             projection.Should().Be("{ _id : 1 }");
@@ -79,11 +79,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var collection = Fixture.Collection;
             var id = "a";
-            var filter = Builders<C>.Filter.Eq(m => m.Id, id);
+            var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
             var find = collection
                 .Find(filter)
-                .Project(Builders<C>.Projection.Expression(m => new View2(m.Id)));
+                .Project(Builders<Model>.Projection.Expression(m => new View2(m.Id)));
 
             var projection = TranslateFindProjection(collection, find);
             projection.Should().Be("{ _id : 1 }");
@@ -102,11 +102,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             var collection = Fixture.Collection;
             var id = "a";
-            var filter = Builders<C>.Filter.Eq(m => m.Id, id);
+            var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
             var find = collection
                 .Find(filter)
-                .Project(Builders<C>.Projection.Expression(m => new View2(m.Id) { }));
+                .Project(Builders<Model>.Projection.Expression(m => new View2(m.Id) { }));
 
             var projection = TranslateFindProjection(collection, find);
             projection.Should().Be("{ _id : 1 }");
@@ -126,11 +126,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
             var collection = Fixture.Collection;
             var id = "a";
-            var filter = Builders<C>.Filter.Eq(m => m.Id, id);
+            var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
             var find = collection
                 .Find(filter)
-                .Project(Builders<C>.Projection.Expression(m => new View2(m.Id) { Version = 1 }));
+                .Project(Builders<Model>.Projection.Expression(m => new View2(m.Id) { Version = 1 }));
 
             var projection = TranslateFindProjection(collection, find);
             projection.Should().Be("{ _id : 1, Version : { $literal : 1 } }");
@@ -144,9 +144,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             deleteResult.DeletedCount.Should().Be(1);
         }
 
-        public class C
+        public class Model
         {
-            public C(string id)
+            public Model(string id)
             {
                 Id = id;
             }
@@ -175,12 +175,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int? Version { get; init; } // View1 does not have this property
         }
 
-        public sealed class ClassFixture : MongoCollectionFixture<C>
+        public sealed class ClassFixture : MongoCollectionFixture<Model>
         {
             public override bool InitializeDataBeforeEachTestCase => true;
-            protected override IEnumerable<C> InitialData =>
+            protected override IEnumerable<Model> InitialData =>
             [
-                new C("a")
+                new Model("a")
             ];
         }
     }
