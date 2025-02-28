@@ -43,17 +43,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be("1");
         }
 
-        public class C
+        public class A
         {
             public string Id { get; set; }
         }
 
-        public sealed class ClassFixture : MongoCollectionFixture<C>
+        public sealed class ClassFixture : MongoCollectionFixture<A>
         {
-            protected override IEnumerable<C> InitialData =>
+            protected override IEnumerable<A> InitialData =>
             [
-                new C { Id = "1" },
-                new C { Id = "2" }
+                new A { Id = "1" },
+                new A { Id = "2" }
             ];
         }
     }
