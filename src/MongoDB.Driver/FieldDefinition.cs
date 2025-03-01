@@ -439,7 +439,7 @@ namespace MongoDB.Driver
         }
     }
 
-    internal class UntypedFieldDefinitionAdapter<TDocument, TField> : FieldDefinition<TDocument>
+    internal sealed class UntypedFieldDefinitionAdapter<TDocument, TField> : FieldDefinition<TDocument>
     {
         private readonly FieldDefinition<TDocument, TField> _adaptee;
 
@@ -452,6 +452,25 @@ namespace MongoDB.Driver
         {
             var rendered = _adaptee.Render(args);
             return new RenderedFieldDefinition(rendered.FieldName, rendered.UnderlyingSerializer);
+        }
+    }
+
+    internal static class FieldDefinitionExtensions
+    {
+        public static Type GetFieldType<TDocument>(this FieldDefinition<TDocument> fieldDefinition)
+        {
+            var fieldDefinitionType = fieldDefinition.GetType();
+            if (fieldDefinitionType.IsConstructedGenericType)
+            {
+                if (fieldDefinitionType.GetGenericTypeDefinition() == typeof(ExpressionFieldDefinition<,>) ||
+                    fieldDefinitionType.GetGenericTypeDefinition() == typeof(StringFieldDefinition<,>) ||
+                    fieldDefinitionType.GetGenericTypeDefinition() == typeof(UntypedFieldDefinitionAdapter<,>))
+                {
+                    return fieldDefinitionType.GetGenericArguments()[1];
+                }
+            }
+
+            return null;
         }
     }
 }
