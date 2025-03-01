@@ -18,17 +18,22 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4317Tests : Linq3IntegrationTest
+    public class CSharp4317Tests : LinqIntegrationTest<CSharp4317Tests.ClassFixture>
     {
+        public CSharp4317Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Projection_of_ArrayOfDocuments_dictionary_keys_and_values_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var projectStage = "{ $project : { Keys : '$Data.k', Values : '$Data.v', _id : 0 } }";
 
             var queryable = collection
@@ -46,23 +51,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Values.Should().Equal("v1", "v2");
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, Data = new Dictionary<int, string> { { 1, "v1" }, { 2, "v2" } } });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
 
             [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
             public Dictionary<int, string> Data { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, Data = new Dictionary<int, string> { { 1, "v1" }, { 2, "v2" } } }
+            ];
         }
     }
 }

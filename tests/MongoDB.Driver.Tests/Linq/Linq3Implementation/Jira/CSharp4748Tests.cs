@@ -20,12 +20,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4748Tests : Linq3IntegrationTest
+    public class CSharp4748Tests : LinqIntegrationTest<CSharp4748Tests.ClassFixture>
     {
         static CSharp4748Tests()
         {
@@ -42,10 +42,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             });
         }
 
+        public CSharp4748Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_with_ContainsKey_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var language = LanguageEnum.en;
 
             var queryable = collection.AsQueryable()
@@ -61,7 +66,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_with_ContainsKey_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var language = LanguageEnum.en;
 
             var queryable = collection.AsQueryable()
@@ -72,16 +77,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var results = queryable.ToList();
             results.Should().Equal(true, false);
-        }
-
-        private IMongoCollection<Translation> GetCollection()
-        {
-            var collection = GetCollection<Translation>("test");
-            CreateCollection(
-                collection,
-                new Translation { Id = 1, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.en, "English" } } },
-                new Translation { Id = 2, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.fr, "French" } } });
-            return collection;
         }
 
         public class Translation
@@ -97,6 +92,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             fr,
             de,
             pl,
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Translation>
+        {
+            protected override IEnumerable<Translation> InitialData =>
+            [
+                new Translation { Id = 1, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.en, "English" } } },
+                new Translation { Id = 2, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.fr, "French" } } }
+            ];
         }
     }
 }

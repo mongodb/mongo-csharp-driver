@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -20,13 +21,18 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4757Tests : Linq3IntegrationTest
+    public class CSharp4757Tests : LinqIntegrationTest<CSharp4757Tests.ClassFixture>
     {
+        public CSharp4757Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Deserialize_should_ungroup_members()
         {
@@ -52,7 +58,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_with_grouped_member_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.OrderId);
@@ -67,7 +73,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_with_ungrouped_member_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Quantity);
@@ -82,7 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_grouped_member_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.OrderId == 1);
@@ -97,7 +103,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_ungrouped_member_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Quantity == 3);
@@ -109,18 +115,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.OrderId.Should().Be(1);
         }
 
-        private IMongoCollection<OrderItem> GetCollection()
-        {
-            var collection = GetCollection<OrderItem>("test");
-            CreateCollection(
-                collection,
-                new OrderItem { OrderId = 1, ProductId = 2, Quantity = 3 },
-                new OrderItem { OrderId = 4, ProductId = 5, Quantity = 6 });
-            return collection;
-        }
-
         [BsonSerializer(typeof(OrderItemsSerializer))]
-        private class OrderItem
+        public class OrderItem
         {
             public int OrderId { get; set; }
             public int ProductId { get; set; }
@@ -204,6 +200,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 writer.WriteInt32(value.Quantity);
                 writer.WriteEndDocument();
             }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<OrderItem>
+        {
+            protected override IEnumerable<OrderItem> InitialData =>
+            [
+                new OrderItem { OrderId = 1, ProductId = 2, Quantity = 3 },
+                new OrderItem { OrderId = 4, ProductId = 5, Quantity = 6 }
+            ];
         }
     }
 }

@@ -14,20 +14,26 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4651Tests : Linq3IntegrationTest
+    public class CSharp4651Tests : LinqIntegrationTest<CSharp4651Tests.ClassFixture>
     {
+        public CSharp4651Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void First_custom_projection_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(c => c.VehicleType == VehicleType.Car)
@@ -48,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Second_custom_projection_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(c => c.VehicleType == VehicleType.Truck)
@@ -64,28 +70,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var result = results.Single();
             result.Id.Should().Be("6666YYY");
             result.Description.Should().Be("No description available for trucks");
-        }
-
-        private IMongoCollection<Car> GetCollection()
-        {
-            var collection = GetCollection<Car>("test");
-            var carLicensePlate = "5555XXX";
-            var truckLicensePlate = "6666YYY";
-            CreateCollection(
-                collection,
-                new Car
-                {
-                    Id = carLicensePlate,
-                    Description = $"Description for license: {carLicensePlate}",
-                    VehicleType = VehicleType.Car
-                },
-                new Car
-                {
-                    Id = truckLicensePlate,
-                    Description = $"Description for license: {truckLicensePlate}",
-                    VehicleType = VehicleType.Truck
-                });
-            return collection;
         }
 
         private static Expression<Func<Car, CarDto>> ToCustomProjection_Works(VehicleType vehicleType)
@@ -107,23 +91,42 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             };
         }
 
-        private enum VehicleType
+        public enum VehicleType
         {
             Car = 0,
             Truck = 1
         }
 
-        private class Car
+        public class Car
         {
             public string Id { get; set; }
             public string Description { get; set; }
             public VehicleType VehicleType { get; set; }
         }
 
-        private class CarDto
+        public class CarDto
         {
             public string Id { get; set; }
             public string Description { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Car>
+        {
+            protected override IEnumerable<Car> InitialData =>
+            [
+                new Car
+                {
+                    Id = "5555XXX",
+                    Description = $"Description for license: 5555XXX",
+                    VehicleType = VehicleType.Car
+                },
+                new Car
+                {
+                    Id = "6666YYY",
+                    Description = $"Description for license: 6666YYY",
+                    VehicleType = VehicleType.Truck
+                }
+            ];
         }
     }
 }

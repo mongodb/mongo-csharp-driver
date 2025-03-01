@@ -14,14 +14,21 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4882Tests : Linq3IntegrationTest
+    public class CSharp4882Tests : LinqIntegrationTest<CSharp4882Tests.ClassFixture>
     {
+        public CSharp4882Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 2147483647] }, _id : 0 } }", false)]
         [InlineData(1, "{ $project : { _v : { $slice : ['$A', 1, 2147483647] }, _id : 0 } }", true)]
@@ -33,7 +40,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(4, "{ $project : { _v : { $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
         public void Skip_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -78,7 +85,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }, 2147483647] }, _id : 0 } }", true)]
         public void Skip_Skip_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -135,7 +142,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
         public void Skip_Take_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -208,7 +215,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(16, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }, 2147483647] }, { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
         public void Skip_Take_Skip_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -281,7 +288,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(4, "{ $project : { _v : { $slice : [[1, 2, 3, 4], { $max : ['$One', 0] }] }, _id : 0 } }", true)]
         public void Take_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -326,7 +333,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, _id : 0 } }", true)]
         public void Take_Skip_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -383,7 +390,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(8, "{ $project : { _v : { $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Two', 0] }] }, { $max : ['$One', 0] }] }, _id : 0 } }", true)]
         public void Take_Take_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -456,7 +463,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(16, "{ $project : { _v : { $slice : [{ $slice : [{ $slice : [[1, 2, 3, 4], { $max : ['$Three', 0] }] }, { $max : ['$One', 0] }, 2147483647] }, { $max : ['$Two', 0] }] }, _id : 0 } }", true)]
         public void Take_Skip_Take_should_work(int scenario, string expectedStage, bool withNestedAsQueryable)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -518,22 +525,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Equal(2, 3);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, A = [1, 2, 3, 4], One = 1, Two = 2, Three = 3 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] A { get; set; }
             public int One { get; set; }
             public int Two { get; set; }
             public int Three { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, A = [1, 2, 3, 4], One = 1, Two = 2, Three = 3 }
+            ];
         }
     }
 }

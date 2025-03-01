@@ -18,13 +18,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4985Tests : Linq3IntegrationTest
+    public class CSharp4985Tests : LinqIntegrationTest<CSharp4985Tests.ClassFixture>
     {
+        public CSharp4985Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData(1, "{ $project : { _v : '$X', _id : 0 } }", new[] { 1, 3 })]
         [InlineData(2, "{ $project : { _v : { $add : ['$X', 2] }, _id : 0 } }", new[] { 3, 5 })]
@@ -41,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
              string expectedStage,
              int[] expectedResults)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             Expression<Func<C, int>> selector = test switch
             {
                 1 => x => x.X,
@@ -91,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             string expectedStage,
             object[] expectedResults)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             Expression<Func<C, int?>> selector = test switch
             {
                 1 => x => x.X,
@@ -115,23 +120,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(expectedResults.Select(r => r == null ? null : (int?)r));
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 1, Y = 2, NX = 1, NY = 2 },
-                new C { Id = 2, X = 3, Y = 4, NX = null, NY = null });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
             public int? NX { get; set; }
             public int? NY { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 1, Y = 2, NX = 1, NY = 2 },
+                new C { Id = 2, X = 3, Y = 4, NX = null, NY = null }
+            ];
         }
     }
 }

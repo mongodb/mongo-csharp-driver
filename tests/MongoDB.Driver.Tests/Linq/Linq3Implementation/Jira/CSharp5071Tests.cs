@@ -14,17 +14,23 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5071Tests : Linq3IntegrationTest
+    public class CSharp5071Tests : LinqIntegrationTest<CSharp5071Tests.ClassFixture>
     {
+        public CSharp5071Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData("intconstant+stringproperty", "{ $project : { _v : { $concat : ['1', '$B'] }, _id : 0 } }", "1B")]
         [InlineData("intproperty+stringproperty", "{ $project : { _v : { $concat : [{ $toString : '$I' }, '$B'] }, _id : 0 } }", "1B")]
@@ -40,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -84,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -123,7 +129,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -150,7 +156,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -194,7 +200,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -259,7 +265,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 RequireServer.Check().Supports(Feature.AggregateToString);
             }
 
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -309,7 +315,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData("stringproperty+stringproperty+stringproperty", "{ $project : { _v : { $concat : ['$A', '$B', '$C'] }, _id : 0 } }", "ABC")]
         public void Concat_with_array_of_string_argument_should_work(string scenario, string expectedStage, string expectedResult)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = scenario switch
             {
@@ -355,25 +361,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<Document> GetCollection()
-        {
-            var collection = GetCollection<Document>("test");
-            CreateCollection(
-                collection,
-                new Document
-                {
-                    Id = 1,
-                    A = "A",
-                    B = "B",
-                    C = "C",
-                    I = 1,
-                    J = 2,
-                    K = 3
-                });
-            return collection;
-        }
-
-        private class Document
+        public class Document
         {
             public int Id { get; set; }
             public string A { get; set; }
@@ -382,6 +370,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int I { get; set; }
             public int J { get; set; }
             public int K { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Document>
+        {
+            protected override IEnumerable<Document> InitialData =>
+            [
+                new Document { Id = 1, A = "A", B = "B", C = "C", I = 1, J = 2, K = 3 }
+            ];
         }
     }
 }

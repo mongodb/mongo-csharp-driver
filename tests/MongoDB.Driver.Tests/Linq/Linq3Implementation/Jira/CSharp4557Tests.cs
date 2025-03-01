@@ -16,17 +16,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4557Tests : Linq3IntegrationTest
+    public class CSharp4557Tests : LinqIntegrationTest<CSharp4557Tests.ClassFixture>
     {
+        public CSharp4557Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_with_ContainsKey_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -42,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_with_ContainsKey_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -55,22 +60,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(false, true);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, Foo = new Dictionary<string, int> { { "foo", 100 } } },
-                new C { Id = 2, Foo = new Dictionary<string, int> { { "bar", 100 } } });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public Dictionary<string, int> Foo { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, Foo = new Dictionary<string, int> { { "foo", 100 } } },
+                new C { Id = 2, Foo = new Dictionary<string, int> { { "bar", 100 } } }
+            ];
         }
     }
 }

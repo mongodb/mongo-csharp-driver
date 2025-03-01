@@ -13,17 +13,24 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4723Tests : Linq3IntegrationTest
+    public class CSharp4723Tests : LinqIntegrationTest<CSharp4723Tests.ClassFixture>
     {
+        public CSharp4723Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_projection_in_findoneandupdate_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var update = Builders<A>.Update.Set("Value", "updated");
             var options = new FindOneAndUpdateOptions<A>
@@ -40,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_projection_in_findoneandreplace_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var options = new FindOneAndReplaceOptions<A, A>
             {
                 Projection = Builders<A>.Projection.Expression(x => x)
@@ -55,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_projection_in_findoneanddelete_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var options = new FindOneAndDeleteOptions<A>
             {
@@ -68,20 +75,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Value.Should().Be("1");
         }
 
-        private IMongoCollection<A> GetCollection()
-        {
-            var collection = GetCollection<A>("test");
-            CreateCollection(
-                collection,
-                new A { Id = 1, Value = "1"});
-            return collection;
-        }
-
-        private class A
+        public class A
         {
             public int Id { get; set; }
 
             public string Value { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<A>
+        {
+            public override bool InitializeDataBeforeEachTestCase => true;
+
+            protected override IEnumerable<A> InitialData =>
+            [
+                new A { Id = 1, Value = "1" }
+            ];
         }
     }
 }
