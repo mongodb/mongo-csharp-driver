@@ -108,6 +108,18 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Theory]
+        [InlineData("{ }", false)]
+        [InlineData("{ saslSupportedMechs : [] }", true)]
+        [InlineData("{ saslSupportedMechs : ['SCRAM-SHA-128'] }", true)]
+        [InlineData("{ saslSupportedMechs : ['unknown'] }", true)]
+        public void HasSaslSupportedMechs_should_parse_document_correctly(string json, bool expected)
+        {
+            var subject = new HelloResult(BsonDocument.Parse(json));
+
+            subject.HasSaslSupportedMechs.Should().Be(expected);
+        }
+
+        [Theory]
         [InlineData("{ lastWrite : { lastWriteDate : ISODate(\"2015-01-01T00:00:00Z\") } }", 2015)]
         [InlineData("{ lastWrite : { lastWriteDate : ISODate(\"2016-01-01T00:00:00Z\") } }", 2016)]
         [InlineData("{ }", null)]
@@ -203,6 +215,18 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.Me.Should().Be(endPoint);
+        }
+
+        [Theory]
+        [InlineData("{ }", new string[0])]
+        [InlineData("{ saslSupportedMechs : ['SCRAM-SHA-128'] }", new[] { "SCRAM-SHA-128" })]
+        [InlineData("{ saslSupportedMechs : ['SCRAM-SHA-128', 'SCRAM-SHA-256'] }", new[] { "SCRAM-SHA-128", "SCRAM-SHA-256" })]
+        [InlineData("{ saslSupportedMechs : ['unknown'] }", new[] { "unknown" })]
+        public void SaslSupportedMechs_should_parse_document_correctly(string json, string[] expectedMechs)
+        {
+            var subject = new HelloResult(BsonDocument.Parse(json));
+
+            subject.SaslSupportedMechs.Should().BeEquivalentTo(expectedMechs);
         }
 
         [Theory]
