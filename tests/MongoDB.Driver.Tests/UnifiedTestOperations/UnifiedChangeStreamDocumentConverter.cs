@@ -17,13 +17,14 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedChangeStreamDocumentConverter
     {
-        private static readonly string[] __changeStreamFields = ["_id", "clusterTime", "documentKey", "fullDocument", "fullDocumentBeforeChange", "ns", "operationDescription", "operationType", "to", "splitEvent", "collectionUUID", "updateDescription", "wallTime"];
+        private static readonly string[] __changeStreamFields = ["_id", "clusterTime", "documentKey", "fullDocument", "fullDocumentBeforeChange", "ns", "operationDescription", "operationType", "to", "splitEvent", "collectionUUID", "updateDescription", "wallTime", "nsType"];
         private static readonly string[] __nsFields = ["db", "coll"];
 
         public static BsonDocument Convert(ChangeStreamDocument<BsonDocument> changeStreamDocument)
@@ -33,6 +34,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 { "_id", changeStreamDocument.ResumeToken },
                 { "clusterTime", changeStreamDocument.ClusterTime, changeStreamDocument.ClusterTime != null },
                 { "documentKey", changeStreamDocument.DocumentKey, changeStreamDocument.DocumentKey != null },
+                { "nsType", () => changeStreamDocument.NamespaceType.ToString().ToLower(), changeStreamDocument.NamespaceType != ChangeStreamNamespaceType.Unknown },
                 { "operationDescription", changeStreamDocument.OperationDescription, changeStreamDocument.OperationDescription != null },
                 { "to", () => SerializationHelper.SerializeValue(ChangeStreamDocumentCollectionNamespaceSerializer.Instance, changeStreamDocument.RenameTo), changeStreamDocument.RenameTo != null },
                 { "splitEvent", () => SerializationHelper.SerializeValue(ChangeStreamSplitEventSerializer.Instance, changeStreamDocument.SplitEvent), changeStreamDocument.SplitEvent != null },
