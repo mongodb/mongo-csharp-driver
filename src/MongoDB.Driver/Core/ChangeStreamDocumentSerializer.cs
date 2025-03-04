@@ -42,9 +42,8 @@ namespace MongoDB.Driver
 
             RegisterMember("ClusterTime", "clusterTime", BsonTimestampSerializer.Instance);
             RegisterMember("CollectionNamespace", "ns", ChangeStreamDocumentCollectionNamespaceSerializer.Instance);
-            RegisterMember("CollectionUuid", "ui", GuidSerializer.StandardInstance);
+            RegisterMember("CollectionUuid", "collectionUUID", GuidSerializer.StandardInstance);
             RegisterMember("DatabaseNamespace", "ns", ChangeStreamDocumentDatabaseNamespaceSerializer.Instance);
-            RegisterMember("DisambiguatedPaths", "disambiguatedPaths", BsonDocumentSerializer.Instance);
             RegisterMember("DocumentKey", "documentKey", BsonDocumentSerializer.Instance);
             RegisterMember("FullDocument", "fullDocument", _documentSerializer);
             RegisterMember("FullDocumentBeforeChange", "fullDocumentBeforeChange", _documentSerializer);
