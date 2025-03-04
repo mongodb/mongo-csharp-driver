@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
@@ -130,11 +131,25 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.Facet(facets, options));
         }
         
-        public override IAggregateFluent<TResult> GeoNear<TPoint>(
-            TPoint near,
+        public override IAggregateFluent<TNewResult> GeoNear<TCoordinates, TNewResult>(
+            GeoJsonPoint<TCoordinates> near,
             GeoNearOptions<TResult> options = null)
         {
-            return WithPipeline(_pipeline.GeoNear(near, options));
+            return WithPipeline(_pipeline.GeoNear<TInput, TResult, TCoordinates, TNewResult>(near, options));
+        }
+        
+        public override IAggregateFluent<TNewResult> GeoNear<TCoordinates, TNewResult>(
+            TCoordinates[] near,
+            GeoNearOptions<TResult> options = null)
+        {
+            return WithPipeline(_pipeline.GeoNear<TInput, TResult, TCoordinates, TNewResult>(near, options));
+        }
+        
+        public override IAggregateFluent<TNewResult> GeoNear<TNewResult>(
+            BsonDocument near,
+            GeoNearOptions<TResult> options = null)
+        {
+            return WithPipeline(_pipeline.GeoNear<TInput, TResult, TNewResult>(near, options));
         }
 
         public override IAggregateFluent<TNewResult> GraphLookup<TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TNewResult>(

@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
@@ -125,9 +126,26 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual IAggregateFluent<TResult> GeoNear<TPoint>(
-            TPoint near,
-            GeoNearOptions<TResult> options = null) where TPoint : class
+        public virtual IAggregateFluent<TNewResult> GeoNear<TCoordinates, TNewResult>(
+            GeoJsonPoint<TCoordinates> near,
+            GeoNearOptions<TResult> options = null) 
+            where TCoordinates : GeoJsonCoordinates
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> GeoNear<TCoordinates, TNewResult>(
+            TCoordinates[] near,
+            GeoNearOptions<TResult> options = null)
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> GeoNear<TNewResult>(
+            BsonDocument near,
+            GeoNearOptions<TResult> options = null)
         {
             throw new NotImplementedException();
         }
