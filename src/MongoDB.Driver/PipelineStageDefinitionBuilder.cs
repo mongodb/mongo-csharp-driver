@@ -616,10 +616,8 @@ namespace MongoDB.Driver
         /// <returns>The stage.</returns>
         internal static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TPoint, TOutput>(
             TPoint near,
-            GeoNearOptions<TInput> options = null) where TPoint : class
+            GeoNearOptions<TInput> options = null)
         {
-            Ensure.IsNotNull(near, nameof(near));
-            
             const string operatorName = "$geoNear";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
@@ -661,6 +659,7 @@ namespace MongoDB.Driver
             GeoNearOptions<TInput> options = null) 
             where TCoordinates : GeoJsonCoordinates
         {
+            Ensure.IsNotNull(near, nameof(near));
             return GeoNear<TInput, GeoJsonPoint<TCoordinates>, TOutput>(near, options);
         }
         
@@ -677,6 +676,7 @@ namespace MongoDB.Driver
             TCoordinates[] near,
             GeoNearOptions<TInput> options = null)
         {
+            Ensure.IsNotNull(near, nameof(near));
             Ensure.That(near.Length, len => len is >= 2 and <= 3, nameof(near), "Legacy coordinates array should have 2 or 3 coordinates.");
             return GeoNear<TInput, TCoordinates[], TOutput>(near, options);
         }
@@ -693,6 +693,7 @@ namespace MongoDB.Driver
             BsonDocument near,
             GeoNearOptions<TInput> options = null)
         {
+            Ensure.IsNotNull(near, nameof(near));
             Ensure.That(near.ElementCount, len => len is >= 2 and <= 3, nameof(near), "Legacy coordinates document should have 2 or 3 coordinates.");
             return GeoNear<TInput, BsonDocument, TOutput>(near, options);
         }
