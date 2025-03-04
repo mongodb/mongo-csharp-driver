@@ -106,14 +106,13 @@ namespace MongoDB.Driver.Tests
             argumentNullException.ParamName.Should().Be("pipeline");
         }
 
-        [Theory]
-        [MemberData(nameof(GeoNearTestData))]
-        public void GeoNear_should_add_the_expected_stage<TPoint>(TPoint point, string expectedStage) where TPoint : class
+        [Fact]
+        public void GeoNear_with_geojson_point_should_add_the_expected_stage()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
 
-            var result = pipeline.GeoNear(
-                point,
+            var result = pipeline.GeoNear<BsonDocument, BsonDocument, GeoJson2DGeographicCoordinates, BsonDocument>(
+                GeoJson.Point(GeoJson.Geographic(34, 67)),
                 new GeoNearOptions<BsonDocument>
                 {
                     DistanceField = "calculatedDistance"
@@ -121,22 +120,50 @@ namespace MongoDB.Driver.Tests
             
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages.Count.Should().Be(1);
-            stages[0].Should().Be(expectedStage);
+            stages[0].Should().Be("""{ "$geoNear" : { "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] }, "distanceField" : "calculatedDistance" } }""");
         }
         
-        public static object[][] GeoNearTestData =>
-        [
-            [GeoJson.Point(GeoJson.Geographic(34, 67)), """{ "$geoNear" : { "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] }, "distanceField" : "calculatedDistance" } }"""],
-            [new []{34.0, 67.0}, """{ "$geoNear" : { "near" : [34.0, 67.0], "distanceField" : "calculatedDistance" } }"""],
-            [new BsonDocument { { "long", 34.0}, { "lat", 67.0} }, """{ "$geoNear" : { "near" : { "long" : 34.0, "lat" : 67.0 }, "distanceField" : "calculatedDistance" } }"""]
-        ];
+        [Fact]
+        public void GeoNear_with_array_should_add_the_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.GeoNear<BsonDocument, BsonDocument, double, BsonDocument>(
+                [34.0, 67.0],
+                new GeoNearOptions<BsonDocument>
+                {
+                    DistanceField = "calculatedDistance"
+                });
+            
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""{ "$geoNear" : { "near" : [34.0, 67.0], "distanceField" : "calculatedDistance" } }""");
+        }
+        
+        [Fact]
+        public void GeoNear_with_embedded_doc_should_add_the_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.GeoNear<BsonDocument, BsonDocument, BsonDocument>(
+                new BsonDocument { { "long", 34.0}, { "lat", 67.0} },
+                new GeoNearOptions<BsonDocument>
+                {
+                    DistanceField = "calculatedDistance"
+                });
+            
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""{ "$geoNear" : { "near" : { "long" : 34.0, "lat" : 67.0 }, "distanceField" : "calculatedDistance" } }""");
+        }
 
         [Fact]
         public void GeoNear_should_throw_when_pipeline_is_null()
         {
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
 
-            var exception = Record.Exception(() => pipeline.GeoNear(new []{1, 2}));
+            var exception = Record.Exception(() =>
+                pipeline.GeoNear<BsonDocument, BsonDocument, double, BsonDocument>([1.0, 2.0]));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Which.ParamName.Should().Be("pipeline");
@@ -147,7 +174,7 @@ namespace MongoDB.Driver.Tests
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
 
-            var exception = Record.Exception(() => pipeline.GeoNear<BsonDocument, BsonDocument, object>(null));
+            var exception = Record.Exception(() => pipeline.GeoNear<BsonDocument, BsonDocument, double, BsonDocument>(null));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Which.ParamName.Should().Be("near");

@@ -179,13 +179,38 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a $geoNear stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TPoint">The type of the point. This could be a <see cref="GeoJsonPoint{TCoordinates}"/>, a 2d array or embedded document.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates for the point.</typeparam>
         /// <param name="near">The point for which to find the closest documents.</param>
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> GeoNear<TPoint>(
-            TPoint near,
-            GeoNearOptions<TResult> options = null) where TPoint : class;
+        IAggregateFluent<TNewResult> GeoNear<TCoordinates, TNewResult>(
+            GeoJsonPoint<TCoordinates> near,
+            GeoNearOptions<TResult> options = null) 
+            where TCoordinates : GeoJsonCoordinates;
+        
+        /// <summary>
+        /// Appends a $geoNear stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates for the point.</typeparam>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> GeoNear<TCoordinates, TNewResult>(
+            TCoordinates[] near,
+            GeoNearOptions<TResult> options = null);
+        
+        /// <summary>
+        /// Appends a $geoNear stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> GeoNear<TNewResult>(
+            BsonDocument near,
+            GeoNearOptions<TResult> options = null);
         
         /// <summary>
         /// Appends a $graphLookup stage to the pipeline.

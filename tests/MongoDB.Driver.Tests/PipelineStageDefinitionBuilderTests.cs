@@ -137,8 +137,8 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void GeoNear_with_array_should_return_the_expected_result()
         {
-            var result = PipelineStageDefinitionBuilder.GeoNear(
-                new []{34.0, 67.0},
+            var result = PipelineStageDefinitionBuilder.GeoNear<BsonDocument, double, BsonDocument>(
+                [34.0, 67.0],
                 new GeoNearOptions<BsonDocument>
                 {
                     DistanceField = "calculatedDistance",
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void GeoNear_with_geojson_point_should_return_the_expected_result()
         {
-            var result = PipelineStageDefinitionBuilder.GeoNear(
+            var result = PipelineStageDefinitionBuilder.GeoNear<BsonDocument, GeoJson2DGeographicCoordinates, BsonDocument>(
                 GeoJson.Point(GeoJson.Geographic(34, 67)),
                 new GeoNearOptions<BsonDocument>
                 {
@@ -189,11 +189,33 @@ namespace MongoDB.Driver.Tests
         public void GeoNear_with_no_options_should_return_the_expected_result()
         {
             var result = 
-                PipelineStageDefinitionBuilder.GeoNear<BsonDocument, GeoJsonPoint<GeoJson2DGeographicCoordinates>>(
+                PipelineStageDefinitionBuilder.GeoNear<BsonDocument, GeoJson2DGeographicCoordinates, BsonDocument>(
                 GeoJson.Point(GeoJson.Geographic(34, 67)));
             
             var stage = RenderStage(result);
             stage.Document.Should().Be("""{ "$geoNear" : { "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] } } }""");
+        }
+        
+        [Fact]
+        public void GeoNear_with_wrong_legacy_coordinates_should_throw_exception()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var result = 
+                    PipelineStageDefinitionBuilder.GeoNear<BsonDocument, double, BsonDocument>([34.0, 67.0, 23.0, 34.5]);
+            });
+            
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var result = 
+                    PipelineStageDefinitionBuilder.GeoNear<BsonDocument, BsonDocument>(new BsonDocument
+                    {
+                        { "x", 34.0},
+                        { "y", 67.0},
+                        { "z", 25.0},
+                        { "w", 57.0}
+                    });
+            });
         }
 
         [Fact]
