@@ -46,6 +46,7 @@ namespace MongoDB.Driver
         {
             var reader = context.Reader;
 
+            BsonDocument disambiguatedPaths = null;
             BsonDocument updatedFields = null;
             string[] removedFields = null;
             BsonArray truncatedArrays = null;
@@ -56,6 +57,10 @@ namespace MongoDB.Driver
                 var fieldName = reader.ReadName();
                 switch (fieldName)
                 {
+                    case "disambiguatedPaths":
+                        disambiguatedPaths = BsonDocumentSerializer.Instance.Deserialize(context);
+                        break;
+
                     case "updatedFields":
                         updatedFields = BsonDocumentSerializer.Instance.Deserialize(context);
                         break;
@@ -74,7 +79,7 @@ namespace MongoDB.Driver
             }
             reader.ReadEndDocument();
 
-            return new ChangeStreamUpdateDescription(updatedFields, removedFields, truncatedArrays);
+            return new ChangeStreamUpdateDescription(updatedFields, removedFields, truncatedArrays, disambiguatedPaths);
         }
 
         /// <inheritdoc />
@@ -92,6 +97,13 @@ namespace MongoDB.Driver
                 writer.WriteName("truncatedArrays");
                 BsonArraySerializer.Instance.Serialize(context, value.TruncatedArrays);
             }
+
+            if (value.DisambiguatedPaths != null)
+            {
+                writer.WriteName("disambiguatedPaths");
+                BsonDocumentSerializer.Instance.Serialize(context, value.DisambiguatedPaths);
+            }
+
             writer.WriteEndDocument();
         }
     }

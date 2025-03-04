@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public BsonDocument Convert<T>(T value) =>
             value switch
             {
-                ChangeStreamDocument<BsonDocument> changeStreamResult => changeStreamResult.BackingDocument,
+                ChangeStreamDocument<BsonDocument> changeStreamResult => UnifiedChangeStreamDocumentConverter.Convert(changeStreamResult),
                 BsonDocument bsonDocument => bsonDocument,
                 _ => throw new FormatException($"Unsupported enumerator document {value.GetType().Name}.")
             };
