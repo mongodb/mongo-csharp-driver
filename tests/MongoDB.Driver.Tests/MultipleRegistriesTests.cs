@@ -100,6 +100,20 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [Fact]
+        public void TestLinq()
+        {
+            var customDomain = BsonSerializer.CreateSerializationDomain();
+            customDomain.RegisterSerializer(new CustomStringSerializer());
+
+            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+            var exp = collection.AsQueryable().Where(el => el.Name == "test");
+            var e = exp.ToString();
+        }
+
         public class Person
         {
             [BsonId] public ObjectId Id { get; set; }
