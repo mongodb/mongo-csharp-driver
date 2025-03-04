@@ -208,6 +208,12 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentException>(() =>
             {
                 var result = 
+                    PipelineStageDefinitionBuilder.GeoNear<BsonDocument, double, BsonDocument>([34.0]);
+            });
+            
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var result = 
                     PipelineStageDefinitionBuilder.GeoNear<BsonDocument, BsonDocument>(new BsonDocument
                     {
                         { "x", 34.0},
