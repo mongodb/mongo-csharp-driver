@@ -18,7 +18,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents options for the $geoNear stage.
     /// </summary>
-    public class GeoNearOptions<TDocument>
+    public record GeoNearOptions<TDocument>
     {
         /// <summary>
         /// Gets or sets the output field that contains the calculated distance. Required if querying a time-series collection.
