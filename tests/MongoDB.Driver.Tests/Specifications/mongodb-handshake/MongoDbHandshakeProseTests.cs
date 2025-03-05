@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
                 .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
                 .ReturnsAsync(connectionInitializerContextAfterAuthentication);
 
-            var subject = new BinaryConnection(
+            using var subject = new BinaryConnection(
                 serverId: serverId,
                 endPoint: endPoint,
                 settings: new ConnectionSettings(),
