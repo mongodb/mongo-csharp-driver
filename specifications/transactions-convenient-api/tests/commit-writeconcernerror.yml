@@ -13,7 +13,7 @@ data: []
 
 tests:
   -
-    description: commitTransaction is retried after WriteConcernFailed timeout error
+    description: commitTransaction is retried after WriteConcernTimeout timeout error
     failPoint:
       configureFailPoint: failCommand
       mode: { times: 2 }
@@ -23,7 +23,6 @@ tests:
           # with writeConcernError (see: SERVER-39292)
           writeConcernError:
             code: 64
-            codeName: WriteConcernFailed
             errmsg: "waiting for replication timed out"
             errInfo: { wtimeout: true }
     operations:
@@ -106,10 +105,10 @@ tests:
           - { _id: 1 }
   -
     # This test configures the fail point to return an error with the
-    # WriteConcernFailed code but without errInfo that would identify it as a
+    # WriteConcernTimeout code but without errInfo that would identify it as a
     # wtimeout error. This tests that drivers do not assume that all
-    # WriteConcernFailed errors are due to a replication timeout.
-    description: commitTransaction is retried after WriteConcernFailed non-timeout error
+    # WriteConcernTimeout errors are due to a replication timeout.
+    description: commitTransaction is retried after WriteConcernTimeout non-timeout error
     failPoint:
       configureFailPoint: failCommand
       mode: { times: 2 }
@@ -119,7 +118,6 @@ tests:
           # with writeConcernError (see: SERVER-39292)
           writeConcernError:
             code: 64
-            codeName: WriteConcernFailed
             errmsg: "multiple errors reported"
     operations:
       - *operation

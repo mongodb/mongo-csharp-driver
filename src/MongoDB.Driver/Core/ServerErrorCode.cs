@@ -54,6 +54,6 @@ namespace MongoDB.Driver
         UnauthorizedServerless = 8000,
         UnknownReplWriteConcern = 79,
         UnsatisfiableWriteConcern = 100,
-        WriteConcernFailed = 64
+        WriteConcernTimeout = 64
     }
 }
