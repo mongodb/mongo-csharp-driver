@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         // private fields
         private readonly bool _bypassAutoEncryption;
         private readonly bool? _bypassQueryAnalysis;
+        private long? _dekCacheLifetimeMs;
         private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
         private readonly IReadOnlyDictionary<string, object> _extraOptions;
         private readonly IMongoClient _keyVaultClient;
@@ -59,7 +60,7 @@ namespace MongoDB.Driver
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Optional<bool> bypassAutoEncryption = default,
-            Optional<IReadOnlyDictionary<string, object>> extraOptions = default,
+            Optional<IReadOnlyDictionary<string, object>> extraOptions = default,  //TODO Maybe this could contain the ms...?
             Optional<IMongoClient> keyVaultClient = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default,
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
@@ -95,6 +96,11 @@ namespace MongoDB.Driver
         /// Gets a value indicating whether to bypass query analysis.
         /// </summary>
         public bool? BypassQueryAnalysis => _bypassQueryAnalysis;
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public long? DekCacheLifetimeMs => _dekCacheLifetimeMs;
 
         /// <summary>
         /// Gets the encrypted fields map.
@@ -153,6 +159,15 @@ namespace MongoDB.Driver
         /// The schema map.
         /// </value>
         public IReadOnlyDictionary<string, BsonDocument> SchemaMap => _schemaMap;
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="dekCacheLifetimeMs"></param>
+        public void SetDekCacheLifetimeMs(long dekCacheLifetimeMs) //TODO We need to decide on a name too
+        {
+            _dekCacheLifetimeMs = dekCacheLifetimeMs;
+        }
 
         /// <summary>
         /// Returns a new instance of the <see cref="AutoEncryptionOptions"/> class.
@@ -257,6 +272,7 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("EncryptedFieldsMap : {0}, ", _encryptedFieldsMap.ToJson(jsonWriterSettings));
             }
+            //TODO Need to fix ToString and Equals for all
             sb.Remove(sb.Length - 2, 2);
             sb.Append(" }");
             return sb.ToString();
@@ -271,7 +287,8 @@ namespace MongoDB.Driver
                 _encryptedFieldsMap,
                 EncryptionExtraOptionsHelper.ExtractCryptSharedLibRequired(ExtraOptions),
                 _kmsProviders,
-                _schemaMap);
+                _schemaMap,
+                _dekCacheLifetimeMs);
 
         // private methods
         private bool ExtraOptionsEquals(IReadOnlyDictionary<string, object> x, IReadOnlyDictionary<string, object> y)

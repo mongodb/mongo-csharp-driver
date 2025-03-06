@@ -40,6 +40,11 @@ namespace MongoDB.Driver.Core.Configuration
         public string CryptSharedLibSearchPath { get; }
 
         /// <summary>
+        /// //TODO
+        /// </summary>
+        public long? DekCacheLifetimeMs { private set; get; }
+
+        /// <summary>
         /// Gets the encrypted fields map.
         /// </summary>
         public IReadOnlyDictionary<string, BsonDocument> EncryptedFieldsMap { get; }
@@ -77,6 +82,31 @@ namespace MongoDB.Driver.Core.Configuration
             bool? isCryptSharedLibRequired,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             IReadOnlyDictionary<string, BsonDocument> schemaMap)
+            : this(bypassQueryAnalysis, cryptSharedLibPath, cryptSharedLibSearchPath, encryptedFieldsMap,
+                isCryptSharedLibRequired, kmsProviders, schemaMap, dekCacheLifetimeMs: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CryptClientSettings"/> class.
+        /// </summary>
+        /// <param name="bypassQueryAnalysis">The bypass query analysis.</param>
+        /// <param name="cryptSharedLibPath">The crypt shared library library path.</param>
+        /// <param name="cryptSharedLibSearchPath">The crypt shared library search path.</param>
+        /// <param name="encryptedFieldsMap">The encrypted fields map.</param>
+        /// <param name="isCryptSharedLibRequired">Value indicating whether crypt shared library is required.</param>
+        /// <param name="kmsProviders">The KMS providers.</param>
+        /// <param name="schemaMap">The schema map.</param>
+        /// <param name="dekCacheLifetimeMs">//TODO</param>
+        public CryptClientSettings(
+            bool? bypassQueryAnalysis,
+            string cryptSharedLibPath,
+            string cryptSharedLibSearchPath,
+            IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap,
+            bool? isCryptSharedLibRequired,
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
+            IReadOnlyDictionary<string, BsonDocument> schemaMap,
+            long? dekCacheLifetimeMs)
         {
             BypassQueryAnalysis = bypassQueryAnalysis;
             CryptSharedLibPath = cryptSharedLibPath;
@@ -85,6 +115,7 @@ namespace MongoDB.Driver.Core.Configuration
             IsCryptSharedLibRequired = isCryptSharedLibRequired;
             KmsProviders = kmsProviders;
             SchemaMap = schemaMap;
+            DekCacheLifetimeMs = dekCacheLifetimeMs;
         }
 
         // methods
@@ -106,6 +137,7 @@ namespace MongoDB.Driver.Core.Configuration
                 BypassQueryAnalysis == rhs.BypassQueryAnalysis && // fail fast
                 CryptSharedLibPath == rhs.CryptSharedLibPath &&
                 CryptSharedLibSearchPath == rhs.CryptSharedLibSearchPath &&
+                DekCacheLifetimeMs == rhs.DekCacheLifetimeMs &&
                 EncryptedFieldsMap.IsEquivalentTo(rhs.EncryptedFieldsMap, object.Equals) &&
                 IsCryptSharedLibRequired == rhs.IsCryptSharedLibRequired &&
                 KmsProvidersEqualityHelper.Equals(KmsProviders, rhs.KmsProviders) &&

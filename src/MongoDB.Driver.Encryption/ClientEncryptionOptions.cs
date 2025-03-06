@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Encryption
     public sealed class ClientEncryptionOptions
     {
         // private fields
+        private long? _dekCacheLifetimeMs;
         private readonly IMongoClient _keyVaultClient;
         private readonly CollectionNamespace _keyVaultNamespace;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
@@ -43,17 +44,34 @@ namespace MongoDB.Driver.Encryption
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
+            : this(keyVaultClient, keyVaultNamespace, kmsProviders, tlsOptions, default)
+        {
+        }
+
+        private ClientEncryptionOptions(
+            IMongoClient keyVaultClient,
+            CollectionNamespace keyVaultNamespace,
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
+            Optional<long?> dekCacheLifetimeMs = default)
         {
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient));
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
+            _dekCacheLifetimeMs = dekCacheLifetimeMs.WithDefault(null);
 
             EnsureKmsProvidersAreValid(_kmsProviders);
             EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
         }
 
         // public properties
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public long? DekCacheLifetimeMs => _dekCacheLifetimeMs;
+
         /// <summary>
         /// Gets the key vault client.
         /// </summary>
@@ -104,7 +122,17 @@ namespace MongoDB.Driver.Encryption
                 keyVaultClient: keyVaultClient.WithDefault(_keyVaultClient),
                 keyVaultNamespace: keyVaultNamespace.WithDefault(_keyVaultNamespace),
                 kmsProviders: kmsProviders.WithDefault(_kmsProviders),
-                tlsOptions: Optional.Create(tlsOptions.WithDefault(_tlsOptions)));
+                tlsOptions: Optional.Create(tlsOptions.WithDefault(_tlsOptions)),
+                dekCacheLifetimeMs: _dekCacheLifetimeMs);
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="dekCacheLifetimeMs"></param>
+        public void SetDekCacheLifetimeMs(long dekCacheLifetimeMs)
+        {
+            _dekCacheLifetimeMs = dekCacheLifetimeMs;
         }
 
         private static void EnsureKmsProvidersAreValid(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders)

@@ -48,7 +48,8 @@ namespace MongoDB.Driver.Encryption
                 encryptedFieldsMap: null,
                 isCryptSharedLibRequired: null,
                 kmsProviders: clientEncryptionOptions.KmsProviders,
-                schemaMap: null);
+                schemaMap: null,
+                dekCacheLifetimeMs: clientEncryptionOptions.DekCacheLifetimeMs);
 
             _cryptClient = CryptClientFactory.Create(cryptClientSettings);
 
