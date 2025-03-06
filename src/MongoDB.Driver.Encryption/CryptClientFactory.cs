@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Encryption
                 cryptClientSettings.CryptSharedLibPath,
                 cryptClientSettings.CryptSharedLibSearchPath,
                 cryptClientSettings.IsCryptSharedLibRequired ?? false,
-                cryptClientSettings.KeyExpiration?.Milliseconds);
+                (long)cryptClientSettings.KeyExpiration?.TotalMilliseconds);
 
             return Create(cryptOptions);
         }
