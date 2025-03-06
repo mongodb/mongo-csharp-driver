@@ -69,7 +69,9 @@ namespace MongoDB.Driver.Core.Operations
 
                 case ReadPreferenceMode.SecondaryPreferred:
                     var hasTagSets = readPreference.TagSets != null && readPreference.TagSets.Count > 0;
+#pragma warning disable CS0618 // Type or member is obsolete
                     if (!hasTagSets && !readPreference.MaxStaleness.HasValue && readPreference.Hedge == null)
+#pragma warning restore CS0618 // Type or member is obsolete
                     {
                         return null;
                     }
@@ -100,7 +102,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "mode", modeString },
                 { "tags", tagSets, tagSets != null },
                 { "maxStalenessSeconds", () => (int)readPreference.MaxStaleness.Value.TotalSeconds, readPreference.MaxStaleness.HasValue },
+#pragma warning disable CS0618 // Type or member is obsolete
                 { "hedge", () => readPreference.Hedge.ToBsonDocument(), readPreference.Hedge != null }
+#pragma warning restore CS0618 // Type or member is obsolete
             };
         }
     }
