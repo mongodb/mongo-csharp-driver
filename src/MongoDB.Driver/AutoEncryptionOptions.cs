@@ -179,7 +179,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Sets the data encryption key cache expiration time. If not set, it defaults to 60 seconds.
-        /// If set to 0, the cache never expires.
+        /// If set to TimeSpan.Zero, the cache never expires.
         /// </summary>
         /// <param name="keyExpiration">The data encryption key cache expiration time.</param>
         public void SetKeyExpiration(TimeSpan? keyExpiration)

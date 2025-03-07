@@ -728,7 +728,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         IMongoClient keyVaultClient = null;
                         CollectionNamespace keyVaultCollectionNamespace = null;
                         IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null;
-                        long? keyExpirationMs = null;
+                        TimeSpan? keyExpiration = null;
 
                         foreach (var option in element.Value.AsBsonDocument)
                         {
@@ -744,7 +744,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     kmsProviders = EncryptionTestHelper.ParseKmsProviders(option.Value.AsBsonDocument);
                                     break;
                                 case "keyExpirationMS":
-                                    keyExpirationMs = option.Value.AsInt32;
+                                    keyExpiration = TimeSpan.FromMilliseconds(option.Value.AsInt32);
                                     break;
                                 default:
                                     throw new FormatException($"Invalid collection option argument name: '{option.Name}'.");
@@ -757,7 +757,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             Ensure.IsNotNull(keyVaultCollectionNamespace, nameof(keyVaultCollectionNamespace)),
                             Ensure.IsNotNull(kmsProviders, nameof(kmsProviders)),
                             tlsOptions: tlsOptions);
-                        options.SetKeyExpiration(keyExpirationMs is { } ms ? TimeSpan.FromMilliseconds(ms) : null);
+                        options.SetKeyExpiration(keyExpiration);
                         break;
                     default:
                         throw new FormatException($"Invalid {nameof(ClientEncryptionOptions)} argument name: '{element.Name}'.");
