@@ -48,12 +48,12 @@ namespace MongoDB.Driver.Encryption
 
     internal class TypedEncryptionSchemaBuilder<TDocument>
     {
-        public TypedEncryptionSchemaBuilder<TDocument> WithField(FieldDefinition<TDocument> path, string keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public TypedEncryptionSchemaBuilder<TDocument> WithField(FieldDefinition<TDocument> path, Guid? keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
             return this;
         }
 
-        public TypedEncryptionSchemaBuilder<TDocument> WithField<TField>(Expression<Func<TDocument, TField>> path, string keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public TypedEncryptionSchemaBuilder<TDocument> WithField<TField>(Expression<Func<TDocument, TField>> path, Guid? keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
             return this;
         }
@@ -68,12 +68,12 @@ namespace MongoDB.Driver.Encryption
             return this;
         }
 
-        public TypedEncryptionSchemaBuilder<TDocument> WithPattern(string pattern, string keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public TypedEncryptionSchemaBuilder<TDocument> WithPattern(string pattern, Guid? keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
             return this;
         }
 
-        public TypedEncryptionSchemaBuilder<TDocument> WithMetadata(string keyId = null, CsfleEncyptionAlgorithm? algorithm = null )
+        public TypedEncryptionSchemaBuilder<TDocument> WithMetadata(Guid? keyId = null, CsfleEncyptionAlgorithm? algorithm = null )
         {
             return this;
         }
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Encryption
 
         public static void Example()
         {
-            var myKeyId = "myKey";
+            var myKeyId = Guid.NewGuid();
 
             var typedBuilder = EncryptionSchemaBuilder.GetTypedBuilder<Patient>()
                 .WithMetadata(keyId: myKeyId)
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Encryption
                             algorithm: CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                 );
 
-            var schema = encryptionSchemaBuilder.Build();
+            var schema = encryptionSchemaBuilder.Build();  //This can be passed to AutoEncryptionOptions
         }
     }
 
