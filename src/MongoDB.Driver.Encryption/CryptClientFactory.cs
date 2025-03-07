@@ -82,7 +82,8 @@ namespace MongoDB.Driver.Encryption
                 bypassQueryAnalysis: cryptClientSettings.BypassQueryAnalysis.GetValueOrDefault(false),
                 cryptClientSettings.CryptSharedLibPath,
                 cryptClientSettings.CryptSharedLibSearchPath,
-                cryptClientSettings.IsCryptSharedLibRequired ?? false);
+                cryptClientSettings.IsCryptSharedLibRequired ?? false,
+                (long?)cryptClientSettings.KeyExpiration?.TotalMilliseconds);
 
             return Create(cryptOptions);
         }
@@ -159,6 +160,11 @@ namespace MongoDB.Driver.Encryption
                 if (options.CryptSharedLibSearchPath != null)
                 {
                     Library.mongocrypt_setopt_append_crypt_shared_lib_search_path(handle, options.CryptSharedLibSearchPath);
+                }
+
+                if (options.KeyExpirationMs != null)
+                {
+                    Library.mongocrypt_setopt_key_expiration(handle, (ulong)options.KeyExpirationMs.Value);
                 }
 
                 Library.mongocrypt_setopt_use_need_kms_credentials_state(handle);
