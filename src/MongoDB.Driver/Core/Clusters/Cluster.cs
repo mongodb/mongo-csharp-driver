@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Clusters
             _state = new InterlockedInt32(State.Initial);
             _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
             _clusterId = new ClusterId();
-            _descriptionWithChangedTaskCompletionSource = new(ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
+            _descriptionWithChangedTaskCompletionSource = new (ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
 
             _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
