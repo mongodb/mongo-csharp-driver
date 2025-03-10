@@ -345,7 +345,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // nested classes
-        internal class ClusterDescriptionChangeSource
+        internal sealed class ClusterDescriptionChangeSource
         {
             private readonly TaskCompletionSource<bool> _changedTaskCompletionSource;
             private readonly ClusterDescription _clusterDescription;
