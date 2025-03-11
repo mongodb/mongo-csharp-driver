@@ -72,6 +72,9 @@ namespace MongoDB.Driver.Encryption
             _mongocrypt_setopt_schema_map = new Lazy<Delegates.mongocrypt_setopt_schema_map>(
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_setopt_schema_map>(
                     ("mongocrypt_setopt_schema_map")), true);
+            _mongocrypt_setopt_key_expiration = new Lazy<Delegates.mongocrypt_setopt_key_expiration>(
+                () => __loader.Value.GetFunction<Delegates.mongocrypt_setopt_key_expiration>(
+                    ("mongocrypt_setopt_key_expiration")), true);
             _mongocrypt_setopt_enable_multiple_collinfo = new Lazy<Delegates.mongocrypt_setopt_enable_multiple_collinfo>(
                 () => __loader.Value.GetFunction<Delegates.mongocrypt_setopt_enable_multiple_collinfo>(
                     ("mongocrypt_setopt_enable_multiple_collinfo")), true);
@@ -254,6 +257,7 @@ namespace MongoDB.Driver.Encryption
         internal static Delegates.mongocrypt_setopt_crypto_hook_sign_rsaes_pkcs1_v1_5 mongocrypt_setopt_crypto_hook_sign_rsaes_pkcs1_v1_5 => _mongocrypt_setopt_crypto_hook_sign_rsaes_pkcs1_v1_5.Value;
         internal static Delegates.mongocrypt_setopt_encrypted_field_config_map mongocrypt_setopt_encrypted_field_config_map => _mongocrypt_setopt_encrypted_field_config_map.Value;
         internal static Delegates.mongocrypt_setopt_schema_map mongocrypt_setopt_schema_map => _mongocrypt_setopt_schema_map.Value;
+        internal static Delegates.mongocrypt_setopt_key_expiration mongocrypt_setopt_key_expiration => _mongocrypt_setopt_key_expiration.Value;
         internal static Delegates.mongocrypt_setopt_enable_multiple_collinfo mongocrypt_setopt_enable_multiple_collinfo => _mongocrypt_setopt_enable_multiple_collinfo.Value;
 
         internal static Delegates.mongocrypt_setopt_append_crypt_shared_lib_search_path mongocrypt_setopt_append_crypt_shared_lib_search_path => _mongocrypt_setopt_append_crypt_shared_lib_search_path.Value;
@@ -339,6 +343,7 @@ namespace MongoDB.Driver.Encryption
         private static readonly Lazy<Delegates.mongocrypt_setopt_encrypted_field_config_map> _mongocrypt_setopt_encrypted_field_config_map;
         private static readonly Lazy<Delegates.mongocrypt_setopt_schema_map> _mongocrypt_setopt_schema_map;
         private static readonly Lazy<Delegates.mongocrypt_setopt_enable_multiple_collinfo> _mongocrypt_setopt_enable_multiple_collinfo;
+        private static readonly Lazy<Delegates.mongocrypt_setopt_key_expiration> _mongocrypt_setopt_key_expiration;
 
         private static readonly Lazy<Delegates.mongocrypt_setopt_append_crypt_shared_lib_search_path> _mongocrypt_setopt_append_crypt_shared_lib_search_path;
         private static readonly Lazy<Delegates.mongocrypt_setopt_set_crypt_shared_lib_path_override> _mongocrypt_setopt_set_crypt_shared_lib_path_override;
@@ -668,6 +673,12 @@ namespace MongoDB.Driver.Encryption
 
             [return: MarshalAs(UnmanagedType.I1)]
             public delegate bool mongocrypt_setopt_retry_kms(MongoCryptSafeHandle handle, bool enable);
+
+            /// <summary>
+            /// bool mongocrypt_setopt_key_expiration(mongocrypt_t *crypt, uint64_t cache_expiration_ms)
+            /// </summary>
+            [return: MarshalAs(UnmanagedType.I1)]
+            public delegate bool mongocrypt_setopt_key_expiration(MongoCryptSafeHandle handle, ulong cache_expiration_ms);
 
             public delegate CryptContext.StateCode mongocrypt_ctx_state(ContextSafeHandle handle);
 

@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Encryption
     public sealed class ClientEncryptionOptions
     {
         // private fields
+        private TimeSpan? _keyExpiration;
         private readonly IMongoClient _keyVaultClient;
         private readonly CollectionNamespace _keyVaultNamespace;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
@@ -43,17 +44,34 @@ namespace MongoDB.Driver.Encryption
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
+            : this(keyVaultClient, keyVaultNamespace, kmsProviders, tlsOptions, keyExpiration: null)
+        {
+        }
+
+        private ClientEncryptionOptions(
+            IMongoClient keyVaultClient,
+            CollectionNamespace keyVaultNamespace,
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
+            Optional<TimeSpan?> keyExpiration = default)
         {
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient));
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
+            _keyExpiration = keyExpiration.WithDefault(null);
 
             EnsureKmsProvidersAreValid(_kmsProviders);
             EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
         }
 
         // public properties
+
+        /// <summary>
+        /// Gets the data encryption key cache expiration time.
+        /// </summary>
+        public TimeSpan? KeyExpiration => _keyExpiration;
+
         /// <summary>
         /// Gets the key vault client.
         /// </summary>
@@ -104,7 +122,18 @@ namespace MongoDB.Driver.Encryption
                 keyVaultClient: keyVaultClient.WithDefault(_keyVaultClient),
                 keyVaultNamespace: keyVaultNamespace.WithDefault(_keyVaultNamespace),
                 kmsProviders: kmsProviders.WithDefault(_kmsProviders),
-                tlsOptions: Optional.Create(tlsOptions.WithDefault(_tlsOptions)));
+                tlsOptions: Optional.Create(tlsOptions.WithDefault(_tlsOptions)),
+                keyExpiration: _keyExpiration);
+        }
+
+        /// <summary>
+        /// Sets the data encryption key cache expiration time. If not set, it defaults to 60 seconds.
+        /// If set to TimeSpan.Zero, the cache never expires.
+        /// </summary>
+        /// <param name="keyExpiration">The data encryption key cache expiration time.</param>
+        public void SetKeyExpiration(TimeSpan? keyExpiration)
+        {
+            _keyExpiration = keyExpiration;
         }
 
         private static void EnsureKmsProvidersAreValid(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders)
