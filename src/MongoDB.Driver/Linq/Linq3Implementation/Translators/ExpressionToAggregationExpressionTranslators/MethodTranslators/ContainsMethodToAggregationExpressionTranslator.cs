@@ -79,8 +79,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
 
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-            var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
 
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+            if (!itemSerializer.Equals(valueTranslation.Serializer))
+            {
+                throw new ExpressionNotSupportedException(expression, because: "the array items and the value are serialized differently");
+            }
+
+            var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
             return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
         }
     }
