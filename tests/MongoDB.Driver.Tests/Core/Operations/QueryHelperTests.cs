@@ -102,8 +102,10 @@ namespace MongoDB.Driver.Core.Operations
             bool? isEnabled,
             string expectedResult)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var hedge = isEnabled.HasValue ? new ReadPreferenceHedge(isEnabled.Value) : null;
             var readPreference = ReadPreference.Secondary.With(hedge: hedge);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var result = QueryHelper.CreateReadPreferenceDocument(ServerType.ShardRouter, readPreference, out var secondaryOk);
 

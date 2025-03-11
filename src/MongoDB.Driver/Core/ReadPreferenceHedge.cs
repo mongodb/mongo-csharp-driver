@@ -21,6 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a read preference hedge.
     /// </summary>
+    [Obsolete("Hedged reads are deprecated starting in server version 8.0.")]
     public sealed class ReadPreferenceHedge : IEquatable<ReadPreferenceHedge>
     {
         #region static
