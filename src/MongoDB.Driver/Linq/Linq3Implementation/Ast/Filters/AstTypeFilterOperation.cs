@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             }
         }
 
-        private string MapBsonTypeToString(BsonType type)
+        private string MapBsonTypeToString(BsonType type)  //TODO Is this the only place where we do this conversion?
         {
             switch (type)
             {
