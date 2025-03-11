@@ -198,10 +198,15 @@ namespace MongoDB.Driver.Encryption
                 schema.Add("properties", properties);
             }
 
+            if (_metadata is not null)
+            {
+                schema.Merge(_metadata.Build(args));
+            }
+
             return schema;
         }
 
-        private static string MapCsfleEncyptionAlgorithmToString(CsfleEncyptionAlgorithm? algorithm)
+        private static string MapCsfleEncyptionAlgorithmToString(CsfleEncyptionAlgorithm algorithm)
         {
             return algorithm switch
             {
@@ -264,9 +269,9 @@ namespace MongoDB.Driver.Encryption
                             {
                                 "encrypt", new BsonDocument
                                 {
-                                    { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm), Algorithm is not null },
+                                    { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm!.Value), Algorithm is not null },
                                     { "bsonType", () => MapBsonTypeToString(BsonType!.Value), BsonType is not null },
-                                    { "keyId", () => new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard), KeyId is not null },
+                                    { "keyId", () => new BsonArray( new [] {new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
                                 }
                             }
                         }
@@ -316,6 +321,20 @@ namespace MongoDB.Driver.Encryption
             {
                 KeyId = keyId;
                 Algorithm = algorithm;
+            }
+
+            public BsonDocument Build(RenderArgs<TDocument> args)
+            {
+                return new BsonDocument
+                {
+                    {
+                        "encryptMetadata", new BsonDocument
+                        {
+                            { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm!.Value), Algorithm is not null },
+                            { "keyId", () => new BsonArray( new [] {new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
+                        }
+                    }
+                };
             }
         }
     }

@@ -27,7 +27,10 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void Test1()
         {
+            var myKeyId = Guid.Parse("6f4af470-00d1-401f-ac39-f45902a0c0c8");
+
             var typedBuilder = CsfleSchemaBuilder.GetTypeBuilder<Patient>()
+                .EncryptMetadata(keyId: myKeyId)
                 .Encrypt("bloodType", bsonType: BsonType.String,
                     algorithm: CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                 .Encrypt(p => p.Ssn, bsonType: BsonType.Int32,
