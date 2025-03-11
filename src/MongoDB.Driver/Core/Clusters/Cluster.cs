@@ -46,9 +46,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
-        private ClusterDescription _description;
-        private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
-        private readonly object _descriptionLock = new object();
+        private ClusterDescriptionChangeSource _descriptionWithChangedTaskCompletionSource;
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
         protected readonly EventLogger<LogCategories.SDAM> _clusterEventLogger;
         protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
@@ -70,10 +68,8 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
             _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
-
             _clusterId = new ClusterId();
-            _description = ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection);
-            _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
+            _descriptionWithChangedTaskCompletionSource = new (ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
 
             _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
@@ -97,10 +93,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             get
             {
-                lock (_descriptionLock)
-                {
-                    return _description;
-                }
+                return _descriptionWithChangedTaskCompletionSource.ClusterDescription;
             }
         }
 
@@ -134,7 +127,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 var newClusterDescription = new ClusterDescription(
                     _clusterId,
-                    _description.DirectConnection,
+                    _descriptionWithChangedTaskCompletionSource.ClusterDescription.DirectConnection,
                     dnsMonitorException: null,
                     ClusterType.Unknown,
                     Enumerable.Empty<ServerDescription>());
@@ -293,22 +286,11 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected void UpdateClusterDescription(ClusterDescription newClusterDescription, bool shouldClusterDescriptionChangedEventBePublished = true)
         {
-            ClusterDescription oldClusterDescription = null;
-            TaskCompletionSource<bool> oldDescriptionChangedTaskCompletionSource = null;
+            var oldClusterDescription = Interlocked.Exchange(ref _descriptionWithChangedTaskCompletionSource, new(newClusterDescription));
 
-            lock (_descriptionLock)
-            {
-                oldClusterDescription = _description;
-                _description = newClusterDescription;
+            OnDescriptionChanged(oldClusterDescription.ClusterDescription, newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
 
-                oldDescriptionChangedTaskCompletionSource = _descriptionChangedTaskCompletionSource;
-                _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
-            }
-
-            OnDescriptionChanged(oldClusterDescription, newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
-
-            // TODO: use RunContinuationsAsynchronously instead once we require a new enough .NET Framework
-            Task.Run(() => oldDescriptionChangedTaskCompletionSource.TrySetResult(true));
+            oldClusterDescription.TrySetChanged();
         }
 
         private string BuildTimeoutExceptionMessage(TimeSpan timeout, IServerSelector selector, ClusterDescription clusterDescription)
@@ -363,6 +345,25 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // nested classes
+        internal sealed class ClusterDescriptionChangeSource
+        {
+            private readonly TaskCompletionSource<bool> _changedTaskCompletionSource;
+            private readonly ClusterDescription _clusterDescription;
+
+            public ClusterDescriptionChangeSource(ClusterDescription clusterDescription)
+            {
+                _changedTaskCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _clusterDescription = clusterDescription;
+            }
+
+            public ClusterDescription ClusterDescription => _clusterDescription;
+
+            public Task Changed => _changedTaskCompletionSource.Task;
+
+            public bool TrySetChanged()
+                => _changedTaskCompletionSource.TrySetResult(true);
+        }
+
         private class SelectServerHelper : IDisposable
         {
             private readonly Cluster _cluster;
@@ -380,7 +381,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 _cluster = cluster;
 
-                _connectedServers = new List<IClusterableServer>(_cluster._description?.Servers?.Count ?? 1);
+                _connectedServers = new List<IClusterableServer>(_cluster._descriptionWithChangedTaskCompletionSource.ClusterDescription?.Servers?.Count ?? 1);
                 _connectedServerDescriptions = new List<ServerDescription>(_connectedServers.Count);
                 _operationCountServerSelector = new OperationsCountServerSelector(_connectedServers);
 
@@ -429,11 +430,9 @@ namespace MongoDB.Driver.Core.Clusters
 
             public IServer SelectServer()
             {
-                lock (_cluster._descriptionLock)
-                {
-                    _descriptionChangedTask = _cluster._descriptionChangedTaskCompletionSource.Task;
-                    _description = _cluster._description;
-                }
+                var clusterDescription = _cluster._descriptionWithChangedTaskCompletionSource;
+                _descriptionChangedTask = clusterDescription.Changed;
+                _description = clusterDescription.ClusterDescription;
 
                 if (!_serverSelectionWaitQueueEntered)
                 {
