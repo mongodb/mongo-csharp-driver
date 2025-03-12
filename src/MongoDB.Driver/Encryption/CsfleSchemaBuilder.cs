@@ -92,7 +92,6 @@ namespace MongoDB.Driver.Encryption
     public class CsfleTypeSchemaBuilder<TDocument> : CsfleTypeSchemaBuilder
     {
         private readonly List<SchemaField> _fields = [];
-        private readonly List<SchemaNestedField> _nestedFields = [];
         private readonly List<SchemaPattern> _patterns = [];
         private SchemaMetadata _metadata;
 
@@ -106,7 +105,7 @@ namespace MongoDB.Driver.Encryption
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> Encrypt(FieldDefinition<TDocument> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
-            _fields.Add(new SchemaField(path, keyId, algorithm, bsonType));
+            _fields.Add(new SchemaSimpleField(path, keyId, algorithm, bsonType));
             return this;
         }
 
@@ -133,7 +132,7 @@ namespace MongoDB.Driver.Encryption
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> Encrypt<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
         {
-            _nestedFields.Add(new SchemaNestedField<TField>(path, configure));
+            _fields.Add(new SchemaNestedField<TField>(path, configure));
             return this;
         }
 
@@ -159,8 +158,33 @@ namespace MongoDB.Driver.Encryption
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> PatternProperties(string pattern, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)  //TODO This is not correct,
         {
-            _patterns.Add(new SchemaPattern(pattern, keyId, algorithm, bsonType));
+            _patterns.Add(new SchemaSimplePattern(pattern, keyId, algorithm, bsonType));
             return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="configure"></param>
+        /// <typeparam name="TField"></typeparam>
+        /// <returns></returns>
+        public CsfleTypeSchemaBuilder<TDocument> PatternProperties<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
+        {
+            _patterns.Add(new SchemaNestedPattern<TField>(path, configure));
+            return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="configure"></param>
+        /// <typeparam name="TField"></typeparam>
+        /// <returns></returns>
+        public CsfleTypeSchemaBuilder<TDocument> PatternProperties<TField>(Expression<Func<TDocument, TField>> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
+        {
+            return PatternProperties(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
         }
 
         /// <summary>
@@ -178,28 +202,37 @@ namespace MongoDB.Driver.Encryption
         /// <inheritdoc />
         public override BsonDocument Build()
         {
-            var schema = new BsonDocument { { "bsonType", "object" } };
-            var args = new RenderArgs<TDocument>(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
-            var properties = new BsonDocument();
+            var schema = new BsonDocument("bsonType", "object");
 
             if (_metadata is not null)
             {
                 schema.Merge(_metadata.Build());
             }
 
-            foreach (var nestedField in _nestedFields)
-            {
-                properties.Merge(nestedField.Build(args));
-            }
+            var args = new RenderArgs<TDocument>(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
 
-            foreach (var field in _fields)
+            if (_fields.Any())
             {
-                properties.Merge(field.Build(args));
-            }
+                var properties = new BsonDocument();
 
-            if (properties.Any())
-            {
+                foreach (var field in _fields)
+                {
+                    properties.Merge(field.Build(args));
+                }
+
                 schema.Add("properties", properties);
+            }
+
+            if (_patterns.Any())
+            {
+                var patternProperties = new BsonDocument();
+
+                foreach (var pattern in _patterns)
+                {
+                    patternProperties.Merge(pattern.Build(args));
+                }
+
+                schema.Add("patternProperties", patternProperties);
             }
 
             return schema;
@@ -243,71 +276,56 @@ namespace MongoDB.Driver.Encryption
             };
         }
 
-        private record SchemaField(FieldDefinition<TDocument> Path, Guid? KeyId, CsfleEncryptionAlgorithm? Algorithm, BsonType? BsonType)
-        {
-            public BsonDocument Build(RenderArgs<TDocument> args)
-            {
-                return new BsonDocument
-                {
-                    {
-                        Path.Render(args).FieldName, new BsonDocument
-                        {
-                            { "encrypt", GetEncryptBsonDocument(KeyId, Algorithm, BsonType) }
-                        }
-                    }
-                };
-            }
-        }
-
-        private abstract record SchemaNestedField
+        private abstract record SchemaField
         {
             public abstract BsonDocument Build(RenderArgs<TDocument> args);
         }
 
-        private record SchemaNestedField<TField>(FieldDefinition<TDocument> Path, Action<CsfleTypeSchemaBuilder<TField>> Configure) : SchemaNestedField
+        private record SchemaSimpleField(FieldDefinition<TDocument> Path, Guid? KeyId, CsfleEncryptionAlgorithm? Algorithm, BsonType? BsonType) : SchemaField
+        {
+            public override BsonDocument Build(RenderArgs<TDocument> args) =>
+                new(Path.Render(args).FieldName, new BsonDocument("encrypt", GetEncryptBsonDocument(KeyId, Algorithm, BsonType)));
+        }
+
+        private record SchemaNestedField<TField>(FieldDefinition<TDocument> Path, Action<CsfleTypeSchemaBuilder<TField>> Configure) : SchemaField
         {
             public override BsonDocument Build(RenderArgs<TDocument> args)
             {
                 var fieldBuilder = new CsfleTypeSchemaBuilder<TField>();
                 Configure(fieldBuilder);
-                var builtInternalSchema = fieldBuilder.Build();
-
-                return new BsonDocument
-                {
-                    { Path.Render(args).FieldName, builtInternalSchema }
-                };
+                return new BsonDocument(Path.Render(args).FieldName, fieldBuilder.Build());
             }
         }
 
-        private record SchemaPattern(
+        private abstract record SchemaPattern()
+        {
+            public abstract BsonDocument Build(RenderArgs<TDocument> args);
+        }
+
+        private record SchemaSimplePattern(
             string Pattern,
             Guid? KeyId,
             CsfleEncryptionAlgorithm? Algorithm,
-            BsonType? BsonType)
+            BsonType? BsonType) : SchemaPattern
         {
-            public BsonDocument Build()
+            public override BsonDocument Build(RenderArgs<TDocument> args) => new(Pattern, new BsonDocument("encrypt", GetEncryptBsonDocument(KeyId, Algorithm, BsonType)));
+        }
+
+        private record SchemaNestedPattern<TField>(
+            FieldDefinition<TDocument> Path,
+            Action<CsfleTypeSchemaBuilder<TField>> Configure) : SchemaPattern
+        {
+            public override BsonDocument Build(RenderArgs<TDocument> args)
             {
-                return new BsonDocument
-                {
-                    {
-                        "pattern", new BsonDocument
-                        {
-                            { "encrypt", GetEncryptBsonDocument(KeyId, Algorithm, BsonType) }
-                        }
-                    }
-                };
+                var fieldBuilder = new CsfleTypeSchemaBuilder<TField>();
+                Configure(fieldBuilder);
+                return new BsonDocument(Path.Render(args).FieldName, fieldBuilder.Build());
             }
         }
 
         private record SchemaMetadata(Guid? KeyId, CsfleEncryptionAlgorithm? Algorithm)
         {
-            public BsonDocument Build()
-            {
-                return new BsonDocument
-                {
-                    { "encryptMetadata", GetEncryptBsonDocument(KeyId, Algorithm, null)}
-                };
-            }
+            public BsonDocument Build() => new("encryptMetadata", GetEncryptBsonDocument(KeyId, Algorithm, null));
         }
 
         private static BsonDocument GetEncryptBsonDocument(Guid? keyId, CsfleEncryptionAlgorithm? algorithm, BsonType? bsonType)
@@ -322,7 +340,6 @@ namespace MongoDB.Driver.Encryption
                     keyId is not null
                 },
             };
-
         }
     }
 
