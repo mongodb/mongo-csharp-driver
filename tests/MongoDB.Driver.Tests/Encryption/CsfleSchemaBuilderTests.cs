@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.Encryption
                                               "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
                                             }
                                           }
-                                        }
+                                        },
                                       }
                                     }
                                     """;
@@ -94,13 +94,77 @@ namespace MongoDB.Driver.Tests.Encryption
             Assert.Equal(parsedExpected.Count(), builtSchema.Count);
             foreach (var name in parsedExpected.Names)
             {
-                var builtSchemaForName = builtSchema[name];
-                var parseExpectedForName = parsedExpected[name];
                 Assert.Equal(parsedExpected[name].AsBsonDocument, builtSchema[name]);
             }
         }
 
-        // Taken from the docs, just to have an example case
+        [Fact]
+        public void Test2()
+        {
+            var collectionName = "medicalRecords.patients";
+
+            var typedBuilder = CsfleSchemaBuilder.GetTypeBuilder<Patient>()
+                .PatternProperties("_PIIString$", bsonType: BsonType.String,
+                    algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                .PatternProperties("_PIIArray$", bsonType: BsonType.Array,
+                    algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
+                .PatternProperties(p => p.Insurance, builder => builder
+                    .PatternProperties("_PIINumber$", bsonType: BsonType.Int32, algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                    .PatternProperties("_PIIString$", bsonType: BsonType.String, algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                );
+
+            var encryptionSchemaBuilder = new CsfleSchemaBuilder()
+                .WithType(CollectionNamespace.FromFullName(collectionName), typedBuilder);
+
+            const string expected = """
+                                    {
+                                      "medicalRecords.patients": {
+                                      "bsonType": "object",
+                                      "patternProperties": {
+                                        "_PIIString$": {
+                                          "encrypt": {
+                                            "bsonType": "string",
+                                            "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                                          },
+                                        },
+                                        "_PIIArray$": {
+                                          "encrypt": {
+                                            "bsonType": "array",
+                                            "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
+                                          },
+                                        },
+                                        "insurance": {
+                                          "bsonType": "object",
+                                          "patternProperties": {
+                                            "_PIINumber$": {
+                                              "encrypt": {
+                                                "bsonType": "int",
+                                                "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                                              },
+                                            },
+                                            "_PIIString$": {
+                                              "encrypt": {
+                                                "bsonType": "string",
+                                                "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                                              },
+                                            },
+                                          },
+                                        },
+                                      },
+                                      },
+                                    }
+                                    """;
+            var parsedExpected = BsonDocument.Parse(expected);
+
+            var builtSchema = encryptionSchemaBuilder.Build();
+            Assert.Equal(parsedExpected.Count(), builtSchema.Count);
+            foreach (var name in parsedExpected.Names)
+            {
+                Assert.Equal(parsedExpected[name].AsBsonDocument, builtSchema[name]);
+            }
+        }
+
+        // Taken from the docs
         internal class Patient
         {
             [BsonId]
