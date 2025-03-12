@@ -29,17 +29,14 @@ namespace MongoDB.Driver.Encryption
     /// </summary>
     public class CsfleSchemaBuilder
     {
-        private Dictionary<string, CsfleTypeSchemaBuilder> _typeSchemaBuilders = new();
+        private readonly Dictionary<string, CsfleTypeSchemaBuilder> _typeSchemaBuilders = new();
 
         /// <summary>
         ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static CsfleTypeSchemaBuilder<T> GetTypeBuilder<T>()  //TODO Maybe we should remove this...?
-        {
-            return new CsfleTypeSchemaBuilder<T>();
-        }
+        public static CsfleTypeSchemaBuilder<T> GetTypeBuilder<T>() => new();
 
         /// <summary>
         ///
@@ -73,10 +70,7 @@ namespace MongoDB.Driver.Encryption
         ///
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyDictionary<string, BsonDocument> Build()
-        {
-            return _typeSchemaBuilders.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Build());
-        }
+        public IReadOnlyDictionary<string, BsonDocument> Build() => _typeSchemaBuilders.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Build());
     }
 
     /// <summary>
@@ -97,9 +91,9 @@ namespace MongoDB.Driver.Encryption
     /// <typeparam name="TDocument"></typeparam>
     public class CsfleTypeSchemaBuilder<TDocument> : CsfleTypeSchemaBuilder
     {
-        private List<SchemaField> _fields;
-        private List<SchemaNestedField> _nestedFields;
-        private List<SchemaPattern> _patterns;
+        private readonly List<SchemaField> _fields = [];
+        private readonly List<SchemaNestedField> _nestedFields = [];
+        private readonly List<SchemaPattern> _patterns = [];
         private SchemaMetadata _metadata;
 
         /// <summary>
@@ -110,14 +104,11 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm"></param>
         /// <param name="bsonType"></param>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Encrypt(FieldDefinition<TDocument> path, Guid? keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public CsfleTypeSchemaBuilder<TDocument> Encrypt(FieldDefinition<TDocument> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
-            _fields ??= [];
             _fields.Add(new SchemaField(path, keyId, algorithm, bsonType));
             return this;
         }
-
-        //TODO We need an overload that accepts an array of bsonTypes (it's supported)
 
         /// <summary>
         ///
@@ -128,7 +119,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="bsonType"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Encrypt<TField>(Expression<Func<TDocument, TField>> path, Guid? keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public CsfleTypeSchemaBuilder<TDocument> Encrypt<TField>(Expression<Func<TDocument, TField>> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
             return Encrypt(new ExpressionFieldDefinition<TDocument, TField>(path), keyId, algorithm, bsonType);
         }
@@ -142,7 +133,6 @@ namespace MongoDB.Driver.Encryption
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> Encrypt<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
         {
-            _nestedFields ??= [];
             _nestedFields.Add(new SchemaNestedField<TField>(path, configure));
             return this;
         }
@@ -167,9 +157,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm"></param>
         /// <param name="bsonType"></param>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> PatternProperties(string pattern, Guid? keyId = null, CsfleEncyptionAlgorithm? algorithm = null, BsonType? bsonType = null)  //TODO This is not correct,
+        public CsfleTypeSchemaBuilder<TDocument> PatternProperties(string pattern, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)  //TODO This is not correct,
         {
-            _patterns ??= [];
             _patterns.Add(new SchemaPattern(pattern, keyId, algorithm, bsonType));
             return this;
         }
@@ -180,7 +169,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyId"></param>
         /// <param name="algorithm"></param>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> EncryptMetadata(Guid? keyId = null, CsfleEncyptionAlgorithm? algorithm = null )
+        public CsfleTypeSchemaBuilder<TDocument> EncryptMetadata(Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null )
         {
             _metadata = new SchemaMetadata(keyId, algorithm);
             return this;
@@ -189,32 +178,23 @@ namespace MongoDB.Driver.Encryption
         /// <inheritdoc />
         public override BsonDocument Build()
         {
-            var schema = new BsonDocument();
+            var schema = new BsonDocument { { "bsonType", "object" } };
             var args = new RenderArgs<TDocument>(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
-
-            schema.Add("bsonType", "object");
+            var properties = new BsonDocument();
 
             if (_metadata is not null)
             {
-                schema.Merge(_metadata.Build(args));
+                schema.Merge(_metadata.Build());
             }
 
-            var properties = new BsonDocument();
-
-            if (_nestedFields is not null)
+            foreach (var nestedField in _nestedFields)
             {
-                foreach (var nestedFields in _nestedFields)
-                {
-                    properties.Merge(nestedFields.Build(args));
-                }
+                properties.Merge(nestedField.Build(args));
             }
 
-            if (_fields is not null)
+            foreach (var field in _fields)
             {
-                foreach (var field in _fields)
-                {
-                    properties.Merge(field.Build(args));
-                }
+                properties.Merge(field.Build(args));
             }
 
             if (properties.Any())
@@ -225,45 +205,45 @@ namespace MongoDB.Driver.Encryption
             return schema;
         }
 
-        private static string MapCsfleEncyptionAlgorithmToString(CsfleEncyptionAlgorithm algorithm)
+        private static string MapCsfleEncyptionAlgorithmToString(CsfleEncryptionAlgorithm algorithm)
         {
             return algorithm switch
             {
-                CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random => "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
-                CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic => "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
-                _ => throw new InvalidOperationException()
+                CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random => "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
+                CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic => "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                _ => throw new ArgumentException($"Unexpected algorithm type: {algorithm}.", nameof(algorithm))
             };
         }
 
         private static string MapBsonTypeToString(BsonType type)  //TODO Taken from AstTypeFilterOperation
         {
-            switch (type)
+            return type switch
             {
-                case BsonType.Array: return "array";
-                case BsonType.Binary: return "binData";
-                case BsonType.Boolean: return "bool";
-                case BsonType.DateTime: return "date";
-                case BsonType.Decimal128: return "decimal";
-                case BsonType.Document: return "object";
-                case BsonType.Double: return "double";
-                case BsonType.Int32: return "int";
-                case BsonType.Int64: return "long";
-                case BsonType.JavaScript: return "javascript";
-                case BsonType.JavaScriptWithScope: return "javascriptWithScope";
-                case BsonType.MaxKey: return "maxKey";
-                case BsonType.MinKey: return "minKey";
-                case BsonType.Null: return "null";
-                case BsonType.ObjectId: return "objectId";
-                case BsonType.RegularExpression: return "regex";
-                case BsonType.String: return "string";
-                case BsonType.Symbol: return "symbol";
-                case BsonType.Timestamp: return "timestamp";
-                case BsonType.Undefined: return "undefined";
-                default: throw new ArgumentException($"Unexpected BSON type: {type}.", nameof(type));
-            }
+                BsonType.Array => "array",
+                BsonType.Binary => "binData",
+                BsonType.Boolean => "bool",
+                BsonType.DateTime => "date",
+                BsonType.Decimal128 => "decimal",
+                BsonType.Document => "object",
+                BsonType.Double => "double",
+                BsonType.Int32 => "int",
+                BsonType.Int64 => "long",
+                BsonType.JavaScript => "javascript",
+                BsonType.JavaScriptWithScope => "javascriptWithScope",
+                BsonType.MaxKey => "maxKey",
+                BsonType.MinKey => "minKey",
+                BsonType.Null => "null",
+                BsonType.ObjectId => "objectId",
+                BsonType.RegularExpression => "regex",
+                BsonType.String => "string",
+                BsonType.Symbol => "symbol",
+                BsonType.Timestamp => "timestamp",
+                BsonType.Undefined => "undefined",
+                _ => throw new ArgumentException($"Unexpected BSON type: {type}.", nameof(type))
+            };
         }
 
-        private record SchemaField(FieldDefinition<TDocument> Path, Guid? KeyId, CsfleEncyptionAlgorithm? Algorithm, BsonType? BsonType)
+        private record SchemaField(FieldDefinition<TDocument> Path, Guid? KeyId, CsfleEncryptionAlgorithm? Algorithm, BsonType? BsonType)
         {
             public BsonDocument Build(RenderArgs<TDocument> args)
             {
@@ -272,14 +252,7 @@ namespace MongoDB.Driver.Encryption
                     {
                         Path.Render(args).FieldName, new BsonDocument
                         {
-                            {
-                                "encrypt", new BsonDocument
-                                {
-                                    { "bsonType", () => MapBsonTypeToString(BsonType!.Value), BsonType is not null },
-                                    { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm!.Value), Algorithm is not null },
-                                    { "keyId", () => new BsonArray(new[] { new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
-                                }
-                            }
+                            { "encrypt", GetEncryptBsonDocument(KeyId, Algorithm, BsonType) }
                         }
                     }
                 };
@@ -306,30 +279,57 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private record SchemaPattern(string Pattern, Guid? KeyId, CsfleEncyptionAlgorithm? Algorithm, BsonType? BsonType);
-
-        private record SchemaMetadata(Guid? KeyId, CsfleEncyptionAlgorithm? Algorithm)
+        private record SchemaPattern(
+            string Pattern,
+            Guid? KeyId,
+            CsfleEncryptionAlgorithm? Algorithm,
+            BsonType? BsonType)
         {
-            public BsonDocument Build(RenderArgs<TDocument> args)
+            public BsonDocument Build()
             {
                 return new BsonDocument
                 {
                     {
-                        "encryptMetadata", new BsonDocument
+                        "pattern", new BsonDocument
                         {
-                            { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm!.Value), Algorithm is not null },
-                            { "keyId", () => new BsonArray(new[] { new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
+                            { "encrypt", GetEncryptBsonDocument(KeyId, Algorithm, BsonType) }
                         }
                     }
                 };
             }
+        }
+
+        private record SchemaMetadata(Guid? KeyId, CsfleEncryptionAlgorithm? Algorithm)
+        {
+            public BsonDocument Build()
+            {
+                return new BsonDocument
+                {
+                    { "encryptMetadata", GetEncryptBsonDocument(KeyId, Algorithm, null)}
+                };
+            }
+        }
+
+        private static BsonDocument GetEncryptBsonDocument(Guid? keyId, CsfleEncryptionAlgorithm? algorithm, BsonType? bsonType)
+        {
+            return new BsonDocument
+            {
+                { "bsonType", () => MapBsonTypeToString(bsonType!.Value), bsonType is not null },
+                { "algorithm", () => MapCsfleEncyptionAlgorithmToString(algorithm!.Value), algorithm is not null },
+                {
+                    "keyId",
+                    () => new BsonArray(new[] { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }),
+                    keyId is not null
+                },
+            };
+
         }
     }
 
     /// <summary>
     ///
     /// </summary>
-    public enum CsfleEncyptionAlgorithm
+    public enum CsfleEncryptionAlgorithm
     {
         /// <summary>
         ///
@@ -340,5 +340,4 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic
     }
-
 }
