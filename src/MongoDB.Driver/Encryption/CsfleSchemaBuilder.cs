@@ -75,16 +75,20 @@ namespace MongoDB.Driver.Encryption
         /// <returns></returns>
         public IReadOnlyDictionary<string, BsonDocument> Build()
         {
-            return null;
+            return _typeSchemaBuilders.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Build());
         }
     }
 
     /// <summary>
     ///
     /// </summary>
-    public class CsfleTypeSchemaBuilder
+    public abstract class CsfleTypeSchemaBuilder
     {
-
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public abstract BsonDocument Build();
     }
 
     /// <summary>
@@ -182,25 +186,40 @@ namespace MongoDB.Driver.Encryption
             return this;
         }
 
-        internal BsonDocument Build()
+        /// <inheritdoc />
+        public override BsonDocument Build()
         {
             var schema = new BsonDocument();
             var args = new RenderArgs<TDocument>(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
 
-            if (_fields.Any())
-            {
-                var properties = new BsonDocument();
-                foreach (var field in _fields)
-                {
-                    properties.Merge(field.Build(args));
-                }
-
-                schema.Add("properties", properties);
-            }
+            schema.Add("bsonType", "object");
 
             if (_metadata is not null)
             {
                 schema.Merge(_metadata.Build(args));
+            }
+
+            var properties = new BsonDocument();
+
+            if (_nestedFields is not null)
+            {
+                foreach (var nestedFields in _nestedFields)
+                {
+                    properties.Merge(nestedFields.Build(args));
+                }
+            }
+
+            if (_fields is not null)
+            {
+                foreach (var field in _fields)
+                {
+                    properties.Merge(field.Build(args));
+                }
+            }
+
+            if (properties.Any())
+            {
+                schema.Add("properties", properties);
             }
 
             return schema;
@@ -246,10 +265,10 @@ namespace MongoDB.Driver.Encryption
 
         private class SchemaField
         {
-            public FieldDefinition<TDocument> Path { get; }
-            public Guid? KeyId { get; }
-            public CsfleEncyptionAlgorithm? Algorithm { get; }
-            public BsonType? BsonType { get; }
+            private FieldDefinition<TDocument> Path { get; }  //TODO These could all be private properties
+            private Guid? KeyId { get; }
+            private CsfleEncyptionAlgorithm? Algorithm { get; }
+            private BsonType? BsonType { get; }
 
             public SchemaField(FieldDefinition<TDocument> path, Guid? keyId, CsfleEncyptionAlgorithm? algorithm, BsonType? bsonType)
             {
@@ -269,8 +288,8 @@ namespace MongoDB.Driver.Encryption
                             {
                                 "encrypt", new BsonDocument
                                 {
-                                    { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm!.Value), Algorithm is not null },
                                     { "bsonType", () => MapBsonTypeToString(BsonType!.Value), BsonType is not null },
+                                    { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm!.Value), Algorithm is not null },
                                     { "keyId", () => new BsonArray( new [] {new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
                                 }
                             }
@@ -280,8 +299,9 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private class SchemaNestedField
+        private abstract class SchemaNestedField
         {
+            public abstract BsonDocument Build(RenderArgs<TDocument> args);
         }
 
         private class SchemaNestedField<TField> : SchemaNestedField
@@ -293,6 +313,18 @@ namespace MongoDB.Driver.Encryption
             {
                 Path = path;
                 Configure = configure;
+            }
+
+            public override BsonDocument Build(RenderArgs<TDocument> args)
+            {
+                var fieldBuilder = new CsfleTypeSchemaBuilder<TField>();
+                Configure(fieldBuilder);
+                var builtInternalSchema = fieldBuilder.Build();
+
+                return new BsonDocument
+                {
+                    { Path.Render(args).FieldName, builtInternalSchema }
+                };
             }
         }
 
