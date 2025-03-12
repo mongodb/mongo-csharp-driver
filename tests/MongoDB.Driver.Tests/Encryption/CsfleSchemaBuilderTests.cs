@@ -35,14 +35,14 @@ namespace MongoDB.Driver.Tests.Encryption
                 .EncryptMetadata(keyId: myKeyId)
                 .Encrypt(p => p.Insurance, insurance => insurance
                     .Encrypt(i => i.PolicyNumber, bsonType: BsonType.Int32,
-                        algorithm: CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic))
+                        algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic))
                 .Encrypt(p => p.MedicalRecords, bsonType: BsonType.Array,
-                    algorithm: CsfleEncyptionAlgorithm
+                    algorithm: CsfleEncryptionAlgorithm
                         .AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                 .Encrypt("bloodType", bsonType: BsonType.String,
-                    algorithm: CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
+                    algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                 .Encrypt(p => p.Ssn, bsonType: BsonType.Int32,
-                    algorithm: CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+                    algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
 
             var encryptionSchemaBuilder = new CsfleSchemaBuilder()
                 .WithType(CollectionNamespace.FromFullName(collectionName), typedBuilder);
