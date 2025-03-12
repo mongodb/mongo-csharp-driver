@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             string key)
         {
             _near = Ensure.IsNotNull(near, nameof(near));
-            _distanceField = Ensure.IsNotNull(distanceField, nameof(distanceField));
+            _distanceField = distanceField;
             _spherical = spherical;
             _maxDistance = maxDistance;
             _query = query;
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
                 { "$geoNear", new BsonDocument
                     {
                         { "near", _near },
-                        { "distanceField", _distanceField },
+                        { "distanceField", _distanceField, _distanceField != null },
                         { "spherical", () => _spherical.Value, _spherical.HasValue },
                         { "maxDistance", () => _maxDistance.Value, _maxDistance.HasValue },
                         { "query", _query, _query != null },
