@@ -263,21 +263,8 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private class SchemaField
+        private record SchemaField(FieldDefinition<TDocument> Path, Guid? KeyId, CsfleEncyptionAlgorithm? Algorithm, BsonType? BsonType)
         {
-            private FieldDefinition<TDocument> Path { get; }  //TODO These could all be private properties
-            private Guid? KeyId { get; }
-            private CsfleEncyptionAlgorithm? Algorithm { get; }
-            private BsonType? BsonType { get; }
-
-            public SchemaField(FieldDefinition<TDocument> path, Guid? keyId, CsfleEncyptionAlgorithm? algorithm, BsonType? bsonType)
-            {
-                Path = path;
-                KeyId = keyId;
-                Algorithm = algorithm;
-                BsonType = bsonType;
-            }
-
             public BsonDocument Build(RenderArgs<TDocument> args)
             {
                 return new BsonDocument
@@ -290,7 +277,7 @@ namespace MongoDB.Driver.Encryption
                                 {
                                     { "bsonType", () => MapBsonTypeToString(BsonType!.Value), BsonType is not null },
                                     { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm!.Value), Algorithm is not null },
-                                    { "keyId", () => new BsonArray( new [] {new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
+                                    { "keyId", () => new BsonArray(new[] { new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
                                 }
                             }
                         }
@@ -299,22 +286,13 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private abstract class SchemaNestedField
+        private abstract record SchemaNestedField
         {
             public abstract BsonDocument Build(RenderArgs<TDocument> args);
         }
 
-        private class SchemaNestedField<TField> : SchemaNestedField
+        private record SchemaNestedField<TField>(FieldDefinition<TDocument> Path, Action<CsfleTypeSchemaBuilder<TField>> Configure) : SchemaNestedField
         {
-            public FieldDefinition<TDocument> Path { get; }
-            public Action<CsfleTypeSchemaBuilder<TField>> Configure { get; }
-
-            public SchemaNestedField(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
-            {
-                Path = path;
-                Configure = configure;
-            }
-
             public override BsonDocument Build(RenderArgs<TDocument> args)
             {
                 var fieldBuilder = new CsfleTypeSchemaBuilder<TField>();
@@ -328,33 +306,10 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private class SchemaPattern
+        private record SchemaPattern(string Pattern, Guid? KeyId, CsfleEncyptionAlgorithm? Algorithm, BsonType? BsonType);
+
+        private record SchemaMetadata(Guid? KeyId, CsfleEncyptionAlgorithm? Algorithm)
         {
-            public string Pattern { get; }
-            public Guid? KeyId { get; }
-            public CsfleEncyptionAlgorithm? Algorithm { get; }
-            public BsonType? BsonType { get; }
-
-            public SchemaPattern(string pattern, Guid? keyId, CsfleEncyptionAlgorithm? algorithm, BsonType? bsonType)
-            {
-                Pattern = pattern;
-                KeyId = keyId;
-                Algorithm = algorithm;
-                BsonType = bsonType;
-            }
-        }
-
-        private class SchemaMetadata
-        {
-            public Guid? KeyId { get; }
-            public CsfleEncyptionAlgorithm? Algorithm { get; }
-
-            public SchemaMetadata(Guid? keyId, CsfleEncyptionAlgorithm? algorithm)
-            {
-                KeyId = keyId;
-                Algorithm = algorithm;
-            }
-
             public BsonDocument Build(RenderArgs<TDocument> args)
             {
                 return new BsonDocument
@@ -363,7 +318,7 @@ namespace MongoDB.Driver.Encryption
                         "encryptMetadata", new BsonDocument
                         {
                             { "algorithm", () => MapCsfleEncyptionAlgorithmToString(Algorithm!.Value), Algorithm is not null },
-                            { "keyId", () => new BsonArray( new [] {new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
+                            { "keyId", () => new BsonArray(new[] { new BsonBinaryData(KeyId!.Value, GuidRepresentation.Standard) }), KeyId is not null },
                         }
                     }
                 };
