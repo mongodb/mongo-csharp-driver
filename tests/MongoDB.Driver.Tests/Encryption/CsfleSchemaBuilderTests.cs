@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Encryption;
@@ -28,18 +29,123 @@ namespace MongoDB.Driver.Tests.Encryption
         public void Test1()
         {
             var myKeyId = Guid.Parse("6f4af470-00d1-401f-ac39-f45902a0c0c8");
+            var collectionName = "medicalRecords.patients";
 
             var typedBuilder = CsfleSchemaBuilder.GetTypeBuilder<Patient>()
                 .EncryptMetadata(keyId: myKeyId)
+                .Encrypt(p => p.Insurance, insurance => insurance
+                    .Encrypt(i => i.PolicyNumber, bsonType: BsonType.Int32,
+                        algorithm: CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic))
+                .Encrypt(p => p.MedicalRecords, bsonType: BsonType.Array,
+                    algorithm: CsfleEncyptionAlgorithm
+                        .AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                 .Encrypt("bloodType", bsonType: BsonType.String,
                     algorithm: CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                 .Encrypt(p => p.Ssn, bsonType: BsonType.Int32,
                     algorithm: CsfleEncyptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
 
-            var expected = "{}";
+            var encryptionSchemaBuilder = new CsfleSchemaBuilder()
+                .WithType(CollectionNamespace.FromFullName(collectionName), typedBuilder);
+
+            const string expected = """
+                                    {
+                                      "medicalRecords.patients": {
+                                        "bsonType": "object",
+                                        "encryptMetadata": {
+                                          "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                        },
+                                        "properties": {
+                                          "insurance": {
+                                            "bsonType": "object",
+                                            "properties": {
+                                              "policyNumber": {
+                                                "encrypt": {
+                                                  "bsonType": "int",
+                                                  "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "medicalRecords": {
+                                            "encrypt": {
+                                              "bsonType": "array",
+                                              "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                            }
+                                          },
+                                          "bloodType": {
+                                            "encrypt": {
+                                              "bsonType": "string",
+                                              "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                            }
+                                          },
+                                          "ssn": {
+                                            "encrypt": {
+                                              "bsonType": "int",
+                                              "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                    """;
             var parsedExpected = BsonDocument.Parse(expected);
 
-            Assert.Equal(parsedExpected, typedBuilder.Build());
+            var builtSchema = encryptionSchemaBuilder.Build();
+            Assert.Equal(parsedExpected.Count(), builtSchema.Count);
+            foreach (var name in parsedExpected.Names)
+            {
+                var builtSchemaForName = builtSchema[name];
+                var parseExpectedForName = parsedExpected[name];
+                Assert.Equal(parsedExpected[name].AsBsonDocument, builtSchema[name]);
+            }
+        }
+
+        [Fact]
+        public void TestBson()
+        {
+            const string v1 = """
+                                    {
+                                        "prop1": "test1"
+                                        "prop2": "test2"
+                                    }
+                                    """;
+            const string v2 = """
+                                    {
+                                        "prop2": "test2"
+                                        "prop1": "test1"
+                                    }
+                                    """;
+
+            var parsedV1 = BsonDocument.Parse(v1);
+            var parsedV2 = BsonDocument.Parse(v2);
+
+            Assert.Equal(parsedV1, parsedV2);
+
+            const string v1Nested = """
+                              {
+                                  "prop1": "test1"
+                                  "prop2": "test2"
+                                  "inner": { 
+                                        "propIn1": "testIn1",
+                                        "propIn2": "testIn2",
+                                  }
+                              }
+                              """;
+            const string v2Nested = """
+                                    {
+                                        "prop1": "test1"
+                                        "prop2": "test2"
+                                        "inner": { 
+                                            "propIn2": "testIn2",
+                                            "propIn1": "testIn1",
+                                        }
+                                    }
+                                    """;
+
+            var parsedV1Nested = BsonDocument.Parse(v1Nested);
+            var parsedV2Nested = BsonDocument.Parse(v2Nested);
+
+            Assert.NotEqual(parsedV1Nested, parsedV2Nested);
         }
 
         internal static void Example()
