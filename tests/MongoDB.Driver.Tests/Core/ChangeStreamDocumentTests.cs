@@ -173,7 +173,7 @@ namespace MongoDB.Driver
         public void CollectionUuid_should_return_expected_result()
         {
             var value = Guid.NewGuid();
-            var backingDocument = new BsonDocument { { "other", 1 }, { "ui", new BsonBinaryData(value, GuidRepresentation.Standard) } };
+            var backingDocument = new BsonDocument { { "other", 1 }, { "collectionUUID", new BsonBinaryData(value, GuidRepresentation.Standard) } };
             var subject = CreateSubject(backingDocument: backingDocument);
 
             var result = subject.CollectionUuid;
@@ -242,29 +242,6 @@ namespace MongoDB.Driver
             var subject = CreateSubject(backingDocument: backingDocument);
 
             var result = subject.DatabaseNamespace;
-
-            result.Should().BeNull();
-        }
-
-        [Fact]
-        public void DisambiguatedPaths_should_return_expected_result()
-        {
-            var value = new BsonDocument("a.0", new BsonArray {"a", "0"});
-            var backingDocument = new BsonDocument { { "other", 1 }, { "disambiguatedPaths", value } };
-            var subject = CreateSubject(backingDocument: backingDocument);
-
-            var result = subject.DisambiguatedPaths;
-
-            result.Should().Be(value);
-        }
-
-        [Fact]
-        public void DisambiguatedPaths_should_return_null_if_not_present()
-        {
-            var backingDocument = new BsonDocument { { "other", 1 } };
-            var subject = CreateSubject(backingDocument: backingDocument);
-
-            var result = subject.DisambiguatedPaths;
 
             result.Should().BeNull();
         }

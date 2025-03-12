@@ -121,7 +121,8 @@ namespace MongoDB.Driver
         /// Added in MongoDB version 6.1.0.
         /// </para>
         /// </remarks>
-        public BsonDocument DisambiguatedPaths => GetValue<BsonDocument>(nameof(DisambiguatedPaths), null);
+        [Obsolete("DisambiguatedPaths is obsolete and will be removed in a future version. Use <see cref=\"ChangeStreamDocument{TDocument}.UpdateDescription.DisambiguatedPaths\"/> instead.")]
+        public BsonDocument DisambiguatedPaths => null;
 
         /// <summary>
         /// Gets the document key.
