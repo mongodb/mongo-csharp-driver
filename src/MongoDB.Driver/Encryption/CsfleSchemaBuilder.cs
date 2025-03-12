@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="configure"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public CsfleSchemaBuilder WithType<T>(CollectionNamespace collectionNamespace, Action<CsfleTypeSchemaBuilder<T>> configure)
+        public CsfleSchemaBuilder WithType<T>(CollectionNamespace collectionNamespace, Action<CsfleTypeSchemaBuilder<T>> configure)  //TODO Do we want to keep this?
         {
             var typedBuilder = new CsfleTypeSchemaBuilder<T>();
             configure(typedBuilder);
