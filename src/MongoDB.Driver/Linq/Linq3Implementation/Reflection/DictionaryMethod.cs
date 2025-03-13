@@ -21,16 +21,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     internal static class DictionaryMethod
     {
         // public static methods
-        public static bool IsGetItemWithStringMethod(MethodInfo method)
+        public static bool IsGetItemWithKeyMethod(MethodInfo method)
         {
             return
                 !method.IsStatic &&
                 method.Name == "get_Item" &&
+                method.DeclaringType.ImplementsDictionaryInterface(out var keyType, out var valueType) &&
                 method.GetParameters() is var parameters &&
                 parameters.Length == 1 &&
-                parameters[0].ParameterType == typeof(string) &&
-                method.DeclaringType.ImplementsDictionaryInterface(out var keyType, out var valueType) &&
-                keyType == typeof(string) &&
+                parameters[0].ParameterType == keyType &&
                 method.ReturnType == valueType;
         }
     }
