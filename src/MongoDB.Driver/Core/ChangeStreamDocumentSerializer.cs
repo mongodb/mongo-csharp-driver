@@ -16,11 +16,11 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-
     /// <summary>
     /// A serializer for ChangeStreamDocument instances.
     /// </summary>
@@ -47,6 +47,7 @@ namespace MongoDB.Driver
             RegisterMember("DocumentKey", "documentKey", BsonDocumentSerializer.Instance);
             RegisterMember("FullDocument", "fullDocument", _documentSerializer);
             RegisterMember("FullDocumentBeforeChange", "fullDocumentBeforeChange", _documentSerializer);
+            RegisterMember("NamespaceType", "nsType", ChangeStreamNamespaceTypeSerializer.Instance);
             RegisterMember("OperationDescription", "operationDescription", BsonDocumentSerializer.Instance);
             RegisterMember("OperationType", "operationType", ChangeStreamOperationTypeSerializer.Instance);
             RegisterMember("RenameTo", "to", ChangeStreamDocumentCollectionNamespaceSerializer.Instance);
