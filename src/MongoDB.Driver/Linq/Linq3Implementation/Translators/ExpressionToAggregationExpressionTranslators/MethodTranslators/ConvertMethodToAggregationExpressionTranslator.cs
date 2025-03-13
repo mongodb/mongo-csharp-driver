@@ -64,16 +64,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var formatTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, formatExpression);
             var formatAst = formatTranslation.Ast;
 
+            AstExpression ast;
             if (method.IsOneOf(__withOnErrorAndOnNullMethods))
             {
                 var onErrorExpression = arguments[3];
                 var onErrorTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, onErrorExpression);
                 var onErrorAst = onErrorTranslation.Ast;
 
-                //TODO Continue
+                var onNullExpression = arguments[4];
+                var onNullTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, onNullExpression);
+                var onNullAst = onNullTranslation.Ast;
+
+                ast = AstExpression.Convert(fieldAst, AstExpression.Constant(BsonType.Binary), onErrorAst, onNullAst,
+                    subType: subTypeAst, format: formatAst);
+            }
+            else
+            {
+                ast = AstExpression.Convert(fieldAst, AstExpression.Constant(BsonType.Binary), subType: subTypeAst, format: formatAst);
             }
 
-            var ast = AstExpression.Convert(fieldAst, AstExpression.Constant(BsonType.Binary), subType: subTypeAst, format: formatAst);
             return new TranslatedExpression(expression, ast, resultSerializer);
         }
     }
