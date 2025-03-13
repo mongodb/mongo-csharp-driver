@@ -53,25 +53,44 @@ public class CSharp5506Tests : LinqIntegrationTest<CSharp5506Tests.ClassFixture>
     public void Filter_Dictionary_item_equals_work()
     {
         var collection = Fixture.Collection;
+        var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
 
-        var queryable = collection.AsQueryable()
-            .Where(x => x.Dictionary[Guid.Empty] == 1);
+        var queryable = Queryable.Where(IMongoCollectionExtensions.AsQueryable(collection), x => x.Dictionary[guid] == 2);
 
         var stages = Translate(collection, queryable);
-        AssertStages(stages, "{ $match : { } }");
+        AssertStages(stages, "{ $match : { 'Dictionary.01020304-0506-0708-090a-0b0c0d0e0f10' : 2 } }");
 
-        // var result = queryable.ToList();
-        // result[0].Should().Be(36000000000L);
+        var result = Queryable.Single(queryable);
+        result.Id.Should().Be(1);
+    }
+
+    [Fact]
+    public void Select_Dictionary_item_equals_work()
+    {
+        var collection = Fixture.Collection;
+        var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.Dictionary[guid]);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : '$Dictionary.01020304-0506-0708-090a-0b0c0d0e0f10', _id : 0 } }");
+
+        var result = Queryable.Single(queryable);
+        result.Should().Be(2);
     }
 
     public class C
     {
-        public int Int { get; set; }
+        public int Id { get; set; }
         public Dictionary<Guid, int> Dictionary { get; set; }
     }
 
     public sealed class ClassFixture : MongoCollectionFixture<C>
     {
-        protected override IEnumerable<C> InitialData => null;
+        protected override IEnumerable<C> InitialData =>
+        [
+            new C { Id = 1, Dictionary = new Dictionary<Guid, int> { [Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10")] = 2 } },
+        ];
     }
 }

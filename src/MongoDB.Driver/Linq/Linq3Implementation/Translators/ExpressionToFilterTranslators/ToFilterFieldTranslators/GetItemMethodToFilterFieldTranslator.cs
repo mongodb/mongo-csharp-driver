@@ -16,11 +16,12 @@
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
@@ -53,9 +54,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return TranslateIListGetItemWithInt(context, expression, fieldExpression, arguments[0]);
             }
 
-            if (DictionaryMethod.IsGetItemWithStringMethod(method))
+            if (DictionaryMethod.IsGetItemWithKeyMethod(method))
             {
-                return TranslateDictionaryGetItemWithString(context, expression, fieldExpression, arguments[0]);
+                return TranslateDictionaryGetItemWithKey(context, expression, fieldExpression, arguments[0]);
             }
 
             throw new ExpressionNotSupportedException(expression);
@@ -79,16 +80,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return ArrayIndexExpressionToFilterFieldTranslator.Translate(context, expression, fieldExpression, indexExpression);
         }
 
-        private static TranslatedFilterField TranslateDictionaryGetItemWithString(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
+        private static TranslatedFilterField TranslateDictionaryGetItemWithKey(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
         {
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
-            var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
+            var key = keyExpression.GetConstantValue<object>(containingExpression: expression);
 
             if (fieldTranslation.Serializer is IBsonDictionarySerializer dictionarySerializer &&
                 dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.Document)
             {
+                var keySerializer = dictionarySerializer.KeySerializer;
                 var valueSerializer = dictionarySerializer.ValueSerializer;
-                return fieldTranslation.SubField(key, valueSerializer);
+
+                var serializedKey = SerializationHelper.SerializeValue(keySerializer, key) as BsonString;
+                if (serializedKey == null)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "key is not serialized as a string");
+                }
+
+                return fieldTranslation.SubField(serializedKey.Value, valueSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
