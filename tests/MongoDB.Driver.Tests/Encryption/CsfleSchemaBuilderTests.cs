@@ -33,15 +33,15 @@ namespace MongoDB.Driver.Tests.Encryption
 
             var typedBuilder = CsfleSchemaBuilder.GetTypeBuilder<Patient>()
                 .EncryptMetadata(keyId: myKeyId)
-                .Encrypt(p => p.Insurance, insurance => insurance
-                    .Encrypt(i => i.PolicyNumber, bsonType: BsonType.Int32,
+                .Property(p => p.Insurance, insurance => insurance
+                    .Property(i => i.PolicyNumber, bsonType: BsonType.Int32,
                         algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic))
-                .Encrypt(p => p.MedicalRecords, bsonType: BsonType.Array,
+                .Property(p => p.MedicalRecords, bsonType: BsonType.Array,
                     algorithm: CsfleEncryptionAlgorithm
                         .AEAD_AES_256_CBC_HMAC_SHA_512_Random)
-                .Encrypt("bloodType", bsonType: BsonType.String,
+                .Property("bloodType", bsonType: BsonType.String,
                     algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
-                .Encrypt(p => p.Ssn, bsonType: BsonType.Int32,
+                .Property(p => p.Ssn, bsonType: BsonType.Int32,
                     algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
 
             var encryptionSchemaBuilder = new CsfleSchemaBuilder()
@@ -104,13 +104,13 @@ namespace MongoDB.Driver.Tests.Encryption
             var collectionName = "medicalRecords.patients";
 
             var typedBuilder = CsfleSchemaBuilder.GetTypeBuilder<Patient>()
-                .PatternProperties("_PIIString$", bsonType: BsonType.String,
+                .PatternProperty("_PIIString$", bsonType: BsonType.String,
                     algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
-                .PatternProperties("_PIIArray$", bsonType: BsonType.Array,
+                .PatternProperty("_PIIArray$", bsonType: BsonType.Array,
                     algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
-                .PatternProperties(p => p.Insurance, builder => builder
-                    .PatternProperties("_PIINumber$", bsonType: BsonType.Int32, algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
-                    .PatternProperties("_PIIString$", bsonType: BsonType.String, algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                .PatternProperty(p => p.Insurance, builder => builder
+                    .PatternProperty("_PIINumber$", bsonType: BsonType.Int32, algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                    .PatternProperty("_PIIString$", bsonType: BsonType.String, algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
                 );
 
             var encryptionSchemaBuilder = new CsfleSchemaBuilder()

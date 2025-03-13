@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm"></param>
         /// <param name="bsonType"></param>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Encrypt(FieldDefinition<TDocument> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public CsfleTypeSchemaBuilder<TDocument> Property(FieldDefinition<TDocument> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
             _fields.Add(new SchemaSimpleField(path, keyId, algorithm, bsonType));
             return this;
@@ -118,9 +118,9 @@ namespace MongoDB.Driver.Encryption
         /// <param name="bsonType"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Encrypt<TField>(Expression<Func<TDocument, TField>> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public CsfleTypeSchemaBuilder<TDocument> Property<TField>(Expression<Func<TDocument, TField>> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
-            return Encrypt(new ExpressionFieldDefinition<TDocument, TField>(path), keyId, algorithm, bsonType);
+            return Property(new ExpressionFieldDefinition<TDocument, TField>(path), keyId, algorithm, bsonType);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="configure"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Encrypt<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
+        public CsfleTypeSchemaBuilder<TDocument> Property<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
         {
             _fields.Add(new SchemaNestedField<TField>(path, configure));
             return this;
@@ -143,9 +143,9 @@ namespace MongoDB.Driver.Encryption
         /// <param name="configure"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Encrypt<TField>(Expression<Func<TDocument, TField>> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
+        public CsfleTypeSchemaBuilder<TDocument> Property<TField>(Expression<Func<TDocument, TField>> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
         {
-            return Encrypt(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
+            return Property(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm"></param>
         /// <param name="bsonType"></param>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> PatternProperties(string pattern, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)  //TODO This is not correct,
+        public CsfleTypeSchemaBuilder<TDocument> PatternProperty(string pattern, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)  //TODO This is not correct,
         {
             _patterns.Add(new SchemaSimplePattern(pattern, keyId, algorithm, bsonType));
             return this;
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="configure"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> PatternProperties<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
+        public CsfleTypeSchemaBuilder<TDocument> PatternProperty<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
         {
             _patterns.Add(new SchemaNestedPattern<TField>(path, configure));
             return this;
@@ -182,9 +182,9 @@ namespace MongoDB.Driver.Encryption
         /// <param name="configure"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> PatternProperties<TField>(Expression<Func<TDocument, TField>> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
+        public CsfleTypeSchemaBuilder<TDocument> PatternProperty<TField>(Expression<Func<TDocument, TField>> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
         {
-            return PatternProperties(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
+            return PatternProperty(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
         }
 
         /// <summary>
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        private abstract record SchemaPattern()
+        private abstract record SchemaPattern
         {
             public abstract BsonDocument Build(RenderArgs<TDocument> args);
         }
