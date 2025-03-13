@@ -34,6 +34,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __isMissing;
         private static readonly MethodInfo __isNullOrMissing;
         private static readonly MethodInfo __toBinDataFromString;
+        private static readonly MethodInfo __toBinDataFromInt;
+        private static readonly MethodInfo __toBinDataFromLong;
+        private static readonly MethodInfo __toBinDataFromDouble;
+        private static readonly MethodInfo __toBinDataFromStringWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromIntWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromLongWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromDoubleWithOnErrorAndOnNull;
 
         // static constructor
         static MqlMethod()
@@ -48,7 +55,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __field = ReflectionInfo.Method((object container, string fieldName, IBsonSerializer<object> serializer) => Mql.Field<object, object>(container, fieldName, serializer));
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
-            __
+            __toBinDataFromString = ReflectionInfo.Method((string field, BsonBinarySubType subType, Mql.ConvertBinDataFormat format) => Mql.ToBinData(field, subType, format));
+            __toBinDataFromInt = ReflectionInfo.Method((int field, BsonBinarySubType subType, Mql.ConvertBinDataFormat format) => Mql.ToBinData(field, subType, format));
+            __toBinDataFromLong = ReflectionInfo.Method((long field, BsonBinarySubType subType, Mql.ConvertBinDataFormat format) => Mql.ToBinData(field, subType, format));
+            __toBinDataFromDouble = ReflectionInfo.Method((double field, BsonBinarySubType subType, Mql.ConvertBinDataFormat format) => Mql.ToBinData(field, subType, format));
+            __toBinDataFromStringWithOnErrorAndOnNull = ReflectionInfo.Method((string field, BsonBinarySubType subType, Mql.ConvertBinDataFormat format, string onError, string onNull)
+                => Mql.ToBinData(field, subType, format, onError, onNull));
+            __toBinDataFromIntWithOnErrorAndOnNull = ReflectionInfo.Method((int field, BsonBinarySubType subType, Mql.ConvertBinDataFormat format, int onError, int onNull)
+                => Mql.ToBinData(field, subType, format, onError, onNull));
+            __toBinDataFromLongWithOnErrorAndOnNull = ReflectionInfo.Method((long field, BsonBinarySubType subType, Mql.ConvertBinDataFormat format, long onError, long onNull)
+                => Mql.ToBinData(field, subType, format, onError, onNull));
+            __toBinDataFromDoubleWithOnErrorAndOnNull = ReflectionInfo.Method((double field, BsonBinarySubType subType, Mql.ConvertBinDataFormat format, double onError, double onNull)
+                => Mql.ToBinData(field, subType, format, onError, onNull));
         }
 
         // public properties
@@ -62,5 +80,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Field => __field;
         public static MethodInfo IsMissing => __isMissing;
         public static MethodInfo IsNullOrMissing => __isNullOrMissing;
+        public static MethodInfo ToBinDataFromString => __toBinDataFromString;
+        public static MethodInfo ToBinDataFromInt => __toBinDataFromInt;
+        public static MethodInfo ToBinDataFromLong => __toBinDataFromLong;
+        public static MethodInfo ToBinDataFromDouble => __toBinDataFromDouble;
+        public static MethodInfo ToBinDataFromStringWithOnErrorAndOnNull => __toBinDataFromStringWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromIntWithOnErrorAndOnNull => __toBinDataFromIntWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromLongWithOnErrorAndOnNull => __toBinDataFromLongWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromDoubleWithOnErrorAndOnNull => __toBinDataFromDoubleWithOnErrorAndOnNull;
     }
 }

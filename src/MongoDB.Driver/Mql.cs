@@ -165,12 +165,130 @@ namespace MongoDB.Driver
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="subtype"></param>
+        /// <param name="format"></param>
+        /// <param name="onNull"></param>
+        /// <param name="onError"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static BsonBinaryData ToBinData(string field, BsonBinarySubType subtype, ConvertBinDataFormat format,
+            string onError, string onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="subtype"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static BsonBinaryData ToBinData(int field, BsonBinarySubType subtype, ConvertBinDataFormat format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="subtype"></param>
+        /// <param name="format"></param>
+        /// <param name="onNull"></param>
+        /// <param name="onError"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static BsonBinaryData ToBinData(int field, BsonBinarySubType subtype, ConvertBinDataFormat format,
+            int onError, int onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="subtype"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static BsonBinaryData ToBinData(long field, BsonBinarySubType subtype, ConvertBinDataFormat format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="subtype"></param>
+        /// <param name="format"></param>
+        /// <param name="onNull"></param>
+        /// <param name="onError"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static BsonBinaryData ToBinData(long field, BsonBinarySubType subtype, ConvertBinDataFormat format,
+            long onError, long onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="subtype"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static BsonBinaryData ToBinData(double field, BsonBinarySubType subtype, ConvertBinDataFormat format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="subtype"></param>
+        /// <param name="format"></param>
+        /// <param name="onNull"></param>
+        /// <param name="onError"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static BsonBinaryData ToBinData(double field, BsonBinarySubType subtype, ConvertBinDataFormat format,
+            double onError, double onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
         public enum ConvertBinDataFormat
         {
+            /// <summary>
+            ///
+            /// </summary>
             base64,
+            /// <summary>
+            ///
+            /// </summary>
             base64url,
+            /// <summary>
+            ///
+            /// </summary>
             utf8,
+            /// <summary>
+            ///
+            /// </summary>
             hex,
+            /// <summary>
+            ///
+            /// </summary>
             uuid,
         }
     }

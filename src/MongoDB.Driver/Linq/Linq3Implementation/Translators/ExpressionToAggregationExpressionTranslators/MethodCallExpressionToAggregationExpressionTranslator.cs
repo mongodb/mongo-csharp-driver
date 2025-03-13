@@ -203,6 +203,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "TrimEnd":
                 case "TrimStart":
                     return TrimMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case "ToBinData":
+                    return ConvertMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

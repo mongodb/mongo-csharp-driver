@@ -255,14 +255,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstConstantExpression(value);
         }
 
-        public static AstExpression Convert(AstExpression input, AstExpression to, AstExpression onError = null, AstExpression onNull = null)
+        public static AstExpression Convert(AstExpression input, AstExpression to, AstExpression onError = null, AstExpression onNull = null,
+            AstExpression subType = null, AstExpression format = null)
         {
             Ensure.IsNotNull(input, nameof(input));
             Ensure.IsNotNull(to, nameof(to));
 
             if (to is AstConstantExpression toConstantExpression &&
-                (toConstantExpression.Value as BsonString)?.Value is string toValue &&
-                toValue != null &&
+                (toConstantExpression.Value as BsonString)?.Value is { } toValue &&
                 onError == null &&
                 onNull == null)
             {
