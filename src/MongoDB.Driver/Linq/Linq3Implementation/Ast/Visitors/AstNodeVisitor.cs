@@ -226,7 +226,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitConvertExpression(AstConvertExpression node)
         {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.To), VisitAndConvert(node.OnError), VisitAndConvert(node.OnNull));
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.To), VisitAndConvert(node.OnError), VisitAndConvert(node.OnNull),
+                VisitAndConvert(node.SubType), VisitAndConvert(node.Format));
         }
 
         public virtual AstNode VisitCountStage(AstCountStage node)
