@@ -152,5 +152,26 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="subtype"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static BsonBinaryData ToBinData(string field, BsonBinarySubType subtype, ConvertBinDataFormat format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        public enum ConvertBinDataFormat
+        {
+            base64,
+            base64url,
+            utf8,
+            hex,
+            uuid,
+        }
     }
 }

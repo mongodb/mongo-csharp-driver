@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __field;
         private static readonly MethodInfo __isMissing;
         private static readonly MethodInfo __isNullOrMissing;
+        private static readonly MethodInfo __toBinDataFromString;
 
         // static constructor
         static MqlMethod()
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __field = ReflectionInfo.Method((object container, string fieldName, IBsonSerializer<object> serializer) => Mql.Field<object, object>(container, fieldName, serializer));
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
+            __
         }
 
         // public properties
