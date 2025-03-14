@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             var queryable = collection.AsQueryable()
                 .Select(x =>
-                    Mql.ToBinData(x.StringProperty, BsonBinarySubType.Binary, Mql.ConvertBinDataFormat.base64));
+                    Mql.ConvertToBinData(x.StringProperty, BsonBinarySubType.Binary, Mql.ConvertBinDataFormat.base64));
 
             var expectedStages =
                 new[]
