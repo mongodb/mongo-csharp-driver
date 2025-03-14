@@ -25,64 +25,133 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal class ConvertMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __toBinDataMethods =
-        {
-            MqlMethod.ToBinDataFromString,
-            MqlMethod.ToBinDataFromInt,
-            MqlMethod.ToBinDataFromLong,
-            MqlMethod.ToBinDataFromDouble
-        };
+        private static readonly MethodInfo[] __convertToBinDataMethods =
+        [
+            MqlMethod.ConvertToBinDataFromString,
+            MqlMethod.ConvertToBinDataFromInt,
+            MqlMethod.ConvertToBinDataFromLong,
+            MqlMethod.ConvertToBinDataFromDouble
+        ];
 
-        private static readonly MethodInfo[] __withOnErrorAndOnNullMethods =
-        {
-            MqlMethod.ToBinDataFromStringWithOnErrorAndOnNull,
-            MqlMethod.ToBinDataFromIntWithOnErrorAndOnNull,
-            MqlMethod.ToBinDataFromLongWithOnErrorAndOnNull,
-            MqlMethod.ToBinDataFromDoubleWithOnErrorAndOnNull
-        };
+        private static readonly MethodInfo[] __convertToBinDataWithOnErrorAndOnNullMethods =
+        [
+            MqlMethod.ConvertToBinDataFromStringWithOnErrorAndOnNull,
+            MqlMethod.ConvertToBinDataFromIntWithOnErrorAndOnNull,
+            MqlMethod.ConvertToBinDataFromLongWithOnErrorAndOnNull,
+            MqlMethod.ConvertToBinDataFromDoubleWithOnErrorAndOnNull
+        ];
+
+        private static readonly MethodInfo[] __convertToStringMethods =
+        [
+            MqlMethod.ConvertToStringFromBinData
+        ];
+
+        private static readonly MethodInfo[] __convertToStringWithOnErrorAndOnNullMethods =
+        [
+            MqlMethod.ConvertToStringFromBinDataWithOnErrorAndOnNull
+        ];
+
+        private static readonly MethodInfo[] __convertToIntMethods =
+        [
+            MqlMethod.ConvertToIntFromBinData
+        ];
+
+        private static readonly MethodInfo[] __convertToIntWithOnErrorAndOnNullMethods =
+        [
+            MqlMethod.ConvertToIntFromBinDataWithOnErrorAndOnNull
+        ];
+
+        private static readonly MethodInfo[] __convertToLongMethods =
+        [
+            MqlMethod.ConvertToLongFromBinData
+        ];
+
+        private static readonly MethodInfo[] __convertToLongWithOnErrorAndOnNullMethods =
+        [
+            MqlMethod.ConvertToLongFromBinDataWithOnErrorAndOnNull
+        ];
+
+        private static readonly MethodInfo[] __convertToDoubleMethods =
+        [
+            MqlMethod.ConvertToDoubleFromBinData
+        ];
+
+        private static readonly MethodInfo[] __convertToDoubleWithOnErrorAndOnNullMethods =
+        [
+            MqlMethod.ConvertToDoubleFromBinDataWithOnErrorAndOnNull
+        ];
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (!method.IsOneOf(__toBinDataMethods, __withOnErrorAndOnNullMethods))
+            if (!method.IsOneOf(__convertToBinDataMethods, __convertToBinDataWithOnErrorAndOnNullMethods,
+                    __convertToStringMethods, __convertToStringWithOnErrorAndOnNullMethods,
+                    __convertToIntMethods, __convertToIntWithOnErrorAndOnNullMethods,
+                    __convertToLongMethods, __convertToLongWithOnErrorAndOnNullMethods,
+                    __convertToDoubleMethods, __convertToDoubleWithOnErrorAndOnNullMethods))
             {
                 throw new ExpressionNotSupportedException(expression);
             }
 
+            AstExpression fieldAst = null;
+            AstExpression subTypeAst = null;
+            AstExpression formatAst = null;
+            AstExpression onErrorAst = null;
+            AstExpression onNullAst = null;
+
+            var subTypeIndex = -1;
+            var formatIndex = -1;
+            var onErrorIndex = -1;
+            var onNullIndex = -1;
+
             var fieldExpression = arguments[0];
             var fieldTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, fieldExpression);
-            var fieldAst = fieldTranslation.Ast;
+            fieldAst = fieldTranslation.Ast;
 
-            var subTypeExpression = arguments[1];
-            var subTypeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, subTypeExpression);
-            var subTypeAst = subTypeTranslation.Ast;
-
-            var formatExpression = arguments[2];
-            var formatTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, formatExpression);
-            var formatAst = formatTranslation.Ast;
-
-            AstExpression ast;
-            if (method.IsOneOf(__withOnErrorAndOnNullMethods))
+            if (method.IsOneOf(__convertToBinDataMethods, __convertToBinDataWithOnErrorAndOnNullMethods))
             {
-                var onErrorExpression = arguments[3];
+                subTypeIndex = 1;
+                formatIndex = 2;
+
+                if (method.IsOneOf(__convertToBinDataWithOnErrorAndOnNullMethods))
+                {
+                    onErrorIndex = 3;
+                    onNullIndex = 4;
+                }
+            }
+
+            if (subTypeIndex > 0)
+            {
+                var subTypeExpression = arguments[subTypeIndex];
+                var subTypeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, subTypeExpression);
+                subTypeAst = subTypeTranslation.Ast;
+            }
+            if (formatIndex > 0)
+            {
+                var formatExpression = arguments[formatIndex];
+                var formatTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, formatExpression);
+                formatAst = formatTranslation.Ast;
+            }
+            if (onErrorIndex > 0)
+            {
+                var onErrorExpression = arguments[onErrorIndex];
                 var onErrorTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, onErrorExpression);
-                var onErrorAst = onErrorTranslation.Ast;
-
-                var onNullExpression = arguments[4];
-                var onNullTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, onNullExpression);
-                var onNullAst = onNullTranslation.Ast;
-
-                ast = AstExpression.Convert(fieldAst, AstExpression.Constant(BsonType.Binary), onErrorAst, onNullAst,
-                    subType: subTypeAst, format: formatAst);
+                onErrorAst = onErrorTranslation.Ast;
             }
-            else
+            if (onNullIndex > 0)
             {
-                ast = AstExpression.Convert(fieldAst, AstExpression.Constant(BsonType.Binary), subType: subTypeAst, format: formatAst);
+                var onNullExpression = arguments[onNullIndex];
+                var onNullTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, onNullExpression);
+                onNullAst = onNullTranslation.Ast;
             }
 
+
+            var ast = AstExpression.Convert(fieldAst, AstExpression.Constant(BsonType.Binary), subType: subTypeAst, format: formatAst, onError: onErrorAst, onNull: onNullAst);
             return new TranslatedExpression(expression, ast, BsonBinaryDataSerializer.Instance);
+
+
         }
     }
 }
