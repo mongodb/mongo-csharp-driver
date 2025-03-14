@@ -372,7 +372,8 @@ namespace MongoDB.Driver
         /// <summary>
         ///
         /// </summary>
-        public enum ConvertBinDataFormat  //TODO Fix naming
+        public enum ConvertBinDataFormat
+        //TODO Decide: if to use, location, naming
         {
             /// <summary>
             ///
