@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -95,11 +96,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression);
             }
 
+            BsonType toType = BsonType.Null;
             AstExpression fieldAst = null;
             AstExpression subTypeAst = null;
             AstExpression formatAst = null;
             AstExpression onErrorAst = null;
             AstExpression onNullAst = null;
+            IBsonSerializer serializer = null;
 
             var subTypeIndex = -1;
             var formatIndex = -1;
@@ -112,6 +115,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.IsOneOf(__convertToBinDataMethods, __convertToBinDataWithOnErrorAndOnNullMethods))
             {
+                serializer = BsonBinaryDataSerializer.Instance;
+                toType = BsonType.Binary;
+
                 subTypeIndex = 1;
                 formatIndex = 2;
 
@@ -119,6 +125,62 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     onErrorIndex = 3;
                     onNullIndex = 4;
+                }
+            }
+
+            if (method.IsOneOf(__convertToStringMethods, __convertToStringWithOnErrorAndOnNullMethods))
+            {
+                serializer = StringSerializer.Instance;
+                toType = BsonType.String;
+
+                formatIndex = 1;
+
+                if (method.IsOneOf(__convertToStringWithOnErrorAndOnNullMethods))
+                {
+                    onErrorIndex = 2;
+                    onNullIndex = 3;
+                }
+            }
+
+            if (method.IsOneOf(__convertToIntMethods, __convertToIntWithOnErrorAndOnNullMethods))
+            {
+                serializer = new NullableSerializer<int>(Int32Serializer.Instance);
+                toType = BsonType.Int32;
+
+                formatIndex = 1;
+
+                if (method.IsOneOf(__convertToIntWithOnErrorAndOnNullMethods))
+                {
+                    onErrorIndex = 2;
+                    onNullIndex = 3;
+                }
+            }
+
+            if (method.IsOneOf(__convertToLongMethods, __convertToLongWithOnErrorAndOnNullMethods))
+            {
+                serializer = new NullableSerializer<long>(Int64Serializer.Instance);
+                toType = BsonType.Int64;
+
+                formatIndex = 1;
+
+                if (method.IsOneOf(__convertToLongWithOnErrorAndOnNullMethods))
+                {
+                    onErrorIndex = 2;
+                    onNullIndex = 3;
+                }
+            }
+
+            if (method.IsOneOf(__convertToDoubleMethods, __convertToDoubleWithOnErrorAndOnNullMethods))
+            {
+                serializer = StringSerializer.Instance;
+                toType = BsonType.Double;
+
+                formatIndex = 1;
+
+                if (method.IsOneOf(__convertToDoubleWithOnErrorAndOnNullMethods))
+                {
+                    onErrorIndex = 2;
+                    onNullIndex = 3;
                 }
             }
 
@@ -147,11 +209,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 onNullAst = onNullTranslation.Ast;
             }
 
+            var toAst = AstExpression.Constant(toType);
 
-            var ast = AstExpression.Convert(fieldAst, AstExpression.Constant(BsonType.Binary), subType: subTypeAst, format: formatAst, onError: onErrorAst, onNull: onNullAst);
-            return new TranslatedExpression(expression, ast, BsonBinaryDataSerializer.Instance);
-
-
+            var ast = AstExpression.Convert(fieldAst, toAst, subType: subTypeAst, format: formatAst, onError: onErrorAst, onNull: onNullAst);
+            return new TranslatedExpression(expression, ast, serializer);
         }
     }
 }
