@@ -1,18 +1,5 @@
-/* Copyright 2010-present MongoDB Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
@@ -26,193 +13,37 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal class ConvertMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __convertToBinDataMethods =
-        [
-            MqlMethod.ConvertToBinDataFromString,
-            MqlMethod.ConvertToBinDataFromInt,
-            MqlMethod.ConvertToBinDataFromLong,
-            MqlMethod.ConvertToBinDataFromDouble
-        ];
-
-        private static readonly MethodInfo[] __convertToBinDataWithOnErrorAndOnNullMethods =
-        [
-            MqlMethod.ConvertToBinDataFromStringWithOnErrorAndOnNull,
-            MqlMethod.ConvertToBinDataFromIntWithOnErrorAndOnNull,
-            MqlMethod.ConvertToBinDataFromLongWithOnErrorAndOnNull,
-            MqlMethod.ConvertToBinDataFromDoubleWithOnErrorAndOnNull
-        ];
-
-        private static readonly MethodInfo[] __convertToStringMethods =
-        [
-            MqlMethod.ConvertToStringFromBinData
-        ];
-
-        private static readonly MethodInfo[] __convertToStringWithOnErrorAndOnNullMethods =
-        [
-            MqlMethod.ConvertToStringFromBinDataWithOnErrorAndOnNull
-        ];
-
-        private static readonly MethodInfo[] __convertToIntMethods =
-        [
-            MqlMethod.ConvertToIntFromBinData
-        ];
-
-        private static readonly MethodInfo[] __convertToIntWithOnErrorAndOnNullMethods =
-        [
-            MqlMethod.ConvertToIntFromBinDataWithOnErrorAndOnNull
-        ];
-
-        private static readonly MethodInfo[] __convertToLongMethods =
-        [
-            MqlMethod.ConvertToLongFromBinData
-        ];
-
-        private static readonly MethodInfo[] __convertToLongWithOnErrorAndOnNullMethods =
-        [
-            MqlMethod.ConvertToLongFromBinDataWithOnErrorAndOnNull
-        ];
-
-        private static readonly MethodInfo[] __convertToDoubleMethods =
-        [
-            MqlMethod.ConvertToDoubleFromBinData
-        ];
-
-        private static readonly MethodInfo[] __convertToDoubleWithOnErrorAndOnNullMethods =
-        [
-            MqlMethod.ConvertToDoubleFromBinDataWithOnErrorAndOnNull
-        ];
+        private static readonly Dictionary<MethodInfo[], (IBsonSerializer Serializer, BsonType Type, int FormatIndex, int? SubTypeIndex, int? OnErrorIndex, int? OnNullIndex)> _methodMappings = new()
+        {
+            { [MqlMethod.ConvertToBinDataFromString, MqlMethod.ConvertToBinDataFromInt, MqlMethod.ConvertToBinDataFromLong, MqlMethod.ConvertToBinDataFromDouble], (BsonBinaryDataSerializer.Instance, BsonType.Binary, 2, 1, null, null) },
+            { [MqlMethod.ConvertToBinDataFromStringWithOnErrorAndOnNull, MqlMethod.ConvertToBinDataFromIntWithOnErrorAndOnNull, MqlMethod.ConvertToBinDataFromLongWithOnErrorAndOnNull, MqlMethod.ConvertToBinDataFromDoubleWithOnErrorAndOnNull], (BsonBinaryDataSerializer.Instance, BsonType.Binary, 2, 1, 3, 4) },
+            { [MqlMethod.ConvertToStringFromBinData], (StringSerializer.Instance, BsonType.String, 1, null, null, null) },
+            { [MqlMethod.ConvertToStringFromBinDataWithOnErrorAndOnNull], (StringSerializer.Instance, BsonType.String, 1, null, 2, 3) },
+            { [MqlMethod.ConvertToIntFromBinData], (new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, 1, null, null, null) },
+            { [MqlMethod.ConvertToIntFromBinDataWithOnErrorAndOnNull], (new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, 1, null, 2, 3) },
+            { [MqlMethod.ConvertToLongFromBinData], (new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, 1, null, null, null) },
+            { [MqlMethod.ConvertToLongFromBinDataWithOnErrorAndOnNull], (new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, 1, null, 2, 3) },
+            { [MqlMethod.ConvertToDoubleFromBinData], (StringSerializer.Instance, BsonType.String, 1, null, null, null) },
+            { [MqlMethod.ConvertToDoubleFromBinDataWithOnErrorAndOnNull], (StringSerializer.Instance, BsonType.String, 1, null, 2, 3) }
+        };
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
-
-            if (!method.IsOneOf(__convertToBinDataMethods, __convertToBinDataWithOnErrorAndOnNullMethods,
-                    __convertToStringMethods, __convertToStringWithOnErrorAndOnNullMethods,
-                    __convertToIntMethods, __convertToIntWithOnErrorAndOnNullMethods,
-                    __convertToLongMethods, __convertToLongWithOnErrorAndOnNullMethods,
-                    __convertToDoubleMethods, __convertToDoubleWithOnErrorAndOnNullMethods))
-            {
+            
+            var mapping = _methodMappings.FirstOrDefault(m => m.Key.Contains(method)).Value;
+            if (mapping.Serializer == null)
                 throw new ExpressionNotSupportedException(expression);
-            }
 
-            BsonType toType = BsonType.Null;
-            AstExpression fieldAst = null;
-            AstExpression subTypeAst = null;
-            AstExpression formatAst = null;
-            AstExpression onErrorAst = null;
-            AstExpression onNullAst = null;
-            IBsonSerializer serializer = null;
+            var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
+            var subTypeAst = mapping.SubTypeIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.SubTypeIndex.Value]).Ast : null;
+            var formatAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.FormatIndex]).Ast;
+            var onErrorAst = mapping.OnErrorIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.OnErrorIndex.Value]).Ast : null;
+            var onNullAst = mapping.OnNullIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.OnNullIndex.Value]).Ast : null;
 
-            var subTypeIndex = -1;
-            var formatIndex = -1;
-            var onErrorIndex = -1;
-            var onNullIndex = -1;
-
-            var fieldExpression = arguments[0];
-            var fieldTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, fieldExpression);
-            fieldAst = fieldTranslation.Ast;
-
-            if (method.IsOneOf(__convertToBinDataMethods, __convertToBinDataWithOnErrorAndOnNullMethods))
-            {
-                serializer = BsonBinaryDataSerializer.Instance;
-                toType = BsonType.Binary;
-
-                subTypeIndex = 1;
-                formatIndex = 2;
-
-                if (method.IsOneOf(__convertToBinDataWithOnErrorAndOnNullMethods))
-                {
-                    onErrorIndex = 3;
-                    onNullIndex = 4;
-                }
-            }
-
-            if (method.IsOneOf(__convertToStringMethods, __convertToStringWithOnErrorAndOnNullMethods))
-            {
-                serializer = StringSerializer.Instance;
-                toType = BsonType.String;
-
-                formatIndex = 1;
-
-                if (method.IsOneOf(__convertToStringWithOnErrorAndOnNullMethods))
-                {
-                    onErrorIndex = 2;
-                    onNullIndex = 3;
-                }
-            }
-
-            if (method.IsOneOf(__convertToIntMethods, __convertToIntWithOnErrorAndOnNullMethods))
-            {
-                serializer = new NullableSerializer<int>(Int32Serializer.Instance);
-                toType = BsonType.Int32;
-
-                formatIndex = 1;
-
-                if (method.IsOneOf(__convertToIntWithOnErrorAndOnNullMethods))
-                {
-                    onErrorIndex = 2;
-                    onNullIndex = 3;
-                }
-            }
-
-            if (method.IsOneOf(__convertToLongMethods, __convertToLongWithOnErrorAndOnNullMethods))
-            {
-                serializer = new NullableSerializer<long>(Int64Serializer.Instance);
-                toType = BsonType.Int64;
-
-                formatIndex = 1;
-
-                if (method.IsOneOf(__convertToLongWithOnErrorAndOnNullMethods))
-                {
-                    onErrorIndex = 2;
-                    onNullIndex = 3;
-                }
-            }
-
-            if (method.IsOneOf(__convertToDoubleMethods, __convertToDoubleWithOnErrorAndOnNullMethods))
-            {
-                serializer = StringSerializer.Instance;
-                toType = BsonType.Double;
-
-                formatIndex = 1;
-
-                if (method.IsOneOf(__convertToDoubleWithOnErrorAndOnNullMethods))
-                {
-                    onErrorIndex = 2;
-                    onNullIndex = 3;
-                }
-            }
-
-            if (subTypeIndex > 0)
-            {
-                var subTypeExpression = arguments[subTypeIndex];
-                var subTypeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, subTypeExpression);
-                subTypeAst = subTypeTranslation.Ast;
-            }
-            if (formatIndex > 0)
-            {
-                var formatExpression = arguments[formatIndex];
-                var formatTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, formatExpression);
-                formatAst = formatTranslation.Ast;
-            }
-            if (onErrorIndex > 0)
-            {
-                var onErrorExpression = arguments[onErrorIndex];
-                var onErrorTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, onErrorExpression);
-                onErrorAst = onErrorTranslation.Ast;
-            }
-            if (onNullIndex > 0)
-            {
-                var onNullExpression = arguments[onNullIndex];
-                var onNullTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, onNullExpression);
-                onNullAst = onNullTranslation.Ast;
-            }
-
-            var toAst = AstExpression.Constant(toType);
-
-            var ast = AstExpression.Convert(fieldAst, toAst, subType: subTypeAst, format: formatAst, onError: onErrorAst, onNull: onNullAst);
-            return new TranslatedExpression(expression, ast, serializer);
+            var ast = AstExpression.Convert(fieldAst, AstExpression.Constant(mapping.Type), onError: onErrorAst, onNull: onNullAst, subType: subTypeAst, format: formatAst);
+            return new TranslatedExpression(expression, ast, mapping.Serializer);
         }
     }
 }
