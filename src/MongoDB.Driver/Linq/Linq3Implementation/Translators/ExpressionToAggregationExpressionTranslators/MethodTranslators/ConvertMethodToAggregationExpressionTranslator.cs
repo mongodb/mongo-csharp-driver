@@ -54,7 +54,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var fieldExpression = arguments[0];
             var fieldTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, fieldExpression);
             var fieldAst = fieldTranslation.Ast;
-            var resultSerializer = BsonBinaryDataSerializer.Instance;
 
             var subTypeExpression = arguments[1];
             var subTypeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, subTypeExpression);
@@ -83,7 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ast = AstExpression.Convert(fieldAst, AstExpression.Constant(BsonType.Binary), subType: subTypeAst, format: formatAst);
             }
 
-            return new TranslatedExpression(expression, ast, resultSerializer);
+            return new TranslatedExpression(expression, ast, BsonBinaryDataSerializer.Instance);
         }
     }
 }
