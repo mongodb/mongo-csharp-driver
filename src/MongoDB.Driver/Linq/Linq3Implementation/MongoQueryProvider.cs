@@ -55,6 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public abstract TResult Execute<TResult>(Expression expression);
         public abstract Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken);
         public abstract ExpressionTranslationOptions GetTranslationOptions();
+        public abstract BsonDocument[] Translate<TResult>(IQueryable<TResult> queryable, out IBsonSerializer<TResult> outputSerializer);
     }
 
     internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider
@@ -151,6 +152,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             var translationOptions = _options?.TranslationOptions;
             var database = _database ?? _collection?.Database;
             return translationOptions.AddMissingOptionsFrom(database?.Client.Settings.TranslationOptions);
+        }
+
+        public override BsonDocument[] Translate<TResult>(IQueryable<TResult> queryable, out IBsonSerializer<TResult> outputSerializer)
+        {
+            var translationOptions = GetTranslationOptions();
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider: this, queryable.Expression, translationOptions);
+            var stages = executableQuery.Pipeline.Ast.Stages;
+            outputSerializer = (IBsonSerializer<TResult>)executableQuery.Pipeline.OutputSerializer;
+            return stages.Select(s => s.Render().AsBsonDocument).ToArray();
         }
     }
 }
