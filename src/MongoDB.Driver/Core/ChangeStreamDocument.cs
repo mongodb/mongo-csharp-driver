@@ -17,6 +17,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core;
 
 namespace MongoDB.Driver
 {
@@ -185,6 +186,15 @@ namespace MongoDB.Driver
                 }
             }
         }
+
+        /// <summary>
+        /// The type of the newly created object.
+        /// Only present when the showExpandedEvents change stream option is enabled and for the following event types (MongoDB 8.1 and later):
+        /// <list type="bullet">
+        ///     <item><description><see cref="ChangeStreamOperationType.Create"/></description></item>
+        /// </list>
+        /// </summary>
+        public ChangeStreamNamespaceType NamespaceType => GetValue(nameof(NamespaceType), ChangeStreamNamespaceType.Unknown);
 
         /// <summary>
         /// Gets the description for the operation.
