@@ -160,7 +160,7 @@ namespace MongoDB.Driver
         /// <param name="subtype"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static BsonBinaryData ConvertToBinData(string field, BsonBinarySubType subtype, ConvertBinDataFormat format)
+        public static BsonBinaryData ConvertToBinData(string field, BsonBinarySubType subtype, string format)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -175,7 +175,7 @@ namespace MongoDB.Driver
         /// <param name="onError"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ConvertToBinData(string field, BsonBinarySubType subtype, ConvertBinDataFormat format,
+        public static BsonBinaryData ConvertToBinData(string field, BsonBinarySubType subtype, string format,
             BsonBinaryData onError, BsonBinaryData onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
@@ -188,7 +188,7 @@ namespace MongoDB.Driver
         /// <param name="subtype"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static BsonBinaryData ConvertToBinData(int field, BsonBinarySubType subtype, ConvertBinDataFormat format)
+        public static BsonBinaryData ConvertToBinData(int field, BsonBinarySubType subtype, string format)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
         /// <param name="onError"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ConvertToBinData(int field, BsonBinarySubType subtype, ConvertBinDataFormat format,
+        public static BsonBinaryData ConvertToBinData(int field, BsonBinarySubType subtype, string format,
             BsonBinaryData onError, BsonBinaryData onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
@@ -216,7 +216,7 @@ namespace MongoDB.Driver
         /// <param name="subtype"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static BsonBinaryData ConvertToBinData(long field, BsonBinarySubType subtype, ConvertBinDataFormat format)
+        public static BsonBinaryData ConvertToBinData(long field, BsonBinarySubType subtype, string format)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -231,7 +231,7 @@ namespace MongoDB.Driver
         /// <param name="onError"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ConvertToBinData(long field, BsonBinarySubType subtype, ConvertBinDataFormat format,
+        public static BsonBinaryData ConvertToBinData(long field, BsonBinarySubType subtype, string format,
             BsonBinaryData onError, BsonBinaryData onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
@@ -244,7 +244,7 @@ namespace MongoDB.Driver
         /// <param name="subtype"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static BsonBinaryData ConvertToBinData(double field, BsonBinarySubType subtype, ConvertBinDataFormat format)
+        public static BsonBinaryData ConvertToBinData(double field, BsonBinarySubType subtype, string format)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -259,7 +259,7 @@ namespace MongoDB.Driver
         /// <param name="onError"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ConvertToBinData(double field, BsonBinarySubType subtype, ConvertBinDataFormat format,
+        public static BsonBinaryData ConvertToBinData(double field, BsonBinarySubType subtype, string format,
             BsonBinaryData onError, BsonBinaryData onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
@@ -272,7 +272,7 @@ namespace MongoDB.Driver
         /// <param name="format"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static string ConvertToString(BsonBinaryData field, ConvertBinDataFormat format)
+        public static string ConvertToString(BsonBinaryData field, string format)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -286,7 +286,7 @@ namespace MongoDB.Driver
         /// <param name="onNull"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static string ConvertToString(BsonBinaryData field, ConvertBinDataFormat format, string onError, string onNull)
+        public static string ConvertToString(BsonBinaryData field, string format, string onError, string onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -298,33 +298,7 @@ namespace MongoDB.Driver
         /// <param name="format"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static int? ConvertToInt(BsonBinaryData field, ConvertBinDataFormat format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <param name="onError"></param>
-        /// <param name="onNull"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static int? ToInt(BsonBinaryData field, ConvertBinDataFormat format, int?  onError, int? onNull)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static long? ConvertToLong(BsonBinaryData field, ConvertBinDataFormat format)
+        public static int? ConvertToInt(BsonBinaryData field, string format)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -338,7 +312,7 @@ namespace MongoDB.Driver
         /// <param name="onNull"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static long? ConvertToLong(BsonBinaryData field, ConvertBinDataFormat format, long?  onError, long? onNull)
+        public static int? ToInt(BsonBinaryData field, string format, int?  onError, int? onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -350,7 +324,7 @@ namespace MongoDB.Driver
         /// <param name="format"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static double? ToDouble(BsonBinaryData field, ConvertBinDataFormat format)
+        public static long? ConvertToLong(BsonBinaryData field, string format)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -364,7 +338,7 @@ namespace MongoDB.Driver
         /// <param name="onNull"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static double? ToDouble(BsonBinaryData field, ConvertBinDataFormat format, double? onError, double? onNull)
+        public static long? ConvertToLong(BsonBinaryData field, string format, long?  onError, long? onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -372,29 +346,27 @@ namespace MongoDB.Driver
         /// <summary>
         ///
         /// </summary>
-        public enum ConvertBinDataFormat
-        //TODO Decide: if to use, location, naming
+        /// <param name="field"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static double? ConvertToDouble(BsonBinaryData field, string format)
         {
-            /// <summary>
-            ///
-            /// </summary>
-            base64,
-            /// <summary>
-            ///
-            /// </summary>
-            base64url,
-            /// <summary>
-            ///
-            /// </summary>
-            utf8,
-            /// <summary>
-            ///
-            /// </summary>
-            hex,
-            /// <summary>
-            ///
-            /// </summary>
-            uuid,
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="format"></param>
+        /// <param name="onError"></param>
+        /// <param name="onNull"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static double? ConvertToDouble(BsonBinaryData field, string format, double? onError, double? onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
     }
 }

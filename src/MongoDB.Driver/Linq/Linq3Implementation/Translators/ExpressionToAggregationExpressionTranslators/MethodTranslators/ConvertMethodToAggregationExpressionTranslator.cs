@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,8 +24,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             ([MqlMethod.ConvertToIntFromBinDataWithOnErrorAndOnNull], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, 1, null, 2, 3),
             ([MqlMethod.ConvertToLongFromBinData], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, 1, null, null, null),
             ([MqlMethod.ConvertToLongFromBinDataWithOnErrorAndOnNull], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, 1, null, 2, 3),
-            ([MqlMethod.ConvertToDoubleFromBinData], StringSerializer.Instance, BsonType.Double, 1, null, null, null),
-            ([MqlMethod.ConvertToDoubleFromBinDataWithOnErrorAndOnNull], StringSerializer.Instance, BsonType.Double, 1, null, 2, 3)
+            ([MqlMethod.ConvertToDoubleFromBinData], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, 1, null, null, null),
+            ([MqlMethod.ConvertToDoubleFromBinDataWithOnErrorAndOnNull], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, 1, null, 2, 3)
         ];
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
@@ -36,17 +37,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression);
 
             var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
+            var formatAst = mapping.FormatIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.FormatIndex.Value]).Ast : null;
             var subTypeAst = mapping.SubTypeIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.SubTypeIndex.Value]).Ast : null;
             var onErrorAst = mapping.OnErrorIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.OnErrorIndex.Value]).Ast : null;
             var onNullAst = mapping.OnNullIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.OnNullIndex.Value]).Ast : null;
-
-            AstExpression formatAst = null;
-            if (mapping.FormatIndex.HasValue)
-            {
-                var formatExpression = arguments[mapping.FormatIndex.Value];
-                var formatEnum = formatExpression.GetConstantValue<Mql.ConvertBinDataFormat>(expression);
-                formatAst = AstExpression.Constant(formatEnum.ToString());
-            }
 
             var ast = AstExpression.Convert(fieldAst, AstExpression.Constant(mapping.Type), onError: onErrorAst, onNull: onNullAst, subType: subTypeAst, format: formatAst);
             return new TranslatedExpression(expression, ast, mapping.Serializer);
