@@ -13,10 +13,13 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -51,15 +54,87 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, expectedStages);
         }
 
+        [Fact]
+        public void MongoDBFunctions_ConvertToStringFromBson_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var id = 1;
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToString(x.BinaryProperty, Mql.ConvertBinDataFormat.uuid));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    """{"$project": { "_v" : { "$convert" : { "input" : "$BinaryProperty", "to" : 2, "format" : "uuid" } }, "_id" : 0 }}""",
+                };
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, expectedStages);
+
+            var expectedResult = "867dee52-c331-484e-92d1-c56479b8e67e";
+
+            var result = queryable.Single();
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ConvertToStringFromBsonWithOnErrorAndOnNull_should_work()
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var id = 0;
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id);
+                //.Select(x => Mql.ConvertToString(x.BinaryProperty, Mql.ConvertBinDataFormat.hex, "onError", "onNull"));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    //"""{"$project": { "_v" : { "$convert" : { "input" : "$BinaryProperty", "to" : 2, "onError": "onError", "onNull": "onNull", "format" : "hex" } }, "_id" : 0 }}""",
+                };
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, expectedStages);
+
+            var expectedResult = "867dee52-c331-484e-92d1-c56479b8e67e";
+
+            var result = queryable.Single();
+            Assert.Equal(expectedResult, result.StringProperty);
+        }
+
+        /**
+         *
+         * What to test
+         *
+         */
+
 
         public sealed class ClassFixture : MongoCollectionFixture<TestClass>
         {
-            protected override IEnumerable<TestClass> InitialData { get; }
+            protected override IEnumerable<TestClass> InitialData { get; } =
+            [
+                new TestClass {Id = 0 },
+                new TestClass {Id = 1, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard)},
+            ];
         }
 
         public class TestClass
         {
+            public int Id { get; set; }
+            public BsonBinaryData BinaryProperty { get; set; }
+            public double DoubleProperty { get; set; }
+            public int IntProperty { get; set; }
+            public long LongProperty { get; set; }
             public string StringProperty { get; set; }
+
         }
     }
 }
