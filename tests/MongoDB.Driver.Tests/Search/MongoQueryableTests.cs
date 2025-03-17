@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
@@ -54,6 +55,29 @@ namespace MongoDB.Driver.Tests.Search
                 .VectorSearch(p => p.FirstName, new[] { 123, 456 }, 10, new() { IndexName = "my_index", NumberOfCandidates = 33 });
 
             query.ToString().Should().EndWith("Aggregate([{ \"$vectorSearch\" : { \"queryVector\" : [123.0, 456.0], \"path\" : \"fn\", \"limit\" : 10, \"numCandidates\" : 33, \"index\" : \"my_index\" } }])");
+        }
+
+        [Fact]
+        public void VectorSearchWithExact()
+        {
+            var subject = CreateSubject();
+
+            var query = subject
+                .VectorSearch(p => p.FirstName, new[] { 123, 456 }, 10, new() { IndexName = "my_index", Exact = true });
+
+            query.ToString().Should().EndWith("Aggregate([{ \"$vectorSearch\" : { \"queryVector\" : [123.0, 456.0], \"path\" : \"fn\", \"limit\" : 10, \"index\" : \"my_index\", \"exact\" : true } }])");
+        }
+
+        [Fact]
+        public void VectorSearchWithExactAndNumberOfCandidatesShouldThrow()
+        {
+            var subject = CreateSubject();
+
+            var exception = Record.Exception(() => subject
+                .VectorSearch(p => p.FirstName, new[] { 123, 456 }, 10, new() { IndexName = "my_index", Exact = true, NumberOfCandidates = 22 }));
+
+            exception.Should().BeOfType<ArgumentException>();
+            exception.Message.Should().Be("Number of candidates must be omitted for exact nearest neighbour search (ENN).");
         }
 
         private IQueryable<Person> CreateSubject()

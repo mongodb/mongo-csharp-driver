@@ -21,15 +21,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ArrayLengthExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, UnaryExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, UnaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.ArrayLength)
             {
                 var arrayExpression = expression.Operand;
-                var arrayTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arrayExpression);
+                var arrayTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, arrayExpression);
                 var ast = AstExpression.Size(arrayTranslation.Ast);
                 var serializer = BsonSerializer.LookupSerializer(expression.Type);
-                return new AggregationExpression(expression, ast, serializer);
+                return new TranslatedExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

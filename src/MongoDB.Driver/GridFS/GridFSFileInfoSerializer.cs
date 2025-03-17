@@ -43,9 +43,7 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(idSerializer, nameof(idSerializer));
 
-            RegisterMember("Aliases", "aliases", new ArraySerializer<string>());
             RegisterMember("ChunkSizeBytes", "chunkSize", new Int32Serializer());
-            RegisterMember("ContentType", "contentType", new StringSerializer());
             RegisterMember("Filename", "filename", new StringSerializer());
             RegisterMember("Id", "_id", idSerializer);
             RegisterMember("Length", "length", new Int64Serializer());

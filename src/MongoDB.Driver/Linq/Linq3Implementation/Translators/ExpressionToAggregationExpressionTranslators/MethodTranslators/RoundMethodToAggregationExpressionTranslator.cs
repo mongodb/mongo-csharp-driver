@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             MathMethod.RoundWithDoubleAndDigits
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     ast = AstExpression.Round(argumentAst);
                 }
 
-                return new AggregationExpression(expression, ast, argumentTranslation.Serializer);
+                return new TranslatedExpression(expression, ast, argumentTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

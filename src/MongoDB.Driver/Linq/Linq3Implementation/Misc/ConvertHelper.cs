@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return expression;
         }
 
-        public static AstExpression RemoveWideningConvert(AggregationExpression translation)
+        public static AstExpression RemoveWideningConvert(TranslatedExpression translation)
         {
             if (translation.Expression is UnaryExpression convertExpression &&
                 convertExpression.NodeType == ExpressionType.Convert &&

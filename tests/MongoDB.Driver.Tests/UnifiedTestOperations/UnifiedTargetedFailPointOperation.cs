@@ -14,38 +14,51 @@
 */
 
 using System;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    internal sealed class UnifiedTargetedFailPointOperation : IUnifiedFailPointOperation
+    internal sealed class UnifiedTargetedFailPointOperation : IUnifiedSpecialTestOperation
     {
+        private readonly UnifiedEntityMap _entityMap;
         private readonly bool _async;
         private readonly BsonDocument _failPointCommand;
         private readonly IClientSessionHandle _session;
 
         public UnifiedTargetedFailPointOperation(
+            UnifiedEntityMap entityMap,
             IClientSessionHandle session,
             BsonDocument failPointCommand,
             bool async)
         {
             _async = async;
+            _entityMap = entityMap;
             _session = session;
             _failPointCommand = failPointCommand;
         }
 
-        public void Execute(out FailPoint failPoint)
+        public void Execute()
         {
-            var pinnedServer = _session?.WrappedCoreSession?.CurrentTransaction?.PinnedServer;
+            var pinnedServer = _session?.WrappedCoreSession?.CurrentTransaction?.PinnedServer.EndPoint;
             if (pinnedServer == null)
             {
                 throw new InvalidOperationException("UnifiedTargetedFailPointOperation requires a pinned server.");
             }
+
+            var client = DriverTestConfiguration.CreateMongoClient(useMultipleShardRouters: true);
+            _entityMap.RegisterForDispose(client);
+
+            var cluster = client.GetClusterInternal();
+            var server = cluster.SelectServer(new EndPointServerSelector(pinnedServer), CancellationToken.None);
+
             var session = NoCoreSession.NewHandle();
 
-            failPoint = FailPoint.Configure(pinnedServer, session, _failPointCommand, withAsync: _async);
+            var failPoint = FailPoint.Configure(server, session, _failPointCommand, withAsync: _async);
+            _entityMap.RegisterForDispose(failPoint);
         }
     }
 
@@ -79,7 +92,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedTargetedFailPointOperation(session, failPointCommand, _entityMap.Async);
+            return new UnifiedTargetedFailPointOperation(_entityMap, session, failPointCommand, _entityMap.Async);
         }
     }
 }

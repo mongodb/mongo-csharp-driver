@@ -14,20 +14,26 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4415Tests : Linq3IntegrationTest
+    public class CSharp4415Tests : LinqIntegrationTest<CSharp4415Tests.ClassFixture>
     {
+        public CSharp4415Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Year_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -44,22 +50,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(2021, 2022);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, D = DateTime.Parse("2021-01-01T01:01:01Z", null, DateTimeStyles.AdjustToUniversal) },
-                new C { Id = 2, D = DateTime.Parse("2022-02-02T02:02:02Z", null, DateTimeStyles.AdjustToUniversal) });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public DateTime D { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, D = DateTime.Parse("2021-01-01T01:01:01Z", null, DateTimeStyles.AdjustToUniversal) },
+                new C { Id = 2, D = DateTime.Parse("2022-02-02T02:02:02Z", null, DateTimeStyles.AdjustToUniversal) }
+            ];
         }
     }
 }

@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         }
 
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -67,9 +67,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AstPipeline TranslateSelectMany(
+        private static TranslatedPipeline TranslateSelectMany(
             TranslationContext context,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             ReadOnlyCollection<Expression> arguments)
         {
             var sourceSerializer = pipeline.OutputSerializer;
@@ -79,18 +79,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var resultWrappedValueSerializer = WrappedValueSerializer.Create("_v", resultValueSerializer);
 
             pipeline = pipeline.AddStages(
-                resultWrappedValueSerializer,
                 AstStage.Project(
                     AstProject.Set("_v", selectorTranslation.Ast),
                     AstProject.ExcludeId()),
-                AstStage.Unwind("_v"));
+                AstStage.Unwind("_v"),
+                resultWrappedValueSerializer);
 
             return pipeline;
         }
 
-        private static AstPipeline TranslateSelectManyWithCollectionSelectorAndResultSelector(
+        private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndResultSelector(
             TranslationContext context,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             ReadOnlyCollection<Expression> arguments)
         {
             var sourceSerializer = pipeline.OutputSerializer;
@@ -109,26 +109,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             }
         }
 
-        private static AstPipeline TranslateSelectManyWithCollectionSelectorAndIdentityResultSelector(
-            AstPipeline pipeline,
-            AggregationExpression collectionSelectorTranslation)
+        private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndIdentityResultSelector(
+            TranslatedPipeline pipeline,
+            TranslatedExpression collectionSelectorTranslation)
         {
             var collectionItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionSelectorTranslation.Serializer);
             var resultValueSerializer = collectionItemSerializer;
             var resultWrappedValueSerializer = WrappedValueSerializer.Create("_v", resultValueSerializer);
 
             return pipeline.AddStages(
-                resultWrappedValueSerializer,
                 AstStage.Project(
                     AstProject.Set("_v", collectionSelectorTranslation.Ast),
                     AstProject.ExcludeId()),
-                AstStage.Unwind("_v"));
+                AstStage.Unwind("_v"),
+                resultWrappedValueSerializer);
         }
 
-        private static AstPipeline TranslateSelectManyWithCollectionSelectorAndNonIdentityResultSelector(
+        private static TranslatedPipeline TranslateSelectManyWithCollectionSelectorAndNonIdentityResultSelector(
             TranslationContext context,
-            AstPipeline pipeline,
-            AggregationExpression collectionSelectorTranslation,
+            TranslatedPipeline pipeline,
+            TranslatedExpression collectionSelectorTranslation,
             LambdaExpression resultSelectorLambda)
 
         {
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var collectionItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionSelectorTranslation.Serializer);
 
             var resultSelectorSourceParameterExpression = resultSelectorLambda.Parameters[0];
-            var resultSelectorSourceAst = AstExpression.Var("ROOT", isCurrent: true);
+            var resultSelectorSourceAst = AstExpression.RootVar;
             var resultSelectorSourceParameterSymbol = context.CreateSymbol(resultSelectorSourceParameterExpression, resultSelectorSourceAst, sourceSerializer, isCurrent: true);
             var resultSelectorCollectionItemParameterExpression = resultSelectorLambda.Parameters[1];
             var resultSelectorCollectionItemParameterSymbol = context.CreateSymbol(resultSelectorCollectionItemParameterExpression, collectionItemSerializer);
@@ -150,11 +150,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 @in: resultSelectorTranslation.Ast);
 
             return pipeline.AddStages(
-                resultWrappedValueSerializer,
                 AstStage.Project(
                     AstProject.Set("_v", resultAst),
                     AstProject.ExcludeId()),
-                AstStage.Unwind("_v"));
+                AstStage.Unwind("_v"),
+                resultWrappedValueSerializer);
         }
     }
 }

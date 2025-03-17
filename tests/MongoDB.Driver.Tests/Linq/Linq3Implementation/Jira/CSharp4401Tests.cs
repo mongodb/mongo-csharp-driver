@@ -21,11 +21,12 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4401Tests : Linq3IntegrationTest
+    public class CSharp4401Tests : LinqIntegrationTest<CSharp4401Tests.ClassFixture>
     {
         private static readonly WhereTestCase[] __whereTestCases;
 
@@ -35,6 +36,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public string PredicateAsString { get; set; }
             public string ExpectedStage { get; set; }
             public int[] ExpectedResults { get; set; }
+        }
+
+        public CSharp4401Tests(ClassFixture fixture)
+            : base(fixture)
+        {
         }
 
         private static WhereTestCase CreateWhereTestCase(
@@ -173,7 +179,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [MemberData(nameof(Where_with_enum_comparison_should_work_member_data))]
         public void Where_with_enum_comparison_should_work(int i, string predicateAsString, string expectedMatchStage, int[] expectedResults)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var predicate = __whereTestCases[i].Predicate;
             expectedResults ??= new int[0];
 
@@ -195,7 +201,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Comparison_of_enum_and_enum_with_mismatched_serializers_should_throw()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -204,13 +210,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+            exception.Message.Should().Contain("because the two arguments are serialized differently");
         }
 
         [Fact]
         public void Comparison_of_enum_and_nullable_enum_with_mismatched_serializers_should_throw()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -219,13 +225,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+            exception.Message.Should().Contain("because the two arguments are serialized differently");
         }
 
         [Fact]
         public void Comparison_of_nullable_enum_and_enum_with_mismatched_serializers_should_throw()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -234,13 +240,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+            exception.Message.Should().Contain("because the two arguments are serialized differently");
         }
 
         [Fact]
         public void Comparison_of_nullable_enum_and_nullable_enum_with_mismatched_serializers_should_throw()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -249,26 +255,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+            exception.Message.Should().Contain("because the two arguments are serialized differently");
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, One = 1, E = E.A, F = E.A, NE = E.A, NF = E.A, S = E.A, T = E.A, NS = E.A, NT = E.A },
-                new C { Id = 2, One = 1, E = E.B, F = E.C, NE = E.B, NF = E.C, S = E.B, T = E.C, NS = E.B, NT = E.C },
-                new C { Id = 3, One = 1, E = E.C, F = E.B, NE = E.C, NF = E.B, S = E.C, T = E.B, NS = E.C, NT = E.B },
-                new C { Id = 4, One = 1, E = E.X, F = E.X, NE = E.X, NF = null, S = E.X, T = E.X, NS = E.X, NT = null },
-                new C { Id = 5, One = 1, E = E.Y, F = E.Z, NE = null, NF = E.Z, S = E.Y, T = E.Z, NS = null, NT = E.Z },
-                new C { Id = 6, One = 1, E = E.Z, F = E.Y, NE = null, NF = null, S = E.Z, T = E.Y, NS = null, NT = null });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int One { get; set; }
@@ -282,6 +272,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.String)] public E? NT { get; set; }
         }
 
-        private enum E { A = 1, B = 2, C = 3, X = 6, Y = 7, Z = 9 }
+        public enum E { A = 1, B = 2, C = 3, X = 6, Y = 7, Z = 9 }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, One = 1, E = E.A, F = E.A, NE = E.A, NF = E.A, S = E.A, T = E.A, NS = E.A, NT = E.A },
+                new C { Id = 2, One = 1, E = E.B, F = E.C, NE = E.B, NF = E.C, S = E.B, T = E.C, NS = E.B, NT = E.C },
+                new C { Id = 3, One = 1, E = E.C, F = E.B, NE = E.C, NF = E.B, S = E.C, T = E.B, NS = E.C, NT = E.B },
+                new C { Id = 4, One = 1, E = E.X, F = E.X, NE = E.X, NF = null, S = E.X, T = E.X, NS = E.X, NT = null },
+                new C { Id = 5, One = 1, E = E.Y, F = E.Z, NE = null, NF = E.Z, S = E.Y, T = E.Z, NS = null, NT = E.Z },
+                new C { Id = 6, One = 1, E = E.Z, F = E.Y, NE = null, NF = null, S = E.Z, T = E.Y, NS = null, NT = null }
+            ];
+        }
     }
 }

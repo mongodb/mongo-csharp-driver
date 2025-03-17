@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -80,7 +81,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.LastOrDefaultWithPredicate
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -97,12 +98,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (method.IsOneOf(__withPredicateMethods))
                 {
                     var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[1]);
-                    var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, itemSerializer, asRoot: false);
-                    var predicateParameter = predicateLambda.Parameters[0];
+                    var parameterExpression = predicateLambda.Parameters.Single();
+                    var parameterSymbol = context.CreateSymbol(parameterExpression, itemSerializer, isCurrent: false);
+                    var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, parameterSymbol);
                     sourceAst = AstExpression.Filter(
                         input: sourceAst,
                         cond: predicateTranslation.Ast,
-                        @as: predicateParameter.Name);
+                        @as: parameterSymbol.Var.Name);
                 }
 
                 AstExpression ast;
@@ -124,7 +126,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     ast = method.Name == "First" ? AstExpression.First(sourceAst) : AstExpression.Last(sourceAst);
                 }
 
-                return new AggregationExpression(expression, ast, itemSerializer);
+                return new TranslatedExpression(expression, ast, itemSerializer);
             }
 
             if (WindowMethodToAggregationExpressionTranslator.CanTranslate(expression))

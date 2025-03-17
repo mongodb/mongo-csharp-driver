@@ -133,8 +133,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 else
                 {
                     Ensure.That(sourceSerializer is IWrappedValueSerializer, "Expected sourceSerializer to be an IWrappedValueSerializer.", nameof(sourceSerializer));
-                    var root = AstExpression.Var("ROOT", isCurrent: true);
-                    valueExpression = AstExpression.GetField(root, "_v");
+                    valueExpression = AstExpression.GetField(AstExpression.RootVar, "_v");
                 }
 
                 IBsonSerializer outputValueSerializer = expression.GetResultType() switch
@@ -150,11 +149,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 var outputWrappedValueSerializer = WrappedValueSerializer.Create("_v", outputValueSerializer);
 
                 pipeline = pipeline.AddStages(
-                    outputWrappedValueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.AccumulatorField("_v", AstUnaryAccumulatorOperator.Avg, valueExpression)),
-                    AstStage.Project(AstProject.ExcludeId()));
+                    AstStage.Project(AstProject.ExcludeId()),
+                    outputWrappedValueSerializer);
 
                 return ExecutableQuery.Create(
                     provider,

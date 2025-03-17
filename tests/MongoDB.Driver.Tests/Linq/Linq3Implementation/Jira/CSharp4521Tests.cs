@@ -14,23 +14,29 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4512Tests : Linq3IntegrationTest
+    public class CSharp4512Tests : LinqIntegrationTest<CSharp4512Tests.ClassFixture>
     {
+        public CSharp4512Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData("x")]
         [InlineData("")]
         [InlineData(null)]
         public void Where_should_work(string paramName)
-        { 
-            var collection = CreateCollection();
+        {
+            var collection = Fixture.Collection;
             var param = Expression.Parameter(typeof(C), paramName);
             var body = Expression.MakeBinary(
                 ExpressionType.Equal,
@@ -47,21 +53,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1 },
-                new C { Id = 2 });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1 },
+                new C { Id = 2 }
+            ];
         }
     }
 }

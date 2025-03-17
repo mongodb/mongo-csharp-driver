@@ -1358,33 +1358,24 @@ namespace MongoDB.Driver.Core.Configuration
 
         internal static bool HasValidParentDomain(string original, DnsEndPoint resolvedEndPoint)
         {
-            // Helper functions...
-            Func<string, string[]> getParentParts = x => x.Split('.').Skip(1).ToArray();
-
-            // Indicates whether "a" ends with "b"
-            Func<string[], string[], bool> endsWith = (a, b) =>
-            {
-                if (a.Length < b.Length)
-                {
-                    return false;
-                }
-
-                // loop from back to front making sure that all of b is at the back of a, in order.
-                for (int ai = a.Length - 1, bi = b.Length - 1; bi >= 0; ai--, bi--)
-                {
-                    if (a[ai] != b[bi])
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            };
-
-            // make sure that the resolve host ends with domain of the parent.
-            var originalParentParts = getParentParts(original);
             var host = resolvedEndPoint.Host;
-            return endsWith(getParentParts(host), originalParentParts);
+
+            var hostDotCount = host.Count(c => c == '.');
+            var originalDotCount = original.Count(c => c == '.');
+
+            // If original has less than 3 dot separated parts,
+            // the returned hostname must have at least one more domain level than original
+            if (originalDotCount < 2)
+            {
+                return host.Length > original.Length &&
+                       hostDotCount > originalDotCount &&
+                       host.EndsWith(original, StringComparison.Ordinal) &&
+                       host[host.Length - original.Length -1 ] == '.';
+            }
+
+            // We check that the returned hostname has the same domain name as original
+            var originalFirstDotIndex = original.IndexOf('.');
+            return hostDotCount >= originalDotCount && host.AsSpan().EndsWith(original.AsSpan(originalFirstDotIndex), StringComparison.Ordinal);
         }
 
         private void ValidateResolvedOptions(IEnumerable<string> optionNames)

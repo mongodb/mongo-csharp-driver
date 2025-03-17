@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     internal static class ContainsValueMethodToAggregationExpressionTranslator
     {
         // public methods
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -85,13 +85,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         throw new ExpressionNotSupportedException(expression, because: $"ContainsValue is not supported when DictionaryRepresentation is: {dictionaryRepresentation}");
                 }
 
-                return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
+                return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static IBsonDictionarySerializer GetDictionarySerializer(Expression expression, AggregationExpression dictionaryTranslation)
+        private static IBsonDictionarySerializer GetDictionarySerializer(Expression expression, TranslatedExpression dictionaryTranslation)
         {
             if (dictionaryTranslation.Serializer is IBsonDictionarySerializer dictionarySerializer)
             {

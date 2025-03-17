@@ -41,13 +41,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 method.ReturnType == typeof(bool) &&
                 arguments.Count == 2)
             {
-                var sourceExpression = arguments[0];
-                var sourceType = sourceExpression.Type;
+                var fieldExpression = arguments[0];
+                var fieldType = fieldExpression.Type;
                 var itemExpression = arguments[1];
                 var itemType = itemExpression.Type;
-                if (TypeImplementsIEnumerable(sourceType, itemType))
+                if (TypeImplementsIEnumerable(fieldType, itemType))
                 {
-                    return Translate(context, expression, sourceExpression, itemExpression);
+                    return Translate(context, expression, fieldExpression, itemExpression);
                 }
             }
 
@@ -56,34 +56,34 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 method.ReturnType == typeof(bool) &&
                 arguments.Count == 1)
             {
-                var sourceExpression = expression.Object;
-                var sourceType = sourceExpression.Type;
+                var fieldExpression = expression.Object;
+                var fieldType = fieldExpression.Type;
                 var itemExpression = arguments[0];
                 var itemType = itemExpression.Type;
-                if (TypeImplementsIEnumerable(sourceType, itemType))
+                if (TypeImplementsIEnumerable(fieldType, itemType))
                 {
-                    return Translate(context, expression, sourceExpression, itemExpression);
+                    return Translate(context, expression, fieldExpression, itemExpression);
                 }
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AstFilter Translate(TranslationContext context, Expression expression, Expression sourceExpression, Expression itemExpression)
+        private static AstFilter Translate(TranslationContext context, Expression expression, Expression fieldExpression, Expression itemExpression)
         {
             if (itemExpression.NodeType == ExpressionType.Constant)
             {
-                var sourceField = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(fieldTranslation.Serializer);
                 var value = itemExpression.GetConstantValue<object>(containingExpression: expression);
                 var serializedValue = SerializationHelper.SerializeValue(itemSerializer, value);
-                return AstFilter.ElemMatch(sourceField, AstFilter.Eq(AstFilter.Field("@<elem>", itemSerializer), serializedValue)); // @<elem> represents the implied element 
+                return AstFilter.ElemMatch(fieldTranslation.Ast, AstFilter.Eq(AstFilter.Field("@<elem>"), serializedValue)); // @<elem> represents the implied element
             }
 
-            var itemField = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
-            var sourceValues = sourceExpression.GetConstantValue<IEnumerable>(containingExpression: expression);
-            var serializedValues = SerializationHelper.SerializeValues(itemField.Serializer, sourceValues);
-            return AstFilter.In(itemField, serializedValues);
+            var itemTranslation = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
+            var sourceValues = fieldExpression.GetConstantValue<IEnumerable>(containingExpression: expression);
+            var serializedValues = SerializationHelper.SerializeValues(itemTranslation.Serializer, sourceValues);
+            return AstFilter.In(itemTranslation.Ast, serializedValues);
         }
 
         private static bool TypeImplementsIEnumerable(Type type, Type itemType)

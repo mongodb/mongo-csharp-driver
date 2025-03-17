@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
     internal static class AppendStageMethodToPipelineTranslator
     {
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var resultSerializer = resultSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
                 var outputSerializer = resultSerializer ?? renderedStage.OutputSerializer;
 
-                pipeline = pipeline.AddStages(outputSerializer, stage);
+                pipeline = pipeline.AddStage(stage, outputSerializer);
                 return pipeline;
             }
 

@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             var batch = section.Documents;
             var maxDocumentSize = section.MaxDocumentSize ?? binaryWriter.Settings.MaxDocumentSize;
-            binaryWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
+            binaryWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = int.MaxValue);
             binaryWriter.PushElementNameValidator(NoOpElementNameValidator.Instance);
             _nsInfoWriter.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
             try
@@ -98,6 +98,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                         break;
                     }
                 }
+
+                if (processedCount == 0)
+                {
+                    throw new FormatException("Cannot send empty batch.");
+                }
+
                 batch.SetProcessedCount(processedCount);
                 stream.BackpatchSize(startPosition);
 
@@ -164,6 +170,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             WriteBoolean(serializationContext, "multi", false);
             WriteHint(serializationContext, model.Hint);
             WriteCollation(serializationContext, model.Collation);
+            WriteSort(serializationContext, renderArgs, model.Sort, documentSerializer);
             WriteEndModel(serializationContext);
         }
 
@@ -200,6 +207,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             WriteArrayFilters(serializationContext, model.ArrayFilters);
             WriteHint(serializationContext, model.Hint);
             WriteCollation(serializationContext, model.Collation);
+            WriteSort(serializationContext, renderArgs, model.Sort, documentSerializer);
             WriteEndModel(serializationContext);
         }
 
@@ -272,6 +280,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             serializationContext.Writer.WriteName("hint");
             BsonValueSerializer.Instance.Serialize(serializationContext, hint);
+        }
+
+        private void WriteSort<TDocument>(BsonSerializationContext serializationContext, RenderArgs<BsonDocument> renderArgs, SortDefinition<TDocument> sortDefinition, IBsonSerializer<TDocument> documentSerializer)
+        {
+            if (sortDefinition == null)
+            {
+                return;
+            }
+
+            serializationContext.Writer.WriteName("sort");
+            var typedRenderArgs = renderArgs.WithNewDocumentType(documentSerializer);
+            var sortDocument = sortDefinition.Render(typedRenderArgs);
+            BsonDocumentSerializer.Instance.Serialize(serializationContext, sortDocument);
         }
 
         private void WriteStartModel(BsonSerializationContext serializationContext, string operationName, BulkWriteModel model)

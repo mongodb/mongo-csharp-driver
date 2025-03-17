@@ -13,25 +13,32 @@
 * limitations under the License.
 */
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4517Tests : Linq3IntegrationTest
+    public class CSharp4517Tests : LinqIntegrationTest<CSharp4517Tests.ClassFixture>
     {
+        public CSharp4517Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Filter_with_comparison_of_different_types_should_throw()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable =
                 collection.AsQueryable()
@@ -48,7 +55,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Expression_with_comparison_of_different_types_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable =
@@ -58,7 +66,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$_id'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -70,15 +78,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
                 exception.Message.Should().Contain("because operand types are not compatible with each other");
             }
-        }
-
-        private IMongoCollection<MyDocument> CreateCollection()
-        {
-            var collection = GetCollection<MyDocument>("test");
-            CreateCollection(
-                collection,
-                new MyDocument { Id = new MyId(1), Name = "abc" });
-            return collection;
         }
 
         public class MyDocument
@@ -119,6 +118,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 context.Writer.WriteInt32(value.Id);
             }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<MyDocument>
+        {
+            protected override IEnumerable<MyDocument> InitialData =>
+            [
+                new MyDocument { Id = new MyId(1), Name = "abc" }
+            ];
         }
     }
 }

@@ -13,25 +13,32 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4813Tests : Linq3IntegrationTest
+    public class CSharp4813Tests : LinqIntegrationTest<CSharp4813Tests.ClassFixture>
     {
+        public CSharp4813Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_BitArray_Count_should_throw()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.BitArray.Count == 1);
@@ -43,7 +50,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Count == 1);
@@ -58,7 +65,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_Dictionary_Count_should_throw()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Dictionary.Count == 1);
@@ -70,7 +77,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_DictionaryAsArrayOfArrays_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryAsArrayOfArrays.Count == 1);
@@ -85,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_DictionaryAsArrayOfDocuments_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryAsArrayOfDocuments.Count == 1);
@@ -100,7 +107,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_DictionaryInterface_Count_should_throw()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryInterface.Count == 1);
@@ -112,7 +119,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_DictionaryInterfaceArrayOfArrays_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryInterfaceAsArrayOfArrays.Count == 1);
@@ -127,7 +134,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_DictionaryInterfaceArrayOfDocuments_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.DictionaryInterfaceAsArrayOfDocuments.Count == 1);
@@ -142,7 +149,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_List_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.List.Count == 1);
@@ -157,7 +164,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_ListInterface_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.ListInterface.Count == 1);
@@ -174,7 +181,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_BitArray_Count_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -183,7 +191,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$BitArray'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -200,7 +208,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.Count);
@@ -217,7 +225,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_Dictionary_Count_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -226,7 +235,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$Dictionary'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -243,7 +252,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_DictionaryAsArrayOfArrays_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryAsArrayOfArrays.Count);
@@ -258,7 +267,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_DictionaryAsArrayOfDocuments_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryAsArrayOfDocuments.Count);
@@ -275,7 +284,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Select_DictionaryInterface_Count_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -284,7 +294,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$DictionaryInterface'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -301,7 +311,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_DictionaryInterfaceAsArrayOfArrays_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryInterfaceAsArrayOfArrays.Count);
@@ -316,7 +326,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_DictionaryInterfaceAsArrayOfDocuments_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.DictionaryInterfaceAsArrayOfDocuments.Count);
@@ -331,7 +341,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_List_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.List.Count);
@@ -346,7 +356,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_ListInterface_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.ListInterface.Count);
@@ -358,11 +368,25 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(1, 2);
         }
 
-        private IMongoCollection<C> GetCollection()
+        public class C
         {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
+            public int Id { get; set; }
+            public BitArray BitArray { get; set; }
+            public int Count { get; set; }
+            public Dictionary<string, int> Dictionary { get; set; }
+            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public Dictionary<string, int> DictionaryAsArrayOfArrays { get; set; }
+            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public Dictionary<string, int> DictionaryAsArrayOfDocuments { get; set; }
+            public IDictionary<string, int> DictionaryInterface { get; set; }
+            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfArrays { get; set; }
+            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfDocuments { get; set; }
+            public List<int> List { get; set; }
+            public IList<int> ListInterface { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
                 new C
                 {
                     Id = 1,
@@ -390,23 +414,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     DictionaryInterfaceAsArrayOfDocuments = new Dictionary<string, int> { { "A", 1 }, { "B", 2 } },
                     List = new() { 1, 2 },
                     ListInterface = new List<int> { 1, 2 }
-                }); ;
-            return collection;
-        }
-
-        private class C
-        {
-            public int Id { get; set; }
-            public BitArray BitArray { get; set; }
-            public int Count { get; set; }
-            public Dictionary<string, int> Dictionary { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public Dictionary<string, int> DictionaryAsArrayOfArrays { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public Dictionary<string, int> DictionaryAsArrayOfDocuments { get; set; }
-            public IDictionary<string, int> DictionaryInterface { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfArrays { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfDocuments { get; set; }
-            public List<int> List { get; set; }
-            public IList<int> ListInterface { get; set; }
+                }
+            ];
         }
     }
 }

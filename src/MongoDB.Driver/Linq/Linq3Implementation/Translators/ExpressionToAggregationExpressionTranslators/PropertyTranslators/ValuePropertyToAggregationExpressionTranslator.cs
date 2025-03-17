@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ValuePropertyToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MemberExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MemberExpression expression)
         {
             if (expression.Member is PropertyInfo propertyInfo && propertyInfo.Is(NullableProperty.Value))
             {
@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var containerTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, containerExpression);
                 if (containerTranslation.Serializer is IChildSerializerConfigurable containerSerializer)
                 {
-                    return new AggregationExpression(expression, containerTranslation.Ast, containerSerializer.ChildSerializer);
+                    return new TranslatedExpression(expression, containerTranslation.Ast, containerSerializer.ChildSerializer);
                 }
             }
 

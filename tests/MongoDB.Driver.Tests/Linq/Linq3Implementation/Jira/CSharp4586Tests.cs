@@ -13,20 +13,27 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 #if NET6_0_OR_GREATER
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4586Tests : Linq3IntegrationTest
+    public class CSharp4586Tests : LinqIntegrationTest<CSharp4586Tests.ClassFixture>
     {
+        public CSharp4586Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Project_View1_with_constructor_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -48,7 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_View1_with_empty_initializer_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -70,7 +77,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_View2_with_constructor_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -93,7 +100,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Project_View2_with_empty_initializer_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -117,7 +124,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Project_View2_with_initializer_should_work()
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var id = "a";
             var filter = Builders<Model>.Filter.Eq(m => m.Id, id);
 
@@ -137,14 +144,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             deleteResult.DeletedCount.Should().Be(1);
         }
 
-        private IMongoCollection<Model> CreateCollection()
-        {
-            var collection = GetCollection<Model>("test");
-            CreateCollection(collection, new Model("a"));
-            return collection;
-        }
-
-        private class Model
+        public class Model
         {
             public Model(string id)
             {
@@ -173,6 +173,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             public string Id { get; }
             public int? Version { get; init; } // View1 does not have this property
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Model>
+        {
+            public override bool InitializeDataBeforeEachTestCase => true;
+            protected override IEnumerable<Model> InitialData =>
+            [
+                new Model("a")
+            ];
         }
     }
 }

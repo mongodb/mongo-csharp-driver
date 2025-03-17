@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class PowMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var yAst = ConvertHelper.RemoveWideningConvert(yTranslation);
                 var ast = AstExpression.Pow(xAst, yAst);
 
-                return new AggregationExpression(expression, ast, new DoubleSerializer());
+                return new TranslatedExpression(expression, ast, new DoubleSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

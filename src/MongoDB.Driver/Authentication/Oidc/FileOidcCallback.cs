@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System.IO;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
@@ -22,35 +22,51 @@ namespace MongoDB.Driver.Authentication.Oidc
 {
     internal sealed class FileOidcCallback : IOidcCallback
     {
+        private readonly IFileSystemProvider _fileSystemProvider;
+
         #region static
-        public static FileOidcCallback CreateFromEnvironmentVariable(string environmentVariableName, IEnvironmentVariableProvider environmentVariableProvider)
+        public static FileOidcCallback CreateFromEnvironmentVariable(
+            IEnvironmentVariableProvider environmentVariableProvider,
+            IFileSystemProvider fileSystemProvider,
+            string[] environmentVariableNames,
+            string defaultPath = null)
         {
-            var tokenPath = Ensure.IsNotNull(environmentVariableProvider, nameof(environmentVariableProvider)).GetEnvironmentVariable(environmentVariableName);
-            return new FileOidcCallback(tokenPath);
+            Ensure.IsNotNull(environmentVariableProvider, nameof(environmentVariableProvider));
+            Ensure.IsNotNull(fileSystemProvider, nameof(fileSystemProvider));
+            Ensure.IsNotNullOrEmpty(environmentVariableNames, nameof(environmentVariableNames));
+
+            string filePath = null;
+            foreach (var variableName in environmentVariableNames)
+            {
+                filePath = environmentVariableProvider.GetEnvironmentVariable(variableName);
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    break;
+                }
+            }
+
+            filePath ??= defaultPath;
+            return new FileOidcCallback(fileSystemProvider, filePath);
         }
         #endregion
 
-        private readonly string _path;
-
-        public FileOidcCallback(string path)
+        public FileOidcCallback(IFileSystemProvider fileSystemProvider, string filePath)
         {
-            _path = Ensure.IsNotNullOrEmpty(path, nameof(path));
+            _fileSystemProvider = Ensure.IsNotNull(fileSystemProvider, nameof(fileSystemProvider));
+            FilePath = Ensure.IsNotNullOrEmpty(filePath, nameof(filePath));
         }
+
+        public string FilePath { get; }
 
         public OidcAccessToken GetOidcAccessToken(OidcCallbackParameters parameters, CancellationToken cancellationToken)
         {
-            var accessToken = File.ReadAllText(_path);
+            var accessToken = _fileSystemProvider.File.ReadAllText(FilePath);
             return new(accessToken, expiresIn: null);
         }
 
         public async Task<OidcAccessToken> GetOidcAccessTokenAsync(OidcCallbackParameters parameters, CancellationToken cancellationToken)
         {
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
-            var accessToken = await File.ReadAllTextAsync(_path, cancellationToken).ConfigureAwait(false);
-#else
-            using var streamReader = new StreamReader(_path, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-            var accessToken = await streamReader.ReadToEndAsync().ConfigureAwait(false); // no support for cancellationToken
-#endif
+            var accessToken = await _fileSystemProvider.File.ReadAllTextAsync(FilePath).ConfigureAwait(false);
             return new(accessToken, expiresIn: null);
         }
     }

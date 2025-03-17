@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class BinaryExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
         {
             if (StringConcatMethodToAggregationExpressionTranslator.CanTranslate(expression, out var method, out var arguments))
             {
@@ -53,12 +53,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression, because: "operand types are not compatible with each other");
             }
 
-            if (IsEnumExpression(expression))
+            if (IsEnumArithmeticExpression(expression))
             {
-                return TranslateEnumExpression(context, expression);
+                return TranslateEnumArithmeticExpression(context, expression, leftExpression, rightExpression);
             }
 
-            AggregationExpression leftTranslation, rightTranslation;
+            if (IsCoalesceExpression(expression))
+            {
+                return TranslateCoalesceExpression(context, expression, leftExpression, rightExpression);
+            }
+
+            TranslatedExpression leftTranslation, rightTranslation;
             if (leftExpression is ConstantExpression leftConstantExpresion)
             {
                 rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
@@ -75,65 +80,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
             }
 
-            var leftAst = leftTranslation.Ast;
-            var rightAst = rightTranslation.Ast;
             if (IsArithmeticExpression(expression))
             {
-                SerializationHelper.EnsureRepresentationIsNumeric(expression, leftExpression, leftTranslation);
-                SerializationHelper.EnsureRepresentationIsNumeric(expression, rightExpression, rightTranslation);
-
-                leftAst = ConvertHelper.RemoveWideningConvert(leftTranslation);
-                rightAst = ConvertHelper.RemoveWideningConvert(rightTranslation);
+                return TranslateArithmeticExpression(expression, leftExpression, rightExpression, leftTranslation, rightTranslation);
             }
 
-            var ast = expression.NodeType switch
+            if (IsBooleanExpression(expression))
             {
-                ExpressionType.Add => AstExpression.Add(leftAst, rightAst),
-                ExpressionType.And => expression.Type == typeof(bool) ?
-                    AstExpression.And(leftAst, rightAst) :
-                    AstExpression.BitAnd(leftAst, rightAst),
-                ExpressionType.AndAlso => AstExpression.And(leftAst, rightAst),
-                ExpressionType.Coalesce => AstExpression.IfNull(leftAst, rightAst),
-                ExpressionType.Divide => AstExpression.Divide(leftAst, rightAst),
-                ExpressionType.Equal => AstExpression.Eq(leftAst, rightAst),
-                ExpressionType.ExclusiveOr => expression.Type == typeof(bool) ?
-                    throw new ExpressionNotSupportedException(expression, because: "MongoDB does not have an $xor operator") :
-                    AstExpression.BitXor(leftAst, rightAst),
-                ExpressionType.GreaterThan => AstExpression.Gt(leftAst, rightAst),
-                ExpressionType.GreaterThanOrEqual => AstExpression.Gte(leftAst, rightAst),
-                ExpressionType.LessThan => AstExpression.Lt(leftAst, rightAst),
-                ExpressionType.LessThanOrEqual => AstExpression.Lte(leftAst, rightAst),
-                ExpressionType.Modulo => AstExpression.Mod(leftAst, rightAst),
-                ExpressionType.Multiply => AstExpression.Multiply(leftAst, rightAst),
-                ExpressionType.NotEqual => AstExpression.Ne(leftAst, rightAst),
-                ExpressionType.Or => expression.Type == typeof(bool) ?
-                    AstExpression.Or(leftAst, rightAst) :
-                    AstExpression.BitOr(leftAst, rightAst),
-                ExpressionType.OrElse => AstExpression.Or(leftAst, rightAst),
-                ExpressionType.Power => AstExpression.Pow(leftAst, rightAst),
-                ExpressionType.Subtract => AstExpression.Subtract(leftAst, rightAst),
-                _ => throw new ExpressionNotSupportedException(expression)
-            };
-            var serializer = expression.Type switch
-            {
-                Type t when t == typeof(bool) => new BooleanSerializer(),
-                Type t when t == typeof(string) => new StringSerializer(),
-                Type t when t == typeof(byte) => new ByteSerializer(),
-                Type t when t == typeof(short) => new Int16Serializer(),
-                Type t when t == typeof(ushort) => new UInt16Serializer(),
-                Type t when t == typeof(int) => new Int32Serializer(),
-                Type t when t == typeof(uint) => new UInt32Serializer(),
-                Type t when t == typeof(long) => new Int64Serializer(),
-                Type t when t == typeof(ulong) => new UInt64Serializer(),
-                Type t when t == typeof(float) => new SingleSerializer(),
-                Type t when t == typeof(double) => new DoubleSerializer(),
-                Type t when t == typeof(decimal) => DecimalSerializer.Instance,
-                Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
-                Type { IsArray: true } t => (IBsonSerializer)Activator.CreateInstance(typeof(ArraySerializer<>).MakeGenericType(t.GetElementType())),
-                _ => context.KnownSerializersRegistry.GetSerializer(expression) // Required for Coalesce
-            };
+                return TranslateBooleanExpression(expression, leftExpression, rightExpression, leftTranslation, rightTranslation);
+            }
 
-            return new AggregationExpression(expression, ast, serializer);
+            if (IsComparisonExpression(expression))
+            {
+                return TranslateComparisonExpression(expression, leftTranslation, rightTranslation);
+            }
+
+            throw new ExpressionNotSupportedException(expression);
         }
 
         public static bool AreOperandTypesCompatible(Expression expression, Expression leftExpression, Expression rightExpression)
@@ -157,6 +119,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             return false;
+        }
+
+        private static void EnsureCoalesceArgumentSerializersAreCompatible(Expression expression, IBsonSerializer leftSerializer, IBsonSerializer rightSerializer)
+        {
+            if (leftSerializer.Equals(rightSerializer) ||
+                leftSerializer is INullableSerializer nullableLeftSerializer && nullableLeftSerializer.ValueSerializer.Equals(rightSerializer))
+            {
+                return;
+            }
+
+            throw new ExpressionNotSupportedException(expression, because: "argument serializers are not compatible");
         }
 
         private static IBsonSerializer GetConstantSerializer(BinaryExpression containingExpression, IBsonSerializer otherSerializer, Type constantType)
@@ -196,13 +169,39 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return nodeType switch
             {
                 ExpressionType.Add => true,
+                ExpressionType.And => true, // bitwise and
                 ExpressionType.Divide => true,
+                ExpressionType.ExclusiveOr => true, // bitwise xor
                 ExpressionType.Modulo => true,
                 ExpressionType.Multiply => true,
+                ExpressionType.Or => true, // bitwise or
                 ExpressionType.Power => true,
                 ExpressionType.Subtract => true,
                 _ => false
             };
+        }
+
+        private static bool IsBooleanExpression(BinaryExpression expression)
+        {
+            return expression.Type.IsBooleanOrNullableBoolean() && IsBooleanOperator(expression.NodeType);
+        }
+
+        private static bool IsBooleanOperator(ExpressionType nodeType)
+        {
+            return nodeType switch
+            {
+                ExpressionType.And => true,
+                ExpressionType.AndAlso => true,
+                ExpressionType.ExclusiveOr => true,
+                ExpressionType.Or => true,
+                ExpressionType.OrElse => true,
+                _ => false
+            };
+        }
+
+        private static bool IsCoalesceExpression(BinaryExpression expression)
+        {
+            return expression.NodeType == ExpressionType.Coalesce;
         }
 
         private static bool IsComparisonExpression(Expression expression)
@@ -235,10 +234,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return false;
         }
 
-        internal static bool IsEnumExpression(BinaryExpression expression)
+        internal static bool IsEnumArithmeticExpression(BinaryExpression expression)
         {
-            return IsEnumOrConvertEnumToUnderlyingType(expression.Left) || IsEnumOrConvertEnumToUnderlyingType(expression.Right);
-
+            return
+                (IsEnumOrConvertEnumToUnderlyingType(expression.Left) || IsEnumOrConvertEnumToUnderlyingType(expression.Right)) &&
+                IsAddOrSubtractExpression(expression);
         }
 
         static bool IsEnumOrConvertEnumToUnderlyingType(Expression expression)
@@ -246,117 +246,173 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return expression.Type.IsEnum || IsConvertEnumToUnderlyingType(expression);
         }
 
-        private static AstBinaryOperator ToBinaryOperator(ExpressionType nodeType)
+        private static TranslatedExpression TranslateArithmeticExpression(
+            BinaryExpression expression,
+            Expression leftExpression,
+            Expression rightExpression,
+            TranslatedExpression leftTranslation,
+            TranslatedExpression rightTranslation)
         {
-            return nodeType switch
+            SerializationHelper.EnsureRepresentationIsNumeric(expression, leftExpression, leftTranslation);
+            SerializationHelper.EnsureRepresentationIsNumeric(expression, rightExpression, rightTranslation);
+
+            var leftAst = ConvertHelper.RemoveWideningConvert(leftTranslation);
+            var rightAst = ConvertHelper.RemoveWideningConvert(rightTranslation);
+            var ast = expression.NodeType switch
             {
-                ExpressionType.Equal => AstBinaryOperator.Eq,
-                ExpressionType.NotEqual => AstBinaryOperator.Ne,
-                ExpressionType.LessThan => AstBinaryOperator.Lt,
-                ExpressionType.LessThanOrEqual => AstBinaryOperator.Lte,
-                ExpressionType.GreaterThan => AstBinaryOperator.Gt,
-                ExpressionType.GreaterThanOrEqual => AstBinaryOperator.Gte,
-                ExpressionType.Subtract => AstBinaryOperator.Subtract,
-                _ => throw new Exception($"Unexpected expression type: {nodeType}.")
+                ExpressionType.Add => AstExpression.Add(leftAst, rightAst),
+                ExpressionType.And => AstExpression.BitAnd(leftAst, rightAst),
+                ExpressionType.Divide => AstExpression.Divide(leftAst, rightAst),
+                ExpressionType.ExclusiveOr => AstExpression.BitXor(leftAst, rightAst),
+                ExpressionType.Modulo => AstExpression.Mod(leftAst, rightAst),
+                ExpressionType.Multiply => AstExpression.Multiply(leftAst, rightAst),
+                ExpressionType.Or => AstExpression.BitOr(leftAst, rightAst),
+                ExpressionType.Power => AstExpression.Pow(leftAst, rightAst),
+                ExpressionType.Subtract => AstExpression.Subtract(leftAst, rightAst),
+                _ => throw new ExpressionNotSupportedException(expression)
             };
+            var serializer = StandardSerializers.GetSerializer(expression.Type);
+
+            return new TranslatedExpression(expression, ast, serializer);
         }
 
-        private static AggregationExpression TranslateConstant(BinaryExpression containingExpression, ConstantExpression constantExpression, IBsonSerializer otherSerializer)
+        private static TranslatedExpression TranslateBooleanExpression(
+            BinaryExpression expression,
+            Expression leftExpression,
+            Expression rightExpression,
+            TranslatedExpression leftTranslation,
+            TranslatedExpression rightTranslation)
         {
-            var constantSerializer = GetConstantSerializer(containingExpression, otherSerializer, constantExpression.Type);
-            var serializedValue = SerializationHelper.SerializeValue(constantSerializer, constantExpression, containingExpression);
-            var ast = AstExpression.Constant(serializedValue);
-            return new AggregationExpression(constantExpression, ast, constantSerializer);
-        }
+            SerializationHelper.EnsureRepresentationIsBoolean(expression, leftExpression, leftTranslation);
+            SerializationHelper.EnsureRepresentationIsBoolean(expression, rightExpression, rightTranslation);
 
-        private static AggregationExpression TranslateEnumExpression(TranslationContext context, BinaryExpression expression)
-        {
-            var leftExpression = expression.Left;
-            var rightExpression = expression.Right;
-
-            AggregationExpression leftTranslation;
-            AggregationExpression rightTranslation;
-            IBsonSerializer serializer;
-
-            if (IsComparisonExpression(expression))
+            var leftAst = leftTranslation.Ast;
+            var rightAst = rightTranslation.Ast;
+            var ast = expression.NodeType switch
             {
-                if (leftExpression.NodeType == ExpressionType.Constant)
-                {
-                    rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
-                    leftTranslation = TranslateEnumConstant(expression, leftExpression, rightTranslation.Serializer);
-                }
-                else if (rightExpression.NodeType == ExpressionType.Constant)
-                {
-                    leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
-                    rightTranslation = TranslateEnumConstant(expression, rightExpression, leftTranslation.Serializer);
-                }
-                else
-                {
-                    leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
-                    rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
-                }
+                ExpressionType.And => AstExpression.And(leftAst, rightAst),
+                ExpressionType.AndAlso => AstExpression.And(leftAst, rightAst),
+                ExpressionType.ExclusiveOr => throw new ExpressionNotSupportedException(expression, because: "MongoDB does not have a boolean $xor operator"),
+                ExpressionType.Or => AstExpression.Or(leftAst, rightAst),
+                ExpressionType.OrElse => AstExpression.Or(leftAst, rightAst),
+                _ => throw new ExpressionNotSupportedException(expression)
+            };
 
-                if (!leftTranslation.Serializer.Equals(rightTranslation.Serializer))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "the two enums being compared are serialized using different serializers");
-                }
+            return new TranslatedExpression(expression, ast, StandardSerializers.BooleanSerializer);
+        }
 
-                serializer = BooleanSerializer.Instance;
+        private static TranslatedExpression TranslateCoalesceExpression(
+            TranslationContext context,
+            BinaryExpression expression,
+            Expression leftExpression,
+            Expression rightExpression)
+        {
+            TranslatedExpression leftTranslation, rightTranslation;
+            if (leftExpression is ConstantExpression leftConstantExpression)
+            {
+                rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+                var constantType = leftConstantExpression.Type;
+                var constantSerializer = rightTranslation.Serializer;
+                if (constantType.IsNullable(out var valueType) && constantSerializer.ValueType == valueType)
+                {
+                    constantSerializer = NullableSerializer.Create(constantSerializer);
+                }
+                leftTranslation = ConstantExpressionToAggregationExpressionTranslator.Translate(leftConstantExpression, constantSerializer);
             }
-            else if (IsAddOrSubtractExpression(expression))
+            else if (rightExpression is ConstantExpression rightConstantExpression)
+            {
+                leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+                var constantType = rightConstantExpression.Type;
+                var constantSerializer = leftTranslation.Serializer;
+                if (constantSerializer is INullableSerializer nullableSerializer && nullableSerializer.ValueSerializer.ValueType == constantType)
+                {
+                    constantSerializer = nullableSerializer.ValueSerializer;
+                }
+                rightTranslation = ConstantExpressionToAggregationExpressionTranslator.Translate(rightConstantExpression, constantSerializer);
+            }
+            else
             {
                 leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
                 rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+            }
 
-                AggregationExpression enumTranslation, operandTranslation;
-                if (IsEnumOrConvertEnumToUnderlyingType(leftExpression))
-                {
-                    enumTranslation = leftTranslation;
-                    operandTranslation = rightTranslation;
-                }
-                else
-                {
-                    enumTranslation = rightTranslation;
-                    operandTranslation = leftTranslation;
-                }
+            EnsureCoalesceArgumentSerializersAreCompatible(expression, leftTranslation.Serializer, rightTranslation.Serializer);
+            var ast = AstExpression.IfNull(leftTranslation.Ast, rightTranslation.Ast);
 
-                if (!SerializationHelper.IsRepresentedAsIntegerOrNullableInteger(enumTranslation))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "arithmetic on enums is only allowed when the enum is represented as an integer");
-                }
+            return new TranslatedExpression(expression, ast, rightTranslation.Serializer);
+        }
 
-                if (!SerializationHelper.IsRepresentedAsIntegerOrNullableInteger(operandTranslation))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "the value being added to or subtracted from an enum must be represented as an integer");
-                }
+        private static TranslatedExpression TranslateComparisonExpression(
+            BinaryExpression expression,
+            TranslatedExpression leftTranslation,
+            TranslatedExpression rightTranslation)
+        {
+            SerializationHelper.EnsureArgumentSerializersAreEqual(expression, leftTranslation, rightTranslation);
 
-                serializer = enumTranslation.Serializer;
+            var leftAst = leftTranslation.Ast;
+            var rightAst = rightTranslation.Ast;
+            var ast = expression.NodeType switch
+            {
+                ExpressionType.Equal => AstExpression.Eq(leftAst, rightAst),
+                ExpressionType.GreaterThan => AstExpression.Gt(leftAst, rightAst),
+                ExpressionType.GreaterThanOrEqual => AstExpression.Gte(leftAst, rightAst),
+                ExpressionType.LessThan => AstExpression.Lt(leftAst, rightAst),
+                ExpressionType.LessThanOrEqual => AstExpression.Lte(leftAst, rightAst),
+                ExpressionType.NotEqual => AstExpression.Ne(leftAst, rightAst),
+                _ => throw new ExpressionNotSupportedException(expression)
+            };
+
+            return new TranslatedExpression(expression, ast, StandardSerializers.BooleanSerializer);
+        }
+
+        private static TranslatedExpression TranslateConstant(BinaryExpression containingExpression, ConstantExpression constantExpression, IBsonSerializer otherSerializer)
+        {
+            var constantSerializer = GetConstantSerializer(containingExpression, otherSerializer, constantExpression.Type);
+            return ConstantExpressionToAggregationExpressionTranslator.Translate(constantExpression, constantSerializer);
+        }
+
+        private static TranslatedExpression TranslateEnumArithmeticExpression(
+            TranslationContext context,
+            BinaryExpression expression,
+            Expression leftExpression,
+            Expression rightExpression)
+        {
+            var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+            var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+
+            TranslatedExpression enumTranslation, operandTranslation;
+            if (IsEnumOrConvertEnumToUnderlyingType(leftExpression))
+            {
+                enumTranslation = leftTranslation;
+                operandTranslation = rightTranslation;
             }
             else
             {
-                throw new ExpressionNotSupportedException(expression);
+                enumTranslation = rightTranslation;
+                operandTranslation = leftTranslation;
             }
 
-            AstExpression ast;
-            if (expression.NodeType == ExpressionType.Add)
+            if (!SerializationHelper.IsRepresentedAsIntegerOrNullableInteger(enumTranslation))
             {
-                ast = AstExpression.Add(leftTranslation.Ast, rightTranslation.Ast);
-            }
-            else
-            {
-                var binaryOperator = ToBinaryOperator(expression.NodeType);
-                ast = AstExpression.Binary(binaryOperator, leftTranslation.Ast, rightTranslation.Ast);
+                throw new ExpressionNotSupportedException(expression, because: "arithmetic on enums is only allowed when the enum is represented as an integer");
             }
 
-            return new AggregationExpression(expression, ast, serializer);
-
-            static AggregationExpression TranslateEnumConstant(Expression expression, Expression constantExpression, IBsonSerializer serializer)
+            if (!SerializationHelper.IsRepresentedAsIntegerOrNullableInteger(operandTranslation))
             {
-                var value = constantExpression.GetConstantValue<object>(expression);
-                var serializedValue = SerializationHelper.SerializeValue(serializer, value);
-                var ast = AstExpression.Constant(serializedValue);
-                return new AggregationExpression(constantExpression, ast, serializer);
+                throw new ExpressionNotSupportedException(expression, because: "the value being added to or subtracted from an enum must be represented as an integer");
             }
+
+            var leftAst = leftTranslation.Ast;
+            var rightAst = rightTranslation.Ast;
+            var ast = expression.NodeType switch
+            {
+                ExpressionType.Add => AstExpression.Add(leftAst, rightAst),
+                ExpressionType.Subtract => AstExpression.Subtract(leftAst, rightAst),
+                _ => throw new ExpressionNotSupportedException(expression)
+            };
+            var serializer = enumTranslation.Serializer;
+
+            return new TranslatedExpression(expression, ast, serializer);
         }
     }
 }

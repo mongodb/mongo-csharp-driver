@@ -38,6 +38,8 @@ namespace MongoDB.Driver
         /// </summary>
         public CollectionNamespace Namespace { get; }
 
+        internal abstract bool IsMulti { get; }
+
         internal abstract void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer);
     }
 }

@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.TopNWithComputedN
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments.ToArray();
@@ -102,6 +102,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
                 if (method.IsOneOf(__accumulatorOnlyMethods) && !IsGroupingSource(sourceTranslation.Ast))
@@ -123,7 +124,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var selectorContext = context.WithSymbol(selectorParameterSymbol);
                 var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(selectorContext, selectorLambda, itemSerializer, asRoot: false);
 
-                AggregationExpression nTranslation = null;
+                TranslatedExpression nTranslation = null;
                 IBsonSerializer resultSerializer;
                 if (method.IsOneOf(__withNMethods, __withComputedNMethods))
                 {
@@ -181,7 +182,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     selectorAst,
                     nTranslation?.Ast);
 
-                return new AggregationExpression(expression, ast, resultSerializer);
+                return new TranslatedExpression(expression, ast, resultSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
@@ -260,18 +261,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             return
                 source is AstGetFieldExpression getFieldExpression &&
-                getFieldExpression.Input is AstVarExpression inputVarExpression &&
-                inputVarExpression.Name == "ROOT" &&
+                getFieldExpression.Input.IsRootVar() &&
                 getFieldExpression.FieldName is AstConstantExpression fieldNameConstantExpression &&
                 fieldNameConstantExpression.Value == "_elements";
         }
 
-        private static bool IsValidKey(AggregationExpression keyTranslation)
+        private static bool IsValidKey(TranslatedExpression keyTranslation)
         {
             if (keyTranslation.Ast is AstGetFieldExpression getFieldExpression &&
-                getFieldExpression.Input is AstVarExpression inputVarExpression &&
+                getFieldExpression.Input.IsRootVar() &&
                 getFieldExpression.FieldName is AstConstantExpression constantFieldName &&
-                inputVarExpression.Name == "ROOT" &&
                 constantFieldName.Value == "_id")
             {
                 return true;

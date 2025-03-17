@@ -56,9 +56,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return CountComparisonExpressionToFilterTranslator.Translate(context, expression, comparisonOperator, countExpression, sizeExpression);
             }
 
-            if (GetTypeComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression))
+            if (GetTypeComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, comparisonOperator, rightExpression))
             {
-                return GetTypeComparisonExpressionToFilterTranslator.Translate(context, expression, (MethodCallExpression)leftExpression, (ConstantExpression)rightExpression);
+                return GetTypeComparisonExpressionToFilterTranslator.Translate(context, expression, (MethodCallExpression)leftExpression, comparisonOperator, (ConstantExpression)rightExpression);
             }
 
             if (ModuloComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression, out var moduloExpression, out var remainderExpression))
@@ -89,9 +89,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return TranslateComparisonToBooleanConstant(context, expression, leftExpression, comparisonOperator, (bool)comparandExpression.Value);
             }
 
-            var field = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
-            var serializedComparand = SerializationHelper.SerializeValue(field.Serializer, comparandExpression, expression);
-            return AstFilter.Compare(field, comparisonOperator, serializedComparand);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
+            var serializedComparand = SerializationHelper.SerializeValue(fieldTranslation.Serializer, comparandExpression, expression);
+            return AstFilter.Compare(fieldTranslation.Ast, comparisonOperator, serializedComparand);
         }
 
         private static AstFilter TranslateComparisonToBooleanConstant(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, bool comparand)

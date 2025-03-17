@@ -21,7 +21,7 @@ Resources:
     Properties:
       CodeUri: MongoDB.Driver.LambdaTest/
       Handler: MongoDB.Driver.LambdaTest::MongoDB.Driver.LambdaTest.LambdaFunction::LambdaFunctionHandlerAsync
-      Runtime: dotnet6
+      Runtime: dotnet8
       Architectures:
       - x86_64
       Environment:
@@ -33,20 +33,6 @@ Resources:
           Properties:
             Path: /mongodb
             Method: get
-
-  ApplicationResourceGroup:
-    Type: AWS::ResourceGroups::Group
-    Properties:
-      Name:
-        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
-      ResourceQuery:
-        Type: CLOUDFORMATION_STACK_1_0
-  ApplicationInsightsMonitoring:
-    Type: AWS::ApplicationInsights::Application
-    Properties:
-      ResourceGroupName:
-        Ref: ApplicationResourceGroup
-      AutoConfigurationEnabled: 'true'
 Outputs:
   LambdaTestApi:
     Description: API Gateway endpoint URL for Prod stage for C# Driver Lambda Test function

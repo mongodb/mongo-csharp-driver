@@ -134,9 +134,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             return new AstExprFilter(expression);
         }
 
-        public static AstFilterField Field(string path, IBsonSerializer serializer)
+        public static AstFilterField Field(string path)
         {
-            return new AstFilterField(path, serializer);
+            return new AstFilterField(path);
         }
 
         public static AstFieldOperationFilter In(AstFilterField field, IEnumerable<BsonValue> values)

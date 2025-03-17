@@ -24,14 +24,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class LambdaExpressionExtensions
     {
-        public static string GetFieldPath(this LambdaExpression fieldSelectorLambda, TranslationContext context, IBsonSerializer parameterSerializer)
+        public static bool LambdaBodyReferencesParameter(this LambdaExpression lambda, ParameterExpression parameter)
+        {
+            return ExpressionIsReferencedVisitor.IsReferenced(lambda.Body, parameter);
+        }
+
+        public static string TranslateToDottedFieldName(this LambdaExpression fieldSelectorLambda, TranslationContext context, IBsonSerializer parameterSerializer)
         {
             var parameterExpression = fieldSelectorLambda.Parameters.Single();
             if (parameterSerializer.ValueType != parameterExpression.Type)
             {
                 throw new ArgumentException($"ValueType '{parameterSerializer.ValueType.FullName}' of parameterSerializer does not match parameter type '{parameterExpression.Type.FullName}'.", nameof(parameterSerializer));
             }
-            var parameterSymbol = context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true);
+            var parameterSymbol = context.CreateRootSymbol(parameterExpression, parameterSerializer);
             var lambdaContext = context.WithSymbol(parameterSymbol);
             var lambdaBody = ConvertHelper.RemoveConvertToObject(fieldSelectorLambda.Body);
             var fieldSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(lambdaContext, lambdaBody);
@@ -45,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 }
             }
 
-            throw new ExpressionNotSupportedException(fieldSelectorLambda, because: "expression cannot be translated as a field path");
+            throw new ExpressionNotSupportedException(fieldSelectorLambda, because: "expression cannot be translated to a dotted field name");
         }
     }
 }

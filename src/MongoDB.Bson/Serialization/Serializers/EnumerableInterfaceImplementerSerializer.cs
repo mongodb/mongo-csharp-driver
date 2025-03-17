@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class EnumerableInterfaceImplementerSerializer<TValue> :
         EnumerableInterfaceImplementerSerializerBase<TValue>,
         IChildSerializerConfigurable
-            where TValue : class, IList, new()
+            where TValue : IEnumerable, new()
     {
         // constructors
         /// <summary>
@@ -96,7 +96,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class EnumerableInterfaceImplementerSerializer<TValue, TItem> :
         EnumerableInterfaceImplementerSerializerBase<TValue, TItem>,
         IChildSerializerConfigurable
-            where TValue : class, IEnumerable<TItem>
+            where TValue : IEnumerable<TItem>
     {
         // constructors
         /// <summary>

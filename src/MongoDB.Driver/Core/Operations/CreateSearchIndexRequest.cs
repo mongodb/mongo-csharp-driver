@@ -21,11 +21,13 @@ namespace MongoDB.Driver.Core.Operations
     internal sealed class CreateSearchIndexRequest
     {
         public string Name { get; }
+        public SearchIndexType? Type { get; }
         public BsonDocument Definition { get; }
 
-        public CreateSearchIndexRequest(string name, BsonDocument definition)
+        public CreateSearchIndexRequest(string name, SearchIndexType? type, BsonDocument definition)
         {
             Name = name;
+            Type = type;
             Definition = Ensure.IsNotNull(definition, nameof(definition));
         }
 
@@ -34,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
             new()
             {
                 { "name", Name, Name != null },
+                { "type", Type == SearchIndexType.VectorSearch ? "vectorSearch" : "search", Type != null },
                 { "definition", Definition }
             };
     }

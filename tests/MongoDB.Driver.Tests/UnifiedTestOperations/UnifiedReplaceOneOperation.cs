@@ -24,26 +24,31 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly FilterDefinition<BsonDocument> _filter;
-        private readonly ReplaceOptions _options;
+        private readonly ReplaceOptions<BsonDocument> _options;
         private readonly BsonDocument _replacement;
+        private readonly IClientSessionHandle _session;
 
         public UnifiedReplaceOneOperation(
             IMongoCollection<BsonDocument> collection,
             FilterDefinition<BsonDocument> filter,
             BsonDocument replacement,
-            ReplaceOptions options)
+            ReplaceOptions<BsonDocument> options,
+            IClientSessionHandle session)
         {
             _collection = collection;
             _filter = filter;
             _replacement = replacement;
             _options = options;
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var result = _collection.ReplaceOne(_filter, _replacement, _options, cancellationToken);
+                var result = _session == null
+                    ? _collection.ReplaceOne(_filter, _replacement, _options, cancellationToken)
+                    : _collection.ReplaceOne(_session, _filter, _replacement, _options, cancellationToken);
 
                 return new UnifiedReplaceOneOperationResultConverter().Convert(result);
             }
@@ -57,7 +62,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var result = await _collection.ReplaceOneAsync(_filter, _replacement, _options, cancellationToken);
+                var result = _session == null
+                    ? await _collection.ReplaceOneAsync(_filter, _replacement, _options, cancellationToken)
+                    : await _collection.ReplaceOneAsync(_session, _filter, _replacement, _options, cancellationToken);
 
                 return new UnifiedReplaceOneOperationResultConverter().Convert(result);
             }
@@ -82,33 +89,41 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var collection = _entityMap.Collections[targetCollectionId];
 
             FilterDefinition<BsonDocument> filter = null;
-            ReplaceOptions options = null;
+            ReplaceOptions<BsonDocument> options = null;
             BsonDocument replacement = null;
+            IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
                     case "comment":
-                        options ??= new ReplaceOptions();
+                        options ??= new ReplaceOptions<BsonDocument>();
                         options.Comment = argument.Value;
                         break;
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
                     case "hint":
-                        options ??= new ReplaceOptions();
+                        options ??= new ReplaceOptions<BsonDocument>();
                         options.Hint = argument.Value;
                         break;
                     case "let":
-                        options ??= new ReplaceOptions();
+                        options ??= new ReplaceOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;
+                    case "session":
+                        session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "sort":
+                        options ??= new ReplaceOptions<BsonDocument>();
+                        options.Sort = argument.Value.AsBsonDocument;
+                        break;
                     case "upsert":
-                        options ??= new ReplaceOptions();
+                        options ??= new ReplaceOptions<BsonDocument>();
                         options.IsUpsert = argument.Value.AsBoolean;
                         break;
                     default:
@@ -116,7 +131,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedReplaceOneOperation(collection, filter, replacement, options);
+            return new UnifiedReplaceOneOperation(collection, filter, replacement, options, session);
         }
     }
 

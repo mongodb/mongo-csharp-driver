@@ -269,6 +269,51 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        internal static IDiscriminatorConvention GetOrRegisterDiscriminatorConvention(Type type, IDiscriminatorConvention discriminatorConvention)
+        {
+            __configLock.EnterReadLock();
+            try
+            {
+                if (__discriminatorConventions.TryGetValue(type, out var registeredDiscriminatorConvention))
+                {
+                    return registeredDiscriminatorConvention;
+                }
+            }
+            finally
+            {
+                __configLock.ExitReadLock();
+            }
+
+            __configLock.EnterWriteLock();
+            try
+            {
+                if (__discriminatorConventions.TryGetValue(type, out var registeredDiscrimantorConvention))
+                {
+                    return registeredDiscrimantorConvention;
+                }
+
+                RegisterDiscriminatorConvention(type, discriminatorConvention);
+                return discriminatorConvention;
+            }
+            finally
+            {
+                __configLock.ExitWriteLock();
+            }
+        }
+
+        internal static bool IsDiscriminatorConventionRegisteredAtThisLevel(Type type)
+        {
+            __configLock.EnterReadLock();
+            try
+            {
+                return __discriminatorConventions.ContainsKey(type);
+            }
+            finally
+            {
+                __configLock.ExitReadLock();
+            }
+        }
+
         /// <summary>
         /// Returns whether the given type has any discriminators registered for any of its subclasses.
         /// </summary>
@@ -731,6 +776,37 @@ namespace MongoDB.Bson.Serialization
             {
                 __configLock.ExitWriteLock();
             }
+        }
+
+        // internal static methods
+        internal static BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
+        {
+            // note: EnsureKnownTypesAreRegistered handles its own locking so call from outside any lock
+            EnsureKnownTypesAreRegistered(type);
+
+            var discriminators = new List<BsonValue>();
+
+            __configLock.EnterReadLock();
+            try
+            {
+                foreach (var entry in __discriminators)
+                {
+                    var discriminator = entry.Key;
+                    var actualTypes = entry.Value;
+
+                    var matchingType = actualTypes.SingleOrDefault(t => t == type || t.IsSubclassOf(type));
+                    if (matchingType != null)
+                    {
+                        discriminators.Add(discriminator);
+                    }
+                }
+            }
+            finally
+            {
+                __configLock.ExitReadLock();
+            }
+
+            return discriminators.OrderBy(x => x).ToArray();
         }
 
         // private static methods

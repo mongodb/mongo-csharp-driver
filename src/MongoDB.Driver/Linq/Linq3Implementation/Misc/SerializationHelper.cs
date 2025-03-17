@@ -27,6 +27,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class SerializationHelper
     {
+        public static void EnsureArgumentSerializersAreEqual(Expression expression, TranslatedExpression firstArgumentTranslation, TranslatedExpression secondArgumentTranslation)
+        {
+            EnsureArgumentSerializersAreEqual(expression, firstArgumentTranslation.Serializer, secondArgumentTranslation.Serializer);
+        }
+
+        public static void EnsureArgumentSerializersAreEqual(Expression expression, IBsonSerializer firstSerializer, IBsonSerializer secondSerializer)
+        {
+            if (!firstSerializer.Equals(secondSerializer))
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"the two arguments are serialized differently");
+            }
+        }
+
         public static void EnsureRepresentationIsArray(Expression expression, IBsonSerializer serializer)
         {
             var representation = GetRepresentation(serializer);
@@ -36,7 +49,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static void EnsureRepresentationIsNumeric(Expression expression, Expression argumentExpression, AggregationExpression argumentTranslation)
+        public static void EnsureRepresentationIsBoolean(Expression expression, Expression argumentExpression, TranslatedExpression argumentTranslation)
+        {
+            EnsureRepresentationIsBoolean(expression, argumentExpression, argumentTranslation.Serializer);
+        }
+
+        public static void EnsureRepresentationIsBoolean(Expression expression, Expression argumentExpression, IBsonSerializer argumentSerializer)
+        {
+            var argumentRepresentation = GetRepresentation(argumentSerializer);
+            if (argumentRepresentation != BsonType.Boolean)
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"{argumentExpression} uses a non-boolean representation: {argumentRepresentation}");
+            }
+        }
+
+        public static void EnsureRepresentationIsNumeric(Expression expression, Expression argumentExpression, TranslatedExpression argumentTranslation)
         {
             EnsureRepresentationIsNumeric(expression, argumentExpression, argumentTranslation.Serializer);
         }
@@ -142,7 +169,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return IsIntegerRepresentation(representation);
         }
 
-        public static bool IsRepresentedAsIntegerOrNullableInteger(AggregationExpression translation)
+        public static bool IsRepresentedAsIntegerOrNullableInteger(TranslatedExpression translation)
         {
             return IsRepresentedAsIntegerOrNullableInteger(translation.Serializer);
         }

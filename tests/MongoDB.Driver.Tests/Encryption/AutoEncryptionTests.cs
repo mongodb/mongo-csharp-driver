@@ -50,7 +50,6 @@ namespace MongoDB.Driver.Tests.Encryption
         public void CryptClient_should_be_initialized([Values(false, true)] bool withAutoEncryption)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             using (var client = GetClient(withAutoEncryption))
             {
@@ -72,7 +71,6 @@ namespace MongoDB.Driver.Tests.Encryption
         public async Task Mongocryptd_should_be_initialized_when_auto_encryption([Values(false, true)] bool withAutoEncryption, [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
 
             using (var client = GetClient(
                 withAutoEncryption,
@@ -111,8 +109,6 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true, allowEmpty: false);
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
-
             Ensure.That(File.Exists(Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH")), "CRYPT_SHARED_LIB_PATH should exist.");
 
             using (var client = GetClient(withAutoEncryption: true))

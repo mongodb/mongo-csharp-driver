@@ -33,19 +33,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             if (IsContainsKeyMethod(method))
             {
-                var dictionaryExpression = expression.Object;
+                var fieldExpression = expression.Object;
                 var keyExpression = arguments[0];
 
-                var dictionaryField = ExpressionToFilterFieldTranslator.Translate(context, dictionaryExpression);
-                var dictionarySerializer = GetDictionarySerializer(expression, dictionaryField);
-                var valueSerializer = dictionarySerializer.ValueSerializer;
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var dictionarySerializer = GetDictionarySerializer(expression, fieldTranslation);
                 var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
 
                 switch (dictionaryRepresentation)
                 {
                     case DictionaryRepresentation.Document:
                         var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
-                        var keyField = dictionaryField.SubField(key, valueSerializer);
+                        var keyField = fieldTranslation.Ast.SubField(key);
                         return AstFilter.Exists(keyField);
 
                     default:
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static IBsonDictionarySerializer GetDictionarySerializer(Expression expression, AstFilterField field)
+        private static IBsonDictionarySerializer GetDictionarySerializer(Expression expression, TranslatedFilterField field)
         {
             if (field.Serializer is IBsonDictionarySerializer dictionarySerializer)
             {

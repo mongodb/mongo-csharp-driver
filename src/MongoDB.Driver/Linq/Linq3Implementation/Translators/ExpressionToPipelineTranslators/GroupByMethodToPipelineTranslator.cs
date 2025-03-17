@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
         }
 
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -79,11 +79,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var (elementAst, elementSerializer) = TranslateElement(context, method, arguments, sourceSerializer);
 
                 var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
-                pipeline = pipeline.AddStages(
-                    groupingSerializer,
+                pipeline = pipeline.AddStage(
                     AstStage.Group(
                         id: keySelectorTranslation.Ast,
-                        fields: AstExpression.AccumulatorField("_elements", AstUnaryAccumulatorOperator.Push, elementAst)));
+                        fields: AstExpression.AccumulatorField("_elements", AstUnaryAccumulatorOperator.Push, elementAst)),
+                    groupingSerializer);
 
                 if (method.IsOneOf(__groupByWithResultSelectorMethods))
                 {
@@ -113,16 +113,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             }
             else
             {
-                var rootVar = AstExpression.Var("ROOT", isCurrent: true);
-
                 if (sourceSerializer is IWrappedValueSerializer wrappedSerializer)
                 {
-                    elementAst = AstExpression.GetField(rootVar, wrappedSerializer.FieldName);
+                    elementAst = AstExpression.GetField(AstExpression.RootVar, wrappedSerializer.FieldName);
                     elementSerializer = wrappedSerializer.ValueSerializer;
                 }
                 else
                 {
-                    elementAst = rootVar;
+                    elementAst = AstExpression.RootVar;
                     elementSerializer = sourceSerializer;
                 }
             }
@@ -130,26 +128,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             return (elementAst, elementSerializer);
         }
 
-        private static AstPipeline TranslateResultSelector(
+        private static TranslatedPipeline TranslateResultSelector(
             TranslationContext context,
-            AstPipeline pipeline,
+            TranslatedPipeline pipeline,
             ReadOnlyCollection<Expression> arguments,
             IBsonSerializer keySerializer,
             IBsonSerializer elementSerializer)
         {
             var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments.Last());
-            var root = AstExpression.Var("ROOT", isCurrent: true);
             var keyParameter = resultSelectorLambda.Parameters[0];
-            var keyField = AstExpression.GetField(root, "_id");
+            var keyField = AstExpression.GetField(AstExpression.RootVar, "_id");
             var keySymbol = context.CreateSymbol(keyParameter, keyField, keySerializer);
             var elementsParameter = resultSelectorLambda.Parameters[1];
-            var elementsField = AstExpression.GetField(root, "_elements");
+            var elementsField = AstExpression.GetField(AstExpression.RootVar, "_elements");
             var elementsSerializer = IEnumerableSerializer.Create(elementSerializer);
             var elementsSymbol = context.CreateSymbol(elementsParameter, elementsField, elementsSerializer);
             var resultSelectContext = context.WithSymbols(keySymbol, elementsSymbol);
             var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectContext, resultSelectorLambda.Body);
             var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
-            return pipeline.AddStages(projectionSerializer, projectStage);
+            return pipeline.AddStage(projectStage, projectionSerializer);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ToArrayMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -32,11 +32,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (EnumerableMethod.IsToArrayMethod(expression, out var sourceExpression))
             {
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
                 var arrayItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var arrayItemType = arrayItemSerializer.ValueType;
                 var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(arrayItemType);
                 var arraySerializer = (IBsonSerializer)Activator.CreateInstance(arraySerializerType, arrayItemSerializer);
-                return new AggregationExpression(expression, sourceTranslation.Ast, arraySerializer);
+
+                return new TranslatedExpression(expression, sourceTranslation.Ast, arraySerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

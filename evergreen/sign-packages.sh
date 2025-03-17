@@ -15,4 +15,4 @@ echo "GRS_CONFIG_USER1_PASSWORD=${GRS_PASSWORD}" >> "signing-envfile"
 
 docker run --platform="linux/amd64" --env-file=signing-envfile --rm -v $(pwd):/workdir -w /workdir \
   artifactory.corp.mongodb.com/release-tools-container-registry-local/garasign-jsign \
-  /bin/bash -c "jsign --tsaurl "http://timestamp.digicert.com" -a mongo-authenticode-2021 "./artifacts/nuget/*.$PACKAGE_VERSION.nupkg""
+  /bin/bash -c "jsign --tsaurl "http://timestamp.digicert.com" -a ${AUTHENTICODE_KEY_NAME} "./artifacts/nuget/*.$PACKAGE_VERSION.nupkg""

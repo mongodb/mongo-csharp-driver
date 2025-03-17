@@ -80,11 +80,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (CanTranslate(leftExpression, rightExpression, out var leftBinaryExpression))
             {
                 var fieldExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(leftBinaryExpression.Left);
-                var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var bitMaskExpression = leftBinaryExpression.Right;
                 var bitMask = bitMaskExpression.GetConstantValue<object>(containingExpression: expression);
-                var serializedBitMask = SerializationHelper.SerializeValue(field.Serializer, bitMask);
+                var serializedBitMask = SerializationHelper.SerializeValue(fieldTranslation.Serializer, bitMask);
 
                 var rightValue = rightExpression.GetConstantValue<object>(containingExpression: expression);
                 var zeroValue = Activator.CreateInstance(bitMask.GetType());
@@ -94,22 +94,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     case AstComparisonFilterOperator.Eq:
                         if (rightValue.Equals(zeroValue))
                         {
-                            return AstFilter.BitsAllClear(field, serializedBitMask);
+                            return AstFilter.BitsAllClear(fieldTranslation.Ast, serializedBitMask);
                         }
                         else if (rightValue.Equals(bitMask))
                         {
-                            return AstFilter.BitsAllSet(field, serializedBitMask);
+                            return AstFilter.BitsAllSet(fieldTranslation.Ast, serializedBitMask);
                         }
                         break;
 
                     case AstComparisonFilterOperator.Ne:
                         if (rightValue.Equals(zeroValue))
                         {
-                            return AstFilter.BitsAnySet(field, serializedBitMask);
+                            return AstFilter.BitsAnySet(fieldTranslation.Ast, serializedBitMask);
                         }
                         else if (rightValue.Equals(bitMask))
                         {
-                            return AstFilter.BitsAnyClear(field, serializedBitMask);
+                            return AstFilter.BitsAnyClear(fieldTranslation.Ast, serializedBitMask);
                         }
                         break;
                 }

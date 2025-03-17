@@ -37,7 +37,7 @@ internal static class DiscriminatorAstFilter
         }
         else
         {
-            var discriminatorFieldItemZero = discriminatorField.SubField("0", BsonValueSerializer.Instance);
+            var discriminatorFieldItemZero = discriminatorField.SubField("0");
             return AstFilter.And(
                 AstFilter.NotExists(discriminatorFieldItemZero), // required to avoid false matches on subclasses
                 AstFilter.Eq(discriminatorField, discriminator));

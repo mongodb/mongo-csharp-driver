@@ -41,7 +41,7 @@ namespace MongoDB.Driver
             Collation collation = null,
             BsonValue hint = null,
             bool isUpsert = false)
-            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, replacement, collation, hint, isUpsert)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, replacement, collation, hint, isUpsert, sort: null)
         {
         }
 
@@ -61,6 +61,62 @@ namespace MongoDB.Driver
             Collation collation = null,
             BsonValue hint = null,
             bool isUpsert = false)
+            : this(collectionNamespace, filter, replacement, collation, hint, isUpsert, sort: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BulkWriteReplaceOneModel{TDocument}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="replacement">Update definition.</param>
+        /// <param name="sort">The sort definition to use.</param>
+        /// <param name="collation">Specifies a collation.</param>
+        /// <param name="hint">The index to use.</param>
+        /// <param name="isUpsert">A value indicating whether to insert the document if it doesn't already exist.</param>
+        public BulkWriteReplaceOneModel(
+            string collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            TDocument replacement,
+            SortDefinition<TDocument> sort,
+            Collation collation = null,
+            BsonValue hint = null,
+            bool isUpsert = false)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, replacement, collation, hint, isUpsert, sort)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BulkWriteReplaceOneModel{TDocument}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="replacement">Update definition.</param>
+        /// <param name="sort">The sort definition to use.</param>
+        /// <param name="collation">Specifies a collation.</param>
+        /// <param name="hint">The index to use.</param>
+        /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
+        public BulkWriteReplaceOneModel(
+            CollectionNamespace collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            TDocument replacement,
+            SortDefinition<TDocument> sort,
+            Collation collation = null,
+            BsonValue hint = null,
+            bool isUpsert = false)
+            : this(collectionNamespace, filter, replacement, collation, hint, isUpsert, sort)
+        {
+        }
+
+        private BulkWriteReplaceOneModel(
+            CollectionNamespace collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            TDocument replacement,
+            Collation collation = null,
+            BsonValue hint = null,
+            bool isUpsert = false,
+            SortDefinition<TDocument> sort = null)
             : base(collectionNamespace)
         {
             Filter = Ensure.IsNotNull(filter, nameof(filter));
@@ -68,6 +124,7 @@ namespace MongoDB.Driver
             Collation = collation;
             Hint = hint;
             IsUpsert = isUpsert;
+            Sort = sort;
         }
 
         /// <summary>
@@ -94,6 +151,13 @@ namespace MongoDB.Driver
         /// Update definition.
         /// </summary>
         public TDocument Replacement { get; }
+
+        /// <summary>
+        /// The sort definition to use.
+        /// </summary>
+        public SortDefinition<TDocument> Sort { get; init; }
+
+        internal override bool IsMulti => false;
 
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
             => renderer.RenderReplaceOne(renderArgs, serializationContext, this);

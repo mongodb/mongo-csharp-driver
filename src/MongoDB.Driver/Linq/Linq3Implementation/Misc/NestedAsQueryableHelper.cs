@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class NestedAsQueryableHelper
     {
-        public static void EnsureQueryableMethodHasNestedAsQueryableSource(MethodCallExpression expression, AggregationExpression sourceTranslation)
+        public static void EnsureQueryableMethodHasNestedAsQueryableSource(MethodCallExpression expression, TranslatedExpression sourceTranslation)
         {
             if (expression.Method.DeclaringType == typeof(Queryable) &&
                 sourceTranslation.Serializer is not INestedAsQueryableSerializer)
@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static void EnsureQueryableMethodHasNestedAsOrderedQueryableSource(MethodCallExpression expression, AggregationExpression sourceTranslation)
+        public static void EnsureQueryableMethodHasNestedAsOrderedQueryableSource(MethodCallExpression expression, TranslatedExpression sourceTranslation)
         {
             if (expression.Method.DeclaringType == typeof(Queryable) &&
                 sourceTranslation.Serializer is not INestedAsOrderedQueryableSerializer)

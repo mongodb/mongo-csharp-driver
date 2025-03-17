@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4700Tests : Linq3IntegrationTest
+    public class CSharp4700Tests : LinqIntegrationTest<CSharp4700Tests.ClassFixture>
     {
+        public CSharp4700Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void OrderBy_Count_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .GroupBy(x => x.Name)
@@ -48,22 +54,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].Count().Should().Be(2);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, Name = "John" },
-                new C { Id = 2, Name = "John" },
-                new C { Id = 6, Name = "Jane" });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public string Name { get; set; }
         }
 
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, Name = "John" },
+                new C { Id = 2, Name = "John" },
+                new C { Id = 6, Name = "Jane" }
+            ];
+        }
     }
 }

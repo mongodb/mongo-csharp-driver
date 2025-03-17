@@ -23,6 +23,13 @@ using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
+    internal interface IMongoCollection
+    {
+        CollectionNamespace CollectionNamespace { get; }
+
+        IBsonSerializer DocumentSerializer { get; }
+    }
+
     /// <summary>
     /// Represents a typed collection in MongoDB.
     /// </summary>
@@ -31,7 +38,7 @@ namespace MongoDB.Driver
     /// <see cref="MongoCollectionBase{TDocument}"/>.
     /// </remarks>
     /// <typeparam name="TDocument">The type of the documents stored in the collection.</typeparam>
-    public interface IMongoCollection<TDocument>
+    public interface IMongoCollection<TDocument> // TODO: derive from IMongoCollection in 4.0
     {
         /// <summary>
         /// Gets the namespace of the collection.
@@ -973,7 +980,6 @@ namespace MongoDB.Driver
         /// The result of the replacement.
         /// </returns>
         ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
 
         /// <summary>
         /// Replaces a single document.

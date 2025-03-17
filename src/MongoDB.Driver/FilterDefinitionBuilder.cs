@@ -24,10 +24,9 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
-using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 namespace MongoDB.Driver
@@ -474,6 +473,30 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates an element match filter for an array value.
+        /// </summary>
+        /// <remarks>TDocument must implement IEnumerable{TITem} when using this overload of ElemMatch.</remarks>
+        /// <param name="impliedElementFilter">The implied element filter.</param>
+        /// <returns>An element match filter.</returns>
+        public FilterDefinition<TDocument> ElemMatch<TItem>(FilterDefinition<TItem> impliedElementFilter)
+            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        {
+            return new ElementMatchFilterDefinition<TDocument, TItem>(impliedElementFilter);
+        }
+
+        /// <summary>
+        /// Creates an element match filter for an array value.
+        /// </summary>
+        /// <remarks>TDocument must implement IEnumerable{TITem} when using this overload of ElemMatch.</remarks>
+        /// <param name="impliedElementFilter">The implied element filter.</param>
+        /// <returns>An element match filter.</returns>
+        public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TItem, bool>> impliedElementFilter)
+            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        {
+            return ElemMatch(new ExpressionFilterDefinition<TItem>(impliedElementFilter));
+        }
+
+        /// <summary>
         /// Creates an element match filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
@@ -481,6 +504,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
+            // where TField : IEnumerable<TItem> (can only be checked at runtime)
         {
             return new ElementMatchFilterDefinition<TDocument, TItem>(field, filter);
         }
@@ -493,6 +517,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TItem> filter)
+            // where TField : IEnumerable<TItem> (can only be checked at runtime)
         {
             return ElemMatch(new ExpressionFieldDefinition<TDocument>(field), filter);
         }
@@ -1852,24 +1877,49 @@ namespace MongoDB.Driver
         private readonly FieldDefinition<TDocument> _field;
         private readonly FilterDefinition<TItem> _filter;
 
+        public ElementMatchFilterDefinition(FilterDefinition<TItem> filter)
+            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        {
+            _filter = filter;
+
+            // TODO: CSHARP-5517 validate type constraint
+        }
+
         public ElementMatchFilterDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
+            // where TField : IEnumerable<TItem> (checked in Render)
         {
             _field = Ensure.IsNotNull(field, nameof(field));
             _filter = filter;
+
+            // TODO: CSHARP-5517 validate type constraint
         }
 
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedField = _field.Render(args);
+            string fieldName = null;
+            IBsonSerializer enumerableSerializer;
+
+            if (_field == null)
+            {
+                enumerableSerializer = args.DocumentSerializer; // note that TDocument : IEnumerable<TItem>
+            }
+            else
+            {
+                var renderedField = _field.Render(args);
+                fieldName = renderedField.FieldName;
+                enumerableSerializer = renderedField.FieldSerializer; // note that TField : IEnumerable<TItem>
+            }
 
             IBsonSerializer<TItem> itemSerializer;
-            if (renderedField.FieldSerializer != null)
+            if (enumerableSerializer != null)
             {
-                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
+                var arraySerializer = enumerableSerializer as IBsonArraySerializer;
                 BsonSerializationInfo itemSerializationInfo;
                 if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                 {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
+                    var message = fieldName == null ?
+                        $"The serializer '{enumerableSerializer.GetType()}' must implement IBsonArraySerializer and provide item serialization info." :
+                        $"The serializer for field '{fieldName}' must implement IBsonArraySerializer and provide item serialization info.";
                     throw new InvalidOperationException(message);
                 }
                 itemSerializer = (IBsonSerializer<TItem>)itemSerializationInfo.Serializer;
@@ -1880,8 +1930,11 @@ namespace MongoDB.Driver
             }
 
             var renderedFilter = _filter.Render(args.WithNewDocumentType(itemSerializer) with { RenderForElemMatch = true });
+            var renderedElemMatchOperation = new BsonDocument("$elemMatch", renderedFilter);
 
-            return new BsonDocument(renderedField.FieldName, new BsonDocument("$elemMatch", renderedFilter));
+            return fieldName == null ?
+                renderedElemMatchOperation :
+                new BsonDocument(fieldName, renderedElemMatchOperation);
         }
     }
 
@@ -2165,7 +2218,7 @@ namespace MongoDB.Driver
                     throw new NotSupportedException($"OfType requires that documents of type {BsonUtils.GetFriendlyTypeName(typeof(TDerived))} have a discriminator value.");
                 }
 
-                var discriminatorField = new AstFilterField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
                 ofTypeFilter= discriminatorConvention switch
                 {
                     IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
@@ -2223,7 +2276,7 @@ namespace MongoDB.Driver
                 }
 
                 var discriminatorElementName = renderedField.FieldName + "." + discriminatorConvention.ElementName;
-                var discriminatorField = new AstFilterField(discriminatorElementName, BsonValueSerializer.Instance);
+                var discriminatorField = new AstFilterField(discriminatorElementName);
 
                 ofTypeFilter = discriminatorConvention switch
                 {

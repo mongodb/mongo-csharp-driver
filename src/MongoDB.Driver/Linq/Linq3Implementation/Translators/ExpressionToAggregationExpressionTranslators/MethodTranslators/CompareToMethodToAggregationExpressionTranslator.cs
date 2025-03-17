@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class CompareToMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var otherExpression = arguments[0];
                 var otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression);
                 var ast = AstExpression.Cmp(objectTranslation.Ast, otherTranslation.Ast);
-                return new AggregationExpression(expression, ast, new Int32Serializer());
+                return new TranslatedExpression(expression, ast, new Int32Serializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

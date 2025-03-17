@@ -165,13 +165,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             if (enableClientSideProjections)
             {
-                var stages = Translate(collection, queryable, out var serializer);
-                AssertStages(stages, Array.Empty<string>());
-                serializer.Should().BeOfType<ClientSideProjectionDeserializer<DocumentWithArray, int>>();
+                var stages = Translate(collection, queryable, out var outputSerializer);
+                AssertStages(stages, "{ $project : { _snippets : ['$A'], _id : 0 } }");
+                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var exception = Record.Exception(() => queryable.ToList());
                 exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("This method is not functional");
+                exception.Message.Should().Contain("Bottom can only be used in MongoDB LINQ queries executed server-side.");
             }
             else
             {
@@ -398,12 +398,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$A'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var exception = Record.Exception(() => queryable.ToList());
                 exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("This method is not functional");
+                exception.Message.Should().Contain("BottomN can only be used in MongoDB LINQ queries executed server-side.");
             }
             else
             {
@@ -1660,12 +1660,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$A'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var exception = Record.Exception(() => queryable.ToList());
                 exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("This method is not functional");
+                exception.Message.Should().Contain("Top can only be used in MongoDB LINQ queries executed server-side.");
             }
             else
             {
@@ -1892,12 +1892,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$A'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var exception = Record.Exception(() => queryable.ToList());
                 exception.Should().BeOfType<NotSupportedException>();
-                exception.Message.Should().Contain("This method is not functional");
+                exception.Message.Should().Contain("TopN can only be used in MongoDB LINQ queries executed server-side.");
             }
             else
             {

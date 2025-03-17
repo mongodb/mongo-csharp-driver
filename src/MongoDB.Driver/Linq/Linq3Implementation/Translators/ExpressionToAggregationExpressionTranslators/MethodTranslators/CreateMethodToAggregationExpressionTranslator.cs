@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             ValueTupleMethod.Create8
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var ast = AstExpression.ComputedArray(items);
                 var tupleSerializer = CreateTupleSerializer(tupleType, itemSerializers);
-                return new AggregationExpression(expression, ast, tupleSerializer);
+                return new TranslatedExpression(expression, ast, tupleSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

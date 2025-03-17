@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             };
         }
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var unaryOperator = ToUnaryOperator(method.Name);
                 AstExpression ast = AstExpression.Unary(unaryOperator, argTranslation.Ast);
 
-                return new AggregationExpression(expression, ast, DoubleSerializer.Instance);
+                return new TranslatedExpression(expression, ast, DoubleSerializer.Instance);
             }
 
             if (method.IsOneOf(__binaryTrigMethods))
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var binaryOperator = ToBinaryOperator(method.Name);
                 AstExpression ast = AstExpression.Binary(binaryOperator, arg1Translation.Ast, arg2Translation.Ast);
 
-                return new AggregationExpression(expression, ast, DoubleSerializer.Instance);
+                return new TranslatedExpression(expression, ast, DoubleSerializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);

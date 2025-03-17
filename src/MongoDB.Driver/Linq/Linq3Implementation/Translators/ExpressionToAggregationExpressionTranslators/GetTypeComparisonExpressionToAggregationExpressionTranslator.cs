@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return CanTranslate(expression, out _, out _);
         }
 
-        public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
         {
             if (CanTranslate(expression, out var getTypeMethodCallExpression, out var comparandType))
             {
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var discriminatorField = AstExpression.GetField(objectTranslation.Ast, discriminatorConvention.ElementName);
                 var ast = DiscriminatorAstExpression.TypeEquals(discriminatorField, discriminatorConvention, nominalType, actualType);
 
-                return new AggregationExpression(expression, ast, BooleanSerializer.Instance);
+                return new TranslatedExpression(expression, ast, BooleanSerializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);

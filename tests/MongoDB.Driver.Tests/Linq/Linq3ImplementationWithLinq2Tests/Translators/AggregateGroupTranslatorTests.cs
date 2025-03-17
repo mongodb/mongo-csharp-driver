@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators;
@@ -92,8 +93,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             AssertStages(
                 result.Stages,
-                "{ $group : { _id : '$A', __agg0 : { $push : '$C.E.F' } } }",
-                "{ $project : { Result : { $setUnion : '$__agg0' }, _id : 0 } }");
+                "{ $group : { _id : '$A', __agg0 : { $addToSet : '$C.E.F' } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
 
             result.Value.Result.Should().Equal(111);
         }
@@ -105,8 +106,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             AssertStages(
                 result.Stages,
-                "{ $group : { _id : '$A', __agg0 : { $push : '$C.E.F' } } }",
-                "{ $project : { Result : { $setIntersection : '$__agg0' }, _id : 0 } }");
+                "{ $group : { _id : '$A', __agg0 : { $addToSet : '$C.E.F' } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
 
             result.Value.Result.Should().Equal(111);
         }
@@ -545,12 +546,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                 .GroupBy(idProjector)
                 .Select(groupProjector);
 
-            var collectionSerializer = (IBsonDocumentSerializer)BsonSerializer.LookupSerializer<Root>();
-            var context = TranslationContext.Create(queryable.Expression, collectionSerializer, translationOptions: null);
+            var context = TranslationContext.Create(translationOptions: null);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, queryable.Expression);
-            pipeline = AstPipelineOptimizer.Optimize(pipeline);
+            var optimizedAstPipeline = AstPipelineOptimizer.Optimize(pipeline.Ast);
+            pipeline = new TranslatedPipeline(optimizedAstPipeline, pipeline.OutputSerializer);
 
-            var stages = pipeline.Stages.Select(s => s.Render()).Cast<BsonDocument>().ToList();
+            var stages = pipeline.Ast.Stages.Select(s => s.Render()).Cast<BsonDocument>().ToList();
             stages.Insert(1, new BsonDocument("$sort", new BsonDocument("_id", 1))); // force a standard order for testing purposes
             var pipelineDefinition = new BsonDocumentStagePipelineDefinition<Root, TResult>(stages, outputSerializer: (IBsonSerializer<TResult>)pipeline.OutputSerializer);
             var results = __collection.Aggregate(pipelineDefinition).ToList();

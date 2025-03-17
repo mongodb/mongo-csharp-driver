@@ -106,7 +106,9 @@ namespace MongoDB.Driver
         {
             var result = ReadPreference.FromBsonDocument(BsonDocument.Parse(document));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.IsEnabled.Should().Be(expectedIsEnabled);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -141,7 +143,9 @@ namespace MongoDB.Driver
         [Fact]
         public void constructor_should_throw_when_hedge_is_not_null_and_mode_is_primary()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var hedge = new ReadPreferenceHedge(true);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var exception = Record.Exception(() => new ReadPreference(ReadPreferenceMode.Primary, hedge: hedge));
 
@@ -159,7 +163,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(mode);
             result.TagSets.Should().BeEmpty();
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -174,7 +180,9 @@ namespace MongoDB.Driver
             result.TagSets.Should().NotBeSameAs(tagSets);
             result.TagSets.Should().Equal(tagSets);
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -185,7 +193,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Secondary);
             result.TagSets.Should().BeEmpty();
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -197,7 +207,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Secondary);
             result.TagSets.Should().BeEmpty();
             result.MaxStaleness.Should().Be(maxStaleness);
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Theory]
@@ -206,6 +218,7 @@ namespace MongoDB.Driver
             [Values(null, false, true)]
             bool? isEnabled)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var hedge = isEnabled.HasValue ? new ReadPreferenceHedge(isEnabled.Value) : null;
 
             var result = new ReadPreference(ReadPreferenceMode.Secondary, hedge: hedge);
@@ -214,6 +227,7 @@ namespace MongoDB.Driver
             result.TagSets.Should().BeEmpty();
             result.MaxStaleness.Should().NotHaveValue();
             result.Hedge.Should().BeSameAs(hedge);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -224,7 +238,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Secondary);
             result.TagSets.Should().BeEmpty();
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Theory]
@@ -253,8 +269,10 @@ namespace MongoDB.Driver
         [InlineData(true, true, true)]
         public void Equals_should_compare_hedge_fields(bool? lhsEnabled, bool? rhsEnabled, bool expectedResult)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var lhsHedge = lhsEnabled.HasValue ? new ReadPreferenceHedge(lhsEnabled.Value) : null;
             var rhsHedge = rhsEnabled.HasValue ? new ReadPreferenceHedge(rhsEnabled.Value) : null;
+#pragma warning restore CS0618 // Type or member is obsolete
             var lhs = new ReadPreference(ReadPreferenceMode.Secondary, hedge: lhsHedge);
             var rhs = new ReadPreference(ReadPreferenceMode.Secondary, hedge: rhsHedge);
 
@@ -299,7 +317,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Nearest);
             result.TagSets.Count.Should().Be(0);
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -310,7 +330,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Primary);
             result.TagSets.Count.Should().Be(0);
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -321,7 +343,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.PrimaryPreferred);
             result.TagSets.Count.Should().Be(0);
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -332,7 +356,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.Secondary);
             result.TagSets.Count.Should().Be(0);
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -343,7 +369,9 @@ namespace MongoDB.Driver
             result.ReadPreferenceMode.Should().Be(ReadPreferenceMode.SecondaryPreferred);
             result.TagSets.Count.Should().Be(0);
             result.MaxStaleness.Should().NotHaveValue();
+#pragma warning disable CS0618 // Type or member is obsolete
             result.Hedge.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Theory]
@@ -408,7 +436,9 @@ namespace MongoDB.Driver
         [InlineData(true, "{ Mode : Secondary, Hedge : { \"enabled\" : true } }")]
         public void ToString_should_return_expected_result_when_hedge_is_set(bool? isEnabled, string expectedResult)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var hedge = isEnabled.HasValue ? new ReadPreferenceHedge(isEnabled.Value) : null;
+#pragma warning restore CS0618 // Type or member is obsolete
             var subject = new ReadPreference(ReadPreferenceMode.Secondary, hedge: hedge);
 
             var result = subject.ToString();
@@ -424,6 +454,7 @@ namespace MongoDB.Driver
             [Values(false, true)]
             bool isEnabled)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var originalHedge = new ReadPreferenceHedge(isEnabled: originalIsEnabled);
             var hedge = new ReadPreferenceHedge(isEnabled: isEnabled);
             var subject = new ReadPreference(ReadPreferenceMode.Secondary, hedge: originalHedge);
@@ -432,6 +463,8 @@ namespace MongoDB.Driver
 
             result.Hedge.Should().Be(hedge);
             result.With(originalHedge).Should().Be(subject);
+#pragma warning restore CS0618 // Type or member is obsolete
+
         }
 
         [Theory]

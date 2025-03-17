@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class StrLenBytesMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var stringExpression = arguments[0];
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
                 var ast = AstExpression.StrLenBytes(stringTranslation.Ast);
-                return new AggregationExpression(expression, ast, new Int32Serializer());
+                return new TranslatedExpression(expression, ast, new Int32Serializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

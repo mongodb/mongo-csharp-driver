@@ -16,21 +16,23 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5231ests : Linq3IntegrationTest
+    public class CSharp5231Tests : LinqIntegrationTest<CSharp5231Tests.ClassFixture>
     {
+        public CSharp5231Tests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.AggregateUnionWith))
+        {
+        }
+
         [Fact]
         public void Concat_should_work()
         {
-            RequireServer.Check().Supports(Feature.AggregateUnionWith);
-
-            var collection1 = GetCollection1();
-            var collection2 = GetCollection2();
+            var collection1 = Fixture.Collection1;
+            var collection2 = Fixture.Collection2;
 
             var queryable = collection1.AsQueryable()
                 .Select(x => x.X)
@@ -49,10 +51,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Union_should_work()
         {
-            RequireServer.Check().Supports(Feature.AggregateUnionWith);
-
-            var collection1 = GetCollection1();
-            var collection2 = GetCollection2();
+            var collection1 = Fixture.Collection1;
+            var collection2 = Fixture.Collection2;
 
             var queryable = collection1.AsQueryable()
                 .Select(x => x.X)
@@ -70,38 +70,37 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.OrderBy(x => x).Should().Equal(1, 2, 3, 4);
         }
 
-        private IMongoCollection<C> GetCollection1()
-        {
-            var collection = GetCollection<C>("collection1");
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 1 },
-                new C { Id = 2, X = 2 },
-                new C { Id = 3, X = 3 });
-            return collection;
-        }
-
-        private IMongoCollection<D> GetCollection2()
-        {
-            var collection = GetCollection<D>("collection2");
-            CreateCollection(
-                collection,
-                new D { Id = 1, X = 2 },
-                new D { Id = 2, X = 3 },
-                new D { Id = 3, X = 4 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
         }
 
-        private class D
+        public class D
         {
             public int Id { get; set; }
             public int X { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoDatabaseFixture
+        {
+            public IMongoCollection<C> Collection1 { get; private set; }
+            public IMongoCollection<D> Collection2 { get; private set; }
+
+            protected override void InitializeFixture()
+            {
+                Collection1 = CreateCollection<C>("collection1");
+                Collection1.InsertMany([
+                    new C { Id = 1, X = 1 },
+                    new C { Id = 2, X = 2 },
+                    new C { Id = 3, X = 3 }]);
+
+                Collection2 = CreateCollection<D>("collection2");
+                Collection2.InsertMany([
+                    new D { Id = 1, X = 2 },
+                    new D { Id = 2, X = 3 },
+                    new D { Id = 3, X = 4 }]);
+            }
         }
     }
 }

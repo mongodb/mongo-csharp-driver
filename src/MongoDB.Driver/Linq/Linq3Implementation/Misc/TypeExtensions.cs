@@ -163,6 +163,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
 
+        public static bool IsArray(this Type type, out Type itemType)
+        {
+            if (type.IsArray)
+            {
+                itemType = type.GetElementType();
+                return true;
+            }
+
+            itemType = null;
+            return false;
+        }
+
         public static bool IsEnum(this Type type, out Type underlyingType)
         {
             if (type.IsEnum)
@@ -239,6 +251,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static bool IsSameAsOrNullableOf(this Type type, Type valueType)
         {
             return type == valueType || type.IsNullableOf(valueType);
+        }
+
+        public static bool IsSubclassOfOrImplements(this Type type, Type baseTypeOrInterface)
+        {
+            return
+                type.IsSubclassOf(baseTypeOrInterface) ||
+                type.Implements(baseTypeOrInterface);
         }
 
         public static bool IsTuple(this Type type)

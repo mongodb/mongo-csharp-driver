@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return false;
         }
 
-        public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression, MethodCallExpression getCharsExpression)
+        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression, MethodCallExpression getCharsExpression)
         {
             var method = getCharsExpression.Method;
             var arguments = getCharsExpression.Arguments;
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     comparisonOperator,
                     AstExpression.SubstrCP(objectTranslation.Ast, indexTranslation.Ast, 1),
                     comparand);
-                return new AggregationExpression(expression, ast, new BooleanSerializer());
+                return new TranslatedExpression(expression, ast, new BooleanSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

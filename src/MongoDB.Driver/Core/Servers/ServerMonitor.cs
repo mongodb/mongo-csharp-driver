@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -128,18 +128,31 @@ namespace MongoDB.Driver.Core.Servers
         // public methods
         public void CancelCurrentCheck()
         {
+            if (IsDisposed())
+            {
+                return;
+            }
+
             IConnection toDispose = null;
             lock (_lock)
             {
                 if (!_heartbeatCancellationTokenSource.IsCancellationRequested)
                 {
-                    _heartbeatCancellationTokenSource.Cancel();
-                    _heartbeatCancellationTokenSource.Dispose();
+                    // _heartbeatCancellationTokenSource instance might have been disposed in Dispose at this point
+                    TryCancelAndDispose(_heartbeatCancellationTokenSource);
+
+                    if (IsDisposed()) // Skip creating new CancellationTokenSource if disposed
+                    {
+                        return;
+                    }
+
                     _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationToken);
                     // the previous hello or legacy hello cancellation token is still cancelled
 
                     toDispose = _connection;
                     _connection = null;
+
+                    _logger?.LogDebug(_serverId, "Heartbeat cancellation check requested");
                 }
             }
             toDispose?.Dispose();
@@ -153,15 +166,13 @@ namespace MongoDB.Driver.Core.Servers
 
                 _monitorCancellationTokenSource.Cancel();
                 _monitorCancellationTokenSource.Dispose();
-                if (_connection != null)
-                {
-                    _connection.Dispose();
-                }
+
+                _connection?.Dispose();
                 _roundTripTimeMonitor.Dispose();
                 _heartbeatDelay?.Dispose();
 
-                _heartbeatCancellationTokenSource.Cancel();
-                _heartbeatCancellationTokenSource.Dispose();
+                // _heartbeatCancellationTokenSource instance might have been disposed in CancelCurrentCheck at this point.
+                TryCancelAndDispose(_heartbeatCancellationTokenSource);
 
                 _logger?.LogDebug(_serverId, "Disposed");
             }
@@ -244,6 +255,8 @@ namespace MongoDB.Driver.Core.Servers
 
             return HelloHelper.CreateProtocol(helloCommand, _serverApi, commandResponseHandling);
         }
+
+        private bool IsDisposed() => _state.Value == State.Disposed;
 
         private bool IsRunningInFaaS()
         {
@@ -523,7 +536,7 @@ namespace MongoDB.Driver.Core.Servers
 
         private void ThrowIfDisposed()
         {
-            if (_state.Value == State.Disposed)
+            if (IsDisposed())
             {
                 throw new ObjectDisposedException(GetType().Name);
             }
@@ -535,6 +548,19 @@ namespace MongoDB.Driver.Core.Servers
             {
                 ThrowIfDisposed();
                 throw new InvalidOperationException("Server monitor must be initialized.");
+            }
+        }
+
+        private void TryCancelAndDispose(CancellationTokenSource cancellationTokenSource)
+        {
+            try
+            {
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ignore ObjectDisposedException
             }
         }
 

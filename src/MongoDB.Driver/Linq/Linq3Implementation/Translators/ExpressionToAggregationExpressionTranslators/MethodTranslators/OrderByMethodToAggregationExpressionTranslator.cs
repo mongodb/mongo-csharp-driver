@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             QueryableMethod.ThenByDescending
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -83,19 +83,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     if (method.IsOneOf(__orderByMethods))
                     {
                         var ast = AstExpression.SortArray(sourceTranslation.Ast, order);
-                        return new AggregationExpression(expression, ast, orderedEnumerableSerializer);
+                        return new TranslatedExpression(expression, ast, orderedEnumerableSerializer);
                     }
 
                     throw new ExpressionNotSupportedException(keySelectorLambda, expression, because: "ThenBy and ThenByDescending cannot be used to sort on the entire object");
                 }
 
-                var sortFieldPath = keySelectorLambda.GetFieldPath(context, itemSerializer);
+                var sortFieldPath = keySelectorLambda.TranslateToDottedFieldName(context, itemSerializer);
                 var sortField = AstSort.Field(sortFieldPath, order);
 
                 if (method.IsOneOf(__orderByMethods))
                 {
                     var ast = AstExpression.SortArray(sourceTranslation.Ast, sortField);
-                    return new AggregationExpression(expression, ast, orderedEnumerableSerializer);
+                    return new TranslatedExpression(expression, ast, orderedEnumerableSerializer);
                 }
 
                 if (method.IsOneOf(__thenByMethods))
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                         var combinedSortFields = originalAst.Fields.AddSortField(sortField);
                         var ast = AstExpression.SortArray(originalAst.Input, combinedSortFields);
-                        return new AggregationExpression(expression, ast, orderedEnumerableSerializer);
+                        return new TranslatedExpression(expression, ast, orderedEnumerableSerializer);
                     }
                 }
             }

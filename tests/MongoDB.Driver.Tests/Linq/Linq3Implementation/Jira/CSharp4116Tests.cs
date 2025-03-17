@@ -13,26 +13,38 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4116Tests : Linq3IntegrationTest
+    public class CSharp4116Tests : LinqIntegrationTest<CSharp4116Tests.ClassFixture>
     {
+        public CSharp4116Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
-        [InlineData(true, "{ $match : { } }")]
+        [InlineData(true, null)]
         public void Optimize_match_with_expr(bool value, string expectedStage)
         {
-            var collection = GetCollection<BsonDocument>();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => value);
 
             var stages = Translate(collection, queryable);
 
             AssertStages(stages, expectedStage);
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<BsonDocument>
+        {
+            protected override IEnumerable<BsonDocument> InitialData => null;
         }
     }
 }

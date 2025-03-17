@@ -13,15 +13,21 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4781Tests : Linq3IntegrationTest
+    public class CSharp4781Tests : LinqIntegrationTest<CSharp4781Tests.ClassFixture>
     {
+        public CSharp4781Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Enumerable_DefaultIfEmpty_should_return_default_int()
         {
@@ -45,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_with_DefaultIfEmpty_should_return_default_int()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.IntArray.DefaultIfEmpty());
@@ -62,7 +68,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_with_DefaultIfEmpty_should_return_default_string()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.StringArray.DefaultIfEmpty());
@@ -76,21 +82,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].Should().Equal(new string[] { null });
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, IntArray = new int[] { 1 }, StringArray = new string[] { "abc" } },
-                new C { Id = 2, IntArray = new int[] { }, StringArray = new string[] { } });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] IntArray { get; set; }
             public string[] StringArray { get; set; } // note that string is suitable for this test since it does not have a default constructor
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, IntArray = new int[] { 1 }, StringArray = new string[] { "abc" } },
+                new C { Id = 2, IntArray = new int[] { }, StringArray = new string[] { } }
+            ];
         }
     }
 }

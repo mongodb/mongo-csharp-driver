@@ -47,6 +47,21 @@ namespace MongoDB.Driver.Support
             return typeInfo.GetInterfaces().Any(i => i.ImplementsInterface(iface));
         }
 
+        public static bool IsBooleanOrNullableBoolean(this Type type)
+        {
+            if (type.IsConstructedGenericType &&
+                type.GetGenericTypeDefinition() is var genericTypeDefinition &&
+                genericTypeDefinition == typeof(Nullable<>))
+            {
+                var valueType = type.GetGenericArguments()[0];
+                return valueType == typeof(bool);
+            }
+            else
+            {
+                return type == typeof(bool);
+            }
+        }
+
         public static bool IsNullable(this Type type)
         {
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -68,6 +83,7 @@ namespace MongoDB.Driver.Support
                 type == typeof(int) ||
                 type == typeof(long) ||
                 type == typeof(double) ||
+                type == typeof(float) ||
                 type == typeof(decimal) ||
                 type == typeof(Decimal128);
         }

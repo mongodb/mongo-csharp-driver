@@ -25,7 +25,6 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class SerializerHelper
     {
         // private fields
-        private readonly long _allMemberFlags;
         private readonly long _extraMemberFlag;
         private readonly Member[] _members;
         private readonly long _requiredMemberFlags;
@@ -52,7 +51,6 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             foreach (var member in members)
             {
-                _allMemberFlags |= member.Flag;
                 if (!member.IsOptional)
                 {
                     _requiredMemberFlags |= member.Flag;

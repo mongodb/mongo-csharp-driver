@@ -1465,7 +1465,12 @@ namespace MongoDB.Bson
         /// <param name="value">The value.</param>
         public Decimal128(decimal value)
         {
+#if NET6_0_OR_GREATER
+            Span<int> bits = stackalloc int[4];
+            _ = decimal.GetBits(value, bits);
+#else
             var bits = decimal.GetBits(value);
+#endif
             var isNegative = (bits[3] & 0x80000000) != 0;
             var scale = (short)((bits[3] & 0x00FF0000) >> 16);
             var exponent = (short)-scale;
@@ -1904,7 +1909,12 @@ namespace MongoDB.Bson
             {
                 var xType = GetDecimal128Type(x);
                 var yType = GetDecimal128Type(y);
-                var result = xType.CompareTo(yType);
+				// .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
+#if NET6_0_OR_GREATER
+                var result = Comparer<Decimal128Type>.Default.Compare(xType, yType);
+#else
+                var result = ((int)xType).CompareTo((int)yType);
+#endif
                 if (result == 0 && xType == Decimal128Type.Number)
                 {
                     return CompareNumbers(x, y);
@@ -1928,7 +1938,12 @@ namespace MongoDB.Bson
             {
                 var xClass = GetNumberClass(x);
                 var yClass = GetNumberClass(y);
-                var result = xClass.CompareTo(yClass);
+				// .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
+#if NET6_0_OR_GREATER
+                var result = Comparer<NumberClass>.Default.Compare(xClass, yClass);
+#else
+                var result = ((int)xClass).CompareTo((int)yClass);
+#endif
                 if (result == 0)
                 {
                     if (xClass == NumberClass.Negative)

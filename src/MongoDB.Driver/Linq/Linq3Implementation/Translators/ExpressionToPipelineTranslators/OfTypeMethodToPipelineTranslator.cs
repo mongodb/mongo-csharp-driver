@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
     internal static class OfTypeMethodToPipelineTranslator
     {
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     discriminatorConvention = wrappedValueOutputSerializer.ValueSerializer.GetDiscriminatorConvention();
                     discriminatorElementName = wrappedValueOutputSerializer.FieldName + "." + discriminatorElementName;
                 }
-                var discriminatorField = AstFilter.Field(discriminatorElementName, BsonValueSerializer.Instance);
+                var discriminatorField = AstFilter.Field(discriminatorElementName);
 
                 var filter = discriminatorConvention switch
                 {
@@ -68,15 +68,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     _ => throw new ExpressionNotSupportedException(expression, because: "OfType is not supported with the configured discriminator convention")
                 };
 
-                var resultSerializer = context.KnownSerializersRegistry.GetSerializer(expression);
+                var resultSerializer = BsonSerializer.LookupSerializer(actualType);
                 if (wrappedValueOutputSerializer != null)
                 {
                     resultSerializer = WrappedValueSerializer.Create(wrappedValueOutputSerializer.FieldName, resultSerializer);
                 }
 
-                pipeline = pipeline.AddStages(
-                    resultSerializer,
-                    AstStage.Match(filter));
+                pipeline = pipeline.AddStage(
+                    AstStage.Match(filter),
+                    resultSerializer);
 
                 return pipeline;
             }

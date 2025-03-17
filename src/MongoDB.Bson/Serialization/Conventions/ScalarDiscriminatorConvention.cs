@@ -14,14 +14,17 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
     /// Represents a discriminator convention where the discriminator is provided by the class map of the actual type.
     /// </summary>
-    public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention
+    public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention, IScalarDiscriminatorConvention
     {
+        private readonly ConcurrentDictionary<Type, BsonValue[]> _cachedTypeAndSubTypeDiscriminators = new();
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the ScalarDiscriminatorConvention class.
@@ -51,6 +54,12 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 return null;
             }
+        }
+
+        /// <inheritdoc/>
+        public BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
+        {
+            return _cachedTypeAndSubTypeDiscriminators.GetOrAdd(type, BsonSerializer.GetDiscriminatorsForTypeAndSubTypes);
         }
     }
 }

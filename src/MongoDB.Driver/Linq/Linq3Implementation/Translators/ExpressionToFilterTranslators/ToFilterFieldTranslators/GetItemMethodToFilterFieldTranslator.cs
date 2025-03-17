@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     internal static class GetItemMethodToFilterFieldTranslator
     {
         // public static methods
-        public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var fieldExpression = expression.Object;
             var method = expression.Method;
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return Translate(context, expression, method, fieldExpression, arguments);
         }
 
-        public static AstFilterField Translate(TranslationContext context, Expression expression, MethodInfo method, Expression fieldExpression, ReadOnlyCollection<Expression> arguments)
+        public static TranslatedFilterField Translate(TranslationContext context, Expression expression, MethodInfo method, Expression fieldExpression, ReadOnlyCollection<Expression> arguments)
         {
             if (BsonValueMethod.IsGetItemWithIntMethod(method))
             {
@@ -62,34 +62,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         }
 
         // private static methods
-        private static AstFilterField TranslateBsonValueGetItemWithInt(TranslationContext context, Expression expression, Expression fieldExpression, Expression indexExpression)
+        private static TranslatedFilterField TranslateBsonValueGetItemWithInt(TranslationContext context, Expression expression, Expression fieldExpression, Expression indexExpression)
         {
             return ArrayIndexExpressionToFilterFieldTranslator.Translate(context, expression, fieldExpression, indexExpression);
         }
 
-        private static AstFilterField TranslateBsonValueGetItemWithString(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
+        private static TranslatedFilterField TranslateBsonValueGetItemWithString(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
         {
-            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
-            var valueSerializer = BsonValueSerializer.Instance;
-            return field.SubField(key, valueSerializer);
+            return fieldTranslation.SubField(key, BsonValueSerializer.Instance);
         }
 
-        private static AstFilterField TranslateIListGetItemWithInt(TranslationContext context, Expression expression, Expression fieldExpression, Expression indexExpression)
+        private static TranslatedFilterField TranslateIListGetItemWithInt(TranslationContext context, Expression expression, Expression fieldExpression, Expression indexExpression)
         {
             return ArrayIndexExpressionToFilterFieldTranslator.Translate(context, expression, fieldExpression, indexExpression);
         }
 
-        private static AstFilterField TranslateDictionaryGetItemWithString(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
+        private static TranslatedFilterField TranslateDictionaryGetItemWithString(TranslationContext context, Expression expression, Expression fieldExpression, Expression keyExpression)
         {
-            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
 
-            if (field.Serializer is IBsonDictionarySerializer dictionarySerializer &&
+            if (fieldTranslation.Serializer is IBsonDictionarySerializer dictionarySerializer &&
                 dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.Document)
             {
                 var valueSerializer = dictionarySerializer.ValueSerializer;
-                return field.SubField(key, valueSerializer);
+                return fieldTranslation.SubField(key, valueSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

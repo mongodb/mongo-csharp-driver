@@ -46,6 +46,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 case "StringIn":
                 case "StringNin":
                     return StringInOrNinMethodToFilterTranslator.Translate(context, expression);
+
+                case "IsMissing":
+                case "IsNullOrMissing":
+                    return IsMissingMethodToFilterTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

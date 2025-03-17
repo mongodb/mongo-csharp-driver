@@ -211,22 +211,26 @@ namespace MongoDB.Driver.Encryption
 
         private void ProcessNeedKmsState(CryptContext context, CancellationToken cancellationToken)
         {
-            var requests = context.GetKmsMessageRequests();
-            foreach (var request in requests)
+            while (context.GetNextKmsMessageRequest() is { } request)
             {
-                SendKmsRequest(request, cancellationToken);
+                using (request)
+                {
+                    SendKmsRequest(request, cancellationToken);
+                }
             }
-            requests.MarkDone();
+            context.MarkKmsDone();
         }
 
         private async Task ProcessNeedKmsStateAsync(CryptContext context, CancellationToken cancellationToken)
         {
-            var requests = context.GetKmsMessageRequests();
-            foreach (var request in requests)
+            while (context.GetNextKmsMessageRequest() is { } request)
             {
-                await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
+                using (request)
+                {
+                    await SendKmsRequestAsync(request, cancellationToken).ConfigureAwait(false);
+                }
             }
-            requests.MarkDone();
+            context.MarkKmsDone();
         }
 
         private void ProcessNeedMongoKeysState(CryptContext context, CancellationToken cancellationToken)
@@ -278,44 +282,88 @@ namespace MongoDB.Driver.Encryption
 
         private void SendKmsRequest(KmsRequest request, CancellationToken cancellation)
         {
-            var endpoint = CreateKmsEndPoint(request.Endpoint);
-
-            var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
-            var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
-            using (var sslStream = sslStreamFactory.CreateStream(endpoint, cancellation))
+            try
             {
-                var requestBytes = request.Message.ToArray();
+                var endpoint = CreateKmsEndPoint(request.Endpoint);
+
+                var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
+                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+                using var sslStream = sslStreamFactory.CreateStream(endpoint, cancellation);
+
+                var sleepMs = request.Sleep;
+                if (sleepMs > 0)
+                {
+                    Thread.Sleep(sleepMs);
+                }
+
+                using var binary = request.GetMessage();
+                var requestBytes = binary.ToArray();
                 sslStream.Write(requestBytes, 0, requestBytes.Length);
 
                 while (request.BytesNeeded > 0)
                 {
                     var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
                     var count = sslStream.Read(buffer, 0, buffer.Length);
+
+                    if (count == 0)
+                    {
+                        throw new IOException("Unexpected end of stream. No data was read from the SSL stream.");
+                    }
+
                     var responseBytes = new byte[count];
                     Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);
                     request.Feed(responseBytes);
+                }
+            }
+            catch (Exception ex) when (ex is IOException or SocketException)
+            {
+                if (!request.Fail())
+                {
+                    throw;
                 }
             }
         }
 
         private async Task SendKmsRequestAsync(KmsRequest request, CancellationToken cancellation)
         {
-            var endpoint = CreateKmsEndPoint(request.Endpoint);
-
-            var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
-            var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
-            using (var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false))
+            try
             {
-                var requestBytes = request.Message.ToArray();
+                var endpoint = CreateKmsEndPoint(request.Endpoint);
+
+                var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
+                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+                using var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false);
+
+                var sleepMs = request.Sleep;
+                if (sleepMs > 0)
+                {
+                    await Task.Delay(sleepMs, cancellation).ConfigureAwait(false);
+                }
+
+                using var binary = request.GetMessage();
+                var requestBytes = binary.ToArray();
                 await sslStream.WriteAsync(requestBytes, 0, requestBytes.Length).ConfigureAwait(false);
 
                 while (request.BytesNeeded > 0)
                 {
                     var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
                     var count = await sslStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+
+                    if (count == 0)
+                    {
+                        throw new IOException("Unexpected end of stream. No data was read from the SSL stream.");
+                    }
+
                     var responseBytes = new byte[count];
                     Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);
                     request.Feed(responseBytes);
+                }
+            }
+            catch (Exception ex) when (ex is IOException or SocketException)
+            {
+                if (!request.Fail())
+                {
+                    throw;
                 }
             }
         }

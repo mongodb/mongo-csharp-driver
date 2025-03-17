@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class LogMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         AstExpression.Log10(argumentAst) :
                         AstExpression.Ln(argumentAst);
                 }
-                return new AggregationExpression(expression, ast, new DoubleSerializer());
+                return new TranslatedExpression(expression, ast, new DoubleSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

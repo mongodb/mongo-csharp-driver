@@ -86,6 +86,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 return new AstConstantExpression(value);
             }
 
+            if (args.Length == 2)
+            {
+                if (args[0].IsZero())
+                {
+                    return args[1];
+                }
+
+                if (args[1].IsZero())
+                {
+                    return args[0];
+                }
+            }
+
             var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.Add);
             return new AstNaryExpression(AstNaryOperator.Add, flattenedArgs);
         }
@@ -565,9 +578,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Max, array);
         }
 
+        public static AstExpression Max(AstExpression arg1, AstExpression arg2)
+        {
+            if (AllArgsAreConstantInt32s([arg1, arg2], out var values))
+            {
+                return values.Max();
+            }
+
+            return new AstNaryExpression(AstNaryOperator.Max, [arg1, arg2]);
+        }
+
         public static AstExpression Min(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Min, array);
+        }
+
+        public static AstExpression Min(AstExpression arg1, AstExpression arg2)
+        {
+            if (AllArgsAreConstantInt32s([arg1, arg2], out var values))
+            {
+                return values.Min();
+            }
+
+            return new AstNaryExpression(AstNaryOperator.Min, [arg1, arg2]);
         }
 
         public static AstExpression Mod(AstExpression arg1, AstExpression arg2)
@@ -674,6 +707,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstNaryExpression(AstNaryOperator.SetEquals, arg1, arg2);
         }
 
+        public static AstExpression SetIntersection(AstExpression arg)
+        {
+            return new AstUnaryExpression(AstUnaryOperator.SetIntersection, arg);
+        }
+
         public static AstExpression SetIntersection(params AstExpression[] args)
         {
             return new AstNaryExpression(AstNaryOperator.SetIntersection, args);
@@ -682,6 +720,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression SetIsSubset(AstExpression arg1, AstExpression arg2)
         {
             return new AstBinaryExpression(AstBinaryOperator.SetIsSubset, arg1, arg2);
+        }
+
+        public static AstExpression SetUnion(AstExpression arg)
+        {
+            return new AstUnaryExpression(AstUnaryOperator.SetUnion, arg);
         }
 
         public static AstExpression SetUnion(params AstExpression[] args)
@@ -806,12 +849,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression Subtract(AstExpression arg1, AstExpression arg2)
         {
+            if (AllArgsAreConstantInt32s([arg1, arg2], out var values))
+            {
+                var value = values[0] - values[1];
+                return new AstConstantExpression(value);
+            }
+
+            if (arg2.IsZero())
+            {
+                return arg1;
+            }
+
             return new AstBinaryExpression(AstBinaryOperator.Subtract, arg1, arg2);
         }
 
         public static AstExpression Sum(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Sum, array);
+        }
+
+        public static AstExpression Switch(IEnumerable<AstSwitchExpressionBranch> branches, AstExpression @default = null)
+        {
+            return new AstSwitchExpression(branches, @default);
+        }
+
+        public static AstExpression Switch(IEnumerable<(AstExpression Case, AstExpression Then)> branches, AstExpression @default = null)
+        {
+            return new AstSwitchExpression(branches.Select(branch => new AstSwitchExpressionBranch(branch.Case, branch.Then)), @default);
         }
 
         public static AstExpression ToLower(AstExpression arg)
@@ -961,7 +1025,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public virtual string ConvertToFieldPath()
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"{this} cannot be converted to a field path.");
         }
     }
 }

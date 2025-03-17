@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var queryable = collection.AsQueryable().Select(x => x.A.Distinct());
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $setIntersection : '$A' }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $setUnion : '$A' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(4);
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var queryable = collection.AsQueryable().Select(x => x.A.AsQueryable().Distinct());
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $setIntersection : '$A' }, _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : { $setUnion : '$A' }, _id : 0 } }");
 
             var results = queryable.ToList();
             results.Should().HaveCount(4);

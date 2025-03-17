@@ -27,18 +27,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         // public static methods
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (RegexMethod.IsMatchMethod(expression, out var inputExpression, out var regex))
+            if (RegexMethod.IsMatchMethod(expression, out var fieldExpression, out var regex))
             {
-                var inputFieldAst = ExpressionToFilterFieldTranslator.Translate(context, inputExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
                 var regularExpression = new BsonRegularExpression(regex);
 
-                if (inputFieldAst.Serializer is IRepresentationConfigurable representationConfigurable &&
+                if (fieldTranslation.Serializer is IRepresentationConfigurable representationConfigurable &&
                     representationConfigurable.Representation != BsonType.String)
                 {
-                    throw new ExpressionNotSupportedException(inputExpression, expression, because: $"field \"{inputFieldAst.Path}\" is not represented as a string");
+                    throw new ExpressionNotSupportedException(fieldExpression, expression, because: $"field \"{fieldTranslation.Ast.Path}\" is not represented as a string");
                 }
 
-                return AstFilter.Regex(inputFieldAst, regularExpression.Pattern, regularExpression.Options);
+                return AstFilter.Regex(fieldTranslation.Ast, regularExpression.Pattern, regularExpression.Options);
             }
 
             throw new ExpressionNotSupportedException(expression);

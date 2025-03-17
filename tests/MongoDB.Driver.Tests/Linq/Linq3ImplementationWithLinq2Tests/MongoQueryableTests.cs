@@ -652,7 +652,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
                 "{ $project : { _outer : '$$ROOT', _id : 0 } }",
                 "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
                 "{ $project : { p : '$_outer', joined : '$_inner', _id : 0 } }",
-                "{ $project : { _v : { $map : { input : '$joined', as : 'subo', in : { A : '$p.A', CEF : { $ifNull : ['$$subo.CEF', null] } } } }, _id : 0 } }",
+                "{ $project : { _v : { $map : { input : '$joined', as : 'subo', in : { A : '$p.A', CEF : '$$subo.CEF' } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }");
         }
 
@@ -1852,9 +1852,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         private List<T> Assert<T>(IQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
             var provider = (MongoQueryProvider<Root>)queryable.Provider;
-            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, T>(provider, queryable.Expression, translationOptions: null);
+            var translationOptions = DriverTestConfiguration.Client.Settings.TranslationOptions;
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, T>(provider, queryable.Expression, translationOptions);
 
-            var stages = executableQuery.Pipeline.Stages.Select(s => s.Render());
+            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render());
             stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
 
             // async

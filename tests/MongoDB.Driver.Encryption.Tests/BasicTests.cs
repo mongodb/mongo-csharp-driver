@@ -24,7 +24,6 @@ using Xunit;
 using System.Text;
 using FluentAssertions;
 using Xunit.Abstractions;
-using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Encryption.Tests
 {
@@ -36,7 +35,6 @@ namespace MongoDB.Driver.Encryption.Tests
 
         public BasicTests(ITestOutputHelper output)
         {
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
             _output = output;
         }
 
@@ -244,7 +242,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 }
             }
         }
-        
+
         [Fact]
         public void TestAwsKeyCreationWithEndPoint()
         {
@@ -433,7 +431,7 @@ namespace MongoDB.Driver.Encryption.Tests
             using (var cryptClient = CryptClientFactory.Create(cryptOptions))
             using (var context = cryptClient.StartCreateDataKeyContext(keyId))
             {
-                var request = context.GetKmsMessageRequests().Single();
+                var request = context.GetNextKmsMessageRequest();
                 request.KmsProvider.Should().Be(kmsName);
             }
         }
@@ -563,7 +561,7 @@ namespace MongoDB.Driver.Encryption.Tests
             return new KmsKeyId(datakeyOptionsDocument.ToBson(), keyAltNameBuffers);
         }
 
-        private CryptOptions CreateOptions()
+        private static CryptOptions CreateOptions()
         {
             return new CryptOptions(
                 new[]
@@ -573,7 +571,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 });
         }
 
-        private (Binary binarySent, BsonDocument document) ProcessContextToCompletion(CryptContext context, bool isKmsDecrypt = true)
+        private static (Binary binarySent, BsonDocument document) ProcessContextToCompletion(CryptContext context, bool isKmsDecrypt = true)
         {
             BsonDocument document = null;
             Binary binary = null;
@@ -591,7 +589,7 @@ namespace MongoDB.Driver.Encryption.Tests
         /// Returns (stateProcessed, binaryOperationProduced, bsonOperationProduced)
         /// </summary>
         /// <exception cref="NotImplementedException"></exception>
-        private (CryptContext.StateCode stateProcessed, Binary binaryProduced, BsonDocument bsonOperationProduced) ProcessState(CryptContext context, bool isKmsDecrypt = true)
+        private static (CryptContext.StateCode stateProcessed, Binary binaryProduced, BsonDocument bsonOperationProduced) ProcessState(CryptContext context, bool isKmsDecrypt = true)
         {
             _output.WriteLine("\n----------------------------------\nState:" + context.State);
             switch (context.State)
@@ -634,10 +632,9 @@ namespace MongoDB.Driver.Encryption.Tests
 
                 case CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS:
                     {
-                        var requests = context.GetKmsMessageRequests();
-                        foreach (var req in requests)
+                        while (context.GetNextKmsMessageRequest() is { } request)
                         {
-                            var binary = req.Message;
+                            using var binary = request.GetMessage();
                             _output.WriteLine("Key Document: " + binary);
                             var postRequest = binary.ToString();
                             // TODO: add different hosts handling
@@ -645,11 +642,11 @@ namespace MongoDB.Driver.Encryption.Tests
 
                             var reply = ReadHttpTestFile(isKmsDecrypt ? "kms-decrypt-reply.txt" : "kms-encrypt-reply.txt");
                             _output.WriteLine("Reply: " + reply);
-                            req.Feed(Encoding.UTF8.GetBytes(reply));
-                            req.BytesNeeded.Should().Be(0);
+                            request.Feed(Encoding.UTF8.GetBytes(reply));
+                            request.BytesNeeded.Should().Be(0);
                         }
 
-                        requests.MarkDone();
+                        context.MarkKmsDone();
                         return (CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS, null, null);
                     }
 
@@ -678,7 +675,7 @@ namespace MongoDB.Driver.Encryption.Tests
             throw new NotImplementedException();
         }
 
-        private CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
+        private static CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
         {
             return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null);
         }
@@ -732,7 +729,9 @@ namespace MongoDB.Driver.Encryption.Tests
             }
 
             // Work around C# drivers and C driver have different extended json support
+#pragma warning disable CA1307
             text = text.Replace("\"$numberLong\"", "$numberLong");
+#pragma warning restore CA1307
 
             return BsonUtil.FromJSON(text);
         }

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             MathMethod.AbsSingle
         };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var valueAst = ConvertHelper.RemoveWideningConvert(valueTranslation);
                 var ast = AstExpression.Abs(valueAst);
 
-                return new AggregationExpression(expression, ast, valueTranslation.Serializer);
+                return new TranslatedExpression(expression, ast, valueTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

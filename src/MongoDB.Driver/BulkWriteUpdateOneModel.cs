@@ -44,7 +44,7 @@ namespace MongoDB.Driver
             BsonValue hint = null,
             bool isUpsert = false,
             IEnumerable<ArrayFilterDefinition> arrayFilters = null)
-            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, update, collation, hint, isUpsert, arrayFilters)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, update, collation, hint, isUpsert, arrayFilters, sort: null)
         {
         }
 
@@ -66,6 +66,67 @@ namespace MongoDB.Driver
             BsonValue hint = null,
             bool isUpsert = false,
             IEnumerable<ArrayFilterDefinition> arrayFilters = null)
+            : this(collectionNamespace, filter, update, collation, hint, isUpsert, arrayFilters, sort: null)
+        {
+        }
+
+                /// <summary>
+        /// Initializes a new instance of the <see cref="BulkWriteUpdateOneModel{TDocument}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="update">Update definition.</param>
+        /// <param name="sort">The sort definition to use.</param>
+        /// <param name="collation">Specifies a collation.</param>
+        /// <param name="hint">The index to use.</param>
+        /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
+        /// <param name="arrayFilters">A set of filters specifying to which array elements an update should apply.</param>
+        public BulkWriteUpdateOneModel(
+            string collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            UpdateDefinition<TDocument> update,
+            SortDefinition<TDocument> sort,
+            Collation collation = null,
+            BsonValue hint = null,
+            bool isUpsert = false,
+            IEnumerable<ArrayFilterDefinition> arrayFilters = null)
+            : this(CollectionNamespace.FromFullName(collectionNamespace), filter, update, collation, hint, isUpsert, arrayFilters, sort)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BulkWriteUpdateOneModel{TDocument}"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>
+        /// <param name="filter">The filter to apply.</param>
+        /// <param name="update">Update definition.</param>
+        /// <param name="sort">The sort definition to use.</param>
+        /// <param name="collation">Specifies a collation.</param>
+        /// <param name="hint">The index to use.</param>
+        /// <param name="isUpsert">Indicating whether to insert the document if it doesn't already exist.</param>
+        /// <param name="arrayFilters">A set of filters specifying to which array elements an update should apply.</param>
+        public BulkWriteUpdateOneModel(
+            CollectionNamespace collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            UpdateDefinition<TDocument> update,
+            SortDefinition<TDocument> sort,
+            Collation collation = null,
+            BsonValue hint = null,
+            bool isUpsert = false,
+            IEnumerable<ArrayFilterDefinition> arrayFilters = null)
+            : this(collectionNamespace, filter, update, collation, hint, isUpsert, arrayFilters, sort)
+        {
+        }
+
+        private BulkWriteUpdateOneModel(
+            CollectionNamespace collectionNamespace,
+            FilterDefinition<TDocument> filter,
+            UpdateDefinition<TDocument> update,
+            Collation collation = null,
+            BsonValue hint = null,
+            bool isUpsert = false,
+            IEnumerable<ArrayFilterDefinition> arrayFilters = null,
+            SortDefinition<TDocument> sort = null)
             : base(collectionNamespace)
         {
             Filter = Ensure.IsNotNull(filter, nameof(filter));
@@ -74,6 +135,7 @@ namespace MongoDB.Driver
             Hint = hint;
             IsUpsert = isUpsert;
             ArrayFilters = arrayFilters;
+            Sort = sort;
         }
 
         /// <summary>
@@ -102,9 +164,16 @@ namespace MongoDB.Driver
         public bool IsUpsert { get; init; }
 
         /// <summary>
+        /// The sort definition to use.
+        /// </summary>
+        public SortDefinition<TDocument> Sort { get; init; }
+
+        /// <summary>
         /// Update definition.
         /// </summary>
         public UpdateDefinition<TDocument> Update { get; init; }
+
+        internal override bool IsMulti => false;
 
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
             => renderer.RenderUpdateOne(renderArgs, serializationContext, this);

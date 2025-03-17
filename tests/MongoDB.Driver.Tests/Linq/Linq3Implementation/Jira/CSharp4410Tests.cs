@@ -20,13 +20,16 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4410Tests : Linq3IntegrationTest
+    public class CSharp4410Tests : LinqIntegrationTest<CSharp4410Tests.ClassFixture>
     {
         private static readonly SelectTestCase[] __selectTestCases;
 
@@ -36,6 +39,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public string ProjectionAsString { get; set; }
             public string ExpectedStage { get; set; }
             public int[] ExpectedResults { get; set; }
+        }
+
+        public CSharp4410Tests(ClassFixture fixture)
+            : base(fixture)
+        {
         }
 
         private static SelectTestCase CreateSelectTestCase(
@@ -156,7 +164,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [MemberData(nameof(Select_with_enum_comparison_should_work_member_data))]
         public void Select_with_enum_comparison_should_work(int i, string projectionAsString, string expectedProjectStage, int[] expectedResults)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var projection = __selectTestCases[i].Projection;
             expectedResults ??= new int[0];
 
@@ -180,7 +188,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Comparison_of_enum_and_enum_with_mismatched_serializers_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -190,7 +199,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$E', '$S'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -200,7 +209,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                exception.Message.Should().Contain("because the two arguments are serialized differently");
             }
         }
 
@@ -209,7 +218,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Comparison_of_enum_and_nullable_enum_with_mismatched_serializers_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -219,7 +229,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$E', '$NS'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -229,7 +239,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                exception.Message.Should().Contain("because the two arguments are serialized differently");
             }
         }
 
@@ -238,7 +248,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Comparison_of_nullable_enum_and_enum_with_mismatched_serializers_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -248,7 +259,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$NE', '$S'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -258,7 +269,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                exception.Message.Should().Contain("because the two arguments are serialized differently");
             }
         }
 
@@ -267,7 +278,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Comparison_of_nullable_enum_and_nullable_enum_with_mismatched_serializers_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -277,7 +289,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$NE', '$NS'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -287,7 +299,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             {
                 var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("because the two enums being compared are serialized using different serializers");
+                exception.Message.Should().Contain("because the two arguments are serialized differently");
             }
         }
 
@@ -296,7 +308,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Arithmetic_with_enum_represented_as_string_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -306,7 +319,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$S'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -325,7 +338,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Arithmetic_with_nullable_enum_represented_as_string_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = CreateCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -335,7 +349,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$NS'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -349,23 +363,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, One = 1, E = E.A, F = E.A, NE = E.A, NF = E.A, S = E.A, T = E.A, NS = E.A, NT = E.A },
-                new C { Id = 2, One = 1, E = E.B, F = E.C, NE = E.B, NF = E.C, S = E.B, T = E.C, NS = E.B, NT = E.C },
-                new C { Id = 3, One = 1, E = E.C, F = E.B, NE = E.C, NF = E.B, S = E.C, T = E.B, NS = E.C, NT = E.B },
-                new C { Id = 4, One = 1, E = E.X, F = E.X, NE = E.X, NF = null, S = E.X, T = E.X, NS = E.X, NT = null },
-                new C { Id = 5, One = 1, E = E.Y, F = E.Z, NE = null, NF = E.Z, S = E.Y, T = E.Z, NS = null, NT = E.Z },
-                new C { Id = 6, One = 1, E = E.Z, F = E.Y, NE = null, NF = null, S = E.Z, T = E.Y, NS = null, NT = null });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int One { get; set; }
@@ -379,6 +377,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.String)] public E? NT { get; set; }
         }
 
-        private enum E { A = 1, B = 2, C = 3, X = 6, Y = 7, Z = 9 }
+        public enum E { A = 1, B = 2, C = 3, X = 6, Y = 7, Z = 9 }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, One = 1, E = E.A, F = E.A, NE = E.A, NF = E.A, S = E.A, T = E.A, NS = E.A, NT = E.A },
+                new C { Id = 2, One = 1, E = E.B, F = E.C, NE = E.B, NF = E.C, S = E.B, T = E.C, NS = E.B, NT = E.C },
+                new C { Id = 3, One = 1, E = E.C, F = E.B, NE = E.C, NF = E.B, S = E.C, T = E.B, NS = E.C, NT = E.B },
+                new C { Id = 4, One = 1, E = E.X, F = E.X, NE = E.X, NF = null, S = E.X, T = E.X, NS = E.X, NT = null },
+                new C { Id = 5, One = 1, E = E.Y, F = E.Z, NE = null, NF = E.Z, S = E.Y, T = E.Z, NS = null, NT = E.Z },
+                new C { Id = 6, One = 1, E = E.Z, F = E.Y, NE = null, NF = null, S = E.Z, T = E.Y, NS = null, NT = null }
+            ];
+        }
     }
 }

@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -90,10 +91,11 @@ namespace MongoDB.Driver.Core.Operations
 
         public new ClientBulkWriteResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
+            using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, false, cancellationToken);
+                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationToken);
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -146,10 +148,11 @@ namespace MongoDB.Driver.Core.Operations
 
         public new async Task<ClientBulkWriteResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
+            using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, false, cancellationToken);
+                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationToken);
                 BsonDocument serverResponse = null;
                 try
                 {
@@ -200,6 +203,8 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        private IDisposable BeginOperation() => EventContext.BeginOperation(null, "bulkWrite");
+
         private void EnsureCanProceedNextBatch(ConnectionId connectionId, BulkWriteRawResult bulkWriteResult)
         {
             if (bulkWriteResult.TopLevelException != null)
@@ -225,6 +230,9 @@ namespace MongoDB.Driver.Core.Operations
                     bulkWriteResult.ConcernErrors);
             }
         }
+
+        private bool GetEffectiveRetryRequested()
+            => RetryRequested && !_writeModels.Items.Any(m => m.IsMulti);
 
         private ClientBulkWriteResult ToFinalResultsOrThrow(ConnectionId connectionId, BulkWriteRawResult bulkWriteResult)
         {

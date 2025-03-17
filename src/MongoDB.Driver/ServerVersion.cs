@@ -142,13 +142,51 @@ namespace MongoDB.Driver
         /// <summary>
         /// Server version 8.0.
         /// </summary>
-        Server80
+        Server80,
+        
+        /// <summary>
+        /// Server version 8.1.
+        /// </summary>
+        Server81
 
-        // note: keep Server.cs and WireVersion.cs in sync
+        // note: keep Server.cs and WireVersion.cs in sync as well as the extension methods below
     }
 
     internal static class ServerVersionExtensions
     {
+        public static ServerVersion ToServerVersion(this int wireVersion)
+        {
+            return wireVersion switch
+            {
+                WireVersion.Server26 => ServerVersion.Server26,
+                WireVersion.Server30 => ServerVersion.Server30,
+                WireVersion.Server32 => ServerVersion.Server32,
+                WireVersion.Server34 => ServerVersion.Server34,
+                WireVersion.Server36 => ServerVersion.Server36,
+                WireVersion.Server40 => ServerVersion.Server40,
+                WireVersion.Server42 => ServerVersion.Server42,
+                WireVersion.Server44 => ServerVersion.Server44,
+                WireVersion.Server47 => ServerVersion.Server47,
+                WireVersion.Server48 => ServerVersion.Server48,
+                WireVersion.Server49 => ServerVersion.Server49,
+                WireVersion.Server50 => ServerVersion.Server50,
+                WireVersion.Server51 => ServerVersion.Server51,
+                WireVersion.Server52 => ServerVersion.Server52,
+                WireVersion.Server53 => ServerVersion.Server53,
+                WireVersion.Server60 => ServerVersion.Server60,
+                WireVersion.Server61 => ServerVersion.Server61,
+                WireVersion.Server62 => ServerVersion.Server62,
+                WireVersion.Server63 => ServerVersion.Server63,
+                WireVersion.Server70 => ServerVersion.Server70,
+                WireVersion.Server71 => ServerVersion.Server71,
+                WireVersion.Server72 => ServerVersion.Server72,
+                WireVersion.Server73 => ServerVersion.Server73,
+                WireVersion.Server80 => ServerVersion.Server80,
+                WireVersion.Server81 => ServerVersion.Server81,
+                _ => throw new ArgumentException($"Invalid write version: {wireVersion}.", nameof(wireVersion))
+            };
+        }
+
         public static int ToWireVersion(this ServerVersion? serverVersion)
         {
             return serverVersion switch
@@ -178,6 +216,7 @@ namespace MongoDB.Driver
                 ServerVersion.Server72 => WireVersion.Server72,
                 ServerVersion.Server73 => WireVersion.Server73,
                 ServerVersion.Server80 => WireVersion.Server80,
+                ServerVersion.Server81 => WireVersion.Server81,
                 _ => throw new ArgumentException($"Invalid server version: {serverVersion}.", nameof(serverVersion))
             };
         }

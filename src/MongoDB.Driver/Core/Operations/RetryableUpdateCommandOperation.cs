@@ -150,6 +150,11 @@ namespace MongoDB.Driver.Core.Operations
                     writer.WriteName("hint");
                     BsonValueSerializer.Instance.Serialize(context, value.Hint);
                 }
+                if (value.Sort != null)
+                {
+                    writer.WriteName("sort");
+                    BsonDocumentSerializer.Instance.Serialize(context, value.Sort);
+                }
                 writer.WriteEndDocument();
             }
 

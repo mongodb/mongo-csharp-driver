@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
     internal static class DensifyMethodToPipelineTranslator
     {
         // public static methods
-        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                 var sourceSerializer = pipeline.OutputSerializer;
                 var fieldLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
-                var fieldPath = fieldLambda.GetFieldPath(context, sourceSerializer);
+                var fieldPath = fieldLambda.TranslateToDottedFieldName(context, sourceSerializer);
 
                 var rangeExpression = arguments[2];
                 var range = rangeExpression.GetConstantValue<DensifyRange>(expression);
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     foreach (var partitionByFieldExpression in newArrayExpression.Expressions)
                     {
                         var partitionByFieldLambda = ExpressionHelper.UnquoteLambda(partitionByFieldExpression);
-                        var partitionByFieldPath = partitionByFieldLambda.GetFieldPath(context, sourceSerializer);
+                        var partitionByFieldPath = partitionByFieldLambda.TranslateToDottedFieldName(context, sourceSerializer);
                         partitionByFieldPaths.Add(partitionByFieldPath);
                     }
                 }
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                 var stage = AstStage.Densify(fieldPath, range, partitionByFieldPaths);
 
-                pipeline = pipeline.AddStages(sourceSerializer, stage);
+                pipeline = pipeline.AddStage(stage, sourceSerializer);
                 return pipeline;
             }
 

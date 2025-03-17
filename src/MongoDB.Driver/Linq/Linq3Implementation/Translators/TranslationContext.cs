@@ -18,8 +18,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
@@ -27,51 +25,45 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
     {
         #region static
         public static TranslationContext Create(
-            Expression expression,
-            IBsonSerializer serializer,
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            if (serializer is ISetWindowFieldsPartitionSerializer partitionSerializer)
-            {
-                serializer = partitionSerializer.InputSerializer; // maybe this logic belongs in KnownSerializerFinder
-            }
-            var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(expression, serializer);
-            return new TranslationContext(symbolTable, nameGenerator, knownSerializersRegistry, translationOptions, data);
+            return new TranslationContext(translationOptions, data, symbolTable, nameGenerator);
         }
         #endregion
 
         // private fields
         private readonly TranslationContextData _data;
-        private readonly KnownSerializersRegistry _knownSerializersRegistry;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
 
         private TranslationContext(
-            SymbolTable symbolTable,
-            NameGenerator nameGenerator,
-            KnownSerializersRegistry knownSerializersRegistry,
             ExpressionTranslationOptions translationOptions,
-            TranslationContextData data = null)
+            TranslationContextData data,
+            SymbolTable symbolTable,
+            NameGenerator nameGenerator)
         {
-            _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
-            _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
-            _knownSerializersRegistry = Ensure.IsNotNull(knownSerializersRegistry, nameof(knownSerializersRegistry));
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
             _data = data; // can be null
+            _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
+            _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
         }
 
         // public properties
         public TranslationContextData Data => _data;
-        public KnownSerializersRegistry KnownSerializersRegistry => _knownSerializersRegistry;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
 
         // public methods
+        public Symbol CreateRootSymbol(ParameterExpression parameter, IBsonSerializer serializer)
+        {
+            return CreateSymbolWithVarName(parameter, varName: "ROOT", serializer, isCurrent: true);
+        }
+
         public Symbol CreateSymbol(ParameterExpression parameter, IBsonSerializer serializer, bool isCurrent = false)
         {
             var parameterName = _nameGenerator.GetParameterName(parameter);
@@ -132,7 +124,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(symbolTable, _nameGenerator, _knownSerializersRegistry, _translationOptions, _data);
+            return new TranslationContext(_translationOptions, _data, symbolTable, _nameGenerator);
         }
     }
 }

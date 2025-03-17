@@ -263,7 +263,7 @@
       "description": "errors during the initial connection hello are ignored",
       "runOnRequirements": [
         {
-          "minServerVersion": "4.9"
+          "minServerVersion": "4.4.7"
         }
       ],
       "operations": [

@@ -20,12 +20,15 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4337Tests : Linq3IntegrationTest
+    public class CSharp4337Tests : LinqIntegrationTest<CSharp4337Tests.ClassFixture>
     {
         private static (Expression<Func<C, R<bool>>> Projection, string ExpectedStage, bool[] ExpectedResults)[] __predicate_should_use_correct_representation_test_cases = new (Expression<Func<C, R<bool>>> Projection, string ExpectedStage, bool[] ExpectedResults)[]
         {
@@ -34,6 +37,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             (d => new R<bool> { N = d.Id, V = E.E1 == d.I1 ? true : false }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : [1, '$I1'] }, then : true, else : false } }, _id : 0 } }", new[] { true, false }),
             (d => new R<bool> { N = d.Id, V = E.E1 == d.S1 ? true : false }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['E1', '$S1'] }, then : true, else : false } }, _id : 0 } }", new[] { true, false })
         };
+
+        public CSharp4337Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
 
         public static IEnumerable<object[]> Predicate_should_use_correct_representation_member_data()
         {
@@ -48,7 +56,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [MemberData(nameof(Predicate_should_use_correct_representation_member_data))]
         public void Predicate_should_use_correct_representation(int i, string projectionAsString, string expectedStage, bool[] expectedResults)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var projection = __predicate_should_use_correct_representation_test_cases[i].Projection;
 
             var aggregate = collection.Aggregate()
@@ -71,7 +79,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             (d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? d.S1 : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$I1', 1] }, then : '$S1', else : 'E2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? E.E1 : d.S2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$I1', 1] }, then : 'E1', else : '$S2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? d.S1 : d.S2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$I1', 1] }, then : '$S1', else : '$S2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
-            (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? E.E1 : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : 'E1', else : 'E2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
+            (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? Mql.Constant(E.E1, BsonType.String) : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : 'E1', else : 'E2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? d.I1 : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : '$I1', else : 2 } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? E.E1 : d.I2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : 1, else : '$I2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
             (d => new R<E> { N = d.Id, V = d.S1 == E.E1 ? d.I1 : d.I2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$S1', 'E1'] }, then : '$I1', else : '$I2' } }, _id : 0 } }", new[] { E.E1, E.E2 }),
@@ -93,7 +101,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [MemberData(nameof(Result_should_use_correct_representation_member_data))]
         public void Result_should_use_correct_representation(int i, string projectionAsString, string expectedStage, E[] expectedResults)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var projection = __result_should_use_correct_representation_test_cases[i].Projection;
 
             var aggregate = collection.Aggregate()
@@ -125,7 +133,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [MemberData(nameof(Result_with_mixed_representations_should_throw_member_data))]
         public void Result_with_mixed_representations_should_throw(int i, string projectionAsString)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var projection = __result_with_mixed_representations_should_throw_test_cases[i];
 
             var aggregate = collection.Aggregate()
@@ -136,18 +144,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 
             var notSupportedException = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
             notSupportedException.Message.Should().Contain("because IfTrue and IfFalse expressions have different serializers");
-        }
-
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, I1 = E.E1, I2 = E.E1, S1 = E.E1, S2 = E.E1 },
-                new C { Id = 2, I1 = E.E2, I2 = E.E2, S1 = E.E2, S2 = E.E2 });
-
-            return collection;
         }
 
         public class C
@@ -168,5 +164,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         public enum E { E1 = 1, E2 }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, I1 = E.E1, I2 = E.E1, S1 = E.E1, S2 = E.E1 },
+                new C { Id = 2, I1 = E.E2, I2 = E.E2, S1 = E.E2, S2 = E.E2 }
+            ];
+        }
     }
 }

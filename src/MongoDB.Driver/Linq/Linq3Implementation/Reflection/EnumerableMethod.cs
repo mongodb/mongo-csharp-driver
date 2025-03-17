@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __all;
         private static readonly MethodInfo __any;
         private static readonly MethodInfo __anyWithPredicate;
+        private static readonly MethodInfo __append;
         private static readonly MethodInfo __averageDecimal;
         private static readonly MethodInfo __averageDecimalWithSelector;
         private static readonly MethodInfo __averageDouble;
@@ -138,6 +139,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __ofType;
         private static readonly MethodInfo __orderBy;
         private static readonly MethodInfo __orderByDescending;
+        private static readonly MethodInfo __prepend;
         private static readonly MethodInfo __range;
         private static readonly MethodInfo __repeat;
         private static readonly MethodInfo __reverse;
@@ -153,6 +155,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __singleOrDefaultWithPredicate;
         private static readonly MethodInfo __singleWithPredicate;
         private static readonly MethodInfo __skip;
+        private static readonly MethodInfo __skipWhile;
         private static readonly MethodInfo __sumDecimal;
         private static readonly MethodInfo __sumDecimalWithSelector;
         private static readonly MethodInfo __sumDouble;
@@ -174,6 +177,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingle;
         private static readonly MethodInfo __sumSingleWithSelector;
         private static readonly MethodInfo __take;
+        private static readonly MethodInfo __takeWhile;
         private static readonly MethodInfo __thenBy;
         private static readonly MethodInfo __thenByDescending;
         private static readonly MethodInfo __toArray;
@@ -195,6 +199,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __all = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.All(predicate));
             __any = ReflectionInfo.Method((IEnumerable<object> source) => source.Any());
             __anyWithPredicate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.Any(predicate));
+            __append = ReflectionInfo.Method((IEnumerable<object> source, object element) => source.Append(element));
             __averageDecimal = ReflectionInfo.Method((IEnumerable<decimal> source) => source.Average());
             __averageDecimalWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, decimal> selector) => source.Average(selector));
             __averageDouble = ReflectionInfo.Method((IEnumerable<double> source) => source.Average());
@@ -301,6 +306,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __ofType = ReflectionInfo.Method((IEnumerable source) => source.OfType<object>());
             __orderBy = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector) => source.OrderBy(keySelector));
             __orderByDescending = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object> keySelector) => source.OrderByDescending(keySelector));
+            __prepend = ReflectionInfo.Method((IEnumerable<object> source, object element) => source.Prepend(element));
             __range = ReflectionInfo.Method((int start, int count) => Enumerable.Range(start, count));
             __repeat = ReflectionInfo.Method((object element, int count) => Enumerable.Repeat(element, count));
             __reverse = ReflectionInfo.Method((IEnumerable<object> source) => source.Reverse());
@@ -316,6 +322,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __singleOrDefaultWithPredicate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.SingleOrDefault(predicate));
             __singleWithPredicate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.Single(predicate));
             __skip = ReflectionInfo.Method((IEnumerable<object> source, int count) => source.Skip(count));
+            __skipWhile = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.SkipWhile(predicate));
             __sumDecimal = ReflectionInfo.Method((IEnumerable<decimal> source) => source.Sum());
             __sumDecimalWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, decimal> selector) => source.Sum(selector));
             __sumDouble = ReflectionInfo.Method((IEnumerable<double> source) => source.Sum());
@@ -337,6 +344,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingle = ReflectionInfo.Method((IEnumerable<float> source) => source.Sum());
             __sumSingleWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, float> selector) => source.Sum(selector));
             __take = ReflectionInfo.Method((IEnumerable<object> source, int count) => source.Take(count));
+            __takeWhile = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.TakeWhile(predicate));
             __thenBy = ReflectionInfo.Method((IOrderedEnumerable<object> source, Func<object, object> keySelector) => source.ThenBy(keySelector));
             __thenByDescending = ReflectionInfo.Method((IOrderedEnumerable<object> source, Func<object, object> keySelector) => source.ThenByDescending(keySelector));
             __toArray = ReflectionInfo.Method((IEnumerable<object> source) => source.ToArray());
@@ -357,6 +365,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo All => __all;
         public static MethodInfo Any => __any;
         public static MethodInfo AnyWithPredicate => __anyWithPredicate;
+        public static MethodInfo Append => __append;
         public static MethodInfo AverageDecimal => __averageDecimal;
         public static MethodInfo AverageDecimalWithSelector => __averageDecimalWithSelector;
         public static MethodInfo AverageDouble => __averageDouble;
@@ -463,6 +472,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo OfType => __ofType;
         public static MethodInfo OrderBy => __orderBy;
         public static MethodInfo OrderByDescending => __orderByDescending;
+        public static MethodInfo Prepend => __prepend;
         public static MethodInfo Range => __range;
         public static MethodInfo Repeat => __repeat;
         public static MethodInfo Reverse => __reverse;
@@ -478,6 +488,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SingleOrDefaultWithPredicate => __singleOrDefaultWithPredicate;
         public static MethodInfo SingleWithPredicate => __singleWithPredicate;
         public static MethodInfo Skip => __skip;
+        public static MethodInfo SkipWhile => __skipWhile;
         public static MethodInfo SumDecimal => __sumDecimal;
         public static MethodInfo SumDecimalWithSelector => __sumDecimalWithSelector;
         public static MethodInfo SumDouble => __sumDouble;
@@ -499,6 +510,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingle => __sumSingle;
         public static MethodInfo SumSingleWithSelector => __sumSingleWithSelector;
         public static MethodInfo Take => __take;
+        public static MethodInfo TakeWhile => __takeWhile;
         public static MethodInfo ThenBy => __thenBy;
         public static MethodInfo ThenByDescending => __thenByDescending;
         public static MethodInfo ToArray => __toArray;

@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class MethodCallExpressionToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             switch (expression.Method.Name)
             {
@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Ceiling": return CeilingMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "CompareTo": return CompareToMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Concat": return ConcatMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Constant": return ConstantMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Contains": return ContainsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ContainsKey": return ContainsKeyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ContainsValue": return ContainsValueMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -52,6 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Exists": return ExistsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Exp": return ExpMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ExponentialMovingAverage": return ExponentialMovingAverageMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Field": return FieldMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Floor": return FloorMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "get_Item": return GetItemMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Integral": return IntegralMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -61,15 +63,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "IsNullOrWhiteSpace": return IsNullOrWhiteSpaceMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "IsSubsetOf": return IsSubsetOfMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Locf": return LocfMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "OfType": return OfTypeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Parse": return ParseMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Pow": return PowMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Push": return PushMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Range": return RangeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Rank": return RankMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Repeat": return RepeatMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Reverse": return ReverseMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Round": return RoundMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Select": return SelectMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "SelectMany": return SelectManyMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "SequenceEqual": return SequenceEqualMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "SetEquals": return SetEqualsMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Shift": return ShiftMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Split": return SplitMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -77,7 +82,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "StrLenBytes": return StrLenBytesMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Subtract": return SubtractMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Sum": return SumMethodToAggregationExpressionTranslator.Translate(context, expression);
-                case "Take": return TakeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToArray": return ToArrayMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToList": return ToListMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToString": return ToStringMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -115,6 +119,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "AddWeeks":
                 case "AddYears":
                     return DateTimeAddOrSubtractMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case "Append":
+                case "Prepend":
+                    return AppendOrPrependMethodToAggregationExpressionTranslator.Translate(context, expression);
 
                 case "Bottom":
                 case "BottomN":
@@ -164,6 +172,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "ThenBy":
                 case "ThenByDescending":
                     return OrderByMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case "Skip":
+                case "Take":
+                    return SkipOrTakeMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case "SkipWhile":
+                case "TakeWhile":
+                    return SkipWhileOrTakeWhileMethodToAggregationExpressionTranslator.Translate(context, expression);
 
                 case "StandardDeviationPopulation":
                 case "StandardDeviationSample":

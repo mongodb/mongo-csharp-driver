@@ -59,6 +59,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().Equal(false, false, false, true);
         }
 
+        [Fact]
+        public void Any_on_constant_array_should_be_optimized()
+        {
+            var collection = CreateCollection();
+
+            var obj = new[] { 1, 2, 3 };
+            var queryable = collection.AsQueryable()
+                .Where(x => obj.Any(y => x.Id == y));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $match : { _id : { $in : [1, 2, 3] } } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2, 3);
+        }
+
         private IMongoCollection<C> CreateCollection()
         {
             var collection = GetCollection<C>("test");

@@ -45,6 +45,25 @@ namespace MongoDB.Driver
             WriteErrors = writeErrors;
             PartialResult = partialResult;
             WriteConcernErrors = writeConcernErrors;
+
+            if (innerException is MongoException innerMongoException)
+            {
+                foreach (var errorLabel in innerMongoException.ErrorLabels)
+                {
+                    AddErrorLabel(errorLabel);
+                }
+            }
+
+            if (writeConcernErrors != null)
+            {
+                foreach (var writeConcernError in writeConcernErrors)
+                {
+                    foreach (var errorLabel in writeConcernError.ErrorLabels)
+                    {
+                        AddErrorLabel(errorLabel);
+                    }
+                }
+            }
         }
 
         /// <summary>

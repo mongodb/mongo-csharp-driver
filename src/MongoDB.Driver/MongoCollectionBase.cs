@@ -579,13 +579,18 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull((object)replacement, "replacement");
 
-            options = options ?? new ReplaceOptions();
+            options ??= new ReplaceOptions();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
+
+            if (options is ReplaceOptions<TDocument> re)
+            {
+                model.Sort = re.Sort;
+            }
 
             try
             {
@@ -626,18 +631,24 @@ namespace MongoDB.Driver
             return ReplaceOneAsync(filter, replacement, ReplaceOptions.From(options), (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
+        private async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options,
+            Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull((object)replacement, "replacement");
 
-            options = options ?? new ReplaceOptions();
+            options ??= new ReplaceOptions();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
+
+            if (options is ReplaceOptions<TDocument> re)
+            {
+                model.Sort = re.Sort;
+            }
 
             try
             {
@@ -753,7 +764,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
 
-            options = options ?? new UpdateOptions();
+            options ??= new UpdateOptions();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
@@ -761,6 +772,11 @@ namespace MongoDB.Driver
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
+
+            if (options is UpdateOptions<TDocument> uo)
+            {
+                model.Sort = uo.Sort;
+            }
 
             try
             {
@@ -794,7 +810,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
 
-            options = options ?? new UpdateOptions();
+            options ??= new UpdateOptions();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
@@ -802,6 +818,11 @@ namespace MongoDB.Driver
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
+
+            if (options is UpdateOptions<TDocument> uo)
+            {
+                model.Sort = uo.Sort;
+            }
 
             try
             {

@@ -439,7 +439,7 @@ namespace MongoDB.Driver
         }
     }
 
-    internal class UntypedFieldDefinitionAdapter<TDocument, TField> : FieldDefinition<TDocument>
+    internal sealed class UntypedFieldDefinitionAdapter<TDocument, TField> : FieldDefinition<TDocument>
     {
         private readonly FieldDefinition<TDocument, TField> _adaptee;
 

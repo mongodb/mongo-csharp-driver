@@ -105,6 +105,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public IReadOnlyList<TNode> VisitAndConvert<TNode>(IReadOnlyList<TNode> nodes)
             where TNode : AstNode
         {
+            if (nodes == null)
+            {
+                return null;
+            }
+
             TNode[] newNodes = null;
 
             var count = nodes.Count;
@@ -461,17 +466,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitLookupStage(AstLookupStage node)
         {
-            return node.Update(VisitAndConvert(node.Match));
-        }
-
-        public virtual AstNode VisitLookupStageEqualityMatch(AstLookupStageEqualityMatch node)
-        {
             return node;
         }
 
-        public virtual AstNode VisitLookupStageUncorrelatedMatch(AstLookupStageUncorrelatedMatch node)
+        public virtual AstNode VisitLookupWithMatchingFieldsAndPipelineStage(AstLookupWithMatchingFieldsAndPipelineStage node)
         {
-            return node.Update(VisitAndConvert(node.Pipeline), VisitAndConvert(node.Let));
+            return node.Update(VisitAndConvert(node.Let), VisitAndConvert(node.Pipeline));
+        }
+
+        public virtual AstNode VisitLookupWithPipelineStage(AstLookupWithPipelineStage node)
+        {
+            return node.Update(VisitAndConvert(node.Let), VisitAndConvert(node.Pipeline));
         }
 
         public virtual AstNode VisitLTrimExpression(AstLTrimExpression node)

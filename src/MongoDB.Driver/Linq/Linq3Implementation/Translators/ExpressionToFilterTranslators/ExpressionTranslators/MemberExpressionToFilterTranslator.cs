@@ -33,9 +33,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 if (fieldInfo.FieldType == typeof(bool))
                 {
-                    var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
-                    var serializedTrue = SerializationHelper.SerializeValue(field.Serializer, true);
-                    return AstFilter.Eq(field, serializedTrue);
+                    var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression);
+                    var serializedTrue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, true);
+                    return AstFilter.Eq(fieldTranslation.Ast, serializedTrue);
                 }
             }
 
@@ -44,15 +44,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 if (propertyInfo.Is(NullableProperty.HasValue))
                 {
                     var fieldExpression = expression.Expression;
-                    var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
-                    return AstFilter.Ne(field, BsonNull.Value);
+                    var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                    return AstFilter.Ne(fieldTranslation.Ast, BsonNull.Value);
                 }
 
                 if (propertyInfo.PropertyType == typeof(bool))
                 {
-                    var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
-                    var serializedTrue = SerializationHelper.SerializeValue(field.Serializer, true);
-                    return AstFilter.Eq(field, serializedTrue);
+                    var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression);
+                    var serializedTrue = SerializationHelper.SerializeValue(fieldTranslation.Serializer, true);
+                    return AstFilter.Eq(fieldTranslation.Ast, serializedTrue);
                 }
             }
 

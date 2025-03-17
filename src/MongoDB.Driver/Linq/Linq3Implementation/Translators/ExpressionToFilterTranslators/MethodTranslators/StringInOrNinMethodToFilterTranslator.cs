@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (method.IsOneOf(__stringInOrNinMethods))
             {
                 var fieldExpression = arguments[0];
-                var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var valuesExpression = arguments[1];
                 if (valuesExpression is ConstantExpression constantValuesExpression)
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                         serializedValues.Add(serializedValue);
                     }
 
-                    return method.IsOneOf(__stringInMethods) ? AstFilter.In(field, serializedValues) : AstFilter.Nin(field, serializedValues);
+                    return method.IsOneOf(__stringInMethods) ? AstFilter.In(fieldTranslation.Ast, serializedValues) : AstFilter.Nin(fieldTranslation.Ast, serializedValues);
                 }
             }
 

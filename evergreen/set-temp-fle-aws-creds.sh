@@ -10,8 +10,9 @@
 # environment variable.
 #
 # Environment variables used as input:
-#   FLE_AWS_ACCESS_KEY_ID                            Set to access for global FLE_AWS_ACCESS_KEY_ID
-#   FLE_AWS_SECRET_ACCESS_KEY                        Set to access for global FLE_AWS_SECRET_ACCESS_KEY
+#   FLE_AWS_KEY                                      Set to access for global FLE_AWS_KEY
+#   FLE_AWS_SECRET                                   Set to access for global FLE_AWS_SECRET
+#   FLE_AWS_DEFAULT_REGION                           Set default AWS region for FLE_AWS_KEY
 #
 # Environment variables produced as output:
 #   FLE_AWS_TEMP_ACCESS_KEY_ID                       Temporary AWS_ACCESS_KEY_ID
@@ -20,10 +21,17 @@
 
 set +o xtrace # Disable tracing.
 
+if [ -f "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh" ]; then
+  source $DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh
+else
+  echo "$DRIVERS_TOOLS/.evergreen/csfle/secrets-export.sh does not exists."
+  exit 2
+fi
+
 #boto3 expects env variables in a bit different form than we use
-export AWS_ACCESS_KEY_ID=$FLE_AWS_ACCESS_KEY_ID
-export AWS_SECRET_ACCESS_KEY=$FLE_AWS_SECRET_ACCESS_KEY
-export AWS_DEFAULT_REGION=us-east-1
+export AWS_ACCESS_KEY_ID=$FLE_AWS_KEY
+export AWS_SECRET_ACCESS_KEY=$FLE_AWS_SECRET
+export AWS_DEFAULT_REGION=$FLE_AWS_DEFAULT_REGION
 
 echo "Triggering temporary CSFLE credentials"
 

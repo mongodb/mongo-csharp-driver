@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (expression.NodeType == ExpressionType.TypeIs)
             {
                 var fieldExpression = expression.Expression;
-                var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
                 var nominalType = fieldExpression.Type;
                 var actualType = expression.TypeOperand;
 
@@ -41,8 +41,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 }
                 else
                 {
-                    var discriminatorConvention = field.Serializer.GetDiscriminatorConvention();
-                    var discriminatorField = field.SubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                    var discriminatorConvention = fieldTranslation.Serializer.GetDiscriminatorConvention();
+                    var discriminatorField = fieldTranslation.Ast.SubField(discriminatorConvention.ElementName);
 
                     return discriminatorConvention switch
                     {

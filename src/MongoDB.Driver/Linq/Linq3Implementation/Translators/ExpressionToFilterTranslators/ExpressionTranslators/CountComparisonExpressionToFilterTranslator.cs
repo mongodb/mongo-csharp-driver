@@ -61,36 +61,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression, AstComparisonFilterOperator comparisonOperator, Expression enumerableExpression, Expression sizeExpression)
         {
-            var field = ExpressionToFilterFieldTranslator.Translate(context, enumerableExpression);
-            SerializationHelper.EnsureRepresentationIsArray(enumerableExpression, field.Serializer);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, enumerableExpression);
+            SerializationHelper.EnsureRepresentationIsArray(enumerableExpression, fieldTranslation.Serializer);
 
             if (TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))
             {
                 switch (comparisonOperator)
                 {
                     case AstComparisonFilterOperator.Eq:
-                        return AstFilter.Size(field, size);
+                        return AstFilter.Size(fieldTranslation.Ast, size);
 
                     case AstComparisonFilterOperator.Gt:
-                        return AstFilter.Exists(ItemField(field, size.ToInt64()));
+                        return AstFilter.Exists(ItemField(fieldTranslation.Ast, size.ToInt64()));
 
                     case AstComparisonFilterOperator.Gte:
-                        return AstFilter.Exists(ItemField(field, size.ToInt64() - 1));
+                        return AstFilter.Exists(ItemField(fieldTranslation.Ast, size.ToInt64() - 1));
 
                     case AstComparisonFilterOperator.Lt:
-                        return AstFilter.NotExists(ItemField(field, size.ToInt64() - 1));
+                        return AstFilter.NotExists(ItemField(fieldTranslation.Ast, size.ToInt64() - 1));
 
                     case AstComparisonFilterOperator.Lte:
-                        return AstFilter.NotExists(ItemField(field, size.ToInt64()));
+                        return AstFilter.NotExists(ItemField(fieldTranslation.Ast, size.ToInt64()));
 
                     case AstComparisonFilterOperator.Ne:
-                        return AstFilter.Not(AstFilter.Size(field, size));
+                        return AstFilter.Not(AstFilter.Size(fieldTranslation.Ast, size));
                 }
             }
 
             throw new ExpressionNotSupportedException(expression);
 
-            static AstFilterField ItemField(AstFilterField field, long index) => field.SubField(index.ToString(), BsonValueSerializer.Instance);
+            static AstFilterField ItemField(AstFilterField field, long index) => field.SubField(index.ToString());
         }
 
         private static bool TryConvertSizeExpressionToBsonValue(Expression sizeExpression, out BsonValue size)

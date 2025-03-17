@@ -24,6 +24,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime;
@@ -83,7 +84,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public ClientEncryptionProseTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH", allowEmpty: false);
             _cluster = CoreTestConfiguration.Cluster;
         }
 
@@ -100,17 +100,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var client = ConfigureClient())
             using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider))
             {
-                var encryptedFields = BsonDocument.Parse($@"
-                {{
+                var encryptedFields = BsonDocument.Parse(@"
+                {
                     fields:
-                    [
-                    {{
-                        path: ""ssn"",
-                        bsonType: ""string"",
+                    [{
+                        path: 'ssn',
+                        bsonType: 'string',
                         keyId: null
-                    }}
-                    ]
-                }}");
+                    }]
+                }");
 
                 DropCollection(__collCollectionNamespace, encryptedFields);
 
@@ -353,26 +351,26 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             try
             {
                 tcpListener = new TcpListener(mongocryptdIpAddress, port: mongocryptPort);
-                var listenerThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
+                tcpListener.Start();
+                var listenerThread = new Thread(ThreadStart) { IsBackground = true };
+                listenerThread.Start(tcpListener);
 
                 using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local", extraOptions: extraOptions))
                 {
                     var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
 
-                    listenerThread.Start(tcpListener);
-
                     _ = Record.Exception(() => Insert(coll, async, new BsonDocument("unencrypted", "test")));
+                }
 
-                    if (listenerThread.Join(timeout))
-                    {
-                        // This exception is never thrown when mognocryptd mongoClient is not spawned which is expected behavior.
-                        // However, if we intentionally break that logic to spawn mongocryptd mongoClient regardless of shared library,
-                        // this exception sometimes won't be thrown. In all such cases the spent time in listenerThread.Join is higher
-                        // or really close to timeout. So it's unclear why Join doesn't throw in that cases, but that logic is unrelated
-                        // to the driver and csfle in particular. We rely on the fact that even if we break this logic,
-                        // we run this test more than once.
-                        throw new Exception($"Listener accepted a tcp call for moncgocryptd during {timeout}.");
-                    }
+                if (listenerThread.Join(timeout))
+                {
+                    // This exception is never thrown when mognocryptd mongoClient is not spawned which is expected behavior.
+                    // However, if we intentionally break that logic to spawn mongocryptd mongoClient regardless of shared library,
+                    // this exception sometimes won't be thrown. In all such cases the spent time in listenerThread.Join is higher
+                    // or really close to timeout. So it's unclear why Join doesn't throw in that cases, but that logic is unrelated
+                    // to the driver and csfle in particular. We rely on the fact that even if we break this logic,
+                    // we run this test more than once.
+                    throw new Exception($"Listener accepted a tcp call for moncgocryptd during {timeout}.");
                 }
             }
             finally
@@ -385,7 +383,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 try
                 {
                     var tcpListener = (TcpListener)param;
-                    tcpListener.Start();
                     using var client = tcpListener.AcceptTcpClient();
                     // Perform a blocking call to accept requests.
                     // if we're here, then something queries port 27030.
@@ -875,10 +872,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            Guid CreateDataKeyTestCaseStep(ClientEncryption testCaseClientEncription, BsonDocument masterKey, bool async)
+            Guid CreateDataKeyTestCaseStep(ClientEncryption testCaseClientEncryption, BsonDocument masterKey, bool async)
             {
                 var dataKeyOptions = new DataKeyOptions(masterKey: masterKey);
-                return CreateDataKey(testCaseClientEncription, kmsType, dataKeyOptions, async);
+                return CreateDataKey(testCaseClientEncryption, kmsType, dataKeyOptions, async);
             }
 
             void InvalidKmsEndpointConfigurator(string kt, Dictionary<string, object> ko)
@@ -915,15 +912,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            void TestCase(ClientEncryption testCaseClientEncription, BsonDocument masterKey, bool async)
+            void TestCase(ClientEncryption testCaseClientEncryption, BsonDocument masterKey, bool async)
             {
-                var dataKey = CreateDataKeyTestCaseStep(testCaseClientEncription, masterKey, async);
+                var dataKey = CreateDataKeyTestCaseStep(testCaseClientEncryption, masterKey, async);
                 var encryptOptions = new EncryptOptions(
                     algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
                     keyId: dataKey);
                 var value = "test";
-                var encrypted = ExplicitEncrypt(testCaseClientEncription, encryptOptions, value, async);
-                var decrypted = ExplicitDecrypt(testCaseClientEncription, encrypted, async);
+                var encrypted = ExplicitEncrypt(testCaseClientEncryption, encryptOptions, value, async);
+                var decrypted = ExplicitDecrypt(testCaseClientEncryption, encrypted, async);
                 decrypted.Should().Be(BsonValue.Create(value));
             }
         }
@@ -1430,6 +1427,149 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [Theory]
         [ParameterAttributeData]
+        public async Task KmsRetryTest(
+            [Values("aws", "azure", "gcp")] string kmsProvider,
+            [Values("network", "http")] string failureType,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            const string endpoint = "127.0.0.1:9003";
+
+            var masterKey = kmsProvider switch
+            {
+                "aws" => new BsonDocument
+                {
+                    { "region", "foo" },
+                    { "key", "bar" },
+                    { "endpoint", $"{endpoint}" }
+                },
+                "azure" => new BsonDocument
+                {
+                    { "keyVaultEndpoint", $"{endpoint}" },
+                    { "keyName", "foo" },
+                },
+                "gcp" => new BsonDocument
+                {
+                    { "projectId", "foo" },
+                    { "location", "bar" },
+                    { "keyRing", "baz" },
+                    { "keyName", "qux" },
+                    { "endpoint", $"{endpoint}" }
+                },
+                _ => throw new ArgumentException(nameof(kmsProvider))
+            };
+
+            await ResetServer();
+
+            using var clientEncrypted = ConfigureClientEncrypted();
+            using var clientEncryption = ConfigureClientEncryption(
+                clientEncrypted,
+                kmsProviderFilter: kmsProvider,
+                kmsProviderConfigurator: KmsProviderEndpointConfigurator
+            );
+
+            var dataKeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
+
+            await SetFailure(failureType, 1);
+
+            Guid dataKey = default;
+            Exception ex;
+            if (async)
+            {
+                ex = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
+                    .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+            }
+            else
+            {
+                ex = Record.Exception(() => dataKey = clientEncryption
+                    .CreateDataKey(kmsProvider, dataKeyOptions, CancellationToken.None));
+            }
+            ex.Should().BeNull();
+
+            await SetFailure(failureType, 1);
+
+            Exception ex2;
+            if (async)
+            {
+                ex2 = await Record.ExceptionAsync(async () => await clientEncryption.EncryptAsync(new BsonInt32(123),
+                    new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
+            }
+            else
+            {
+                ex2 = Record.Exception(() => clientEncryption.Encrypt(new BsonInt32(123),
+                    new EncryptOptions("AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic", keyId: dataKey)));
+            }
+            ex2.Should().BeNull();
+
+            if (failureType == "network")
+            {
+                await SetFailure("network", 4);
+
+                Exception ex3;
+                if (async)
+                {
+                    ex3 = await Record.ExceptionAsync(async () => dataKey = await clientEncryption
+                        .CreateDataKeyAsync(kmsProvider, dataKeyOptions, CancellationToken.None));
+                }
+                else
+                {
+                    ex3 = Record.Exception(() => dataKey = clientEncryption
+                        .CreateDataKey(kmsProvider, dataKeyOptions, CancellationToken.None));
+                }
+                ex3.Should().NotBeNull();
+            }
+
+            return;
+
+            void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
+            {
+                switch (kmsProviderName)
+                {
+                    case "aws":
+                        break;
+                    case "azure":
+                        kmsOptions.Add("identityPlatformEndpoint", endpoint);
+                        break;
+                    case "gcp":
+                        kmsOptions.Add("endpoint", endpoint);
+                        break;
+                    default:
+                        throw new Exception($"Unexpected kmsProvider {endpoint}.");
+                }
+            }
+
+            async Task SetFailure(string failure, int count)
+            {
+                using var client = new HttpClient();
+                var jsonData = new { count }.ToJson();
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+                var uri = new Uri($"https://{endpoint}/set_failpoint/{failure}");
+                var response = await client.PostAsync(uri, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error while setting failure!");
+                }
+            }
+
+            async Task ResetServer()
+            {
+                using var client = new HttpClient();
+                var uri = new Uri($"https://{endpoint}/reset");
+                var response = await client.PostAsync(uri, null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Error while resetting!");
+                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void KmsTlsOptionsTest(
             [Values("aws", "aws:name1", "azure", "azure:name1", "gcp", "gcp:name1", "kmip", "kmip:name1")] string kmsProvider,
             [Values(CertificateType.TlsWithoutClientCert, CertificateType.TlsWithClientCert, CertificateType.Expired, CertificateType.InvalidHostName)] CertificateType certificateType,
@@ -1505,7 +1645,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                             AssertTlsWithoutClientCertOnLinux(exception);
                                             break;
                                         case OperatingSystemPlatform.MacOS:
-                                            AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                            AssertInnerEncryptionException(
+                                                exception,
+                                                Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true),
+                                                ex => ex.Message.Should().Contain("handshake failure"));
                                             break;
                                         default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
                                     }
@@ -1545,7 +1688,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        AssertInnerEncryptionException(
+                                            exception,
+                                            Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true),
+                                            ex => ex.Message.Should().Contain("handshake failure"));
                                         break;
                                     default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
                                 }
@@ -1583,7 +1729,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        AssertInnerEncryptionException(
+                                            exception,
+                                            Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true),
+                                            ex => ex.Message.Should().Contain("handshake failure"));
                                         break;
                                     default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
                                 }
@@ -1621,7 +1770,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                         AssertTlsWithoutClientCertOnLinux(exception);
                                         break;
                                     case OperatingSystemPlatform.MacOS:
-                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        AssertInnerEncryptionException(
+                                            exception,
+                                            Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true),
+                                            ex => ex.Message.Should().Contain("handshake failure"));
                                         break;
                                     default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
                                 }
@@ -1659,25 +1811,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     AssertInnerEncryptionException(
                         exception,
-                        Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true),
-                        "Authentication failed, see inner exception.",
-                        "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                        Type.GetType("Interop+OpenSsl+SslException, System.Net.Security", throwOnError: true),
+                        ex => ex.Message.Should().BeOneOf("SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.", "Decrypt failed with OpenSSL error - SSL_ERROR_SSL."));
                 }
                 catch (XunitException)
                 {
-
-#if NET6_0_OR_GREATER
-                    var innerException = "Unable to write data to the transport connection: Connection reset by peer.";
-#else
-                    var innerException =  async
-                        ? "Unable to read data from the transport connection: Connection reset by peer."
-                        : "Unable to write data to the transport connection: Connection reset by peer.";
-#endif
-
                     // With Tls1.3, there is no report of a failed handshake if the client certificate verification fails
                     // since the client receives a 'Finished' message from the server before sending its certificate, it assumes
                     // authentication and we will not know if there was an error until we next read/write from the server.
-                    AssertInnerEncryptionException<SocketException>(exception, innerException);
+                    AssertInnerEncryptionException<SocketException>(exception, "Connection reset by peer");
                 }
             }
 
@@ -1685,24 +1827,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 try
                 {
-                    string[] innerExceptions =
-#if NET6_0_OR_GREATER
-                        ["Authentication failed because the remote party sent a TLS alert"];
-#elif NET472
-                        ["A call to SSPI failed, see inner exception.", "The message received was unexpected or badly formatted"];
-#else
-                        ["Authentication failed, see inner exception.", "The message received was unexpected or badly formatted"];
-#endif
-                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, innerExceptions);
+                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception,"The message received was unexpected or badly formatted");
                 }
                 catch (XunitException) // assertation failed
                 {
                     // Sometimes the mock server triggers SocketError.ConnectionReset (10054) on windows instead the expected exception.
                     // It looks like a test env issue, a similar behavior presents in other drivers, so we rely on the same check on different OSs
-                    AssertInnerEncryptionException<SocketException>(
-                        exception,
-                        "Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host.",
-                        "An existing connection was forcibly closed by the remote host");
+                    AssertInnerEncryptionException<SocketException>(exception, "An existing connection was forcibly closed by the remote host");
                 }
             }
 
@@ -1734,9 +1865,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             string GetMockedKmsEndpoint() => certificateType switch
             {
-                CertificateType.Expired => "127.0.0.1:8000",
-                CertificateType.InvalidHostName => "127.0.0.1:8001",
-                CertificateType.TlsWithClientCert or CertificateType.TlsWithoutClientCert => !kmsProvider.StartsWith("kmip") ? "127.0.0.1:8002" : "127.0.0.1:5698",
+                CertificateType.Expired => "127.0.0.1:9000",
+                CertificateType.InvalidHostName => "127.0.0.1:9001",
+                CertificateType.TlsWithClientCert or CertificateType.TlsWithoutClientCert => !kmsProvider.StartsWith("kmip") ? "127.0.0.1:9002" : "127.0.0.1:5698",
                 _ => throw new Exception($"Not supported client certificate type {certificateType}."),
             };
 
@@ -1834,7 +1965,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     // In rare cases, the thrown error is "CryptException exception: AccessDeniedException". That means you don't have authorization to perform the requested action.
                                     // It more or less corresponds to the expected behavior here, but it's unclear why the same scenario triggers different exceptions.
                                     // However, it looks harmless to slightly update the test assertion to avoid assertion failures on EG.
-                                    AssertInnerEncryptionException<CryptException>(ex, "Error in KMS response.", "HTTP status=400.", "\"__type\":\"AccessDeniedException\"");
+                                    AssertInnerEncryptionException<CryptException>(ex, "\"__type\":\"AccessDeniedException\"");
                                 }
                             }
                             break;
@@ -1845,18 +1976,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     case OperatingSystemPlatform.Windows:
                                     case OperatingSystemPlatform.Linux:
                                         {
-                                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                            AssertInnerEncryptionException<MongoClientException>(ex, "Failed to acquire IMDS access token.");
                                         }
                                         break;
                                     case OperatingSystemPlatform.MacOS:
                                         {
                                             try
                                             {
-                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire IMDS access token.");
+                                                AssertInnerEncryptionException<TaskCanceledException>(ex);
                                             }
                                             catch (XunitException)
                                             {
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                                AssertInnerEncryptionException<MongoClientException>(ex, "Failed to acquire IMDS access token.");
                                             }
                                         }
                                         break;
@@ -1866,7 +1997,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             break;
                         case "gcp":
                             {
-                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire gce metadata credentials.");
+                                AssertInnerEncryptionException<MongoClientException>(ex, "Failed to acquire gce metadata credentials.");
                             }
                             break;
                         default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
@@ -2379,6 +2510,223 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("provider");
         }
 
+        // 25. Test $lookup (cases 1-8)
+        [Fact]
+        public void TestLookup()
+        {
+            RequireServer.Check().Supports(Feature.Csfle2QEv2Lookup)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
+            TestLookupSetup();
+
+            var keyVaultCollectionNamespace = new CollectionNamespace("db", "keyvault");
+            var csfleNamespace = new CollectionNamespace("db", "csfle");
+            var qeNamespace = new CollectionNamespace("db", "qe");
+            var noSchemaNamespace = new CollectionNamespace("db", "no_schema");
+
+            // Case 1: db.csfle joins db.no_schema
+            var pipeline1 = """
+                           [
+                               { "$match": { "csfle": "csfle" } },
+                               {
+                                   "$lookup": {
+                                       "from": "no_schema",
+                                       "as": "matched",
+                                       "pipeline": [
+                                           { "$match": { "no_schema": "no_schema" } },
+                                           { "$project": { "_id": 0 } }
+                                       ]
+                                   }
+                               },
+                               { "$project": { "_id": 0 } }
+                           ]
+                           """;
+            var expectedResult1 ="""{"csfle" : "csfle", "matched" : [ {"no_schema" : "no_schema"} ]}""";
+            RunTestCase(csfleNamespace, pipeline1, expectedResult1);
+
+            // Case 2: db.qe joins db.no_schema
+            var pipeline2 = """
+                           [
+                               {"$match" : {"qe" : "qe"}},
+                               {
+                                  "$lookup" : {
+                                     "from" : "no_schema",
+                                     "as" : "matched",
+                                     "pipeline" :
+                                        [ {"$match" : {"no_schema" : "no_schema"}}, {"$project" : {"_id" : 0, "__safeContent__" : 0}} ]
+                                  }
+                               },
+                               {"$project" : {"_id" : 0, "__safeContent__" : 0}}
+                           ]
+                           """;
+            var expectedResult2 ="""{"qe" : "qe", "matched" : [ {"no_schema" : "no_schema"} ]}""";
+            RunTestCase(qeNamespace, pipeline2, expectedResult2);
+
+            // Case 3: db.no_schema joins db.csfle
+            var pipeline3 = """
+                           [
+                               {"$match" : {"no_schema" : "no_schema"}},
+                               {
+                                   "$lookup" : {
+                                       "from" : "csfle",
+                                       "as" : "matched",
+                                       "pipeline" : [ {"$match" : {"csfle" : "csfle"}}, {"$project" : {"_id" : 0}} ]
+                                   }
+                               },
+                               {"$project" : {"_id" : 0}}
+                           ]
+                           """;
+            var expectedResult3 ="""{"no_schema" : "no_schema", "matched" : [ {"csfle" : "csfle"} ]}""";
+            RunTestCase(noSchemaNamespace, pipeline3, expectedResult3);
+
+            // Case 4: db.no_schema joins db.qe
+            var pipeline4 = """
+                           [
+                              {"$match" : {"no_schema" : "no_schema"}},
+                              {
+                                 "$lookup" : {
+                                    "from" : "qe",
+                                    "as" : "matched",
+                                    "pipeline" : [ {"$match" : {"qe" : "qe"}}, {"$project" : {"_id" : 0, "__safeContent__" : 0}} ]
+                                 }
+                              },
+                              {"$project" : {"_id" : 0}}
+                           ]
+                           """;
+            var expectedResult4 ="""{"no_schema" : "no_schema", "matched" : [ {"qe" : "qe"} ]}""";
+            RunTestCase(noSchemaNamespace, pipeline4, expectedResult4);
+
+            // Case 5: db.csfle joins db.csfle2
+            var pipeline5 = """
+                           [
+                              {"$match" : {"csfle" : "csfle"}},
+                              {
+                                 "$lookup" : {
+                                    "from" : "csfle2",
+                                    "as" : "matched",
+                                    "pipeline" : [ {"$match" : {"csfle2" : "csfle2"}}, {"$project" : {"_id" : 0}} ]
+                                 }
+                              },
+                              {"$project" : {"_id" : 0}}
+                           ]
+                           """;
+            var expectedResult5 ="""{"csfle" : "csfle", "matched" : [ {"csfle2" : "csfle2"} ]}""";
+            RunTestCase(csfleNamespace, pipeline5, expectedResult5);
+
+            // Case 6: db.qe joins db.qe2
+            var pipeline6 = """
+                           [
+                              {"$match" : {"qe" : "qe"}},
+                              {
+                                 "$lookup" : {
+                                    "from" : "qe2",
+                                    "as" : "matched",
+                                    "pipeline" : [ {"$match" : {"qe2" : "qe2"}}, {"$project" : {"_id" : 0, "__safeContent__" : 0}} ]
+                                 }
+                              },
+                              {"$project" : {"_id" : 0, "__safeContent__" : 0}}
+                           ]
+                           """;
+            var expectedResult6 ="""{"qe" : "qe", "matched" : [ {"qe2" : "qe2"} ]}""";
+            RunTestCase(qeNamespace, pipeline6, expectedResult6);
+
+            // Case 7: db.no_schema joins db.no_schema2
+            var pipeline7 = """
+                           [
+                               {"$match" : {"no_schema" : "no_schema"}},
+                               {
+                                   "$lookup" : {
+                                       "from" : "no_schema2",
+                                       "as" : "matched",
+                                       "pipeline" : [ {"$match" : {"no_schema2" : "no_schema2"}}, {"$project" : {"_id" : 0}} ]
+                                   }
+                               },
+                               {"$project" : {"_id" : 0}}
+                           ]
+                           """;
+            var expectedResult7 ="""{"no_schema" : "no_schema", "matched" : [ {"no_schema2" : "no_schema2"} ]}""";
+            RunTestCase(noSchemaNamespace, pipeline7, expectedResult7);
+
+            // Case 8: db.csfle joins db.qe
+            var pipeline8 = """
+                            [
+                                {"$match" : {"csfle" : "qe"}},
+                                {
+                                    "$lookup" : {
+                                        "from" : "qe",
+                                        "as" : "matched",
+                                        "pipeline" : [ {"$match" : {"qe" : "qe"}}, {"$project" : {"_id" : 0}} ]
+                                    }
+                                },
+                                {"$project" : {"_id" : 0}}
+                            ]
+                            """;
+
+            var exception = Record.Exception(() => RunTestCase(csfleNamespace, pipeline8, null));
+            exception.Should().NotBeNull();
+            exception.Message.Should().Contain("not supported");
+
+            void RunTestCase(CollectionNamespace collectionNamespace, string pipeline, string expectedResult)
+            {
+                using var mongoClient = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                    keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+                var collection = GetCollection(mongoClient, collectionNamespace);
+                var result = collection.Aggregate(CreatePipeline(pipeline)).Single();
+                var expectedBsonResult = BsonDocument.Parse(expectedResult);
+                result.Should().Be(expectedBsonResult);
+            }
+
+            PipelineDefinition<BsonDocument, BsonDocument> CreatePipeline(string pipelineJson)
+            {
+                return Bson.Serialization.BsonSerializer.Deserialize<List<BsonDocument>>(pipelineJson);
+            }
+        }
+
+        // 25. Test $lookup (case 9)
+        [Fact]
+        public void TestLookupUnsupported()
+        {
+            RequireServer.Check().Supports(Feature.Csfle2QEv2).DoesNotSupport(Feature.Csfle2QEv2Lookup)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
+            TestLookupSetup();
+
+            var keyVaultCollectionNamespace = new CollectionNamespace("db", "keyvault");
+            var csfleNamespace = new CollectionNamespace("db", "csfle");
+
+            // Case 9: test error with <8.1
+            var pipeline9 = """
+                            [
+                                {"$match" : {"csfle" : "qe"}},
+                                {
+                                    "$lookup" : {
+                                        "from" : "qe",
+                                        "as" : "matched",
+                                        "pipeline" : [ {"$match" : {"qe" : "qe"}}, {"$project" : {"_id" : 0}} ]
+                                    }
+                                },
+                                {"$project" : {"_id" : 0}}
+                            ]
+                            """;
+
+            var exception = Record.Exception(() => RunTestCase(csfleNamespace, pipeline9));
+            exception.Should().NotBeNull();
+            exception.Message.Should().Contain("Upgrade");
+
+            void RunTestCase(CollectionNamespace collectionNamespace, string pipeline)
+            {
+                using var mongoClient = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                    keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+                var collection = GetCollection(mongoClient, collectionNamespace);
+                collection.Aggregate(CreatePipeline(pipeline)).Single();
+            }
+
+            PipelineDefinition<BsonDocument, BsonDocument> CreatePipeline(string pipelineJson)
+            {
+                return Bson.Serialization.BsonSerializer.Deserialize<List<BsonDocument>>(pipelineJson);
+            }
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void ViewAreProhibitedTest([Values(false, true)] bool async)
@@ -2403,7 +2751,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         view,
                         async,
                         documents: new BsonDocument("test", 1)));
-                exception.Message.Should().Be("Encryption related exception: cannot auto encrypt a view.");
+                exception.Message.Contains("cannot auto encrypt a view");
             }
         }
 
@@ -2444,12 +2792,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var newLocalDataKey = CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "abc" }), async);
 
                             var exception = Record.Exception(() => CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "abc" }), async));
-                            var e = AssertInnerEncryptionException<MongoWriteException>(exception);
-                            e.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+                            AssertInnerEncryptionException<MongoWriteException>(
+                                exception,
+                                ex => ex.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey));
 
                             exception = Record.Exception(() => CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "def" }), async));
-                            e = AssertInnerEncryptionException<MongoWriteException>(exception);
-                            e.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+                            AssertInnerEncryptionException<MongoWriteException>(
+                                exception,
+                                ex => ex.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey));
                         }
                         break;
                     case 2:
@@ -2463,8 +2813,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             result["keyAltNames"].AsBsonArray.Contains("abc");
                             // 4 Add a keyAltName "def" to the key created in Step 1 and assert the operation fails due to a duplicate key
                             var exception = Record.Exception(() => AddAlternateKeyName(clientEncryption, newLocalDataKey, alternateKeyName: "def", async));
-                            var e = AssertInnerEncryptionException<MongoCommandException>(exception);
-                            e.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+                            AssertInnerEncryptionException<MongoCommandException>(
+                                exception,
+                                ex => ex.Code.Should().Be((int)ServerErrorCode.DuplicateKey));
                             // 5 add a keyAltName "def" to the existing key, assert the operation does not fail, and assert the returned key document contains the keyAltName "def"
                             result = AddAlternateKeyName(clientEncryption, existingKey, "def", async);
                             result["keyAltNames"].AsBsonArray.Contains("def");
@@ -2526,35 +2877,29 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        private Exception AssertInnerEncryptionException(Exception ex, Type exType, params string[] innerExceptionErrorMessage)
+        private void AssertInnerEncryptionException(Exception ex, Type innerExceptionType, string exceptionMessageContains)
+            => AssertInnerEncryptionException(ex, innerExceptionType, e => e.Message.Should().Contain(exceptionMessageContains));
+
+        private void AssertInnerEncryptionException(Exception ex, Type innerExceptionType, Action<Exception> assert = null)
         {
-            Exception e = ex.Should().BeOfType<MongoEncryptionException>().Subject.InnerException;
-            foreach (var innerMessage in innerExceptionErrorMessage)
+            ex.Should().BeOfType<MongoEncryptionException>();
+            Exception e = ex;
+            while (e != null && !innerExceptionType.IsAssignableFrom(e.GetType()))
             {
-                e.Message.Should().Contain(innerMessage);
-                if (e.InnerException != null)
-                {
-                    e = e.InnerException;
-                }
+                e = e.InnerException;
             }
 
-            if (typeof(OperationCanceledException).IsAssignableFrom(exType))
-            {
-                // handles OperationCanceledException and TaskCanceledException.
-                // At least in macOS these exceptions can be triggered from the same code path in some cases
-                e.Should().BeAssignableTo<OperationCanceledException>();
-            }
-            else
-            {
-                e.Should().BeOfType(exType);
-            }
-            return e;
+            e.Should().NotBeNull($"Cannot find inner exception of expected type: {innerExceptionType}.");
+            assert?.Invoke(e);
         }
 
-        private TMostInnerException AssertInnerEncryptionException<TMostInnerException>(Exception ex, params string[] innerExceptionErrorMessage) where TMostInnerException : Exception
-        {
-            return (TMostInnerException)AssertInnerEncryptionException(ex, typeof(TMostInnerException), innerExceptionErrorMessage);
-        }
+        private void AssertInnerEncryptionException<TInnerException>(Exception ex, Action<TInnerException> assert = null)
+            where TInnerException : Exception
+            => AssertInnerEncryptionException(ex, typeof(TInnerException), ex => assert?.Invoke((TInnerException)ex));
+
+        private void AssertInnerEncryptionException<TInnerException>(Exception ex, string exceptionMessageContains)
+            where TInnerException : Exception
+            => AssertInnerEncryptionException<TInnerException>(ex, e => e.Message.Should().Contain(exceptionMessageContains));
 
         private IMongoClient ConfigureClient(
             bool clearCollections = true,
@@ -2588,7 +2933,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
             bool? retryReads = null,
-            Func<AutoEncryptionOptions, AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null)
+            Func<AutoEncryptionOptions, AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null,
+            CollectionNamespace keyVaultCollectionNamespace = null)
         {
             var configuredSettings = ConfigureClientEncryptedSettings(
                 schemaMap,
@@ -2599,7 +2945,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 bypassAutoEncryption,
                 bypassQueryAnalysis,
                 maxPoolSize,
-                retryReads);
+                retryReads,
+                keyVaultCollectionNamespace);
 
             if (autoEncryptionOptionsConfigurator != null)
             {
@@ -2618,7 +2965,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool bypassAutoEncryption = false,
             bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
-            bool? retryReads = null)
+            bool? retryReads = null,
+            CollectionNamespace keyVaultCollectionNamespace = null)
         {
             var kmsProviders = EncryptionTestHelper.GetKmsProviders(filter: kmsProviderFilter);
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
@@ -2628,7 +2976,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             var clientEncryptedSettings =
                 CreateMongoClientSettings(
-                    keyVaultNamespace: __keyVaultCollectionNamespace,
+                    keyVaultNamespace: keyVaultCollectionNamespace ??__keyVaultCollectionNamespace,
                     schemaMapDocument: schemaMap,
                     kmsProviders: kmsProviders,
                     externalKeyVaultClient: externalKeyVaultClient,
@@ -3063,6 +3411,84 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     filter,
                     rewrapManyDataKeyOptions,
                     CancellationToken.None);
+
+        private void TestLookupSetup()
+        {
+            var keyVaultCollectionNamespace = new CollectionNamespace("db", "keyvault");
+            var csfleNamespace = new CollectionNamespace("db", "csfle");
+            var csfle2Namespace = new CollectionNamespace("db", "csfle2");
+            var qeNamespace = new CollectionNamespace("db", "qe");
+            var qe2Namespace = new CollectionNamespace("db", "qe2");
+            var noSchemaNamespace = new CollectionNamespace("db", "no_schema");
+            var noSchema2Namespace = new CollectionNamespace("db", "no_schema2");
+
+            var keyDoc = JsonFileReader.Instance.Documents["etc.data.lookup.key-doc.json"];
+            var schemaCsfle = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle.json"];
+            var schemaCsfle2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-csfle2.json"];
+            var schemaQe = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe.json"];
+            var schemaQe2 = JsonFileReader.Instance.Documents["etc.data.lookup.schema-qe2.json"];
+
+            // Setup
+            using var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local",
+                keyVaultCollectionNamespace: keyVaultCollectionNamespace);
+            using var client = ConfigureClient();
+
+            DropCollection(keyVaultCollectionNamespace);
+            DropCollection(csfleNamespace);
+            DropCollection(csfle2Namespace);
+            DropCollection(qeNamespace);
+            DropCollection(qe2Namespace);
+            DropCollection(noSchemaNamespace);
+            DropCollection(noSchema2Namespace);
+
+            CreateCollection(clientEncrypted, csfleNamespace,
+                validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle));
+            CreateCollection(clientEncrypted, csfle2Namespace,
+                validatorSchema: new BsonDocument("$jsonSchema", schemaCsfle2));
+            CreateCollection(clientEncrypted, qeNamespace, encryptedFields: schemaQe);
+            CreateCollection(clientEncrypted, qe2Namespace, encryptedFields: schemaQe2);
+            CreateCollection(clientEncrypted, noSchemaNamespace);
+            CreateCollection(clientEncrypted, noSchema2Namespace);
+
+            // Collections from encrypted client
+            var keyVaultCollectionEncrypted = GetCollection(clientEncrypted, keyVaultCollectionNamespace);
+            var csfleCollectionEncrypted = GetCollection(clientEncrypted, csfleNamespace);
+            var csfle2CollectionEncrypted = GetCollection(clientEncrypted, csfle2Namespace);
+            var qeCollectionEncrypted = GetCollection(clientEncrypted, qeNamespace);
+            var qe2CollectionEncrypted = GetCollection(clientEncrypted, qe2Namespace);
+            var noSchemaCollectionEncrypted = GetCollection(clientEncrypted, noSchemaNamespace);
+            var noSchema2CollectionEncrypted = GetCollection(clientEncrypted, noSchema2Namespace);
+
+            // Collections from plain (unencrypted) client
+            var csfleCollection = GetCollection(client, csfleNamespace);
+            var csfle2Collection = GetCollection(client, csfle2Namespace);
+            var qeCollection = GetCollection(client, qeNamespace);
+            var qe2Collection = GetCollection(client, qe2Namespace);
+
+            keyVaultCollectionEncrypted.InsertOne(keyDoc);
+
+            // Insert with encrypted and retrieve with plain client
+            var emptyFilter = new BsonDocument();
+
+            csfleCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle": "csfle"}"""));
+            var c1 = Find(csfleCollection, emptyFilter, false).Single();
+            c1["csfle"].BsonType.Should().Be(BsonType.Binary);
+
+            csfle2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"csfle2": "csfle2"}"""));
+            var c2 = Find(csfle2Collection, emptyFilter, false).Single();
+            c2["csfle2"].BsonType.Should().Be(BsonType.Binary);
+
+            qeCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe": "qe"}"""));
+            var q1 = Find(qeCollection, emptyFilter, false).Single();
+            q1["qe"].BsonType.Should().Be(BsonType.Binary);
+
+            qe2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"qe2": "qe2"}"""));
+            var q2 = Find(qe2Collection, emptyFilter, false).Single();
+            q2["qe2"].BsonType.Should().Be(BsonType.Binary);
+
+            noSchemaCollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema": "no_schema"}"""));
+            noSchema2CollectionEncrypted.InsertOne(BsonDocument.Parse("""{"no_schema2": "no_schema2"}"""));
+        }
 
         // nested types
         public enum CertificateType

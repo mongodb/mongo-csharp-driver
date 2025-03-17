@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             DateTimeConstructor.WithYearMonthDayHourMinuteSecondMillisecond
         };
 
-        public static AggregationExpression Translate(TranslationContext context, NewExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, NewExpression expression)
         {
             var constructor = expression.Constructor;
             var arguments = expression.Arguments;
@@ -57,9 +57,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var millisecondTranslation = millisecondExpression != null ? ExpressionToAggregationExpressionTranslator.Translate(context, millisecondExpression) : null;
 
                 var ast = AstExpression.DateFromParts(yearTranslation.Ast, monthTranslation.Ast, dayTranslation.Ast, hourTranslation?.Ast, minuteTranslation?.Ast, secondTranslation?.Ast, millisecondTranslation?.Ast);
-                var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
+                var serializer = DateTimeSerializer.Instance;
 
-                return new AggregationExpression(expression, ast, serializer);
+                return new TranslatedExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

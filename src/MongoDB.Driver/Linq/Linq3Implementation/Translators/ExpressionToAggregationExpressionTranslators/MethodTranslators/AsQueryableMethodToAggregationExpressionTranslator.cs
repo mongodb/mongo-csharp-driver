@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AsQueryableMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer serializer;
                 if (sourceTranslation.Serializer is INestedAsQueryableSerializer)
                 {
-                    serializer = sourceTranslation.Serializer; 
+                    serializer = sourceTranslation.Serializer;
                 }
                 else
                 {
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     serializer = NestedAsQueryableSerializer.Create(itemSerializer);
                 }
 
-                return new AggregationExpression(expression, sourceTranslation.Ast, serializer);
+                return new TranslatedExpression(expression, sourceTranslation.Ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

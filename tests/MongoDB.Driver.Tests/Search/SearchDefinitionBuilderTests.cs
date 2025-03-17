@@ -106,6 +106,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Autocomplete("FirstName", "foo"),
                 "{ autocomplete: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Autocomplete(x => x.Hobbies, "foo"),
+                "{ autocomplete: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Autocomplete(
@@ -261,6 +264,16 @@ namespace MongoDB.Driver.Tests.Search
                 subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.QueryString(p => p.LastName, "berg")),
                 "{ embeddedDocument: { path : 'Children', operator : { 'queryString' : { defaultPath : 'Children.ln', query : 'berg' } } } }");
         }
+        
+        [Fact]
+        public void Equals_with_array_should_render_supported_type()
+        {
+            var subjectTyped = CreateSubject<Person>();
+            
+            AssertRendered(
+                subjectTyped.Equals(p => p.Hobbies, "soccer"),
+                "{ equals: { path: 'hobbies', value: 'soccer' } }");
+        }
 
         [Theory]
         [MemberData(nameof(EqualsSupportedTypesTestData))]
@@ -269,7 +282,6 @@ namespace MongoDB.Driver.Tests.Search
             string valueRendered,
             Expression<Func<Person, T>> fieldExpression,
             string fieldRendered)
-            where T : struct, IComparable<T>
         {
             var subject = CreateSubject<BsonDocument>();
             var subjectTyped = CreateSubject<Person>();
@@ -302,12 +314,15 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { (double)1, "1", Exp(p => p.Double), nameof(Person.Double) },
             new object[] { DateTime.MinValue, "ISODate(\"0001-01-01T00:00:00Z\")", Exp(p => p.Birthday), "dob" },
             new object[] { DateTimeOffset.MaxValue, "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) },
-            new object[] { ObjectId.Empty, "{ $oid: '000000000000000000000000' }", Exp(p => p.Id), "_id" }
+            new object[] { ObjectId.Empty, "{ $oid: '000000000000000000000000' }", Exp(p => p.Id), "_id" },
+            new object[] { Guid.Empty, """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", Exp(p => p.Guid), nameof(Person.Guid) },
+            new object[] { null, "null", Exp(p => p.Name), nameof(Person.Name) },
+            new object[] { "Jim", "\"Jim\"", Exp(p => p.FirstName), "fn" }
         };
 
         [Theory]
         [MemberData(nameof(EqualsUnsupportedTypesTestData))]
-        public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression) where T : struct, IComparable<T>
+        public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression)
         {
             var subject = CreateSubject<BsonDocument>();
             Record.Exception(() => subject.Equals("x", value)).Should().BeOfType<InvalidCastException>();
@@ -340,6 +355,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Exists(x => x.FirstName),
                 "{ exists: { path: 'fn' } }");
+            AssertRendered(
+                subject.Exists(x => x.Hobbies),
+                "{ exists: { path: 'hobbies' } }");
             AssertRendered(
                 subject.Exists("FirstName"),
                 "{ exists: { path: 'fn' } }");
@@ -543,6 +561,7 @@ namespace MongoDB.Driver.Tests.Search
              new object[] { new[] { DateTime.MinValue, DateTime.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.Birthday), "dob" },
              new object[] { new[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue }, new[] { "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")" }, Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset)},
              new object[] { new[] { ObjectId.Empty, ObjectId.Parse("4d0ce088e447ad08b4721a37") }, new[] { "{ $oid: '000000000000000000000000' }", "{ $oid: '4d0ce088e447ad08b4721a37' }" }, Exp(p => p.Id), "_id" },
+             new object[] { new[] { Guid.Empty, Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf") }, new[] { """{ "$binary" : { "base64" : "AAAAAAAAAAAAAAAAAAAAAA==", "subType" : "04" } }""", """{ "$binary" : { "base64" : "tSrxRLyXRU+leEGKZPqVvw==", "subType" : "04" } }""" }, Exp(p => p.Guid), nameof(Person.Guid) },
              new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" }, Exp(p => p.Object), nameof(Person.Object) }
         };
 
@@ -585,6 +604,16 @@ namespace MongoDB.Driver.Tests.Search
 
             var subjectTyped = CreateSubject<Person>();
             Record.Exception(() => subjectTyped.In(p => p.Object, values)).Should().BeOfType<ArgumentException>();
+        }
+        
+        [Fact]
+        public void In_with_array_field_should_render_correctly()
+        {
+            var subjectTyped = CreateSubject<Person>();
+            
+            AssertRendered(
+                subjectTyped.In(p => p.Hobbies, ["dance", "ski"]),
+                "{ in: { path: 'hobbies', value: ['dance', 'ski'] } }");
         }
 
         [Fact]
@@ -758,6 +787,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Phrase("FirstName", "foo"),
                 "{ phrase: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Phrase(x => x.Hobbies, "foo"),
+                "{ phrase: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Phrase(
@@ -819,30 +851,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.QueryString("FirstName", "foo"),
                 "{ queryString: { defaultPath: 'fn', query: 'foo' } }");
-        }
-
-        [Fact]
-        public void RangeDateTime()
-        {
-            var subject = CreateSubject<Person>();
-
             AssertRendered(
-                subject.Range(
-                    p => p.Birthday,
-                    SearchRangeBuilder
-                        .Gte(new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc))
-                        .Lte(new DateTime(2009, 12, 31, 0, 0, 0, DateTimeKind.Utc))),
-                "{ range: { path: 'dob', gte: { $date: '2000-01-01T00:00:00Z' }, lte: { $date: '2009-12-31T00:00:00Z' } } }");
-        }
-
-        [Fact]
-        public void RangeDouble()
-        {
-            var subject = CreateSubject<Person>();
-
-            AssertRendered(
-                subject.Range(p => p.Age, SearchRangeBuilder.Gt(1.5).Lt(2.5)),
-                "{ range: { path: 'age', gt: 1.5, lt: 2.5 } }");
+                subject.QueryString(x => x.Hobbies, "foo"),
+                "{ queryString: { defaultPath: 'hobbies', query: 'foo' } }");
         }
 
         [Theory]
@@ -856,23 +867,21 @@ namespace MongoDB.Driver.Tests.Search
         [InlineData(1, 10, true, true, "gte: 1, lte: 10")]
         public void Range_should_render_correct_operator(int? min, int? max, bool minInclusive, bool maxInclusive, string rangeRendered)
         {
+            var searchRange = new SearchRange<int>(min, max, minInclusive, maxInclusive);
+
+            var searchRangev2 = new SearchRangeV2<int>(
+                min.HasValue ? new(min.Value, minInclusive) : null,
+                max.HasValue ? new(max.Value, maxInclusive) : null);
+            
             var subject = CreateSubject<BsonDocument>();
-            AssertRendered(
-                    subject.Range("x", new SearchRange<int>(min, max, minInclusive, maxInclusive)),
-                    $"{{ range: {{ path: 'x', {rangeRendered} }} }}");
-        }
+            
+            var searchRangeQuery = subject.Range("x", searchRange);
+            var searchRangeV2Query = subject.Range("x", searchRangev2);
 
-        [Fact]
-        public void RangeInt32_typed()
-        {
-            var subject = CreateSubject<Person>();
+            var expected = $"{{ range: {{ path: 'x', {rangeRendered} }} }}";
 
-            AssertRendered(
-                subject.Range(x => x.Age, SearchRangeBuilder.Gte(18).Lt(65)),
-                "{ range: { path: 'age', gte: 18, lt: 65 } }");
-            AssertRendered(
-                subject.Range("Age", SearchRangeBuilder.Gte(18).Lt(65)),
-                "{ range: { path: 'age', gte: 18, lt: 65 } }");
+            AssertRendered(searchRangeQuery, expected);
+            AssertRendered(searchRangeV2Query, expected);
         }
 
         [Theory]
@@ -884,17 +893,16 @@ namespace MongoDB.Driver.Tests.Search
             string maxRendered,
             Expression<Func<Person, T>> fieldExpression,
             string fieldRendered)
-            where T : struct, IComparable<T>
         {
             var subject = CreateSubject<BsonDocument>();
             var subjectTyped = CreateSubject<Person>();
 
             AssertRendered(
-                subject.Range("age", SearchRangeBuilder.Gte(min).Lt(max)),
-                $"{{ range: {{ path: 'age', gte: {minRendered}, lt: {maxRendered} }} }}");
+                subject.Range("testField", SearchRangeV2Builder.Gte(min).Lt(max)),
+                $"{{ range: {{ path: 'testField', gte: {minRendered}, lt: {maxRendered} }} }}");
 
             AssertRendered(
-                subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(min).Lt(max)),
+                subjectTyped.Range(fieldExpression, SearchRangeV2Builder.Gte(min).Lt(max)),
                 $"{{ range: {{ path: '{fieldRendered}', gte: {minRendered}, lt: {maxRendered} }} }}");
         }
 
@@ -909,6 +917,7 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { long.MinValue, long.MaxValue, "NumberLong(\"-9223372036854775808\")", "NumberLong(\"9223372036854775807\")", Exp(p => p.Int64), nameof(Person.Int64) },
             new object[] { (float)1, (float)2, "1", "2", Exp(p => p.Float), nameof(Person.Float) },
             new object[] { (double)1, (double)2, "1", "2", Exp(p => p.Double), nameof(Person.Double) },
+            new object[] { "A", "D", "'A'", "'D'", Exp(p => p.FirstName), "fn" },
             new object[] { DateTime.MinValue, DateTime.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.Birthday), "dob" },
             new object[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) }
         };
@@ -916,13 +925,12 @@ namespace MongoDB.Driver.Tests.Search
         [Theory]
         [MemberData(nameof(RangeUnsupportedTypesTestData))]
         public void Range_should_throw_on_unsupported_types<T>(T value, Expression<Func<Person, T>> fieldExpression)
-            where T : struct, IComparable<T>
         {
             var subject = CreateSubject<BsonDocument>();
-            Record.Exception(() => subject.Range("age", SearchRangeBuilder.Gte(value).Lt(value))).Should().BeOfType<InvalidCastException>();
+            Record.Exception(() => subject.Range("age", SearchRangeV2Builder.Gte(value).Lt(value)).Render(new RenderArgs<BsonDocument>())).Should().BeOfType<InvalidCastException>();
 
             var subjectTyped = CreateSubject<Person>();
-            Record.Exception(() => subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(value).Lt(value))).Should().BeOfType<InvalidCastException>();
+            Record.Exception(() => subjectTyped.Range(fieldExpression, SearchRangeV2Builder.Gte(value).Lt(value)).Render(new RenderArgs<Person>())).Should().BeOfType<InvalidCastException>();
         }
 
         public static object[][] RangeUnsupportedTypesTestData => new[]
@@ -930,6 +938,16 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { (ulong)1, Exp(p => p.UInt64) },
             new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
         };
+        
+        [Fact]
+        public void Range_with_array_field_should_render_correctly()
+        {
+            var subject = CreateSubject<Person>();
+
+            AssertRendered(
+                subject.Range(x => x.SalaryHistory, SearchRangeV2Builder.Gte(1000).Lt(2000)),
+                "{ range: { path: 'salaries', gte: 1000, lt: 2000 } }");
+        }
 
         [Fact]
         public void Regex()
@@ -973,6 +991,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Regex("FirstName", "foo"),
                 "{ regex: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Regex(x => x.Hobbies, "foo"),
+                "{ regex: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Regex(
@@ -1087,6 +1108,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Text("FirstName", "foo"),
                 "{ text: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Text(x => x.Hobbies, "foo"),
+                "{ text: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Text(
@@ -1167,6 +1191,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Wildcard("FirstName", "foo"),
                 "{ wildcard: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Wildcard(x => x.Hobbies, "foo"),
+                "{ wildcard: { query: 'foo', path: 'hobbies' } }");
 
             AssertRendered(
                 subject.Wildcard(
@@ -1230,7 +1257,7 @@ namespace MongoDB.Driver.Tests.Search
             public float Float { get; set; }
             public double Double { get; set; }
             public decimal Decimal { get; set; }
-
+            public Guid Guid { get; set; }
             public DateTimeOffset DateTimeOffset { get; set; }
             public TimeSpan TimeSpan { get; set; }
 
@@ -1248,8 +1275,16 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("ret")]
             public bool Retired { get; set; }
+            
+            [BsonElement("hobbies")]
+            public string[] Hobbies { get; set; }
 
+            [BsonElement("salaries")]
+            public int[] SalaryHistory { get; set; }
+            
             public object Object { get; set; }
+
+            public string Name { get; set; }
         }
 
         public class Family

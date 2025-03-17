@@ -141,9 +141,8 @@ tests:
   # to the same mongos on which the failpoint is set.
   - description: errors during the initial connection hello are ignored
     runOnRequirements:
-      # Server version 4.9+ is needed to set a fail point on the initial
-      # connection handshake with the appName filter due to SERVER-49336.
-      - minServerVersion: '4.9'
+      # Require SERVER-49336 for failCommand + appName on the initial handshake.
+      - minServerVersion: '4.4.7'
     operations:
       - name: failPoint
         object: testRunner

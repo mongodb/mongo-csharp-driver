@@ -77,19 +77,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             StringMethod.IndexOfBytesWithValueAndStartIndexAndCount
        };
 
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (IsStringIndexOfMethod(expression, out var objectExpression, out var valueExpression, out var startIndexExpression, out var countExpression, out var comparisonTypeExpression))
             {
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
                 var valueTranslation = TranslateValue();
-                AggregationExpression startIndexTranslation = null;
+                TranslatedExpression startIndexTranslation = null;
                 if (startIndexExpression != null)
                 {
                     startIndexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
                     SerializationHelper.EnsureRepresentationIsNumeric(expression, startIndexExpression, startIndexTranslation);
                 }
-                AggregationExpression countTranslation = null;
+                TranslatedExpression countTranslation = null;
                 if (countExpression != null)
                 {
                     countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
@@ -109,18 +109,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     ast = AstExpression.IndexOfCP(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
                 }
 
-                return new AggregationExpression(expression, ast, new Int32Serializer());
+                return new TranslatedExpression(expression, ast, new Int32Serializer());
             }
 
             throw new ExpressionNotSupportedException(expression);
 
-            AggregationExpression TranslateValue()
+            TranslatedExpression TranslateValue()
             {
                 if (valueExpression.Type == typeof(char))
                 {
                     var c = valueExpression.GetConstantValue<char>(containingExpression: expression);
                     var value = new string(c, 1);
-                    return new AggregationExpression(valueExpression, value, new StringSerializer());
+                    return new TranslatedExpression(valueExpression, value, new StringSerializer());
                 }
                 else
                 {

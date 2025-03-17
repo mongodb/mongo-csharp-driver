@@ -65,6 +65,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     "delete" => new UnifiedGridFsDeleteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "download" => new UnifiedGridFsDownloadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "downloadByName" => new UnifiedGridFsDownloadByNameOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "upload" => new UnifiedGridFsUploadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
@@ -87,6 +88,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildCollectionOperation(targetEntityId, operationArguments),
                     "bulkWrite" => new UnifiedBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "count" => new UnifiedCountOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "countDocuments" => new UnifiedCountDocumentsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createChangeStream" => new UnifiedCreateChangeStreamOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createFindCursor" => new UnifiedCreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),

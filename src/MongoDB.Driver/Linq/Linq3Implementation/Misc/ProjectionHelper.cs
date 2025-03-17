@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
@@ -28,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     internal static class ProjectionHelper
     {
         // public static methods
-        public static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateAggregationProjection(AggregationExpression expression)
+        public static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateAggregationProjection(TranslatedExpression expression)
         {
             return expression.Ast.NodeType switch
             {
@@ -37,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             };
         }
 
-        public static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateFindProjection(AggregationExpression expression)
+        public static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateFindProjection(TranslatedExpression expression)
         {
             return expression.Ast.NodeType switch
             {
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             };
         }
 
-        public static (AstProjectStage, IBsonSerializer) CreateProjectStage(AggregationExpression expression)
+        public static (AstProjectStage, IBsonSerializer) CreateProjectStage(TranslatedExpression expression)
         {
             var (specifications, projectionSerializer) = CreateAggregationProjection(expression);
             var projectStage = AstStage.Project(specifications);
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         }
 
         // private static methods
-        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateComputedDocumentProjection(AggregationExpression expression)
+        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateComputedDocumentProjection(TranslatedExpression expression)
         {
             var computedDocument = (AstComputedDocumentExpression)expression.Ast;
 
@@ -75,7 +76,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return (specifications, expression.Serializer);
         }
 
-        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateFindGetFieldProjection(AggregationExpression expression)
+        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateFindGetFieldProjection(TranslatedExpression expression)
         {
             var getFieldExpressionAst = (AstGetFieldExpression)expression.Ast;
             if (IsGetFieldChainWithSafeFieldNames(getFieldExpressionAst))
@@ -99,7 +100,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 var wrappedValueSerializer = WrappedValueSerializer.Create(fieldName, serializer);
                 var input = getFieldExpression.Input;
 
-                if (input is AstVarExpression varExpression && varExpression.Name == "ROOT")
+                if (input.IsRootVar())
                 {
                     return (fieldName, wrappedValueSerializer);
                 }
@@ -114,7 +115,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             throw new ArgumentException($"{nameof(CreateGetFieldChainWithSafeFieldNamesProjection)} called with an invalid getFieldExpression.", nameof(getFieldExpression));
         }
 
-        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateWrappedValueProjection(AggregationExpression expression)
+        private static (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer) CreateWrappedValueProjection(TranslatedExpression expression)
         {
             var wrappedValueSerializer = WrappedValueSerializer.Create("_v", expression.Serializer);
             var specifications = new List<AstProjectStageSpecification>
@@ -131,24 +132,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return
                 getFieldExpression.HasSafeFieldName(out _) &&
                 (
-                    (getFieldExpression.Input is AstVarExpression varExpression && varExpression.Name == "ROOT") ||
+                    (getFieldExpression.Input.IsRootVar()) ||
                     (getFieldExpression.Input is AstGetFieldExpression nestedGetFieldExpression && IsGetFieldChainWithSafeFieldNames(nestedGetFieldExpression))
                 );
         }
 
         private static AstExpression QuoteIfNecessary(AstExpression expression)
         {
-            if (expression is AstConstantExpression constantExpression)
+            var simplifiedExpression = AstSimplifier.SimplifyAndConvert(expression);
+            if (simplifiedExpression is AstConstantExpression constantExpression &&
+                ValueNeedsToBeQuoted(constantExpression.Value))
             {
-                if (ValueNeedsToBeQuoted(constantExpression.Value))
-                {
-                    return AstExpression.Literal(constantExpression);
-                }
+                return AstExpression.Literal(constantExpression);
             }
 
-            return expression;
+            return expression; // not the simplified expression
 
-            bool ValueNeedsToBeQuoted(BsonValue value)
+            static bool ValueNeedsToBeQuoted(BsonValue value)
             {
                 switch (value.BsonType)
                 {

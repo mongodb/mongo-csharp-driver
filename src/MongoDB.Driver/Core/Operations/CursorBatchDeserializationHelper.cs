@@ -49,12 +49,13 @@ namespace MongoDB.Driver.Core.Operations
             using (var stream = new ByteBufferStream(batch.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, readerSettings))
             {
+                var context = BsonDeserializationContext.CreateRoot(reader);
+
                 // BSON requires that the top level object be a document, but an array looks close enough to a document that we can pretend it is one
                 reader.ReadStartDocument();
                 while (reader.ReadBsonType() != 0)
                 {
                     reader.SkipName(); // skip over the index pseudo names
-                    var context = BsonDeserializationContext.CreateRoot(reader);
                     var document = documentSerializer.Deserialize<TDocument>(context);
                     documents.Add(document);
                 }

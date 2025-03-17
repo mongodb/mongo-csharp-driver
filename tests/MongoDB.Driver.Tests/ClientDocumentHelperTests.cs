@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers.Core;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -32,26 +33,32 @@ namespace MongoDB.Driver.Tests
 {
     public class ClientDocumentHelperTests
     {
+        private static readonly string __longAString = new string('a', 512);
+
         [Theory]
         [ParameterAttributeData]
+        // Test that environment metadata is properly captured
+        // https://github.com/mongodb/specifications/blob/master/source/mongodb-handshake/tests/README.md#test-1-test-that-environment-metadata-is-properly-captured
         public async Task Handhake_should_handle_faas_env_variables(
             [Values(
             // Valid AWS
-            "{ 'AWS_EXECUTION_ENV' : 'AWS_Lambda_java8', 'AWS_REGION' : 'us-east-2', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE' : '1024', expected : { 'name' : 'aws.lambda', 'memory_mb' : 1024, 'region' : 'us-east-2' } }",
+            "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'AWS_REGION=us-east-2', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE=1024'], expected : { 'name' : 'aws.lambda', 'memory_mb' : 1024, 'region' : 'us-east-2' } }",
             // Invalid - AWS_EXECUTION_ENV should start with AWS_Lambda_
-            "{ 'AWS_EXECUTION_ENV' : 'EC2', 'AWS_REGION' : 'us-east-2', expected : null }",
+            "{ 'env' : ['AWS_EXECUTION_ENV=EC2', 'AWS_REGION=us-east-2'], expected : null }",
             // Valid Azure
-            "{ 'FUNCTIONS_WORKER_RUNTIME' : 'node', expected: { 'name' : 'azure.func' } }",
+            "{ 'env' : ['FUNCTIONS_WORKER_RUNTIME=node'], expected: { 'name' : 'azure.func' } }",
             // Valid GCP
-            "{ 'K_SERVICE' : 'servicename', 'FUNCTION_MEMORY_MB' : '1024', 'FUNCTION_TIMEOUT_SEC' : '60', 'FUNCTION_REGION' : 'us-central1', expected: { 'name' : 'gcp.func', 'timeout_sec' : 60, 'memory_mb' : 1024, 'region' : 'us-central1' } }",
+            "{ 'env' : ['K_SERVICE=servicename', 'FUNCTION_MEMORY_MB=1024', 'FUNCTION_TIMEOUT_SEC=60', 'FUNCTION_REGION=us-central1'], expected: { 'name' : 'gcp.func', 'timeout_sec' : 60, 'memory_mb' : 1024, 'region' : 'us-central1' } }",
             // Valid VERCEL
-            "{ 'VERCEL' : '1', 'VERCEL_REGION' : 'cdg1', expected: { 'name' : 'vercel', 'region' : 'cdg1' } }",
+            "{ 'env' : ['VERCEL=1', 'VERCEL_REGION=cdg1'], expected: { 'name' : 'vercel', 'region' : 'cdg1' } }",
             // Invalid - multiple providers
-            "{ 'AWS_EXECUTION_ENV' : 'AWS_Lambda_java8', 'FUNCTIONS_WORKER_RUNTIME' : 'node', expected: null }",
+            "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'FUNCTIONS_WORKER_RUNTIME=node'], expected: null }",
             // Invalid - long string
-            "{ 'AWS_EXECUTION_ENV' : 'AWS_Lambda_java8', 'AWS_REGION' : '#longA#', expected: { 'name' : 'aws.lambda' } }",
+            "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'AWS_REGION=#longA#'], expected: { 'name' : 'aws.lambda' } }",
             // Invalid - wrong types
-            "{ 'AWS_EXECUTION_ENV' : 'AWS_Lambda_java8', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE' : 'big', expected: { 'name' : 'aws.lambda' } }")]
+            "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE=big'], expected: { 'name' : 'aws.lambda' } }",
+            // Valid container and FaaS provider
+            "{ 'env' : ['AWS_EXECUTION_ENV=AWS_Lambda_java8', 'AWS_REGION=us-east-2', 'AWS_LAMBDA_FUNCTION_MEMORY_SIZE=1024', 'KUBERNETES_SERVICE_HOST=1'], expected : { 'name' : 'aws.lambda', 'memory_mb' : 1024, 'region' : 'us-east-2', 'container' : { 'orchestrator' : 'kubernetes' } } }")]
             string environmentVariableDescription,
             [Values(false, true)] bool async)
         {
@@ -61,15 +68,8 @@ namespace MongoDB.Driver.Tests
 
             var environmentVariableDescriptionDocument = BsonDocument.Parse(environmentVariableDescription);
             var expectedValue = environmentVariableDescriptionDocument["expected"];
-            environmentVariableDescriptionDocument.Remove("expected");
-            var descriptionElements = environmentVariableDescriptionDocument
-                .Elements
-                .ToList();
-
-            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>();
-
-            descriptionElements.ForEach(e =>
-                environmentVariableProviderMock.Setup(env => env.GetEnvironmentVariable(e.Name)).Returns(GetValue(e.Value.ToString())));
+            var env = environmentVariableDescriptionDocument["env"].AsBsonArray.Values.Select(v => v.AsString.Replace("#longA#", __longAString)).ToArray();
+            var environmentVariableProviderMock = EnvironmentVariableProviderMock.Create(env);
 
             using var __ = new ClientDocumentHelperProvidersSetter(environmentVariableProviderMock.Object);
 
@@ -100,8 +100,6 @@ namespace MongoDB.Driver.Tests
                     command["env"].AsBsonDocument.Should().Be(expectedDocument);
                 }
             }
-
-            string GetValue(string input) => input == "#longA#" ? new string('a', 512) : input;
         }
     }
 

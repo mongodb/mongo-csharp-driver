@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Search
         /// <summary>Gets the value that indicates whether the lower bound of the range is inclusive.</summary>
         public bool IsMinInclusive { get; }
 
-        /// <summary>Gets the lower bound of the range.</summary>
+        /// <summary>Gets the upper bound of the range.</summary>
         public TValue? Max { get; }
 
         /// <summary>Gets the lower bound of the range.</summary>

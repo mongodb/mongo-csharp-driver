@@ -14,6 +14,9 @@
 */
 
 using System;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -23,13 +26,37 @@ namespace MongoDB.Driver
     public static class Mql
     {
         /// <summary>
+        /// Use this method in a MongoDB LINQ query when you need to specify how a constant should be serialized.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <returns>The value.</returns>
+        public static TValue Constant<TValue>(TValue value, IBsonSerializer<TValue> serializer)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Use this method in a MongoDB LINQ query when you need to specify how a constant should be serialized.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="representaion">The representation.</param>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <returns>The value</returns>
+        public static TValue Constant<TValue>(TValue value, BsonType representaion)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
         /// Converts a string to a DateTime using the $dateFromString aggregation operator.
         /// </summary>
         /// <param name="dateString">The string.</param>
         /// <returns>A DateTime.</returns>
         public static DateTime DateFromString(string dateString)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -42,7 +69,7 @@ namespace MongoDB.Driver
             string dateString,
             string format)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -57,7 +84,7 @@ namespace MongoDB.Driver
             string format,
             string timezone)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -76,7 +103,7 @@ namespace MongoDB.Driver
             DateTime? onError,
             DateTime? onNull)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -87,7 +114,21 @@ namespace MongoDB.Driver
         /// <returns><c>true</c> if the field exists.</returns>
         public static bool Exists<TField>(TField field)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Gets the value of a field in a document.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="document">The document.</param>
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="fieldSerializer">The field serializer.</param>
+        /// <returns>The value of the field.</returns>
+        public static TField Field<TDocument, TField>(TDocument document, string fieldName, IBsonSerializer<TField> fieldSerializer)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -98,7 +139,7 @@ namespace MongoDB.Driver
         /// <returns><c>true</c> if the field is missing.</returns>
         public static bool IsMissing<TField>(TField field)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -109,7 +150,7 @@ namespace MongoDB.Driver
         /// <returns><c>true</c> if the field is null or missing.</returns>
         public static bool IsNullOrMissing<TField>(TField field)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in MongoDB LINQ queries.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
     }
 }

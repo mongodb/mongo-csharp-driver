@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (method.Is(StringMethod.IsNullOrEmpty))
             {
                 var fieldExpression = arguments[0];
-                var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
-                return AstFilter.In(field, new BsonValue[] { BsonNull.Value, "" });
+                var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                return AstFilter.In(fieldTranslation.Ast, new BsonValue[] { BsonNull.Value, "" });
             }
 
             throw new ExpressionNotSupportedException(expression);

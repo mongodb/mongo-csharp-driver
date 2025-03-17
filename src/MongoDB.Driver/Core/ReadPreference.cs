@@ -104,7 +104,9 @@ namespace MongoDB.Driver
             ReadPreferenceMode mode = ReadPreferenceMode.Primary;
             TimeSpan? maxStaleness = null;
             List<TagSet> tagSets = null;
+#pragma warning disable CS0618 // Type or member is obsolete
             ReadPreferenceHedge hedge = null;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             foreach (var element in document)
             {
@@ -144,7 +146,9 @@ namespace MongoDB.Driver
 
                     case "hedge":
                         var hedgeEnabled = element.Value.AsBsonDocument["enabled"].AsBoolean;
+#pragma warning disable CS0618 // Type or member is obsolete
                         hedge = new ReadPreferenceHedge(hedgeEnabled);
+#pragma warning restore CS0618 // Type or member is obsolete
                         break;
 
                     default:
@@ -157,7 +161,9 @@ namespace MongoDB.Driver
         #endregion
 
         // fields
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly ReadPreferenceHedge _hedge;
+#pragma warning restore CS0618 // Type or member is obsolete
         private readonly TimeSpan? _maxStaleness;
         private readonly ReadPreferenceMode _mode;
         private readonly IReadOnlyList<TagSet> _tagSets;
@@ -174,7 +180,9 @@ namespace MongoDB.Driver
             ReadPreferenceMode mode,
             IEnumerable<TagSet> tagSets = null,
             TimeSpan? maxStaleness = null,
+#pragma warning disable CS0618 // Type or member is obsolete
             ReadPreferenceHedge hedge = null)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             var tagSetsArray = tagSets == null ? __emptyTagSetsArray : tagSets.ToArray();
             if (tagSetsArray.Length > 0)
@@ -207,6 +215,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the hedge.
         /// </summary>
+        [Obsolete("Hedged reads are deprecated starting in server version 8.0.")]
         public ReadPreferenceHedge Hedge => _hedge;
 
         /// <summary>
@@ -306,6 +315,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="hedge">The hedge.</param>
         /// <returns>A new instance of ReadPreference.</returns>
+        [Obsolete("Hedged reads are deprecated starting in server version 8.0.")]
         public ReadPreference With(ReadPreferenceHedge hedge)
         {
             return new ReadPreference(_mode, _tagSets, _maxStaleness, hedge);

@@ -565,7 +565,10 @@ namespace MongoDB.Driver
 
             var messageEncoderSettings = GetMessageEncoderSettings();
             var renderArgs = GetRenderArgs();
-            var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs);
+            var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs)
+            {
+                RetryRequested = _settings.RetryWrites,
+            };
             if (options?.WriteConcern == null)
             {
                 operation.WriteConcern = _settings.WriteConcern;

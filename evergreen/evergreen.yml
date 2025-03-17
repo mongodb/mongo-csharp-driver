@@ -100,7 +100,7 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          OS=${OS} DOTNET_SDK_VERSION=${DOTNET_SDK_VERSION} bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -230,11 +230,6 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          if [ "${OS}" = "macos-14-arm64" ]; then
-            ulimit -a
-            # have to set the limit manually for macos-14-arm, can be removed once DEVPROD-7353 will be solved
-            ulimit -n 64000
-          fi
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           LOAD_BALANCER=${LOAD_BALANCER} \
           MONGODB_VERSION=${VERSION} \
@@ -251,15 +246,22 @@ functions:
         file: mo-expansion.yml
 
   download-and-promote-augmented-sbom-to-s3-bucket:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${kondukto_role_arn}
     - command: shell.exec
       params:
         working_dir: "mongo-csharp-driver"
         include_expansions_in_env:
-          - "SILK_CLIENT_ID"
-          - "SILK_CLIENT_SECRET"
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           ${PREPARE_SHELL}
           ./evergreen/download-augmented-sbom.sh
+    - command: ec2.assume_role
+      params:
+        role_arn: ${UPLOAD_SSDLC_RELEASE_ASSETS_ROLE_ARN}
     - command: s3.put
       params:
         aws_key: ${AWS_ACCESS_KEY_ID}
@@ -358,19 +360,10 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
-        include_expansions_in_env:
-          - "FLE_AWS_ACCESS_KEY_ID"
-          - "FLE_AWS_SECRET_ACCESS_KEY"
-          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
-          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
-          - "FLE_AZURE_TENANT_ID"
-          - "FLE_AZURE_CLIENT_ID"
-          - "FLE_AZURE_CLIENT_SECRET"
-          - "FLE_GCP_EMAIL"
-          - "FLE_GCP_PRIVATE_KEY"
+        shell: "bash"
         script: |
           . ./evergreen/set-virtualenv.sh
-          . ./evergreen/set-temp-fle-aws-creds.sh
+          DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
@@ -395,16 +388,6 @@ functions:
       params:
         working_dir: "mongo-csharp-driver"
         shell: "bash"
-        include_expansions_in_env:
-          - "FLE_AWS_ACCESS_KEY_ID"
-          - "FLE_AWS_SECRET_ACCESS_KEY"
-          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
-          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
-          - "FLE_AZURE_TENANT_ID"
-          - "FLE_AZURE_CLIENT_ID"
-          - "FLE_AZURE_CLIENT_SECRET"
-          - "FLE_GCP_EMAIL"
-          - "FLE_GCP_PRIVATE_KEY"
         script: |
           export KMS_MOCK_SERVERS_ENABLED=true
           export GCE_METADATA_HOST="localhost:5000"
@@ -431,19 +414,9 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         shell: "bash"
-        include_expansions_in_env:
-          - "FLE_AWS_ACCESS_KEY_ID"
-          - "FLE_AWS_SECRET_ACCESS_KEY"
-          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
-          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
-          - "FLE_AZURE_TENANT_ID"
-          - "FLE_AZURE_CLIENT_ID"
-          - "FLE_AZURE_CLIENT_SECRET"
-          - "FLE_GCP_EMAIL"
-          - "FLE_GCP_PRIVATE_KEY"
         script: |
           . ./evergreen/set-virtualenv.sh
-          . ./evergreen/set-temp-fle-aws-creds.sh
+          DRIVERS_TOOLS=${DRIVERS_TOOLS} . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
@@ -788,16 +761,6 @@ functions:
       type: test
       params:
         working_dir: mongo-csharp-driver
-        include_expansions_in_env:
-          - "FLE_AWS_ACCESS_KEY_ID"
-          - "FLE_AWS_SECRET_ACCESS_KEY"
-          - "FLE_AWS_NAMED2_ACCESS_KEY_ID"
-          - "FLE_AWS_NAMED2_SECRET_ACCESS_KEY"
-          - "FLE_AZURE_TENANT_ID"
-          - "FLE_AZURE_CLIENT_ID"
-          - "FLE_AZURE_CLIENT_SECRET"
-          - "FLE_GCP_EMAIL"
-          - "FLE_GCP_PRIVATE_KEY"
         script: |
           ${PREPARE_SHELL}
           AUTH=${AUTH} \
@@ -839,96 +802,34 @@ functions:
           git clone https://github.com/microsoft/semantic-kernel.git
           ./evergreen/run-sk.sh
 
-  start-kms-mock-servers:
-    - command: shell.exec
+  setup-csfle-secrets:
+    - command: ec2.assume_role
       params:
-        shell: "bash"
-        script: |
-          ${PREPARE_SHELL}
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-    - command: shell.exec
+        role_arn: ${aws_test_secrets_role}
+    - command: subprocess.exec
       params:
-        background: true
-        shell: "bash"
-        script: |
-          #expired client cert
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/expired.pem --port 8000
-    - command: shell.exec
-      params:
-        background: true
-        shell: "bash"
-        script: |
-          #wrong-host client cert
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/wrong-host.pem --port 8001
-    - command: shell.exec
-      params:
-        background: true
-        shell: "bash"
-        script: |
-          #server.pem client cert
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/server.pem --port 8002 --require_client_cert
+        working_dir: mongo-csharp-driver
+        binary: bash
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        args:
+          - ${DRIVERS_TOOLS}/.evergreen/csfle/setup-secrets.sh
 
-  start-kms-mock-kmip-server:
-    - command: shell.exec
+  start-cse-servers:
+    - command: subprocess.exec
       params:
-        shell: "bash"
-        script: |
-          ${PREPARE_SHELL}
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-    - command: shell.exec
-      params:
-        shell: "bash"
+        working_dir: mongo-csharp-driver
+        binary: bash
         background: true
-        script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python -u kms_kmip_server.py
-
-  start-kms-mock-gcp-server:
-    - command: shell.exec
+        args:
+          - ${DRIVERS_TOOLS}/.evergreen/csfle/start-servers.sh
+    - command: subprocess.exec
       params:
-        shell: "bash"
-        script: |
-          ${PREPARE_SHELL}
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-    - command: shell.exec
-      params:
-        background: true
-        shell: "bash"
-        script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms
-          . ./activate-kmstlsvenv.sh
-          python -m pip install PyJWT
-          mkdir ${DRIVERS_TOOLS}/tmp
-          echo '${GOOGLE_APPLICATION_CREDENTIALS_CONTENT}' > ${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
-          export GOOGLE_APPLICATION_CREDENTIALS=${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
-          python -u mock_server.py
-
-  start-kms-mock-azure-imds-server:
-    - command: shell.exec
-      params:
-        shell: "bash"
-        script: |
-          ${PREPARE_SHELL}
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-    - command: shell.exec
-      params:
-        background: true
-        shell: "bash"
-        script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate-kmstlsvenv.sh
-          python bottle.py fake_azure:imds
+        binary: bash
+        args:
+          - ${DRIVERS_TOOLS}/.evergreen/csfle/await-servers.sh
 
   trace-artifacts:
     - command: papertrail.trace
@@ -1032,6 +933,7 @@ functions:
           PACKAGE_VERSION: "$PACKAGE_VERSION"
           GRS_USERNAME: ${GRS_USERNAME}
           GRS_PASSWORD: ${GRS_PASSWORD}
+          AUTHENTICODE_KEY_NAME: ${AUTHENTICODE_KEY_NAME}
         script: |
           ${PREPARE_SHELL}
           . ./evergreen/sign-packages.sh
@@ -1147,6 +1049,26 @@ functions:
           fi
           ./evergreen/upload-apidocs.sh
 
+  run_oidc_k8s_tests:
+    - command: shell.exec
+      params:
+        shell: bash
+        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        script: |
+          ${PREPARE_SHELL}
+
+          export K8S_VARIANT=${K8S_VARIANT}
+          export K8S_DRIVERS_TAR_FILE=/tmp/mongo-csharp-driver.tgz
+          export K8S_TEST_CMD="OIDC_ENV=k8s ./evergreen/run-mongodb-oidc-env-tests.sh"
+
+          bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/setup-pod.sh
+          bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/run-driver-test.sh
+          bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/teardown-pod.sh
+
 pre:
   - func: fetch-source
   - func: prepare-resources
@@ -1163,6 +1085,7 @@ post:
 tasks:
     - name: test-net472
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -1170,6 +1093,7 @@ tasks:
 
     - name: test-netstandard21
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -1177,6 +1101,7 @@ tasks:
 
     - name: test-net60
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -1184,6 +1109,7 @@ tasks:
 
     - name: test-csfle-with-mongocryptd-net472
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mongocryptd-tests
           vars:
@@ -1191,6 +1117,7 @@ tasks:
 
     - name: test-csfle-with-mongocryptd-netstandard21
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mongocryptd-tests
           vars:
@@ -1198,6 +1125,7 @@ tasks:
 
     - name: test-csfle-with-mongocryptd-net60
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mongocryptd-tests
           vars:
@@ -1205,10 +1133,8 @@ tasks:
 
     - name: test-csfle-with-mocked-kms-tls-net472
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-mock-kmip-server
-        - func: start-kms-mock-gcp-server
-        - func: start-kms-mock-azure-imds-server
+        - func: setup-csfle-secrets
+        - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -1216,10 +1142,8 @@ tasks:
 
     - name: test-csfle-with-mocked-kms-tls-netstandard21
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-mock-kmip-server
-        - func: start-kms-mock-gcp-server
-        - func: start-kms-mock-azure-imds-server
+        - func: setup-csfle-secrets
+        - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -1227,10 +1151,8 @@ tasks:
 
     - name: test-csfle-with-mocked-kms-tls-net60
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-mock-kmip-server
-        - func: start-kms-mock-gcp-server
-        - func: start-kms-mock-azure-imds-server
+        - func: setup-csfle-secrets
+        - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -1309,6 +1231,7 @@ tasks:
 
     - name: stable-api-tests-net472
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
@@ -1319,6 +1242,7 @@ tasks:
 
     - name: stable-api-tests-netstandard21
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
@@ -1329,6 +1253,7 @@ tasks:
 
     - name: stable-api-tests-net60
       commands:
+        - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
           vars:
             REQUIRE_API_VERSION: true
@@ -1391,9 +1316,31 @@ tasks:
               export GCPOIDC_TEST_CMD="OIDC_ENV=gcp ./evergreen/run-mongodb-oidc-env-tests.sh"
               bash $DRIVERS_TOOLS/.evergreen/auth_oidc/gcp/run-driver-test.sh
 
+    - name: test-oidc-k8s
+      commands:
+        - command: shell.exec
+          params:
+            shell: bash
+            working_dir: mongo-csharp-driver
+            script: |-
+              ${PREPARE_SHELL}
+              dotnet build
+              tar czf /tmp/mongo-csharp-driver.tgz tests/*.Tests/bin/Debug/net6.0/ ./evergreen/run-mongodb-oidc-env-tests.sh
+        - func: assume-ec2-role
+        - func: run_oidc_k8s_tests
+          vars:
+            K8S_VARIANT: eks
+        - func: run_oidc_k8s_tests
+          vars:
+            K8S_VARIANT: gke
+        - func: run_oidc_k8s_tests
+          vars:
+            K8S_VARIANT: aks
+
     - name: test-serverless
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
+        - func: setup-csfle-secrets
         - func: run-serverless-tests
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
@@ -1563,11 +1510,11 @@ tasks:
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
-    - name: performance-tests-net80-server-v6.0
+    - name: test-csharp-spec-benchmarks
       commands:
         - func: bootstrap-mongo-orchestration
           vars:
-            VERSION: "v6.0-perf"
+            VERSION: "v8.0-perf"
             TOPOLOGY: "server"
             SSL: "nossl"
             AUTH: "noauth"
@@ -1581,6 +1528,9 @@ tasks:
           params:
             role_arn: ${LAMBDA_AWS_ROLE_ARN}
             duration_seconds: 3600
+        - func: install-dotnet
+          vars:
+            DOTNET_SDK_VERSION: 8.0
         - command: shell.exec
           params:
             working_dir: mongo-csharp-driver
@@ -1589,6 +1539,7 @@ tasks:
               ${PREPARE_SHELL}
               evergreen/run-deployed-lambda-aws-tests.sh
             env:
+              LAMBDA_STACK_NAME: dbx-csharp-lambda
               TEST_LAMBDA_DIRECTORY: ${PROJECT_DIRECTORY}/tests/FaasTests/LambdaTests
               AWS_REGION: us-east-1
 
@@ -1766,9 +1717,8 @@ tasks:
             script: |
               ${PREPARE_SHELL}
               echo "Copying files ... begin"
-              export AZUREKMS_RESOURCEGROUP=${testazurekms_resourcegroup}
-              export AZUREKMS_VMNAME=${AZUREKMS_VMNAME}
               export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
+              source $DRIVERS_TOOLS/.evergreen/csfle/azurekms/secrets-export.sh
               tar czf /tmp/mongo-csharp-driver.tgz .
               AZUREKMS_SRC=/tmp/mongo-csharp-driver.tgz AZUREKMS_DST="~/" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/copy-file.sh
               echo "Copying files ... end"
@@ -1783,10 +1733,9 @@ tasks:
             shell: "bash"
             script: |
               ${PREPARE_SHELL}
-              export AZUREKMS_RESOURCEGROUP=${testazurekms_resourcegroup}
-              export AZUREKMS_VMNAME=${AZUREKMS_VMNAME}
+              source $DRIVERS_TOOLS/.evergreen/csfle/azurekms/secrets-export.sh
               export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
-              AZUREKMS_CMD="MONGODB_URI='mongodb://localhost:27017' KEY_NAME='${testazurekms_keyname}' KEY_VAULT_ENDPOINT='${testazurekms_keyvaultendpoint}' OS='${OS}' ./evergreen/run-csfle-azure-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
+              AZUREKMS_CMD="MONGODB_URI='mongodb://localhost:27017' KEY_NAME='${AZUREKMS_KEYNAME}' KEY_VAULT_ENDPOINT='${AZUREKMS_KEYVAULTENDPOINT}' OS='${OS}' ./evergreen/run-csfle-azure-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/azurekms/run-command.sh
 
     - name: test-csfle-with-gcp-kms
       commands:
@@ -1798,11 +1747,8 @@ tasks:
             script: |
               ${PREPARE_SHELL}
               echo "Copying files ... begin"
-              export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
-              export GCPKMS_PROJECT=${GCPKMS_PROJECT}
-              export GCPKMS_ZONE=${GCPKMS_ZONE}
-              export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
               tar czf /tmp/mongo-csharp-driver.tgz .
+              source $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/secrets-export.sh
               GCPKMS_SRC=/tmp/mongo-csharp-driver.tgz GCPKMS_DST=$GCPKMS_INSTANCENAME: $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/copy-file.sh
               echo "Copying files ... end"
               echo "Untarring file ... begin"
@@ -1816,10 +1762,7 @@ tasks:
             shell: "bash"
             script: |
               ${PREPARE_SHELL}
-              export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
-              export GCPKMS_PROJECT=${GCPKMS_PROJECT}
-              export GCPKMS_ZONE=${GCPKMS_ZONE}
-              export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
+              source $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/secrets-export.sh
               GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' OS='${OS}' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
 
     - name: test-SK
@@ -1832,6 +1775,21 @@ tasks:
         - func: install-dotnet
         - func: build-packages
         - func: upload-packages
+
+    - name: validate-apicompat
+      commands:
+        - func: install-dotnet
+          vars:
+            DOTNET_SDK_VERSION: 6.0
+        - func: download-packages
+        - command: shell.exec
+          type: test
+          params:
+            working_dir: mongo-csharp-driver
+            shell: "bash"
+            script: |
+              ${PREPARE_SHELL}
+              bash evergreen/validate-apicompat.sh
 
     - name: push-packages-nuget
       commands:
@@ -1922,7 +1880,7 @@ tasks:
             LOCAL_PATH: ${workdir}/efcore
             SCRIPT: |
               ${PREPARE_SHELL}
-              DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
+              CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
 
 axes:
   - id: version
@@ -2112,28 +2070,23 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - command: shell.exec
+      - func: assume-ec2-role
+      - command: subprocess.exec
         params:
-          shell: "bash"
-          silent: true
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/azurekms/setup-secrets.sh
+      - command: subprocess.exec
+        params:
+          binary: bash
           env:
-            AZUREKMS_CLIENTID : ${testazurekms_clientid}
-            AZUREKMS_TENANTID : ${testazurekms_tenantid}
-            AZUREKMS_SECRET= : ${testazurekms_secret}
-            AZUREKMS_RESOURCEGROUP: ${testazurekms_resourcegroup}
-            AZUREKMS_SCOPE : ${testazurekms_scope}
-          script: |
-            ${PREPARE_SHELL}
-            echo '${testazurekms_publickey}' > /tmp/testazurekms_publickey
-            echo '${testazurekms_privatekey}' > /tmp/testazurekms_privatekey
-            # Set 600 permissions on private key file. Otherwise ssh / scp may error with permissions "are too open".
-            chmod 600 /tmp/testazurekms_privatekey
-
-            export AZUREKMS_DRIVERS_TOOLS=$DRIVERS_TOOLS
-            export AZUREKMS_PUBLICKEYPATH=/tmp/testazurekms_publickey
-            export AZUREKMS_PRIVATEKEYPATH=/tmp/testazurekms_privatekey
-            export AZUREKMS_VMNAME_PREFIX=CSHARPDRIVER
-            $DRIVERS_TOOLS/.evergreen/csfle/azurekms/create-and-setup-vm.sh
+            AZUREKMS_VMNAME_PREFIX: "CSHARPDRIVER"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/azurekms/create-and-setup-vm.sh
       - command: expansions.update
         params:
           file: testazurekms-expansions.yml
@@ -2143,15 +2096,13 @@ task_groups:
       - command: expansions.update
         params:
           file: testazurekms-expansions.yml
-      - command: shell.exec
+      - command: subprocess.exec
         params:
-          shell: "bash"
+          binary: bash
           env:
-            AZUREKMS_VMNAME : ${AZUREKMS_VMNAME}
-            AZUREKMS_RESOURCEGROUP : ${testazurekms_resourcegroup}
-          script: |
-            ${PREPARE_SHELL}
-            $DRIVERS_TOOLS/.evergreen/csfle/azurekms/delete-vm.sh
+            AZUREKMS_VMNAME: ${AZUREKMS_VMNAME}
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/azurekms/delete-vm.sh
     tasks:
       - test-csfle-with-azure-kms
 
@@ -2165,35 +2116,38 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - command: shell.exec
+      - func: assume-ec2-role
+      - command: subprocess.exec
         params:
-          shell: "bash"
-          silent: true
+          binary: bash
           include_expansions_in_env:
-            - "GCPKMS_SERVICEACCOUNT"
-          script: |
-            ${PREPARE_SHELL}
-            echo '${GOOGLE_APPLICATION_CREDENTIALS_CONTENT}' > /tmp/testgcpkms_key_file.json
-            export GCPKMS_KEYFILE=/tmp/testgcpkms_key_file.json
-            export GCPKMS_DRIVERS_TOOLS=$DRIVERS_TOOLS
-            export GCPKMS_MACHINETYPE="e2-standard-4"
-            $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/create-and-setup-instance.sh
-      # Load the GCPKMS_GCLOUD, GCPKMS_INSTANCE, GCPKMS_REGION, and GCPKMS_ZONE expansions.
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms/setup-secrets.sh
+      - command: subprocess.exec
+        params:
+          binary: bash
+          include_expansions_in_env:
+            - "DRIVERS_TOOLS"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms/create-and-setup-instance.sh
       - command: expansions.update
         params:
           file: testgcpkms-expansions.yml
     teardown_group:
       - func: upload-test-results
-      - command: shell.exec
+      - command: subprocess.exec
         params:
-          shell: "bash"
-          script: |
-            ${PREPARE_SHELL}
-            export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
-            export GCPKMS_PROJECT=${GCPKMS_PROJECT}
-            export GCPKMS_ZONE=${GCPKMS_ZONE}
-            export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
-            $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/delete-instance.sh
+          binary: bash
+          include_expansions_in_env:
+            - "GCPKMS_GCLOUD"
+            - "GCPKMS_PROJECT"
+            - "GCPKMS_ZONE"
+            - "GCPKMS_INSTANCENAME"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms/delete-instance.sh
     tasks:
       - test-csfle-with-gcp-kms
 
@@ -2206,39 +2160,36 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - command: shell.exec
+      - func: assume-ec2-role
+      - command: subprocess.exec
         params:
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-secrets.sh
+            - "atlas"
+      - command: subprocess.exec
+        params:
+          binary: bash
           env:
-            DRIVERS_ATLAS_PUBLIC_API_KEY: "${DRIVERS_ATLAS_PUBLIC_API_KEY}"
-            DRIVERS_ATLAS_PRIVATE_API_KEY: "${DRIVERS_ATLAS_PRIVATE_API_KEY}"
-            DRIVERS_ATLAS_GROUP_ID: "${DRIVERS_ATLAS_GROUP_ID}"
-            DRIVERS_ATLAS_LAMBDA_USER: "${DRIVERS_ATLAS_LAMBDA_USER}"
-            DRIVERS_ATLAS_LAMBDA_PASSWORD: "${DRIVERS_ATLAS_LAMBDA_PASSWORD}"
-            LAMBDA_STACK_NAME: "${LAMBDA_STACK_NAME}"
-          add_expansions_to_env: true
-          shell: "bash"
-          script: |
-            ${PREPARE_SHELL}
-            $DRIVERS_TOOLS/.evergreen/atlas/setup-atlas-cluster.sh
+            LAMBDA_STACK_NAME: dbx-csharp-lambda
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update
         params:
           file: atlas-expansion.yml
     teardown_group:
       - func: upload-test-results
-      - command: shell.exec
+      - command: subprocess.exec
         params:
+          binary: bash
           env:
-            DRIVERS_ATLAS_PUBLIC_API_KEY: "${DRIVERS_ATLAS_PUBLIC_API_KEY}"
-            DRIVERS_ATLAS_PRIVATE_API_KEY: "${DRIVERS_ATLAS_PRIVATE_API_KEY}"
-            DRIVERS_ATLAS_GROUP_ID: "${DRIVERS_ATLAS_GROUP_ID}"
-            DRIVERS_ATLAS_LAMBDA_USER: "${DRIVERS_ATLAS_LAMBDA_USER}"
-            DRIVERS_ATLAS_LAMBDA_PASSWORD: "${DRIVERS_ATLAS_LAMBDA_PASSWORD}"
-            LAMBDA_STACK_NAME: "${LAMBDA_STACK_NAME}"
-          add_expansions_to_env: true
-          shell: "bash"
-          script: |
-            ${PREPARE_SHELL}
-            $DRIVERS_TOOLS/.evergreen/atlas/teardown-atlas-cluster.sh
+            LAMBDA_STACK_NAME: dbx-csharp-lambda
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/atlas/teardown-atlas-cluster.sh
     tasks:
       - atlas-search-index-helpers-test
 
@@ -2251,17 +2202,18 @@ task_groups:
       - command: subprocess.exec
         params:
           binary: bash
-          add_expansions_to_env: true
+          env:
+            LAMBDA_STACK_NAME: dbx-csharp-lambda
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update
         params:
           file: atlas-expansion.yml
+          redact_file_expansions: true
     teardown_group:
       - command: subprocess.exec
         params:
           binary: bash
-          add_expansions_to_env: true
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/teardown-atlas-cluster.sh
     tasks:
@@ -2347,6 +2299,34 @@ task_groups:
     tasks:
       - test-oidc-gcp
 
+  - name: oidc-auth-k8s-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: install-dotnet
+      - func: assume-ec2-role
+      - command: subprocess.exec
+        params:
+          binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/setup.sh
+    teardown_group:
+      - command: subprocess.exec
+        params:
+          binary: bash
+          args:
+            - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/k8s/teardown.sh
+    tasks:
+      - test-oidc-k8s
+
   - name: serverless-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
@@ -2376,6 +2356,30 @@ task_groups:
     tasks:
       - test-serverless
 
+  - name: validate-apicompat-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: make-files-executable
+      - func: install-dotnet
+    teardown_group:
+      - command: s3.put
+        params:
+          aws_key: ${aws_key}
+          aws_secret: ${aws_secret}
+          local_files_include_filter:
+            - mongo-csharp-driver/artifacts/apicompat/*.${PACKAGE_VERSION}.txt
+          remote_file: ${UPLOAD_BUCKET}/${revision}/
+          preserve_path: false
+          bucket: mciuploads
+          permissions: public-read
+          content_type: text/plain
+    tasks:
+      - validate-apicompat
+
 buildvariants:
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
@@ -2399,6 +2403,7 @@ buildvariants:
 
 - matrix_name: "secure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-14", "macos-14-arm64"] }
+  exclude_spec: { version: "5.0", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2433,6 +2438,7 @@ buildvariants:
 
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
+  exclude_spec: { version: "5.0", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2467,6 +2473,7 @@ buildvariants:
 
 - matrix_name: "tests-compression-macOS"
   matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: ["macos-14", "macos-14-arm64"] }
+  exclude_spec: { compressor : "*", auth: "*", ssl: "*", version: "5.0", topology: "*", os: "macos-14-arm64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2516,6 +2523,13 @@ buildvariants:
   batchtime: 20160 # 14 days
   tasks:
     - name: oidc-auth-gcp-task-group
+
+- matrix_name: mongodb-oidc-k8s-tests
+  matrix_spec: { os: [ "ubuntu-2004" ] }
+  display_name: "MongoDB-OIDC Auth (k8s) - ${os}"
+  batchtime: 20160 # 14 days
+  tasks:
+    - name: oidc-auth-k8s-task-group
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }
@@ -2597,7 +2611,7 @@ buildvariants:
   run_on:
     - rhel90-dbx-perf-large
   tasks:
-    - name: performance-tests-net80-server-v6.0
+    - name: test-csharp-spec-benchmarks
 
 # AWS Lambda tests
 - name: aws-lambda-tests
@@ -2668,6 +2682,7 @@ buildvariants:
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
   matrix_spec: { os: ["macos-14", "macos-14-arm64"], ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
+  exclude_spec: { os: "macos-14-arm64", ssl: "*", version: ["4.2", "4.4", "5.0"], topology: "*" }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -2676,7 +2691,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
   display_name: "CSFLE with AZURE KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
@@ -2685,7 +2700,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-gcp-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
   display_name: "CSFLE with GCP KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
@@ -2725,6 +2740,16 @@ buildvariants:
   tasks:
     - name: build-packages
       priority: 10
+
+- matrix_name: validate-apicompat
+  matrix_spec:
+    os: "ubuntu-2004"
+  display_name: "Validate API compatibility"
+  tasks:
+    - name: validate-apicompat-task-group
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
 
 - matrix_name: validate-apidocs
   matrix_spec:

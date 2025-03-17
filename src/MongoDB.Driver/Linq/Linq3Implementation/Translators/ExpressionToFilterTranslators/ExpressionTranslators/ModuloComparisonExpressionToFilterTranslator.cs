@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression, BinaryExpression moduloExpression, Expression remainderExpression)
         {
             var fieldExpression = moduloExpression.Left;
-            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
             var divisorExpression = moduloExpression.Right;
             BsonValue divisor;
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 throw new ExpressionNotSupportedException(expression);
             }
 
-            var moduloComparisonAst = AstFilter.Mod(field, divisor, remainder);
+            var moduloComparisonAst = AstFilter.Mod(fieldTranslation.Ast, divisor, remainder);
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal:

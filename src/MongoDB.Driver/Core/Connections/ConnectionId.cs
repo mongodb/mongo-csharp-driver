@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Connections
         [Obsolete("Use LongServerValue instead.")]
         public int? ServerValue
         {
-            get { return (int)_serverValue; }
+            get { return (int?)_serverValue; }
         }
 
         /// <summary>

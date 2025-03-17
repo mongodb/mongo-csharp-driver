@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -173,6 +173,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             mockServer.Verify(s => s.Dispose(), Times.Once);
 
             _capturedEvents.Next().Should().BeOfType<ClusterClosingEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterClosedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -232,6 +233,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             }
             _capturedEvents.Next().Should().BeOfType<ClusterClosingEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterClosedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -425,6 +427,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 mockServer.Verify(s => s.Dispose(), Times.Once);
 
                 _capturedEvents.Next().Should().BeOfType<ClusterClosingEvent>();
+                _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ClusterClosedEvent>();
                 _capturedEvents.Any().Should().BeFalse();
             }

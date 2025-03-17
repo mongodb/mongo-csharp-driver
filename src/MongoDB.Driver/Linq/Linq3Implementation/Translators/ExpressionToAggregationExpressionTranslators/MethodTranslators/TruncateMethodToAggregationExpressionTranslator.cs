@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class TruncateMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var ast = AstExpression.DateTrunc(dateTranslation.Ast, unit, binSize, timezone, startOfWeek);
                 var serializer = DateTimeSerializer.UtcInstance;
-                return new AggregationExpression(expression, ast, serializer);
+                return new TranslatedExpression(expression, ast, serializer);
             }
 
             if (method.IsOneOf(MathMethod.TruncateDecimal, MathMethod.TruncateDouble))
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var argumentAst = ConvertHelper.RemoveWideningConvert(argumentTranslation);
                 var ast = AstExpression.Trunc(argumentAst);
-                return new AggregationExpression(expression, ast, argumentTranslation.Serializer);
+                return new TranslatedExpression(expression, ast, argumentTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

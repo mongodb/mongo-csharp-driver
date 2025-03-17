@@ -14,51 +14,88 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using FluentAssertions;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp1585Tests
+    public class CSharp1585Tests : LinqIntegrationTest<CSharp1585Tests.ClassFixture>
     {
-        [Fact]
-        public void Nested_Any_should_translate_correctly()
+        public CSharp1585Tests(ClassFixture fixture)
+            : base(fixture)
         {
-            var expression = (Expression<Func<Document, bool>>)(document => document.Details.A.Any(x => x.Any(y => Regex.IsMatch(y.DeviceName, @".Name0."))));
-            var parameter = expression.Parameters[0];
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var documentSerializer = serializerRegistry.GetSerializer<Document>();
-            var context = TranslationContext.Create(expression, documentSerializer, translationOptions: null);
-            var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
-            context = context.WithSymbol(symbol);
-            var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);
-            var simplifiedFilter = AstSimplifier.Simplify(filter);
+        }
 
-            var rendered = simplifiedFilter.Render();
+        [Fact]
+        public void Filter_Builder_Where_should_translate_correctly()
+        {
+            var collection = Fixture.Collection;
+            var filter = Builders<Document>.Filter.Where(
+                document => document.Details.A.Any(x => x.Any(y => Regex.IsMatch(y.DeviceName, @".Name0."))));
 
-            rendered.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+            var find = collection.Find(filter);
+
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+        }
+
+        [Fact]
+        public void Filter_Builder_ElemMatch_ElemMatch_should_translate_correctly()
+        {
+            var collection = Fixture.Collection;
+            var deviceFilter = Builders<Device>.Filter.Regex(x => x.DeviceName, new BsonRegularExpression(".Name0."));
+            var deviceArrayFilter = Builders<Device[]>.Filter.ElemMatch(deviceFilter);
+            var filter = Builders<Document>.Filter.ElemMatch(x => x.Details.A, deviceArrayFilter);
+
+            var find = collection.Find(filter);
+
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+        }
+
+        [Fact]
+        public void Filter_Builder_ElemMatch_ElemMatch_untyped_should_translate_correctly()
+        {
+            var collection = Fixture.BsonDocumentCollection;
+            var deviceFilter = Builders<BsonValue>.Filter.Regex("DeviceName", new BsonRegularExpression(".Name0."));
+            var deviceArrayFilter = Builders<BsonValue>.Filter.ElemMatch(deviceFilter);
+            var filter = Builders<BsonDocument>.Filter.ElemMatch("Details.A", deviceArrayFilter);
+
+            var find = collection.Find(filter);
+
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
+        }
+
+        [Fact]
+        public void Filter_Builder_ElemMatch_ElemMatch_semityped_should_translate_correctly()
+        {
+            var collection = Fixture.BsonDocumentCollection;
+            var deviceFilter = Builders<BsonDocument>.Filter.Regex((FieldDefinition<BsonDocument, BsonValue>)"DeviceName", new BsonRegularExpression(".Name0."));
+            var deviceArrayFilter = Builders<BsonDocument[]>.Filter.ElemMatch(deviceFilter);
+            var filter = Builders<BsonDocument>.Filter.ElemMatch((FieldDefinition<BsonDocument, BsonDocument[][]>)"Details.A", deviceArrayFilter);
+
+            var find = collection.Find(filter);
+
+            var translatedFilter = TranslateFindFilter(collection, find);
+            translatedFilter.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
         }
 
         [Fact]
         public void AstFilter_should_handle_nested_elemMatch()
         {
             var ast = AstFilter.ElemMatch(
-                new AstFilterField("Details.A", BsonValueSerializer.Instance),
+                new AstFilterField("Details.A"),
                 AstFilter.ElemMatch(
-                    new AstFilterField("@<elem>", BsonValueSerializer.Instance),
-                    AstFilter.Regex(new AstFilterField("DeviceName", BsonValueSerializer.Instance), ".Name0.", "")));
+                    new AstFilterField("@<elem>"),
+                    AstFilter.Regex(new AstFilterField("DeviceName"), ".Name0.", "")));
             var simplifiedAst = AstSimplifier.Simplify(ast);
 
             var rendered = simplifiedAst.Render();
@@ -81,6 +118,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class Device
         {
             public string DeviceName { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Document>
+        {
+            public IMongoCollection<BsonDocument> BsonDocumentCollection => Collection.Database.GetCollection<BsonDocument>(Collection.CollectionNamespace.CollectionName);
+
+            protected override IEnumerable<Document> InitialData => null;
         }
     }
 }

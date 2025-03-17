@@ -16,6 +16,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if NET6_0_OR_GREATER
+using System.Collections.Immutable;
+#endif
 using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.Linq;
@@ -43,7 +46,17 @@ namespace MongoDB.Bson.Serialization
                 { typeof(ReadOnlyCollection<>), typeof(ReadOnlyCollectionSerializer<>) },
                 { typeof(Stack<>), typeof(StackSerializer<>) },
                 { typeof(Memory<>), typeof(MemorySerializer<>) },
-                { typeof(ReadOnlyMemory<>), typeof(ReadonlyMemorySerializer<>) }
+                { typeof(ReadOnlyMemory<>), typeof(ReadonlyMemorySerializer<>) },
+#if NET6_0_OR_GREATER
+                { typeof(ImmutableArray<>), typeof(ImmutableArraySerializer<>) },
+                { typeof(ImmutableList<>), typeof(ImmutableListSerializer<>) },
+                { typeof(ImmutableHashSet<>), typeof(ImmutableHashSetSerializer<>) },
+                { typeof(ImmutableSortedSet<>), typeof(ImmutableSortedSetSerializer<>) },
+                { typeof(ImmutableDictionary<,>), typeof(ImmutableDictionarySerializer<,>) },
+                { typeof(ImmutableSortedDictionary<,>), typeof(ImmutableSortedDictionarySerializer<,>) },
+                { typeof(ImmutableQueue<>), typeof(ImmutableQueueSerializer<>) },
+                { typeof(ImmutableStack<>), typeof(ImmutableStackSerializer<>) }
+#endif
             };
         }
 

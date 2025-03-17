@@ -14,22 +14,28 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4743Tests : Linq3IntegrationTest
+    public class CSharp4743Tests : LinqIntegrationTest<CSharp4743Tests.ClassFixture>
     {
+        public CSharp4743Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_using_DateTime_Date_should_work()
         {
             RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var memberId = 1;
             var startDateTime = new DateTime(2023, 08, 07, 1, 2, 3, DateTimeKind.Utc);
 
@@ -49,7 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_using_DateTime_TimeOfDay_should_work()
         {
             RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var memberId = 1;
             var startTimeOfDay = TimeSpan.FromHours(1);
 
@@ -68,7 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_using_DateTime_Year_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
             var memberId = 1;
             var startDateTime = new DateTime(2023, 08, 07, 0, 0, 0, DateTimeKind.Utc);
 
@@ -84,20 +90,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Id.Should().Be(1);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, MemberId = 1, InteractionDate = new DateTime(2023, 08, 07, 1, 2, 3, DateTimeKind.Utc) });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int MemberId { get; set; }
             public DateTime? InteractionDate { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, MemberId = 1, InteractionDate = new DateTime(2023, 08, 07, 1, 2, 3, DateTimeKind.Utc) }
+            ];
         }
     }
 }

@@ -22,6 +22,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.Reflectors;
+using MongoDB.Driver.Core;
 using Xunit;
 
 namespace MongoDB.Driver
@@ -39,12 +40,12 @@ namespace MongoDB.Driver
             result._memberSerializationInfo().Count.Should().Be(15);
             AssertRegisteredMember(result, "ClusterTime", "clusterTime", BsonTimestampSerializer.Instance);
             AssertRegisteredMember(result, "CollectionNamespace", "ns", ChangeStreamDocumentCollectionNamespaceSerializer.Instance);
-            AssertRegisteredMember(result, "CollectionUuid", "ui", GuidSerializer.StandardInstance);
+            AssertRegisteredMember(result, "CollectionUuid", "collectionUUID", GuidSerializer.StandardInstance);
             AssertRegisteredMember(result, "DatabaseNamespace", "ns", ChangeStreamDocumentDatabaseNamespaceSerializer.Instance);
-            AssertRegisteredMember(result, "DisambiguatedPaths", "disambiguatedPaths", BsonDocumentSerializer.Instance);
             AssertRegisteredMember(result, "DocumentKey", "documentKey", BsonDocumentSerializer.Instance);
             AssertRegisteredMember(result, "FullDocument", "fullDocument", documentSerializer);
             AssertRegisteredMember(result, "FullDocumentBeforeChange", "fullDocumentBeforeChange", documentSerializer);
+            AssertRegisteredMember(result, "NamespaceType", "nsType", ChangeStreamNamespaceTypeSerializer.Instance);
             AssertRegisteredMember(result, "OperationDescription", "operationDescription", BsonDocumentSerializer.Instance);
             AssertRegisteredMember(result, "OperationType", "operationType", ChangeStreamOperationTypeSerializer.Instance);
             AssertRegisteredMember(result, "RenameTo", "to", ChangeStreamDocumentCollectionNamespaceSerializer.Instance);

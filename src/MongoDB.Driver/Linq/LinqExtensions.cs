@@ -13,11 +13,7 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq
 {
@@ -36,7 +32,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static bool Inject<TDocument>(this FilterDefinition<TDocument> filter)
         {
-            throw new InvalidOperationException("The LinqExtensions.Inject method is only intended to be used in LINQ Where clauses.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
     }
 }

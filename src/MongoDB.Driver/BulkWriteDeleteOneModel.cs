@@ -75,6 +75,8 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonValue Hint { get; init; }
 
+        internal override bool IsMulti => false;
+
         internal override void Render(RenderArgs<BsonDocument> renderArgs, BsonSerializationContext serializationContext, IBulkWriteModelRenderer renderer)
             => renderer.RenderDeleteOne(renderArgs, serializationContext, this);
     }

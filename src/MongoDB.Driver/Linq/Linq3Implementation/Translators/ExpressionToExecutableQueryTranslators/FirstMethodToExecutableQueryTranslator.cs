@@ -74,14 +74,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     var predicateLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var predicateFilter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer, asRoot: true);
 
-                    pipeline = pipeline.AddStages(
-                        pipeline.OutputSerializer,
-                        AstStage.Match(predicateFilter));
+                    pipeline = pipeline.AddStage(
+                        AstStage.Match(predicateFilter),
+                        pipeline.OutputSerializer);
                 }
 
-                pipeline = pipeline.AddStages(
-                    pipeline.OutputSerializer,
-                    AstStage.Limit(1));
+                pipeline = pipeline.AddStage(
+                    AstStage.Limit(1),
+                    pipeline.OutputSerializer);
 
                 var finalizer = method.Name == "FirstOrDefault" ? __firstOrDefaultFinalizer : __firstFinalizer;
 

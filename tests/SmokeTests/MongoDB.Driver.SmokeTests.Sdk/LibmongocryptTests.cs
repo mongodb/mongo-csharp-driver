@@ -62,10 +62,9 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                     keyVaultNamespace,
                     kmsProviders);
 
-                var clientEncryption = new ClientEncryption(clientEncryptionSettings);
+                using var clientEncryption = new ClientEncryption(clientEncryptionSettings);
                 var dataKeyId = clientEncryption.CreateDataKey("local", new DataKeyOptions(), CancellationToken.None);
                 var base64DataKeyId = Convert.ToBase64String(GuidConverter.ToBytes(dataKeyId, GuidRepresentation.Standard));
-                clientEncryption.Dispose();
 
                 var collectionNamespace = CollectionNamespace.FromFullName("test.coll");
 
@@ -100,14 +99,22 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 clientSettings.LoggingSettings = new LoggingSettings(loggerFactory);
 
                 var client = new MongoClient(clientSettings);
-                var database = client.GetDatabase("test");
-                database.DropCollection("coll");
-                var collection = database.GetCollection<BsonDocument>("coll");
 
-                collection.InsertOne(new BsonDocument("encryptedField", "123456789"));
+                try
+                {
+                    var database = client.GetDatabase("test");
+                    database.DropCollection("coll");
+                    var collection = database.GetCollection<BsonDocument>("coll");
 
-                var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();
-                _output.WriteLine(result.ToJson());
+                    collection.InsertOne(new BsonDocument("encryptedField", "123456789"));
+
+                    var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();
+                    _output.WriteLine(result.ToJson());
+                }
+                finally
+                {
+                    ClusterRegistry.Instance.UnregisterAndDisposeCluster(client.Cluster);
+                }
             }
 
             var expectedLogs = new[]

@@ -11,14 +11,15 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-* 
+*
 */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq
 {
@@ -42,7 +43,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>Only meant to be used in Update specifications.</returns>
         public static TSource AllElements<TSource>(this IEnumerable<TSource> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>Only meant to be used in Update specifications.</returns>
         public static TSource AllMatchingElements<TSource>(this IEnumerable<TSource> source, string identifier)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.Linq
             SortDefinition<TSource> sortBy,
             Func<TSource, TResult> selector)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace MongoDB.Driver.Linq
             Func<TSource, TResult> selector,
             int n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -112,7 +113,7 @@ namespace MongoDB.Driver.Linq
             TKey key,
             Func<TKey, int> n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -123,7 +124,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>Only meant to be used in Update specifications.</returns>
         public static TSource FirstMatchingElement<TSource>(this IEnumerable<TSource> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -140,7 +141,7 @@ namespace MongoDB.Driver.Linq
             Func<TSource, TResult> selector,
             int n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace MongoDB.Driver.Linq
             TKey key,
             Func<TKey, int> n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -177,7 +178,7 @@ namespace MongoDB.Driver.Linq
             Func<TSource, TResult> selector,
             int n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -197,7 +198,7 @@ namespace MongoDB.Driver.Linq
             TKey key,
             Func<TKey, int> n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -214,7 +215,7 @@ namespace MongoDB.Driver.Linq
             Func<TSource, TResult> selector,
             int n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -234,7 +235,7 @@ namespace MongoDB.Driver.Linq
             TKey key,
             Func<TKey, int> n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -251,7 +252,7 @@ namespace MongoDB.Driver.Linq
             Func<TSource, TResult> selector,
             int n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -271,7 +272,7 @@ namespace MongoDB.Driver.Linq
             TKey key,
             Func<TKey, int> n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -283,7 +284,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationPopulation(this IEnumerable<int> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -295,7 +296,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationPopulation(this IEnumerable<int?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -307,7 +308,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationPopulation(this IEnumerable<long> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -319,7 +320,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationPopulation(this IEnumerable<long?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -331,7 +332,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static float StandardDeviationPopulation(this IEnumerable<float> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -343,7 +344,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static float? StandardDeviationPopulation(this IEnumerable<float?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -355,7 +356,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationPopulation(this IEnumerable<double> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -367,7 +368,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationPopulation(this IEnumerable<double?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -379,7 +380,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static decimal StandardDeviationPopulation(this IEnumerable<decimal> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -391,7 +392,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static decimal? StandardDeviationPopulation(this IEnumerable<decimal?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -405,7 +406,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, int> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -419,7 +420,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, int?> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -433,7 +434,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, long> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -447,7 +448,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, long?> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -461,7 +462,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static float StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -475,7 +476,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static float? StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -489,7 +490,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, double> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -503,7 +504,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, double?> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -517,7 +518,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static decimal StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -531,7 +532,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static decimal? StandardDeviationPopulation<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector)
         {
-            return source.Select(selector).StandardDeviationPopulation();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -543,7 +544,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationSample(this IEnumerable<int> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -555,7 +556,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationSample(this IEnumerable<int?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -567,7 +568,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationSample(this IEnumerable<long> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -579,7 +580,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationSample(this IEnumerable<long?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -591,7 +592,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static float StandardDeviationSample(this IEnumerable<float> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -603,7 +604,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static float? StandardDeviationSample(this IEnumerable<float?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -615,7 +616,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationSample(this IEnumerable<double> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -627,7 +628,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationSample(this IEnumerable<double?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -639,7 +640,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static decimal StandardDeviationSample(this IEnumerable<decimal> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -651,7 +652,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static decimal? StandardDeviationSample(this IEnumerable<decimal?> source)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -665,7 +666,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, int> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -679,7 +680,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, int?> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -693,7 +694,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, long> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -707,7 +708,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, long?> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -721,7 +722,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static float StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -735,7 +736,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static float? StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -749,7 +750,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, double> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -763,7 +764,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static double? StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, double?> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -777,7 +778,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static decimal StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -791,7 +792,7 @@ namespace MongoDB.Driver.Linq
         /// </returns>
         public static decimal? StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector)
         {
-            return source.Select(selector).StandardDeviationSample();
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -808,7 +809,7 @@ namespace MongoDB.Driver.Linq
             SortDefinition<TSource> sortBy,
             Func<TSource, TResult> selector)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -827,7 +828,7 @@ namespace MongoDB.Driver.Linq
             Func<TSource, TResult> selector,
             int n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -849,7 +850,7 @@ namespace MongoDB.Driver.Linq
             TKey key,
             Func<TKey, int> n)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
@@ -862,7 +863,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The filtered results.</returns>
         public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, int limit)
         {
-            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
     }
 }

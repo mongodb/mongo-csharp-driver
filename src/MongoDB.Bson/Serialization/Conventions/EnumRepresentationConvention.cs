@@ -14,8 +14,7 @@
 */
 
 using System;
-using System.Reflection;
-using MongoDB.Bson.Serialization.Options;
+using System.Collections;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -26,6 +25,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     {
         // private fields
         private readonly BsonType _representation;
+        private readonly bool _topLevelOnly;
 
         // constructors
         /// <summary>
@@ -34,9 +34,21 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="representation">The serialization representation. 0 is used to detect representation
         /// from the enum itself.</param>
         public EnumRepresentationConvention(BsonType representation)
+            :this(representation, true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnumRepresentationConvention" /> class.
+        /// </summary>
+        /// <param name="representation">The serialization representation. 0 is used to detect representation
+        /// from the enum itself.</param>
+        /// <param name="topLevelOnly">If set to true, the convention will be applied only to top level enum properties, and not collections of enums, for example.</param>
+        public EnumRepresentationConvention(BsonType representation, bool topLevelOnly)
         {
             EnsureRepresentationIsValidForEnums(representation);
             _representation = representation;
+            _topLevelOnly = topLevelOnly;
         }
 
         /// <summary>
@@ -45,65 +57,49 @@ namespace MongoDB.Bson.Serialization.Conventions
         public BsonType Representation => _representation;
 
         /// <summary>
+        /// Gets a boolean indicating if this convention should be also applied only to the top level enum properties and not to others,
+        /// collections of enums for example. True by default.
+        /// </summary>
+        public bool TopLevelOnly => _topLevelOnly;
+
+        /// <summary>
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
             var memberType = memberMap.MemberType;
-            var memberTypeInfo = memberType.GetTypeInfo();
 
-            if (memberTypeInfo.IsEnum)
+            if (!CouldApply(memberType))
             {
-                var serializer = memberMap.GetSerializer();
-                var representationConfigurableSerializer = serializer as IRepresentationConfigurable;
-                if (representationConfigurableSerializer != null)
-                {
-                    var reconfiguredSerializer = representationConfigurableSerializer.WithRepresentation(_representation);
-                    memberMap.SetSerializer(reconfiguredSerializer);
-                }
                 return;
             }
 
-            if (IsNullableEnum(memberType))
+            var serializer = memberMap.GetSerializer();
+            var reconfiguredSerializer = _topLevelOnly && !serializer.ValueType.IsNullableEnum() ?
+                Reconfigure(serializer) :
+                SerializerConfigurator.ReconfigureSerializerRecursively(serializer, Reconfigure);
+
+            if (reconfiguredSerializer is not null)
             {
-                var serializer = memberMap.GetSerializer();
-                var childSerializerConfigurableSerializer = serializer as IChildSerializerConfigurable;
-                if (childSerializerConfigurableSerializer != null)
-                {
-                    var childSerializer = childSerializerConfigurableSerializer.ChildSerializer;
-                    var representationConfigurableChildSerializer = childSerializer as IRepresentationConfigurable;
-                    if (representationConfigurableChildSerializer != null)
-                    {
-                        var reconfiguredChildSerializer = representationConfigurableChildSerializer.WithRepresentation(_representation);
-                        var reconfiguredSerializer = childSerializerConfigurableSerializer.WithChildSerializer(reconfiguredChildSerializer);
-                        memberMap.SetSerializer(reconfiguredSerializer);
-                    }
-                }
-                return;
+                memberMap.SetSerializer(reconfiguredSerializer);
             }
+
+            IBsonSerializer Reconfigure(IBsonSerializer s)
+                => s.ValueType.IsEnum ? (s as IRepresentationConfigurable)?.WithRepresentation(_representation) : null;
+
+            bool CouldApply(Type type)
+                => type.IsEnum || type.IsNullableEnum() || type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
         }
 
         // private methods
-        private bool IsNullableEnum(Type type)
-        {
-            return
-                type.GetTypeInfo().IsGenericType &&
-                type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                Nullable.GetUnderlyingType(type).GetTypeInfo().IsEnum;
-        }
-
         private void EnsureRepresentationIsValidForEnums(BsonType representation)
         {
-            if (
-                representation == 0 ||
-                representation == BsonType.String ||
-                representation == BsonType.Int32 ||
-                representation == BsonType.Int64)
+            if (representation is 0 or BsonType.String or BsonType.Int32 or BsonType.Int64)
             {
                 return;
             }
-            throw new ArgumentException("Enums can only be represented as String, Int32, Int64 or the type of the enum", "representation");
+            throw new ArgumentException("Enums can only be represented as String, Int32, Int64 or the type of the enum", nameof(representation));
         }
     }
 }

@@ -17,6 +17,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core;
 
 namespace MongoDB.Driver
 {
@@ -121,7 +122,8 @@ namespace MongoDB.Driver
         /// Added in MongoDB version 6.1.0.
         /// </para>
         /// </remarks>
-        public BsonDocument DisambiguatedPaths => GetValue<BsonDocument>(nameof(DisambiguatedPaths), null);
+        [Obsolete("DisambiguatedPaths is obsolete and will be removed in a future version. Use <see cref=\"ChangeStreamDocument{TDocument}.UpdateDescription.DisambiguatedPaths\"/> instead.")]
+        public BsonDocument DisambiguatedPaths => null;
 
         /// <summary>
         /// Gets the document key.
@@ -184,6 +186,15 @@ namespace MongoDB.Driver
                 }
             }
         }
+
+        /// <summary>
+        /// The type of the newly created object.
+        /// Only present when the showExpandedEvents change stream option is enabled and for the following event types (MongoDB 8.1 and later):
+        /// <list type="bullet">
+        ///     <item><description><see cref="ChangeStreamOperationType.Create"/></description></item>
+        /// </list>
+        /// </summary>
+        public ChangeStreamNamespaceType NamespaceType => GetValue(nameof(NamespaceType), ChangeStreamNamespaceType.Unknown);
 
         /// <summary>
         /// Gets the description for the operation.

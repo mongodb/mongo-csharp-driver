@@ -60,7 +60,6 @@ namespace MongoDB.Driver.Core.TestHelpers
         public MockConnection(ServerId serverId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber, TaskCompletionSource<bool> isExpiredTaskCompletionSource = null)
             : this(new ConnectionId(serverId), connectionSettings, eventSubscriber, isExpiredTaskCompletionSource)
         {
-
         }
 
         public MockConnection(ConnectionId connectionId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber, TaskCompletionSource<bool> isExpiredTaskCompletionSource = null)
@@ -147,7 +146,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         {
             _closingEventHandler?.Invoke(new ConnectionClosingEvent(_connectionId, EventContext.OperationId));
             IsExpired = true;
-            _closedEventHandler?.Invoke(new ConnectionClosedEvent(_connectionId, TimeSpan.Zero, EventContext.OperationId));
+            _closedEventHandler?.Invoke(new ConnectionClosedEvent(_connectionId, TimeSpan.FromTicks(1), EventContext.OperationId));
         }
 
         public void EnqueueCommandResponseMessage(Exception exception)
@@ -194,7 +193,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             // which is one from methods called inside Open
             _lastUsedAtUtc = DateTime.UtcNow;
 
-            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
+            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.FromTicks(1), null));
         }
 
         public Task OpenAsync(CancellationToken cancellationToken)
@@ -206,7 +205,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             // which is one from methods called inside OpenAsync
             _lastUsedAtUtc = DateTime.UtcNow;
 
-            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
+            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.FromTicks(1), null));
 
             return Task.CompletedTask;
         }

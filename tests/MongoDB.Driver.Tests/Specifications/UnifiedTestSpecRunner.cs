@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
@@ -27,6 +28,7 @@ using MongoDB.Driver.Tests.UnifiedTestOperations;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications
 {
@@ -58,8 +60,6 @@ namespace MongoDB.Driver.Tests.Specifications
                 RequireKmsMock();
             }
 
-            RequireEnvironment.Check().EnvironmentVariable("LIBMONGOCRYPT_PATH");
-
             Run(testCase);
         }
 
@@ -78,6 +78,9 @@ namespace MongoDB.Driver.Tests.Specifications
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("crud.tests.unified")]
         public void Crud(JsonDrivenTestCase testCase) => Run(testCase);
+
+        [UnifiedTestsTheory("gridfs.tests")]
+        public void GridFS(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("index_management.tests")]
         public void IndexManagement(JsonDrivenTestCase testCase)
@@ -128,9 +131,18 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("Serverless", "SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_writes.tests.unified")]
-        public void RetryableWrites(JsonDrivenTestCase testCase) => Run(testCase);
+        public void RetryableWrites(JsonDrivenTestCase testCase)
+        {
+            if (testCase.Name.Contains("bulkWrite.json") && testCase.Name.Contains("is never committed"))
+            {
+                // Unskip the tests once CSHARP-5444 is fixed.
+                throw new SkipException("This test is skipped because csharp driver has bug with handling connection closing while mixedBulkWrite operation.");
+            }
 
-        [Category("SDAM")]
+            Run(testCase);
+        }
+
+        [Category("SDAM", "SupportLoadBalancing")]
         [UnifiedTestsTheory("server_discovery_and_monitoring.tests.unified")]
         public void ServerDiscoveryAndMonitoring(JsonDrivenTestCase testCase) =>
             Run(testCase, IsSdamLogValid, new SdamRunnerEventsProcessor(testCase.Name));
@@ -145,7 +157,22 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("Serverless", "SupportLoadBalancing")]
         [UnifiedTestsTheory("transactions.tests.unified")]
-        public void Transactions(JsonDrivenTestCase testCase) => Run(testCase);
+        public void Transactions(JsonDrivenTestCase testCase)
+        {
+            if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded &&
+                (testCase.Name.StartsWith("read-concern.json:only first distinct includes readConcern") ||
+                testCase.Name.StartsWith("read-concern.json:distinct ignores collection readConcern") ||
+                testCase.Name.StartsWith("pin-mongos.json:distinct") ||
+                testCase.Name.StartsWith("reads.json:distinct")))
+            {
+                RequireServer.Check().VersionGreaterThanOrEqualTo(SemanticVersion.Parse("4.4"));
+            }
+
+            Run(testCase);
+        }
+
+        [UnifiedTestsTheory("transactions_convenient_api.tests.unified")]
+        public void TransactionsConvenientApi(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("unified_test_format.tests.valid_fail")]
         public void UnifiedTestFormatValidFail(JsonDrivenTestCase testCase)
@@ -228,7 +255,14 @@ namespace MongoDB.Driver.Tests.Specifications
             "hello with speculativeAuthenticate",
             "hello without speculativeAuthenticate is always observed",
             "legacy hello with speculativeAuthenticate",
-            "legacy hello without speculativeAuthenticate is always observed"
+            "legacy hello without speculativeAuthenticate is always observed",
+
+            // transactions
+            // Skipped because CSharp Driver has an issue with handling read timeout for sync code-path. CSHARP-3662
+            "add RetryableWriteError and UnknownTransactionCommitResult labels to connection errors",
+
+            // CSHARP Driver does not comply with the requirement to throw in case explicit writeConcern were used, see CSHARP-5468
+            "client bulkWrite with writeConcern in a transaction causes a transaction error",
         });
 
         #region CMAP helpers

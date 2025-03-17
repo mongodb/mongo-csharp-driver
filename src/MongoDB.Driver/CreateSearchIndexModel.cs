@@ -26,6 +26,10 @@ namespace MongoDB.Driver
         /// <value>The index name.</value>
         public string Name { get; }
 
+        /// <summary>Gets the index type.</summary>
+        /// <value>The index type.</value>
+        public SearchIndexType? Type { get; }
+
         /// <summary>Gets the index definition.</summary>
         /// <value>The definition.</value>
         public BsonDocument Definition { get; }
@@ -35,9 +39,18 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="definition">The definition.</param>
-        public CreateSearchIndexModel(string name, BsonDocument definition)
+        public CreateSearchIndexModel(string name, BsonDocument definition) : this(name, null, definition) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateSearchIndexModel"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="definition">The definition.</param>
+        public CreateSearchIndexModel(string name, SearchIndexType? type, BsonDocument definition)
         {
             Name = name;
+            Type = type;
             Definition = definition;
         }
     }

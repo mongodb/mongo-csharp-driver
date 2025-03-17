@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return false;
         }
 
-        public static AggregationExpression Translate(TranslationContext context, Expression expression, MethodInfo method, ReadOnlyCollection<Expression> arguments)
+        public static TranslatedExpression Translate(TranslationContext context, Expression expression, MethodInfo method, ReadOnlyCollection<Expression> arguments)
         {
             IEnumerable<AstExpression> argumentsTranslations = null;
 
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.Is(StringMethod.ConcatWithStringArray))
             {
-                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arguments.Single());
+                var argumentTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, arguments.Single());
                 if (argumentTranslation.Ast is AstComputedArrayExpression astArray)
                 {
                     argumentsTranslations = astArray.Items;
@@ -115,15 +115,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (argumentsTranslations != null)
             {
                 var ast = AstExpression.Concat(argumentsTranslations.ToArray());
-                return new AggregationExpression(expression, ast, StringSerializer.Instance);
+                return new TranslatedExpression(expression, ast, StringSerializer.Instance);
             }
 
             throw new ExpressionNotSupportedException(expression);
 
-            static AstExpression ExpressionToString(AggregationExpression aggregationExpression)
+            static AstExpression ExpressionToString(TranslatedExpression translatedExpression)
             {
-                var astExpression = aggregationExpression.Ast;
-                if (aggregationExpression.Serializer.ValueType == typeof(string))
+                var astExpression = translatedExpression.Ast;
+                if (translatedExpression.Serializer.ValueType == typeof(string))
                 {
                     return astExpression;
                 }
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     if (astExpression is AstConstantExpression constantAstExpression)
                     {
                         var value = constantAstExpression.Value;
-                        var stringValue = ValueToString(aggregationExpression.Expression, value);
+                        var stringValue = ValueToString(translatedExpression.Expression, value);
                         return AstExpression.Constant(stringValue);
                     }
                     else

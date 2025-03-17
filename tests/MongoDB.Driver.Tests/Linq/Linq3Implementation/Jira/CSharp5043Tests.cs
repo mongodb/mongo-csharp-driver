@@ -14,22 +14,31 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp5043Tests : Linq3IntegrationTest
+    public class CSharp5043Tests : LinqIntegrationTest<CSharp5043Tests.ClassFixture>
     {
+        public CSharp5043Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Convert_E1_to_E1_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E1)x.E1);
@@ -44,7 +53,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_E1_to_E2_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E2)x.E1);
@@ -59,7 +68,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_E1_to_nullable_E1_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E1?)x.E1);
@@ -74,7 +83,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_E1_to_nullable_E2_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E2?)x.E1);
@@ -89,7 +98,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_nullable_E1_to_E1_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E1)x.NE1);
@@ -105,7 +114,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_nullable_E1_to_E2_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E2)x.NE1);
@@ -121,7 +130,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_nullable_E1_to_nullable_E1_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E1?)x.NE1);
@@ -136,7 +145,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_nullable_E1_to_nullable_E2_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E2?)x.NE1);
@@ -151,7 +160,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_ES1_to_E1_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E1)x.ES1);
@@ -168,7 +177,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Convert_ES1_to_E2_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -177,7 +187,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$ES1'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -194,7 +204,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Convert_ES1_to_nullable_E1_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => (E1?)x.ES1);
@@ -211,7 +221,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Convert_ES1_to_nullable_E2_should_throw(
             [Values(false, true)] bool enableClientSideProjections)
         {
-            var collection = GetCollection();
+            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection.AsQueryable(translationOptions)
@@ -220,7 +231,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             if (enableClientSideProjections)
             {
                 var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, Array.Empty<string>());
+                AssertStages(stages, "{ $project : { _snippets : ['$ES1'], _id : 0 } }");
                 outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
                 var results = queryable.ToList();
@@ -234,17 +245,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             }
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, E1 = E1.A, NE1 = E1.A, ES1 = E1.A, NES1 = E1.A },
-                new C { Id = 2, E1 = E1.B, NE1 = null, ES1 = E1.B, NES1 = null });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public E1 E1 { get; set; }
@@ -253,7 +254,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [BsonRepresentation(BsonType.String)] public E1? NES1 { get; set; }
         }
 
-        private enum E1 { A, B }
-        private enum E2 { C, D }
+        public enum E1 { A, B }
+        public enum E2 { C, D }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, E1 = E1.A, NE1 = E1.A, ES1 = E1.A, NES1 = E1.A },
+                new C { Id = 2, E1 = E1.B, NE1 = null, ES1 = E1.B, NES1 = null }
+            ];
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SubstringMethodToAggregationExpressionTranslator
     {
-        public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         }
 
-        private static AggregationExpression TranslateHelper(TranslationContext context, Expression expression, Expression stringExpression, Expression startIndexExpression, Expression lengthExpression, AstTernaryOperator substrOperator)
+        private static TranslatedExpression TranslateHelper(TranslationContext context, Expression expression, Expression stringExpression, Expression startIndexExpression, Expression lengthExpression, AstTernaryOperator substrOperator)
         {
             var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
             var startIndexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ast = AstExpression.Substr(substrOperator, stringTranslation.Ast, startIndexTranslation.Ast, lengthTranslation.Ast);
             }
 
-            return new AggregationExpression(expression, ast, new StringSerializer());
+            return new TranslatedExpression(expression, ast, new StringSerializer());
         }
     }
 }
