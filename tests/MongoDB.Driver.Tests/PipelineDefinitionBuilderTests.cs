@@ -19,7 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Search;
 using Moq;
 using Xunit;
@@ -107,10 +107,82 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void GeoNear_with_geojson_point_should_add_the_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.GeoNear<BsonDocument, BsonDocument, GeoJson2DGeographicCoordinates, BsonDocument>(
+                GeoJson.Point(GeoJson.Geographic(34, 67)),
+                new GeoNearOptions<BsonDocument>
+                {
+                    DistanceField = "calculatedDistance"
+                });
+            
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""{ "$geoNear" : { "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] }, "distanceField" : "calculatedDistance" } }""");
+        }
+        
+        [Fact]
+        public void GeoNear_with_array_should_add_the_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.GeoNear<BsonDocument, BsonDocument, double, BsonDocument>(
+                [34.0, 67.0],
+                new GeoNearOptions<BsonDocument>
+                {
+                    DistanceField = "calculatedDistance"
+                });
+            
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""{ "$geoNear" : { "near" : [34.0, 67.0], "distanceField" : "calculatedDistance" } }""");
+        }
+        
+        [Fact]
+        public void GeoNear_with_embedded_doc_should_add_the_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.GeoNear<BsonDocument, BsonDocument, BsonDocument>(
+                new BsonDocument { { "long", 34.0}, { "lat", 67.0} },
+                new GeoNearOptions<BsonDocument>
+                {
+                    DistanceField = "calculatedDistance"
+                });
+            
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("""{ "$geoNear" : { "near" : { "long" : 34.0, "lat" : 67.0 }, "distanceField" : "calculatedDistance" } }""");
+        }
+
+        [Fact]
+        public void GeoNear_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+
+            var exception = Record.Exception(() =>
+                pipeline.GeoNear<BsonDocument, BsonDocument, double, BsonDocument>([1.0, 2.0]));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("pipeline");
+        }
+        
+        [Fact]
+        public void GeoNear_should_throw_when_near_point_is_null()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var exception = Record.Exception(() => pipeline.GeoNear<BsonDocument, BsonDocument, double, BsonDocument>(null));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("near");
+        }
+
+        [Fact]
         public void Lookup_should_throw_when_pipeline_is_null()
         {
-            RequireServer.Check();
-
             PipelineDefinition<BsonDocument, IEnumerable<BsonDocument>> pipeline = null;
             IMongoCollection<BsonDocument> collection = null;
 
