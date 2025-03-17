@@ -15,9 +15,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
@@ -35,36 +36,66 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
         }
 
-        [Fact]
-        public void Test1()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Select(x =>
-                    Mql.ConvertToBinData(x.StringProperty, BsonBinarySubType.Binary, Mql.ConvertBinDataFormat.base64));
-
-            var expectedStages =
-                new[]
-                {
-                    "{ $project : { _v : { $dateFromString : { dateString : '$S' } }, _id : 0 } }"
-                };
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void MongoDBFunctions_ConvertToStringFromBson_should_work()
+        [Theory]
+        [InlineData(3, -0.5, null)]
+        [InlineData(2, null, "MongoCommandException")]
+        public void MongoDBFunctions_ConvertToDoubleFromBson_should_work(int id, double? expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
-
-            var id = 1;
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToString(x.BinaryProperty, Mql.ConvertBinDataFormat.uuid));
+                .Select(x => Mql.ConvertToDouble(x.BinaryProperty, "hex"));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 1, format : 'hex' }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(2, 15.0, 15.0, null)]
+        [InlineData(0, 12.0, null, 12.0)]
+        [InlineData(2, null, null, null)]
+        [InlineData(0, null, null, null)]
+        public void MongoDBFunctions_ConvertToDoubleFromBsonWithOnErrorAndOnNull_should_work(int id, double? expectedResult, double? onError, double? onNull)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToDouble(x.BinaryProperty, "hex", onError, onNull));
+
+            var onErrorString = onError == null ? "null" : onError.Value.ToString("F1", NumberFormatInfo.InvariantInfo);
+            var onNullString = onNull == null ? "null" : onNull.Value.ToString("F1", NumberFormatInfo.InvariantInfo);
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 1, onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+
+        [Theory]
+        [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
+        [InlineData(1, null, "MongoCommandException")]
+        public void MongoDBFunctions_ConvertToStringFromBson_should_work(int id, string expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToString(x.BinaryProperty, "uuid"));
 
             var expectedStages =
                 new[]
@@ -73,48 +104,53 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                     """{"$project": { "_v" : { "$convert" : { "input" : "$BinaryProperty", "to" : 2, "format" : "uuid" } }, "_id" : 0 }}""",
                 };
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, expectedStages);
-
-            var expectedResult = "867dee52-c331-484e-92d1-c56479b8e67e";
-
-            var result = queryable.Single();
-            Assert.Equal(expectedResult, result);
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
         }
 
-        [Fact]
-        public void MongoDBFunctions_ConvertToStringFromBsonWithOnErrorAndOnNull_should_work()
+        [Theory]
+        [InlineData(0, "onNull")]
+        [InlineData(1, "onError")]
+        public void MongoDBFunctions_ConvertToStringFromBsonWithOnErrorAndOnNull_should_work(int id, string expectedResult)
         {
             RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
 
-            var id = 0;
-
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
-                .Where(x => x.Id == id);
-                //.Select(x => Mql.ConvertToString(x.BinaryProperty, Mql.ConvertBinDataFormat.hex, "onError", "onNull"));
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToString(x.BinaryProperty, "uuid", "onError", "onNull"));
 
             var expectedStages =
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    //"""{"$project": { "_v" : { "$convert" : { "input" : "$BinaryProperty", "to" : 2, "onError": "onError", "onNull": "onNull", "format" : "hex" } }, "_id" : 0 }}""",
+                    """{"$project": { "_v" : { "$convert" : { "input" : "$BinaryProperty", "to" : 2, "onError": "onError", "onNull": "onNull", "format" : "uuid" } }, "_id" : 0 }}""",
                 };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        private void AssertOutcome<TResult>(IMongoCollection<TestClass> collection,
+            IQueryable<TResult> queryable,
+            string[] expectedStages,
+            TResult expectedResult,
+            string expectedException = null)
+        {
+            TResult result = default;
 
             var stages = Translate(collection, queryable);
             AssertStages(stages, expectedStages);
+            var exception = Record.Exception(() => result = queryable.Single());
 
-            var expectedResult = "867dee52-c331-484e-92d1-c56479b8e67e";
-
-            var result = queryable.Single();
-            Assert.Equal(expectedResult, result.StringProperty);
+            if (string.IsNullOrEmpty(expectedException))
+            {
+                Assert.Null(exception);
+                Assert.Equal(expectedResult, result);
+            }
+            else
+            {
+                Assert.Equal(expectedException, exception.GetType().Name);
+            }
         }
-
-        /**
-         *
-         * What to test
-         *
-         */
 
 
         public sealed class ClassFixture : MongoCollectionFixture<TestClass>
@@ -122,17 +158,38 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             protected override IEnumerable<TestClass> InitialData { get; } =
             [
                 new TestClass {Id = 0 },
-                new TestClass {Id = 1, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard)},
+                new TestClass {Id = 1, BinaryProperty = new BsonBinaryData([0, 1, 2])},
+                new TestClass {Id = 2, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard)},
+                new TestClass {Id = 3, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAAAAA4L8="))}
             ];
+
+            private IEnumerable<BsonDocument> InitialDataUnTyped { get; } =
+            [
+                BsonDocument.Parse("{ _id : 7 }")
+            ];
+
+
+            //TODO Remove all of this
+            protected override void InitializeTestCase()
+            {
+                base.InitializeTestCase();
+                // var collection = Database.GetCollection<BsonDocument>(Collection.CollectionNamespace.CollectionName);
+                // collection.InsertMany(InitialDataUnTyped);
+            }
+
+            public IMongoCollection<BsonDocument> UnTypedCollection =>
+                Database.GetCollection<BsonDocument>(Collection.CollectionNamespace.CollectionName);
         }
 
         public class TestClass
         {
             public int Id { get; set; }
+
+            [BsonIgnoreIfDefault]
             public BsonBinaryData BinaryProperty { get; set; }
-            public double DoubleProperty { get; set; }
-            public int IntProperty { get; set; }
-            public long LongProperty { get; set; }
+            public double? DoubleProperty { get; set; }
+            public int? IntProperty { get; set; }
+            public long? LongProperty { get; set; }
             public string StringProperty { get; set; }
 
         }
