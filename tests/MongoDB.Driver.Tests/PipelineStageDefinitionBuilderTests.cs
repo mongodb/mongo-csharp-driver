@@ -527,6 +527,67 @@ namespace MongoDB.Driver.Tests
             });
         }
 
+        [Fact]
+        public void RankFusion_should_return_expected_result()
+        {
+            var result = PipelineStageDefinitionBuilder.RankFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }") }
+                });
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be("""{ $rankFusion: { "input" : { "pipelines" : { "p1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }] } }, "scoreDetails" : false }}""");
+        }
+
+        [Fact]
+        public void RankFusion_with_incorrect_params_should_throw_expected_exception()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.RankFusion<BsonDocument, BsonDocument>(pipelines: null);
+            });
+            
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.RankFusion(
+                    new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                    {
+                        { "p1", null }
+                    });
+            });
+        }
+        
+        [Fact]
+        public void RankFusion_with_weights_should_return_expected_result()
+        {
+            var result = PipelineStageDefinitionBuilder.RankFusion(
+                new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                {
+                    { "p1", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }") },
+                    { "p2", new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }") }
+                },
+                new Dictionary<string, double>
+                {
+                    { "p1", 0.3 },
+                    { "p2", 0.7 },
+                });
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be("""
+                                       {
+                                       $rankFusion: { 
+                                           "input" : { 
+                                               "pipelines" : { 
+                                                  "p1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
+                                                  "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }] 
+                                                } 
+                                            },
+                                            "combination" : { "weights" : { "p1" : 0.3, "p2" : 0.7 } }
+                                            "scoreDetails" : false }}
+                                       """);
+        }
+
         // private methods
         private IMongoDatabase GetDatabase()
         {

@@ -226,6 +226,15 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection);
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> RankFusion<TNewResult>(
+            Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines, 
+            Dictionary<string, double> weights = null, 
+            bool scoreDetails = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> ReplaceRoot<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot)
         {
             throw new NotImplementedException();

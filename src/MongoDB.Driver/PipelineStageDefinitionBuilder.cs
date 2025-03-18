@@ -1430,6 +1430,60 @@ namespace MongoDB.Driver
 
             return stage;
         }
+        
+        /// <summary>
+        /// Creates a $rankFusion stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelines">The map of named pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="weights">The map of pipeline names to numerical weights determining result importance during combination. Default weight is 1 when unspecified.</param>
+        /// <param name="scoreDetails">Flag that specifies whether to return a detailed breakdown of the score for each document in the result.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> RankFusion<TInput, TOutput>(
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines, 
+            Dictionary<string, double> weights = null, 
+            bool scoreDetails = false)
+        {
+            Ensure.IsNotNull(pipelines, nameof(pipelines));
+            if (pipelines.Any(pipeline => pipeline.Value == null))
+            {
+                throw new ArgumentNullException(nameof(pipelines), "Pipelines cannot contain a null pipeline.");
+            }
+            
+            const string operatorName = "$rankFusion";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var renderedPipelines = new BsonDocument();
+                    foreach (var pipeline in pipelines)
+                    {
+                        renderedPipelines.Add(pipeline.Key, new BsonArray(pipeline.Value.Render(args).Documents));
+                    }
+
+                    var rankFusionOptions = new BsonDocument
+                    {
+                        { "input", new BsonDocument("pipelines", renderedPipelines) },
+                        {
+                            "combination", () => new BsonDocument
+                            {
+                                { "weights", new BsonDocument(weights)}
+                            },
+                            weights != null
+                        },
+                        { "scoreDetails", scoreDetails }
+                    };
+
+                    return new RenderedPipelineStageDefinition<TOutput>(
+                        operatorName,
+                        new BsonDocument(operatorName, rankFusionOptions),
+                        args.SerializerRegistry.GetSerializer<TOutput>());
+                });
+
+            return stage;
+        }
 
         /// <summary>
         /// Creates a $replaceRoot stage.
