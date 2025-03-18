@@ -49,6 +49,222 @@ namespace MongoDB.Driver
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
+
+        /// <summary>
+        /// Converts a string field to a BsonBinaryData using the $convert aggregation operator.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>The converted field.</returns>
+        public static BsonBinaryData ConvertToBinData(string field, BsonBinarySubType subtype, string format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="onError">The onError value.</param>
+        /// <param name="onNull">The onNull value.</param>
+        /// <returns>The converted field.</returns>
+        public static BsonBinaryData ConvertToBinData(string field, BsonBinarySubType subtype, string format,
+            BsonBinaryData onError, BsonBinaryData onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>The converted field.</returns>
+        public static BsonBinaryData ConvertToBinData(int? field, BsonBinarySubType subtype, string format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="onError">The onError value.</param>
+        /// <param name="onNull">The onNull value.</param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static BsonBinaryData ConvertToBinData(int? field, BsonBinarySubType subtype, string format,
+            BsonBinaryData onError, BsonBinaryData onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>The converted field.</returns>
+        public static BsonBinaryData ConvertToBinData(long? field, BsonBinarySubType subtype, string format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="onError">The onError value.</param>
+        /// <param name="onNull">The onNull value.</param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static BsonBinaryData ConvertToBinData(long? field, BsonBinarySubType subtype, string format,
+            BsonBinaryData onError, BsonBinaryData onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>The converted field.</returns>
+        public static BsonBinaryData ConvertToBinData(double? field, BsonBinarySubType subtype, string format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="onError">The onError value.</param>
+        /// <param name="onNull">The onNull value.</param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static BsonBinaryData ConvertToBinData(double? field, BsonBinarySubType subtype, string format,
+            BsonBinaryData onError, BsonBinaryData onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static string ConvertToString(BsonBinaryData field, string format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="onError"></param>
+        /// <param name="onNull"></param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static string ConvertToString(BsonBinaryData field, string format, string onError, string onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static int? ConvertToInt(BsonBinaryData field, string format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="onError"></param>
+        /// <param name="onNull"></param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static int? ConvertToInt(BsonBinaryData field, string format, int?  onError, int? onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static long? ConvertToLong(BsonBinaryData field, string format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="onError"></param>
+        /// <param name="onNull"></param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static long? ConvertToLong(BsonBinaryData field, string format, long?  onError, long? onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="format">The format string.</param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static double? ConvertToDouble(BsonBinaryData field, string format)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="format">The format string.</param>
+        /// <param name="onError"></param>
+        /// <param name="onNull"></param>
+        /// <returns>The converted field.</returns>
+        /// <exception cref="Exception"></exception>
+        public static double? ConvertToDouble(BsonBinaryData field, string format, double? onError, double? onNull)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
         /// <summary>
         /// Converts a string to a DateTime using the $dateFromString aggregation operator.
         /// </summary>
@@ -149,222 +365,6 @@ namespace MongoDB.Driver
         /// <param name="field">The field.</param>
         /// <returns><c>true</c> if the field is null or missing.</returns>
         public static bool IsNullOrMissing<TField>(TField field)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="subtype"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        public static BsonBinaryData ConvertToBinData(string field, BsonBinarySubType subtype, string format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="subtype"></param>
-        /// <param name="format"></param>
-        /// <param name="onNull"></param>
-        /// <param name="onError"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ConvertToBinData(string field, BsonBinarySubType subtype, string format,
-            BsonBinaryData onError, BsonBinaryData onNull)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="subtype"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        public static BsonBinaryData ConvertToBinData(int? field, BsonBinarySubType subtype, string format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="subtype"></param>
-        /// <param name="format"></param>
-        /// <param name="onNull"></param>
-        /// <param name="onError"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ConvertToBinData(int? field, BsonBinarySubType subtype, string format,
-            BsonBinaryData onError, BsonBinaryData onNull)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="subtype"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        public static BsonBinaryData ConvertToBinData(long? field, BsonBinarySubType subtype, string format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="subtype"></param>
-        /// <param name="format"></param>
-        /// <param name="onNull"></param>
-        /// <param name="onError"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ConvertToBinData(long? field, BsonBinarySubType subtype, string format,
-            BsonBinaryData onError, BsonBinaryData onNull)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="subtype"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        public static BsonBinaryData ConvertToBinData(double? field, BsonBinarySubType subtype, string format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="subtype"></param>
-        /// <param name="format"></param>
-        /// <param name="onNull"></param>
-        /// <param name="onError"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ConvertToBinData(double? field, BsonBinarySubType subtype, string format,
-            BsonBinaryData onError, BsonBinaryData onNull)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static string ConvertToString(BsonBinaryData field, string format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <param name="onError"></param>
-        /// <param name="onNull"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static string ConvertToString(BsonBinaryData field, string format, string onError, string onNull)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static int? ConvertToInt(BsonBinaryData field, string format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <param name="onError"></param>
-        /// <param name="onNull"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static int? ConvertToInt(BsonBinaryData field, string format, int?  onError, int? onNull)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static long? ConvertToLong(BsonBinaryData field, string format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <param name="onError"></param>
-        /// <param name="onNull"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static long? ConvertToLong(BsonBinaryData field, string format, long?  onError, long? onNull)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static double? ConvertToDouble(BsonBinaryData field, string format)
-        {
-            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="field"></param>
-        /// <param name="format"></param>
-        /// <param name="onError"></param>
-        /// <param name="onNull"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static double? ConvertToDouble(BsonBinaryData field, string format, double? onError, double? onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
