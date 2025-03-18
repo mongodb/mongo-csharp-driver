@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __convertToDoubleFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, string format, double? onError, double? onNull) => Mql.ConvertToDouble(field, format, onError, onNull));
 
             __convertToIntFromBinData = ReflectionInfo.Method((BsonBinaryData field, string format) => Mql.ConvertToInt(field, format));
-            __convertToIntFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, string format, int? onError, int? onNull) => Mql.ToInt(field, format, onError, onNull));
+            __convertToIntFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, string format, int? onError, int? onNull) => Mql.ConvertToInt(field, format, onError, onNull));
 
             __convertToLongFromBinData = ReflectionInfo.Method((BsonBinaryData field, string format) => Mql.ConvertToLong(field, format));
             __convertToLongFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, string format, long? onError, long? onNull) => Mql.ConvertToLong(field, format, onError, onNull));

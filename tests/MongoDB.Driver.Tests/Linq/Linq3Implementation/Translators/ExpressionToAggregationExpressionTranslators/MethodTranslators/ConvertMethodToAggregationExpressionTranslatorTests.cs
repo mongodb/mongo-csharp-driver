@@ -21,7 +21,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -39,7 +38,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [InlineData(3, -0.5, null)]
         [InlineData(2, null, "MongoCommandException")]
-        public void MongoDBFunctions_ConvertToDoubleFromBson_should_work(int id, double? expectedResult, string expectedException)
+        public void MongoDBFunctions_ConvertToDoubleFromBinData_should_work(int id, double? expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
 
@@ -59,11 +58,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Theory]
-        [InlineData(2, 15.0, 15.0, null)]
-        [InlineData(0, 12.0, null, 12.0)]
-        [InlineData(2, null, null, null)]
-        [InlineData(0, null, null, null)]
-        public void MongoDBFunctions_ConvertToDoubleFromBsonWithOnErrorAndOnNull_should_work(int id, double? expectedResult, double? onError, double? onNull)
+        [InlineData(2, 15.2, 15.2, 22.3)]
+        [InlineData(0, 22.3, 15.2, 22.3)]
+        [InlineData(2, null, null, 22.3)]
+        [InlineData(0, null, 15.2, null)]
+        public void MongoDBFunctions_ConvertToDoubleFromBinDataWithOnErrorAndOnNull_should_work(int id, double? expectedResult, double? onError, double? onNull)
         {
             RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
 
@@ -72,8 +71,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 .Where(x => x.Id == id)
                 .Select(x => Mql.ConvertToDouble(x.BinaryProperty, "hex", onError, onNull));
 
-            var onErrorString = onError == null ? "null" : onError.Value.ToString("F1", NumberFormatInfo.InvariantInfo);
-            var onNullString = onNull == null ? "null" : onNull.Value.ToString("F1", NumberFormatInfo.InvariantInfo);
+            var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
+            var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
             var expectedStages =
                 new[]
                 {
@@ -84,11 +83,59 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
         }
 
+        [Theory]
+        [InlineData(4, 2, null)]
+        [InlineData(2, null, "MongoCommandException")]
+        public void MongoDBFunctions_ConvertToIntFromBinData_should_work(int id, int? expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToInt(x.BinaryProperty, "hex"));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 16, format : 'hex' }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(2, 15, 15, 22)]
+        [InlineData(0, 22, 15, 22)]
+        [InlineData(2, null, null, 22)]
+        [InlineData(0, null, 15, null)]
+        public void MongoDBFunctions_ConvertToIntFromBinDataWithOnErrorAndOnNull_should_work(int id, int? expectedResult, int? onError, int? onNull)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToInt(x.BinaryProperty, "hex", onError, onNull));
+
+            var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
+            var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 16, onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
 
         [Theory]
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
         [InlineData(1, null, "MongoCommandException")]
-        public void MongoDBFunctions_ConvertToStringFromBson_should_work(int id, string expectedResult, string expectedException)
+        public void MongoDBFunctions_ConvertToStringFromBinData_should_work(int id, string expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
 
@@ -108,22 +155,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Theory]
-        [InlineData(0, "onNull")]
-        [InlineData(1, "onError")]
-        public void MongoDBFunctions_ConvertToStringFromBsonWithOnErrorAndOnNull_should_work(int id, string expectedResult)
+        [InlineData(0, "onNull", "onError", "onNull")]
+        [InlineData(1, "onError", "onError", "onNull")]
+        [InlineData(0, null, "onError", null)]
+        [InlineData(1, null, null, "onNull")]
+        public void MongoDBFunctions_ConvertToStringFromBinDataWithOnErrorAndOnNull_should_work(int id, string expectedResult, string onError, string onNull)
         {
             RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToString(x.BinaryProperty, "uuid", "onError", "onNull"));
+                .Select(x => Mql.ConvertToString(x.BinaryProperty, "uuid", onError, onNull));
+
+            var onErrorString = onError == null ? "null" : $"'{onError}'";
+            var onNullString = onNull == null ? "null" : $"'{onNull}'";
 
             var expectedStages =
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    """{"$project": { "_v" : { "$convert" : { "input" : "$BinaryProperty", "to" : 2, "onError": "onError", "onNull": "onNull", "format" : "uuid" } }, "_id" : 0 }}""",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 2, onError: {onErrorString}, onNull: {onNullString}, format : 'uuid' }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
@@ -160,7 +212,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new TestClass {Id = 0 },
                 new TestClass {Id = 1, BinaryProperty = new BsonBinaryData([0, 1, 2])},
                 new TestClass {Id = 2, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard)},
-                new TestClass {Id = 3, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAAAAA4L8="))}
+                new TestClass {Id = 3, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAAAAA4L8="))},
+                new TestClass {Id = 4, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("Ag=="))}
             ];
 
             private IEnumerable<BsonDocument> InitialDataUnTyped { get; } =
