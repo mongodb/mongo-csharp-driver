@@ -131,6 +131,53 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
         }
 
+        [Theory]
+        [InlineData(4, (long)2, null)]
+        [InlineData(2, null, "MongoCommandException")]
+        public void MongoDBFunctions_ConvertToLongFromBinData_should_work(int id, long? expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToLong(x.BinaryProperty, "hex"));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 18, format : 'hex' }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(2, (long)15, (long)15, (long)22)]
+        [InlineData(0, (long)22, (long)15, (long)22)]
+        [InlineData(2, null, null, (long)22)]
+        [InlineData(0, null, (long)15, null)]
+        public void MongoDBFunctions_ConvertToLongFromBinDataWithOnErrorAndOnNull_should_work(int id, long? expectedResult, long? onError, long? onNull)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToLong(x.BinaryProperty, "hex", onError, onNull));
+
+            var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
+            var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 18, onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
 
         [Theory]
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
