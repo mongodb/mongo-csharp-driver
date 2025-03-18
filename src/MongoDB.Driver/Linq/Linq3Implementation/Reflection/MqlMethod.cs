@@ -66,14 +66,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
 
             // Convert methods
-            __convertToBinDataFromDouble = ReflectionInfo.Method((double field, BsonBinarySubType subType, string format) => Mql.ConvertToBinData(field, subType, format));
-            __convertToBinDataFromDoubleWithOnErrorAndOnNull = ReflectionInfo.Method((double field, BsonBinarySubType subType, string format, BsonBinaryData onError, BsonBinaryData onNull)
+            __convertToBinDataFromDouble = ReflectionInfo.Method((double? field, BsonBinarySubType subType, string format) => Mql.ConvertToBinData(field, subType, format));
+            __convertToBinDataFromDoubleWithOnErrorAndOnNull = ReflectionInfo.Method((double? field, BsonBinarySubType subType, string format, BsonBinaryData onError, BsonBinaryData onNull)
                 => Mql.ConvertToBinData(field, subType, format, onError, onNull));
-            __convertToBinDataFromInt = ReflectionInfo.Method((int field, BsonBinarySubType subType, string format) => Mql.ConvertToBinData(field, subType, format));
-            __convertToBinDataFromIntWithOnErrorAndOnNull = ReflectionInfo.Method((int field, BsonBinarySubType subType, string format, BsonBinaryData onError, BsonBinaryData onNull)
+            __convertToBinDataFromInt = ReflectionInfo.Method((int? field, BsonBinarySubType subType, string format) => Mql.ConvertToBinData(field, subType, format));
+            __convertToBinDataFromIntWithOnErrorAndOnNull = ReflectionInfo.Method((int? field, BsonBinarySubType subType, string format, BsonBinaryData onError, BsonBinaryData onNull)
                 => Mql.ConvertToBinData(field, subType, format, onError, onNull));
-            __convertToBinDataFromLong = ReflectionInfo.Method((long field, BsonBinarySubType subType, string format) => Mql.ConvertToBinData(field, subType, format));
-            __convertToBinDataFromLongWithOnErrorAndOnNull = ReflectionInfo.Method((long field, BsonBinarySubType subType, string format, BsonBinaryData onError, BsonBinaryData onNull)
+            __convertToBinDataFromLong = ReflectionInfo.Method((long? field, BsonBinarySubType subType, string format) => Mql.ConvertToBinData(field, subType, format));
+            __convertToBinDataFromLongWithOnErrorAndOnNull = ReflectionInfo.Method((long? field, BsonBinarySubType subType, string format, BsonBinaryData onError, BsonBinaryData onNull)
                 => Mql.ConvertToBinData(field, subType, format, onError, onNull));
             __convertToBinDataFromString = ReflectionInfo.Method((string field, BsonBinarySubType subType, string format) => Mql.ConvertToBinData(field, subType, format));
             __convertToBinDataFromStringWithOnErrorAndOnNull = ReflectionInfo.Method((string field, BsonBinarySubType subType, string format, BsonBinaryData onError, BsonBinaryData onNull)
