@@ -312,7 +312,7 @@ namespace MongoDB.Driver
         /// <param name="onNull"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static int? ToInt(BsonBinaryData field, string format, int?  onError, int? onNull)
+        public static int? ConvertToInt(BsonBinaryData field, string format, int?  onError, int? onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
