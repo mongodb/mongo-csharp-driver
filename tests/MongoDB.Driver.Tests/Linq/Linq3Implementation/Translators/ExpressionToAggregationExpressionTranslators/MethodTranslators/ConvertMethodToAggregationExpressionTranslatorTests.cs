@@ -35,6 +35,66 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
         }
 
+        // To BinData
+
+        [Theory]
+        [InlineData(3, "AAAAAAAA4L8=", null)]
+        [InlineData(1, null, "FormatException")]
+        public void MongoDBFunctions_ConvertToBinDataFromDouble_should_work(int id, string expectedBase64, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToBinData(x.DoubleProperty, BsonBinarySubType.Binary, "hex"));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 5, subtype: 0  }}, format : 'hex' }} }}, _id : 0 }} }}",
+                };
+
+            var expectedResult = expectedBase64 is null? null : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(2, "AAAAAAAA4L8=", "AAAAAAAA4L8=", "AAAAAAAABMA=")]
+        [InlineData(0, "AAAAAAAABMA=", "AAAAAAAA4L8=", "AAAAAAAABMA=")]
+        [InlineData(2, null, null, "AAAAAAAABMA=")]
+        [InlineData(0, null, "AAAAAAAA4L8=", null)]
+        public void MongoDBFunctions_ConvertToBinDataFromDoubleWithOnErrorAndOnNull_should_work(int id, string expectedBase64, string onErrorBase64, string onNullBase64)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            //TODO The issue here is that BsonBinaryDataSerializer can't serialize null values, an exception is thrown (because it's a BsonValueSerializerBase)
+            //TODO Maybe we should use BsonValueCSharpNullSerializer?
+
+            var onErrorBinData = onErrorBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onErrorBase64));
+            var onNullBinData = onNullBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onNullBase64));
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToBinData(x.DoubleProperty, BsonBinarySubType.Function, "base64", onErrorBinData, onNullBinData));
+
+            var onErrorString = onErrorBase64 == null ? "null" : $"BinData(0, '{onErrorBase64}')";
+            var onNullString = onNullBase64 == null ? "null" : $"BinData(0, '{onNullBase64}')";
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 5, subtype: 1  }}, onError: {onErrorString}, onNull: {onNullString}, format : 'base64' }} }}, _id : 0 }} }}",
+                };
+
+            var expectedResult = expectedBase64 is null? null : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+        // To Double
+
         [Theory]
         [InlineData(3, -0.5, null)]
         [InlineData(2, null, "MongoCommandException")]
@@ -82,6 +142,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
         }
+
+        // To Int
 
         [Theory]
         [InlineData(4, 2, null)]
@@ -131,6 +193,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
         }
 
+        // To Long
+
         [Theory]
         [InlineData(4, (long)2, null)]
         [InlineData(2, null, "MongoCommandException")]
@@ -178,6 +242,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
         }
+
+        // To String
 
         [Theory]
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
@@ -247,6 +313,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             }
             else
             {
+                Assert.NotNull(exception);
                 Assert.Equal(expectedException, exception.GetType().Name);
             }
         }
@@ -258,8 +325,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             [
                 new TestClass {Id = 0 },
                 new TestClass {Id = 1, BinaryProperty = new BsonBinaryData([0, 1, 2])},
-                new TestClass {Id = 2, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard)},
-                new TestClass {Id = 3, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAAAAA4L8="))},
+                new TestClass {Id = 2, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard), DoubleProperty = 2.45673345},
+                new TestClass {Id = 3, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAAAAA4L8=")), DoubleProperty = -0.5},
                 new TestClass {Id = 4, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("Ag=="))}
             ];
 
