@@ -22,16 +22,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         // private static fields
         private static readonly MethodInfo __degreesToRadians;
         private static readonly MethodInfo __radiansToDegrees;
+        private static readonly MethodInfo __sigmoid;
 
         // static constructor
         static MongoDBMathMethod()
         {
             __degreesToRadians = ReflectionInfo.Method((double degrees) => MongoDBMath.DegreesToRadians(degrees));
             __radiansToDegrees = ReflectionInfo.Method((double radians) => MongoDBMath.RadiansToDegrees(radians));
+            __sigmoid = ReflectionInfo.Method((double value) => MongoDBMath.Sigmoid(value));
         }
 
         // public properties
         public static MethodInfo DegreesToRadians => __degreesToRadians;
         public static MethodInfo RadiansToDegrees => __radiansToDegrees;
+        public static MethodInfo Sigmoid => __sigmoid;
     }
 }
