@@ -41,5 +41,15 @@ namespace MongoDB.Driver.Linq
         {
             return radians / (Math.PI / 180.0);
         }
+
+        /// <summary>
+        /// Transforms a real-valued input into a value between 0 and 1.
+        /// </summary>
+        /// <param name="value">The input value.</param>
+        /// <returns>The transformed value.</returns>
+        public static double Sigmoid(double value)
+        {
+            return 1.0 / (1.0 + Math.Exp(-value));
+        }
     }
 }
