@@ -366,6 +366,19 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection);
 
         /// <summary>
+        /// Appends a $rankFusion stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="pipelines">The map of named pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="weights">The map of pipeline names to numerical weights determining result importance during combination. Default weight is 1 when unspecified.</param>
+        /// <param name="scoreDetails">Flag that specifies whether to return a detailed breakdown of the score for each document in the result.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> RankFusion<TNewResult>(
+            Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines,
+            Dictionary<string, double> weights = null, 
+            bool scoreDetails = false);
+
+        /// <summary>
         /// Appends a $replaceRoot stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>

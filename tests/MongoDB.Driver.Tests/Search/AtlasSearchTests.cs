@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -466,6 +467,66 @@ namespace MongoDB.Driver.Tests.Search
             results[4].Title.Should().Be("Come and Get It");
         }
 
+        // TODO: Once we have an Atlas cluster running server 8.1, update this test to retrieve actual results from the server instead of merely validating the syntax.
+        [Fact]
+        public void RankFusion()
+        {
+            const int limit = 5;
+            
+            var vector = new[] { 1.0, 2.0, 3.0 };
+            var vectorOptions = new VectorSearchOptions<EmbeddedMovie>()
+            {
+                IndexName = "vector_search_embedded_movies"
+            };
+            var vectorPipeline = new EmptyPipelineDefinition<EmbeddedMovie>().VectorSearch(m => m.Embedding, vector, limit, vectorOptions);
+            
+            var searchDefinition = Builders<EmbeddedMovie>.Search.Text(new[]{"fullplot", "title"}, "ape");
+            var searchPipeline = new EmptyPipelineDefinition<EmbeddedMovie>().Search(searchDefinition, indexName: "search_embedded_movies").Limit(limit);
+            
+            var result = GetTestCollection<EmbeddedMovie>()
+                .Aggregate()
+                .RankFusion(new Dictionary<string, PipelineDefinition<EmbeddedMovie, EmbeddedMovie>>()
+                {
+                    { "vector", vectorPipeline },
+                    { "search", searchPipeline }
+                });
+            
+            result.Stages.Count.Should().Be(1);
+            
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var inputSerializer = serializerRegistry.GetSerializer<EmbeddedMovie>();
+            var renderedStage = result.Stages[0].Render(inputSerializer, serializerRegistry);
+            renderedStage.Document.Should().Be(
+                """
+                {
+                    $rankFusion: {
+                        input: {
+                            pipelines: {
+                                vector: [{
+                                    $vectorSearch: {
+                                        queryVector: [1.0, 2.0, 3.0],
+                                        path: "plot_embedding",
+                                        limit: 5,
+                                        numCandidates: 50,
+                                        index: "vector_search_embedded_movies"
+                                    }
+                                }],
+                                search: [{
+                                    $search: {
+                                        text: {query: "ape", path: ["fullplot", "title"]},
+                                        index: "search_embedded_movies"
+                                    }
+                                },
+                                { $limit: 5 }
+                                ]
+                            }
+                        },
+                        scoreDetails: false
+                    }
+                }
+                """);
+        }
+
         [Fact]
         public void SearchSequenceToken()
         {
@@ -785,6 +846,12 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("paginationToken")]
             public string PaginationToken { get; set; }
+        }
+
+        public class EmbeddedMovie : Movie
+        {
+            [BsonElement("plot_embedding")]
+            public double[] Embedding { get; set; }
         }
 
         [BsonIgnoreExtraElements]

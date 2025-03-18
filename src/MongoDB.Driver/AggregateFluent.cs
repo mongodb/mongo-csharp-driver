@@ -257,6 +257,14 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.Project(projection));
         }
 
+        public override IAggregateFluent<TNewResult> RankFusion<TNewResult>(
+            Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines, 
+            Dictionary<string, double> weights = null, 
+            bool scoreDetails = false)
+        {
+            return WithPipeline(_pipeline.RankFusion(pipelines, weights, scoreDetails));
+        }
+
         public override IAggregateFluent<TNewResult> ReplaceRoot<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot)
         {
             return WithPipeline(_pipeline.ReplaceRoot(newRoot));
