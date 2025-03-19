@@ -50,12 +50,12 @@ public class CSharp5506Tests : LinqIntegrationTest<CSharp5506Tests.ClassFixture>
     }
 
     [Fact]
-    public void Filter_Dictionary_item_equals_work()
+    public void Where_Dictionary_item_equals_value_should_work()
     {
         var collection = Fixture.Collection;
         var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
 
-        var queryable = Queryable.Where(IMongoCollectionExtensions.AsQueryable(collection), x => x.Dictionary[guid] == 2);
+        var queryable = collection.AsQueryable().Where(x => x.Dictionary[guid] == 2);
 
         var stages = Translate(collection, queryable);
         AssertStages(stages, "{ $match : { 'Dictionary.01020304-0506-0708-090a-0b0c0d0e0f10' : 2 } }");
@@ -65,7 +65,7 @@ public class CSharp5506Tests : LinqIntegrationTest<CSharp5506Tests.ClassFixture>
     }
 
     [Fact]
-    public void Select_Dictionary_item_equals_work()
+    public void Select_Dictionary_item_equals_value_should_work()
     {
         var collection = Fixture.Collection;
         var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");

@@ -85,22 +85,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var key = keyExpression.GetConstantValue<object>(containingExpression: expression);
 
-            if (fieldTranslation.Serializer is IBsonDictionarySerializer dictionarySerializer &&
-                dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.Document)
+            if (!(fieldTranslation.Serializer is IBsonDictionarySerializer dictionarySerializer))
             {
-                var keySerializer = dictionarySerializer.KeySerializer;
-                var valueSerializer = dictionarySerializer.ValueSerializer;
-
-                var serializedKey = SerializationHelper.SerializeValue(keySerializer, key) as BsonString;
-                if (serializedKey == null)
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "key is not serialized as a string");
-                }
-
-                return fieldTranslation.SubField(serializedKey.Value, valueSerializer);
+                throw new ExpressionNotSupportedException(expression, because: $"dictionary serializer class {fieldTranslation.Serializer.GetType()} does not implement {nameof(IBsonDictionarySerializer)}");
+            }
+            if (dictionarySerializer.DictionaryRepresentation != DictionaryRepresentation.Document)
+            {
+                throw new ExpressionNotSupportedException(expression, because: "dictionary is not represented as a document");
             }
 
-            throw new ExpressionNotSupportedException(expression);
+            var keySerializer = dictionarySerializer.KeySerializer;
+            var valueSerializer = dictionarySerializer.ValueSerializer;
+
+            var serializedKey = SerializationHelper.SerializeValue(keySerializer, key);
+            if (serializedKey is not BsonString)
+            {
+                throw new ExpressionNotSupportedException(expression, because: "key did not serialize as a string");
+            }
+
+            return fieldTranslation.SubField(serializedKey.AsString, valueSerializer);
         }
     }
 }

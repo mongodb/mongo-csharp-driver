@@ -115,38 +115,51 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static TranslatedExpression TranslateIDictionaryGetItemWithKey(TranslationContext context, Expression expression, Expression dictionaryExpression, Expression keyExpression)
         {
             var dictionaryTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dictionaryExpression);
-            var dictionarySerializer = dictionaryTranslation.Serializer as IBsonDictionarySerializer;
-            if (dictionarySerializer == null || dictionarySerializer.DictionaryRepresentation != DictionaryRepresentation.Document)
+            if (!(dictionaryTranslation.Serializer is IBsonDictionarySerializer dictionarySerializer))
+            {
+                throw new ExpressionNotSupportedException(expression, because: $"dictionary serializer class {dictionaryTranslation.Serializer.GetType()} does not implement {nameof(IBsonDictionarySerializer)}");
+            }
+            if (dictionarySerializer.DictionaryRepresentation != DictionaryRepresentation.Document)
             {
                 throw new ExpressionNotSupportedException(expression, because: "dictionary is not represented as a document");
             }
 
             var keySerializer = dictionarySerializer.KeySerializer;
-            var hasRepresentationSerializer = keySerializer as IHasRepresentationSerializer;
-            if (hasRepresentationSerializer == null || hasRepresentationSerializer.Representation != BsonType.String)
-            {
-                throw new ExpressionNotSupportedException(expression, because: "key is not serialized as a string");
-            }
+            AstExpression keyFieldNameAst;
 
-            AstExpression keyAst;
             if (keyExpression is ConstantExpression constantKeyExpression)
             {
                 var key = constantKeyExpression.Value;
                 var serializedKey = SerializationHelper.SerializeValue(keySerializer, key);
-                keyAst = AstExpression.Constant(serializedKey);
+
+                if (!(serializedKey is BsonString))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "key did not serialize as a string");
+                }
+
+                keyFieldNameAst = AstExpression.Constant(serializedKey);
             }
             else
             {
+                if (!(keySerializer is IHasRepresentationSerializer hasRepresentationSerializer))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"key serializer class {keySerializer.GetType()} does not implement {nameof(IHasRepresentationSerializer)}");
+                }
+                if (hasRepresentationSerializer.Representation != BsonType.String)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"key serializer class {keySerializer.GetType()} does not serialize as a string");
+                }
+
                 var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
                 if (!keyTranslation.Serializer.Equals(keySerializer))
                 {
-                    throw new ExpressionNotSupportedException(expression, because: "key expression is not serialized using the key serializer");
+                    throw new ExpressionNotSupportedException(expression, because: "key expression serializer is not equal to the key serializer");
                 }
 
-                keyAst = keyTranslation.Ast;
+                keyFieldNameAst = keyTranslation.Ast;
             }
 
-            var ast = AstExpression.GetField(dictionaryTranslation.Ast, keyAst); // TODO: verify that dictionary is using Document representation
+            var ast = AstExpression.GetField(dictionaryTranslation.Ast, keyFieldNameAst);
             return new TranslatedExpression(expression, ast, dictionarySerializer.ValueSerializer);
         }
     }
