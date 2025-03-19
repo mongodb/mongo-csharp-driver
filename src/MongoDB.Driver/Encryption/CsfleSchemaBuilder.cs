@@ -36,12 +36,12 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static CsfleTypeSchemaBuilder<T> GetTypeBuilder<T>() => new();
+        public static CsfleTypeSchemaBuilder<T> GetTypeBuilder<T>() => new();  //TODO Do we need this?
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="collectionNamespace"></param>
+        /// <param name="collectionNamespace">The namespace to which the encryption schema applies.</param>
         /// <param name="typedBuilder"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="collectionNamespace"></param>
+        /// <param name="collectionNamespace">The namespace to which the encryption schema applies.</param>
         /// <param name="configure"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -98,13 +98,18 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="keyId"></param>
-        /// <param name="algorithm"></param>
-        /// <param name="bsonType"></param>
+        /// <param name="path">The field to be encrypted.</param>
+        /// <param name="keyId">The id of the Data Encryption Key to use for encrypting.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="bsonType">The BSON type of the field being encrypted.</param>
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> Property(FieldDefinition<TDocument> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
             _fields.Add(new SchemaSimpleField(path, keyId, algorithm, bsonType));
             return this;
         }
@@ -112,10 +117,10 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="keyId"></param>
-        /// <param name="algorithm"></param>
-        /// <param name="bsonType"></param>
+        /// <param name="path">The field to be encrypted.</param>
+        /// <param name="keyId">The id of the Data Encryption Key to use for encrypting.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="bsonType">The BSON type of the field being encrypted.</param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> Property<TField>(Expression<Func<TDocument, TField>> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
@@ -126,12 +131,22 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The field to use for the nested property.</param>
         /// <param name="configure"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> Property<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
         {
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+
             _fields.Add(new SchemaNestedField<TField>(path, configure));
             return this;
         }
@@ -139,7 +154,7 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The field to be encrypted.</param>
         /// <param name="configure"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
@@ -151,13 +166,18 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="pattern"></param>
-        /// <param name="keyId"></param>
-        /// <param name="algorithm"></param>
-        /// <param name="bsonType"></param>
+        /// <param name="pattern">The pattern to use.</param>
+        /// <param name="keyId">The id of the Data Encryption Key to use for encrypting.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="bsonType">The BSON type of the field being encrypted.</param>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> PatternProperty(string pattern, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)  //TODO This is not correct,
+        public CsfleTypeSchemaBuilder<TDocument> PatternProperty(string pattern, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
         {
+            if (string.IsNullOrWhiteSpace(pattern))
+            {
+                throw new ArgumentException("Input pattern cannot be empty or null", nameof(pattern));
+            }
+
             _patterns.Add(new SchemaSimplePattern(pattern, keyId, algorithm, bsonType));
             return this;
         }
@@ -165,12 +185,22 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The field to use for the nested pattern property.</param>
         /// <param name="configure"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> PatternProperty<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
         {
+            if (path == null)
+            {
+                throw new ArgumentNullException(nameof(path));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+
             _patterns.Add(new SchemaNestedPattern<TField>(path, configure));
             return this;
         }
@@ -178,7 +208,7 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The field to use for the nested pattern property.</param>
         /// <param name="configure"></param>
         /// <typeparam name="TField"></typeparam>
         /// <returns></returns>
@@ -190,8 +220,8 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
-        /// <param name="keyId"></param>
-        /// <param name="algorithm"></param>
+        /// <param name="keyId">The id of the Data Encryption Key to use for encrypting.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
         /// <returns></returns>
         public CsfleTypeSchemaBuilder<TDocument> EncryptMetadata(Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null )
         {
@@ -248,7 +278,7 @@ namespace MongoDB.Driver.Encryption
             };
         }
 
-        private static string MapBsonTypeToString(BsonType type)  //TODO Taken from AstTypeFilterOperation
+        private static string MapBsonTypeToString(BsonType type)  //TODO Taken from AstTypeFilterOperation, do we have a common place where this could go?
         {
             return type switch
             {
@@ -344,16 +374,17 @@ namespace MongoDB.Driver.Encryption
     }
 
     /// <summary>
-    ///
+    /// The type of possible encryption algorithms.
     /// </summary>
     public enum CsfleEncryptionAlgorithm
     {
         /// <summary>
-        ///
+        /// Randomized encryption algorithm.
         /// </summary>
         AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+
         /// <summary>
-        ///
+        /// Deterministic encryption algorithm.
         /// </summary>
         AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic
     }
