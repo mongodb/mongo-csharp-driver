@@ -23,6 +23,7 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver.Encryption
 {
     //TODO Add docs
+    //TODO BsonType can be multiple types in some cases
 
     /// <summary>
     ///
@@ -370,6 +371,92 @@ namespace MongoDB.Driver.Encryption
                     keyId is not null
                 },
             };
+        }
+    }
+
+    public class ElementBuilder<TSelf> where TSelf : ElementBuilder<TSelf>
+    {
+        private CsfleEncryptionAlgorithm _algorithm;
+        private Guid _keyId;
+
+        public TSelf WithKeyId(Guid keyId)
+        {
+            _keyId = keyId;
+            return (TSelf)this;
+        }
+
+        public TSelf WithAlgorithm(CsfleEncryptionAlgorithm algorithm)
+        {
+            _algorithm = algorithm;
+            return (TSelf)this;
+        }
+    }
+
+    public class EncryptMetadataBuilder : ElementBuilder<EncryptMetadataBuilder>
+    {
+
+    }
+
+    public  abstract class PropertyBuilder: ElementBuilder<PropertyBuilder<PropertyBuilder>>
+    {
+    }
+
+    public class PropertyBuilder<TDocument> : PropertyBuilder
+    {
+        private readonly FieldDefinition<TDocument> _path;
+        private List<BsonType> _bsonTypes;
+
+        public PropertyBuilder(FieldDefinition<TDocument> path)
+        {
+            _path = path;
+        }
+
+        public PropertyBuilder<TDocument> WithBsonType(BsonType bsonType)
+        {
+            _bsonTypes = [bsonType];
+            return this;
+        }
+
+        public PropertyBuilder<TDocument> WithBsonTypes(IEnumerable<BsonType> bsonTypes)
+        {
+            _bsonTypes = [..bsonTypes];
+            return this;
+        }
+    }
+
+    public  abstract class NestedDocumentBuilder: ElementBuilder<NestedDocumentBuilder>
+    {
+    }
+
+    public class NestedDocumentBuilder<TDocument, TField> : NestedDocumentBuilder
+    {
+        private readonly FieldDefinition<TDocument> _path;
+        private readonly Action<TypedBuilder<TField>> _configure;
+
+        public NestedDocumentBuilder(FieldDefinition<TDocument> path, Action<TypedBuilder<TField>> configure)
+        {
+            _path = path;
+            _configure = configure;
+        }
+    }
+
+    public class TypedBuilder<TDocument>
+    {
+        private readonly List<NestedDocumentBuilder> _nestedDocument = [];
+        private readonly List<PropertyBuilder> _properties = [];
+        private EncryptMetadataBuilder _metadata;
+
+        public EncryptMetadataBuilder EncryptMetadata()
+        {
+            _metadata = new EncryptMetadataBuilder();
+            return _metadata;
+        }
+
+        public PropertyBuilder Property(FieldDefinition<TDocument> path)
+        {
+            var property = new PropertyBuilder<TDocument>(path);
+            _properties.Add(property);
+            return property;
         }
     }
 
