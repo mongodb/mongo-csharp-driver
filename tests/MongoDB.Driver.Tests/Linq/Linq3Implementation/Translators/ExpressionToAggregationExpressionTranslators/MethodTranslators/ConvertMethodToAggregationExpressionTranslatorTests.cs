@@ -63,8 +63,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         [Theory]
         [InlineData(2, "AAAAAAAA4L8=", "AAAAAAAA4L8=", "AAAAAAAABMA=")]
-        // [InlineData(0, "AAAAAAAABMA=", "AAAAAAAA4L8=", "AAAAAAAABMA=")]  //TODO Don't know how to cause an error
-        // [InlineData(2, null, null, "AAAAAAAABMA=")] //TODO The issue here is that BsonBinaryDataSerializer can't serialize null values, an exception is thrown (because it's a BsonValueSerializerBase)
+        // [InlineData(0, "AAAAAAAABMA=", "AAAAAAAA4L8=", "AAAAAAAABMA=")]
+        // [InlineData(2, null, null, "AAAAAAAABMA=")]
         // [InlineData(0, null, "AAAAAAAA4L8=", null)]
         public void MongoDBFunctions_ConvertToBinDataFromDoubleWithOnErrorAndOnNull_should_work(int id, string expectedBase64, string onErrorBase64, string onNullBase64)
         {
