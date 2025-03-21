@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
@@ -22,11 +23,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
     internal sealed class AstConvertExpression : AstExpression
     {
         private readonly AstExpression _input;
-        private readonly AstExpression _format;
+        private readonly string _format;
         private readonly AstExpression _onError;
         private readonly AstExpression _onNull;
         private readonly AstExpression _to;
         private readonly AstExpression _subType;
+        private readonly Mql.ByteOrder? _byteOrder;
 
         public AstConvertExpression(
             AstExpression input,
@@ -34,7 +36,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             AstExpression onError = null,
             AstExpression onNull = null,
             AstExpression subType = null,
-            AstExpression format = null)
+            string format = null,
+            Mql.ByteOrder? byteOrder = null)
         {
             _input = Ensure.IsNotNull(input, nameof(input));
             _to = Ensure.IsNotNull(to, nameof(to));
@@ -42,10 +45,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             _onNull = onNull;
             _subType = subType;
             _format = format;
+            _byteOrder = byteOrder;
         }
 
+        public Mql.ByteOrder? ByteOrder => _byteOrder;
         public AstExpression Input => _input;
-        public AstExpression Format => _format;
+        public string Format => _format;
         public override AstNodeType NodeType => AstNodeType.ConvertExpression;
         public AstExpression OnError => _onError;
         public AstExpression OnNull => _onNull;
@@ -73,7 +78,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                         },
                         { "onError", () => _onError.Render(), _onError != null },
                         { "onNull", () => _onNull.Render(), _onNull != null },
-                        { "format", () => _format.Render(), _format != null}
+                        { "format", () => _format, _format != null},
+                        { "byteOrder", () => MapMqlByteOrderToString(_byteOrder!.Value), _byteOrder != null}
                     }
                 }
             };
@@ -85,15 +91,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             AstExpression onError,
             AstExpression onNull,
             AstExpression subType,
-            AstExpression format)
+            string format,
+            Mql.ByteOrder? byteOrder)
         {
             if (input == _input && to == _to && onError == _onError && onNull == _onNull &&
-                subType == _subType && format == _format)
+                subType == _subType && format == _format && byteOrder == _byteOrder)
             {
                 return this;
             }
 
-            return new AstConvertExpression(input, to, onError, onNull, subType, format);
+            return new AstConvertExpression(input, to, onError, onNull, subType, format, byteOrder);
+        }
+
+        private static string MapMqlByteOrderToString(Mql.ByteOrder byteOrder)
+        {
+            return byteOrder switch
+            {
+                Mql.ByteOrder.BigEndian => "big",
+                Mql.ByteOrder.LittleEndian => "little",
+                _ => throw new ArgumentException($"Unexpected Mql.ByteOrder: {byteOrder}.", nameof(byteOrder))
+            };
         }
     }
 }
