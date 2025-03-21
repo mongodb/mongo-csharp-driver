@@ -27,6 +27,7 @@ using Xunit;
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
 
+    //TODO Need to fix tests
     public class ConvertMethodToAggregationExpressionTranslatorTests :
         LinqIntegrationTest<ConvertMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
@@ -47,13 +48,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToBinData(x.DoubleProperty, BsonBinarySubType.Binary, "hex"));
+                .Select(x => Mql.ConvertToBinData(x.DoubleProperty, BsonBinarySubType.Binary, Mql.ByteOrder.BigEndian));
 
             var expectedStages =
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 5, subtype: 0  }}, format : 'hex' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 'binData', subtype: 0  }}, format : 'hex' }} }}, _id : 0 }} }}",
                 };
 
             var expectedResult = expectedBase64 is null? null : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
@@ -75,7 +76,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToBinData(x.DoubleProperty, BsonBinarySubType.Function, "base64", onErrorBinData, onNullBinData));
+                .Select(x => Mql.ConvertToBinData(x.DoubleProperty, BsonBinarySubType.Function, Mql.ByteOrder.BigEndian, onErrorBinData, onNullBinData));
 
             var onErrorString = onErrorBase64 == null ? "null" : $"BinData(0, '{onErrorBase64}')";
             var onNullString = onNullBase64 == null ? "null" : $"BinData(0, '{onNullBase64}')";
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 5, subtype: 1  }}, onError: {onErrorString}, onNull: {onNullString}, format : 'base64' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 'binData', subtype: 1  }}, onError: {onErrorString}, onNull: {onNullString}, format : 'base64' }} }}, _id : 0 }} }}",
                 };
 
             var expectedResult = expectedBase64 is null? null : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
@@ -102,13 +103,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToDouble(x.BinaryProperty, "hex"));
+                .Select(x => Mql.ConvertToDouble(x.BinaryProperty, Mql.ByteOrder.BigEndian));
 
             var expectedStages =
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 1, format : 'hex' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'double', format : 'hex' }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
@@ -126,7 +127,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToDouble(x.BinaryProperty, "hex", onError, onNull));
+                .Select(x => Mql.ConvertToDouble(x.BinaryProperty, Mql.ByteOrder.BigEndian, onError, onNull));
 
             var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
             var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
@@ -134,7 +135,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 1, onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'double', onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
@@ -152,13 +153,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToInt(x.BinaryProperty, "hex"));
+                .Select(x => Mql.ConvertToInt(x.BinaryProperty, Mql.ByteOrder.BigEndian));
 
             var expectedStages =
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 16, format : 'hex' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int', format : 'hex' }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
@@ -176,7 +177,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToInt(x.BinaryProperty, "hex", onError, onNull));
+                .Select(x => Mql.ConvertToInt(x.BinaryProperty, Mql.ByteOrder.BigEndian, onError, onNull));
 
             var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
             var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
@@ -184,7 +185,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 16, onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int', onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
@@ -202,13 +203,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToLong(x.BinaryProperty, "hex"));
+                .Select(x => Mql.ConvertToLong(x.BinaryProperty, Mql.ByteOrder.BigEndian));
 
             var expectedStages =
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 18, format : 'hex' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'long', format : 'hex' }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
@@ -226,7 +227,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToLong(x.BinaryProperty, "hex", onError, onNull));
+                .Select(x => Mql.ConvertToLong(x.BinaryProperty, Mql.ByteOrder.BigEndian, onError, onNull));
 
             var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
             var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
@@ -234,7 +235,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 18, onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'long', onError: {onErrorString}, onNull: {onNullString}, format : 'hex' }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
@@ -258,7 +259,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    """{"$project": { "_v" : { "$convert" : { "input" : "$BinaryProperty", "to" : 2, "format" : "uuid" } }, "_id" : 0 }}""",
+                    """{"$project": { "_v" : { "$convert" : { "input" : "$BinaryProperty", "to" : "string", "format" : "uuid" } }, "_id" : 0 }}""",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
@@ -285,7 +286,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 2, onError: {onErrorString}, onNull: {onNullString}, format : 'uuid' }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'string' , onError: {onErrorString}, onNull: {onNullString}, format : 'uuid' }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
@@ -324,7 +325,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new TestClass {Id = 1, BinaryProperty = new BsonBinaryData([0, 1, 2])},
                 new TestClass {Id = 2, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard), DoubleProperty = 2.45673345},
                 new TestClass {Id = 3, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAAAAA4L8=")), DoubleProperty = -0.5},
-                new TestClass {Id = 4, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("Ag=="))}
+                new TestClass {Id = 4, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("Ag=="))},
+                new TestClass {Id = 5, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("wAQAAAAAAAA=")), DoubleProperty = -2.5},
             ];
         }
 
@@ -337,7 +339,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public int? IntProperty { get; set; }
             public long? LongProperty { get; set; }
             public string StringProperty { get; set; }
-
         }
     }
 }
