@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        private void CreateAndRunOperation(BsonDocument operationDocument, bool async, CancellationToken cancellationToken)
+        private OperationResult CreateAndRunOperation(BsonDocument operationDocument, bool async, CancellationToken cancellationToken)
         {
             var operation = CreateOperation(operationDocument, _entityMap);
 
@@ -274,20 +274,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         ? entityOperation.ExecuteAsync(cancellationToken).GetAwaiter().GetResult()
                         : entityOperation.Execute(cancellationToken);
                     AssertResult(result, operationDocument, _entityMap);
-                    break;
+                    return result;
                 case IUnifiedSpecialTestOperation specialOperation:
                     specialOperation.Execute();
-                    break;
+                    return OperationResult.Empty();
                 case IUnifiedOperationWithCreateAndRunOperationCallback operationWithCreateAndRunCallback:
-                    if (async)
-                    {
-                        operationWithCreateAndRunCallback.ExecuteAsync(CreateAndRunOperation, cancellationToken).GetAwaiter().GetResult();
-                    }
-                    else
-                    {
-                        operationWithCreateAndRunCallback.Execute(CreateAndRunOperation, cancellationToken);
-                    }
-                    break;
+                    var innerResult = async
+                        ? operationWithCreateAndRunCallback.ExecuteAsync(CreateAndRunOperation, cancellationToken).GetAwaiter().GetResult()
+                        : operationWithCreateAndRunCallback.Execute(CreateAndRunOperation, cancellationToken);
+                    AssertResult(innerResult, operationDocument, _entityMap);
+                    return innerResult;
                 default:
                     throw new FormatException($"Unexpected operation type: '{operation.GetType()}'.");
             }

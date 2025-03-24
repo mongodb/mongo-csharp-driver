@@ -99,8 +99,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         private void AssertErrorCodeName(Exception actualException, string expectedErrorCodeName)
         {
             actualException = UnwrapCommandException(actualException);
-            var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
-            mongoCommandException.CodeName.Should().Be(expectedErrorCodeName);
+            var exceptionCodeName = actualException switch
+            {
+                MongoWriteConcernException mongoWriteConcernException => mongoWriteConcernException.CodeName == null ? mongoWriteConcernException.Result["writeConcernError"].AsBsonDocument["codeName"].AsString : mongoWriteConcernException.CodeName,
+                MongoCommandException mongoCommandException => mongoCommandException.CodeName,
+                MongoExecutionTimeoutException mongoExecutionTimeoutException => mongoExecutionTimeoutException.CodeName,
+                _ => throw new ArgumentException(),
+            };
+
+            exceptionCodeName.Should().Be(expectedErrorCodeName);
         }
 
         private void AssertErrorContains(Exception actualException, string expectedSubstring)

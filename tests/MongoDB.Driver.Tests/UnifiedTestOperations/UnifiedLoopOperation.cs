@@ -56,16 +56,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _loopCancellationToken = loopCancellationToken;
         }
 
-        public void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
-        {
-            Execute(createAndRunOperationCallback, async: false, cancellationToken);
-        }
+        public OperationResult Execute(Func<BsonDocument, bool, CancellationToken, OperationResult> createAndRunOperationCallback, CancellationToken cancellationToken)
+            => Execute(createAndRunOperationCallback, async: false, cancellationToken);
 
-        public Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
-        {
-            Execute(createAndRunOperationCallback, async: true, cancellationToken);
-            return Task.FromResult(true);
-        }
+        public Task<OperationResult> ExecuteAsync(Func<BsonDocument, bool, CancellationToken, OperationResult> createAndRunOperationCallback, CancellationToken cancellationToken)
+            => Task.FromResult(Execute(createAndRunOperationCallback, async: true, cancellationToken));
 
         // private methods
         private BsonDocument CreateDocumentFromException(Exception ex) =>
@@ -75,7 +70,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 { "time", BsonUtils.ToSecondsSinceEpoch(DateTime.UtcNow) }
             };
 
-        private void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, bool async, CancellationToken cancellationToken)
+        private OperationResult Execute(Func<BsonDocument, bool, CancellationToken, OperationResult> createAndRunOperationCallback, bool async, CancellationToken cancellationToken)
         {
             int iterationCount = 0;
             int successCount = 0;
@@ -103,6 +98,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 
             HandleResults(iterationCount, successCount);
+            return OperationResult.Empty();
         }
 
         private void HandleResults(long iterationCount, long successCount)
