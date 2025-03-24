@@ -15,27 +15,24 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Driver.TestHelpers;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
+namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class CSharp5527Tests : LinqIntegrationTest<CSharp5527Tests.ClassFixture>
+    public class SigmoidMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<SigmoidMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
-        public CSharp5527Tests(ClassFixture fixture)
-            : base(fixture)
+        public SigmoidMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.SigmoidOperator))
         {
         }
 
         [Fact]
         public void Sigmoid_should_work()
         {
-            RequireServer.Check().Supports(Feature.Sigmoid);
-            
             var collection = Fixture.Collection;
 
             var queryable = collection

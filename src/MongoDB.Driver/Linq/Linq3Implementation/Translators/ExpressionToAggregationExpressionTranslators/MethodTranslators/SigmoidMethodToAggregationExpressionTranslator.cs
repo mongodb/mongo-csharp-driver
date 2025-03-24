@@ -31,12 +31,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (method.Is(MongoDBMathMethod.Sigmoid))
             {
-                var argExpression = arguments.Single();
-                var argTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argExpression);
+                var valueExpression = arguments.Single();
+                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                SerializationHelper.EnsureRepresentationIsNumeric(expression, valueExpression, valueTranslation);
 
                 return new TranslatedExpression(
                     expression,
-                    AstExpression.Unary(AstUnaryOperator.Sigmoid, argTranslation.Ast), 
+                    AstExpression.Unary(AstUnaryOperator.Sigmoid, valueTranslation.Ast), 
                     DoubleSerializer.Instance);
             }
             
