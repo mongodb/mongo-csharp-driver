@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Tests.Specifications
         public void ServerSelection(JsonDrivenTestCase testCase) => Run(testCase);
 
         [Category("Serverless")]
-        [UnifiedTestsTheory("sessions.tests.unified")]
+        [UnifiedTestsTheory("sessions.tests")]
         public void Sessions(JsonDrivenTestCase testCase) => Run(testCase);
 
         [Category("Serverless", "SupportLoadBalancing")]
