@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
@@ -79,7 +78,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                         { "onError", () => _onError.Render(), _onError != null },
                         { "onNull", () => _onNull.Render(), _onNull != null },
                         { "format", () => _format, _format != null},
-                        { "byteOrder", () => MapMqlByteOrderToString(_byteOrder!.Value), _byteOrder != null}
+                        { "byteOrder", () => _byteOrder!.Value.Render(), _byteOrder != null}
                     }
                 }
             };
@@ -101,16 +100,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             }
 
             return new AstConvertExpression(input, to, onError, onNull, subType, format, byteOrder);
-        }
-
-        private static string MapMqlByteOrderToString(Mql.ByteOrder byteOrder)
-        {
-            return byteOrder switch
-            {
-                Mql.ByteOrder.BigEndian => "big",
-                Mql.ByteOrder.LittleEndian => "little",
-                _ => throw new ArgumentException($"Unexpected Mql.ByteOrder: {byteOrder}.", nameof(byteOrder))
-            };
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
@@ -55,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    throw new InvalidOperationException("The 'byteOrder' argument must be a constant expression");  //TODO Improve exception
+                    throw new InvalidOperationException("The 'byteOrder' argument must be a constant expression");
                 }
             }
 
@@ -67,40 +68,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    throw new InvalidOperationException("The 'format' argument must be a constant expression");  //TODO Improve exception
+                    throw new InvalidOperationException("The 'format' argument must be a constant expression");
                 }
             }
 
-            var ast = AstExpression.Convert(fieldAst, MapBsonTypeToString(mapping.Type), onError: onErrorAst, onNull: onNullAst, subType: subTypeAst, format: format, byteOrder: byteOrder);
+            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), onError: onErrorAst, onNull: onNullAst, subType: subTypeAst, format: format, byteOrder: byteOrder);
             return new TranslatedExpression(expression, ast, mapping.Serializer);
-        }
-
-        private static string MapBsonTypeToString(BsonType type) //TODO need to find a good place for this
-        {
-            return type switch
-            {
-                BsonType.Array => "array",
-                BsonType.Binary => "binData",
-                BsonType.Boolean => "bool",
-                BsonType.DateTime => "date",
-                BsonType.Decimal128 => "decimal",
-                BsonType.Document => "object",
-                BsonType.Double => "double",
-                BsonType.Int32 => "int",
-                BsonType.Int64 => "long",
-                BsonType.JavaScript => "javascript",
-                BsonType.JavaScriptWithScope => "javascriptWithScope",
-                BsonType.MaxKey => "maxKey",
-                BsonType.MinKey => "minKey",
-                BsonType.Null => "null",
-                BsonType.ObjectId => "objectId",
-                BsonType.RegularExpression => "regex",
-                BsonType.String => "string",
-                BsonType.Symbol => "symbol",
-                BsonType.Timestamp => "timestamp",
-                BsonType.Undefined => "undefined",
-                _ => throw new ArgumentException($"Unexpected BSON type: {type}.", nameof(type))
-            };
         }
     }
 }
