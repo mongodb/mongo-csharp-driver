@@ -506,8 +506,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         public sealed class ClassFixture : MongoCollectionFixture<TestClass>
         {
+            private bool _initialized;
 
-            private bool _initialed = false;
             protected override IEnumerable<TestClass> InitialData { get; } =
             [
                 new TestClass {Id = 0 },
@@ -517,25 +517,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new TestClass {Id = 4, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("ogIAAA==")), IntProperty = 674, LongProperty = 674}, //LittleEndian
                 new TestClass {Id = 5, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("wAQAAAAAAAA=")), DoubleProperty = -2.5},  //BigEndian
                 new TestClass {Id = 6, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAKg==")), IntProperty = 42, LongProperty = 42}, //BigEndian
-                new TestClass {Id = 7, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AQCAfwA="))}, //5 byte single precision double should error  //TODO Maybe we don't use this
             ];
 
             protected override void InitializeTestCase()
             {
                 base.InitializeTestCase();
 
-                if (_initialed)
+                if (_initialized)
                 {
                     return;
                 }
 
-                _initialed = true;
+                _initialized = true;
 
-                const string errorTestCase = "{ _id: 10, DoubleProperty: NumberDecimal('-32768'), IntProperty: NumberDecimal('-32768'), LongProperty: NumberDecimal('-32768'), StringProperty: NumberDecimal('-233') }";
-                var parsed = BsonDocument.Parse(errorTestCase);
-
+                //It is not possible to create a $convert that causes an error when converting int/long/double to binData using the typed API. Converting 'decimal' to binData is not allowed.
+                var parsed = BsonDocument.Parse("{ _id: 10, DoubleProperty: NumberDecimal('-32768'), IntProperty: NumberDecimal('-32768'), LongProperty: NumberDecimal('-32768'), StringProperty: NumberDecimal('-233') }");
                 var untypedCollection = Database.GetCollection<BsonDocument>(GetCollectionName());
-
                 untypedCollection.InsertOne(parsed);
             }
         }
