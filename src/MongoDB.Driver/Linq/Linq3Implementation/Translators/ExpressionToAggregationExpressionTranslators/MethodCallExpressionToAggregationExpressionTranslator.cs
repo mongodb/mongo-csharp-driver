@@ -139,9 +139,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return CountMethodToAggregationExpressionTranslator.Translate(context, expression);
 
                 case "ConvertToBinData":
-                case "ConvertToDouble":
-                case "ConvertToInt":
-                case "ConvertToLong":
+                case "ConvertToNullableDouble":
+                case "ConvertToNullableInt":
+                case "ConvertToNullableLong":
                 case "ConvertToString":
                     return ConvertMethodToAggregationExpressionTranslator.Translate(context, expression);
 

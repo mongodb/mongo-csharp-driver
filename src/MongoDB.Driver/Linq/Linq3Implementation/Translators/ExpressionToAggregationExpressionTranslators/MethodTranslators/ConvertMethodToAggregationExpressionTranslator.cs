@@ -24,12 +24,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 BsonBinaryDataSerializer.Instance, BsonType.Binary, null, 1, 2, 3, 4),
             ([MqlMethod.ConvertToStringFromBinData], StringSerializer.Instance, BsonType.String, 1, null, null, null, null),
             ([MqlMethod.ConvertToStringFromBinDataWithOnErrorAndOnNull], StringSerializer.Instance, BsonType.String, 1, null, null, 2, 3),
-            ([MqlMethod.ConvertToIntFromBinData], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, null, null),
-            ([MqlMethod.ConvertToIntFromBinDataWithOnErrorAndOnNull], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, 2, 3),
-            ([MqlMethod.ConvertToLongFromBinData], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, null, null),
-            ([MqlMethod.ConvertToLongFromBinDataWithOnErrorAndOnNull], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, 2, 3),
-            ([MqlMethod.ConvertToDoubleFromBinData], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, null, null),
-            ([MqlMethod.ConvertToDoubleFromBinDataWithOnErrorAndOnNull], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, 2, 3)
+            ([MqlMethod.ConvertToNullableIntFromBinData], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, null, null),
+            ([MqlMethod.ConvertToNullableIntFromBinDataWithOnErrorAndOnNull], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, 2, 3),
+            ([MqlMethod.ConvertToNullableLongFromBinData], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, null, null),
+            ([MqlMethod.ConvertToNullableLongFromBinDataWithOnErrorAndOnNull], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, 2, 3),
+            ([MqlMethod.ConvertToNullableDoubleFromBinData], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, null, null),
+            ([MqlMethod.ConvertToNullableDoubleFromBinDataWithOnErrorAndOnNull], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, 2, 3)
         ];
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {

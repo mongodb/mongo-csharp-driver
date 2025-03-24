@@ -190,7 +190,7 @@ namespace MongoDB.Driver
         /// <param name="value">The value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
         /// <returns>The converted value.</returns>
-        public static int? ConvertToInt(BsonBinaryData value, ByteOrder byteOrder)
+        public static int? ConvertToNullableInt(BsonBinaryData value, ByteOrder byteOrder)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
         /// <param name="onError">The onError value.</param>
         /// <param name="onNull">The onNull value.</param>
         /// <returns>The converted value.</returns>
-        public static int? ConvertToInt(BsonBinaryData value, ByteOrder byteOrder, int? onError, int? onNull)
+        public static int? ConvertToNullableInt(BsonBinaryData value, ByteOrder byteOrder, int? onError, int? onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -214,7 +214,7 @@ namespace MongoDB.Driver
         /// <param name="value">The value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
         /// <returns>The converted value.</returns>
-        public static long? ConvertToLong(BsonBinaryData value, ByteOrder byteOrder)
+        public static long? ConvertToNullableLong(BsonBinaryData value, ByteOrder byteOrder)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -227,7 +227,7 @@ namespace MongoDB.Driver
         /// <param name="onError">The onError value.</param>
         /// <param name="onNull">The onNull value.</param>
         /// <returns>The converted value.</returns>
-        public static long? ConvertToLong(BsonBinaryData value, ByteOrder byteOrder, long? onError, long? onNull)
+        public static long? ConvertToNullableLong(BsonBinaryData value, ByteOrder byteOrder, long? onError, long? onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -238,7 +238,7 @@ namespace MongoDB.Driver
         /// <param name="value">The value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
         /// <returns>The converted value.</returns>
-        public static double? ConvertToDouble(BsonBinaryData value, ByteOrder byteOrder)
+        public static double? ConvertToNullableDouble(BsonBinaryData value, ByteOrder byteOrder)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -251,7 +251,7 @@ namespace MongoDB.Driver
         /// <param name="onError">The onError value.</param>
         /// <param name="onNull">The onNull value.</param>
         /// <returns>The converted value.</returns>
-        public static double? ConvertToDouble(BsonBinaryData value, ByteOrder byteOrder, double? onError, double? onNull)
+        public static double? ConvertToNullableDouble(BsonBinaryData value, ByteOrder byteOrder, double? onError, double? onNull)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }

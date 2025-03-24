@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToDouble(x.BinaryProperty, byteOrder));
+                .Select(x => Mql.ConvertToNullableDouble(x.BinaryProperty, byteOrder));
 
             var expectedStages =
                 new[]
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToDouble(x.BinaryProperty, byteOrder, onError, onNull));
+                .Select(x => Mql.ConvertToNullableDouble(x.BinaryProperty, byteOrder, onError, onNull));
 
             var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
             var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
@@ -324,7 +324,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToInt(x.BinaryProperty, byteOrder));
+                .Select(x => Mql.ConvertToNullableInt(x.BinaryProperty, byteOrder));
 
             var expectedStages =
                 new[]
@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToInt(x.BinaryProperty, byteOrder, onError, onNull));
+                .Select(x => Mql.ConvertToNullableInt(x.BinaryProperty, byteOrder, onError, onNull));
 
             var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
             var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
@@ -377,7 +377,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToLong(x.BinaryProperty, byteOrder));
+                .Select(x => Mql.ConvertToNullableLong(x.BinaryProperty, byteOrder));
 
             var expectedStages =
                 new[]
@@ -403,7 +403,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ConvertToLong(x.BinaryProperty, byteOrder, onError, onNull));
+                .Select(x => Mql.ConvertToNullableLong(x.BinaryProperty, byteOrder, onError, onNull));
 
             var onErrorString = onError == null ? "null" : onError.Value.ToString(NumberFormatInfo.InvariantInfo);
             var onNullString = onNull == null ? "null" : onNull.Value.ToString(NumberFormatInfo.InvariantInfo);
