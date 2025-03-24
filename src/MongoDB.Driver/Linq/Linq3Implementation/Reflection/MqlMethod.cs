@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __field;
         private static readonly MethodInfo __isMissing;
         private static readonly MethodInfo __isNullOrMissing;
+        private static readonly MethodInfo __sigmoid;
 
         // static constructor
         static MqlMethod()
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __field = ReflectionInfo.Method((object container, string fieldName, IBsonSerializer<object> serializer) => Mql.Field<object, object>(container, fieldName, serializer));
             __isMissing = ReflectionInfo.Method((object field) => Mql.IsMissing(field));
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
+            __sigmoid = ReflectionInfo.Method((double value) => Mql.Sigmoid(value));
         }
 
         // public properties
@@ -60,5 +62,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Field => __field;
         public static MethodInfo IsMissing => __isMissing;
         public static MethodInfo IsNullOrMissing => __isNullOrMissing;
+        public static MethodInfo Sigmoid => __sigmoid;
     }
 }

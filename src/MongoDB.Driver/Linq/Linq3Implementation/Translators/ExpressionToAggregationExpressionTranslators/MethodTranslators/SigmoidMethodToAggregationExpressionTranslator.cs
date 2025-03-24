@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(MongoDBMathMethod.Sigmoid))
+            if (method.Is(MqlMethod.Sigmoid))
             {
                 var valueExpression = arguments.Single();
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
