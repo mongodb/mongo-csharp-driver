@@ -206,6 +206,57 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
         }
 
+        [Theory]
+        [InlineData(1, null, "FormatException")]
+        [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
+        public void MongoDBFunctions_ConvertToBinDataFromString_should_work(int id, string expectedGuidString, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToBinData(x.StringProperty, BsonBinarySubType.UuidStandard, "uuid"));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$StringProperty', to : {{ type: 'binData', subtype: 4  }}, format: 'uuid' }} }}, _id : 0 }} }}",
+                };
+
+            var expectedResult = expectedGuidString is null? null : new BsonBinaryData(Guid.Parse(expectedGuidString), GuidRepresentation.Standard);
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(0, "AAAAAAAABMA=", "Ag==", "AAAAAAAABMA=")]
+        [InlineData(10, "Ag==", "Ag==", "AAAAAAAABMA=")]
+        public void MongoDBFunctions_ConvertToLongDataFromStringWithOnErrorAndOnNull_should_work(int id, string expectedBase64, string onErrorBase64, string onNullBase64)
+        {
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+
+            var onErrorBinData = onErrorBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onErrorBase64));
+            var onNullBinData = onNullBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onNullBase64));
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ConvertToBinData(x.StringProperty, BsonBinarySubType.UuidStandard, "uuid", onErrorBinData, onNullBinData));
+
+            var onErrorString = onErrorBase64 == null ? "null" : $"BinData(0, '{onErrorBase64}')";
+            var onNullString = onNullBase64 == null ? "null" : $"BinData(0, '{onNullBase64}')";
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$StringProperty', to : {{ type: 'binData', subtype: 4  }}, onError: {onErrorString}, onNull: {onNullString}, format: 'uuid' }} }}, _id : 0 }} }}",
+                };
+
+            var expectedResult = expectedBase64 is null? null : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
 
         // To Double
 
@@ -461,7 +512,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             [
                 new TestClass {Id = 0 },
                 new TestClass {Id = 1, BinaryProperty = new BsonBinaryData([0, 1, 2])},
-                new TestClass {Id = 2, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard)},
+                new TestClass {Id = 2, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard), StringProperty = "867dee52-c331-484e-92d1-c56479b8e67e"},
                 new TestClass {Id = 3, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAAAAA4L8=")), DoubleProperty = -0.5},  //LittleEndian
                 new TestClass {Id = 4, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("ogIAAA==")), IntProperty = 674, LongProperty = 674}, //LittleEndian
                 new TestClass {Id = 5, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("wAQAAAAAAAA=")), DoubleProperty = -2.5},  //BigEndian
@@ -480,7 +531,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
                 _initialed = true;
 
-                var errorTestCase = "{ _id: 10, DoubleProperty: NumberDecimal('-32768'), IntProperty: NumberDecimal('-32768'), LongProperty: NumberDecimal('-32768') }";
+                const string errorTestCase = "{ _id: 10, DoubleProperty: NumberDecimal('-32768'), IntProperty: NumberDecimal('-32768'), LongProperty: NumberDecimal('-32768'), StringProperty: NumberDecimal('-233') }";
                 var parsed = BsonDocument.Parse(errorTestCase);
 
                 var untypedCollection = Database.GetCollection<BsonDocument>(GetCollectionName());
