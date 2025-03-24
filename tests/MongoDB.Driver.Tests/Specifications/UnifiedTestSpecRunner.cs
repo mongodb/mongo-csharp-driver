@@ -126,6 +126,10 @@ namespace MongoDB.Driver.Tests.Specifications
         }
 
         [Category("Serverless", "SupportLoadBalancing")]
+        [UnifiedTestsTheory("read_write_concern.tests.operation")]
+        public void ReadWriteConcern(JsonDrivenTestCase testCase) => Run(testCase);
+
+        [Category("Serverless", "SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_reads.tests.unified")]
         public void RetryableReads(JsonDrivenTestCase testCase) => Run(testCase);
 
@@ -229,6 +233,9 @@ namespace MongoDB.Driver.Tests.Specifications
             "hello without speculative authenticate is not redacted",
             "legacy hello with speculative authenticate",
             "legacy hello without speculative authenticate is not redacted",
+
+            // readWriteConcern
+            "MapReduce omits default write concern", // MapReduce is obsolete
 
             // retryableReads
             "collection.findOne succeeds after retryable handshake network error",
