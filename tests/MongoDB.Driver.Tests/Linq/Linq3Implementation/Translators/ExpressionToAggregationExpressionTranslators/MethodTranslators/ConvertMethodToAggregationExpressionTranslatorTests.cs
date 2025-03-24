@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
         public void MongoDBFunctions_ConvertToBinDataFromString_should_work(int id, string expectedGuidString, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromString);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [InlineData(0, "AAAAAAAABMA=", "Ag==", "AAAAAAAABMA=")]
         [InlineData(10, "Ag==", "Ag==", "AAAAAAAABMA=")]
-        public void MongoDBFunctions_ConvertToLongDataFromStringWithOnErrorAndOnNull_should_work(int id, string expectedBase64, string onErrorBase64, string onNullBase64)
+        public void MongoDBFunctions_ConvertToBinDataFromStringWithOnErrorAndOnNull_should_work(int id, string expectedBase64, string onErrorBase64, string onNullBase64)
         {
             RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
 
@@ -424,7 +424,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(1, null, "MongoCommandException")]
         public void MongoDBFunctions_ConvertToStringFromBinData_should_work(int id, string expectedResult, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromString);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -448,7 +448,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(1, null, null, "onNull")]
         public void MongoDBFunctions_ConvertToStringFromBinDataWithOnErrorAndOnNull_should_work(int id, string expectedResult, string onError, string onNull)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertBinDataToFromString);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
