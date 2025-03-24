@@ -234,9 +234,6 @@ namespace MongoDB.Driver.Tests.Specifications
             "legacy hello with speculative authenticate",
             "legacy hello without speculative authenticate is not redacted",
 
-            // readWriteConcern
-            "MapReduce omits default write concern", // MapReduce is obsolete
-
             // retryableReads
             "collection.findOne succeeds after retryable handshake network error",
             "collection.findOne succeeds after retryable handshake server error (ShutdownInProgress)",

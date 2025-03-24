@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,39 +17,41 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedCountOperation : IUnifiedEntityTestOperation
+    public class UnifiedMapReduceOperation : IUnifiedEntityTestOperation
     {
         private readonly IMongoCollection<BsonDocument> _collection;
-        private readonly FilterDefinition<BsonDocument> _filter;
-        private readonly CountOptions _options;
-        private readonly IClientSessionHandle _session;
+        private readonly BsonJavaScript _map;
+        private readonly BsonJavaScript _reduce;
 
-        public UnifiedCountOperation(
+        public UnifiedMapReduceOperation(
             IMongoCollection<BsonDocument> collection,
-            FilterDefinition<BsonDocument> filter,
-            CountOptions options,
-            IClientSessionHandle session)
+            BsonJavaScript map,
+            BsonJavaScript reduce)
         {
             _collection = collection;
-            _filter = filter;
-            _options = options;
-            _session = session;
+            _map = Ensure.IsNotNull(map, nameof(map));
+            _reduce = Ensure.IsNotNull(reduce, nameof(reduce));
         }
 
+        /// <summary>
+        /// Executes the specified cancellation token.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
 #pragma warning disable CS0618 // Type or member is obsolete
-                var result = _session == null
-                    ? _collection.Count(_filter, _options, cancellationToken)
-                    : _collection.Count(_session, _filter, _options, cancellationToken);
+                var cursor = _collection.MapReduce<BsonDocument>(_map, _reduce);
 #pragma warning restore CS0618 // Type or member is obsolete
+                var enumerator = cursor.ToEnumerable().GetEnumerator();
 
-                return OperationResult.FromResult(result);
+                return OperationResult.FromCursor(enumerator);
             }
             catch (Exception exception)
             {
@@ -62,12 +64,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             try
             {
 #pragma warning disable CS0618 // Type or member is obsolete
-                var result = _session == null
-                    ? await _collection.CountAsync(_filter, _options, cancellationToken)
-                    : await _collection.CountAsync(_session, _filter, _options, cancellationToken);
+                var cursor = await _collection.MapReduceAsync<BsonDocument>(_map, _reduce);
 #pragma warning restore CS0618 // Type or member is obsolete
+                var enumerator = cursor.ToEnumerable().GetEnumerator();
 
-                return OperationResult.FromResult(result);
+                return OperationResult.FromCursor(enumerator);
             }
             catch (Exception exception)
             {
@@ -76,43 +77,44 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedCountOperationBuilder
+    public class UnifiedMapReduceOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 
-        public UnifiedCountOperationBuilder(UnifiedEntityMap entityMap)
+        public UnifiedMapReduceOperationBuilder(UnifiedEntityMap entityMap)
         {
             _entityMap = entityMap;
         }
 
-        public UnifiedCountOperation Build(string targetCollectionId, BsonDocument arguments)
+        public UnifiedMapReduceOperation Build(string targetCollectionId, BsonDocument arguments)
         {
             var collection = _entityMap.Collections[targetCollectionId];
 
-            FilterDefinition<BsonDocument> filter = null;
-            CountOptions options = null;
-            IClientSessionHandle session = null;
+            BsonJavaScript map = null, reduce = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
-                    case "comment":
-                        options ??= new CountOptions();
-                        options.Comment = argument.Value;
+                    case "map":
+                        map = argument.Value.AsBsonJavaScript;
                         break;
-                    case "filter":
-                        filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
+                    case "reduce":
+                        reduce = argument.Value.AsBsonJavaScript;
                         break;
-                    case "session":
-                        session = _entityMap.Sessions[argument.Value.AsString];
+                    case "out":
+                        var outDocument = argument.Value.AsBsonDocument;
+                        if (!outDocument.Equals(new("inline", 1)))
+                        {
+                            throw new FormatException($"Invalid out setting '{argument.Value}'.");
+                        }
                         break;
                     default:
                         throw new FormatException($"Invalid CountOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedCountOperation(collection, filter, options, session);
+            return new UnifiedMapReduceOperation(collection, map, reduce);
         }
     }
 }
