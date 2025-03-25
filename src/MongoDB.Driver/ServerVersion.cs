@@ -143,11 +143,16 @@ namespace MongoDB.Driver
         /// Server version 8.0.
         /// </summary>
         Server80,
-        
+
         /// <summary>
         /// Server version 8.1.
         /// </summary>
-        Server81
+        Server81,
+
+        /// <summary>
+        /// Server version 8.2.
+        /// </summary>
+        Server82
 
         // note: keep Server.cs and WireVersion.cs in sync as well as the extension methods below
     }
@@ -183,6 +188,7 @@ namespace MongoDB.Driver
                 WireVersion.Server73 => ServerVersion.Server73,
                 WireVersion.Server80 => ServerVersion.Server80,
                 WireVersion.Server81 => ServerVersion.Server81,
+                WireVersion.Server82 => ServerVersion.Server82,
                 _ => throw new ArgumentException($"Invalid write version: {wireVersion}.", nameof(wireVersion))
             };
         }
@@ -217,6 +223,7 @@ namespace MongoDB.Driver
                 ServerVersion.Server73 => WireVersion.Server73,
                 ServerVersion.Server80 => WireVersion.Server80,
                 ServerVersion.Server81 => WireVersion.Server81,
+                ServerVersion.Server82 => WireVersion.Server82,
                 _ => throw new ArgumentException($"Invalid server version: {serverVersion}.", nameof(serverVersion))
             };
         }
