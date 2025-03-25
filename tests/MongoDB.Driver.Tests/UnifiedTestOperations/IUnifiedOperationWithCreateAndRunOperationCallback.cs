@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public interface IUnifiedOperationWithCreateAndRunOperationCallback : IUnifiedTestOperation
     {
-        void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken);
-        Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken);
+        OperationResult Execute(Func<BsonDocument, bool, CancellationToken, OperationResult> createAndRunOperationCallback, CancellationToken cancellationToken);
+        Task<OperationResult> ExecuteAsync(Func<BsonDocument, bool, CancellationToken, OperationResult> createAndRunOperationCallback, CancellationToken cancellationToken);
     }
 }

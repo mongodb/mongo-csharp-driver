@@ -36,21 +36,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _threadKey = Ensure.IsNotNull(threadKey, nameof(threadKey));
         }
 
-        public void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
-        {
-            AssignTask(createAndRunOperationCallback, async: false, cancellationToken);
-        }
+        public OperationResult Execute(Func<BsonDocument, bool, CancellationToken, OperationResult> createAndRunOperationCallback, CancellationToken cancellationToken)
+            => AssignTask(createAndRunOperationCallback, async: false, cancellationToken);
 
-        public Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
-        {
-            AssignTask(createAndRunOperationCallback, async: true, cancellationToken);
-            return Task.CompletedTask;
-        }
+        public Task<OperationResult> ExecuteAsync(Func<BsonDocument, bool, CancellationToken, OperationResult> createAndRunOperationCallback, CancellationToken cancellationToken)
+            => Task.FromResult(AssignTask(createAndRunOperationCallback, async: true, cancellationToken));
 
         // private methods
-        private void AssignTask(Action<BsonDocument, bool, CancellationToken> action, bool async, CancellationToken cancellationToken)
+        private OperationResult AssignTask(Func<BsonDocument, bool, CancellationToken, OperationResult> action, bool async, CancellationToken cancellationToken)
         {
             _threads[_threadKey] = TasksUtils.CreateTaskOnOwnThread(() => action(_operation, async, cancellationToken), cancellationToken);
+            return OperationResult.Empty();
         }
     }
 
