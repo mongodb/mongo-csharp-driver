@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression);
 
             Mql.ByteOrder? byteOrder = null;
+            BsonBinarySubType? subType = null;
             string format = null;
 
             var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
@@ -72,7 +73,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), onError: onErrorAst, onNull: onNullAst, subType: subTypeAst, format: format, byteOrder: byteOrder);
+            if (mapping.SubTypeIndex.HasValue)
+            {
+                if (arguments[mapping.SubTypeIndex.Value] is ConstantExpression co)
+                {
+                    subType = (BsonBinarySubType)co.Value!;
+                }
+                else
+                {
+                    throw new InvalidOperationException("The 'subType' argument must be a constant expression");
+                }
+            }
+
+            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), onError: onErrorAst, onNull: onNullAst, subType: subType, format: format, byteOrder: byteOrder);
             return new TranslatedExpression(expression, ast, mapping.Serializer);
         }
     }
