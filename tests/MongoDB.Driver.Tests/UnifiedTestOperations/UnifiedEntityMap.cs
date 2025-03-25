@@ -847,6 +847,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "readPreference":
                                     databaseSettings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
                                     break;
+                                case "writeConcern":
+                                    databaseSettings.WriteConcern = ParseWriteConcern(option.Value.AsBsonDocument);
+                                    break;
                                 default:
                                     throw new FormatException($"Invalid database option argument name: '{option.Name}'.");
                             }

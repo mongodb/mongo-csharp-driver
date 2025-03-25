@@ -126,6 +126,10 @@ namespace MongoDB.Driver.Tests.Specifications
         }
 
         [Category("Serverless", "SupportLoadBalancing")]
+        [UnifiedTestsTheory("read_write_concern.tests.operation")]
+        public void ReadWriteConcern(JsonDrivenTestCase testCase) => Run(testCase);
+
+        [Category("Serverless", "SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_reads.tests.unified")]
         public void RetryableReads(JsonDrivenTestCase testCase) => Run(testCase);
 
