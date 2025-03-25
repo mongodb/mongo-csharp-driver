@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (mapping == default)
                 throw new ExpressionNotSupportedException(expression);
 
-            Mql.ByteOrder? byteOrder = null;
+            ByteOrder? byteOrder = null;
             BsonBinarySubType? subType = null;
             string format = null;
 
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 if (arguments[mapping.ByteOrderIndex.Value] is ConstantExpression co)
                 {
-                    byteOrder = (Mql.ByteOrder)co.Value!;
+                    byteOrder = (ByteOrder)co.Value!;
                 }
                 else
                 {

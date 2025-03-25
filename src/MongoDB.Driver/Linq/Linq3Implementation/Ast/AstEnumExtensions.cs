@@ -48,12 +48,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
             };
         }
 
-        public static string Render(this Mql.ByteOrder byteOrder)
+        public static string Render(this ByteOrder byteOrder)
         {
             return byteOrder switch
             {
-                Mql.ByteOrder.BigEndian => "big",
-                Mql.ByteOrder.LittleEndian => "little",
+                ByteOrder.BigEndian => "big",
+                ByteOrder.LittleEndian => "little",
                 _ => throw new ArgumentException($"Unexpected Mql.ByteOrder: {byteOrder}.", nameof(byteOrder))
             };
         }

@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         }
 
         public static AstExpression Convert(AstExpression input, AstExpression to, AstExpression onError = null, AstExpression onNull = null,
-            BsonBinarySubType? subType = null, string format = null, Mql.ByteOrder? byteOrder = null)
+            BsonBinarySubType? subType = null, string format = null, ByteOrder? byteOrder = null)
         {
             Ensure.IsNotNull(input, nameof(input));
             Ensure.IsNotNull(to, nameof(to));

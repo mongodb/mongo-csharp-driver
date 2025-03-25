@@ -359,20 +359,20 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+    }
 
+    /// <summary>
+    /// Represents the byte order of binData when converting to/from numerical types.
+    /// </summary>
+    public enum ByteOrder
+    {
         /// <summary>
-        ///
+        /// Big endian order.
         /// </summary>
-        public enum ByteOrder
-        {
-            /// <summary>
-            ///
-            /// </summary>
-            BigEndian,
-            /// <summary>
-            ///
-            /// </summary>
-            LittleEndian,
-        }
+        BigEndian,
+        /// <summary>
+        /// Little endian order.
+        /// </summary>
+        LittleEndian,
     }
 }
