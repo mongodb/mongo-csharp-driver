@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// Represents options for the $rankFusion stage.
     /// </summary>
     /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-    public class RankFusionOptions<TOutput>
+    public sealed class RankFusionOptions<TOutput>
     {
         /// <summary>
         /// Gets or sets the output serializer.

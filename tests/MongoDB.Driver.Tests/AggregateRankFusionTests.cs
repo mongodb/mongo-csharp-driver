@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Search;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -121,12 +122,53 @@ namespace MongoDB.Driver.Tests
             result[2].Age.Should().Be(24);
             result[3].Age.Should().Be(42);
         }
+        
+        [Fact]
+        public void RankFusion_with_score_details_should_return_expected_result()
+        {
+            var collection = Fixture.Collection;
+
+            var pipelines = new[]
+            {
+                new EmptyPipelineDefinition<SimplePerson>()
+                    .Match(p => p.Name == "John")
+                    .Sort(Builders<SimplePerson>.Sort.Ascending(p => p.Age)),
+                
+                new EmptyPipelineDefinition<SimplePerson>()
+                    .Match(p => p.Name == "Jane")
+                    .Sort(Builders<SimplePerson>.Sort.Ascending(p => p.Age))
+            };
+
+            var result = collection.Aggregate()
+                .RankFusion(pipelines, new RankFusionOptions<SimplePerson> { ScoreDetails = true})
+                .Limit(1)
+                .As<RankFusionResult>()
+                .Project<RankFusionResult>(Builders<RankFusionResult>.Projection
+                    .Exclude("_id")
+                    .MetaScore(r => r.Score)
+                    .MetaScoreDetails(r => r.ScoreDetails))
+                .ToList();
+
+            result.Should().ContainSingle();
+            result[0].Score.Should().BeGreaterThan(0);
+            result[0].ScoreDetails.Should().NotBeNull();
+            
+            result[0].ScoreDetails.Description.Should().NotBeNullOrEmpty();
+            result[0].ScoreDetails.Value.Should().Be(result[0].Score);
+            result[0].ScoreDetails.Details.Should().NotBeEmpty();
+        }
 
         public class SimplePerson
         {
             public ObjectId Id { get; set; }
             public string Name { get; set; }
             public int Age { get; set; }
+        }
+
+        public class RankFusionResult : SimplePerson
+        {
+            public double Score { get; set; }
+            public ScoreDetails ScoreDetails { get; set; }
         }
         
         public sealed class ClassFixture : MongoDatabaseFixture

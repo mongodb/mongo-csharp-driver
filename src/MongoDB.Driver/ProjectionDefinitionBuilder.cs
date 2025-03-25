@@ -154,6 +154,78 @@ namespace MongoDB.Driver
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Meta(field, metaFieldName));
         }
+        
+        /// <summary>
+        /// Combines an existing projection with a meta score projection. This projection will retrieve any kind of score metadata i.e.
+        /// searchScore, VectorSearchScore or textScore. 
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaScore<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            FieldDefinition<TDocument> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaScore(field));
+        }
+        
+        /// <summary>
+        /// Combines an existing projection with a meta score projection. This projection will retrieve any kind of score metadata i.e.
+        /// searchScore, VectorSearchScore or textScore. 
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaScore<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaScore(field));
+        }
+        
+        /// <summary>
+        /// Combines an existing projection with a meta score details projection. This projection will retrieve any kind of scoreDetails metadata i.e.
+        /// searchScoreDetails.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaScoreDetails<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            FieldDefinition<TDocument> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaScoreDetails(field));
+        }
+        
+        /// <summary>
+        /// Combines an existing projection with a meta score details projection. This projection will retrieve any kind of scoreDetails metadata i.e.
+        /// searchScoreDetails.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaScoreDetails<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaScoreDetails(field));
+        }
 
         /// <summary>
         /// Combines an existing projection with a search highlights projection.
@@ -615,6 +687,58 @@ namespace MongoDB.Driver
         public ProjectionDefinition<TSource> Meta(FieldDefinition<TSource> field, string metaFieldName)
         {
             return new SingleFieldProjectionDefinition<TSource>(field, new BsonDocument("$meta", metaFieldName));
+        }
+        
+        /// <summary>
+        /// Creates a meta score projection. This projection will retrieve any kind of score metadata i.e.
+        /// searchScore, VectorSearchScore or textScore. 
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A meta score projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaScore(FieldDefinition<TSource> field)
+        {
+            return Meta(field, "score");
+        }
+        
+        /// <summary>
+        /// Creates a meta score projection. This projection will retrieve any kind of score metadata i.e.
+        /// searchScore, VectorSearchScore or textScore. 
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A meta score projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaScore<TField>(Expression<Func<TSource, TField>> field)
+        {
+            return MetaScore(new ExpressionFieldDefinition<TSource>(field));
+        }
+        
+        /// <summary>
+        /// Creates a meta score details projection. This projection will retrieve any kind of scoreDetails metadata i.e.
+        /// searchScoreDetails.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A meta score details projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaScoreDetails(FieldDefinition<TSource> field)
+        {
+            return Meta(field, "scoreDetails");
+        }
+        
+        /// <summary>
+        /// Creates a meta score details projection. This projection will retrieve any kind of scoreDetails metadata i.e.
+        /// searchScoreDetails.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A meta score details projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaScoreDetails<TField>(Expression<Func<TSource, TField>> field)
+        {
+            return MetaScoreDetails(new ExpressionFieldDefinition<TSource>(field));
         }
 
         /// <summary>
