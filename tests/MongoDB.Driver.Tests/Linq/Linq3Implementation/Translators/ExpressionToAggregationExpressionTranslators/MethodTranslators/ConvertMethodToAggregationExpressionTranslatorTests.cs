@@ -504,43 +504,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             return $"byteOrder: '{byteOrderString}'";
         }
 
-        public sealed class ClassFixture : MongoCollectionFixture<TestClass>
+        public sealed class ClassFixture : MongoCollectionFixture<TestClass, BsonDocument>
         {
-            private bool _initialized;
-
-            protected override IEnumerable<TestClass> InitialData { get; } =
+            protected override IEnumerable<BsonDocument> InitialData =>
             [
-                new TestClass {Id = 0 },
-                new TestClass {Id = 1, BinaryProperty = new BsonBinaryData([0, 1, 2])},
-                new TestClass {Id = 2, BinaryProperty = new BsonBinaryData(Guid.Parse("867dee52-c331-484e-92d1-c56479b8e67e"), GuidRepresentation.Standard), StringProperty = "867dee52-c331-484e-92d1-c56479b8e67e"},
-                new TestClass {Id = 3, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAAAAA4L8=")), DoubleProperty = -0.5},  //LittleEndian
-                new TestClass {Id = 4, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("ogIAAA==")), IntProperty = 674, LongProperty = 674}, //LittleEndian
-                new TestClass {Id = 5, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("wAQAAAAAAAA=")), DoubleProperty = -2.5},  //BigEndian
-                new TestClass {Id = 6, BinaryProperty = new BsonBinaryData(Convert.FromBase64String("AAAAKg==")), IntProperty = 42, LongProperty = 42}, //BigEndian
+                BsonDocument.Parse("{ _id : 0 }"),
+                BsonDocument.Parse("{ _id : 1, BinaryProperty : BinData(0, 'ogIAAA==') }"),
+                BsonDocument.Parse("{ _id : 2, BinaryProperty : BinData(4, 'hn3uUsMxSE6S0cVkebjmfg=='), StringProperty: '867dee52-c331-484e-92d1-c56479b8e67e' }"),
+                BsonDocument.Parse("{ _id : 3, BinaryProperty : BinData(0, 'AAAAAAAA4L8='), DoubleProperty: -0.5 }"), //LittleEndian
+                BsonDocument.Parse("{ _id : 4, BinaryProperty : BinData(0, 'ogIAAA=='), IntProperty: 674, LongProperty: NumberLong('674') }"), //LittleEndian
+                BsonDocument.Parse("{ _id : 5, BinaryProperty : BinData(0, 'wAQAAAAAAAA='), DoubleProperty: -2.5 }"), //BigEndian
+                BsonDocument.Parse("{ _id : 6, BinaryProperty : BinData(0, 'AAAAKg=='), IntProperty: 42, LongProperty: NumberLong('42') }"), //BigEndian
+                BsonDocument.Parse("{ _id: 10, DoubleProperty: NumberDecimal('-32768'), IntProperty: NumberDecimal('-32768'), LongProperty: NumberDecimal('-32768'), StringProperty: NumberDecimal('-233') }")
             ];
-
-            protected override void InitializeTestCase()
-            {
-                base.InitializeTestCase();
-
-                if (_initialized)
-                {
-                    return;
-                }
-
-                _initialized = true;
-
-                //It is not possible to create a $convert that causes an error when converting int/long/double to binData using the typed API. Converting 'decimal' to binData is not allowed.
-                var parsed = BsonDocument.Parse("{ _id: 10, DoubleProperty: NumberDecimal('-32768'), IntProperty: NumberDecimal('-32768'), LongProperty: NumberDecimal('-32768'), StringProperty: NumberDecimal('-233') }");
-                var untypedCollection = Database.GetCollection<BsonDocument>(GetCollectionName());
-                untypedCollection.InsertOne(parsed);
-            }
         }
 
         public class TestClass
         {
             public int Id { get; set; }
-            [BsonIgnoreIfDefault]
             public BsonBinaryData BinaryProperty { get; set; }
             public double? DoubleProperty { get; set; }
             public int? IntProperty { get; set; }
