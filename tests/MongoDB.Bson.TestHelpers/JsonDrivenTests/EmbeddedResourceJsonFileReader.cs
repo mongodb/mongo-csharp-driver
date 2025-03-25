@@ -50,8 +50,8 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
         {
             return
                 Assembly.GetManifestResourceNames()
-                    .Where(path => ShouldReadJsonDocument(path))
-                    .Select(path => ReadJsonDocument(path));
+                    .Where(ShouldReadJsonDocument)
+                    .Select(ReadJsonDocument);
         }
 
         protected virtual bool ShouldReadJsonDocument(string path)
