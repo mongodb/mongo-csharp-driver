@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), onError: onErrorAst, onNull: onNullAst, subType: subType, format: format, byteOrder: byteOrder);
+            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), subType: subType, byteOrder: byteOrder, format: format, onError: onErrorAst, onNull: onNullAst);
             return new TranslatedExpression(expression, ast, mapping.Serializer);
         }
     }
