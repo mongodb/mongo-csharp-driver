@@ -16,21 +16,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         private static readonly List<(MethodInfo[] Methods, IBsonSerializer Serializer, BsonType Type, int? FormatIndex, int? SubTypeIndex, int? ByteOrderIndex, int? OnErrorIndex, int? OnNullIndex)> _methodMappings =
         [
-            ([MqlMethod.ConvertToBinDataFromString], BsonBinaryDataSerializer.Instance, BsonType.Binary, 2, 1, null, null, null),
-            ([MqlMethod.ConvertToBinDataFromInt, MqlMethod.ConvertToBinDataFromLong, MqlMethod.ConvertToBinDataFromDouble],
+            ([MqlMethod.ToBinDataFromString], BsonBinaryDataSerializer.Instance, BsonType.Binary, 2, 1, null, null, null),
+            ([MqlMethod.ToBinDataFromInt, MqlMethod.ToBinDataFromLong, MqlMethod.ToBinDataFromDouble],
                 BsonBinaryDataSerializer.Instance, BsonType.Binary, null, 1, 2, null, null),
-            ([MqlMethod.ConvertToBinDataFromStringWithOnErrorAndOnNull], BsonBinaryDataSerializer.Instance, BsonType.Binary, 2, 1, null, 3, 4),
-            ([MqlMethod.ConvertToBinDataFromIntWithOnErrorAndOnNull, MqlMethod.ConvertToBinDataFromLongWithOnErrorAndOnNull, MqlMethod.ConvertToBinDataFromDoubleWithOnErrorAndOnNull],
+            ([MqlMethod.ToBinDataFromStringWithOnErrorAndOnNull], BsonBinaryDataSerializer.Instance, BsonType.Binary, 2, 1, null, 3, 4),
+            ([MqlMethod.ToBinDataFromIntWithOnErrorAndOnNull, MqlMethod.ToBinDataFromLongWithOnErrorAndOnNull, MqlMethod.ToBinDataFromDoubleWithOnErrorAndOnNull],
                 BsonBinaryDataSerializer.Instance, BsonType.Binary, null, 1, 2, 3, 4),
-            ([MqlMethod.ConvertToStringFromBinData], StringSerializer.Instance, BsonType.String, 1, null, null, null, null),
-            ([MqlMethod.ConvertToStringFromBinDataWithOnErrorAndOnNull], StringSerializer.Instance, BsonType.String, 1, null, null, 2, 3),
-            ([MqlMethod.ConvertToNullableIntFromBinData], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, null, null),
-            ([MqlMethod.ConvertToNullableIntFromBinDataWithOnErrorAndOnNull], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, 2, 3),
-            ([MqlMethod.ConvertToNullableLongFromBinData], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, null, null),
-            ([MqlMethod.ConvertToNullableLongFromBinDataWithOnErrorAndOnNull], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, 2, 3),
-            ([MqlMethod.ConvertToNullableDoubleFromBinData], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, null, null),
-            ([MqlMethod.ConvertToNullableDoubleFromBinDataWithOnErrorAndOnNull], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, 2, 3)
+            ([MqlMethod.ToStringFromBinData], StringSerializer.Instance, BsonType.String, 1, null, null, null, null),
+            ([MqlMethod.ToStringFromBinDataWithOnErrorAndOnNull], StringSerializer.Instance, BsonType.String, 1, null, null, 2, 3),
+            ([MqlMethod.ToNullableIntFromBinData], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, null, null),
+            ([MqlMethod.ToNullableIntFromBinDataWithOnErrorAndOnNull], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, 2, 3),
+            ([MqlMethod.ToNullableLongFromBinData], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, null, null),
+            ([MqlMethod.ToNullableLongFromBinDataWithOnErrorAndOnNull], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, 2, 3),
+            ([MqlMethod.ToNullableDoubleFromBinData], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, null, null),
+            ([MqlMethod.ToNullableDoubleFromBinDataWithOnErrorAndOnNull], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, 2, 3)
         ];
+
+        private static readonly List<MethodInfo> ToStringMethods =
+            [MqlMethod.ToStringFromBinData, MqlMethod.ToStringFromBinDataWithOnErrorAndOnNull];
+
+        public static bool IsConvertToStringMethod(MethodInfo method)
+        {
+            return ToStringMethods.Contains(method);
+        }
+
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
@@ -45,7 +54,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             string format = null;
 
             var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
-            var subTypeAst = mapping.SubTypeIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.SubTypeIndex.Value]).Ast : null;
             var onErrorAst = mapping.OnErrorIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.OnErrorIndex.Value]).Ast : null;
             var onNullAst = mapping.OnNullIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.OnNullIndex.Value]).Ast : null;
 

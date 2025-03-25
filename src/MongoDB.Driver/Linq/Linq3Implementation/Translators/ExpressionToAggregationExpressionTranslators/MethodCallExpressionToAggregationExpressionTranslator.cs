@@ -138,11 +138,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "LongCount":
                     return CountMethodToAggregationExpressionTranslator.Translate(context, expression);
 
-                case "ConvertToBinData":
-                case "ConvertToNullableDouble":
-                case "ConvertToNullableInt":
-                case "ConvertToNullableLong":
-                case "ConvertToString":
+                case "ToBinData":
+                case "ToNullableDouble":
+                case "ToNullableInt":
+                case "ToNullableLong":
                     return ConvertMethodToAggregationExpressionTranslator.Translate(context, expression);
 
                 case "ElementAt":
