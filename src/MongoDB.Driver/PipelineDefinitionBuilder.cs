@@ -989,17 +989,55 @@ namespace MongoDB.Driver
         /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="pipelines">The map of named pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
-        /// <param name="weights">The map of pipeline names to numerical weights determining result importance during combination. Default weight is 1 when unspecified.</param>
-        /// <param name="scoreDetails">Flag that specifies whether to return a detailed breakdown of the score for each document in the result.</param>
+        /// <param name="weights">The map of pipeline names to non-negative numerical weights determining result importance during combination. Default weight is 1 when unspecified.</param>
+        /// <param name="options">The rankFusion options.</param>
         /// <returns>A new pipeline with an additional stage.</returns>
         public static PipelineDefinition<TInput, TOutput> RankFusion<TInput, TIntermediate, TOutput>(
             this PipelineDefinition<TInput, TIntermediate> pipeline,
             Dictionary<string, PipelineDefinition<TIntermediate, TOutput>> pipelines,
             Dictionary<string, double> weights = null, 
-            bool scoreDetails = false)
+            RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(PipelineStageDefinitionBuilder.RankFusion(pipelines, weights, scoreDetails));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.RankFusion(pipelines, weights, options));
+        }
+
+        /// <summary>
+        /// Appends a $rankFusion stage to the pipeline. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="pipelines">The collection of pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="options">The rankFusion options.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> RankFusion<TInput, TIntermediate, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            PipelineDefinition<TIntermediate, TOutput>[] pipelines,
+            RankFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.RankFusion(pipelines, options));
+        }
+
+        /// <summary>
+        /// Appends a $rankFusion stage to the pipeline. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="pipelinesWithWeights">The collection of tuples containing (pipeline, weight) pairs. The pipelines must operate on the same collection.</param>
+        /// <param name="options">The rankFusion options.</param>
+        /// <returns>A new pipeline with an additional stage.</returns>
+        public static PipelineDefinition<TInput, TOutput> RankFusion<TInput, TIntermediate, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            (PipelineDefinition<TIntermediate, TOutput>, double?)[] pipelinesWithWeights,
+            RankFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.RankFusion(pipelinesWithWeights, options));
         }
 
         /// <summary>

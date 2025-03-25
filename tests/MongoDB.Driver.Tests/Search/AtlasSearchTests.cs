@@ -520,9 +520,7 @@ namespace MongoDB.Driver.Tests.Search
                                 { $limit: 5 }
                                 ]
                             }
-                        },
-                        scoreDetails: false
-                    }
+                        }}
                 }
                 """);
         }

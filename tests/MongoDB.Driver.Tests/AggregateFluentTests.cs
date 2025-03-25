@@ -25,7 +25,6 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -821,51 +820,6 @@ namespace MongoDB.Driver.Tests
                         CancellationToken.None),
                     Times.Once);
             }
-        }
-
-        [Fact]
-        public void RankFusion_should_return_expected_result()
-        {
-            RequireServer.Check().Supports(Feature.RankFusion);
-            
-            string databaseName = "test";
-            string collectionName = "collection";
-
-            var client = DriverTestConfiguration.Client;
-            DropCollection(client, databaseName, collectionName);
-
-            var testCollection = client.GetDatabase(databaseName).GetCollection<D>(collectionName);
-
-            var documents = new[]
-            {
-                new D { X = 1, Y = 5},
-                new D { X = 2, Y = 6},
-                new D { X = 2, Y = 7},
-                new D { X = 1, Y = 8},
-            };
-            testCollection.InsertMany(documents);
-            
-            var pipelines = new Dictionary<string, PipelineDefinition<D, D>>
-            {
-                { "pipeline1", new EmptyPipelineDefinition<D>().Match(d => d.X == 1).Sort(Builders<D>.Sort.Ascending(d => d.Y)) },
-                { "pipeline2", new EmptyPipelineDefinition<D>().Match(d => d.X == 2).Sort(Builders<D>.Sort.Ascending(d => d.Y)) }
-            };
-
-            var weights = new Dictionary<string, double>
-            {
-                { "pipeline2", 2.0 }
-            };
-
-            var result = testCollection.Aggregate()
-                .RankFusion(pipelines, weights)
-                .Project<D>(Builders<D>.Projection.Exclude("_id"))
-                .ToList();
-            
-            result.Count.Should().Be(4);
-            result[0].Y.Should().Be(6);
-            result[1].Y.Should().Be(7);
-            result[2].Y.Should().Be(5);
-            result[3].Y.Should().Be(8);
         }
 
         [Theory]

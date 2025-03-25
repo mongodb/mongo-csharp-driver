@@ -229,7 +229,21 @@ namespace MongoDB.Driver
         public virtual IAggregateFluent<TNewResult> RankFusion<TNewResult>(
             Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines, 
             Dictionary<string, double> weights = null, 
-            bool scoreDetails = false)
+            RankFusionOptions<TNewResult> options = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> RankFusion<TNewResult>(PipelineDefinition<TResult, TNewResult>[] pipelines, RankFusionOptions<TNewResult> options = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> RankFusion<TNewResult>(
+            (PipelineDefinition<TResult, TNewResult>, double?)[] pipelinesWithWeights,
+            RankFusionOptions<TNewResult> options = null)
         {
             throw new NotImplementedException();
         }
