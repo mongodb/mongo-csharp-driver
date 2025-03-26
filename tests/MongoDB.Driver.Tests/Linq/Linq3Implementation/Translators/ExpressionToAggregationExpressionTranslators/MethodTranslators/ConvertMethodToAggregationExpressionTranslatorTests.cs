@@ -35,6 +35,111 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         // To BinData
 
+        [Fact]
+        public void MongoDBFunctions_ToBsonBinaryDataFromString_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToBsonBinaryData(x.StringProperty, BsonBinarySubType.Binary, "format", null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToBsonBinaryDataFromInt_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToBsonBinaryData(x.IntProperty, BsonBinarySubType.Binary, ByteOrder.BigEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToBsonBinaryDataFromNullableInt_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToBsonBinaryData(x.NullableIntProperty, BsonBinarySubType.Binary, ByteOrder.BigEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToBsonBinaryDataFromDouble_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToBsonBinaryData(x.DoubleProperty, BsonBinarySubType.Binary, ByteOrder.BigEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToBsonBinaryDataFromNullableDouble_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToBsonBinaryData(x.NullableDoubleProperty, BsonBinarySubType.Binary, ByteOrder.BigEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToBsonBinaryDataFromLong_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToBsonBinaryData(x.LongProperty, BsonBinarySubType.Binary, ByteOrder.BigEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToBsonBinaryDataFromNullableLong_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToBsonBinaryData(x.NullableLongProperty, BsonBinarySubType.Binary, ByteOrder.BigEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
         [Theory]
         [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=", null)]
         [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null )]
@@ -475,6 +580,53 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         // To Double
 
+        [Fact]
+        public void MongoDBFunctions_ToDoubleFromBsonBinaryData_when_onNull_is_not_set_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var options = new ConvertOptions<double> { OnError = 22 };
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToDouble(x.BinaryProperty, ByteOrder.LittleEndian, options));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("When converting to a non-nullable type, you need to set 'onNull'", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToDoubleFromBsonBinaryData_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToDouble(x.BinaryProperty, ByteOrder.LittleEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToNullableDoubleFromBsonBinaryData_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToNullableDouble(x.BinaryProperty, ByteOrder.LittleEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
         [Theory]
         [InlineData(2, ByteOrder.BigEndian, 0, "MongoCommandException")]
         [InlineData(3, ByteOrder.LittleEndian, -0.5, null)]
@@ -592,6 +744,53 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         // To Int
+
+        [Fact]
+        public void MongoDBFunctions_ToIntFromBsonBinaryData_when_onNull_is_not_set_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var options = new ConvertOptions<int> { OnError = 22 };
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToInt(x.BinaryProperty, ByteOrder.LittleEndian, options));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("When converting to a non-nullable type, you need to set 'onNull'", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToIntFromBsonBinaryData_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToInt(x.BinaryProperty, ByteOrder.LittleEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToNullableIntFromBsonBinaryData_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToNullableInt(x.BinaryProperty, ByteOrder.LittleEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
 
         [Theory]
         [InlineData(2, ByteOrder.LittleEndian, 0, "MongoCommandException")]
@@ -711,6 +910,53 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         // To Long
 
+        [Fact]
+        public void MongoDBFunctions_ToLongFromBsonBinaryData_when_onNull_is_not_set_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var options = new ConvertOptions<long> { OnError = 22 };
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToLong(x.BinaryProperty, ByteOrder.LittleEndian, options));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("When converting to a non-nullable type, you need to set 'onNull'", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToLongFromBsonBinaryData_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToLong(x.BinaryProperty, ByteOrder.LittleEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
+        [Fact]
+        public void MongoDBFunctions_ToNullableLongFromBsonBinaryData_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToNullableLong(x.BinaryProperty, ByteOrder.LittleEndian, null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
+
         [Theory]
         [InlineData(2, ByteOrder.LittleEndian, 0, "MongoCommandException")]
         [InlineData(4, ByteOrder.LittleEndian, (long)674, null)]
@@ -828,6 +1074,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         // To String
+
+        [Fact]
+        public void MongoDBFunctions_ToStringFromBsonBinaryData_when_options_is_null_should_throw()
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 1)
+                .Select(x => Mql.ToString(x.BinaryProperty, "test", null));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+            Assert.IsType<InvalidOperationException>(exception);
+            Assert.Equal("The 'options' argument cannot be null", exception.Message);
+        }
 
         [Theory]
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
