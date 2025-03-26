@@ -596,3 +596,21 @@ tests:
           - connectionCheckedOutEvent: {}
           # Events for abortTransaction.
           - connectionCheckedInEvent: {}
+
+  - description: pinned connection is released when session ended
+    operations:
+      - *startTransaction
+      - *transactionalInsert
+      - *commitTransaction
+      - &endSession
+        name: endSession
+        object: *session0
+    expectEvents:
+      - client: *client0
+        eventType: cmap
+        events:
+          # Events for the insert and commitTransaction.
+          - connectionReadyEvent: {}
+          - connectionCheckedOutEvent: {}
+          # Events for endSession.
+          - connectionCheckedInEvent: {}
