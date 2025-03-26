@@ -526,7 +526,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    ///
+    /// Represents the options parameter for the conversion methods in the Mql static class.
     /// </summary>
     public abstract class ConvertOptions
     {
@@ -539,11 +539,10 @@ namespace MongoDB.Driver
         internal abstract BsonValue RenderOnNull();
     }
 
-    //TODO Add docs
     /// <summary>
-    ///
+    /// Represents the typed options parameter for the conversion methods in the Mql static class.
     /// </summary>
-    /// <typeparam name="TResult"></typeparam>
+    /// <typeparam name="TResult"> The type of onError and onNull.</typeparam>
     public class ConvertOptions<TResult> : ConvertOptions
     {
         private TResult _onError;
@@ -552,7 +551,7 @@ namespace MongoDB.Driver
         private bool _onNullWasSet;
 
         /// <summary>
-        ///
+        /// The onError parameter.
         /// </summary>
         public TResult OnError
         {
@@ -565,7 +564,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        ///
+        /// The onNull parameter.
         /// </summary>
         public TResult OnNull
         {
@@ -580,7 +579,7 @@ namespace MongoDB.Driver
         internal override bool OnErrorWasSet => _onErrorWasSet;
         internal override bool OnNullWasSet => _onNullWasSet;
 
-        internal override BsonValue RenderOnError() //TODO Maybe I don't need to do this here...
+        internal override BsonValue RenderOnError()
         {
             return BsonValue.Create(_onError);
         }
