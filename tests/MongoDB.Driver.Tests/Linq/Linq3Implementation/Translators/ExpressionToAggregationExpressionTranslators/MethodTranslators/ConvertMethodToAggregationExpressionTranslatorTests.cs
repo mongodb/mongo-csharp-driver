@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(1, ByteOrder.BigEndian, null, "FormatException")]
         [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=", null)]
         [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null )]
-        public void MongoDBFunctions_ConvertToBsonBinaryDataFromDouble_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
+        public void MongoDBFunctions_ToBsonBinaryDataFromDouble_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // [InlineData(10,  ByteOrder.LittleEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
         // [InlineData(0, ByteOrder.BigEndian, "AAAAAAAABMA=", "Ag==", "AAAAAAAABMA=")]
         // [InlineData(10,  ByteOrder.BigEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
-        // public void MongoDBFunctions_ConvertToBsonBinaryDataFromDoubleWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
+        // public void MongoDBFunctions_ToBsonBinaryDataFromDoubleWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
         // {
         //     RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
         //
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(1, ByteOrder.BigEndian, null, "FormatException")]
         [InlineData(4, ByteOrder.LittleEndian,"ogIAAA==", null)]
         [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
-        public void MongoDBFunctions_ConvertToBsonBinaryDataFromInt_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
+        public void MongoDBFunctions_ToBsonBinaryDataFromInt_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // [InlineData(10,  ByteOrder.LittleEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
         // [InlineData(0, ByteOrder.BigEndian, "AAAAAAAABMA=", "Ag==", "AAAAAAAABMA=")]
         // [InlineData(10,  ByteOrder.BigEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
-        // public void MongoDBFunctions_ConvertToBsonBinaryDataFromIntWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
+        // public void MongoDBFunctions_ToBsonBinaryDataFromIntWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
         // {
         //     RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
         //
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(1, ByteOrder.BigEndian, null, "FormatException")]
         [InlineData(4, ByteOrder.LittleEndian,"ogIAAA==", null)]
         [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
-        public void MongoDBFunctions_ConvertToBsonBinaryDataFromLong_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
+        public void MongoDBFunctions_ToBsonBinaryDataFromLong_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // [InlineData(10,  ByteOrder.LittleEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
         // [InlineData(0, ByteOrder.BigEndian, "AAAAAAAABMA=", "Ag==", "AAAAAAAABMA=")]
         // [InlineData(10,  ByteOrder.BigEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
-        // public void MongoDBFunctions_ConvertToLongDataFromIntWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
+        // public void MongoDBFunctions_ToLongDataFromIntWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
         // {
         //     RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
         //
@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [InlineData(1, null, "FormatException")]
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
-        public void MongoDBFunctions_ConvertToBsonBinaryDataFromString_should_work(int id, string expectedGuidString, string expectedException)
+        public void MongoDBFunctions_ToBsonBinaryDataFromString_should_work(int id, string expectedGuidString, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
 
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // [Theory]
         // [InlineData(0, "AAAAAAAABMA=", "Ag==", "AAAAAAAABMA=")]
         // [InlineData(10, "Ag==", "Ag==", "AAAAAAAABMA=")]
-        // public void MongoDBFunctions_ConvertToBsonBinaryDataFromStringWithOnErrorAndOnNull_should_work(int id, string expectedBase64, string onErrorBase64, string onNullBase64)
+        // public void MongoDBFunctions_ToBsonBinaryDataFromStringWithOnErrorAndOnNull_should_work(int id, string expectedBase64, string onErrorBase64, string onNullBase64)
         // {
         //     RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
         //
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(2, ByteOrder.BigEndian, 0, "MongoCommandException")]
         [InlineData(3, ByteOrder.LittleEndian, -0.5, null)]
         [InlineData(5, ByteOrder.BigEndian, -2.5, null)]
-        public void MongoDBFunctions_ConvertToDoubleFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, double expectedResult, string expectedException)
+        public void MongoDBFunctions_ToDoubleFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, double expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(2, ByteOrder.BigEndian, null, "MongoCommandException")]
         [InlineData(3, ByteOrder.LittleEndian, -0.5, null)]
         [InlineData(5, ByteOrder.BigEndian, -2.5, null)]
-        public void MongoDBFunctions_ConvertToNullableDoubleFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, double? expectedResult, string expectedException)
+        public void MongoDBFunctions_ToNullableDoubleFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, double? expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -311,7 +311,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // [InlineData(0, ByteOrder.BigEndian, 22.3, 15.2, 22.3)]
         // [InlineData(2, ByteOrder.LittleEndian, null, null, 22.3)]
         // [InlineData(0, ByteOrder.LittleEndian, null, 15.2, null)]
-        // public void MongoDBFunctions_ConvertToDoubleFromBsonBinaryDataWithOnErrorAndOnNull_should_work(int id,  ByteOrder byteOrder, double? expectedResult, double? onError, double? onNull)
+        // public void MongoDBFunctions_ToDoubleFromBsonBinaryDataWithOnErrorAndOnNull_should_work(int id,  ByteOrder byteOrder, double? expectedResult, double? onError, double? onNull)
         // {
         //     RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
         //
@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(2, ByteOrder.LittleEndian, 0, "MongoCommandException")]
         [InlineData(4, ByteOrder.LittleEndian, 674, null)]
         [InlineData(6, ByteOrder.BigEndian, 42, null)]
-        public void MongoDBFunctions_ConvertToIntFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, int expectedResult, string expectedException)
+        public void MongoDBFunctions_ToIntFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, int expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -361,7 +361,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(2, ByteOrder.LittleEndian, null, "MongoCommandException")]
         [InlineData(4, ByteOrder.LittleEndian, 674, null)]
         [InlineData(6, ByteOrder.BigEndian, 42, null)]
-        public void MongoDBFunctions_ConvertToNullableIntFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, int? expectedResult, string expectedException)
+        public void MongoDBFunctions_ToNullableIntFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, int? expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -387,7 +387,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // [InlineData(0, ByteOrder.BigEndian, 22, 15, 22)]
         // [InlineData(2, ByteOrder.LittleEndian, null, null, 22)]
         // [InlineData(0, ByteOrder.LittleEndian, null, 15, null)]
-        // public void MongoDBFunctions_ConvertToIntFromBsonBinaryDataWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, int? expectedResult, int? onError, int? onNull)
+        // public void MongoDBFunctions_ToIntFromBsonBinaryDataWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, int? expectedResult, int? onError, int? onNull)
         // {
         //     RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
         //
@@ -414,7 +414,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(2, ByteOrder.LittleEndian, 0, "MongoCommandException")]
         [InlineData(4, ByteOrder.LittleEndian, (long)674, null)]
         [InlineData(6, ByteOrder.BigEndian, (long)42, null)]
-        public void MongoDBFunctions_ConvertToLongFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, long expectedResult, string expectedException)
+        public void MongoDBFunctions_ToLongFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, long expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -437,7 +437,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(2, ByteOrder.LittleEndian, null, "MongoCommandException")]
         [InlineData(4, ByteOrder.LittleEndian, (long)674, null)]
         [InlineData(6, ByteOrder.BigEndian, (long)42, null)]
-        public void MongoDBFunctions_ConvertToNullableLongFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, long? expectedResult, string expectedException)
+        public void MongoDBFunctions_ToNullableLongFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, long? expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -463,7 +463,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // [InlineData(0, ByteOrder.BigEndian, (long)22, (long)15, (long)22)]
         // [InlineData(2, ByteOrder.LittleEndian, null, null, (long)22)]
         // [InlineData(0, ByteOrder.LittleEndian, null, (long)15, null)]
-        // public void MongoDBFunctions_ConvertToLongFromBsonBinaryDataWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, long? expectedResult, long? onError, long? onNull)
+        // public void MongoDBFunctions_ToLongFromBsonBinaryDataWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, long? expectedResult, long? onError, long? onNull)
         // {
         //     RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
         //
@@ -489,7 +489,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
         [InlineData(1, null, "MongoCommandException")]
-        public void MongoDBFunctions_ConvertToStringFromBsonBinaryData_should_work(int id, string expectedResult, string expectedException)
+        public void MongoDBFunctions_ToStringFromBsonBinaryData_should_work(int id, string expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
 
@@ -513,7 +513,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // [InlineData(1, "onError", "onError", "onNull")]
         // [InlineData(0, null, "onError", null)]
         // [InlineData(1, null, null, "onNull")]
-        // public void MongoDBFunctions_ConvertToStringFromBsonBinaryDataWithOnErrorAndOnNull_should_work(int id, string expectedResult, string onError, string onNull)
+        // public void MongoDBFunctions_ToStringFromBsonBinaryDataWithOnErrorAndOnNull_should_work(int id, string expectedResult, string onError, string onNull)
         // {
         //     RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
         //
