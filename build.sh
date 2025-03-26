@@ -32,7 +32,7 @@ if [ "$DOTNET_VERSION" != "$DOTNET_INSTALLED_VERSION" ]; then
     if [ ! -d "$SCRIPT_DIR/.dotnet" ]; then
       mkdir "$SCRIPT_DIR/.dotnet"
     fi
-    curl -Lsfo "$SCRIPT_DIR/.dotnet/dotnet-install.sh" https://dot.net/v1/dotnet-install.sh
+    curl -Lfo "$SCRIPT_DIR/.dotnet/dotnet-install.sh" https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.sh
     # N.B. We explicitly install .NET Core 2.1 and 3.1 because .NET 6.0 SDK can build those TFMs
     #      but will silently upgrade to a more recent runtime to execute tests if the desired runtime
     #      isn't available. For example, `dotnet run --framework netcoreapp3.0` will silently run
