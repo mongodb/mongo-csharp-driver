@@ -534,9 +534,9 @@ namespace MongoDB.Driver
 
         internal abstract bool OnNullWasSet { get; }
 
-        internal abstract BsonValue RenderOnError();
+        internal abstract BsonValue GetOnError();
 
-        internal abstract BsonValue RenderOnNull();
+        internal abstract BsonValue GetOnNull();
     }
 
     /// <summary>
@@ -580,14 +580,9 @@ namespace MongoDB.Driver
         internal override bool OnErrorWasSet => _onErrorWasSet;
         internal override bool OnNullWasSet => _onNullWasSet;
 
-        internal override BsonValue RenderOnError()
-        {
-            return BsonValue.Create(_onError);
-        }
+        internal override BsonValue GetOnError() => BsonValue.Create(_onError);
 
-        internal override BsonValue RenderOnNull()
-        {
-            return BsonValue.Create(_onNull);
-        }
+        internal override BsonValue GetOnNull() => BsonValue.Create(_onNull);
+
     }
 }

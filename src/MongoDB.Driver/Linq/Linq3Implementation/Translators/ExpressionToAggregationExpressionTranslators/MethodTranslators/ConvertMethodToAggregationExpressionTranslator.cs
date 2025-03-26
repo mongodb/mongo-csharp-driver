@@ -65,6 +65,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             BsonBinarySubType? subType = null;
             string format = null;
             ConvertOptions options = null;
+            AstExpression onErrorAst = null;
+            AstExpression onNullAst = null;
 
             var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
 
@@ -119,6 +121,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     {
                         throw new InvalidOperationException("When converting to a non-nullable type, you need to set 'onNull'");
                     }
+
+                    if (options.OnErrorWasSet)
+                    {
+                        onErrorAst = options.GetOnError();
+                    }
+
+                    if (options.OnNullWasSet)
+                    {
+                        onNullAst = options.GetOnNull();
+                    }
                 }
                 else
                 {
@@ -126,7 +138,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), subType: subType, byteOrder: byteOrder, format: format, options: options);
+            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), subType: subType, byteOrder: byteOrder, format: format, onError: onErrorAst, onNull: onNullAst);
             return new TranslatedExpression(expression, ast, mapping.Serializer);
         }
     }
