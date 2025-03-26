@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Ast.Expressions
             var input = AstExpression.Constant(BsonNull.Value);
             var to = AstExpression.Constant(toValue);
 
-            var result = AstExpression.Convert(input, to, onError: null, onNull: null);
+            var result = AstExpression.Convert(input, to);
 
             var unaryExpression = result.Should().BeOfType<AstUnaryExpression>().Subject;
             unaryExpression.Operator.Should().Be((AstUnaryOperator)expectedOperator);
@@ -50,13 +50,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Ast.Expressions
             var input = AstExpression.Constant(BsonNull.Value);
             var to = AstExpression.Constant(toValue);
 
-            var result = AstExpression.Convert(input, to, onError: null, onNull: null);
+            var result = AstExpression.Convert(input, to);
 
             var convertExpression = result.Should().BeOfType<AstConvertExpression>().Subject;
             convertExpression.Input.Should().BeSameAs(input);
             convertExpression.To.Should().BeSameAs(to);
-            convertExpression.OnError.Should().BeNull();
-            convertExpression.OnNull.Should().BeNull();
+            convertExpression.Options.Should().BeNull();
         }
 
         [Theory]
@@ -73,13 +72,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Ast.Expressions
             var input = AstExpression.Constant(BsonNull.Value);
             var to = AstExpression.FieldPath("$To");
 
-            var result = AstExpression.Convert(input, to, onError: null, onNull: null);
+            var result = AstExpression.Convert(input, to);
 
             var convertExpression = result.Should().BeOfType<AstConvertExpression>().Subject;
             convertExpression.Input.Should().BeSameAs(input);
             convertExpression.To.Should().BeSameAs(to);
-            convertExpression.OnError.Should().BeNull();
-            convertExpression.OnNull.Should().BeNull();
+            convertExpression.Options.Should().BeNull();
         }
 
         [Theory]
@@ -95,15 +93,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Ast.Expressions
         {
             var input = AstExpression.Constant(BsonNull.Value);
             var to = AstExpression.Constant(toValue);
-            var onError = AstExpression.Constant(BsonNull.Value);
+            var options = new ConvertOptions<BsonValue> { OnError = BsonNull.Value };
 
-            var result = AstExpression.Convert(input, to, onError: onError, onNull: null);
+            var result = AstExpression.Convert(input, to, options: options);
 
             var convertExpression = result.Should().BeOfType<AstConvertExpression>().Subject;
             convertExpression.Input.Should().BeSameAs(input);
             convertExpression.To.Should().BeSameAs(to);
-            convertExpression.OnError.Should().BeSameAs(onError);
-            convertExpression.OnNull.Should().BeNull();
+
+            convertExpression.Options.Should().BeOfType<ConvertOptions<BsonValue>>();
+            var retrievedOptions = (ConvertOptions<BsonValue>)convertExpression.Options;
+            retrievedOptions.OnErrorWasSet.Should().BeTrue();
+            retrievedOptions.OnError.Should().BeSameAs(options.OnError);
+            retrievedOptions.OnNullWasSet.Should().BeFalse();
+            retrievedOptions.OnNull.Should().BeSameAs(null);
         }
 
         [Theory]
@@ -119,15 +122,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Ast.Expressions
         {
             var input = AstExpression.Constant(BsonNull.Value);
             var to = AstExpression.Constant(toValue);
-            var onNull = AstExpression.Constant(BsonNull.Value);
+            var options = new ConvertOptions<BsonValue> { OnNull = BsonNull.Value };
 
-            var result = AstExpression.Convert(input, to, onError: null, onNull: onNull);
+            var result = AstExpression.Convert(input, to, options: options);
 
             var convertExpression = result.Should().BeOfType<AstConvertExpression>().Subject;
             convertExpression.Input.Should().BeSameAs(input);
             convertExpression.To.Should().BeSameAs(to);
-            convertExpression.OnError.Should().BeNull();
-            convertExpression.OnNull.Should().BeSameAs(onNull);
+
+            convertExpression.Options.Should().BeOfType<ConvertOptions<BsonValue>>();
+            var retrievedOptions = (ConvertOptions<BsonValue>)convertExpression.Options;
+            retrievedOptions.OnErrorWasSet.Should().BeFalse();
+            retrievedOptions.OnError.Should().BeSameAs(null);
+            retrievedOptions.OnNullWasSet.Should().BeTrue();
+            retrievedOptions.OnNull.Should().BeSameAs(options.OnNull);
         }
 
         [Fact]

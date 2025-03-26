@@ -14,10 +14,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal class ConvertMethodToAggregationExpressionTranslator
     {
-        private static readonly List<(MethodInfo[] Methods, IBsonSerializer Serializer, BsonType Type, int? FormatIndex, int? SubTypeIndex, int? ByteOrderIndex, int? optionsIndex)> _methodMappings =
+        private static readonly List<(MethodInfo[] Methods, IBsonSerializer Serializer, BsonType Type, int? FormatIndex, int? SubTypeIndex, int? ByteOrderIndex, int? OptionsIndex)> _methodMappings =
         [
             ([MqlMethod.ToBinDataFromString], BsonValueSerializer.Instance, BsonType.Binary, 2, 1, null, null),
-            ([MqlMethod.ToBinDataFromInt, MqlMethod.ToBinDataFromLong, MqlMethod.ToBinDataFromDouble], BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, null),
+            ([MqlMethod.ToBinDataFromInt, MqlMethod.ToBinDataFromLong, MqlMethod.ToBinDataFromDouble, MqlMethod.ToBinDataFromNullableInt, MqlMethod.ToBinDataFromNullableLong, MqlMethod.ToBinDataFromNullableDouble],
+                BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, null),
             ([MqlMethod.ToBinDataFromStringWithOptions], BsonValueSerializer.Instance, BsonType.Binary, 2, 1, null, 3),
             ([MqlMethod.ToBinDataFromIntWithOptions, MqlMethod.ToBinDataFromLongWithOptions, MqlMethod.ToBinDataFromDoubleWithOptions], BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, 3),
 
@@ -41,6 +42,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static readonly List<MethodInfo> ToStringMethods =
             [MqlMethod.ToStringFromBinData, MqlMethod.ToStringFromBinDataWithOptions];
 
+        private static readonly List<MethodInfo> ToNumericalMethodsWithOptions =
+            [MqlMethod.ToIntFromBinDataWithOptions, MqlMethod.ToLongFromBinDataWithOptions, MqlMethod.ToDoubleFromBinDataWithOptions];
+
         public static bool IsConvertToStringMethod(MethodInfo method)
         {
             return ToStringMethods.Contains(method);
@@ -58,10 +62,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             ByteOrder? byteOrder = null;
             BsonBinarySubType? subType = null;
             string format = null;
+            ConvertOptions options = null;
 
             var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
-            var onErrorAst = mapping.OnErrorIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.OnErrorIndex.Value]).Ast : null;
-            var onNullAst = mapping.OnNullIndex.HasValue ? ExpressionToAggregationExpressionTranslator.Translate(context, arguments[mapping.OnNullIndex.Value]).Ast : null;
 
             if (mapping.ByteOrderIndex.HasValue)
             {
@@ -99,7 +102,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), subType: subType, byteOrder: byteOrder, format: format, onError: onErrorAst, onNull: onNullAst);
+            if (mapping.OptionsIndex.HasValue)
+            {
+                if (arguments[mapping.OptionsIndex.Value] is ConstantExpression co)
+                {
+                    options = (ConvertOptions)co.Value!;
+
+                    if (options == null)
+                    {
+                        throw new InvalidOperationException("The 'options' argument cannot be null");
+                    }
+
+                    if (ToNumericalMethodsWithOptions.Contains(method) && !options.OnNullWasSet)
+                    {
+                        throw new InvalidOperationException("When converting to a non-nullable type, you need to set 'onNull'");
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException("The 'options' argument must be a constant expression");
+                }
+            }
+
+            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), subType: subType, byteOrder: byteOrder, format: format, options: options);
             return new TranslatedExpression(expression, ast, mapping.Serializer);
         }
     }

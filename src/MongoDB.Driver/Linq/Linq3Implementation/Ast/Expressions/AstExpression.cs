@@ -261,13 +261,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             BsonBinarySubType? subType = null,
             ByteOrder? byteOrder = null,
             string format = null,
-            AstExpression onError = null,
-            AstExpression onNull = null)
+            ConvertOptions options = null)
         {
             Ensure.IsNotNull(input, nameof(input));
             Ensure.IsNotNull(to, nameof(to));
 
-            if (onError == null && onNull == null && subType == null && format == null && byteOrder == null &&
+            if (options == null && subType == null && format == null && byteOrder == null &&
                 to is AstConstantExpression toConstantExpression &&
                 (toConstantExpression.Value as BsonString)?.Value is { } toValue)
             {
@@ -290,7 +289,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 }
             }
 
-            return new AstConvertExpression(input, to, subType, byteOrder, format, onError, onNull);
+            return new AstConvertExpression(input, to, subType, byteOrder, format, options);
         }
 
         public static AstExpression DateAdd(

@@ -525,12 +525,26 @@ namespace MongoDB.Driver
         LittleEndian,
     }
 
+    /// <summary>
+    ///
+    /// </summary>
+    public abstract class ConvertOptions
+    {
+        internal abstract bool OnErrorWasSet { get; }
+
+        internal abstract bool OnNullWasSet { get; }
+
+        internal abstract BsonValue RenderOnError();
+
+        internal abstract BsonValue RenderOnNull();
+    }
+
     //TODO Add docs
     /// <summary>
     ///
     /// </summary>
     /// <typeparam name="TResult"></typeparam>
-    public class ConvertOptions<TResult>
+    public class ConvertOptions<TResult> : ConvertOptions
     {
         private TResult _onError;
         private bool _onErrorWasSet;
@@ -563,7 +577,17 @@ namespace MongoDB.Driver
             }
         }
 
-        internal bool OnErrorWasSet => _onErrorWasSet;
-        internal bool OnNullWasSet => _onNullWasSet;
+        internal override bool OnErrorWasSet => _onErrorWasSet;
+        internal override bool OnNullWasSet => _onNullWasSet;
+
+        internal override BsonValue RenderOnError() //TODO Maybe I don't need to do this here...
+        {
+            return BsonValue.Create(_onError);
+        }
+
+        internal override BsonValue RenderOnNull()
+        {
+            return BsonValue.Create(_onNull);
+        }
     }
 }

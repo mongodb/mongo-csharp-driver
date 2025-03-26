@@ -24,8 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         private readonly ByteOrder? _byteOrder;
         private readonly AstExpression _input;
         private readonly string _format;
-        private readonly AstExpression _onError;
-        private readonly AstExpression _onNull;
+        private readonly ConvertOptions _options;
         private readonly BsonBinarySubType? _subType;
         private readonly AstExpression _to;
 
@@ -35,24 +34,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             BsonBinarySubType? subType = null,
             ByteOrder? byteOrder = null,
             string format = null,
-            AstExpression onError = null,
-            AstExpression onNull = null)
+            ConvertOptions options = null)
         {
             _input = Ensure.IsNotNull(input, nameof(input));
             _to = Ensure.IsNotNull(to, nameof(to));
             _subType = subType;
             _byteOrder = byteOrder;
             _format = format;
-            _onError = onError;
-            _onNull = onNull;
+            _options = options;
         }
 
         public ByteOrder? ByteOrder => _byteOrder;
         public AstExpression Input => _input;
         public string Format => _format;
         public override AstNodeType NodeType => AstNodeType.ConvertExpression;
-        public AstExpression OnError => _onError;
-        public AstExpression OnNull => _onNull;
+        public ConvertOptions Options => _options;
         public BsonBinarySubType? SubType => _subType;
         public AstExpression To => _to;
 
@@ -75,8 +71,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                                 {"subtype", (int)_subType!.Value},
                             }, _subType != null
                         },
-                        { "onError", () => _onError.Render(), _onError != null },
-                        { "onNull", () => _onNull.Render(), _onNull != null },
+                        { "onError", () => _options.RenderOnError(), _options?.OnErrorWasSet == true },
+                        { "onNull", () => _options.RenderOnNull(), _options?.OnNullWasSet == true  },
                         { "format", () => _format, _format != null},
                         { "byteOrder", () => _byteOrder!.Value.Render(), _byteOrder != null}
                     }
@@ -86,16 +82,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public AstConvertExpression Update(
             AstExpression input,
-            AstExpression to,
-            AstExpression onError,
-            AstExpression onNull)
+            AstExpression to)
         {
-            if (input == _input && to == _to && onError == _onError && onNull == _onNull)
+            if (input == _input && to == _to)
             {
                 return this;
             }
 
-            return new AstConvertExpression(input, to, _subType, _byteOrder, _format, onError, onNull);
+            return new AstConvertExpression(input, to, _subType, _byteOrder, _format, _options);
         }
     }
 }
