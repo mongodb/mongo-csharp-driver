@@ -36,10 +36,35 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // To BinData
 
         [Theory]
-        [InlineData(1, ByteOrder.BigEndian, null, "FormatException")]
         [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=", null)]
         [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null )]
+        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void MongoDBFunctions_ToBsonBinaryDataFromDouble_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ToBsonBinaryData(x.DoubleProperty, BsonBinarySubType.Binary, byteOrder));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            BsonValue expectedResult = expectedBase64 is null? BsonNull.Value : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(1, ByteOrder.LittleEndian,null, null)]
+        [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=", null)]
+        [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null )]
+        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
+        public void MongoDBFunctions_ToBsonBinaryDataFromNullableDouble_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -52,10 +77,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$NullableDoubleProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
                 };
 
-            var expectedResult = expectedBase64 is null? null : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
+            BsonValue expectedResult = expectedBase64 is null? BsonNull.Value : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
         }
 
@@ -90,10 +115,35 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // }
 
         [Theory]
-        [InlineData(1, ByteOrder.BigEndian, null, "FormatException")]
         [InlineData(4, ByteOrder.LittleEndian,"ogIAAA==", null)]
         [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
+        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void MongoDBFunctions_ToBsonBinaryDataFromInt_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ToBsonBinaryData(x.IntProperty, BsonBinarySubType.Binary, byteOrder));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$IntProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            BsonValue expectedResult = expectedBase64 is null? BsonNull.Value : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(1, ByteOrder.LittleEndian,null, null)]
+        [InlineData(4, ByteOrder.LittleEndian,"ogIAAA==", null)]
+        [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
+        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
+        public void MongoDBFunctions_ToBsonBinaryDataFromNullableInt_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -106,10 +156,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$IntProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$NullableIntProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
                 };
 
-            var expectedResult = expectedBase64 is null? null : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
+            BsonValue expectedResult = expectedBase64 is null? BsonNull.Value : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
         }
 
@@ -144,10 +194,47 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // }
 
         [Theory]
-        [InlineData(1, ByteOrder.BigEndian, null, "FormatException")]
         [InlineData(4, ByteOrder.LittleEndian,"ogIAAA==", null)]
         [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
+        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void MongoDBFunctions_ToBsonBinaryDataFromLong_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ToBsonBinaryData(x.LongProperty, BsonBinarySubType.Binary, byteOrder));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$LongProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            BsonValue expectedResult = null;
+            if (expectedBase64 is not null)
+            {
+                //$convert to bindata returns always 8 bytes when from long
+                var expectedBytes = new byte[8];
+                Array.Copy(Convert.FromBase64String(expectedBase64), 0, expectedBytes, byteOrder is ByteOrder.LittleEndian ? 0 : 4, 4);
+                expectedResult = new BsonBinaryData(expectedBytes);
+            }
+            else
+            {
+                expectedResult = BsonNull.Value;
+            }
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(1, ByteOrder.LittleEndian,null, null)]
+        [InlineData(4, ByteOrder.LittleEndian,"ogIAAA==", null)]
+        [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
+        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
+        public void MongoDBFunctions_ToBsonBinaryDataFromNullableLong_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -160,16 +247,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$LongProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$NullableLongProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
                 };
 
-            BsonBinaryData expectedResult = null;
+            BsonValue expectedResult = null;
             if (expectedBase64 is not null)
             {
                 //$convert to bindata returns always 8 bytes when from long
                 var expectedBytes = new byte[8];
                 Array.Copy(Convert.FromBase64String(expectedBase64), 0, expectedBytes, byteOrder is ByteOrder.LittleEndian ? 0 : 4, 4);
                 expectedResult = new BsonBinaryData(expectedBytes);
+            }
+            else
+            {
+                expectedResult = BsonNull.Value;
             }
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
@@ -206,8 +297,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // }
 
         [Theory]
-        [InlineData(1, null, "FormatException")]
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
+        [InlineData(10, null, "MongoCommandException")]
         public void MongoDBFunctions_ToBsonBinaryDataFromString_should_work(int id, string expectedGuidString, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
@@ -723,11 +814,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 BsonDocument.Parse("{ _id : 0 }"),
                 BsonDocument.Parse("{ _id : 1, BinaryProperty : BinData(0, 'ogIAAA==') }"),
                 BsonDocument.Parse("{ _id : 2, BinaryProperty : BinData(4, 'hn3uUsMxSE6S0cVkebjmfg=='), StringProperty: '867dee52-c331-484e-92d1-c56479b8e67e' }"),
-                BsonDocument.Parse("{ _id : 3, BinaryProperty : BinData(0, 'AAAAAAAA4L8='), DoubleProperty: -0.5 }"), //LittleEndian
-                BsonDocument.Parse("{ _id : 4, BinaryProperty : BinData(0, 'ogIAAA=='), IntProperty: 674, LongProperty: NumberLong('674') }"), //LittleEndian
-                BsonDocument.Parse("{ _id : 5, BinaryProperty : BinData(0, 'wAQAAAAAAAA='), DoubleProperty: -2.5 }"), //BigEndian
-                BsonDocument.Parse("{ _id : 6, BinaryProperty : BinData(0, 'AAAAKg=='), IntProperty: 42, LongProperty: NumberLong('42') }"), //BigEndian
-                BsonDocument.Parse("{ _id: 10, DoubleProperty: NumberDecimal('-32768'), IntProperty: NumberDecimal('-32768'), LongProperty: NumberDecimal('-32768'), StringProperty: NumberDecimal('-233') }")
+                BsonDocument.Parse("{ _id : 3, BinaryProperty : BinData(0, 'AAAAAAAA4L8='), DoubleProperty: -0.5, NullableDoubleProperty: -0.5 }"), // LittleEndian
+                BsonDocument.Parse("{ _id : 4, BinaryProperty : BinData(0, 'ogIAAA=='), IntProperty: 674, LongProperty: NumberLong('674'), NullableIntProperty: 674, NullableLongProperty: NumberLong('674') }"), // LittleEndian
+                BsonDocument.Parse("{ _id : 5, BinaryProperty : BinData(0, 'wAQAAAAAAAA='), DoubleProperty: -2.5, NullableDoubleProperty: -2.5 }"), // BigEndian
+                BsonDocument.Parse("{ _id : 6, BinaryProperty : BinData(0, 'AAAAKg=='), IntProperty: 42, LongProperty: NumberLong('42'), NullableIntProperty: 42, NullableLongProperty: NumberLong('42') }"), // BigEndian
+                BsonDocument.Parse("{ _id: 10, DoubleProperty: NumberDecimal('-32768'), IntProperty: NumberDecimal('-32768'), LongProperty: NumberDecimal('-32768'), " +
+                                   "NullableDoubleProperty: NumberDecimal('-32768'), NullableIntProperty: NumberDecimal('-32768'), NullableLongProperty: NumberDecimal('-32768'), StringProperty: NumberDecimal('-233') }")  // Invalid conversions
             ];
         }
 
