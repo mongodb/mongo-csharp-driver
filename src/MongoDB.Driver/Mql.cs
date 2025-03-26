@@ -52,6 +52,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Converts a string to a BsonBinaryData using the $convert aggregation operator.
         /// </summary>
+        /// <remarks> The return value could be BsonNull.</remarks>
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="format">The format string.</param>
@@ -64,6 +65,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Converts a string to BsonBinaryData using the $convert aggregation operator.
         /// </summary>
+        /// <remarks> The return value could be BsonNull.</remarks>
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="format">The format string.</param>
@@ -77,6 +79,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Converts an int to BsonBinaryData using the $convert aggregation operator.
         /// </summary>
+        /// <remarks> The return value could be BsonNull.</remarks>
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte order of BsonBinaryData.</param>
@@ -90,6 +93,7 @@ namespace MongoDB.Driver
         /// Converts an int? to a BsonBinaryData using the $convert aggregation operator.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <remarks> The return value could be BsonNull.</remarks>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
         /// <param name="options">The convert options.</param>
@@ -104,6 +108,7 @@ namespace MongoDB.Driver
         /// Converts a long? to a BsonBinaryData using the $convert aggregation operator.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <remarks> The return value could be BsonNull.</remarks>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
         /// <returns>The converted value.</returns>
@@ -115,6 +120,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Converts a long? to a BsonBinaryData using the $convert aggregation operator.
         /// </summary>
+        /// <remarks> The return value could be BsonNull.</remarks>
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
@@ -129,6 +135,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Converts a double? to a BsonBinaryData using the $convert aggregation operator.
         /// </summary>
+        /// <remarks> The return value could be BsonNull.</remarks>
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
@@ -141,6 +148,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Converts a double? to a BsonBinaryData using the $convert aggregation operator.
         /// </summary>
+        /// <remarks> The return value could be BsonNull.</remarks>
         /// <param name="value">The field.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
