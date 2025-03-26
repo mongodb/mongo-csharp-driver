@@ -346,7 +346,7 @@ namespace MongoDB.Bson.Tests
             Assert.False(ObjectId.TryParse("102030405060708090a0b0c", out objectId1)); // too short
             Assert.False(ObjectId.TryParse("x102030405060708090a0b0c", out objectId1)); // invalid character
             Assert.False(ObjectId.TryParse("00102030405060708090a0b0c", out objectId1)); // too long
-            Assert.False(ObjectId.TryParse(null, out objectId1)); // should return false not throw ArgumentNullException
+            Assert.False(ObjectId.TryParse(default(string), out objectId1)); // should return false not throw ArgumentNullException
         }
 
         [Fact]
