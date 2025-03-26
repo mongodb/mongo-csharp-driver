@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null )]
         public void MongoDBFunctions_ConvertToBinDataFromDouble_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(10,  ByteOrder.BigEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
         public void MongoDBFunctions_ConvertToBinDataFromDoubleWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var onErrorBinData = onErrorBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onErrorBase64));
             var onNullBinData = onNullBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onNullBase64));
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
         public void MongoDBFunctions_ConvertToBinDataFromInt_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(10,  ByteOrder.BigEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
         public void MongoDBFunctions_ConvertToBinDataFromIntWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var onErrorBinData = onErrorBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onErrorBase64));
             var onNullBinData = onNullBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onNullBase64));
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
         public void MongoDBFunctions_ConvertToLongDataFromInt_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(10,  ByteOrder.BigEndian, "Ag==", "Ag==", "AAAAAAAABMA=")]
         public void MongoDBFunctions_ConvertToLongDataFromIntWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, string expectedBase64, string onErrorBase64, string onNullBase64)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var onErrorBinData = onErrorBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onErrorBase64));
             var onNullBinData = onNullBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onNullBase64));
@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(2, "867dee52-c331-484e-92d1-c56479b8e67e", null)]
         public void MongoDBFunctions_ConvertToBinDataFromString_should_work(int id, string expectedGuidString, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromString);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(10, "Ag==", "Ag==", "AAAAAAAABMA=")]
         public void MongoDBFunctions_ConvertToBinDataFromStringWithOnErrorAndOnNull_should_work(int id, string expectedBase64, string onErrorBase64, string onNullBase64)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var onErrorBinData = onErrorBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onErrorBase64));
             var onNullBinData = onNullBase64 == null ? null : new BsonBinaryData(Convert.FromBase64String(onNullBase64));
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(5, ByteOrder.BigEndian, -2.5, null)]
         public void MongoDBFunctions_ConvertToDoubleFromBinData_should_work(int id, ByteOrder byteOrder, double? expectedResult, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -292,7 +292,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(0, ByteOrder.LittleEndian, null, 15.2, null)]
         public void MongoDBFunctions_ConvertToDoubleFromBinDataWithOnErrorAndOnNull_should_work(int id,  ByteOrder byteOrder, double? expectedResult, double? onError, double? onNull)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(6, ByteOrder.BigEndian, 42, null)]
         public void MongoDBFunctions_ConvertToIntFromBinData_should_work(int id, ByteOrder byteOrder, int? expectedResult, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -345,7 +345,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(0, ByteOrder.LittleEndian, null, 15, null)]
         public void MongoDBFunctions_ConvertToIntFromBinDataWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, int? expectedResult, int? onError, int? onNull)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -372,7 +372,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(6, ByteOrder.BigEndian, (long)42, null)]
         public void MongoDBFunctions_ConvertToLongFromBinData_should_work(int id, ByteOrder byteOrder, long? expectedResult, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -398,7 +398,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(0, ByteOrder.LittleEndian, null, (long)15, null)]
         public void MongoDBFunctions_ConvertToLongFromBinDataWithOnErrorAndOnNull_should_work(int id, ByteOrder byteOrder, long? expectedResult, long? onError, long? onNull)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromNumeric);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -424,7 +424,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(1, null, "MongoCommandException")]
         public void MongoDBFunctions_ConvertToStringFromBinData_should_work(int id, string expectedResult, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromString);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -448,7 +448,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(1, null, null, "onNull")]
         public void MongoDBFunctions_ConvertToStringFromBinDataWithOnErrorAndOnNull_should_work(int id, string expectedResult, string onError, string onNull)
         {
-            RequireServer.Check().Supports(Feature.ConvertBinDataToFromString);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()

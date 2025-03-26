@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __clientBulkWrite = new Feature("ClientBulkWrite", WireVersion.Server80);
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
         private static readonly Feature __clusteredIndexes = new Feature("ClusteredIndexes", WireVersion.Server53);
-        private static readonly Feature __convertBinDataToFromNumeric = new Feature("ConvertBinDataToFromNumeric", WireVersion.Server81);
-        private static readonly Feature __convertBinDataToFromString= new Feature("ConvertBinDataToFromString", WireVersion.Server80);
+        private static readonly Feature __convertOperatorBinDataToFromNumeric = new Feature("ConvertBinDataToFromNumeric", WireVersion.Server81);
+        private static readonly Feature __convertOperatorBinDataToFromString= new Feature("ConvertBinDataToFromString", WireVersion.Server80);
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
@@ -198,12 +198,12 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the conversion of binary data to/from numeric types feature.
         /// </summary>
-        public static Feature ConvertBinDataToFromNumeric => __convertBinDataToFromNumeric;
+        public static Feature ConvertOperatorBinDataToFromNumeric => __convertOperatorBinDataToFromNumeric;
 
         /// <summary>
         /// Gets the conversion of binary data to/from string feature.
         /// </summary>
-        public static Feature ConvertBinDataToFromString => __convertBinDataToFromString;
+        public static Feature ConvertOperatorBinDataToFromString => __convertOperatorBinDataToFromString;
 
         /// <summary>
         /// Gets the create index commit quorum feature.
