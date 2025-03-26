@@ -56,34 +56,32 @@ namespace MongoDB.Driver
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="format">The format string.</param>
         /// <returns>The converted value.</returns>
-        public static BsonBinaryData ToBinData(string value, BsonBinarySubType subtype, string format)
+        public static BsonValue ToBsonBinaryData(string value, BsonBinarySubType subtype, string format)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
-        /// Converts a string to a BsonBinaryData using the $convert aggregation operator.
+        /// Converts a string to BsonBinaryData using the $convert aggregation operator.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="format">The format string.</param>
-        /// <param name="onError">The onError value.</param>
-        /// <param name="onNull">The onNull value.</param>
+        /// <param name="options">The convert options.</param>
         /// <returns>The converted value.</returns>
-        public static BsonBinaryData ToBinData(string value, BsonBinarySubType subtype, string format,
-            BsonBinaryData onError, BsonBinaryData onNull)
+        public static BsonValue ToBsonBinaryData(string value, BsonBinarySubType subtype, string format, ConvertOptions<BsonValue> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
         /// <summary>
-        /// Converts an int to a BsonBinaryData using the $convert aggregation operator.
+        /// Converts an int to BsonBinaryData using the $convert aggregation operator.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte order of BsonBinaryData.</param>
         /// <returns>The converted value.</returns>
-        public static BsonBinaryData ToBinData(int? value, BsonBinarySubType subtype, ByteOrder byteOrder)
+        public static BsonValue ToBsonBinaryData(int? value, BsonBinarySubType subtype, ByteOrder byteOrder)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -94,12 +92,10 @@ namespace MongoDB.Driver
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
-        /// <param name="onError">The onError value.</param>
-        /// <param name="onNull">The onNull value.</param>
+        /// <param name="options">The convert options.</param>
         /// <returns>The converted value.</returns>
         /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ToBinData(int? value, BsonBinarySubType subtype, ByteOrder byteOrder,
-            BsonBinaryData onError, BsonBinaryData onNull)
+        public static BsonValue ToBsonBinaryData(int? value, BsonBinarySubType subtype, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -111,7 +107,7 @@ namespace MongoDB.Driver
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
         /// <returns>The converted value.</returns>
-        public static BsonBinaryData ToBinData(long? value, BsonBinarySubType subtype, ByteOrder byteOrder)
+        public static BsonValue ToBsonBinaryData(long? value, BsonBinarySubType subtype, ByteOrder byteOrder)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -122,12 +118,10 @@ namespace MongoDB.Driver
         /// <param name="value">The value.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
-        /// <param name="onError">The onError value.</param>
-        /// <param name="onNull">The onNull value.</param>
+        /// <param name="options">The convert options.</param>
         /// <returns>The converted value.</returns>
         /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ToBinData(long? value, BsonBinarySubType subtype, ByteOrder byteOrder,
-            BsonBinaryData onError, BsonBinaryData onNull)
+        public static BsonValue ToBsonBinaryData(long? value, BsonBinarySubType subtype, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -139,7 +133,7 @@ namespace MongoDB.Driver
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
         /// <returns>The converted value.</returns>
-        public static BsonBinaryData ToBinData(double? value, BsonBinarySubType subtype, ByteOrder byteOrder)
+        public static BsonValue ToBsonBinaryData(double? value, BsonBinarySubType subtype, ByteOrder byteOrder)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -150,12 +144,10 @@ namespace MongoDB.Driver
         /// <param name="value">The field.</param>
         /// <param name="subtype">The BsonBinaryData subtype of the result value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
-        /// <param name="onError">The onError value.</param>
-        /// <param name="onNull">The onNull value.</param>
+        /// <param name="options">The convert options.</param>
         /// <returns>The converted value.</returns>
         /// <exception cref="Exception"></exception>
-        public static BsonBinaryData ToBinData(double? value, BsonBinarySubType subtype, ByteOrder byteOrder,
-            BsonBinaryData onError, BsonBinaryData onNull)
+        public static BsonValue ToBsonBinaryData(double? value, BsonBinarySubType subtype, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -176,10 +168,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="format">The format string.</param>
-        /// <param name="onError">The onError value.</param>
-        /// <param name="onNull">The onNull value.</param>
+        /// <param name="options">The convert options.</param>
         /// <returns>The converted value.</returns>
-        public static string ToString(BsonBinaryData value, string format, string onError, string onNull)
+        public static string ToString(BsonBinaryData value, string format, ConvertOptions<string> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -200,10 +191,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
-        /// <param name="onError">The onError value.</param>
-        /// <param name="onNull">The onNull value.</param>
+        /// <param name="options">The convert options.</param>
         /// <returns>The converted value.</returns>
-        public static int? ToNullableInt(BsonBinaryData value, ByteOrder byteOrder, int? onError, int? onNull)
+        public static int? ToNullableInt(BsonBinaryData value, ByteOrder byteOrder, ConvertOptions<int?> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -224,10 +214,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
-        /// <param name="onError">The onError value.</param>
-        /// <param name="onNull">The onNull value.</param>
+        /// <param name="options">The convert options.</param>
         /// <returns>The converted value.</returns>
-        public static long? ToNullableLong(BsonBinaryData value, ByteOrder byteOrder, long? onError, long? onNull)
+        public static long? ToNullableLong(BsonBinaryData value, ByteOrder byteOrder, ConvertOptions<long?> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -248,10 +237,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="byteOrder">The byte ordering of BsonBinaryData.</param>
-        /// <param name="onError">The onError value.</param>
-        /// <param name="onNull">The onNull value.</param>
+        /// <param name="options">The convert options.</param>
         /// <returns>The converted value.</returns>
-        public static double? ToNullableDouble(BsonBinaryData value, ByteOrder byteOrder, double? onError, double? onNull)
+        public static double? ToNullableDouble(BsonBinaryData value, ByteOrder byteOrder, ConvertOptions<double?> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -374,5 +362,47 @@ namespace MongoDB.Driver
         /// Little endian order.
         /// </summary>
         LittleEndian,
+    }
+
+    //TODO Add docs
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
+    public class ConvertOptions<TResult>
+    {
+        private TResult _onError;
+        private bool _onErrorWasSet;
+        private TResult _onNull;
+        private bool _onNullWasSet;
+
+        /// <summary>
+        ///
+        /// </summary>
+        public TResult OnError
+        {
+            get => _onError;
+            set
+            {
+                _onError = value;
+                _onErrorWasSet = true;
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public TResult OnNull
+        {
+            get => _onNull;
+            set
+            {
+                _onNull = value;
+                _onNullWasSet = true;
+            }
+        }
+
+        internal bool OnErrorWasSet => _onErrorWasSet;
+        internal bool OnNullWasSet => _onNullWasSet;
     }
 }

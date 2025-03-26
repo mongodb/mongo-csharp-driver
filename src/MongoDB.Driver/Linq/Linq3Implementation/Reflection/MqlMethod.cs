@@ -66,18 +66,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __isNullOrMissing = ReflectionInfo.Method((object field) => Mql.IsNullOrMissing(field));
 
             // Convert methods
-            __toBinDataFromDouble = ReflectionInfo.Method((double? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBinData(field, subType, byteOrder));
+            __toBinDataFromDouble = ReflectionInfo.Method((double? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
             __toBinDataFromDoubleWithOnErrorAndOnNull = ReflectionInfo.Method((double? field, BsonBinarySubType subType, ByteOrder byteOrder, BsonBinaryData onError, BsonBinaryData onNull)
-                => Mql.ToBinData(field, subType, byteOrder, onError, onNull));
-            __toBinDataFromInt = ReflectionInfo.Method((int? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBinData(field, subType, byteOrder));
+                => Mql.ToBsonBinaryData(field, subType, byteOrder, onError, onNull));
+            __toBinDataFromInt = ReflectionInfo.Method((int? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
             __toBinDataFromIntWithOnErrorAndOnNull = ReflectionInfo.Method((int? field, BsonBinarySubType subType, ByteOrder byteOrder, BsonBinaryData onError, BsonBinaryData onNull)
-                => Mql.ToBinData(field, subType, byteOrder, onError, onNull));
-            __toBinDataFromLong = ReflectionInfo.Method((long? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBinData(field, subType, byteOrder));
+                => Mql.ToBsonBinaryData(field, subType, byteOrder, onError, onNull));
+            __toBinDataFromLong = ReflectionInfo.Method((long? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
             __toBinDataFromLongWithOnErrorAndOnNull = ReflectionInfo.Method((long? field, BsonBinarySubType subType, ByteOrder byteOrder, BsonBinaryData onError, BsonBinaryData onNull)
-                => Mql.ToBinData(field, subType, byteOrder, onError, onNull));
-            __toBinDataFromString = ReflectionInfo.Method((string field, BsonBinarySubType subType, string format) => Mql.ToBinData(field, subType, format));
+                => Mql.ToBsonBinaryData(field, subType, byteOrder, onError, onNull));
+            __toBinDataFromString = ReflectionInfo.Method((string field, BsonBinarySubType subType, string format) => Mql.ToBsonBinaryData(field, subType, format));
             __toBinDataFromStringWithOnErrorAndOnNull = ReflectionInfo.Method((string field, BsonBinarySubType subType, string format, BsonBinaryData onError, BsonBinaryData onNull)
-                => Mql.ToBinData(field, subType, format, onError, onNull));
+                => Mql.ToBsonBinaryData(field, subType, format, onError, onNull));
 
             __toNullableDoubleFromBinData = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder) => Mql.ToNullableDouble(field, byteOrder));
             __toNullableDoubleFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, double? onError, double? onNull) => Mql.ToNullableDouble(field, byteOrder, onError, onNull));

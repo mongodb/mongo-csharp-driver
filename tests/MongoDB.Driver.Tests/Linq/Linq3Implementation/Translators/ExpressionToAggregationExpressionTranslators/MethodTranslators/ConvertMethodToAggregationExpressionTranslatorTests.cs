@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBinData(x.DoubleProperty, BsonBinarySubType.Binary, byteOrder));
+                .Select(x => Mql.ToBsonBinaryData(x.DoubleProperty, BsonBinarySubType.Binary, byteOrder));
 
             var expectedStages =
                 new[]
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBinData(x.DoubleProperty, BsonBinarySubType.Binary, byteOrder, onErrorBinData, onNullBinData));
+                .Select(x => Mql.ToBsonBinaryData(x.DoubleProperty, BsonBinarySubType.Binary, byteOrder, onErrorBinData, onNullBinData));
 
             var onErrorString = onErrorBase64 == null ? "null" : $"BinData(0, '{onErrorBase64}')";
             var onNullString = onNullBase64 == null ? "null" : $"BinData(0, '{onNullBase64}')";
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBinData(x.IntProperty, BsonBinarySubType.Binary, byteOrder));
+                .Select(x => Mql.ToBsonBinaryData(x.IntProperty, BsonBinarySubType.Binary, byteOrder));
 
             var expectedStages =
                 new[]
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBinData(x.IntProperty, BsonBinarySubType.Binary, byteOrder, onErrorBinData, onNullBinData));
+                .Select(x => Mql.ToBsonBinaryData(x.IntProperty, BsonBinarySubType.Binary, byteOrder, onErrorBinData, onNullBinData));
 
             var onErrorString = onErrorBase64 == null ? "null" : $"BinData(0, '{onErrorBase64}')";
             var onNullString = onNullBase64 == null ? "null" : $"BinData(0, '{onNullBase64}')";
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBinData(x.LongProperty, BsonBinarySubType.Binary, byteOrder));
+                .Select(x => Mql.ToBsonBinaryData(x.LongProperty, BsonBinarySubType.Binary, byteOrder));
 
             var expectedStages =
                 new[]
@@ -191,7 +191,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBinData(x.LongProperty, BsonBinarySubType.Binary, byteOrder, onErrorBinData, onNullBinData));
+                .Select(x => Mql.ToBsonBinaryData(x.LongProperty, BsonBinarySubType.Binary, byteOrder, onErrorBinData, onNullBinData));
 
             var onErrorString = onErrorBase64 == null ? "null" : $"BinData(0, '{onErrorBase64}')";
             var onNullString = onNullBase64 == null ? "null" : $"BinData(0, '{onNullBase64}')";
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBinData(x.StringProperty, BsonBinarySubType.UuidStandard, "uuid"));
+                .Select(x => Mql.ToBsonBinaryData(x.StringProperty, BsonBinarySubType.UuidStandard, "uuid"));
 
             var expectedStages =
                 new[]
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBinData(x.StringProperty, BsonBinarySubType.UuidStandard, "uuid", onErrorBinData, onNullBinData));
+                .Select(x => Mql.ToBsonBinaryData(x.StringProperty, BsonBinarySubType.UuidStandard, "uuid", onErrorBinData, onNullBinData));
 
             var onErrorString = onErrorBase64 == null ? "null" : $"BinData(0, '{onErrorBase64}')";
             var onNullString = onNullBase64 == null ? "null" : $"BinData(0, '{onNullBase64}')";
