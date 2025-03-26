@@ -40,11 +40,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         {
             _input = Ensure.IsNotNull(input, nameof(input));
             _to = Ensure.IsNotNull(to, nameof(to));
+            _subType = subType;
+            _byteOrder = byteOrder;
+            _format = format;
             _onError = onError;
             _onNull = onNull;
-            _subType = subType;
-            _format = format;
-            _byteOrder = byteOrder;
         }
 
         public ByteOrder? ByteOrder => _byteOrder;
