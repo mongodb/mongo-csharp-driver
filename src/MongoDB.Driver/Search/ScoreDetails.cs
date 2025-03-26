@@ -21,15 +21,15 @@ namespace MongoDB.Driver.Search
     /// <summary>
     /// Represents the scoreDetails object for a document from a $rankFusion result.
     /// </summary>
-    public sealed class ScoreDetails
+    public sealed class RankFusionScoreDetails
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SearchScoreDetails"/> class.
+        /// Initializes a new instance of the <see cref="RankFusionScoreDetails"/> class.
         /// </summary>
         /// <param name="value">The computed score which is the same as the score available via {$meta: "score"}.</param>
         /// <param name="description">Description of how the score was computed.</param>
-        /// <param name="details">Info about how each input pipeline in the rankFusion stage contributed to the computed score</param>
-        public ScoreDetails(double value, string description, BsonDocument[] details)
+        /// <param name="details">Info about how each input pipeline in the rankFusion stage contributed to the computed score.</param>
+        public RankFusionScoreDetails(double value, string description, BsonDocument[] details)
         {
             Value = value;
             Description = description;

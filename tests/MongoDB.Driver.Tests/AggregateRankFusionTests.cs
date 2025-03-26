@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests
         public class RankFusionResult : SimplePerson
         {
             public double Score { get; set; }
-            public ScoreDetails ScoreDetails { get; set; }
+            public RankFusionScoreDetails ScoreDetails { get; set; }
         }
         
         public sealed class ClassFixture : MongoDatabaseFixture
@@ -187,6 +187,4 @@ namespace MongoDB.Driver.Tests
             }
         }
     }
-    
-    
 }

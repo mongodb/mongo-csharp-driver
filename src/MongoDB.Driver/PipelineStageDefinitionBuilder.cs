@@ -1516,7 +1516,7 @@ namespace MongoDB.Driver
         /// <param name="options">The rankFusion options.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TOutput> RankFusion<TInput, TOutput>(
-            (PipelineDefinition<TInput, TOutput>, double?)[] pipelinesWithWeights,
+            (PipelineDefinition<TInput, TOutput> pipelineDefinition, double? weight)[] pipelinesWithWeights,
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
@@ -1526,8 +1526,12 @@ namespace MongoDB.Driver
             for (var i = 0; i < pipelinesWithWeights.Length; i++)
             {
                 var pipelineName = $"pipeline{i + 1}";
-                pipelinesMap[pipelineName] = pipelinesWithWeights[i].Item1;
-                weightsMap[pipelineName] = pipelinesWithWeights[i].Item2.HasValue ? pipelinesWithWeights[i].Item2.Value : 1.0;
+                pipelinesMap[pipelineName] = pipelinesWithWeights[i].pipelineDefinition;
+
+                if (pipelinesWithWeights[i].weight.HasValue)
+                {
+                    weightsMap[pipelineName] = pipelinesWithWeights[i].weight.Value;
+                }
             }
             return RankFusion(pipelinesMap, weightsMap, options);
         }

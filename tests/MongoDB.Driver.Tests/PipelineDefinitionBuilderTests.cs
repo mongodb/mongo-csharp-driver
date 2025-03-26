@@ -223,7 +223,8 @@ namespace MongoDB.Driver.Tests
             var result = new EmptyPipelineDefinition<BsonDocument>().RankFusion(
             [
                 (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }"), 0.3),
-                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }"), 0.7)
+                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }"), 0.7),
+                (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 3 }").Sort("{ y : 1 }"), null)
             ]);
             
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
@@ -234,7 +235,8 @@ namespace MongoDB.Driver.Tests
                                           "input" : { 
                                               "pipelines" : { 
                                                  "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }] 
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }], 
+                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }] 
                                                } 
                                            },
                                            "combination" : { "weights" : { "pipeline1" : 0.3, "pipeline2" : 0.7 } }
