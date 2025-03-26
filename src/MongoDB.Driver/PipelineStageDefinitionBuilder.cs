@@ -1469,7 +1469,7 @@ namespace MongoDB.Driver
                         {
                             "combination", () => new BsonDocument
                             {
-                                { "weights", new BsonDocument(weights)}
+                                { "weights",new BsonDocument(weights.Select(w => new BsonElement(w.Key, w.Value))) }
                             },
                             weights != null
                         },
@@ -1516,7 +1516,7 @@ namespace MongoDB.Driver
         /// <param name="options">The rankFusion options.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TOutput> RankFusion<TInput, TOutput>(
-            (PipelineDefinition<TInput, TOutput> pipelineDefinition, double? weight)[] pipelinesWithWeights,
+            (PipelineDefinition<TInput, TOutput> Pipeline, double? Weight)[] pipelinesWithWeights,
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
@@ -1526,11 +1526,11 @@ namespace MongoDB.Driver
             for (var i = 0; i < pipelinesWithWeights.Length; i++)
             {
                 var pipelineName = $"pipeline{i + 1}";
-                pipelinesMap[pipelineName] = pipelinesWithWeights[i].pipelineDefinition;
+                pipelinesMap[pipelineName] = pipelinesWithWeights[i].Pipeline;
 
-                if (pipelinesWithWeights[i].weight.HasValue)
+                if (pipelinesWithWeights[i].Weight.HasValue)
                 {
-                    weightsMap[pipelineName] = pipelinesWithWeights[i].weight.Value;
+                    weightsMap[pipelineName] = pipelinesWithWeights[i].Weight.Value;
                 }
             }
             return RankFusion(pipelinesMap, weightsMap, options);
