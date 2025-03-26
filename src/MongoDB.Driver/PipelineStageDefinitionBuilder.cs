@@ -1469,7 +1469,7 @@ namespace MongoDB.Driver
                         {
                             "combination", () => new BsonDocument
                             {
-                                { "weights",new BsonDocument(weights.Select(w => new BsonElement(w.Key, w.Value))) }
+                                { "weights", new BsonDocument(weights.Select(w => new BsonElement(w.Key, w.Value))) }
                             },
                             weights != null
                         },
