@@ -14,26 +14,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal class ConvertMethodToAggregationExpressionTranslator
     {
-        private static readonly List<(MethodInfo[] Methods, IBsonSerializer Serializer, BsonType Type, int? FormatIndex, int? SubTypeIndex, int? ByteOrderIndex, int? OnErrorIndex, int? OnNullIndex)> _methodMappings =
+        private static readonly List<(MethodInfo[] Methods, IBsonSerializer Serializer, BsonType Type, int? FormatIndex, int? SubTypeIndex, int? ByteOrderIndex, int? optionsIndex)> _methodMappings =
         [
-            ([MqlMethod.ToBinDataFromString], BsonBinaryDataSerializer.Instance, BsonType.Binary, 2, 1, null, null, null),
-            ([MqlMethod.ToBinDataFromInt, MqlMethod.ToBinDataFromLong, MqlMethod.ToBinDataFromDouble],
-                BsonBinaryDataSerializer.Instance, BsonType.Binary, null, 1, 2, null, null),
-            ([MqlMethod.ToBinDataFromStringWithOnErrorAndOnNull], BsonBinaryDataSerializer.Instance, BsonType.Binary, 2, 1, null, 3, 4),
-            ([MqlMethod.ToBinDataFromIntWithOnErrorAndOnNull, MqlMethod.ToBinDataFromLongWithOnErrorAndOnNull, MqlMethod.ToBinDataFromDoubleWithOnErrorAndOnNull],
-                BsonBinaryDataSerializer.Instance, BsonType.Binary, null, 1, 2, 3, 4),
-            ([MqlMethod.ToStringFromBinData], StringSerializer.Instance, BsonType.String, 1, null, null, null, null),
-            ([MqlMethod.ToStringFromBinDataWithOnErrorAndOnNull], StringSerializer.Instance, BsonType.String, 1, null, null, 2, 3),
-            ([MqlMethod.ToNullableIntFromBinData], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, null, null),
-            ([MqlMethod.ToNullableIntFromBinDataWithOnErrorAndOnNull], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, 2, 3),
-            ([MqlMethod.ToNullableLongFromBinData], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, null, null),
-            ([MqlMethod.ToNullableLongFromBinDataWithOnErrorAndOnNull], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, 2, 3),
-            ([MqlMethod.ToNullableDoubleFromBinData], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, null, null),
-            ([MqlMethod.ToNullableDoubleFromBinDataWithOnErrorAndOnNull], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, 2, 3)
+            ([MqlMethod.ToBinDataFromString], BsonValueSerializer.Instance, BsonType.Binary, 2, 1, null, null),
+            ([MqlMethod.ToBinDataFromInt, MqlMethod.ToBinDataFromLong, MqlMethod.ToBinDataFromDouble], BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, null),
+            ([MqlMethod.ToBinDataFromStringWithOptions], BsonValueSerializer.Instance, BsonType.Binary, 2, 1, null, 3),
+            ([MqlMethod.ToBinDataFromIntWithOptions, MqlMethod.ToBinDataFromLongWithOptions, MqlMethod.ToBinDataFromDoubleWithOptions], BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, 3),
+
+            ([MqlMethod.ToDoubleFromBinData], DoubleSerializer.Instance, BsonType.Double, null, null, 1, null),
+            ([MqlMethod.ToDoubleFromBinDataWithOptions], DoubleSerializer.Instance, BsonType.Double, null, null, 1, 2),
+            ([MqlMethod.ToIntFromBinData], Int32Serializer.Instance, BsonType.Int32, null, null, 1, null),
+            ([MqlMethod.ToIntFromBinDataWithOptions], Int32Serializer.Instance, BsonType.Int32, null, null, 1, 2),
+            ([MqlMethod.ToLongFromBinData], Int64Serializer.Instance, BsonType.Int64, null, null, 1, null),
+            ([MqlMethod.ToLongFromBinDataWithOptions], Int64Serializer.Instance, BsonType.Int64, null, null, 1, 2),
+
+            ([MqlMethod.ToNullableDoubleFromBinData], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, null),
+            ([MqlMethod.ToNullableDoubleFromBinDataWithOptions], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, 2),
+            ([MqlMethod.ToNullableIntFromBinData], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, null),
+            ([MqlMethod.ToNullableIntFromBinDataWithOptions], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, 2),
+            ([MqlMethod.ToNullableLongFromBinData], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, null),
+            ([MqlMethod.ToNullableLongFromBinDataWithOptions], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, 2),
+            ([MqlMethod.ToStringFromBinData], StringSerializer.Instance, BsonType.String, 1, null, null, null),
+            ([MqlMethod.ToStringFromBinDataWithOptions], StringSerializer.Instance, BsonType.String, 1, null, null, 2),
         ];
 
         private static readonly List<MethodInfo> ToStringMethods =
-            [MqlMethod.ToStringFromBinData, MqlMethod.ToStringFromBinDataWithOnErrorAndOnNull];
+            [MqlMethod.ToStringFromBinData, MqlMethod.ToStringFromBinDataWithOptions];
 
         public static bool IsConvertToStringMethod(MethodInfo method)
         {

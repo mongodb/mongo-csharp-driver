@@ -35,33 +35,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __isNullOrMissing;
 
         private static readonly MethodInfo __toBinDataFromDouble;
-        private static readonly MethodInfo __toBinDataFromDoubleWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromDoubleWithOptions;
         private static readonly MethodInfo __toBinDataFromInt;
-        private static readonly MethodInfo __toBinDataFromIntWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromIntWithOptions;
         private static readonly MethodInfo __toBinDataFromLong;
-        private static readonly MethodInfo __toBinDataFromLongWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromLongWithOptions;
         private static readonly MethodInfo __toBinDataFromNullableDouble;
-        private static readonly MethodInfo __toBinDataFromNullableDoubleWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromNullableDoubleWithOptions;
         private static readonly MethodInfo __toBinDataFromNullableInt;
-        private static readonly MethodInfo __toBinDataFromNullableIntWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromNullableIntWithOptions;
         private static readonly MethodInfo __toBinDataFromNullableLong;
-        private static readonly MethodInfo __toBinDataFromNullableLongWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toBinDataFromNullableLongWithOptions;
         private static readonly MethodInfo __toBinDataFromString;
         private static readonly MethodInfo __toDoubleFromBinData;
-        private static readonly MethodInfo __toDoubleFromBinDataWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toDoubleFromBinDataWithOptions;
         private static readonly MethodInfo __toIntFromBinData;
-        private static readonly MethodInfo __toIntFromBinDataWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toIntFromBinDataWithOptions;
         private static readonly MethodInfo __toLongFromBinData;
-        private static readonly MethodInfo __toLongFromBinDataWithOnErrorAndOnNull;
-        private static readonly MethodInfo __toBinDataFromStringWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toLongFromBinDataWithOptions;
+        private static readonly MethodInfo __toBinDataFromStringWithOptions;
         private static readonly MethodInfo __toNullableDoubleFromBinData;
-        private static readonly MethodInfo __toNullableDoubleFromBinDataWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toNullableDoubleFromBinDataWithOptions;
         private static readonly MethodInfo __toNullableIntFromBinData;
-        private static readonly MethodInfo __toNullableIntFromBinDataWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toNullableIntFromBinDataWithOptions;
         private static readonly MethodInfo __toNullableLongFromBinData;
-        private static readonly MethodInfo __toNullableLongFromBinDataWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toNullableLongFromBinDataWithOptions;
         private static readonly MethodInfo __toStringFromBinData;
-        private static readonly MethodInfo __toStringFromBinDataWithOnErrorAndOnNull;
+        private static readonly MethodInfo __toStringFromBinDataWithOptions;
 
         // static constructor
         static MqlMethod()
@@ -80,43 +80,43 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             // Convert methods
 
             __toBinDataFromDouble = ReflectionInfo.Method((double field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
-            __toBinDataFromDoubleWithOnErrorAndOnNull = ReflectionInfo.Method((double field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
+            __toBinDataFromDoubleWithOptions = ReflectionInfo.Method((double field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
                 => Mql.ToBsonBinaryData(field, subType, byteOrder, options));
             __toBinDataFromInt = ReflectionInfo.Method((int field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
-            __toBinDataFromIntWithOnErrorAndOnNull = ReflectionInfo.Method((int field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
+            __toBinDataFromIntWithOptions = ReflectionInfo.Method((int field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
                 => Mql.ToBsonBinaryData(field, subType, byteOrder, options));
             __toBinDataFromLong = ReflectionInfo.Method((long field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
-            __toBinDataFromLongWithOnErrorAndOnNull = ReflectionInfo.Method((long field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
+            __toBinDataFromLongWithOptions = ReflectionInfo.Method((long field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
                 => Mql.ToBsonBinaryData(field, subType, byteOrder, options));
 
             __toBinDataFromNullableDouble = ReflectionInfo.Method((double? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
-            __toBinDataFromNullableDoubleWithOnErrorAndOnNull = ReflectionInfo.Method((double? field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
+            __toBinDataFromNullableDoubleWithOptions = ReflectionInfo.Method((double? field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
                 => Mql.ToBsonBinaryData(field, subType, byteOrder, options));
             __toBinDataFromNullableInt = ReflectionInfo.Method((int? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
-            __toBinDataFromNullableIntWithOnErrorAndOnNull = ReflectionInfo.Method((int? field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
+            __toBinDataFromNullableIntWithOptions = ReflectionInfo.Method((int? field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
                 => Mql.ToBsonBinaryData(field, subType, byteOrder, options));
             __toBinDataFromNullableLong = ReflectionInfo.Method((long? field, BsonBinarySubType subType, ByteOrder byteOrder) => Mql.ToBsonBinaryData(field, subType, byteOrder));
-            __toBinDataFromNullableLongWithOnErrorAndOnNull = ReflectionInfo.Method((long? field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
+            __toBinDataFromNullableLongWithOptions = ReflectionInfo.Method((long? field, BsonBinarySubType subType, ByteOrder byteOrder, ConvertOptions<BsonValue> options)
                 => Mql.ToBsonBinaryData(field, subType, byteOrder, options));
             __toBinDataFromString = ReflectionInfo.Method((string field, BsonBinarySubType subType, string format) => Mql.ToBsonBinaryData(field, subType, format));
-            __toBinDataFromStringWithOnErrorAndOnNull = ReflectionInfo.Method((string field, BsonBinarySubType subType, string format, ConvertOptions<BsonValue> options)
+            __toBinDataFromStringWithOptions = ReflectionInfo.Method((string field, BsonBinarySubType subType, string format, ConvertOptions<BsonValue> options)
                 => Mql.ToBsonBinaryData(field, subType, format, options));
 
             __toDoubleFromBinData = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder) => Mql.ToDouble(field, byteOrder));
-            __toDoubleFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<double> options) => Mql.ToDouble(field, byteOrder, options));
+            __toDoubleFromBinDataWithOptions = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<double> options) => Mql.ToDouble(field, byteOrder, options));
             __toIntFromBinData = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder) => Mql.ToInt(field, byteOrder));
-            __toIntFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<int> options) => Mql.ToInt(field, byteOrder, options));
+            __toIntFromBinDataWithOptions = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<int> options) => Mql.ToInt(field, byteOrder, options));
             __toLongFromBinData = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder) => Mql.ToLong(field, byteOrder));
-            __toLongFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<long> options) => Mql.ToLong(field, byteOrder, options));
+            __toLongFromBinDataWithOptions = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<long> options) => Mql.ToLong(field, byteOrder, options));
 
             __toNullableDoubleFromBinData = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder) => Mql.ToNullableDouble(field, byteOrder));
-            __toNullableDoubleFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<double?> options) => Mql.ToNullableDouble(field, byteOrder, options));
+            __toNullableDoubleFromBinDataWithOptions = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<double?> options) => Mql.ToNullableDouble(field, byteOrder, options));
             __toNullableIntFromBinData = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder) => Mql.ToNullableInt(field, byteOrder));
-            __toNullableIntFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<int?> options) => Mql.ToNullableInt(field, byteOrder, options));
+            __toNullableIntFromBinDataWithOptions = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<int?> options) => Mql.ToNullableInt(field, byteOrder, options));
             __toNullableLongFromBinData = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder) => Mql.ToNullableLong(field, byteOrder));
-            __toNullableLongFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<long?> options) => Mql.ToNullableLong(field, byteOrder, options));
+            __toNullableLongFromBinDataWithOptions = ReflectionInfo.Method((BsonBinaryData field, ByteOrder byteOrder, ConvertOptions<long?> options) => Mql.ToNullableLong(field, byteOrder, options));
             __toStringFromBinData = ReflectionInfo.Method((BsonBinaryData field, string format) => Mql.ToString(field, format));
-            __toStringFromBinDataWithOnErrorAndOnNull = ReflectionInfo.Method((BsonBinaryData field, string format, ConvertOptions<string> options) => Mql.ToString(field, format, options));
+            __toStringFromBinDataWithOptions = ReflectionInfo.Method((BsonBinaryData field, string format, ConvertOptions<string> options) => Mql.ToString(field, format, options));
         }
 
         // public properties
@@ -131,32 +131,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo IsMissing => __isMissing;
         public static MethodInfo IsNullOrMissing => __isNullOrMissing;
         public static MethodInfo ToBinDataFromDouble => __toBinDataFromDouble;
-        public static MethodInfo ToBinDataFromDoubleWithOnErrorAndOnNull => __toBinDataFromDoubleWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromDoubleWithOptions => __toBinDataFromDoubleWithOptions;
         public static MethodInfo ToBinDataFromInt => __toBinDataFromInt;
-        public static MethodInfo ToBinDataFromIntWithOnErrorAndOnNull => __toBinDataFromIntWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromIntWithOptions => __toBinDataFromIntWithOptions;
         public static MethodInfo ToBinDataFromLong => __toBinDataFromLong;
-        public static MethodInfo ToBinDataFromLongWithOnErrorAndOnNull => __toBinDataFromLongWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromLongWithOptions => __toBinDataFromLongWithOptions;
         public static MethodInfo ToBinDataFromNullableDouble => __toBinDataFromNullableDouble;
-        public static MethodInfo ToBinDataFromNullableDoubleWithOnErrorAndOnNull => __toBinDataFromNullableDoubleWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromNullableDoubleWithOptions => __toBinDataFromNullableDoubleWithOptions;
         public static MethodInfo ToBinDataFromNullableInt => __toBinDataFromNullableInt;
-        public static MethodInfo ToBinDataFromNullableIntWithOnErrorAndOnNull => __toBinDataFromNullableIntWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromNullableIntWithOptions => __toBinDataFromNullableIntWithOptions;
         public static MethodInfo ToBinDataFromNullableLong => __toBinDataFromNullableLong;
-        public static MethodInfo ToBinDataFromNullableLongWithOnErrorAndOnNull => __toBinDataFromNullableLongWithOnErrorAndOnNull;
+        public static MethodInfo ToBinDataFromNullableLongWithOptions => __toBinDataFromNullableLongWithOptions;
         public static MethodInfo ToBinDataFromString => __toBinDataFromString;
         public static MethodInfo ToDoubleFromBinData => __toDoubleFromBinData;
-        public static MethodInfo ToDoubleFromBinDataWithOnErrorAndOnNull => __toDoubleFromBinDataWithOnErrorAndOnNull;
+        public static MethodInfo ToDoubleFromBinDataWithOptions => __toDoubleFromBinDataWithOptions;
         public static MethodInfo ToIntFromBinData => __toIntFromBinData;
-        public static MethodInfo ToIntFromBinDataWithOnErrorAndOnNull => __toIntFromBinDataWithOnErrorAndOnNull;
+        public static MethodInfo ToIntFromBinDataWithOptions => __toIntFromBinDataWithOptions;
         public static MethodInfo ToLongFromBinData => __toLongFromBinData;
-        public static MethodInfo ToLongFromBinDataWithOnErrorAndOnNull => __toLongFromBinDataWithOnErrorAndOnNull;
-        public static MethodInfo ToBinDataFromStringWithOnErrorAndOnNull => __toBinDataFromStringWithOnErrorAndOnNull;
+        public static MethodInfo ToLongFromBinDataWithOptions => __toLongFromBinDataWithOptions;
+        public static MethodInfo ToBinDataFromStringWithOptions => __toBinDataFromStringWithOptions;
         public static MethodInfo ToNullableDoubleFromBinData => __toNullableDoubleFromBinData;
-        public static MethodInfo ToNullableDoubleFromBinDataWithOnErrorAndOnNull => __toNullableDoubleFromBinDataWithOnErrorAndOnNull;
+        public static MethodInfo ToNullableDoubleFromBinDataWithOptions => __toNullableDoubleFromBinDataWithOptions;
         public static MethodInfo ToNullableIntFromBinData => __toNullableIntFromBinData;
-        public static MethodInfo ToNullableIntFromBinDataWithOnErrorAndOnNull => __toNullableIntFromBinDataWithOnErrorAndOnNull;
+        public static MethodInfo ToNullableIntFromBinDataWithOptions => __toNullableIntFromBinDataWithOptions;
         public static MethodInfo ToNullableLongFromBinData => __toNullableLongFromBinData;
-        public static MethodInfo ToNullableLongFromBinDataWithOnErrorAndOnNull => __toNullableLongFromBinDataWithOnErrorAndOnNull;
+        public static MethodInfo ToNullableLongFromBinDataWithOptions => __toNullableLongFromBinDataWithOptions;
         public static MethodInfo ToStringFromBinData => __toStringFromBinData;
-        public static MethodInfo ToStringFromBinDataWithOnErrorAndOnNull => __toStringFromBinDataWithOnErrorAndOnNull;
+        public static MethodInfo ToStringFromBinDataWithOptions => __toStringFromBinDataWithOptions;
     }
 }
