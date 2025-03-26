@@ -386,7 +386,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the pick accumulators new in 5.2 feature.
         /// </summary>
         public static Feature PickAccumulatorsNewIn52 => __pickAccumulatorsNewIn52;
-        
+
         /// <summary>
         /// Gets the $rankFusion feature.
         /// </summary>

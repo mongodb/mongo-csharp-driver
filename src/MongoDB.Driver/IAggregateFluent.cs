@@ -377,7 +377,7 @@ namespace MongoDB.Driver
             Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines,
             Dictionary<string, double> weights = null, 
             RankFusionOptions<TNewResult> options = null);
-        
+
         /// <summary>
         /// Appends a $rankFusion stage to the pipeline. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
         /// </summary>
@@ -388,7 +388,7 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> RankFusion<TNewResult>(
             PipelineDefinition<TResult, TNewResult>[] pipelines,
             RankFusionOptions<TNewResult> options = null);
-        
+
         /// <summary>
         /// Appends a $rankFusion stage to the pipeline. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
         /// </summary>

@@ -534,17 +534,17 @@ namespace MongoDB.Driver.Tests
             {
                 PipelineStageDefinitionBuilder.RankFusion((Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>)null);
             });
-            
+
             Assert.Throws<ArgumentNullException>(() =>
             {
                 PipelineStageDefinitionBuilder.RankFusion((PipelineDefinition<BsonDocument, BsonDocument>[])null);
             });
-            
+
             Assert.Throws<ArgumentNullException>(() =>
             {
                 PipelineStageDefinitionBuilder.RankFusion(((PipelineDefinition<BsonDocument, BsonDocument>, double?)[])null);
             });
-            
+
             Assert.Throws<ArgumentNullException>(() =>
             {
                 PipelineStageDefinitionBuilder.RankFusion(
@@ -553,12 +553,12 @@ namespace MongoDB.Driver.Tests
                         { "p1", null }
                     });
             });
-            
+
             Assert.Throws<ArgumentNullException>(() =>
             {
                 PipelineStageDefinitionBuilder.RankFusion(new PipelineDefinition<BsonDocument, BsonDocument>[]{null});
             });
-            
+
             Assert.Throws<ArgumentNullException>(() =>
             {
                 PipelineStageDefinitionBuilder.RankFusion(

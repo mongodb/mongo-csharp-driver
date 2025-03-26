@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests
             : base(fixture, server =>  server.Supports(Feature.RankFusionStage))
         {
         }
-        
+
         [Fact]
         public void RankFusion_with_named_pipelines_should_return_expected_result()
         {
@@ -59,14 +59,14 @@ namespace MongoDB.Driver.Tests
                 .RankFusion(pipelines, weights)
                 .Project<SimplePerson>(Builders<SimplePerson>.Projection.Exclude("_id"))
                 .ToList();
-            
+
             result.Count.Should().Be(4);
             result[0].Age.Should().Be(34);
             result[1].Age.Should().Be(43);
             result[2].Age.Should().Be(24);
             result[3].Age.Should().Be(42);
         }
-        
+
         [Fact]
         public void RankFusion_without_named_pipelines_should_return_expected_result()
         {
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests
                 new EmptyPipelineDefinition<SimplePerson>()
                     .Match(p => p.Name == "John")
                     .Sort(Builders<SimplePerson>.Sort.Ascending(p => p.Age)),
-                
+
                 new EmptyPipelineDefinition<SimplePerson>()
                     .Match(p => p.Name == "Jane")
                     .Sort(Builders<SimplePerson>.Sort.Ascending(p => p.Age))
@@ -87,14 +87,14 @@ namespace MongoDB.Driver.Tests
                 .RankFusion(pipelines)
                 .Project<SimplePerson>(Builders<SimplePerson>.Projection.Exclude("_id"))
                 .ToList();
-            
+
             result.Count.Should().Be(4);
             result[0].Age.Should().Be(24);
             result[1].Age.Should().Be(34);
             result[2].Age.Should().Be(42);
             result[3].Age.Should().Be(43);
         }
-        
+
         [Fact]
         public void RankFusion_using_pipeline_weight_tuples_should_return_expected_result()
         {
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Tests
                 (new EmptyPipelineDefinition<SimplePerson>()
                     .Match(p => p.Name == "John")
                     .Sort(Builders<SimplePerson>.Sort.Ascending(p => p.Age)), 0.4),
-                
+
                 (new EmptyPipelineDefinition<SimplePerson>()
                     .Match(p => p.Name == "Jane")
                     .Sort(Builders<SimplePerson>.Sort.Ascending(p => p.Age)), 0.6)
@@ -115,14 +115,14 @@ namespace MongoDB.Driver.Tests
                 .RankFusion(pipelines)
                 .Project<SimplePerson>(Builders<SimplePerson>.Projection.Exclude("_id"))
                 .ToList();
-            
+
             result.Count.Should().Be(4);
             result[0].Age.Should().Be(34);
             result[1].Age.Should().Be(43);
             result[2].Age.Should().Be(24);
             result[3].Age.Should().Be(42);
         }
-        
+
         [Fact]
         public void RankFusion_with_score_details_should_return_expected_result()
         {
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Tests
                 new EmptyPipelineDefinition<SimplePerson>()
                     .Match(p => p.Name == "John")
                     .Sort(Builders<SimplePerson>.Sort.Ascending(p => p.Age)),
-                
+
                 new EmptyPipelineDefinition<SimplePerson>()
                     .Match(p => p.Name == "Jane")
                     .Sort(Builders<SimplePerson>.Sort.Ascending(p => p.Age))
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests
             result.Should().ContainSingle();
             result[0].Score.Should().BeGreaterThan(0);
             result[0].ScoreDetails.Should().NotBeNull();
-            
+
             result[0].ScoreDetails.Description.Should().NotBeNullOrEmpty();
             result[0].ScoreDetails.Value.Should().Be(result[0].Score);
             result[0].ScoreDetails.Details.Should().NotBeEmpty();
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Tests
             public double Score { get; set; }
             public RankFusionScoreDetails ScoreDetails { get; set; }
         }
-        
+
         public sealed class ClassFixture : MongoDatabaseFixture
         { 
             public IMongoCollection<SimplePerson> Collection { get; private set; }

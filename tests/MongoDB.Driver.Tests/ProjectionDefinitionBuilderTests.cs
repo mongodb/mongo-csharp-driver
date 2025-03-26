@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Tests
 
             Assert(subject.Meta("a", metaFieldName), $"{{ a : {{ $meta : '{metaFieldName}' }} }}");
         }
-        
+
         [Fact]
         public void MetaScore()
         {
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Tests
 
             Assert(subject.MetaScore(p => p.MetaField), "{mf: {$meta: 'score'}}");
         }
-        
+
         [Fact]
         public void MetaScoreDetails()
         {
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
-            
+
             [BsonElement("mf")]
             public string MetaField { get; set; }
 

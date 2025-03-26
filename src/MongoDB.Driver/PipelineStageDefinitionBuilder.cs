@@ -1430,7 +1430,7 @@ namespace MongoDB.Driver
 
             return stage;
         }
-        
+
         /// <summary>
         /// Creates a $rankFusion stage.
         /// </summary>
@@ -1441,8 +1441,8 @@ namespace MongoDB.Driver
         /// <param name="options">The rankFusion options.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TOutput> RankFusion<TInput, TOutput>(
-            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines, 
-            Dictionary<string, double> weights = null, 
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines,
+            Dictionary<string, double> weights = null,
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelines, nameof(pipelines));
@@ -1450,7 +1450,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException(nameof(pipelines), "Pipelines cannot contain a null pipeline.");
             }
-            
+
             const string operatorName = "$rankFusion";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
@@ -1498,7 +1498,7 @@ namespace MongoDB.Driver
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelines, nameof(pipelines));
-            
+
             var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
             for (var i = 0; i < pipelines.Length; i++)
             {
@@ -1520,7 +1520,7 @@ namespace MongoDB.Driver
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
-            
+
             var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
             var weightsMap = new Dictionary<string, double>();
             for (var i = 0; i < pipelinesWithWeights.Length; i++)

@@ -27,7 +27,7 @@ namespace MongoDB.Driver
         /// Gets or sets the output serializer.
         /// </summary>
         public IBsonSerializer<TOutput> OutputSerializer { get; set; }
-    
+
         /// <summary>
         /// Flag that specifies whether to make a detailed breakdown of the score for each document available as metadata.
         /// Setting this to true adds score information accessible via $meta, which can then be optionally projected in results.

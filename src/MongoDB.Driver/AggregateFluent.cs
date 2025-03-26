@@ -264,14 +264,14 @@ namespace MongoDB.Driver
         {
             return WithPipeline(_pipeline.RankFusion(pipelines, weights, options));
         }
-        
+
         public override IAggregateFluent<TNewResult> RankFusion<TNewResult>(
             PipelineDefinition<TResult, TNewResult>[] pipelines,
             RankFusionOptions<TNewResult> options = null)
         {
             return WithPipeline(_pipeline.RankFusion(pipelines, options));
         }
-        
+
         public override IAggregateFluent<TNewResult> RankFusion<TNewResult>(
             (PipelineDefinition<TResult, TNewResult>, double?)[] pipelinesWithWeights,
             RankFusionOptions<TNewResult> options = null)

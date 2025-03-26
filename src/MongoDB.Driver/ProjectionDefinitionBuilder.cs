@@ -154,7 +154,7 @@ namespace MongoDB.Driver
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.Meta(field, metaFieldName));
         }
-        
+
         /// <summary>
         /// Combines an existing projection with a meta score projection. This projection will retrieve any kind of score metadata i.e.
         /// searchScore, VectorSearchScore or textScore. 
@@ -172,7 +172,7 @@ namespace MongoDB.Driver
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaScore(field));
         }
-        
+
         /// <summary>
         /// Combines an existing projection with a meta score projection. This projection will retrieve any kind of score metadata i.e.
         /// searchScore, VectorSearchScore or textScore. 
@@ -190,7 +190,7 @@ namespace MongoDB.Driver
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaScore(field));
         }
-        
+
         /// <summary>
         /// Combines an existing projection with a meta score details projection. This projection will retrieve any kind of scoreDetails metadata i.e.
         /// searchScoreDetails.
@@ -208,7 +208,7 @@ namespace MongoDB.Driver
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaScoreDetails(field));
         }
-        
+
         /// <summary>
         /// Combines an existing projection with a meta score details projection. This projection will retrieve any kind of scoreDetails metadata i.e.
         /// searchScoreDetails.
@@ -701,7 +701,7 @@ namespace MongoDB.Driver
         {
             return Meta(field, "score");
         }
-        
+
         /// <summary>
         /// Creates a meta score projection. This projection will retrieve any kind of score metadata i.e.
         /// searchScore, VectorSearchScore or textScore. 
@@ -714,7 +714,7 @@ namespace MongoDB.Driver
         {
             return MetaScore(new ExpressionFieldDefinition<TSource>(field));
         }
-        
+
         /// <summary>
         /// Creates a meta score details projection. This projection will retrieve any kind of scoreDetails metadata i.e.
         /// searchScoreDetails.
@@ -727,7 +727,7 @@ namespace MongoDB.Driver
         {
             return Meta(field, "scoreDetails");
         }
-        
+
         /// <summary>
         /// Creates a meta score details projection. This projection will retrieve any kind of scoreDetails metadata i.e.
         /// searchScoreDetails.

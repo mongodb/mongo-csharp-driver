@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Tests
                     { "p2", 0.7 },
                 },
                 new RankFusionOptions<BsonDocument> { ScoreDetails = true });
-            
+
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
@@ -191,7 +191,7 @@ namespace MongoDB.Driver.Tests
                                   }
                                   """);
         }
-        
+
         [Fact]
         public void RankFusion_without_named_pipelines_should_add_expected_stage()
         {
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Tests
                 new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 1 }").Sort("{ y : 1 }"),
                 new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }")
             ]);
-            
+
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Tests
                                   }
                                   """);
         }
-        
+
         [Fact]
         public void RankFusion_using_pipeline_weight_tuples_should_add_expected_stage()
         {
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Tests
                 (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 2 }").Sort("{ y : -1 }"), 0.7),
                 (new EmptyPipelineDefinition<BsonDocument>().Match("{ x : 3 }").Sort("{ y : 1 }"), null)
             ]);
-            
+
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
@@ -249,17 +249,17 @@ namespace MongoDB.Driver.Tests
         public void RankFusion_should_throw_when_pipeline_is_null()
         {
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
-            
+
             Assert.Throws<ArgumentNullException>(() =>
             {
                 pipeline.RankFusion((Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>)null);
             }).ParamName.Should().Be("pipeline");
-            
+
             Assert.Throws<ArgumentNullException>(() =>
             {
                 pipeline.RankFusion((PipelineDefinition<BsonDocument, BsonDocument>[])null);
             }).ParamName.Should().Be("pipeline");
-            
+
             Assert.Throws<ArgumentNullException>(() =>
             {
                 pipeline.RankFusion(((PipelineDefinition<BsonDocument, BsonDocument>, double?)[])null);

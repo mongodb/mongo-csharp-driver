@@ -472,17 +472,17 @@ namespace MongoDB.Driver.Tests.Search
         public void RankFusion()
         {
             const int limit = 5;
-            
+
             var vector = new[] { 1.0, 2.0, 3.0 };
             var vectorOptions = new VectorSearchOptions<EmbeddedMovie>()
             {
                 IndexName = "vector_search_embedded_movies"
             };
             var vectorPipeline = new EmptyPipelineDefinition<EmbeddedMovie>().VectorSearch(m => m.Embedding, vector, limit, vectorOptions);
-            
+
             var searchDefinition = Builders<EmbeddedMovie>.Search.Text(new[]{"fullplot", "title"}, "ape");
             var searchPipeline = new EmptyPipelineDefinition<EmbeddedMovie>().Search(searchDefinition, indexName: "search_embedded_movies").Limit(limit);
-            
+
             var result = GetTestCollection<EmbeddedMovie>()
                 .Aggregate()
                 .RankFusion(new Dictionary<string, PipelineDefinition<EmbeddedMovie, EmbeddedMovie>>()
@@ -490,9 +490,9 @@ namespace MongoDB.Driver.Tests.Search
                     { "vector", vectorPipeline },
                     { "search", searchPipeline }
                 });
-            
+
             result.Stages.Count.Should().Be(1);
-            
+
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<EmbeddedMovie>();
             var renderedStage = result.Stages[0].Render(inputSerializer, serializerRegistry);
