@@ -20,7 +20,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             ([MqlMethod.ToBinDataFromInt, MqlMethod.ToBinDataFromLong, MqlMethod.ToBinDataFromDouble, MqlMethod.ToBinDataFromNullableInt, MqlMethod.ToBinDataFromNullableLong, MqlMethod.ToBinDataFromNullableDouble],
                 BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, null),
             ([MqlMethod.ToBinDataFromStringWithOptions], BsonValueSerializer.Instance, BsonType.Binary, 2, 1, null, 3),
-            ([MqlMethod.ToBinDataFromIntWithOptions, MqlMethod.ToBinDataFromLongWithOptions, MqlMethod.ToBinDataFromDoubleWithOptions], BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, 3),
+            ([MqlMethod.ToBinDataFromIntWithOptions, MqlMethod.ToBinDataFromLongWithOptions, MqlMethod.ToBinDataFromDoubleWithOptions,
+                    MqlMethod.ToBinDataFromNullableIntWithOptions, MqlMethod.ToBinDataFromNullableLongWithOptions, MqlMethod.ToBinDataFromNullableDoubleWithOptions],
+                BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, 3),
 
             ([MqlMethod.ToDoubleFromBinData], DoubleSerializer.Instance, BsonType.Double, null, null, 1, null),
             ([MqlMethod.ToDoubleFromBinDataWithOptions], DoubleSerializer.Instance, BsonType.Double, null, null, 1, 2),

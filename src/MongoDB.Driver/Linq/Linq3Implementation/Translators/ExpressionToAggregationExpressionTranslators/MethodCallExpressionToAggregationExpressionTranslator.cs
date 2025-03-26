@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "ToBsonBinaryData":
                 case "ToDouble":
                 case "ToInt":
-                case "TLong":
+                case "ToLong":
                 case "ToNullableDouble":
                 case "ToNullableInt":
                 case "ToNullableLong":

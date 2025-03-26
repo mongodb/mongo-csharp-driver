@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBsonBinaryData(x.DoubleProperty, BsonBinarySubType.Binary, byteOrder));
+                .Select(x => Mql.ToBsonBinaryData(x.NullableDoubleProperty, BsonBinarySubType.Binary, byteOrder));
 
             var expectedStages =
                 new[]
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBsonBinaryData(x.IntProperty, BsonBinarySubType.Binary, byteOrder));
+                .Select(x => Mql.ToBsonBinaryData(x.NullableIntProperty, BsonBinarySubType.Binary, byteOrder));
 
             var expectedStages =
                 new[]
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
-                .Select(x => Mql.ToBsonBinaryData(x.LongProperty, BsonBinarySubType.Binary, byteOrder));
+                .Select(x => Mql.ToBsonBinaryData(x.NullableLongProperty, BsonBinarySubType.Binary, byteOrder));
 
             var expectedStages =
                 new[]
@@ -259,10 +259,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // To Double
 
         [Theory]
+        [InlineData(2, ByteOrder.BigEndian, 0, "MongoCommandException")]
+        [InlineData(3, ByteOrder.LittleEndian, -0.5, null)]
+        [InlineData(5, ByteOrder.BigEndian, -2.5, null)]
+        public void MongoDBFunctions_ConvertToDoubleFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, double expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ToDouble(x.BinaryProperty, byteOrder));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'double', {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
         [InlineData(2, ByteOrder.BigEndian, null, "MongoCommandException")]
         [InlineData(3, ByteOrder.LittleEndian, -0.5, null)]
         [InlineData(5, ByteOrder.BigEndian, -2.5, null)]
-        public void MongoDBFunctions_ConvertToDoubleFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, double? expectedResult, string expectedException)
+        public void MongoDBFunctions_ConvertToNullableDoubleFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, double? expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -312,10 +335,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // To Int
 
         [Theory]
+        [InlineData(2, ByteOrder.LittleEndian, 0, "MongoCommandException")]
+        [InlineData(4, ByteOrder.LittleEndian, 674, null)]
+        [InlineData(6, ByteOrder.BigEndian, 42, null)]
+        public void MongoDBFunctions_ConvertToIntFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, int expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ToInt(x.BinaryProperty, byteOrder));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int',  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
         [InlineData(2, ByteOrder.LittleEndian, null, "MongoCommandException")]
         [InlineData(4, ByteOrder.LittleEndian, 674, null)]
         [InlineData(6, ByteOrder.BigEndian, 42, null)]
-        public void MongoDBFunctions_ConvertToIntFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, int? expectedResult, string expectedException)
+        public void MongoDBFunctions_ConvertToNullableIntFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, int? expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -365,10 +411,33 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         // To Long
 
         [Theory]
+        [InlineData(2, ByteOrder.LittleEndian, 0, "MongoCommandException")]
+        [InlineData(4, ByteOrder.LittleEndian, (long)674, null)]
+        [InlineData(6, ByteOrder.BigEndian, (long)42, null)]
+        public void MongoDBFunctions_ConvertToLongFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, long expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.ToLong(x.BinaryProperty, byteOrder));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'long', {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
         [InlineData(2, ByteOrder.LittleEndian, null, "MongoCommandException")]
         [InlineData(4, ByteOrder.LittleEndian, (long)674, null)]
         [InlineData(6, ByteOrder.BigEndian, (long)42, null)]
-        public void MongoDBFunctions_ConvertToLongFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, long? expectedResult, string expectedException)
+        public void MongoDBFunctions_ConvertToNullableLongFromBsonBinaryData_should_work(int id, ByteOrder byteOrder, long? expectedResult, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -521,9 +590,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             public int Id { get; set; }
             public BsonBinaryData BinaryProperty { get; set; }
-            public double? DoubleProperty { get; set; }
-            public int? IntProperty { get; set; }
-            public long? LongProperty { get; set; }
+            public double DoubleProperty { get; set; }
+            public int IntProperty { get; set; }
+            public long LongProperty { get; set; }
+            public double? NullableDoubleProperty { get; set; }
+            public int? NullableIntProperty { get; set; }
+            public long? NullableLongProperty { get; set; }
             public string StringProperty { get; set; }
         }
     }
