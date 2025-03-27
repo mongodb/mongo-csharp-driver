@@ -13,9 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
@@ -46,8 +49,28 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.Should().BeEquivalentTo(new[] { 0.7310585786300049, 0.9933071490757153, 0.999997739675702, 0.9999999992417439});
         }
 
+        [Fact]
+        public void Sigmoid_with_non_numeric_representation_should_throw()
+        {
+            var exception = Record.Exception(() =>
+            {
+                var collection = Fixture.Collection;
+
+                var queryable = collection
+                    .AsQueryable()
+                    .Select(x => Mql.Sigmoid(x.Y));
+
+                Translate(collection, queryable);
+            });
+
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception?.Message.Should().Contain("uses a non-numeric representation");
+        }
+
         public class C
         {
+            [BsonRepresentation(BsonType.String)]
+            public double Y { get; set; }
             public double X { get; set; }
         }
 
