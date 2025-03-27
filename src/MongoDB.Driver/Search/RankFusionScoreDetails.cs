@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The computed score which is the same as the score available via {$meta: "score"}.</param>
         /// <param name="description">Description of how the score was computed.</param>
         /// <param name="details">Info about how each input pipeline in the rankFusion stage contributed to the computed score.</param>
-        /// <seealso cref="IAggregateFluent{TResult}.RankFusion{TNewResult}(Dictionary{string,PipelineDefinition{TResult,TNewResult}}, Dictionary{string,double}, RankFusionOptions{TNewResult})"/>
+        /// <seealso cref="IAggregateFluentExtensions.RankFusion{TResult, TNewResult}(IAggregateFluent{TResult}, Dictionary{string,PipelineDefinition{TResult,TNewResult}}, Dictionary{string,double}, RankFusionOptions{TNewResult})"/>
         public RankFusionScoreDetails(double value, string description, BsonDocument[] details)
         {
             Value = value;
