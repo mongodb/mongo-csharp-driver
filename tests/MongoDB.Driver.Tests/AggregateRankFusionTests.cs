@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Tests
         }
 
         public sealed class ClassFixture : MongoDatabaseFixture
-        { 
+        {
             public IMongoCollection<SimplePerson> Collection { get; private set; }
 
             protected override void InitializeFixture()

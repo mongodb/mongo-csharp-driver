@@ -157,7 +157,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Combines an existing projection with a meta score projection. This projection will retrieve any kind of score metadata i.e.
-        /// searchScore, VectorSearchScore or textScore. 
+        /// searchScore, VectorSearchScore or textScore.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="projection">The projection.</param>
@@ -175,7 +175,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Combines an existing projection with a meta score projection. This projection will retrieve any kind of score metadata i.e.
-        /// searchScore, VectorSearchScore or textScore. 
+        /// searchScore, VectorSearchScore or textScore.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="projection">The projection.</param>
@@ -688,10 +688,10 @@ namespace MongoDB.Driver
         {
             return new SingleFieldProjectionDefinition<TSource>(field, new BsonDocument("$meta", metaFieldName));
         }
-        
+
         /// <summary>
         /// Creates a meta score projection. This projection will retrieve any kind of score metadata i.e.
-        /// searchScore, VectorSearchScore or textScore. 
+        /// searchScore, VectorSearchScore or textScore.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>
@@ -704,7 +704,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Creates a meta score projection. This projection will retrieve any kind of score metadata i.e.
-        /// searchScore, VectorSearchScore or textScore. 
+        /// searchScore, VectorSearchScore or textScore.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>

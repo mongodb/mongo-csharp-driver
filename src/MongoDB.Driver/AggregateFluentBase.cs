@@ -227,8 +227,8 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> RankFusion<TNewResult>(
-            Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines, 
-            Dictionary<string, double> weights = null, 
+            Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines,
+            Dictionary<string, double> weights = null,
             RankFusionOptions<TNewResult> options = null)
         {
             throw new NotImplementedException();

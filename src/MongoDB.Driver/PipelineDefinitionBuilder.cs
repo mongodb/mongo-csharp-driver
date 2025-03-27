@@ -995,7 +995,7 @@ namespace MongoDB.Driver
         public static PipelineDefinition<TInput, TOutput> RankFusion<TInput, TIntermediate, TOutput>(
             this PipelineDefinition<TInput, TIntermediate> pipeline,
             Dictionary<string, PipelineDefinition<TIntermediate, TOutput>> pipelines,
-            Dictionary<string, double> weights = null, 
+            Dictionary<string, double> weights = null,
             RankFusionOptions<TOutput> options = null)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));

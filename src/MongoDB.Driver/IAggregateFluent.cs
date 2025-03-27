@@ -375,7 +375,7 @@ namespace MongoDB.Driver
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> RankFusion<TNewResult>(
             Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines,
-            Dictionary<string, double> weights = null, 
+            Dictionary<string, double> weights = null,
             RankFusionOptions<TNewResult> options = null);
 
         /// <summary>

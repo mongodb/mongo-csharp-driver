@@ -258,8 +258,8 @@ namespace MongoDB.Driver
         }
 
         public override IAggregateFluent<TNewResult> RankFusion<TNewResult>(
-            Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines, 
-            Dictionary<string, double> weights = null, 
+            Dictionary<string, PipelineDefinition<TResult, TNewResult>> pipelines,
+            Dictionary<string, double> weights = null,
             RankFusionOptions<TNewResult> options = null)
         {
             return WithPipeline(_pipeline.RankFusion(pipelines, weights, options));
