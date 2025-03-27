@@ -82,6 +82,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __loookupDocuments= new Feature("LoookupDocuments", WireVersion.Server60);
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
+        private static readonly Feature __rankFusionStage = new Feature("RankFusionStage", WireVersion.Server81);
         private static readonly Feature __regexMatch = new Feature("RegexMatch", WireVersion.Server42);
         private static readonly Feature __round = new Feature("Round", WireVersion.Server42);
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", WireVersion.Server40);
@@ -385,6 +386,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the pick accumulators new in 5.2 feature.
         /// </summary>
         public static Feature PickAccumulatorsNewIn52 => __pickAccumulatorsNewIn52;
+
+        /// <summary>
+        /// Gets the $rankFusion feature.
+        /// </summary>
+        public static Feature RankFusionStage => __rankFusionStage;
 
         /// <summary>
         /// Gets the regex match feature.

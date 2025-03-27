@@ -527,6 +527,45 @@ namespace MongoDB.Driver.Tests
             });
         }
 
+        [Fact]
+        public void RankFusion_with_incorrect_params_should_throw_expected_exception()
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.RankFusion((Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>)null);
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.RankFusion((PipelineDefinition<BsonDocument, BsonDocument>[])null);
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.RankFusion(((PipelineDefinition<BsonDocument, BsonDocument>, double?)[])null);
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.RankFusion(
+                    new Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>
+                    {
+                        { "p1", null }
+                    });
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.RankFusion(new PipelineDefinition<BsonDocument, BsonDocument>[]{null});
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.RankFusion(
+                    new (PipelineDefinition<BsonDocument, BsonDocument>, double?)[] { (null, 1.0) });
+            });
+        }
+
         // private methods
         private IMongoDatabase GetDatabase()
         {

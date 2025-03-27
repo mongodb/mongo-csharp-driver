@@ -168,6 +168,38 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void MetaScore()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.MetaScore("a"), "{a: {$meta: 'score'}}");
+        }
+
+        [Fact]
+        public void MetaScore_typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.MetaScore(p => p.MetaField), "{mf: {$meta: 'score'}}");
+        }
+
+        [Fact]
+        public void MetaScoreDetails()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.MetaScoreDetails("a"), "{a: {$meta: 'scoreDetails'}}");
+        }
+
+        [Fact]
+        public void MetaScoreDetails_typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.MetaScoreDetails(p => p.MetaField), "{mf: {$meta: 'scoreDetails'}}");
+        }
+
+        [Fact]
         public void MetaTextScore()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -234,6 +266,9 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
+
+            [BsonElement("mf")]
+            public string MetaField { get; set; }
 
             [BsonElement("pets")]
             public Pet[] Pets { get; set; }
