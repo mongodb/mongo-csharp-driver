@@ -159,21 +159,24 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestMechanismPropertyFromUnresolvedConnectionString()
         {
-            var url = "mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster";
+            var url = "mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster,ANOTHER:test";
             var mongoConnection = MongoClientSettings.FromConnectionString(url);
-            mongoConnection.Credential.GetMechanismProperty<string>("ENVIRONMENT", "").Should().Be("azure");
-            mongoConnection.Credential.GetMechanismProperty<string>("prop", "").Should().Be("ab,cd,ef,jh");
-            mongoConnection.Credential.GetMechanismProperty<string>("TOKEN_RESOURCE", "").Should().Be("mongodb://test-cluster");
+            mongoConnection.Credential.GetMechanismProperty("ENVIRONMENT", "").Should().Be("azure");
+            mongoConnection.Credential.GetMechanismProperty("prop", "").Should().Be("ab,cd,ef,jh");
+            mongoConnection.Credential.GetMechanismProperty("TOKEN_RESOURCE", "").Should().Be("mongodb://test-cluster");
+            mongoConnection.Credential.GetMechanismProperty("ANOTHER", "").Should().Be("test");
         }
 
         [Fact]
         public void TestMechanismPropertyFromResolvedConnectionString()
         {
-            var url = "mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authSource=$external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster";
+            var url = "mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authSource=$external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster,ANOTHER:test";
             var mongoConnection = MongoClientSettings.FromConnectionString(url);
-            mongoConnection.Credential.GetMechanismProperty<string>("ENVIRONMENT", "").Should().Be("azure");
-            mongoConnection.Credential.GetMechanismProperty<string>("prop", "").Should().Be("ab,cd,ef,jh");
-            mongoConnection.Credential.GetMechanismProperty<string>("TOKEN_RESOURCE", "").Should().Be("mongodb://test-cluster");
+            mongoConnection.Credential.GetMechanismProperty("ENVIRONMENT", "").Should().Be("azure");
+            mongoConnection.Credential.GetMechanismProperty("prop", "").Should().Be("ab,cd,ef,jh");
+            mongoConnection.Credential.GetMechanismProperty("TOKEN_RESOURCE", "").Should().Be("mongodb://test-cluster");
+            mongoConnection.Credential.GetMechanismProperty("ANOTHER", "").Should().Be("test");
+
         }
     }
 }

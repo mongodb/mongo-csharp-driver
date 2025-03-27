@@ -1132,6 +1132,7 @@ namespace MongoDB.Driver.Core.Configuration
                 value = Uri.UnescapeDataString(value);
             }
 
+            // The regex splits at commas that are followed by a word and a colon
             var parts = isEscaped ? Regex.Split(value, @",(?=\w+:)") : value.Split(',');
 
             foreach (var part in parts)
