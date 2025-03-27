@@ -431,7 +431,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the sharded transactions feature.
         /// </summary>
         public static Feature ShardedTransactions => __shardedTransactions;
-        
+
         /// <summary>
         /// Gets the $sigmoid operator feature.
         /// </summary>

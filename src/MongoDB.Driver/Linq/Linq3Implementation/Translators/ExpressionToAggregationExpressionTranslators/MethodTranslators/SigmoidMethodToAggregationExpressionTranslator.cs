@@ -37,10 +37,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 return new TranslatedExpression(
                     expression,
-                    AstExpression.Unary(AstUnaryOperator.Sigmoid, valueTranslation.Ast), 
+                    AstExpression.Unary(AstUnaryOperator.Sigmoid, valueTranslation.Ast),
                     DoubleSerializer.Instance);
             }
-            
+
             throw new ExpressionNotSupportedException(expression);
         }
     }

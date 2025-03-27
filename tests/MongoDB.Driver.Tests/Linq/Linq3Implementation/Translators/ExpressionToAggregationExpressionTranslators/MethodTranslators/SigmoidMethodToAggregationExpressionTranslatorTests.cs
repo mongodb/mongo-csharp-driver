@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var queryable = collection
                 .AsQueryable()
                 .Select(x => Mql.Sigmoid(x.X));
-        
+
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { _v : { $sigmoid : '$X' }, _id : 0 } }");
 
