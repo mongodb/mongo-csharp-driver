@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData("mongodb://test5.test.build.10gen.cc", "mongodb://test5.test.build.10gen.cc", true)]
         [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&tls=true", false)]
         [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&tls=true", true)]
-        [InlineData("mongodb+srv://test5.test.build.10gen.cc/?authSource=$external", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=%24external&tls=true" , false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc/?authSource=$external", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=%24external&tls=true", false)]
         [InlineData("mongodb+srv://test5.test.build.10gen.cc/?authSource=%24external", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=%24external&tls=true", false)]
         [InlineData("mongodb+srv://test5.test.build.10gen.cc/?authSource=$external&authMechanism=MONGODB-AWS", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=%24external&authMechanism=MONGODB-AWS&tls=true", false)]
         public void Resolve_should_return_expected_result(string connectionString, string expectedResult, bool async)
