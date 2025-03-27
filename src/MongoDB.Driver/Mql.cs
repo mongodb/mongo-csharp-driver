@@ -152,5 +152,15 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+
+        /// <summary>
+        /// Transforms a real-valued input into a value between 0 and 1 using the $sigmoid operator.
+        /// </summary>
+        /// <param name="value">The input value.</param>
+        /// <returns>The transformed value.</returns>
+        public static double Sigmoid(double value)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
     }
 }
