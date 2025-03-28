@@ -49,9 +49,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 #pragma warning disable CS0618 // Type or member is obsolete
                 var cursor = _collection.MapReduce<BsonDocument>(_map, _reduce);
 #pragma warning restore CS0618 // Type or member is obsolete
-                var enumerator = cursor.ToEnumerable().GetEnumerator();
 
-                return OperationResult.FromCursor(enumerator);
+                var result = cursor.ToList(cancellationToken);
+                return OperationResult.FromResult(new BsonArray(result));
             }
             catch (Exception exception)
             {
@@ -66,9 +66,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 #pragma warning disable CS0618 // Type or member is obsolete
                 var cursor = await _collection.MapReduceAsync<BsonDocument>(_map, _reduce);
 #pragma warning restore CS0618 // Type or member is obsolete
-                var enumerator = cursor.ToEnumerable().GetEnumerator();
 
-                return OperationResult.FromCursor(enumerator);
+                var result = await cursor.ToListAsync(cancellationToken);
+                return OperationResult.FromResult(new BsonArray(result));
             }
             catch (Exception exception)
             {

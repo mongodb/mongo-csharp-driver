@@ -226,8 +226,8 @@ namespace MongoDB.Driver.Tests.Specifications
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
 
         // used by SkippedTestsProvider property in UnifiedTests attribute.
-        private static readonly HashSet<string> __ignoredTests = new(new []
-        {
+        private static readonly HashSet<string> __ignoredTests = new(
+        [
             // CMAP
             "waitQueueMultiple should be included in connection pool created message when specified",
 
@@ -275,7 +275,22 @@ namespace MongoDB.Driver.Tests.Specifications
 
             // CSHARP Driver does not comply with the requirement to throw in case explicit writeConcern were used, see CSHARP-5468
             "client bulkWrite with writeConcern in a transaction causes a transaction error",
-        });
+        ]);
+
+        private static readonly HashSet<string> __ignoredTestFiles = new(
+        [
+            // retryableReads
+            // .NET/C# driver does not implement FindOne, ListCollectionObjects, ListDatabaseObjects, ListIndexNames helpers
+            "findOne.json",
+            "findOne-serverErrors.json",
+            "listCollectionObjects.json",
+            "listCollectionObjects.json",
+            "listCollectionObjects-serverErrors.json",
+            "listDatabaseObjects.json",
+            "listDatabaseObjects-serverErrors.json",
+            "listIndexNames.json",
+            "listIndexNames-serverErrors.json"
+        ]);
 
         #region CMAP helpers
 
