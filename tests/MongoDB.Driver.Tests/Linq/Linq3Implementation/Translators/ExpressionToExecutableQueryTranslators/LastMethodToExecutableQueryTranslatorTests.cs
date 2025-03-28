@@ -32,140 +32,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
-        public void LastWithPredicate_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
-
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TestClass));
-
-            Expression<Func<TestClass, bool>> exp = t => t.Id > 1;
-
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression, exp),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
-
-            var expectedStages = new[] {
-                """{ "$sort" : { "_id" : 1 } }""",
-                """{ "$match" : { "_id" : { "$gt" : 1 } }}""",
-                """{ "$group" : { "_id" : null, "_last" : { "$last" : "$$ROOT" } } }""",
-                """{ "$replaceRoot" : { "newRoot" : "$_last" } }"""
-            };
-
-            AssertStages(stages, expectedStages);
-            var result = queryable.Last(exp);
-            Assert.Equal(3, result.Id);
-        }
-
-        [Fact]
-        public void LastWithPredicate_and_null_return_should_throw()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
-
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TestClass));
-
-            Expression<Func<TestClass, bool>> exp = t => t.Id > 4;
-
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression, exp),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
-
-            var expectedStages = new[] {
-                """{ "$sort" : { "_id" : 1 } }""",
-                """{ "$match" : { "_id" : { "$gt" : 4 } }}""",
-                """{ "$group" : { "_id" : null, "_last" : { "$last" : "$$ROOT" } } }""",
-                """{ "$replaceRoot" : { "newRoot" : "$_last" } }"""
-            };
-
-            AssertStages(stages, expectedStages);
-            var exception = Record.Exception(() => queryable.Last(exp));
-            Assert.NotNull(exception);
-            Assert.IsType<InvalidOperationException>(exception);
-        }
-
-        [Fact]
-        public void LastOrDefaultWithPredicate_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
-
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TestClass));
-
-            Expression<Func<TestClass, bool>> exp = t => t.Id > 1;
-
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression, exp),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
-
-            var expectedStages = new[] {
-                """{ "$sort" : { "_id" : 1 } }""",
-                """{ "$match" : { "_id" : { "$gt" : 1 } }}""",
-                """{ "$group" : { "_id" : null, "_last" : { "$last" : "$$ROOT" } } }""",
-                """{ "$replaceRoot" : { "newRoot" : "$_last" } }"""
-            };
-
-            AssertStages(stages, expectedStages);
-            var result = queryable.LastOrDefault(exp);
-            Assert.NotNull(result);
-            Assert.Equal(3, result.Id);
-        }
-
-        [Fact]
-        public void LastOrDefaultWithPredicate_and_null_return_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
-
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TestClass));
-
-            Expression<Func<TestClass, bool>> exp = t => t.Id > 4;
-
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression, exp),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
-
-            var expectedStages = new[] {
-                """{ "$sort" : { "_id" : 1 } }""",
-                """{ "$match" : { "_id" : { "$gt" : 4 } }}""",
-                """{ "$group" : { "_id" : null, "_last" : { "$last" : "$$ROOT" } } }""",
-                """{ "$replaceRoot" : { "newRoot" : "$_last" } }"""
-            };
-
-            AssertStages(stages, expectedStages);
-            var result = queryable.LastOrDefault(exp);
-            Assert.Null(result);
-        }
-
-        [Fact]
         public void Last_should_work()
         {
             var collection = Fixture.Collection;
@@ -287,6 +153,140 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, expectedStages);
             var result = queryable.LastOrDefault();
             Assert.Null(result);
+        }
+
+        [Fact]
+        public void LastOrDefaultWithPredicate_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().OrderBy(t => t.Id);
+            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+
+            var lastMethod = typeof(Queryable).GetMethods()
+                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
+                .MakeGenericMethod(typeof(TestClass));
+
+            Expression<Func<TestClass, bool>> exp = t => t.Id > 1;
+
+            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
+                provider,
+                Expression.Call(lastMethod, queryable.Expression, exp),
+                translationOptions: null);
+
+            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+
+            var expectedStages = new[] {
+                """{ "$sort" : { "_id" : 1 } }""",
+                """{ "$match" : { "_id" : { "$gt" : 1 } }}""",
+                """{ "$group" : { "_id" : null, "_last" : { "$last" : "$$ROOT" } } }""",
+                """{ "$replaceRoot" : { "newRoot" : "$_last" } }"""
+            };
+
+            AssertStages(stages, expectedStages);
+            var result = queryable.LastOrDefault(exp);
+            Assert.NotNull(result);
+            Assert.Equal(3, result.Id);
+        }
+
+        [Fact]
+        public void LastOrDefaultWithPredicate_and_null_return_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().OrderBy(t => t.Id);
+            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+
+            var lastMethod = typeof(Queryable).GetMethods()
+                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
+                .MakeGenericMethod(typeof(TestClass));
+
+            Expression<Func<TestClass, bool>> exp = t => t.Id > 4;
+
+            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
+                provider,
+                Expression.Call(lastMethod, queryable.Expression, exp),
+                translationOptions: null);
+
+            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+
+            var expectedStages = new[] {
+                """{ "$sort" : { "_id" : 1 } }""",
+                """{ "$match" : { "_id" : { "$gt" : 4 } }}""",
+                """{ "$group" : { "_id" : null, "_last" : { "$last" : "$$ROOT" } } }""",
+                """{ "$replaceRoot" : { "newRoot" : "$_last" } }"""
+            };
+
+            AssertStages(stages, expectedStages);
+            var result = queryable.LastOrDefault(exp);
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void LastWithPredicate_should_work()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().OrderBy(t => t.Id);
+            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+
+            var lastMethod = typeof(Queryable).GetMethods()
+                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
+                .MakeGenericMethod(typeof(TestClass));
+
+            Expression<Func<TestClass, bool>> exp = t => t.Id > 1;
+
+            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
+                provider,
+                Expression.Call(lastMethod, queryable.Expression, exp),
+                translationOptions: null);
+
+            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+
+            var expectedStages = new[] {
+                """{ "$sort" : { "_id" : 1 } }""",
+                """{ "$match" : { "_id" : { "$gt" : 1 } }}""",
+                """{ "$group" : { "_id" : null, "_last" : { "$last" : "$$ROOT" } } }""",
+                """{ "$replaceRoot" : { "newRoot" : "$_last" } }"""
+            };
+
+            AssertStages(stages, expectedStages);
+            var result = queryable.Last(exp);
+            Assert.Equal(3, result.Id);
+        }
+
+        [Fact]
+        public void LastWithPredicate_and_null_return_should_throw()
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = collection.AsQueryable().OrderBy(t => t.Id);
+            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+
+            var lastMethod = typeof(Queryable).GetMethods()
+                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
+                .MakeGenericMethod(typeof(TestClass));
+
+            Expression<Func<TestClass, bool>> exp = t => t.Id > 4;
+
+            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
+                provider,
+                Expression.Call(lastMethod, queryable.Expression, exp),
+                translationOptions: null);
+
+            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+
+            var expectedStages = new[] {
+                """{ "$sort" : { "_id" : 1 } }""",
+                """{ "$match" : { "_id" : { "$gt" : 4 } }}""",
+                """{ "$group" : { "_id" : null, "_last" : { "$last" : "$$ROOT" } } }""",
+                """{ "$replaceRoot" : { "newRoot" : "$_last" } }"""
+            };
+
+            AssertStages(stages, expectedStages);
+            var exception = Record.Exception(() => queryable.Last(exp));
+            Assert.NotNull(exception);
+            Assert.IsType<InvalidOperationException>(exception);
         }
 
         public class TestClass
