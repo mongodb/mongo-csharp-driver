@@ -174,6 +174,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
                             AssertBoolean(connectionString.Ssl, expectedOption.Value);
 #pragma warning restore 618
                             break;
+                        case "timeoutms":
+                            break;
                         case "tls":
                             AssertBoolean(connectionString.Tls, expectedOption.Value);
                             break;
