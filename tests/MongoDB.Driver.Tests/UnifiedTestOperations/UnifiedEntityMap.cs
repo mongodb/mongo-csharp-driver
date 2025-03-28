@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication.Oidc;
@@ -38,8 +39,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public sealed class UnifiedEntityMap : IDisposable
     {
         #region static
-        public static UnifiedEntityMap Create(Dictionary<string, IEventFormatter> eventFormatters, LoggingSettings loggingSettings, bool async)
-            => new(eventFormatters, loggingSettings, async);
+        public static UnifiedEntityMap Create(Dictionary<string, IEventFormatter> eventFormatters, LoggingSettings loggingSettings, bool async, BsonDocument lastKnownClusterTime)
+            => new(eventFormatters, loggingSettings, async, lastKnownClusterTime);
 
         #endregion
 
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly bool _async;
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
         private readonly LoggingSettings _loggingSettings;
+        private readonly BsonDocument _lastKnownClusterTime;
 
         private readonly Dictionary<string, IGridFSBucket> _buckets = new();
         private readonly Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> _changeStreams = new();
@@ -73,11 +75,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private UnifiedEntityMap(
             Dictionary<string, IEventFormatter> eventFormatters,
             LoggingSettings loggingSettings,
-            bool async)
+            bool async,
+            BsonDocument lastKnownClusterTime)
         {
             _eventFormatters = eventFormatters ?? new();
             _loggingSettings = loggingSettings;
             _async = async;
+            _lastKnownClusterTime = lastKnownClusterTime;
         }
 
         // public properties
@@ -1011,6 +1015,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 
             var session = client.StartSession(options);
+            if (_lastKnownClusterTime != null)
+            {
+                session.WrappedCoreSession.AdvanceClusterTime(_lastKnownClusterTime);
+            }
 
             return session;
         }

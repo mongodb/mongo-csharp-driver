@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             var serversList = servers.ToList(); // avoid multiple enumeration
             if (CanUseSecondaries(cluster, serversList))
             {
+                _mayUseSecondary.EffectiveReadPreference = _mayUseSecondary.ReadPreference;
                 var readPreferenceSelector = new ReadPreferenceServerSelector(_mayUseSecondary.ReadPreference);
                 return readPreferenceSelector.SelectServers(cluster, serversList);
             }
