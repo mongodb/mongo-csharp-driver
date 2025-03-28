@@ -19,6 +19,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
     internal static class AstExpressionExtensions
     {
+        public static bool IsConstant(this AstExpression expression, BsonValue value)
+            => expression is AstConstantExpression constantExpression && constantExpression.Value.Equals(value);
+
         public static bool IsInt32Constant(this AstExpression expression, out int value)
         {
             if (expression is AstConstantExpression constantExpression &&
