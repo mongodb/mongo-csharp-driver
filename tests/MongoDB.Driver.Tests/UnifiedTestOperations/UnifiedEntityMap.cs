@@ -715,8 +715,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 },
                 useMultipleShardRouters);
 
-            //SpinWait.SpinUntil(() => client.Cluster.Description.State == ClusterState.Connected && client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
-
             return (client, clientEventCapturers, loggingComponents);
         }
 
