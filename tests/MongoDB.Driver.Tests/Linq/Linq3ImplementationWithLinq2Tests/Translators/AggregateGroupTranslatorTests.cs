@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             AssertStages(
                 result.Stages,
-                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
-                "{ $project : { Property : '$_id', Field : '$__agg0.B', _id : 0 } }");
+                "{ $group : { _id : '$A', __agg0 : { $first : '$B' } } }",
+                "{ $project : { Property : '$_id', Field : '$__agg0', _id : 0 } }");
 
             result.Value.Property.Should().Be("Amazing");
             result.Value.Field.Should().Be("Baby");
@@ -53,8 +53,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             AssertStages(
                 result.Stages,
-                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
-                "{ $project : { Property : '$_id', Field : '$__agg0.B', _id : 0 } }");
+                "{ $group : { _id : '$A', __agg0 : { $first : '$B' } } }",
+                "{ $project : { Property : '$_id', Field : '$__agg0', _id : 0 } }");
 
             result.Value.Property.Should().Be("Amazing");
             result.Value.Field.Should().Be("Baby");
@@ -236,8 +236,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             AssertStages(
                 result.Stages,
-                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
-                "{ $project : { B : '$__agg0.B', _id : 0 } }");
+                "{ $group : { _id : '$A', __agg0 : { $first : '$B' } } }",
+                "{ $project : { B : '$__agg0', _id : 0 } }");
 
             result.Value.B.Should().Be("Baby");
         }
@@ -262,8 +262,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             AssertStages(
                 result.Stages,
-                "{ $group : { _id : '$A', __agg0 : { $last : '$$ROOT' } } }",
-                "{ $project : { B : '$__agg0.B', _id : 0 } }");
+                "{ $group : { _id : '$A', __agg0 : { $last : '$B' } } }",
+                "{ $project : { B : '$__agg0', _id : 0 } }");
 
             result.Value.B.Should().Be("Baby");
         }
@@ -492,8 +492,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                         _id : '$A',
                         __agg0 : { $sum : 1 },
                         __agg1 : { $sum : { $add : ['$C.E.F', '$C.E.H'] } },
-                        __agg2 : { $first : '$$ROOT' },
-                        __agg3 : { $last : '$$ROOT' },
+                        __agg2 : { $first : '$B' },
+                        __agg3 : { $last : '$K' },
                         __agg4 : { $min : { $add : ['$C.E.F', '$C.E.H'] } },
                         __agg5 : { $max : { $add : ['$C.E.F', '$C.E.H'] } }
                     }
@@ -503,8 +503,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                     $project : {
                         Count : '$__agg0',
                         Sum : '$__agg1',
-                        First : '$__agg2.B',
-                        Last : '$__agg3.K',
+                        First : '$__agg2',
+                        Last : '$__agg3',
                         Min : '$__agg4',
                         Max : '$__agg5',
                         _id : 0

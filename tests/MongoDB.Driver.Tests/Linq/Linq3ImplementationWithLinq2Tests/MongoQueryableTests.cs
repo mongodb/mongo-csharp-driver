@@ -411,8 +411,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
             Assert(query,
                 2,
-                "{ $group: { _id: '$A', __agg0: { $first: '$$ROOT'} } }",
-                "{ $project: { Key: '$_id', FirstB: '$__agg0.B', _id: 0 } }");
+                "{ $group: { _id: '$A', __agg0: { $first: '$B'} } }",
+                "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
 
             query = CreateQuery()
                 .GroupBy(x => x.A)
@@ -434,8 +434,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
             Assert(query,
                 2,
-                "{ $group: { _id: '$A', __agg0: { $first: '$$ROOT'} } }",
-                "{ $project: { Key: '$_id', FirstB: '$__agg0.B', _id: 0 } }");
+                "{ $group: { _id: '$A', __agg0: { $first: '$B'} } }",
+                "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
 
             query = from p in CreateQuery()
                         group p by p.A into g
@@ -484,9 +484,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
             Assert(query,
                 1,
-                "{ $group: { _id: '$A', __agg0: { $first: '$$ROOT'} } }",
-                "{ $match: { '__agg0.B' : 'Balloon' } }",
-                "{ $project: { Key: '$_id', FirstB: '$__agg0.B', _id: 0 } }");
+                "{ $group: { _id: '$A', __agg0 : { $first : '$B' } } }",
+                "{ $match: { '__agg0' : 'Balloon' } }",
+                "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
 
             query = CreateQuery()
                 .GroupBy(x => x.A)
@@ -495,9 +495,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
             Assert(query,
                 1,
-                "{ $group: { _id: '$A', __agg0: { $first: '$$ROOT'}, __agg1 : { $first : '$B' } } }",
-                "{ $match: { '__agg0.B' : 'Balloon' } }",
-                "{ $project: { Key: '$_id', FirstB: '$__agg1', _id: 0 } }");
+                "{ $group: { _id: '$A', __agg0 : { $first : '$B' } } }",
+                "{ $match: { '__agg0' : 'Balloon' } }",
+                "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
 
 #if !MONO
@@ -511,9 +511,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
             Assert(query,
                 1,
-                "{ $group: { _id: '$A', __agg0: { $first: '$$ROOT'} } }",
-                "{ $match: { '__agg0.B' : 'Balloon' } }",
-                "{ $project: { Key: '$_id', FirstB: '$__agg0.B', _id: 0 } }");
+                "{ $group: { _id: '$A', __agg0 : { $first : '$B' } } }",
+                "{ $match: { '__agg0' : 'Balloon' } }",
+                "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
         }
 #endif
 
@@ -525,8 +525,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
             Assert(query,
                 2,
-                "{ $group: { _id : '$A', __agg0 : { $first: '$$ROOT'} } }",
-                "{ $project : { Key : '$_id', FirstB : '$__agg0.B', _id : 0 } }");
+                "{ $group: { _id : '$A', __agg0 : { $first: '$B'} } }",
+                "{ $project : { Key : '$_id', FirstB : '$__agg0', _id : 0 } }");
 
             query = CreateQuery()
                 .GroupBy(x => x.A, (k, s) => new { Key = k, FirstB = s.Select(x => x.B).First() });

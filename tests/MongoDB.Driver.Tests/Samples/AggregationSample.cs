@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Tests.Samples
                            select new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) };
 
             var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = 
+            var expectedStages =
                 new[]
                 {
                     "{ $group : { _id : '$state', __agg0 : { $sum : '$pop' } } }",
@@ -173,13 +173,13 @@ namespace MongoDB.Driver.Tests.Samples
                 .SortBy(x => x.State);
 
             var pipelineTranslation = pipeline.ToString();
-            var expectedTranslation = 
+            var expectedTranslation =
                 "aggregate([" +
                 "{ \"$group\" : { \"_id\" : { \"State\" : \"$state\", \"City\" : \"$city\" }, \"__agg0\" : { \"$sum\" : \"$pop\" } } }, " +
                 "{ \"$project\" : { \"StateAndCity\" : \"$_id\", \"Population\" : \"$__agg0\", \"_id\" : 0 } }, " +
                 "{ \"$sort\" : { \"Population\" : 1 } }, " +
-                "{ \"$group\" : { \"_id\" : \"$StateAndCity.State\", \"__agg0\" : { \"$last\" : \"$$ROOT\" }, \"__agg1\" : { \"$first\" : \"$$ROOT\" } } }, " +
-                "{ \"$project\" : { \"State\" : \"$_id\", \"BiggestCity\" : \"$__agg0.StateAndCity.City\", \"BiggestPopulation\" : \"$__agg0.Population\", \"SmallestCity\" : \"$__agg1.StateAndCity.City\", \"SmallestPopulation\" : \"$__agg1.Population\", \"_id\" : 0 } }, " +
+                "{ \"$group\" : { \"_id\" : \"$StateAndCity.State\", \"__agg0\" : { \"$last\" : \"$StateAndCity.City\" }, \"__agg1\" : { \"$last\" : \"$Population\" }, \"__agg2\" : { \"$first\" : \"$StateAndCity.City\" }, \"__agg3\" : { \"$first\" : \"$Population\" } } }, " +
+                "{ \"$project\" : { \"State\" : \"$_id\", \"BiggestCity\" : \"$__agg0\", \"BiggestPopulation\" : \"$__agg1\", \"SmallestCity\" : \"$__agg2\", \"SmallestPopulation\" : \"$__agg3\", \"_id\" : 0 } }, " +
                 "{ \"$project\" : { \"State\" : \"$State\", \"BiggestCity\" : { \"Name\" : \"$BiggestCity\", \"Population\" : \"$BiggestPopulation\" }, \"SmallestCity\" : { \"Name\" : \"$SmallestCity\", \"Population\" : \"$SmallestPopulation\" }, \"_id\" : 0 } }, " +
                 "{ \"$sort\" : { \"State\" : 1 } }])";
             pipelineTranslation.Should().Be(expectedTranslation);
