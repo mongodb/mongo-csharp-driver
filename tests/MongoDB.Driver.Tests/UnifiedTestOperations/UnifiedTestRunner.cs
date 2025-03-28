@@ -132,13 +132,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 KillOpenTransactions(DriverTestConfiguration.Client);
             }
 
-            _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async);
+            BsonDocument lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
+            _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async, lastKnownClusterTime);
             _entityMap.AddRange(entities);
-
-            if (initialData != null)
-            {
-                AddInitialData(DriverTestConfiguration.Client, initialData, _entityMap);
-            }
 
             foreach (var operation in operations)
             {
@@ -181,45 +177,36 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // private methods
-        private void AddInitialData(IMongoClient client, BsonArray initialData, UnifiedEntityMap entityMap)
+        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData)
         {
-            var mongoCollectionSettings = new MongoCollectionSettings();
-
-            var writeConcern = WriteConcern.WMajority;
-            if (DriverTestConfiguration.IsReplicaSet(client))
+            if (initialData == null)
             {
-                // Makes server to wait for ack from all data nodes to make sure the test data availability before running the test itself.
-                // It's limited to replica set only because there is no simple way to calculate proper w for sharded cluster.
-                var dataBearingServersCount = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client);
-                writeConcern = WriteConcern.Acknowledged.With(w: dataBearingServersCount, journal:true);
+                return null;
             }
 
-            BsonDocument serverTime = null;
+            BsonDocument lastKnownClusterTime = null;
             foreach (var dataItem in initialData)
             {
                 var collectionName = dataItem["collectionName"].AsString;
                 var databaseName = dataItem["databaseName"].AsString;
                 var documents = dataItem["documents"].AsBsonArray.Cast<BsonDocument>().ToList();
 
-                var database = client.GetDatabase(databaseName).WithWriteConcern(writeConcern);
-                var collection = database.GetCollection<BsonDocument>(collectionName, mongoCollectionSettings);
+                var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
 
                 _logger.LogDebug("Dropping {0}", collectionName);
-                var session = client.StartSession();
+                using var session = client.StartSession();
                 database.DropCollection(session, collectionName);
+                database.CreateCollection(session, collectionName);
                 if (documents.Any())
                 {
+                    var collection = database.GetCollection<BsonDocument>(collectionName);
                     collection.InsertMany(session, documents);
                 }
-                else
-                {
-                    database.CreateCollection(session, collectionName);
-                }
 
-                serverTime = session.ClusterTime;
+                lastKnownClusterTime = session.ClusterTime;
             }
 
-            entityMap.AdjustSessionsClusterTime(serverTime);
+            return lastKnownClusterTime;
         }
 
         private void AssertEvents(BsonArray eventItems, UnifiedEntityMap entityMap)
