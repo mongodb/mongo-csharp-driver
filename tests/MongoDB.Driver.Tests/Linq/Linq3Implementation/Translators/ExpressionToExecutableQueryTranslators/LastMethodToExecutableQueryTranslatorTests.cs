@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.TestHelpers;
@@ -35,20 +37,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Last_should_work()
         {
             var collection = Fixture.Collection;
-
             var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+            var lastMethod = GetQueryableMethod(nameof(Queryable.Last), 1);
 
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 1)
-                .MakeGenericMethod(typeof(TestClass));
-
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var stages = GetStages(queryable, lastMethod);
 
             var expectedStages = new[] {
                 """{ "$sort" : { "_id" : 1 } }""",
@@ -65,20 +57,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Last_with_null_return_should_throw()
         {
             var collection = Fixture.Collection;
-
             var queryable = collection.AsQueryable().Where(t => t.Id > 5).OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+            var lastMethod = GetQueryableMethod(nameof(Queryable.Last), 1);
 
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 1)
-                .MakeGenericMethod(typeof(TestClass));
-
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var stages = GetStages(queryable, lastMethod);
 
             var expectedStages = new[] {
                 """{ "$match" : { "_id" : { "$gt" : 5 } }}""",
@@ -97,20 +79,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void LastOrDefault_should_work()
         {
             var collection = Fixture.Collection;
-
             var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+            var lastMethod = GetQueryableMethod(nameof(Queryable.LastOrDefault), 1);
 
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.LastOrDefault) && m.GetParameters().Length == 1)
-                .MakeGenericMethod(typeof(TestClass));
-
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var stages = GetStages(queryable, lastMethod);
 
             var expectedStages = new[] {
                 """{ "$sort" : { "_id" : 1 } }""",
@@ -128,20 +100,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void LastOrDefault_with_null_return_should_work()
         {
             var collection = Fixture.Collection;
-
             var queryable = collection.AsQueryable().Where(t => t.Id > 5).OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+            var lastMethod = GetQueryableMethod(nameof(Queryable.LastOrDefault), 1);
 
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.LastOrDefault) && m.GetParameters().Length == 1)
-                .MakeGenericMethod(typeof(TestClass));
-
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var stages = GetStages(queryable, lastMethod);
 
             var expectedStages = new[] {
                 """{ "$match" : { "_id" : { "$gt" : 5 } }}""",
@@ -159,22 +121,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void LastOrDefaultWithPredicate_should_work()
         {
             var collection = Fixture.Collection;
-
             var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
-
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TestClass));
+            var lastMethod = GetQueryableMethod(nameof(Queryable.Last), 2);
 
             Expression<Func<TestClass, bool>> exp = t => t.Id > 1;
 
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression, exp),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var stages = GetStages(queryable, lastMethod, exp);
 
             var expectedStages = new[] {
                 """{ "$sort" : { "_id" : 1 } }""",
@@ -193,22 +145,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void LastOrDefaultWithPredicate_and_null_return_should_work()
         {
             var collection = Fixture.Collection;
-
             var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
-
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TestClass));
+            var lastMethod = GetQueryableMethod(nameof(Queryable.Last), 2);
 
             Expression<Func<TestClass, bool>> exp = t => t.Id > 4;
 
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression, exp),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var stages = GetStages(queryable, lastMethod, exp);
 
             var expectedStages = new[] {
                 """{ "$sort" : { "_id" : 1 } }""",
@@ -226,22 +168,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void LastWithPredicate_should_work()
         {
             var collection = Fixture.Collection;
-
             var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
-
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TestClass));
+            var lastMethod = GetQueryableMethod(nameof(Queryable.Last), 2);
 
             Expression<Func<TestClass, bool>> exp = t => t.Id > 1;
 
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression, exp),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var stages = GetStages(queryable, lastMethod, exp);
 
             var expectedStages = new[] {
                 """{ "$sort" : { "_id" : 1 } }""",
@@ -256,25 +188,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
-        public void LastWithPredicate_and_null_return_should_throw()
+        public void LastWithPredicate_with_null_return_should_throw()
         {
             var collection = Fixture.Collection;
-
             var queryable = collection.AsQueryable().OrderBy(t => t.Id);
-            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
-
-            var lastMethod = typeof(Queryable).GetMethods()
-                .First(m => m.Name == nameof(Queryable.Last) && m.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(TestClass));
+            var lastMethod = GetQueryableMethod(nameof(Queryable.Last), 2);
 
             Expression<Func<TestClass, bool>> exp = t => t.Id > 4;
 
-            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
-                provider,
-                Expression.Call(lastMethod, queryable.Expression, exp),
-                translationOptions: null);
-
-            var stages = executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var stages = GetStages(queryable, lastMethod, exp);
 
             var expectedStages = new[] {
                 """{ "$sort" : { "_id" : 1 } }""",
@@ -287,6 +209,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var exception = Record.Exception(() => queryable.Last(exp));
             Assert.NotNull(exception);
             Assert.IsType<InvalidOperationException>(exception);
+        }
+
+        private static MethodInfo GetQueryableMethod(string methodName, int parameterCount)
+        {
+            return typeof(Queryable).GetMethods()
+                .First(m => m.Name == methodName && m.GetParameters().Length == parameterCount)
+                .MakeGenericMethod(typeof(TestClass));
+        }
+
+        private static List<BsonDocument> GetStages(IQueryable<TestClass> queryable, MethodInfo method, Expression arg = null)
+        {
+            var provider = (MongoQueryProvider<TestClass>)queryable.Provider;
+            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TestClass, TestClass>(
+                provider,
+                arg == null ? Expression.Call(method, queryable.Expression): Expression.Call(method, queryable.Expression, arg),
+                translationOptions: null);
+
+            return executableQuery.Pipeline.Ast.Stages.Select(s => s.Render().AsBsonDocument).ToList();
         }
 
         public class TestClass
