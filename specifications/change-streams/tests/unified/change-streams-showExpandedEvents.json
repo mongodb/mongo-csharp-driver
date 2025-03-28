@@ -6,7 +6,6 @@
       "minServerVersion": "6.0.0",
       "topologies": [
         "replicaset",
-        "sharded-replicaset",
         "sharded"
       ],
       "serverless": "forbid"
@@ -463,7 +462,6 @@
       "runOnRequirements": [
         {
           "topologies": [
-            "sharded-replicaset",
             "sharded"
           ]
         }
