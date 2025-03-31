@@ -1,0 +1,33 @@
+description: operator-matchAsRoot
+
+schemaVersion: "1.13"
+
+createEntities:
+  - client:
+      id: &client0 client0
+  - database:
+      id: &database0 database0
+      client: *client0
+      databaseName: &database0Name test
+  - collection:
+      id: &collection0 collection0
+      database: *database0
+      collectionName: &collection0Name coll0
+
+initialData:
+  - collectionName: *collection0Name
+    databaseName: *database0Name
+    documents:
+      - { _id: 1, x: { y: 2, z: 3 } }
+
+tests:
+  -
+    description: matchAsRoot with nested document does not match
+    operations:
+      - name: find
+        object: *collection0
+        arguments:
+          filter: { _id : 1 }
+          limit: 1
+        expectResult:
+          - { _id: 1, x: { $$matchAsRoot: { y: 3 } } }
