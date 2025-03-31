@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -48,7 +48,7 @@ namespace AtlasConnectivity.Tests
         public void Connection_to_Atlas_should_work(string environmentVariableName)
         {
             var connectionString = Environment.GetEnvironmentVariable(environmentVariableName);
-            connectionString.Should().NotBeNull();
+            connectionString.ShouldNotBeNull();
 
             using (var client = CreateMongoClient(connectionString))
             {
