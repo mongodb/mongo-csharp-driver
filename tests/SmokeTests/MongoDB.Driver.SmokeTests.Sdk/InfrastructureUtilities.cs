@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -41,10 +41,10 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 var libmongocryptFileVersionInfo = FileVersionInfo.GetVersionInfo(typeof(ClientEncryption).Assembly.Location);
 
                 driverFileVersionInfo.ProductVersion?.Contains(packageShaExpected)
-                    .Should().BeTrue("Expected package sha {0} in {1} for driver package version.", packageShaExpected, driverFileVersionInfo.ProductVersion);
+                    .ShouldBeTrue($"Expected package sha {packageShaExpected} in {driverFileVersionInfo.ProductVersion} for driver package version.");
 
                 libmongocryptFileVersionInfo.ProductVersion?.Contains(packageShaExpected)
-                    .Should().BeTrue("Expected package sha {0} in {1} for libmongocrypt package version.", packageShaExpected, libmongocryptFileVersionInfo.ProductVersion);
+                    .ShouldBeTrue($"Expected package sha {packageShaExpected} in {libmongocryptFileVersionInfo.ProductVersion} for libmongocrypt package version.");
             }
         }
 

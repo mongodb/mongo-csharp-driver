@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
                 if (categoryName != null)
                 {
-                    Array.ForEach(actualLogs, l => l.Category.Should().Be(categoryName));
+                    Array.ForEach(actualLogs, l => l.Category.ShouldBe(categoryName));
                 }
             }
             catch
