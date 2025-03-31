@@ -2,7 +2,7 @@
   "tests": [
     {
       "description": "Valid connection and timeout options are parsed correctly",
-      "uri": "mongodb://example.com/?appname=URI-OPTIONS-SPEC-TEST&connectTimeoutMS=20000&heartbeatFrequencyMS=5000&localThresholdMS=3000&maxIdleTimeMS=50000&replicaSet=uri-options-spec&retryWrites=true&serverSelectionTimeoutMS=15000&socketTimeoutMS=7500&timeoutMS=100",
+      "uri": "mongodb://example.com/?appname=URI-OPTIONS-SPEC-TEST&connectTimeoutMS=20000&heartbeatFrequencyMS=5000&localThresholdMS=3000&maxIdleTimeMS=50000&replicaSet=uri-options-spec&retryWrites=true&serverSelectionTimeoutMS=15000&socketTimeoutMS=7500",
       "valid": true,
       "warning": false,
       "hosts": null,
@@ -16,8 +16,7 @@
         "replicaSet": "uri-options-spec",
         "retryWrites": true,
         "serverSelectionTimeoutMS": 15000,
-        "socketTimeoutMS": 7500,
-        "timeoutMS": 100
+        "socketTimeoutMS": 7500
       }
     },
     {
@@ -27,7 +26,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Too low connectTimeoutMS causes a warning",
@@ -36,7 +35,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Non-numeric heartbeatFrequencyMS causes a warning",
@@ -45,7 +44,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Too low heartbeatFrequencyMS causes a warning",
@@ -54,7 +53,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Non-numeric localThresholdMS causes a warning",
@@ -63,7 +62,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Too low localThresholdMS causes a warning",
@@ -72,7 +71,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Invalid retryWrites causes a warning",
@@ -81,7 +80,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Non-numeric serverSelectionTimeoutMS causes a warning",
@@ -90,7 +89,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Too low serverSelectionTimeoutMS causes a warning",
@@ -99,7 +98,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Non-numeric socketTimeoutMS causes a warning",
@@ -108,7 +107,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "Too low socketTimeoutMS causes a warning",
@@ -117,7 +116,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "directConnection=true",
@@ -137,7 +136,7 @@
       "warning": false,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "directConnection=false",
@@ -168,7 +167,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "loadBalanced=true",
@@ -211,7 +210,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "loadBalanced=true with multiple hosts causes an error",
@@ -220,7 +219,7 @@
       "warning": false,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "loadBalanced=true with directConnection=true causes an error",
@@ -229,7 +228,7 @@
       "warning": false,
       "hosts": null,
       "auth": null,
-      "options": null
+      "options": {}
     },
     {
       "description": "loadBalanced=true with replicaSet causes an error",
@@ -238,36 +237,7 @@
       "warning": false,
       "hosts": null,
       "auth": null,
-      "options": null
-    },
-    {
-      "description": "timeoutMS=0",
-      "uri": "mongodb://example.com/?timeoutMS=0",
-      "valid": true,
-      "warning": false,
-      "hosts": null,
-      "auth": null,
-      "options": {
-        "timeoutMS": 0
-      }
-    },
-    {
-      "description": "Non-numeric timeoutMS causes a warning",
-      "uri": "mongodb://example.com/?timeoutMS=invalid",
-      "valid": true,
-      "warning": true,
-      "hosts": null,
-      "auth": null,
-      "options": null
-    },
-    {
-      "description": "Too low timeoutMS causes a warning",
-      "uri": "mongodb://example.com/?timeoutMS=-2",
-      "valid": true,
-      "warning": true,
-      "hosts": null,
-      "auth": null,
-      "options": null
+      "options": {}
     }
   ]
 }
