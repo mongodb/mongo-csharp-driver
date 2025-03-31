@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
@@ -46,20 +46,20 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = new List<BsonDocument>();
 
-                jsonReader.State.Should().Be(BsonReaderState.Initial);
+                jsonReader.State.ShouldBe(BsonReaderState.Initial);
                 while (!jsonReader.IsAtEndOfFile())
                 {
                     jsonReader.ReadStartDocument();
                     var name = jsonReader.ReadName();
                     var value = jsonReader.ReadInt32();
                     jsonReader.ReadEndDocument();
-                    jsonReader.State.Should().Be(BsonReaderState.Initial);
+                    jsonReader.State.ShouldBe(BsonReaderState.Initial);
 
                     var resultDocument = new BsonDocument(name, value);
                     result.Add(resultDocument);
                 }
 
-                result.Should().Equal(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -139,9 +139,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.ReadBinaryData();
 
-                result.Should().Be(new BsonBinaryData(expectedBytes, expectedSubType));
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                result.ShouldBe(new BsonBinaryData(expectedBytes, expectedSubType));
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -186,7 +186,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var exception = Record.Exception(() => reader.ReadBinaryData());
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -233,7 +233,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var exception = Record.Exception(() => reader.ReadBinaryData());
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -357,9 +357,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.ReadDateTime();
 
-                result.Should().Be(expectedResult);
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                result.ShouldBe(expectedResult);
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -450,9 +450,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.ReadDateTime();
 
-                result.Should().Be(expectedResult);
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                result.ShouldBe(expectedResult);
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -591,10 +591,10 @@ namespace MongoDB.Bson.Tests.IO
         {
             using (var reader = new JsonReader(json))
             {
-                reader.ReadBsonType().Should().Be(BsonType.Double);
-                reader.ReadDouble().Should().Be(expectedValue);
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                reader.ReadBsonType().ShouldBe(BsonType.Double);
+                reader.ReadDouble().ShouldBe(expectedValue);
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -608,7 +608,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var exception = Record.Exception(() => reader.ReadDouble());
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -622,7 +622,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var exception = Record.Exception(() => reader.ReadDouble());
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -655,7 +655,7 @@ namespace MongoDB.Bson.Tests.IO
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
             var exception = Record.Exception(() => guid.ToJson(new JsonWriterSettings()));
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
 
         [Fact]
@@ -702,9 +702,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.ReadInt32();
 
-                result.Should().Be(expectedResult);
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                result.ShouldBe(expectedResult);
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -723,7 +723,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var execption = Record.Exception(() => reader.ReadInt32());
 
-                execption.Should().BeOfType<FormatException>();
+                execption.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -762,9 +762,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.ReadInt64();
 
-                result.Should().Be(expectedResult);
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                result.ShouldBe(expectedResult);
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -804,11 +804,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var jsonReader = new JsonReader(json))
             {
                 var count = 0;
-                jsonReader.State.Should().Be(BsonReaderState.Initial);
+                jsonReader.State.ShouldBe(BsonReaderState.Initial);
                 while (!jsonReader.IsAtEndOfFile())
                 {
                     var array = BsonSerializer.Deserialize<BsonArray>(jsonReader);
-                    jsonReader.State.Should().Be(BsonReaderState.Initial);
+                    jsonReader.State.ShouldBe(BsonReaderState.Initial);
                     var expected = new BsonArray { 1, 2 };
                     Assert.Equal(expected, array);
                     count += 1;
@@ -825,11 +825,11 @@ namespace MongoDB.Bson.Tests.IO
             using (var jsonReader = new JsonReader(json))
             {
                 var count = 0;
-                jsonReader.State.Should().Be(BsonReaderState.Initial);
+                jsonReader.State.ShouldBe(BsonReaderState.Initial);
                 while (!jsonReader.IsAtEndOfFile())
                 {
                     var document = BsonSerializer.Deserialize<BsonDocument>(jsonReader);
-                    jsonReader.State.Should().Be(BsonReaderState.Initial);
+                    jsonReader.State.ShouldBe(BsonReaderState.Initial);
                     var expected = new BsonDocument("x", 1);
                     Assert.Equal(expected, document);
                     count += 1;
@@ -895,8 +895,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 reader.ReadMaxKey();
 
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -953,8 +953,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 reader.ReadMinKey();
 
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -1069,9 +1069,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.ReadObjectId();
 
-                result.Should().Be(ObjectId.Parse(expectedResult));
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                result.ShouldBe(ObjectId.Parse(expectedResult));
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -1113,9 +1113,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.ReadRegularExpression();
 
-                result.Should().Be(new BsonRegularExpression(expectedPattern, expectedOptions));
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                result.ShouldBe(new BsonRegularExpression(expectedPattern, expectedOptions));
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -1156,7 +1156,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var exception = Record.Exception(() => reader.ReadRegularExpression());
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -1197,7 +1197,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var exception = Record.Exception(() => reader.ReadRegularExpression());
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -1275,9 +1275,9 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.ReadTimestamp();
 
-                result.Should().Be(expectedResult);
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                result.ShouldBe(expectedResult);
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -1311,7 +1311,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var exception = Record.Exception(() => _bsonReader.ReadBsonType());
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -1356,7 +1356,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var exception = Record.Exception(() => _bsonReader.ReadBsonType());
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -1384,8 +1384,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 reader.ReadUndefined();
 
-                reader.State.Should().Be(BsonReaderState.Initial);
-                reader.IsAtEndOfFile().Should().BeTrue();
+                reader.State.ShouldBe(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().ShouldBeTrue();
             }
         }
 
@@ -1523,7 +1523,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.IsValidBinaryDataSubTypeString(value);
 
-                result.Should().BeFalse();
+                result.ShouldBeFalse();
             }
         }
 
@@ -1551,7 +1551,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = reader.IsValidBinaryDataSubTypeString(value);
 
-                result.Should().BeTrue();
+                result.ShouldBeTrue();
             }
         }
 
@@ -1576,8 +1576,8 @@ namespace MongoDB.Bson.Tests.IO
             var result = reader.ReadBinaryData();
             reader.ReadEndDocument();
 
-            result.SubType.Should().Be(expectedSubType);
-            result.Bytes.Should().Equal(BsonUtils.ParseHexString(expectedBytes));
+            result.SubType.ShouldBe(expectedSubType);
+            result.Bytes.ShouldBe(BsonUtils.ParseHexString(expectedBytes));
         }
 
         [Theory]
@@ -1600,7 +1600,7 @@ namespace MongoDB.Bson.Tests.IO
             var result = reader.ReadGuid();
             reader.ReadEndDocument();
 
-            result.Should().Be(Guid.Parse((expectedResult)));
+            result.ShouldBe(Guid.Parse((expectedResult)));
         }
 
         [Theory]
@@ -1614,7 +1614,7 @@ namespace MongoDB.Bson.Tests.IO
             reader.ReadName("v");
             var exception = Record.Exception(() => reader.ReadGuid());
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Theory]
@@ -1650,7 +1650,7 @@ namespace MongoDB.Bson.Tests.IO
             var result = reader.ReadGuid(guidRepresentation);
             reader.ReadEndDocument();
 
-            result.Should().Be(Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10"));
+            result.ShouldBe(Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10"));
         }
 
         [Theory]
@@ -1670,7 +1670,7 @@ namespace MongoDB.Bson.Tests.IO
             reader.ReadName("v");
             var exception = Record.Exception(() => reader.ReadGuid(guidRepresentation));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Theory]
@@ -1701,7 +1701,7 @@ namespace MongoDB.Bson.Tests.IO
                 reader.ReadGuid(guidRepresentation);
             });
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
     }
 

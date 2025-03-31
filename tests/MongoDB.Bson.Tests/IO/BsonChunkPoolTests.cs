@@ -19,7 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.ChunkSize;
 
-            result.Should().Be(16);
+            result.ShouldBe(16);
         }
 
         [Fact]
@@ -47,9 +47,9 @@ namespace MongoDB.Bson.Tests.IO
             var subject = new BsonChunkPool(maxChunkCount, chunkSize);
 
             var reflector = new Reflector(subject);
-            subject.MaxChunkCount.Should().Be(maxChunkCount);
-            subject.ChunkSize.Should().Be(chunkSize);
-            reflector._disposed.Should().BeFalse();
+            subject.MaxChunkCount.ShouldBe(maxChunkCount);
+            subject.ChunkSize.ShouldBe(chunkSize);
+            reflector._disposed.ShouldBeFalse();
         }
 
         [Theory]
@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new BsonChunkPool(1, chunkSize);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("chunkSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("chunkSize");
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new BsonChunkPool(-1, 16);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxChunkCount");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("maxChunkCount");
         }
 
         [Fact]
@@ -76,8 +76,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             var result = BsonChunkPool.Default;
 
-            result.ChunkSize.Should().Be(64 * 1024);
-            result.MaxChunkCount.Should().Be(8192);
+            result.ChunkSize.ShouldBe(64 * 1024);
+            result.MaxChunkCount.ShouldBe(8192);
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 BsonChunkPool.Default = newDefaultPool;
 
-                BsonChunkPool.Default.Should().BeSameAs(newDefaultPool);
+                BsonChunkPool.Default.ShouldBeSameAs(newDefaultPool);
             }
             finally
             {
@@ -103,7 +103,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => BsonChunkPool.Default = null;
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("value");
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
 
             var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            reflector._disposed.ShouldBeTrue();
         }
 
         [Theory]
@@ -136,7 +136,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.GetChunk(requestedSize);
 
-            result.Bytes.Count.Should().Be(16);
+            result.Bytes.Count.ShouldBe(16);
         }
 
         [Fact]
@@ -150,9 +150,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.GetChunk(1);
 
-            result.Bytes.Array.Should().BeSameAs(expectedArray);
-            result.Bytes.Offset.Should().Be(expectedOffset);
-            result.Bytes.Count.Should().Be(16);
+            result.Bytes.Array.ShouldBeSameAs(expectedArray);
+            result.Bytes.Offset.ShouldBe(expectedOffset);
+            result.Bytes.Count.ShouldBe(16);
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetChunk(1);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonChunkPool");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("BsonChunkPool");
         }
 
         [Fact]
@@ -173,7 +173,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.MaxChunkCount;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         // nested types
@@ -207,9 +207,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.Bytes;
 
-            result.Array.Length.Should().Be(16);
-            result.Offset.Should().Be(0);
-            result.Count.Should().Be(16);
+            result.Array.Length.ShouldBe(16);
+            result.Offset.ShouldBe(0);
+            result.Count.ShouldBe(16);
         }
 
         [Fact]
@@ -221,7 +221,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.Bytes; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("DisposableChunk");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("DisposableChunk");
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
 
             var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            reflector._disposed.ShouldBeTrue();
         }
 
         [Fact]
@@ -254,7 +254,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            pool.ChunkCount.Should().Be(1);
+            pool.ChunkCount.ShouldBe(1);
         }
 
         [Theory]
@@ -285,11 +285,11 @@ namespace MongoDB.Bson.Tests.IO
 
             foreach (var handle in handles)
             {
-                pool.ChunkCount.Should().Be(0);
+                pool.ChunkCount.ShouldBe(0);
                 handle.Dispose();
             }
 
-            pool.ChunkCount.Should().Be(1);
+            pool.ChunkCount.ShouldBe(1);
         }
 
         [Fact]
@@ -300,9 +300,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var handle = subject.Fork();
 
-            handle.Bytes.Array.Should().BeSameAs(subject.Bytes.Array);
-            handle.Bytes.Offset.Should().Be(subject.Bytes.Offset);
-            handle.Bytes.Count.Should().Be(subject.Bytes.Count);
+            handle.Bytes.Array.ShouldBeSameAs(subject.Bytes.Array);
+            handle.Bytes.Offset.ShouldBe(subject.Bytes.Offset);
+            handle.Bytes.Count.ShouldBe(subject.Bytes.Count);
         }
 
         [Fact]
@@ -314,7 +314,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Fork();
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("DisposableChunk");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("DisposableChunk");
         }
 
         // nested types

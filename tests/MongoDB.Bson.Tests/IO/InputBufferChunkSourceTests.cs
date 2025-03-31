@@ -15,7 +15,7 @@
 
 using System;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.BaseSource;
 
-            result.Should().BeSameAs(mockBaseSource.Object);
+            result.ShouldBeSameAs(mockBaseSource.Object);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.BaseSource; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("InputBufferChunkSource");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("InputBufferChunkSource");
         }
 
         [Fact]
@@ -59,11 +59,11 @@ namespace MongoDB.Bson.Tests.IO
             var subject = new InputBufferChunkSource(mockBaseSource.Object, maxUnpooledChunkSize, minChunkSize, maxChunkSize);
 
             var reflector = new Reflector(subject);
-            subject.BaseSource.Should().BeSameAs(mockBaseSource.Object);
-            subject.MaxChunkSize.Should().Be(maxChunkSize);
-            subject.MaxUnpooledChunkSize.Should().Be(maxUnpooledChunkSize);
-            subject.MinChunkSize.Should().Be(minChunkSize);
-            reflector._disposed.Should().BeFalse();
+            subject.BaseSource.ShouldBeSameAs(mockBaseSource.Object);
+            subject.MaxChunkSize.ShouldBe(maxChunkSize);
+            subject.MaxUnpooledChunkSize.ShouldBe(maxUnpooledChunkSize);
+            subject.MinChunkSize.ShouldBe(minChunkSize);
+            reflector._disposed.ShouldBeFalse();
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, minChunkSize: 2, maxChunkSize: 1);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxChunkSize");
+            action.ShouldThrow<ArgumentException>().ParamName.ShouldBe("maxChunkSize");
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, maxChunkSize: -1);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxChunkSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("maxChunkSize");
         }
 
         [Theory]
@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, maxChunkSize: maxChunkSize);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxChunkSize");
+            action.ShouldThrow<ArgumentException>().ParamName.ShouldBe("maxChunkSize");
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(null);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("baseSource");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("baseSource");
         }
 
         [Fact]
@@ -106,7 +106,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, maxUnpooledChunkSize: -1);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("maxUnpooledChunkSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("maxUnpooledChunkSize");
         }
 
         [Fact]
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, minChunkSize: -1);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minChunkSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("minChunkSize");
         }
 
         [Theory]
@@ -125,7 +125,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new InputBufferChunkSource(BsonChunkPool.Default, minChunkSize: minChunkSize);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("minChunkSize");
+            action.ShouldThrow<ArgumentException>().ParamName.ShouldBe("minChunkSize");
         }
 
         [Fact]
@@ -135,7 +135,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
-            subject.MaxChunkSize.Should().Be(1 * 1024 * 1024);
+            subject.MaxChunkSize.ShouldBe(1 * 1024 * 1024);
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
-            subject.MaxUnpooledChunkSize.Should().Be(4 * 1024);
+            subject.MaxUnpooledChunkSize.ShouldBe(4 * 1024);
         }
 
         [Fact]
@@ -155,7 +155,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new InputBufferChunkSource(mockBaseSource.Object);
 
-            subject.MinChunkSize.Should().Be(16 * 1024);
+            subject.MinChunkSize.ShouldBe(16 * 1024);
         }
 
         [Fact]
@@ -177,7 +177,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
 
             var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            reflector._disposed.ShouldBeTrue();
         }
 
         [Theory]
@@ -191,8 +191,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.GetChunk(requestedSize);
 
-            result.Should().BeOfType<ByteArrayChunk>();
-            result.Bytes.Count.Should().Be(requestedSize);
+            result.ShouldBeOfType<ByteArrayChunk>();
+            result.Bytes.Count.ShouldBe(requestedSize);
             mockBaseSource.Verify(s => s.GetChunk(It.IsAny<int>()), Times.Never);
         }
 
@@ -235,7 +235,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetChunk(requestedSize);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("requestedSize");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("requestedSize");
         }
 
         [Fact]
@@ -247,7 +247,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetChunk(1);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("InputBufferChunkSource");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("InputBufferChunkSource");
         }
 
         [Fact]
@@ -259,7 +259,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.MaxChunkSize;
 
-            result.Should().Be(maxChunkSize);
+            result.ShouldBe(maxChunkSize);
         }
 
         [Fact]
@@ -271,7 +271,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.MaxUnpooledChunkSize;
 
-            result.Should().Be(maxUnpooledChunkSize);
+            result.ShouldBe(maxUnpooledChunkSize);
         }
 
         [Fact]
@@ -283,7 +283,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.MinChunkSize;
 
-            result.Should().Be(minChunkSize);
+            result.ShouldBe(minChunkSize);
         }
 
         // nested types

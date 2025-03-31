@@ -16,7 +16,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.IO;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Tests.IO
                 }
 
                 var result = stream.ToArray();
-                result.Should().Equal(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -116,8 +116,8 @@ namespace MongoDB.Bson.Tests.IO
             var subType = (BsonBinarySubType)documentBytes[11];
             var guidBytes = documentBytes.Skip(12).Take(16).ToArray();
 
-            subType.Should().Be(BsonBinarySubType.UuidStandard);
-            guidBytes.Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+            subType.ShouldBe(BsonBinarySubType.UuidStandard);
+            guidBytes.ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
         }
 
         [Theory]
@@ -140,8 +140,8 @@ namespace MongoDB.Bson.Tests.IO
             var subType = (BsonBinarySubType)documentBytes[11];
             var guidBytes = documentBytes.Skip(12).Take(16).ToArray();
 
-            subType.Should().Be(expectedSubType);
-            guidBytes.Should().Equal(expectedGuidBytes);
+            subType.ShouldBe(expectedSubType);
+            guidBytes.ShouldBe(expectedGuidBytes);
         }
     }
 }

@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
@@ -87,12 +87,11 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryHolder = new MemoryHolder<T>() { Items = notSupportedData };
 
             var exception = Record.Exception(() => memoryHolder.ToBson());
-            var e = exception.Should()
-                .BeOfType<BsonSerializationException>().Subject.InnerException.Should()
-                .BeOfType<TargetInvocationException>().Subject.InnerException.Should()
-                .BeOfType<NotSupportedException>().Subject;
+            var e = exception.ShouldBeOfType<BsonSerializationException>()
+                .InnerException.ShouldBeOfType<TargetInvocationException>()
+                .InnerException.ShouldBeOfType<NotSupportedException>();
 
-            e.Message.Should().StartWith("Not supported memory type");
+            e.Message.ShouldStartWith("Not supported memory type");
         }
 
         [Theory]
@@ -102,12 +101,11 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryHolder = new ReadonlyMemoryHolder<T>() { Items = notSupportedData };
 
             var exception = Record.Exception(() => memoryHolder.ToBson());
-            var e = exception.Should()
-                .BeOfType<BsonSerializationException>().Subject.InnerException.Should()
-                .BeOfType<TargetInvocationException>().Subject.InnerException.Should()
-                .BeOfType<NotSupportedException>().Subject;
+            var e = exception.ShouldBeOfType<BsonSerializationException>()
+                .InnerException.ShouldBeOfType<TargetInvocationException>()
+                .InnerException.ShouldBeOfType<NotSupportedException>();
 
-            e.Message.Should().StartWith("Not supported memory type");
+            e.Message.ShouldStartWith("Not supported memory type");
         }
 
         [Theory]
@@ -118,10 +116,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryBson = memoryHolder.ToBson();
             var arrayBson = GetArrayHolderBson(array);
 
-            memoryBson.ShouldAllBeEquivalentTo(arrayBson);
+            memoryBson.ShouldBe(arrayBson);
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<MemoryHolder<T>>(memoryBson);
-            memoryHolderMaterialized.Items.ToArray().ShouldAllBeEquivalentTo(memoryHolder.Items.ToArray());
+            memoryHolderMaterialized.Items.ToArray().ShouldBe(memoryHolder.Items.ToArray());
         }
 
         [Theory]
@@ -132,10 +130,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryBson = memoryHolder.ToBson();
             var arrayBson = GetArrayHolderBson(array);
 
-            memoryBson.ShouldAllBeEquivalentTo(arrayBson);
+            memoryBson.ShouldBe(arrayBson);
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<ReadonlyMemoryHolder<T>>(memoryBson);
-            memoryHolderMaterialized.Items.ToArray().ShouldAllBeEquivalentTo(memoryHolder.Items.ToArray());
+            memoryHolderMaterialized.Items.ToArray().ShouldBe(memoryHolder.Items.ToArray());
         }
 
         [Theory]
@@ -146,7 +144,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryBson = memoryHolder.ToBson();
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<MemoryHolder<T>>(memoryBson);
-            memoryHolderMaterialized.Items.ToArray().ShouldAllBeEquivalentTo(memoryHolder.Items.ToArray());
+            memoryHolderMaterialized.Items.ToArray().ShouldBe(memoryHolder.Items.ToArray());
         }
 
         [Theory]
@@ -157,7 +155,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryBson = memoryHolder.ToBson();
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<MemoryHolder<T>>(memoryBson);
-            memoryHolderMaterialized.Items.ToArray().ShouldAllBeEquivalentTo(memoryHolder.Items.ToArray());
+            memoryHolderMaterialized.Items.ToArray().ShouldBe(memoryHolder.Items.ToArray());
         }
 
         [Theory]
@@ -168,7 +166,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var memoryBson = memoryHolder.ToBson();
 
             var memoryHolderMaterialized = BsonSerializer.Deserialize<MemoryHolder<T>>(memoryBson);
-            memoryHolderMaterialized.Items.ToArray().ShouldAllBeEquivalentTo(memoryHolder.Items.ToArray());
+            memoryHolderMaterialized.Items.ToArray().ShouldBe(memoryHolder.Items.ToArray());
         }
 
         [Theory]
@@ -177,8 +175,8 @@ namespace MongoDB.Bson.Tests.Serialization
             where T : struct
         {
             var exception = Record.Exception(() => new MemorySerializer<T>(representation));
-            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
-            e.ParamName.Should().Be("representation");
+            var e = exception.ShouldBeOfType<ArgumentOutOfRangeException>();
+            e.ParamName.ShouldBe("representation");
         }
 
         [Fact]
@@ -190,8 +188,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(memoryHolder.ToBson());
             var itemsElement = bsonDocument[nameof(memoryHolder.Items)];
 
-            itemsElement.BsonType.Should().Be(BsonType.Array);
-            itemsElement.AsBsonArray.ShouldAllBeEquivalentTo(bytes);
+            itemsElement.BsonType.ShouldBe(BsonType.Array);
+            itemsElement.AsBsonArray.Select(b => (byte)b).ToArray().ShouldBe(bytes);
         }
 
         [Fact]
@@ -203,8 +201,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(memoryHolder.ToBson());
             var itemsElement = bsonDocument[nameof(memoryHolder.Items)];
 
-            itemsElement.BsonType.Should().Be(BsonType.Array);
-            itemsElement.AsBsonArray.ShouldAllBeEquivalentTo(bytes);
+            itemsElement.BsonType.ShouldBe(BsonType.Array);
+            itemsElement.AsBsonArray.Select(b => (byte)b).ToArray().ShouldBe(bytes);
         }
 
         [Fact]
@@ -216,8 +214,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(memoryHolder.ToBson());
             var itemsElement = bsonDocument[nameof(memoryHolder.Items)];
 
-            itemsElement.BsonType.Should().Be(BsonType.Binary);
-            itemsElement.AsByteArray.ShouldAllBeEquivalentTo(bytes);
+            itemsElement.BsonType.ShouldBe(BsonType.Binary);
+            itemsElement.AsByteArray.ShouldBe(bytes);
         }
 
         [Fact]
@@ -229,8 +227,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var bsonDocument = BsonSerializer.Deserialize<BsonDocument>(memoryHolder.ToBson());
             var itemsElement = bsonDocument[nameof(memoryHolder.Items)];
 
-            itemsElement.BsonType.Should().Be(BsonType.Binary);
-            itemsElement.AsByteArray.ShouldAllBeEquivalentTo(bytes);
+            itemsElement.BsonType.ShouldBe(BsonType.Binary);
+            itemsElement.AsByteArray.ShouldBe(bytes);
         }
 
         [Fact]
@@ -247,10 +245,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = multiHolder.ToBson();
             var materialized = BsonSerializer.Deserialize<MultiHolder>(bson);
 
-            materialized.ItemsBytes.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsBytes.ToArray());
-            materialized.ItemsDouble.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsDouble.ToArray());
-            materialized.ItemsFloat.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsFloat.ToArray());
-            materialized.ItemsInt.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsInt.ToArray());
+            materialized.ItemsBytes.ToArray().ShouldBe(multiHolder.ItemsBytes.ToArray());
+            materialized.ItemsDouble.ToArray().ShouldBe(multiHolder.ItemsDouble.ToArray());
+            materialized.ItemsFloat.ToArray().ShouldBe(multiHolder.ItemsFloat.ToArray());
+            materialized.ItemsInt.ToArray().ShouldBe(multiHolder.ItemsInt.ToArray());
         }
 
         [Fact]
@@ -265,10 +263,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = multiHolder.ToBson();
             var materialized = BsonSerializer.Deserialize<MultiHolder>(bson);
 
-            materialized.ItemsBytes.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsBytes.ToArray());
-            materialized.ItemsDouble.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsDouble.ToArray());
-            materialized.ItemsFloat.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsFloat.ToArray());
-            materialized.ItemsInt.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsInt.ToArray());
+            materialized.ItemsBytes.ToArray().ShouldBe(multiHolder.ItemsBytes.ToArray());
+            materialized.ItemsDouble.ToArray().ShouldBe(multiHolder.ItemsDouble.ToArray());
+            materialized.ItemsFloat.ToArray().ShouldBe(multiHolder.ItemsFloat.ToArray());
+            materialized.ItemsInt.ToArray().ShouldBe(multiHolder.ItemsInt.ToArray());
         }
 
         public readonly static IEnumerable<object[]> TestData =
@@ -341,7 +339,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -352,7 +350,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -362,7 +360,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -373,7 +371,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -384,7 +382,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -394,7 +392,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -407,7 +405,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -418,7 +416,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -428,7 +426,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -439,7 +437,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -450,7 +448,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -460,7 +458,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -474,7 +472,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -484,7 +482,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -495,7 +493,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -505,7 +503,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -516,7 +514,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -527,7 +525,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -537,7 +535,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         public class ConcreteMemorySerializerBase<TItem, TMemory> : MemorySerializerBase<TItem, TMemory>

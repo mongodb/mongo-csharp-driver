@@ -15,7 +15,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
 
             var rehydrated = BsonSerializer.Deserialize<ClassWithIEnumerableIds>(json);
 
-            rehydrated.Ids.Should().Equal("0102030405060708090a0b0c");
+            rehydrated.Ids.ShouldBe(["0102030405060708090a0b0c"]);
         }
 
         public static readonly object[][] IEnumerable_should_serialize_as_ObjectIds_MemberData =
@@ -53,7 +53,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
 
             var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
-            json.Should().Be("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
+            json.ShouldBe("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
 
             var rehydrated = BsonSerializer.Deserialize<ClassWithICollectionIds>(json);
 
-            rehydrated.Ids.Should().Equal("0102030405060708090a0b0c");
+            rehydrated.Ids.ShouldBe(["0102030405060708090a0b0c"]);
         }
 
         public static readonly object[][] ICollection_should_serialize_as_ObjectIds_MemberData =
@@ -84,7 +84,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
 
             var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
-            json.Should().Be("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
+            json.ShouldBe("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
 
             var rehydrated = BsonSerializer.Deserialize<ClassWithIListIds>(json);
 
-            rehydrated.Ids.Should().Equal("0102030405060708090a0b0c");
+            rehydrated.Ids.ShouldBe(["0102030405060708090a0b0c"]);
         }
 
         public static readonly object[][] IList_should_serialize_as_ObjectIds_MemberData =
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
 
             var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
-            json.Should().Be("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
+            json.ShouldBe("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
 
             var rehydrated = BsonSerializer.Deserialize<ClassWithISetIds>(json);
 
-            rehydrated.Ids.Should().Equal("0102030405060708090a0b0c");
+            rehydrated.Ids.ShouldBe(["0102030405060708090a0b0c"]);
         }
 
         public static readonly object[][] ISet_should_serialize_as_ObjectIds_MemberData =
@@ -138,9 +138,9 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var document = new ClassWithISetIds { Ids = value };
 
-            var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            string json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
-            json.Should().Be("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
+            json.ShouldBe("{ \"Ids\" : [ObjectId(\"0102030405060708090a0b0c\")] }");
         }
 
         private class ClassWithIEnumerableIds

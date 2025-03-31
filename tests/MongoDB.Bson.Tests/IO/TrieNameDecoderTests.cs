@@ -14,7 +14,7 @@
 */
 
 using System.IO;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using Xunit;
 
@@ -61,9 +61,9 @@ namespace MongoDB.Bson.Tests.IO
 
                 var result = subject.Decode(bsonStream, Utf8Encodings.Strict);
 
-                result.Should().Be(name);
-                subject.Found.Should().Be(found);
-                subject.Value.Should().Be(value);
+                result.ShouldBe(name);
+                subject.Found.ShouldBe(found);
+                subject.Value.ShouldBe(value);
             }
         }
 

@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -31,8 +31,8 @@ namespace MongoDB.Bson.Tests.Jira
 
             var exception = Record.Exception(() => BsonSerializer.Deserialize<C1>(json));
 
-            exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Contain("GuidSerializer cannot deserialize a Guid when GuidRepresentation is Unspecified");
+            exception.ShouldBeOfType<FormatException>();
+            exception.Message.ShouldContain("GuidSerializer cannot deserialize a Guid when GuidRepresentation is Unspecified");
         }
 
         [Fact]
@@ -42,8 +42,8 @@ namespace MongoDB.Bson.Tests.Jira
 
             var c = BsonSerializer.Deserialize<C2>(json);
 
-            c.Id.Should().Be(1);
-            c.G.Should().Be(Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10"));
+            c.Id.ShouldBe(1);
+            c.G.ShouldBe(Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10"));
         }
 
         [Fact]
@@ -53,8 +53,8 @@ namespace MongoDB.Bson.Tests.Jira
 
             var exception = Record.Exception(() => c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
 
-            exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Contain("GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified");
+            exception.ShouldBeOfType<BsonSerializationException>();
+            exception.Message.ShouldContain("GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified");
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Tests.Jira
 
             var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
-            json.Should().Be("{ \"_id\" : 1, \"G\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }");
+            json.ShouldBe("{ \"_id\" : 1, \"G\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }");
         }
 
         public class C1

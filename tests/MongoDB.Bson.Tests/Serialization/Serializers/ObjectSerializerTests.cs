@@ -17,7 +17,7 @@ using System;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -108,14 +108,14 @@ namespace MongoDB.Bson.Tests.Serialization
             var c = new C { Obj = value };
 
             var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            json.Should().Be("{ \"Obj\" : { \"_t\" : \"MongoDB.Bson.BsonDecimal128, MongoDB.Bson\", \"_v\" : NumberDecimal(\"1.5\") } }");
+            json.ShouldBe("{ \"Obj\" : { \"_t\" : \"MongoDB.Bson.BsonDecimal128, MongoDB.Bson\", \"_v\" : NumberDecimal(\"1.5\") } }");
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            rehydrated.Obj.Should().BeOfType<BsonDecimal128>();
-            rehydrated.Obj.Should().Be(value);
+            rehydrated.Obj.ShouldBeOfType<BsonDecimal128>();
+            rehydrated.Obj.ShouldBe(value);
 
-            rehydrated.ToBson().Should().Equal(bson);
+            rehydrated.ToBson().ShouldBe(bson);
         }
 
         [Fact]
@@ -138,14 +138,14 @@ namespace MongoDB.Bson.Tests.Serialization
             var c = new C { Obj = value };
 
             var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            json.Should().Be("""{ "Obj" : { "_t" : "System.Decimal", "_v" : NumberDecimal("1.5") } }""");
+            json.ShouldBe("""{ "Obj" : { "_t" : "System.Decimal", "_v" : NumberDecimal("1.5") } }""");
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            rehydrated.Obj.Should().BeOfType<decimal>();
-            rehydrated.Obj.Should().Be(value);
+            rehydrated.Obj.ShouldBeOfType<decimal>();
+            rehydrated.Obj.ShouldBe(value);
 
-            rehydrated.ToBson().Should().Equal(bson);
+            rehydrated.ToBson().ShouldBe(bson);
         }
 
         [Fact]
@@ -155,14 +155,14 @@ namespace MongoDB.Bson.Tests.Serialization
             var c = new C { Obj = value };
 
             var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            json.Should().Be("{ \"Obj\" : NumberDecimal(\"1.5\") }");
+            json.ShouldBe("{ \"Obj\" : NumberDecimal(\"1.5\") }");
 
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            rehydrated.Obj.Should().BeOfType<Decimal128>();
-            rehydrated.Obj.Should().Be(value);
+            rehydrated.Obj.ShouldBeOfType<Decimal128>();
+            rehydrated.Obj.ShouldBe(value);
 
-            rehydrated.ToBson().Should().Equal(bson);
+            rehydrated.ToBson().ShouldBe(bson);
         }
 
         [Fact]
@@ -318,10 +318,10 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var subject = new ObjectSerializer();
 
-            subject.AllowedDeserializationTypes.Should().BeSameAs(__defaultAllowedDeserializationTypes);
-            subject.AllowedSerializationTypes.Should().BeSameAs(__defaultAllowedSerializationTypes);
-            subject.DiscriminatorConvention.Should().BeSameAs(__defaultDiscriminatorConvention);
-            subject.GuidRepresentation.Should().Be(__defaultGuidRepresentation);
+            subject.AllowedDeserializationTypes.ShouldBeSameAs(__defaultAllowedDeserializationTypes);
+            subject.AllowedSerializationTypes.ShouldBeSameAs(__defaultAllowedSerializationTypes);
+            subject.DiscriminatorConvention.ShouldBeSameAs(__defaultDiscriminatorConvention);
+            subject.GuidRepresentation.ShouldBe(__defaultGuidRepresentation);
         }
 
         [Fact]
@@ -331,10 +331,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var subject = new ObjectSerializer(discriminatorConvention);
 
-            subject.AllowedDeserializationTypes.Should().BeSameAs(__defaultAllowedDeserializationTypes);
-            subject.AllowedSerializationTypes.Should().BeSameAs(__defaultAllowedSerializationTypes);
-            subject.DiscriminatorConvention.Should().BeSameAs(discriminatorConvention);
-            subject.GuidRepresentation.Should().Be(__defaultGuidRepresentation);
+            subject.AllowedDeserializationTypes.ShouldBeSameAs(__defaultAllowedDeserializationTypes);
+            subject.AllowedSerializationTypes.ShouldBeSameAs(__defaultAllowedSerializationTypes);
+            subject.DiscriminatorConvention.ShouldBeSameAs(discriminatorConvention);
+            subject.GuidRepresentation.ShouldBe(__defaultGuidRepresentation);
         }
 
         [Fact]
@@ -342,8 +342,8 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("discriminatorConvention");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("discriminatorConvention");
         }
 
         [Theory]
@@ -355,10 +355,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var subject = new ObjectSerializer(discriminatorConvention, guidRepresentation);
 
-            subject.AllowedDeserializationTypes.Should().BeSameAs(__defaultAllowedDeserializationTypes);
-            subject.AllowedSerializationTypes.Should().BeSameAs(__defaultAllowedSerializationTypes);
-            subject.DiscriminatorConvention.Should().BeSameAs(discriminatorConvention);
-            subject.GuidRepresentation.Should().Be(guidRepresentation);
+            subject.AllowedDeserializationTypes.ShouldBeSameAs(__defaultAllowedDeserializationTypes);
+            subject.AllowedSerializationTypes.ShouldBeSameAs(__defaultAllowedSerializationTypes);
+            subject.DiscriminatorConvention.ShouldBeSameAs(discriminatorConvention);
+            subject.GuidRepresentation.ShouldBe(guidRepresentation);
         }
 
         [Fact]
@@ -366,8 +366,8 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: null, GuidRepresentation.Unspecified));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("discriminatorConvention");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("discriminatorConvention");
         }
 
         [Fact]
@@ -377,10 +377,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var subject = new ObjectSerializer(allowedTypes);
 
-            subject.AllowedDeserializationTypes.Should().BeSameAs(allowedTypes);
-            subject.AllowedSerializationTypes.Should().BeSameAs(allowedTypes);
-            subject.DiscriminatorConvention.Should().BeSameAs(__defaultDiscriminatorConvention);
-            subject.GuidRepresentation.Should().Be(__defaultGuidRepresentation);
+            subject.AllowedDeserializationTypes.ShouldBeSameAs(allowedTypes);
+            subject.AllowedSerializationTypes.ShouldBeSameAs(allowedTypes);
+            subject.DiscriminatorConvention.ShouldBeSameAs(__defaultDiscriminatorConvention);
+            subject.GuidRepresentation.ShouldBe(__defaultGuidRepresentation);
         }
 
         [Fact]
@@ -388,8 +388,8 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var exception = Record.Exception(() => new ObjectSerializer(allowedTypes: null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("allowedTypes");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("allowedTypes");
         }
 
         [Fact]
@@ -400,10 +400,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var subject = new ObjectSerializer(discriminatorConvention, allowedTypes);
 
-            subject.AllowedDeserializationTypes.Should().BeSameAs(allowedTypes);
-            subject.AllowedSerializationTypes.Should().BeSameAs(allowedTypes);
-            subject.DiscriminatorConvention.Should().BeSameAs(discriminatorConvention);
-            subject.GuidRepresentation.Should().Be(__defaultGuidRepresentation);
+            subject.AllowedDeserializationTypes.ShouldBeSameAs(allowedTypes);
+            subject.AllowedSerializationTypes.ShouldBeSameAs(allowedTypes);
+            subject.DiscriminatorConvention.ShouldBeSameAs(discriminatorConvention);
+            subject.GuidRepresentation.ShouldBe(__defaultGuidRepresentation);
         }
 
         [Fact]
@@ -413,8 +413,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: null, allowedTypes));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("discriminatorConvention");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("discriminatorConvention");
         }
 
         [Fact]
@@ -424,8 +424,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention, allowedTypes: null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("allowedTypes");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("allowedTypes");
         }
 
         [Theory]
@@ -438,10 +438,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var subject = new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedTypes);
 
-            subject.AllowedDeserializationTypes.Should().BeSameAs(allowedTypes);
-            subject.AllowedSerializationTypes.Should().BeSameAs(allowedTypes);
-            subject.DiscriminatorConvention.Should().BeSameAs(discriminatorConvention);
-            subject.GuidRepresentation.Should().Be(guidRepresentation);
+            subject.AllowedDeserializationTypes.ShouldBeSameAs(allowedTypes);
+            subject.AllowedSerializationTypes.ShouldBeSameAs(allowedTypes);
+            subject.DiscriminatorConvention.ShouldBeSameAs(discriminatorConvention);
+            subject.GuidRepresentation.ShouldBe(guidRepresentation);
         }
 
         [Fact]
@@ -452,8 +452,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: null, guidRepresentation, allowedTypes));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("discriminatorConvention");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("discriminatorConvention");
         }
 
         [Fact]
@@ -464,8 +464,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: null, guidRepresentation, allowedTypes: null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("allowedTypes");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("allowedTypes");
         }
 
         [Theory]
@@ -479,10 +479,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var subject = new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedTypes1, allowedTypes2);
 
-            subject.AllowedDeserializationTypes.Should().BeSameAs(allowedTypes1);
-            subject.AllowedSerializationTypes.Should().BeSameAs(allowedTypes2);
-            subject.DiscriminatorConvention.Should().BeSameAs(discriminatorConvention);
-            subject.GuidRepresentation.Should().Be(guidRepresentation);
+            subject.AllowedDeserializationTypes.ShouldBeSameAs(allowedTypes1);
+            subject.AllowedSerializationTypes.ShouldBeSameAs(allowedTypes2);
+            subject.DiscriminatorConvention.ShouldBeSameAs(discriminatorConvention);
+            subject.GuidRepresentation.ShouldBe(guidRepresentation);
         }
 
         [Fact]
@@ -494,8 +494,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: null, guidRepresentation, allowedTypes1, allowedTypes2));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("discriminatorConvention");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("discriminatorConvention");
         }
 
         [Fact]
@@ -507,8 +507,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedDeserializationTypes: null, allowedTypes2));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("allowedDeserializationTypes");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("allowedDeserializationTypes");
         }
 
         [Fact]
@@ -520,8 +520,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedTypes1, allowedSerializationTypes: null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("allowedSerializationTypes");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("allowedSerializationTypes");
         }
 
         [Fact]
@@ -531,7 +531,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -542,7 +542,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -552,7 +552,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -563,7 +563,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Theory]
@@ -593,7 +593,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -603,7 +603,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Theory]
@@ -629,7 +629,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var guidBytes = bytes.Skip(12).Take(16).ToArray();
                 var expectedResult = GuidConverter.FromBytes(guidBytes, guidRepresentation);
-                result.Should().Be(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -648,7 +648,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 reader.ReadName("x");
                 var exception = Record.Exception(() => subject.Deserialize<object>(context));
 
-                exception.Should().BeOfType<BsonSerializationException>();
+                exception.ShouldBeOfType<BsonSerializationException>();
             }
         }
 
@@ -673,7 +673,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 reader.ReadName("x");
                 var exception = Record.Exception(() => subject.Deserialize<object>(context));
 
-                exception.Should().BeOfType<FormatException>();
+                exception.ShouldBeOfType<FormatException>();
             }
         }
 
@@ -703,7 +703,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 var expectedGuidBytes = GuidConverter.ToBytes(guid, guidRepresentation);
                 expectedBytes[11] = (byte)expectedSubType;
                 Array.Copy(expectedGuidBytes, 0, expectedBytes, 12, 16);
-                bytes.Should().Equal(expectedBytes);
+                bytes.ShouldBe(expectedBytes);
             }
         }
 
@@ -722,7 +722,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 writer.WriteName("x");
                 var exception = Record.Exception(() => subject.Serialize(context, guid));
 
-                exception.Should().BeOfType<BsonSerializationException>();
+                exception.ShouldBeOfType<BsonSerializationException>();
             }
         }
     }
@@ -737,7 +737,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = ObjectSerializer.DefaultAllowedTypes(anonymousType);
 
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
         }
     }
 }

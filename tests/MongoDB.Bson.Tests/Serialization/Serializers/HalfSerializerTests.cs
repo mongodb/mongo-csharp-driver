@@ -15,7 +15,7 @@
 
 using System;
 using System.IO;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new HalfSerializer();
 
-            subject.Representation.Should().Be(BsonType.Double);
+            subject.Representation.ShouldBe(BsonType.Double);
         }
 
         [Theory]
@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new HalfSerializer(representation);
 
-            subject.Representation.Should().Be(representation);
+            subject.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -177,7 +177,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -198,7 +198,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -209,7 +209,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
 
@@ -225,7 +225,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -233,7 +233,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = HalfSerializer.Instance;
 
-            subject.Should().Be(new HalfSerializer());
+            subject.ShouldBe(new HalfSerializer());
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Theory]
@@ -400,10 +400,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.WithRepresentation(newRepresentation);
 
-            result.Representation.Should().Be(newRepresentation);
+            result.Representation.ShouldBe(newRepresentation);
             if (newRepresentation == oldRepresentation)
             {
-                result.Should().BeSameAs(subject);
+                result.ShouldBeSameAs(subject);
             }
         }
 
@@ -416,7 +416,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = subject.Deserialize(context);
             reader.ReadEndDocument();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         private static void TestDeserializeWithException<T>(HalfSerializer subject, string json) where T : Exception
@@ -427,7 +427,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var context = BsonDeserializationContext.CreateRoot(reader);
 
             var exception = Record.Exception(() => subject.Deserialize(context));
-            exception.Should().BeOfType<T>();
+            exception.ShouldBeOfType<T>();
         }
 
         private static void TestSerialize(HalfSerializer subject, Half value, string expectedResult)
@@ -443,7 +443,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             writer.WriteEndDocument();
             var result = textWriter.ToString();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         private static void TestSerializeWithException<T>(HalfSerializer subject, Half value) where T : Exception

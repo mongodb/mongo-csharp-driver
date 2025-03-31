@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -50,8 +50,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = new ElementAppendingSerializer<BsonDocument>(documentSerializer, elements);
 
-            result._documentSerializer().Should().BeSameAs(documentSerializer);
-            result._elements().Should().Equal(elements);
+            result._documentSerializer().ShouldBeSameAs(documentSerializer);
+            result._elements().ShouldBe(elements);
         }
 
         [Fact]
@@ -75,8 +75,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => new ElementAppendingSerializer<BsonDocument>(null, elements));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("documentSerializer");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("documentSerializer");
         }
 
         [Fact]
@@ -86,8 +86,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => new ElementAppendingSerializer<BsonDocument>(documentSerializer, null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("elements");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("elements");
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.ValueType;
 
-            result.Should().Be(typeof(BsonDocument));
+            result.ShouldBe(typeof(BsonDocument));
         }
 
         [Theory]
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 exception = Record.Exception(() => ((IBsonSerializer)subject).Deserialize(context, args));
             }
 
-            exception.Should().BeOfType<NotSupportedException>();
+            exception.ShouldBeOfType<NotSupportedException>();
         }
 
         [Theory]
@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                     result = textWriter.ToString();
                 }
 
-                result.Should().Be(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -194,7 +194,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // note that "_id" was converted but "b" was not
             var expectedIdJson = "UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\")";
-            result.Should().Be($"{{ \"_id\" : {expectedIdJson}, \"x\" : 1, \"b\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }}");
+            result.ShouldBe($"{{ \"_id\" : {expectedIdJson}, \"x\" : 1, \"b\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }}");
         }
 
         [Theory]
@@ -228,7 +228,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 m => m.Serialize(It.Is<BsonSerializationContext>(c => c.IsDynamicType(typeof(BsonDocument)) == isDynamicType), args, value),
                 Times.Once);
 
-            capturedIsDynamicType.Should().Be(isDynamicType);
+            capturedIsDynamicType.ShouldBe(isDynamicType);
         }
 
         [Fact]
@@ -238,7 +238,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -249,7 +249,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -259,7 +259,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -270,7 +270,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Theory]
@@ -290,7 +290,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -300,7 +300,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         // private methods

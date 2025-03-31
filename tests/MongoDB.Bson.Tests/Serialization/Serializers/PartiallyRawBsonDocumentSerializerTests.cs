@@ -15,7 +15,7 @@
 
 using System;
 using System.IO;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             Action action = () => new PartiallyRawBsonDocumentSerializer(null, BsonDocumentSerializer.Instance);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("name");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("name");
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             Action action = () => new PartiallyRawBsonDocumentSerializer("name", null);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("rawSerializer");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("rawSerializer");
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             Action action = () => new PartiallyRawBsonDocumentSerializer("name", new Int32Serializer());
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("rawSerializer");
+            action.ShouldThrow<ArgumentException>().ParamName.ShouldBe("rawSerializer");
         }
 
         [Fact]
@@ -63,9 +63,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = Deserialize(bson, subject);
 
-            result["a"].Should().BeOfType<BsonDocument>();
-            result["b"].Should().BeOfType<RawBsonDocument>();
-            result["c"].Should().BeOfType<BsonDocument>();
+            result["a"].ShouldBeOfType<BsonDocument>();
+            result["b"].ShouldBeOfType<RawBsonDocument>();
+            result["c"].ShouldBeOfType<BsonDocument>();
         }
 
         [Fact]
@@ -89,12 +89,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = Deserialize(bson, subject);
 
-            result["a"].Should().BeOfType<BsonDocument>();
-            result["b"].Should().BeOfType<BsonDocument>();
-            result["c"].Should().BeOfType<BsonDocument>();
-            result["b"]["d"].Should().BeOfType<BsonDocument>();
-            result["b"]["e"].Should().BeOfType<RawBsonDocument>();
-            result["b"]["f"].Should().BeOfType<BsonDocument>();
+            result["a"].ShouldBeOfType<BsonDocument>();
+            result["b"].ShouldBeOfType<BsonDocument>();
+            result["c"].ShouldBeOfType<BsonDocument>();
+            result["b"]["d"].ShouldBeOfType<BsonDocument>();
+            result["b"]["e"].ShouldBeOfType<RawBsonDocument>();
+            result["b"]["f"].ShouldBeOfType<BsonDocument>();
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -125,7 +125,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Theory]
@@ -156,7 +156,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -166,7 +166,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         // private methods

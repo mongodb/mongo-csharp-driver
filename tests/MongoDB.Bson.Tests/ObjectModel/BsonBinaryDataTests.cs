@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -37,8 +37,8 @@ namespace MongoDB.Bson.Tests
                 case 2: exception = Record.Exception(() => new BsonBinaryData(bytes, BsonBinarySubType.Binary)); break;
             }
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("bytes");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("bytes");
         }
 
         [Theory]
@@ -51,9 +51,9 @@ namespace MongoDB.Bson.Tests
 
             Exception exception = Record.Exception(() => new BsonBinaryData(bytes, subType));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().StartWith($"Length must be 16, not {length}, when subType is {subType}.");
-            e.ParamName.Should().Be("bytes");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.Message.ShouldStartWith($"Length must be 16, not {length}, when subType is {subType}.");
+            e.ParamName.ShouldBe("bytes");
         }
 
         [Fact]
@@ -64,9 +64,9 @@ namespace MongoDB.Bson.Tests
 
             Exception exception = Record.Exception(() => new BsonBinaryData(guid, guidRepresentation));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().StartWith($"Invalid guidRepresentation: 5.");
-            e.ParamName.Should().Be("guidRepresentation");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.Message.ShouldStartWith($"Invalid guidRepresentation: 5.");
+            e.ParamName.ShouldBe("guidRepresentation");
         }
 
         [Fact]

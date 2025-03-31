@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Text;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -31,8 +31,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(null, "asd"));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("encoding");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("encoding");
 
             AssertGetBytesUsingThreadStaticBufferWorks();
         }
@@ -43,7 +43,7 @@ namespace MongoDB.Bson.Tests.IO
             const string invalidUtf8String = "\uD801";
 
             var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(Utf8Encodings.Strict, invalidUtf8String));
-            exception.Should().BeOfType<EncoderFallbackException>();
+            exception.ShouldBeOfType<EncoderFallbackException>();
 
             AssertGetBytesUsingThreadStaticBufferWorks();
         }
@@ -53,8 +53,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("value");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("value");
 
             AssertGetBytesUsingThreadStaticBufferWorks();
         }
@@ -65,8 +65,8 @@ namespace MongoDB.Bson.Tests.IO
             using var segmentA = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
             using var segmentB = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
 
-            segmentA.Segment.Array.Length.Should().Be(0);
-            segmentA.Segment.Array.Should().BeSameAs(segmentB.Segment.Array);
+            segmentA.Segment.Array.Length.ShouldBe(0);
+            segmentA.Segment.Array.ShouldBeSameAs(segmentB.Segment.Array);
         }
 
         [Theory]
@@ -92,8 +92,8 @@ namespace MongoDB.Bson.Tests.IO
 
                 previousInstance = previousInstance ?? segment.Array;
 
-                encodedActual.ShouldAllBeEquivalentTo(encodedExpected);
-                segment.Array.Should().BeSameAs(previousInstance);
+                encodedActual.ShouldBe(encodedExpected);
+                segment.Array.ShouldBeSameAs(previousInstance);
             }
         }
 
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Tests.IO
                         var encodedExpected = encoding.GetBytes(str);
                         var encodedActual = segment.ToArray();
 
-                        encodedActual.ShouldAllBeEquivalentTo(encodedExpected);
+                        encodedActual.ShouldBe(encodedExpected);
                     }
                 });
         }
@@ -129,7 +129,7 @@ namespace MongoDB.Bson.Tests.IO
         private void AssertGetBytesUsingThreadStaticBufferWorks()
         {
             using var segment = EncodingHelper.GetBytesUsingThreadStaticBuffer(Utf8Encodings.Strict, "Apples");
-            segment.Segment.Array.Length.Should().BeGreaterThan(0);
+            segment.Segment.Array.Length.ShouldBeGreaterThan(0);
         }
 
         private string GetString(int length) =>

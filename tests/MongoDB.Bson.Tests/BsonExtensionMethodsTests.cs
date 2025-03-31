@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -64,9 +64,9 @@ namespace MongoDB.Bson.Tests
         {
             var document = new BsonDocument();
             var exception = Record.Exception(() => document.ToBson(estimatedBsonSize: -1));
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("estimatedBsonSize");
-            e.Message.Should().StartWith("Value cannot be negative");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("estimatedBsonSize");
+            e.Message.ShouldStartWith("Value cannot be negative");
         }
 
         [Theory]

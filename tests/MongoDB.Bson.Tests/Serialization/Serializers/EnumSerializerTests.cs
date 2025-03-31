@@ -16,7 +16,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -120,7 +120,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new EnumSerializer<TEnum>();
 
             var expectedRepresentation = GetExpectedRepresentation<TEnum>(0);
-            subject.Representation.Should().Be((BsonType)expectedRepresentation);
+            subject.Representation.ShouldBe((BsonType)expectedRepresentation);
         }
 
         [Theory]
@@ -135,7 +135,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject = new EnumSerializer<TEnum>(representation);
 
             var expectedRepresentation = GetExpectedRepresentation<TEnum>(representation);
-            subject.Representation.Should().Be(expectedRepresentation);
+            subject.Representation.ShouldBe(expectedRepresentation);
         }
 
         [Theory]
@@ -149,8 +149,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var exception = Record.Exception(() => new EnumSerializer<TEnum>(representation));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("representation");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("representation");
         }
 
         [Theory]
@@ -167,7 +167,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => Deserialize(subject, bson));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Theory]
@@ -262,7 +262,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => Deserialize(subject, ToBson(json)));
 
-            exception.Should().BeOfType<OverflowException>();
+            exception.ShouldBeOfType<OverflowException>();
         }
 
         [Theory]
@@ -275,7 +275,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var deserialized = Deserialize(subject, ToBson(json));
 
-            deserialized.Should().Be(result);
+            deserialized.ShouldBe(result);
         }
 
         [Fact]
@@ -286,7 +286,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var json = "{ x : 'NotEnumField' }";
             var exception = Record.Exception(() => Deserialize(subject, ToBson(json)));
 
-            exception.Should().BeOfType<ArgumentException>();
+            exception.ShouldBeOfType<ArgumentException>();
         }
 
         [Theory]
@@ -459,7 +459,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             {
                 var exception = Record.Exception(() => Serialize(subject, value));
 
-                exception.Should().BeOfType<OverflowException>();
+                exception.ShouldBeOfType<OverflowException>();
             }
             else
             {
@@ -471,7 +471,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                     var message = $"Expected: {expectedJson} but found: {ToJson(bson)}.";
                     throw new AssertionException(message);
                 }
-                deserialized.Should().Be(value);
+                deserialized.ShouldBe(value);
             }
         }
 
@@ -495,12 +495,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             if (expectedRepresentation == effectiveOriginalRepresentation)
             {
-                result.Should().BeSameAs(subject);
+                result.ShouldBeSameAs(subject);
             }
             else
             {
-                result.Should().NotBeSameAs(subject);
-                result.Representation.Should().Be(expectedRepresentation);
+                result.ShouldNotBeSameAs(subject);
+                result.Representation.ShouldBe(expectedRepresentation);
             }
         }
 
@@ -511,7 +511,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -522,7 +522,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -532,7 +532,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -543,7 +543,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -554,7 +554,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -564,7 +564,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         // private methods

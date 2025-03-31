@@ -16,7 +16,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -145,7 +145,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C { Guid = Guid.Empty };
             var exception = Record.Exception(() => c.ToJson(new JsonWriterSettings()));
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
 
         [Fact]

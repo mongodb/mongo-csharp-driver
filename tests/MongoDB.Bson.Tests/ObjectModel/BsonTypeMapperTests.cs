@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -419,9 +419,9 @@ namespace MongoDB.Bson.Tests
         {
             var value = Guid.NewGuid();
             var exception = Record.Exception(() => (BsonBinaryData)BsonTypeMapper.MapToBsonValue(value));
-            exception.Should().BeOfType<ArgumentException>();
+            exception.ShouldBeOfType<ArgumentException>();
             exception = Record.Exception(() => (BsonBinaryData)BsonTypeMapper.MapToBsonValue(value, BsonType.Binary));
-            exception.Should().BeOfType<ArgumentException>();
+            exception.ShouldBeOfType<ArgumentException>();
         }
 
         [Fact]

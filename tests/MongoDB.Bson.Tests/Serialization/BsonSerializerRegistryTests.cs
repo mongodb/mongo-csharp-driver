@@ -15,7 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Moq;
@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             subject.RegisterSerializer(typeof(object), serializer);
 
-            subject.GetSerializer(typeof(object)).Should().BeSameAs(serializer);
+            subject.GetSerializer(typeof(object)).ShouldBeSameAs(serializer);
         }
 
         [Fact]
@@ -44,8 +44,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.RegisterSerializer(type: null, serializer));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("type");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("type");
         }
 
         [Fact]
@@ -56,8 +56,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.RegisterSerializer(typeof(BsonValue), serializer));
 
-            exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Contain("A serializer cannot be registered for type BsonValue because it is a subclass of BsonValue");
+            exception.ShouldBeOfType<BsonSerializationException>();
+            exception.Message.ShouldContain("A serializer cannot be registered for type BsonValue because it is a subclass of BsonValue");
         }
 
         [Fact]
@@ -68,9 +68,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.RegisterSerializer(typeof(List<>), serializer));
 
-            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
-            argumentException.ParamName.Should().Be("type");
-            argumentException.Message.Should().Contain("Generic type List<T> has unassigned type parameters");
+            var argumentException = exception.ShouldBeOfType<ArgumentException>();
+            argumentException.ParamName.ShouldBe("type");
+            argumentException.Message.ShouldContain("Generic type List<T> has unassigned type parameters");
         }
 
         [Fact]
@@ -80,8 +80,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.RegisterSerializer(typeof(object), serializer: null));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("serializer");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("serializer");
         }
 
         [Fact]
@@ -93,8 +93,8 @@ namespace MongoDB.Bson.Tests.Serialization
             subject.RegisterSerializer(typeof(object), serializer);
             var exception = Record.Exception(() => subject.RegisterSerializer(typeof(object), serializer));
 
-            exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Contain("There is already a serializer registered for type Object");
+            exception.ShouldBeOfType<BsonSerializationException>();
+            exception.Message.ShouldContain("There is already a serializer registered for type Object");
         }
 
         [Fact]
@@ -105,8 +105,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = subject.TryRegisterSerializer(typeof(object), serializer);
 
-            result.Should().BeTrue();
-            subject.GetSerializer(typeof(object)).Should().BeSameAs(serializer);
+            result.ShouldBeTrue();
+            subject.GetSerializer(typeof(object)).ShouldBeSameAs(serializer);
         }
 
         [Fact]
@@ -119,10 +119,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var result1 = subject.TryRegisterSerializer(typeof(object), serializer1);
             var result2 = subject.TryRegisterSerializer(typeof(object), serializer2);
 
-            result1.Should().BeTrue();
-            result2.Should().BeFalse();
-            subject.GetSerializer(typeof(object)).Should().BeSameAs(serializer1);
-            subject.GetSerializer(typeof(object)).Should().NotBeSameAs(serializer2);
+            result1.ShouldBeTrue();
+            result2.ShouldBeFalse();
+            subject.GetSerializer(typeof(object)).ShouldBeSameAs(serializer1);
+            subject.GetSerializer(typeof(object)).ShouldNotBeSameAs(serializer2);
         }
 
         [Fact]
@@ -133,8 +133,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.TryRegisterSerializer(type: null, serializer));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("type");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("type");
         }
 
         [Fact]
@@ -145,8 +145,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.TryRegisterSerializer(typeof(BsonValue), serializer));
 
-            exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Contain("A serializer cannot be registered for type BsonValue because it is a subclass of BsonValue");
+            exception.ShouldBeOfType<BsonSerializationException>();
+            exception.Message.ShouldContain("A serializer cannot be registered for type BsonValue because it is a subclass of BsonValue");
         }
 
         [Fact]
@@ -157,9 +157,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.TryRegisterSerializer(typeof(List<>), serializer));
 
-            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
-            argumentException.ParamName.Should().Be("type");
-            argumentException.Message.Should().Contain("Generic type List<T> has unassigned type parameters");
+            var argumentException = exception.ShouldBeOfType<ArgumentException>();
+            argumentException.ParamName.ShouldBe("type");
+            argumentException.Message.ShouldContain("Generic type List<T> has unassigned type parameters");
         }
 
         [Fact]
@@ -169,8 +169,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var exception = Record.Exception(() => subject.TryRegisterSerializer(typeof(object), serializer: null));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("serializer");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("serializer");
         }
 
         [Fact]
@@ -183,11 +183,11 @@ namespace MongoDB.Bson.Tests.Serialization
             var result1 = subject.TryRegisterSerializer(typeof(object), serializer1);
             var exception = Record.Exception(() => subject.TryRegisterSerializer(typeof(object), serializer2));
 
-            result1.Should().BeTrue();
-            subject.GetSerializer(typeof(object)).Should().BeSameAs(serializer1);
-            subject.GetSerializer(typeof(object)).Should().NotBeSameAs(serializer2);
-            exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Contain("There is already a different serializer registered for type Object");
+            result1.ShouldBeTrue();
+            subject.GetSerializer(typeof(object)).ShouldBeSameAs(serializer1);
+            subject.GetSerializer(typeof(object)).ShouldNotBeSameAs(serializer2);
+            exception.ShouldBeOfType<BsonSerializationException>();
+            exception.Message.ShouldContain("There is already a different serializer registered for type Object");
         }
     }
 }

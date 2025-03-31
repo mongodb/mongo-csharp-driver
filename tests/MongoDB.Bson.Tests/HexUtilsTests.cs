@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Shared;
 using Xunit;
 
@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = HexUtils.IsValidHexDigit(c);
 
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
         }
 
         [Theory]
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = HexUtils.IsValidHexDigit(c);
 
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
         }
 
         [Theory]
@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = HexUtils.IsValidHexString(value);
 
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
         }
 
         [Theory]
@@ -93,7 +93,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = HexUtils.IsValidHexString(value);
 
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
         }
 
         [Theory]
@@ -104,7 +104,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = HexUtils.ParseInt32(value);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Tests
         {
             var exception = Record.Exception(() => HexUtils.ParseInt32(value));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
     }
 }

@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new BsonBinaryDataSerializer();
 
-            subject._bsonType().Should().Be(BsonType.Binary);
+            subject._bsonType().ShouldBe(BsonType.Binary);
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = BsonBinaryDataSerializer.Instance;
 
-            subject.Should().NotBeNull();
+            subject.ShouldNotBeNull();
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var subject1 = BsonBinaryDataSerializer.Instance;
             var subject2 = BsonBinaryDataSerializer.Instance;
 
-            subject2.Should().BeSameAs(subject1);
+            subject2.ShouldBeSameAs(subject1);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = subject.Deserialize(context, args);
 
             mockReader.Verify(m => m.ReadBinaryData(), Times.Once);
-            result.Should().BeSameAs(binaryData);
+            result.ShouldBeSameAs(binaryData);
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -117,7 +117,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Serialize(context, args, value));
 
-            exception.Should().BeNull();
+            exception.ShouldBeNull();
         }
 
         [Theory]

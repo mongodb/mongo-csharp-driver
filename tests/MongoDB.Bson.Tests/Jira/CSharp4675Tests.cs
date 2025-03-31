@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var subject = BsonSerializer.Deserialize<A>("{ X : 1, \"__safeContent__\": [] }");
 
-            subject.X.Should().Be(1);
+            subject.X.ShouldBe(1);
         }
     }
 }

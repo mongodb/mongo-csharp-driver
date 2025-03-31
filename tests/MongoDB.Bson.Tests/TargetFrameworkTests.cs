@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace MongoDB.Bson.Tests
@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Tests
         {
             var actualFramework = TargetFramework.Moniker;
             var expectedFramework = GetExpectedTargetFramework();
-            actualFramework.Should().Be(expectedFramework);
+            actualFramework.ShouldBe(expectedFramework);
         }
 
         // private methods

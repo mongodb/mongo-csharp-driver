@@ -19,7 +19,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Tests.IO
                 }
 
                 var result = stringWriter.ToString();
-                result.Should().Be(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Tests.IO
             using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonWriter(stringWriter);
 
-            jsonWriter.Settings.OutputMode.Should().Be(JsonOutputMode.RelaxedExtendedJson);
+            jsonWriter.Settings.OutputMode.ShouldBe(JsonOutputMode.RelaxedExtendedJson);
         }
 
         [Fact]
@@ -201,7 +201,7 @@ namespace MongoDB.Bson.Tests.IO
             var json = value.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var rehydrated = BsonSerializer.Deserialize<double>(json);
 
-            rehydrated.Should().Be(value);
+            rehydrated.ShouldBe(value);
         }
 
         [Fact]
@@ -339,7 +339,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var binary = new BsonBinaryData(guidBytes, BsonBinarySubType.UuidStandard); // GuidRepresentation is Unspecified
             var result = binary.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            result.Should().Be("UUID(\"00112233-4455-6677-8899-aabbccddeeff\")");
+            result.ShouldBe("UUID(\"00112233-4455-6677-8899-aabbccddeeff\")");
         }
 
         [Fact]
@@ -560,7 +560,7 @@ namespace MongoDB.Bson.Tests.IO
             writer.WriteEndDocument();
             var result = stringWriter.ToString();
 
-            result.Should().Be("{ \"v\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }");
+            result.ShouldBe("{ \"v\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }");
         }
 
         [Theory]
@@ -580,7 +580,7 @@ namespace MongoDB.Bson.Tests.IO
             writer.WriteEndDocument();
             var result = stringWriter.ToString();
 
-            result.Should().Be($"{{ \"v\" : {representatinoConstructor}(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }}");
+            result.ShouldBe($"{{ \"v\" : {representatinoConstructor}(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }}");
         }
     }
 }

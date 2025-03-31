@@ -1,21 +1,20 @@
 ﻿/* Copyright 2015-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-using System;
-using FluentAssertions;
 using MongoDB.TestHelpers.XunitExtensions;
+using Shouldly;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.ObjectModel
@@ -29,11 +28,11 @@ namespace MongoDB.Bson.Tests.ObjectModel
         public void CompareTo_BsonDecimal128_should_return_expected_result(int int32Value, double otherDoubleValue, int expectedResult)
         {
             var subject = new BsonInt32(int32Value);
-            var other = new BsonDecimal128((Decimal128)(decimal)otherDoubleValue);
+            var other = new BsonDecimal128((decimal)otherDoubleValue);
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -47,7 +46,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -59,11 +58,11 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var subject = new BsonInt32(int32Value);
             var other = new BsonInt32(otherInt32Value);
 
-            var result1 = subject.CompareTo((BsonInt32)other);
+            var result1 = subject.CompareTo(other);
             var result2 = subject.CompareTo((BsonValue)other);
 
-            result1.Should().Be(expectedResult);
-            result2.Should().Be(expectedResult);
+            result1.ShouldBe(expectedResult);
+            result2.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -77,7 +76,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -85,11 +84,11 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var subject = new BsonInt32(0);
 
-            var result1 = subject.CompareTo((BsonInt32)null);
+            var result1 = subject.CompareTo(null);
             var result2 = subject.CompareTo((BsonValue)null);
 
-            result1.Should().Be(1);
-            result2.Should().Be(1);
+            result1.ShouldBe(1);
+            result2.ShouldBe(1);
         }
 
         [Theory]
@@ -101,7 +100,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = (BsonInt32)value;
             var result2 = (BsonInt32)value;
 
-            result2.Should().NotBeSameAs(result1);
+            result2.ShouldNotBeSameAs(result1);
         }
 
         [Theory]
@@ -113,7 +112,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = (BsonInt32)value;
             var result2 = (BsonInt32)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Theory]
@@ -123,11 +122,11 @@ namespace MongoDB.Bson.Tests.ObjectModel
         public void operator_equals_with_BsonDecimal128_should_return_expected_result(int lhsInt32Value, double rhsDoubleValue, bool expectedResult)
         {
             var lhs = new BsonInt32(lhsInt32Value);
-            var rhs = new BsonDecimal128((Decimal128)(decimal)rhsDoubleValue);
+            var rhs = new BsonDecimal128((decimal)rhsDoubleValue);
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -141,7 +140,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -155,7 +154,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -169,7 +168,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -184,7 +183,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(isLhsNull == isRhsNull);
+            result.ShouldBe(isLhsNull == isRhsNull);
         }
 
         [Theory]
@@ -195,7 +194,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var result = (BsonInt32)value;
 
-            result.Value.Should().Be(value);
+            result.Value.ShouldBe(value);
         }
 
         [Theory]
@@ -207,7 +206,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal();
 
-            result.Should().Be((decimal)int32Value);
+            result.ShouldBe(int32Value);
         }
 
         [Theory]
@@ -219,7 +218,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal128();
 
-            result.Should().Be((Decimal128)int32Value);
+            result.ShouldBe(int32Value);
         }
     }
 }

@@ -17,7 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -51,9 +51,9 @@ namespace MongoDB.Bson.Tests.IO
         public void RentBuffer_should_throw_when_size_is_invalid(int size)
         {
             var exception = Record.Exception(() => ThreadStaticBuffer.RentBuffer(size));
-            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            var e = exception.ShouldBeOfType<ArgumentOutOfRangeException>();
 
-            e.ParamName.Should().Be("size");
+            e.ParamName.ShouldBe("size");
         }
 
         [Fact]
@@ -61,11 +61,11 @@ namespace MongoDB.Bson.Tests.IO
         {
             using (var rentableBufferFirst = ThreadStaticBuffer.RentBuffer(2))
             {
-                rentableBufferFirst.Bytes.Should().NotBeNull();
+                rentableBufferFirst.Bytes.ShouldNotBeNull();
             }
 
             using var rentableBufferSecond = ThreadStaticBuffer.RentBuffer(2);
-            rentableBufferSecond.Bytes.Should().NotBeNull();
+            rentableBufferSecond.Bytes.ShouldNotBeNull();
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Tests.IO
             using (var rentedBuffer = ThreadStaticBuffer.RentBuffer(2))
             {
                 var exception = Record.Exception(() => ThreadStaticBuffer.RentBuffer(2));
-                exception.Should().BeOfType<InvalidOperationException>();
+                exception.ShouldBeOfType<InvalidOperationException>();
             }
         }
 
@@ -98,7 +98,7 @@ namespace MongoDB.Bson.Tests.IO
             });
 
             var exception = Record.Exception(() => rentedBufferInOtherThread.Dispose());
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
 
             if (rentBufferInOwnThread)
             {
@@ -116,7 +116,7 @@ namespace MongoDB.Bson.Tests.IO
                 {
                     using var rentedBuffer = ThreadStaticBuffer.RentBuffer(requestedSize);
 
-                    rentedBuffer.Bytes.Length.Should().Be(expectedSize);
+                    rentedBuffer.Bytes.Length.ShouldBe(expectedSize);
                 }
             });
         }
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Tests.IO
         public void RentBuffer_should_return_exact_size_when_requested_greater_than_maxsize(int requestedSize)
         {
             using var rentedBuffer = ThreadStaticBuffer.RentBuffer(requestedSize);
-            rentedBuffer.Bytes.Length.Should().Be(requestedSize);
+            rentedBuffer.Bytes.Length.ShouldBe(requestedSize);
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace MongoDB.Bson.Tests.IO
                 byte[] bufferInstance;
                 using (var rentedBuffer = ThreadStaticBuffer.RentBuffer(size))
                 {
-                    rentedBuffer.Bytes.Length.Should().Be(size);
+                    rentedBuffer.Bytes.Length.ShouldBe(size);
                     bufferInstance = rentedBuffer.Bytes;
                 }
 
@@ -156,13 +156,13 @@ namespace MongoDB.Bson.Tests.IO
                     newSize = (newSize >> 1) + 1;
 
                     using var bufferCurrent = ThreadStaticBuffer.RentBuffer(newSize);
-                    bufferCurrent.Bytes.Should().BeSameAs(bufferInstance);
+                    bufferCurrent.Bytes.ShouldBeSameAs(bufferInstance);
                 }
 
                 allBuffers.Add(bufferInstance);
             });
 
-            allBuffers.Distinct().Should().HaveCount(threadsCount);
+            allBuffers.Distinct().Count().ShouldBe(threadsCount);
         }
     }
 }

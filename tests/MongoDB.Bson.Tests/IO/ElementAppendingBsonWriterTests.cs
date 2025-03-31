@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using Moq;
 using Xunit;
@@ -35,9 +35,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new ElementAppendingBsonWriter(wrapped, elements, settingsConfigurator);
 
-            subject.Wrapped.Should().BeSameAs(wrapped);
-            subject._depth().Should().Be(0);
-            subject._elements().Should().Equal(elements);
+            subject.Wrapped.ShouldBeSameAs(wrapped);
+            subject._depth().ShouldBe(0);
+            subject._elements().ShouldBe(elements);
         }
 
         [Fact]
@@ -61,8 +61,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => new ElementAppendingBsonWriter(null, elements, settingsConfigurator));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("wrapped");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("wrapped");
         }
 
         [Fact]
@@ -73,8 +73,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => new ElementAppendingBsonWriter(wrapped, null, settingsConfigurator));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("elements");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("elements");
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var subject = new ElementAppendingBsonWriter(wrapped, elements, null);
 
-            subject._settingsConfigurator().Should().NotBeNull();
+            subject._settingsConfigurator().ShouldNotBeNull();
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.WriteEndDocument();
 
-            subject._depth().Should().Be(0);
+            subject._depth().ShouldBe(0);
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.WriteStartDocument();
 
-            subject._depth().Should().Be(1);
+            subject._depth().ShouldBe(1);
         }
 
         [Fact]

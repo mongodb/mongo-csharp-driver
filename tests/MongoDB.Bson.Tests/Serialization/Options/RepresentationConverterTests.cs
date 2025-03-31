@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -372,7 +372,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -382,7 +382,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -393,7 +393,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -403,7 +403,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -414,7 +414,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Theory]
@@ -432,7 +432,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -442,7 +442,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         public class DerivedFromRepresentationConverter : RepresentationConverter

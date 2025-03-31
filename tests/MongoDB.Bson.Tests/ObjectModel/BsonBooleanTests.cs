@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = (BsonBoolean)value;
             var result2 = (BsonBoolean)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Theory]
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var result = (BsonBoolean)value;
 
-            result.Value.Should().Be(value);
+            result.Value.ShouldBe(value);
         }
     }
 }

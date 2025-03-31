@@ -15,7 +15,7 @@
 
 using System;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         private class ConcreteBsonDocumentBackedClassSerializer<TClass> : BsonDocumentBackedClassSerializer<TClass>

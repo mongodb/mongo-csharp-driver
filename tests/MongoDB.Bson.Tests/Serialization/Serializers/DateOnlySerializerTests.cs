@@ -16,7 +16,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new DateOnlySerializer();
 
-            subject.Representation.Should().Be(BsonType.DateTime);
+            subject.Representation.ShouldBe(BsonType.DateTime);
         }
 
         [Theory]
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new DateOnlySerializer(representation);
 
-            subject.Representation.Should().Be(representation);
+            subject.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -80,8 +80,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new DateOnlySerializer(representation, format);
 
-            subject.Representation.Should().Be(representation);
-            subject.DocumentFormat.Should().Be(format);
+            subject.Representation.ShouldBe(representation);
+            subject.DocumentFormat.ShouldBe(format);
         }
 
         [Theory]
@@ -102,7 +102,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = subject.Deserialize(context);
             reader.ReadEndDocument();
 
-            result.Should().Be(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
+            result.ShouldBe(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
         }
 
         [Theory]
@@ -132,7 +132,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = subject.Deserialize(context);
             reader.ReadEndDocument();
 
-            result.Should().Be(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
+            result.ShouldBe(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
         }
 
         [Theory]
@@ -153,7 +153,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = subject.Deserialize(context);
             reader.ReadEndDocument();
 
-            result.Should().Be(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
+            result.ShouldBe(DateOnly.Parse(expectedResult, CultureInfo.InvariantCulture));
         }
 
         [Theory]
@@ -170,8 +170,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var context = BsonDeserializationContext.CreateRoot(reader);
 
             var exception = Record.Exception(() => subject.Deserialize(context));
-            exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Be("Deserialized value has a non-zero time component.");
+            exception.ShouldBeOfType<FormatException>();
+            exception.Message.ShouldBe("Deserialized value has a non-zero time component.");
         }
 
         [Theory]
@@ -186,8 +186,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var context = BsonDeserializationContext.CreateRoot(reader);
 
             var exception = Record.Exception(() => subject.Deserialize(context));
-            exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Be("Invalid document format.");
+            exception.ShouldBeOfType<FormatException>();
+            exception.Message.ShouldBe("Invalid document format.");
         }
 
         [Fact]
@@ -197,7 +197,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -208,7 +208,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -218,7 +218,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -229,7 +229,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Theory]
@@ -245,15 +245,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
             var result2 = y.Equals(x);
-            result.Should().Be(result2);
+            result.ShouldBe(result2);
 
             if (representation == BsonType.DateTime && format == DateOnlyDocumentFormat.DateTimeTicks)
             {
-                result.Should().Be(true);
+                result.ShouldBe(true);
             }
             else
             {
-                result.Should().Be(false);
+                result.ShouldBe(false);
             }
         }
 
@@ -262,7 +262,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = DateOnlySerializer.Instance;
 
-            subject.Should().Be(new DateOnlySerializer());
+            subject.ShouldBe(new DateOnlySerializer());
         }
 
         [Fact]
@@ -272,7 +272,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Theory]
@@ -305,7 +305,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             writer.WriteEndDocument();
             var result = textWriter.ToString();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -328,7 +328,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             writer.WriteEndDocument();
             var result = textWriter.ToString();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -336,7 +336,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var serializer = BsonSerializer.LookupSerializer(typeof(DateOnly));
 
-            serializer.Should().Be(new DateOnlySerializer());
+            serializer.ShouldBe(new DateOnlySerializer());
         }
 
         [Theory]
@@ -349,10 +349,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.WithRepresentation(newRepresentation);
 
-            result.Representation.Should().Be(newRepresentation);
+            result.Representation.ShouldBe(newRepresentation);
             if (newRepresentation == oldRepresentation)
             {
-                result.Should().BeSameAs(subject);
+                result.ShouldBeSameAs(subject);
             }
         }
 

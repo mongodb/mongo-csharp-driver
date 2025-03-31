@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -27,9 +27,9 @@ namespace MongoDB.Bson.Tests.Serialization
             byte[] vectorBsonData = [(byte)BinaryVectorDataType.Int8, 0, 1];
 
             var exception = Record.Exception(() => BinaryVectorReader.ReadBinaryVector<byte>(vectorBsonData));
-            exception.Should().NotBeNull();
-            exception.Message.Should().Contain($"Expected {typeof(sbyte)}");
-            exception.Message.Should().Contain($"but found {typeof(byte)}");
+            exception.ShouldNotBeNull();
+            exception.Message.ShouldContain($"Expected {typeof(sbyte)}");
+            exception.Message.ShouldContain($"but found {typeof(byte)}");
         }
     }
 }

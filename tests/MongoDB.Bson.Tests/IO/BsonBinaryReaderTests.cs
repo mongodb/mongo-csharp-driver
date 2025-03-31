@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Tests.IO
                     result.Add(resultDocument);
                 }
 
-                result.Should().Equal(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -139,7 +139,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 Action action = () => BsonSerializer.Deserialize<BsonDocument>(subject);
 
-                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
+                action.ShouldThrow<FormatException>().Message.ShouldBe(expectedMessage);
             }
         }
 
@@ -156,7 +156,7 @@ namespace MongoDB.Bson.Tests.IO
             var result = reader.ReadGuid();
             reader.ReadEndDocument();
 
-            result.Should().Be(Guid.Parse(expectedResult));
+            result.ShouldBe(Guid.Parse(expectedResult));
         }
 
         [Theory]
@@ -171,7 +171,7 @@ namespace MongoDB.Bson.Tests.IO
             reader.ReadName("v");
             var exception = Record.Exception(() => reader.ReadGuid());
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Theory]
@@ -189,7 +189,7 @@ namespace MongoDB.Bson.Tests.IO
             reader.ReadName("v");
             var exception = Record.Exception(() => reader.ReadGuid());
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Theory]
@@ -208,7 +208,7 @@ namespace MongoDB.Bson.Tests.IO
             var result = reader.ReadGuid(guidRepresentation);
             reader.ReadEndDocument();
 
-            result.Should().Be(Guid.Parse(expectedResult));
+            result.ShouldBe(Guid.Parse(expectedResult));
         }
 
         [Theory]
@@ -224,7 +224,7 @@ namespace MongoDB.Bson.Tests.IO
             reader.ReadName("v");
             var exception = Record.Exception(() => reader.ReadGuid(guidRepresentation));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Theory]
@@ -243,7 +243,7 @@ namespace MongoDB.Bson.Tests.IO
             reader.ReadName("v");
             var exception = Record.Exception(() => reader.ReadGuid(guidRepresentation));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Fact]
@@ -364,12 +364,12 @@ namespace MongoDB.Bson.Tests.IO
                 var endOfDocument = reader.ReadBsonType();
                 reader.ReadEndDocument();
 
-                name.Should().Be("x");
-                type.Should().Be(BsonType.Binary);
-                binaryData.SubType.Should().Be(BsonBinarySubType.UuidLegacy);
-                binaryData.Bytes.Should().Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
-                endOfDocument.Should().Be(BsonType.EndOfDocument);
-                stream.Position.Should().Be(stream.Length);
+                name.ShouldBe("x");
+                type.ShouldBe(BsonType.Binary);
+                binaryData.SubType.ShouldBe(BsonBinarySubType.UuidLegacy);
+                binaryData.Bytes.ShouldBe(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
+                endOfDocument.ShouldBe(BsonType.EndOfDocument);
+                stream.Position.ShouldBe(stream.Length);
             }
         }
 
@@ -395,12 +395,12 @@ namespace MongoDB.Bson.Tests.IO
                 var endOfDocument = reader.ReadBsonType();
                 reader.ReadEndDocument();
 
-                name.Should().Be("x");
-                type.Should().Be(BsonType.Binary);
-                binaryData.SubType.Should().Be(BsonBinarySubType.UuidStandard);
-                binaryData.Bytes.Should().Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
-                endOfDocument.Should().Be(BsonType.EndOfDocument);
-                stream.Position.Should().Be(stream.Length);
+                name.ShouldBe("x");
+                type.ShouldBe(BsonType.Binary);
+                binaryData.SubType.ShouldBe(BsonBinarySubType.UuidStandard);
+                binaryData.Bytes.ShouldBe(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
+                endOfDocument.ShouldBe(BsonType.EndOfDocument);
+                stream.Position.ShouldBe(stream.Length);
             }
         }
 

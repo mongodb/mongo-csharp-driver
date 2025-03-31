@@ -15,7 +15,7 @@
 
 using System;
 using System.IO;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -62,8 +62,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new TimeOnlySerializer();
 
-            subject.Representation.Should().Be(BsonType.Int64);
-            subject.Units.Should().Be(TimeOnlyUnits.Ticks);
+            subject.Representation.ShouldBe(BsonType.Int64);
+            subject.Units.ShouldBe(TimeOnlyUnits.Ticks);
         }
 
         [Theory]
@@ -77,8 +77,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new TimeOnlySerializer(representation, units);
 
-            subject.Representation.Should().Be(representation);
-            subject.Units.Should().Be(units);
+            subject.Representation.ShouldBe(representation);
+            subject.Units.ShouldBe(units);
         }
 
         [Theory]
@@ -209,8 +209,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var context = BsonDeserializationContext.CreateRoot(reader);
 
             var exception = Record.Exception(() => subject.Deserialize(context));
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.Message.Should().Be("Ticks must be between 0 and and TimeOnly.MaxValue.Ticks. (Parameter 'ticks')");
+            exception.ShouldBeOfType<ArgumentOutOfRangeException>();
+            exception.Message.ShouldBe("Ticks must be between 0 and and TimeOnly.MaxValue.Ticks. (Parameter 'ticks')");
         }
 
         [Fact]
@@ -220,7 +220,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -231,7 +231,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -241,7 +241,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -252,7 +252,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -260,7 +260,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = TimeOnlySerializer.Instance;
 
-            subject.Should().Be(new TimeOnlySerializer());
+            subject.ShouldBe(new TimeOnlySerializer());
         }
 
         [Fact]
@@ -270,7 +270,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Theory]
@@ -401,7 +401,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var serializer = BsonSerializer.LookupSerializer(typeof(TimeOnly));
 
-            serializer.Should().Be(new TimeOnlySerializer());
+            serializer.ShouldBe(new TimeOnlySerializer());
         }
 
         [Theory]
@@ -414,10 +414,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.WithRepresentation(newRepresentation);
 
-            result.Representation.Should().Be(newRepresentation);
+            result.Representation.ShouldBe(newRepresentation);
             if (newRepresentation == oldRepresentation)
             {
-                result.Should().BeSameAs(subject);
+                result.ShouldBeSameAs(subject);
             }
         }
 
@@ -430,7 +430,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = subject.Deserialize(context);
             reader.ReadEndDocument();
 
-            result.Should().Be(TimeOnly.ParseExact(expectedResult, "o"));
+            result.ShouldBe(TimeOnly.ParseExact(expectedResult, "o"));
         }
 
         private static void TestSerialize(TimeOnlySerializer subject, string valueString, string expectedResult)
@@ -448,7 +448,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             writer.WriteEndDocument();
             var result = textWriter.ToString();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         private class TestClass

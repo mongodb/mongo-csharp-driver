@@ -16,7 +16,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -856,7 +856,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 String = guid
             };
             var exception = Record.Exception(() => obj.ToJson(new JsonWriterSettings()));
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
 
         [Fact]
@@ -870,7 +870,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 String = guid
             };
             var exception = Record.Exception(() => obj.ToJson(new JsonWriterSettings()));
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
 
         [Fact]

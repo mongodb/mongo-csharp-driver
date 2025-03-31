@@ -15,7 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
@@ -77,8 +77,8 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var exception = Record.Exception(() => classMap.AutoMap());
 
-            exception.Should().BeOfType<NotSupportedException>();
-            exception.Message.Should().Be($"Type {memberInfo.PropertyType} cannot be serialized as a binary vector.");
+            exception.ShouldBeOfType<NotSupportedException>();
+            exception.Message.ShouldBe($"Type {memberInfo.PropertyType} cannot be serialized as a binary vector.");
         }
 
         [Fact]
@@ -98,9 +98,9 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             var memberMap = classMap.GetMemberMap(memberName);
             var serializer = memberMap.GetSerializer();
 
-            var vectorSerializer = serializer.Should().BeOfType<TSerializer>().Subject;
+            var vectorSerializer = serializer.ShouldBeOfType<TSerializer>();
 
-            vectorSerializer.VectorDataType.Should().Be(binaryVectorDataType);
+            vectorSerializer.VectorDataType.ShouldBe(binaryVectorDataType);
         }
 
         public class ArrayHolder

@@ -14,7 +14,7 @@
 */
 
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.AutoMap();
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("Id", "X", "Y");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["Id", "X", "Y"]);
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("Id").SetOrder(1);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("Id", "X", "Y");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["Id", "X", "Y"]);
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("X").SetOrder(1);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("X", "Id", "Y");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["X", "Id", "Y"]);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("Y").SetOrder(1);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("Y", "Id", "X");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["Y", "Id", "X"]);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("X").SetOrder(2);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("Id", "X", "Y");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["Id", "X", "Y"]);
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("Y").SetOrder(2);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("Id", "Y", "X");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["Id", "Y", "X"]);
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("X").SetOrder(1);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("X", "Id", "Y");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["X", "Id", "Y"]);
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("Y").SetOrder(1);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("Y", "Id", "X");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["Y", "Id", "X"]);
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("Y").SetOrder(1);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("Y", "X", "Id");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["Y", "X", "Id"]);
         }
 
         [Fact]
@@ -135,7 +135,7 @@ namespace MongoDB.Bson.Tests.Serialization
             cm.GetMemberMap("Y").SetOrder(2);
             cm.Freeze();
 
-            cm.AllMemberMaps.Select(m => m.MemberName).Should().Equal("Id", "Y", "X");
+            cm.AllMemberMaps.Select(m => m.MemberName).ShouldBe(["Id", "Y", "X"]);
         }
 
         // nested types

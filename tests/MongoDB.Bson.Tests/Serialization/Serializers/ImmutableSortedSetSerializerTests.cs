@@ -16,7 +16,7 @@
 #if NET6_0_OR_GREATER
 using System.Collections.Immutable;
 using System.IO;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             reader.ReadEndDocument();
 
             var expectedResult = ImmutableSortedSet.Create(1, 2, 3, 4);
-            result.Should().Equal(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             const string expectedResult =
                 """{ "x" : [{ "$numberInt" : "1" }, { "$numberInt" : "2" }, { "$numberInt" : "3" }, { "$numberInt" : "4" }] }""";
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var serializer = BsonSerializer.LookupSerializer(typeof(ImmutableSortedSet<int>));
 
-            serializer.Should().Be(new ImmutableSortedSetSerializer<int>());
+            serializer.ShouldBe(new ImmutableSortedSetSerializer<int>());
         }
     }
 }

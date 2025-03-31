@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -51,16 +51,16 @@ namespace MongoDB.Bson.Tests.Jira
 
             var json = testCase.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var actualBsonDocument = BsonDocument.Parse(json);
-            actualBsonDocument["_t"].ToString().Should().Be(testCaseType.Name);
+            actualBsonDocument["_t"].ToString().ShouldBe(testCaseType.Name);
             actualBsonDocument.Remove("_t");
-            actualBsonDocument.Should().Be(BsonDocument.Parse(expectedJson));
+            actualBsonDocument.ShouldBe(BsonDocument.Parse(expectedJson));
 
             var result = BsonSerializer.Deserialize(json, testCaseType);
 
             var x = GetPropertyValue(result, "X");
             var y = GetPropertyValue(result, "Y");
-            x.Should().Be(1);
-            y.Should().Be(2);
+            x.ShouldBe(1);
+            y.ShouldBe(2);
         }
 
         [Fact]
@@ -69,9 +69,9 @@ namespace MongoDB.Bson.Tests.Jira
             var testCase = new DerivedWithMismatchedXTypeComparingWithBase(1, 2);
 
             var exception = Record.Exception(() => testCase.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
-            var e = exception.Should().BeOfType<BsonSerializationException>().Subject;
+            var e = exception.ShouldBeOfType<BsonSerializationException>();
 
-            e.Message.Should().Be("Creator map for class MongoDB.Bson.Tests.Jira.CSharp1559Tests+DerivedWithMismatchedXTypeComparingWithBase has 2 arguments, but none are configured.");
+            e.Message.ShouldBe("Creator map for class MongoDB.Bson.Tests.Jira.CSharp1559Tests+DerivedWithMismatchedXTypeComparingWithBase has 2 arguments, but none are configured.");
         }
 
         [Fact]
@@ -82,9 +82,9 @@ namespace MongoDB.Bson.Tests.Jira
             var json = testCase.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var result = BsonSerializer.Deserialize<DerivedWithoutSetter_IntermediateBaseAndWithProtectedConstructor>(json);
 
-            result.X.Should().Be(1);
-            result.Y.Should().Be(2);
-            result.Z.Should().Be(3);
+            result.X.ShouldBe(1);
+            result.Y.ShouldBe(2);
+            result.Z.ShouldBe(3);
         }
 
         // private methods

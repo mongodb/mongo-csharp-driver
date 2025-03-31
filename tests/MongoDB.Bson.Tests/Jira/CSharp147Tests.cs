@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp147
             var p = new Parent { Child = new Child() };
             p.Child.A = 1;
             var exception = Record.Exception(() => p.ToJson(new JsonWriterSettings()));
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
     }
 }

@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = CStringUtf8Encoding.GetMaxByteCount(charCount);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -65,10 +65,10 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = CStringUtf8Encoding.GetBytes(value, bytes, byteIndex, Utf8Encodings.Strict);
 
-            result.Should().Be(expectedResult);
-            bytes.Take(byteIndex).All(b => b == 0).Should().BeTrue();
-            bytes.Skip(byteIndex).Take(result).Should().Equal(expectedBytes);
-            bytes.Skip(byteIndex + result).All(b => b == 0).Should().BeTrue();
+            result.ShouldBe(expectedResult);
+            bytes.Take(byteIndex).All(b => b == 0).ShouldBeTrue();
+            bytes.Skip(byteIndex).Take(result).ShouldBe(expectedBytes);
+            bytes.Skip(byteIndex + result).All(b => b == 0).ShouldBeTrue();
         }
 
         [Theory]
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
+            action.ShouldThrow<ArgumentException>().ParamName.ShouldBe("value");
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
 
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
+            action.ShouldThrow<ArgumentException>().ParamName.ShouldBe("value");
         }
 
         [Fact]

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = (BsonString)value;
             var result2 = (BsonString)value;
 
-            result2.Should().NotBeSameAs(result1);
+            result2.ShouldNotBeSameAs(result1);
         }
 
         [Theory]
@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = (BsonString)value;
             var result2 = (BsonString)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Theory]
@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var result = (BsonString)value;
 
-            result.Value.Should().Be(value);
+            result.Value.ShouldBe(value);
         }
 
         [Theory]
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal();
 
-            result.Should().Be(decimal.Parse(stringValue));
+            result.ShouldBe(decimal.Parse(stringValue));
         }
 
         [Theory]
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal128();
 
-            result.Should().Be(Decimal128.Parse(stringValue));
+            result.ShouldBe(Decimal128.Parse(stringValue));
         }
     }
 }

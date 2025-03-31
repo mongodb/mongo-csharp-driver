@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -42,8 +42,8 @@ namespace MongoDB.Bson.Tests.Jira
 
             var result = BsonSerializer.Deserialize<C>(json);
 
-            var allowed = result.Object.Should().BeOfType<Allowed>().Subject;
-            allowed.X.Should().Be(1);
+            var allowed = result.Object.ShouldBeOfType<Allowed>();
+            allowed.X.ShouldBe(1);
         }
 
         [Fact]
@@ -53,8 +53,8 @@ namespace MongoDB.Bson.Tests.Jira
 
             var exception = Record.Exception(() => BsonSerializer.Deserialize<C>(json));
 
-            exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Be("An error occurred while deserializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4475Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4475Tests+NotAllowed is not configured as a type that is allowed to be deserialized for this instance of ObjectSerializer.");
+            exception.ShouldBeOfType<FormatException>();
+            exception.Message.ShouldBe("An error occurred while deserializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4475Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4475Tests+NotAllowed is not configured as a type that is allowed to be deserialized for this instance of ObjectSerializer.");
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Tests.Jira
 
             var result = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
-            result.Should().Be("{ \"Object\" : { \"_t\" : \"Allowed\", \"X\" : 1 } }");
+            result.ShouldBe("{ \"Object\" : { \"_t\" : \"Allowed\", \"X\" : 1 } }");
         }
 
         [Fact]
@@ -74,8 +74,8 @@ namespace MongoDB.Bson.Tests.Jira
 
             var exception = Record.Exception(() => c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell }));
 
-            exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Be("An error occurred while serializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4475Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4475Tests+NotAllowed is not configured as a type that is allowed to be serialized for this instance of ObjectSerializer.");
+            exception.ShouldBeOfType<BsonSerializationException>();
+            exception.Message.ShouldBe("An error occurred while serializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4475Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4475Tests+NotAllowed is not configured as a type that is allowed to be serialized for this instance of ObjectSerializer.");
         }
 
         public class C

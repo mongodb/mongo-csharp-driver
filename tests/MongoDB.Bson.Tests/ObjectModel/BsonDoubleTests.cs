@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -48,8 +48,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = subject.CompareTo((BsonDouble)other);
             var result2 = subject.CompareTo((BsonValue)other);
 
-            result1.Should().Be(expectedResult);
-            result2.Should().Be(expectedResult);
+            result1.ShouldBe(expectedResult);
+            result2.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -77,7 +77,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -88,8 +88,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = subject.CompareTo((BsonDouble)null);
             var result2 = subject.CompareTo((BsonValue)null);
 
-            result1.Should().Be(1);
-            result2.Should().Be(1);
+            result1.ShouldBe(1);
+            result2.ShouldBe(1);
         }
 
         [Theory]
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = (BsonDouble)value;
             var result2 = (BsonDouble)value;
 
-            result2.Should().NotBeSameAs(result1);
+            result2.ShouldNotBeSameAs(result1);
         }
 
         [Theory]
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = (BsonDouble)value;
             var result2 = (BsonDouble)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Theory]
@@ -128,7 +128,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -143,7 +143,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -157,7 +157,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -171,7 +171,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -186,7 +186,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(isLhsNull == isRhsNull);
+            result.ShouldBe(isLhsNull == isRhsNull);
         }
 
         [Theory]
@@ -197,7 +197,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var result = (BsonDouble)value;
 
-            result.Value.Should().Be(value);
+            result.Value.ShouldBe(value);
         }
 
         [Theory]
@@ -209,7 +209,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal();
 
-            result.Should().Be((decimal)doubleValue);
+            result.ShouldBe((decimal)doubleValue);
         }
 
         [Theory]
@@ -221,7 +221,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal128();
 
-            result.Should().Be((Decimal128)(decimal)doubleValue);
+            result.ShouldBe((Decimal128)(decimal)doubleValue);
         }
     }
 }

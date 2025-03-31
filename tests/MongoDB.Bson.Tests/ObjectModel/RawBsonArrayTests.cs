@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -188,8 +188,8 @@ namespace MongoDB.Bson.Tests
 
             var result = subject.Materialize(binaryReaderSettings);
 
-            result.Should().BeOfType<BsonArray>();
-            result.Should().Be(array);
+            result.ShouldBeOfType<BsonArray>();
+            result.ShouldBe(array);
         }
 
         [Fact]

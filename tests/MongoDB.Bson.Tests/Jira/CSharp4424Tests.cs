@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -25,10 +25,10 @@ namespace MongoDB.Bson.Tests.Jira
         public void TryRegisterClassMap_with_no_arguments_can_be_called_more_than_once()
         {
             var result = BsonClassMap.TryRegisterClassMap<C>();
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
 
             result = BsonClassMap.TryRegisterClassMap<C>();
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
         }
 
         [Fact]
@@ -37,10 +37,10 @@ namespace MongoDB.Bson.Tests.Jira
             var classMap = new BsonClassMap<D>(cm => cm.AutoMap());
 
             var result = BsonClassMap.TryRegisterClassMap(classMap);
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
 
             result = BsonClassMap.TryRegisterClassMap(classMap);
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
         }
 
         [Fact]
@@ -49,12 +49,12 @@ namespace MongoDB.Bson.Tests.Jira
             var classMapInitializerCallCount = 0;
 
             var result = BsonClassMap.TryRegisterClassMap<E>(ClassMapInitializer);
-            result.Should().BeTrue();
-            classMapInitializerCallCount.Should().Be(1);
+            result.ShouldBeTrue();
+            classMapInitializerCallCount.ShouldBe(1);
 
             result = BsonClassMap.TryRegisterClassMap<E>(ClassMapInitializer);
-            result.Should().BeFalse();
-            classMapInitializerCallCount.Should().Be(1);
+            result.ShouldBeFalse();
+            classMapInitializerCallCount.ShouldBe(1);
 
             void ClassMapInitializer(BsonClassMap<E> cm)
             {
@@ -69,12 +69,12 @@ namespace MongoDB.Bson.Tests.Jira
             var classMapFactoryCallCount = 0;
 
             var result = BsonClassMap.TryRegisterClassMap(ClassMapFactory);
-            result.Should().BeTrue();
-            classMapFactoryCallCount.Should().Be(1);
+            result.ShouldBeTrue();
+            classMapFactoryCallCount.ShouldBe(1);
 
             result = BsonClassMap.TryRegisterClassMap(ClassMapFactory);
-            result.Should().BeFalse();
-            classMapFactoryCallCount.Should().Be(1);
+            result.ShouldBeFalse();
+            classMapFactoryCallCount.ShouldBe(1);
 
             BsonClassMap<F> ClassMapFactory()
             {

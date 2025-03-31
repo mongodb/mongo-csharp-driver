@@ -13,9 +13,10 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers;
 using System;
 using Xunit;
 
@@ -31,7 +32,7 @@ namespace MongoDB.Bson.Tests
             var bytes = c.ToBson();
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bytes);
-            document.Should().Be("{ X : 1 }");
+            document.ShouldBe("{ X : 1 }");
         }
 
         [Fact]
@@ -42,9 +43,9 @@ namespace MongoDB.Bson.Tests
 
             var exception = Record.Exception(() => c.ToBson(args: args));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("args");
-            e.Message.Should().StartWith("args.NominalType must be equal to <TNominalType>.");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("args");
+            e.Message.ShouldStartWith("args.NominalType must be equal to <TNominalType>.");
         }
 
         [Fact]
@@ -55,7 +56,7 @@ namespace MongoDB.Bson.Tests
             var bytes = c.ToBson(typeof(C));
 
             var document = BsonSerializer.Deserialize<BsonDocument>(bytes);
-            document.Should().Be("{ X : 1 }");
+            document.ShouldBe("{ X : 1 }");
         }
 
         [Fact]
@@ -66,9 +67,9 @@ namespace MongoDB.Bson.Tests
 
             var exception = Record.Exception(() => c.ToBson(typeof(C), args: args));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("args");
-            e.Message.Should().StartWith("args.NominalType must be equal to nominalType.");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("args");
+            e.Message.ShouldStartWith("args.NominalType must be equal to nominalType.");
         }
 
         [Fact]
@@ -78,7 +79,7 @@ namespace MongoDB.Bson.Tests
 
             var document = c.ToBsonDocument();
 
-            document.Should().Be("{ X : 1 }");
+            document.ShouldBe("{ X : 1 }");
         }
 
         [Fact]
@@ -89,9 +90,9 @@ namespace MongoDB.Bson.Tests
 
             var exception = Record.Exception(() => c.ToBsonDocument(args: args));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("args");
-            e.Message.Should().StartWith("args.NominalType must be equal to <TNominalType>.");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("args");
+            e.Message.ShouldStartWith("args.NominalType must be equal to <TNominalType>.");
         }
 
         [Fact]
@@ -101,7 +102,7 @@ namespace MongoDB.Bson.Tests
 
             var document = c.ToBsonDocument(typeof(C));
 
-            document.Should().Be("{ X : 1 }");
+            document.ShouldBe("{ X : 1 }");
         }
 
         [Fact]
@@ -112,9 +113,9 @@ namespace MongoDB.Bson.Tests
 
             var exception = Record.Exception(() => c.ToBsonDocument(typeof(C), args: args));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("args");
-            e.Message.Should().StartWith("args.NominalType must be equal to nominalType.");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("args");
+            e.Message.ShouldStartWith("args.NominalType must be equal to nominalType.");
         }
 
         [Fact]
@@ -124,7 +125,7 @@ namespace MongoDB.Bson.Tests
 
             var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
 
-            json.Should().Be("{ \"X\" : 1 }");
+            json.ShouldBe("{ \"X\" : 1 }");
         }
 
         [Fact]
@@ -135,9 +136,9 @@ namespace MongoDB.Bson.Tests
 
             var exception = Record.Exception(() => c.ToJson(args: args));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("args");
-            e.Message.Should().StartWith("args.NominalType must be equal to <TNominalType>.");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("args");
+            e.Message.ShouldStartWith("args.NominalType must be equal to <TNominalType>.");
         }
 
         [Fact]
@@ -147,7 +148,7 @@ namespace MongoDB.Bson.Tests
 
             var json = c.ToJson(typeof(C));
 
-            json.Should().Be("{ \"X\" : 1 }");
+            json.ShouldBe("{ \"X\" : 1 }");
         }
 
         [Fact]
@@ -158,9 +159,9 @@ namespace MongoDB.Bson.Tests
 
             var exception = Record.Exception(() => c.ToJson(typeof(C), args: args));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("args");
-            e.Message.Should().StartWith("args.NominalType must be equal to nominalType.");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("args");
+            e.Message.ShouldStartWith("args.NominalType must be equal to nominalType.");
         }
 
         // nested types

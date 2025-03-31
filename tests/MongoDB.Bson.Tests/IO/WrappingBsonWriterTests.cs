@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using Moq;
 using Xunit;
@@ -32,8 +32,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = new MockWrappingBsonWriter(wrapped);
 
-            result.Wrapped.Should().BeSameAs(wrapped);
-            result._disposed().Should().BeFalse();
+            result.Wrapped.ShouldBeSameAs(wrapped);
+            result._disposed().ShouldBeFalse();
         }
 
         [Fact]
@@ -41,8 +41,8 @@ namespace MongoDB.Bson.Tests.IO
         {
             var exception = Record.Exception(() => new MockWrappingBsonWriter(null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("wrapped");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("wrapped");
         }
 
         [Fact]
@@ -63,8 +63,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.Position);
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -85,8 +85,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.SerializationDepth);
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -107,8 +107,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.Settings);
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -129,8 +129,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.State);
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -141,7 +141,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.Wrapped;
 
-            result.Should().BeSameAs(mockWrapped.Object);
+            result.ShouldBeSameAs(mockWrapped.Object);
         }
 
         [Fact]
@@ -151,8 +151,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.Wrapped);
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Theory]
@@ -179,7 +179,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            ((MockWrappingBsonWriter)subject).DisposeTrueWasCalled.Should().BeTrue();
+            ((MockWrappingBsonWriter)subject).DisposeTrueWasCalled.ShouldBeTrue();
         }
 
         [Fact]
@@ -212,8 +212,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.Flush());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -234,8 +234,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.PopElementNameValidator());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -256,8 +256,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.PopSettings());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -280,8 +280,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.PushElementNameValidator(validator));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -304,8 +304,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.PushSettings(configurator));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -328,8 +328,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteBinaryData(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -352,8 +352,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteBoolean(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -376,8 +376,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteBytes(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -400,8 +400,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteDateTime(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -424,8 +424,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteDecimal128(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -448,8 +448,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteDouble(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -470,8 +470,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteEndArray());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -492,8 +492,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteEndDocument());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -516,8 +516,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteInt32(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -540,8 +540,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteInt64(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -564,8 +564,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteJavaScript(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -588,8 +588,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteJavaScriptWithScope(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -610,8 +610,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteMaxKey());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -632,8 +632,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteMinKey());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -656,8 +656,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteName(name));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -678,8 +678,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteNull());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -702,8 +702,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteObjectId(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -726,8 +726,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteRawBsonArray(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -750,8 +750,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteRawBsonDocument(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -774,8 +774,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteRegularExpression(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -796,8 +796,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteStartArray());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -818,8 +818,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteStartDocument());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -842,8 +842,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteString(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -866,8 +866,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteSymbol(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -890,8 +890,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteTimestamp(value));
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Fact]
@@ -912,8 +912,8 @@ namespace MongoDB.Bson.Tests.IO
 
             var exception = Record.Exception(() => subject.WriteUndefined());
 
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
+            var e = exception.ShouldBeOfType<ObjectDisposedException>();
+            e.ObjectName.ShouldBe(subject.GetType().FullName);
         }
 
         [Theory]
@@ -926,7 +926,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose(disposing);
 
-            subject._disposed().Should().BeTrue();
+            subject._disposed().ShouldBeTrue();
             mockWrapped.Verify(m => m.Dispose(), Times.Exactly(disposing ? 1 : 0));
         }
 

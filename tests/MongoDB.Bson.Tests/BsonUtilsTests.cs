@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using Xunit;
 
@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = BsonUtils.ParseHexString(s);
 
-            result.Should().Equal(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Tests
         {
             var exception = Record.Exception(() => BsonUtils.ParseHexString(s));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Fact]
@@ -138,8 +138,8 @@ namespace MongoDB.Bson.Tests
         {
             var exception = Record.Exception(() => BsonUtils.ParseHexString(null));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("s");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("s");
         }
 
         [Theory]
@@ -152,7 +152,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = BsonUtils.ToHexString(value);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -160,8 +160,8 @@ namespace MongoDB.Bson.Tests
         {
             var exception = Record.Exception(() => BsonUtils.ToHexString(null));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("bytes");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("bytes");
         }
 
         [Theory]
@@ -178,8 +178,8 @@ namespace MongoDB.Bson.Tests
             byte[] bytes;
             var result = BsonUtils.TryParseHexString(s, out bytes);
 
-            result.Should().BeTrue();
-            bytes.Should().Equal(expectedBytes);
+            result.ShouldBeTrue();
+            bytes.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -196,8 +196,8 @@ namespace MongoDB.Bson.Tests
             byte[] bytes;
             var result = BsonUtils.TryParseHexString(s, out bytes);
 
-            result.Should().BeFalse();
-            bytes.Should().BeNull();
+            result.ShouldBeFalse();
+            bytes.ShouldBeNull();
         }
     }
 }

@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
@@ -43,9 +43,9 @@ namespace MongoDB.Bson.Tests.Jira
 
             var result = deserialize(prototype, json);
 
-            result.CSharp2643.Should().BeFalse();
-            result.X.Should().Be(expectedX);
-            result.Y.Should().Be(expectedY);
+            result.CSharp2643.ShouldBeFalse();
+            result.X.ShouldBe(expectedX);
+            result.Y.ShouldBe(expectedY);
         }
     }
 }

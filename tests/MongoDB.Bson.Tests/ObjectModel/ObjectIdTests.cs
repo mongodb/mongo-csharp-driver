@@ -16,7 +16,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
 
@@ -30,9 +30,9 @@ namespace MongoDB.Bson.Tests
         public void Create_should_generate_expected_a_b_c(uint timestamp, long random, uint increment, uint expectedA, uint expectedB, uint expectedC)
         {
             var objectId = ObjectIdReflector.Create((int)timestamp, random, (int)increment);
-            objectId._a().Should().Be((int)expectedA);
-            objectId._b().Should().Be((int)expectedB);
-            objectId._c().Should().Be((int)expectedC);
+            objectId._a().ShouldBe((int)expectedA);
+            objectId._b().ShouldBe((int)expectedB);
+            objectId._c().ShouldBe((int)expectedC);
         }
 
         [Theory]
@@ -49,8 +49,8 @@ namespace MongoDB.Bson.Tests
         public void Create_should_throw_when_random_is_out_of_range(long random)
         {
             var exception = Record.Exception(() => ObjectIdReflector.Create(1, random, 1));
-            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
-            e.ParamName.Should().Be("random");
+            var e = exception.ShouldBeOfType<ArgumentOutOfRangeException>();
+            e.ParamName.ShouldBe("random");
         }
 
         [Theory]
@@ -59,8 +59,8 @@ namespace MongoDB.Bson.Tests
         public void Create_should_throw_when_increment_is_out_of_range(int increment)
         {
             var exception = Record.Exception(() => ObjectIdReflector.Create(1, 1, increment));
-            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
-            e.ParamName.Should().Be("increment");
+            var e = exception.ShouldBeOfType<ArgumentOutOfRangeException>();
+            e.ParamName.ShouldBe("increment");
         }
 
         [Theory]
@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Tests
         {
             var objectId = ObjectId.GenerateNewId((int)timestamp);
             var expectedDate = DateTime.Parse(expectedDateString, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
-            objectId.CreationTime.Should().Be(expectedDate);
+            objectId.CreationTime.ShouldBe(expectedDate);
         }
 
         [Fact]

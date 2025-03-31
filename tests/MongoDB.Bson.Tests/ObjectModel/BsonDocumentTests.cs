@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -150,8 +150,8 @@ namespace MongoDB.Bson.Tests
             };
 
             var clone = (BsonDocument)document.Clone();
-            clone.Should().Be(document);
-            clone.AllowDuplicateNames.Should().BeTrue();
+            clone.ShouldBe(document);
+            clone.AllowDuplicateNames.ShouldBeTrue();
         }
 
         [Fact]
@@ -223,8 +223,8 @@ namespace MongoDB.Bson.Tests
             };
             var documentB = new BsonDocument(documentA);
 
-            documentB.AllowDuplicateNames.Should().BeTrue();
-            documentB.Elements.ShouldAllBeEquivalentTo(documentA.Elements);
+            documentB.AllowDuplicateNames.ShouldBeTrue();
+            documentB.Elements.ShouldBe(documentA.Elements);
         }
 
         [Fact]
@@ -382,9 +382,9 @@ namespace MongoDB.Bson.Tests
             var clone = (BsonDocument)document.DeepClone();
             var clonedNestedDocument = (BsonDocument)clone["d"];
 
-            clonedNestedDocument.Should().NotBeSameAs((BsonDocument)document["d"]);
-            clonedNestedDocument.Elements.ShouldAllBeEquivalentTo(documentWithDuplicateElements.Elements);
-            clonedNestedDocument.AllowDuplicateNames.Should().BeTrue();
+            clonedNestedDocument.ShouldNotBeSameAs((BsonDocument)document["d"]);
+            clonedNestedDocument.Elements.ShouldBe(documentWithDuplicateElements.Elements);
+            clonedNestedDocument.AllowDuplicateNames.ShouldBeTrue();
         }
 
         [Fact]
@@ -1308,8 +1308,8 @@ namespace MongoDB.Bson.Tests
 
             var success = BsonDocument.TryParse(s, out result);
 
-            success.Should().BeTrue();
-            result.Should().Be(new BsonDocument("x", 1));
+            success.ShouldBeTrue();
+            result.ShouldBe(new BsonDocument("x", 1));
         }
 
         [Fact]
@@ -1320,8 +1320,8 @@ namespace MongoDB.Bson.Tests
 
             var success = BsonDocument.TryParse(s, out result);
 
-            success.Should().BeFalse();
-            result.Should().BeNull();
+            success.ShouldBeFalse();
+            result.ShouldBeNull();
         }
 
         private void AssertAreEqual(string expected, byte[] actual)

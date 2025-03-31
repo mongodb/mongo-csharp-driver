@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -148,7 +148,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -169,7 +169,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -180,7 +180,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -190,7 +190,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -290,7 +290,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -301,7 +301,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -311,7 +311,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -322,7 +322,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -332,7 +332,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -520,7 +520,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -531,7 +531,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -541,7 +541,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -552,7 +552,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -562,7 +562,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -633,7 +633,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -644,7 +644,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -654,7 +654,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -665,7 +665,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -675,7 +675,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Fact]
@@ -686,10 +686,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = subject.GetDocumentId(document, out var id, out var idNominalType, out var idGenerator);
 
-            result.Should().BeTrue();
-            id.Should().BeNull();
-            idNominalType.Should().Be(typeof(BsonValue));
-            idGenerator.Should().Be(BsonObjectIdGenerator.Instance);
+            result.ShouldBeTrue();
+            id.ShouldBeNull();
+            idNominalType.ShouldBe(typeof(BsonValue));
+            idGenerator.ShouldBe(BsonObjectIdGenerator.Instance);
         }
 
         [Fact]
@@ -700,10 +700,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = subject.GetDocumentId(document, out var id, out var idNominalType, out var idGenerator);
 
-            result.Should().BeTrue();
-            id.Should().Be(document["_id"]);
-            idNominalType.Should().Be(typeof(BsonValue));
-            idGenerator.Should().Be(BsonObjectIdGenerator.Instance);
+            result.ShouldBeTrue();
+            id.ShouldBe(document["_id"]);
+            idNominalType.ShouldBe(typeof(BsonValue));
+            idGenerator.ShouldBe(BsonObjectIdGenerator.Instance);
         }
 
         [Fact]
@@ -714,10 +714,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = subject.GetDocumentId(document, out var id, out var idNominalType, out var idGenerator);
 
-            result.Should().BeTrue();
-            id.Should().Be(document["_id"]);
-            idNominalType.Should().Be(typeof(BsonValue));
-            idGenerator.Should().BeNull();
+            result.ShouldBeTrue();
+            id.ShouldBe(document["_id"]);
+            idNominalType.ShouldBe(typeof(BsonValue));
+            idGenerator.ShouldBeNull();
         }
 
         public static IEnumerable<object[]> GetDocumentId_should_return_expected_result_when_id_is_binary_data_guid_MemberData()
@@ -748,17 +748,17 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = subject.GetDocumentId(document, out var id, out var idNominalType, out var idGenerator);
 
-            result.Should().BeTrue();
-            id.Should().Be(document["_id"]);
-            idNominalType.Should().Be(typeof(BsonValue));
+            result.ShouldBeTrue();
+            id.ShouldBe(document["_id"]);
+            idNominalType.ShouldBe(typeof(BsonValue));
             if (idGuidRepresentation == GuidRepresentation.Standard)
             {
-                var guidGenerator = idGenerator.Should().BeOfType<BsonBinaryDataGuidGenerator>().Subject;
-                guidGenerator.GuidRepresentation.Should().Be(idGuidRepresentation);
+                var guidGenerator = idGenerator.ShouldBeOfType<BsonBinaryDataGuidGenerator>();
+                guidGenerator.GuidRepresentation.ShouldBe(idGuidRepresentation);
             }
             else
             {
-                idGenerator.Should().BeNull();
+                idGenerator.ShouldBeNull();
             }
         }
     }
@@ -853,7 +853,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -864,7 +864,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -874,7 +874,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -885,7 +885,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -895,7 +895,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1041,7 +1041,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1052,7 +1052,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1062,7 +1062,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1073,7 +1073,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1083,7 +1083,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1190,7 +1190,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1201,7 +1201,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1211,7 +1211,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1222,7 +1222,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1232,7 +1232,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1339,7 +1339,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1350,7 +1350,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1360,7 +1360,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1371,7 +1371,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1381,7 +1381,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1436,7 +1436,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1447,7 +1447,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1457,7 +1457,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1468,7 +1468,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1478,7 +1478,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1534,7 +1534,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1545,7 +1545,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1555,7 +1555,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1566,7 +1566,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1576,7 +1576,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1632,7 +1632,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1643,7 +1643,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1653,7 +1653,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1664,7 +1664,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1674,7 +1674,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1730,7 +1730,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1741,7 +1741,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1751,7 +1751,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1762,7 +1762,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1772,7 +1772,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1834,7 +1834,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1845,7 +1845,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1855,7 +1855,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1866,7 +1866,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1876,7 +1876,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -1931,7 +1931,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1942,7 +1942,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -1952,7 +1952,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1963,7 +1963,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -1973,7 +1973,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -2041,7 +2041,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2052,7 +2052,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2062,7 +2062,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2073,7 +2073,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2083,7 +2083,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -2188,7 +2188,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2199,7 +2199,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2209,7 +2209,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2220,7 +2220,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2230,7 +2230,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -2300,7 +2300,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2311,7 +2311,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2321,7 +2321,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2332,7 +2332,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2342,7 +2342,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -2462,7 +2462,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2473,7 +2473,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2483,7 +2483,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2494,7 +2494,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2504,7 +2504,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 
@@ -2560,7 +2560,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2571,7 +2571,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -2581,7 +2581,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2592,7 +2592,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -2602,7 +2602,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 }

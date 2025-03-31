@@ -19,7 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -35,12 +35,12 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(int) });
             var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
-            creatorMap.Should().NotBeNull();
+            creatorMap.ShouldNotBeNull();
             var expectedArguments = new[]
             {
                 typeof(C).GetTypeInfo().GetProperty("X")
             };
-            creatorMap.Arguments.Should().Equal(expectedArguments);
+            creatorMap.Arguments.ShouldBe(expectedArguments);
         }
 
         [Fact]
@@ -50,13 +50,13 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(int), typeof(string) });
             var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
-            creatorMap.Should().NotBeNull();
+            creatorMap.ShouldNotBeNull();
             var expectedArguments = new[]
             {
                 typeof(C).GetTypeInfo().GetProperty("X"),
                 typeof(C).GetTypeInfo().GetProperty("Y")
             };
-            creatorMap.Arguments.Should().Equal(expectedArguments);
+            creatorMap.Arguments.ShouldBe(expectedArguments);
         }
 
         [Fact]
@@ -66,12 +66,12 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(string) });
             var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
-            creatorMap.Should().NotBeNull();
+            creatorMap.ShouldNotBeNull();
             var expectedArguments = new[]
             {
                 typeof(C).GetTypeInfo().GetProperty("Y")
             };
-            creatorMap.Arguments.Should().Equal(expectedArguments);
+            creatorMap.Arguments.ShouldBe(expectedArguments);
         }
 
         // nested types
@@ -100,12 +100,12 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(int) });
             var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
-            creatorMap.Should().NotBeNull();
+            creatorMap.ShouldNotBeNull();
             var expectedArguments = new[]
             {
                 typeof(C).GetTypeInfo().GetProperty("X")
             };
-            creatorMap.Arguments.Should().Equal(expectedArguments);
+            creatorMap.Arguments.ShouldBe(expectedArguments);
         }
 
         [Fact]
@@ -115,13 +115,13 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(int), typeof(string) });
             var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
-            creatorMap.Should().NotBeNull();
+            creatorMap.ShouldNotBeNull();
             var expectedArguments = new[]
             {
                 typeof(C).GetTypeInfo().GetProperty("X"),
                 typeof(C).GetTypeInfo().GetProperty("Y")
             };
-            creatorMap.Arguments.Should().Equal(expectedArguments);
+            creatorMap.Arguments.ShouldBe(expectedArguments);
         }
 
         [Fact]
@@ -131,12 +131,12 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
 
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(string) });
             var creatorMap = classMap.CreatorMaps.Where(c => c.MemberInfo == constructorInfo).SingleOrDefault();
-            creatorMap.Should().NotBeNull();
+            creatorMap.ShouldNotBeNull();
             var expectedArguments = new[]
             {
                 typeof(C).GetTypeInfo().GetProperty("Y")
             };
-            creatorMap.Arguments.Should().Equal(expectedArguments);
+            creatorMap.Arguments.ShouldBe(expectedArguments);
         }
 
         // nested types
@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             var exception = Record.Exception(() => BsonClassMap.LookupClassMap(typeof(C)));
 
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
 
         // nested types
@@ -185,7 +185,7 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             var exception = Record.Exception(() => BsonClassMap.LookupClassMap(typeof(C)));
 
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
 
         // nested types
@@ -207,8 +207,8 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             var exception = Record.Exception(() => BsonClassMap.LookupClassMap(typeof(C)));
 
-            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
-            argumentException.ParamName.Should().Be("arguments");
+            var argumentException = exception.ShouldBeOfType<ArgumentException>();
+            argumentException.ParamName.ShouldBe("arguments");
         }
 
         // nested types

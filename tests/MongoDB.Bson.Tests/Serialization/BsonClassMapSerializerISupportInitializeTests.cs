@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
@@ -33,8 +33,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var result = subject.Deserialize(context);
 
-                result.BeginInitWasCalled.Should().BeTrue();
-                result.EndInitWasCalled.Should().BeTrue();
+                result.BeginInitWasCalled.ShouldBeTrue();
+                result.EndInitWasCalled.ShouldBeTrue();
             }
         }
 
@@ -48,8 +48,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var result = subject.Deserialize(context);
 
-                result.BeginInitWasCalled.Should().BeTrue();
-                result.EndInitWasCalled.Should().BeTrue();
+                result.BeginInitWasCalled.ShouldBeTrue();
+                result.EndInitWasCalled.ShouldBeTrue();
             }
         }
 
@@ -63,8 +63,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var result = subject.Deserialize(context);
 
-                result.BeginInitWasCalled.Should().BeTrue();
-                result.EndInitWasCalled.Should().BeTrue();
+                result.BeginInitWasCalled.ShouldBeTrue();
+                result.EndInitWasCalled.ShouldBeTrue();
             }
         }
 
@@ -78,8 +78,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var result = subject.Deserialize(context);
 
-                result.BeginInitWasCalled.Should().BeTrue();
-                result.EndInitWasCalled.Should().BeTrue();
+                result.BeginInitWasCalled.ShouldBeTrue();
+                result.EndInitWasCalled.ShouldBeTrue();
             }
         }
 
@@ -93,8 +93,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var result = subject.Deserialize(context);
 
-                result.BeginInitWasCalled.Should().BeFalse();
-                result.EndInitWasCalled.Should().BeFalse();
+                result.BeginInitWasCalled.ShouldBeFalse();
+                result.EndInitWasCalled.ShouldBeFalse();
             }
         }
 
@@ -108,8 +108,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var result = subject.Deserialize(context);
 
-                result.BeginInitWasCalled.Should().BeFalse();
-                result.EndInitWasCalled.Should().BeFalse();
+                result.BeginInitWasCalled.ShouldBeFalse();
+                result.EndInitWasCalled.ShouldBeFalse();
             }
         }
 

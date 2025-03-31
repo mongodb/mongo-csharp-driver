@@ -1,4 +1,4 @@
-/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
 */
 
 using Shouldly;
-using MongoDB.Bson.Serialization;
-using Xunit;
 
-namespace MongoDB.Bson.Tests.Jira
+namespace MongoDB.Bson.TestHelpers;
+
+[ShouldlyMethods]
+public static class AssertionExtensions
 {
-
-    public class CSharp4496
+    public static void ShouldBe(this BsonDocument subject, string expected)
     {
-        [Fact]
-        public void ObjectSerializer_should_deserialize_decimals_successfully()
-        {
-            const string json = "{ 'Object' : NumberDecimal('1.5') }";
-
-            dynamic rehydrated = BsonSerializer.Deserialize<object>(json);
-            ((decimal)rehydrated.Object).ShouldBe(1.5m);
-        }
+        var expectedDocument = expected == null ? null : BsonDocument.Parse(expected);
+        subject.ShouldBe(expectedDocument);
     }
 }

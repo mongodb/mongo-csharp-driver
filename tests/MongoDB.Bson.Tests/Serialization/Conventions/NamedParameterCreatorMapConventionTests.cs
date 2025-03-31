@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using Xunit;
@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(creatorMap);
 
-            creatorMap.Arguments.Should().BeSameAs(originalArguments);
+            creatorMap.Arguments.ShouldBeSameAs(originalArguments);
         }
 
         [Fact]
@@ -46,12 +46,12 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<C>();
             var @delegate = (Func<int, C>)(y => new C(y));
             var creatorMap = classMap.MapCreator(@delegate);
-            creatorMap.Arguments.Should().BeNull();
-            creatorMap.MemberInfo.Should().BeNull();
+            creatorMap.Arguments.ShouldBeNull();
+            creatorMap.MemberInfo.ShouldBeNull();
 
             subject.Apply(creatorMap);
 
-            creatorMap.Arguments.Should().BeNull();
+            creatorMap.Arguments.ShouldBeNull();
         }
 
         [Fact]
@@ -61,11 +61,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<C>();
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(int) });
             var creatorMap = classMap.MapConstructor(constructorInfo);
-            creatorMap.Arguments.Should().BeNull();
+            creatorMap.Arguments.ShouldBeNull();
 
             subject.Apply(creatorMap);
 
-            creatorMap.Arguments.Should().BeNull();
+            creatorMap.Arguments.ShouldBeNull();
         }
 
         [Fact]
@@ -75,11 +75,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<C>();
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(long) });
             var creatorMap = classMap.MapConstructor(constructorInfo);
-            creatorMap.Arguments.Should().BeNull();
+            creatorMap.Arguments.ShouldBeNull();
 
             subject.Apply(creatorMap);
 
-            creatorMap.Arguments.Cast<FieldInfo>().Select(p => p.Name).Should().Equal(new[] { "F" });
+            creatorMap.Arguments.Cast<FieldInfo>().Select(p => p.Name).ShouldBe(new[] { "F" });
         }
 
         [Fact]
@@ -89,11 +89,11 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<C>();
             var constructorInfo = typeof(C).GetTypeInfo().GetConstructor(new[] { typeof(string) });
             var creatorMap = classMap.MapConstructor(constructorInfo);
-            creatorMap.Arguments.Should().BeNull();
+            creatorMap.Arguments.ShouldBeNull();
 
             subject.Apply(creatorMap);
 
-            creatorMap.Arguments.Cast<PropertyInfo>().Select(p => p.Name).Should().Equal(new[] { "P" });
+            creatorMap.Arguments.Cast<PropertyInfo>().Select(p => p.Name).ShouldBe(new[] { "P" });
         }
 
         // nested types

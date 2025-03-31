@@ -15,7 +15,7 @@
 
 using System;
 using System.IO;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new DateTimeOffsetSerializer();
 
-            subject.Representation.Should().Be(BsonType.Document);
+            subject.Representation.ShouldBe(BsonType.Document);
         }
 
         [Theory]
@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new DateTimeOffsetSerializer(representation);
 
-            subject.Representation.Should().Be(representation);
+            subject.Representation.ShouldBe(representation);
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var exception = Record.Exception(() => new DateTimeOffsetSerializer(BsonType.Null));
 
-            exception.Should().BeOfType<ArgumentException>();
+            exception.ShouldBeOfType<ArgumentException>();
         }
 
         [Theory]
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 reader.ReadEndDocument();
             }
 
-            result.Should().Be(DateTimeOffset.Parse(expectedResult));
+            result.ShouldBe(DateTimeOffset.Parse(expectedResult));
         }
 
         [Theory]
@@ -108,7 +108,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 reader.ReadEndDocument();
             }
 
-            result.Should().Be(DateTimeOffset.Parse(expectedResult));
+            result.ShouldBe(DateTimeOffset.Parse(expectedResult));
         }
 
         [Fact]
@@ -118,7 +118,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -139,7 +139,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -171,7 +171,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Theory]
@@ -208,7 +208,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 result = textWriter.ToString();
             }
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -221,10 +221,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.WithRepresentation(newRepresentation);
 
-            result.Representation.Should().Be(newRepresentation);
+            result.Representation.ShouldBe(newRepresentation);
             if (newRepresentation == oldRepresentation)
             {
-                result.Should().BeSameAs(subject);
+                result.ShouldBeSameAs(subject);
             }
         }
     }

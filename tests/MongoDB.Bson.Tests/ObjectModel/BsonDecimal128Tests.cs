@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using System.Globalization;
 using Xunit;
 
@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.BsonType;
 
-            result.Should().Be(BsonType.Decimal128);
+            result.ShouldBe(BsonType.Decimal128);
         }
 
         [Theory]
@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(-1);
+            result.ShouldBe(-1);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo((BsonValue)null);
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Theory]
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -108,7 +108,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -122,7 +122,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -136,7 +136,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(other);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -147,8 +147,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var value = (Decimal128)(decimal)doubleValue;
             var subject = new BsonDecimal128(value);
 
-            subject.BsonType.Should().Be(BsonType.Decimal128);
-            subject.Value.Should().Be(value);
+            subject.BsonType.ShouldBe(BsonType.Decimal128);
+            subject.Value.ShouldBe(value);
         }
 
         [Theory]
@@ -158,7 +158,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var result = BsonDecimal128.Create(value);
 
-            result.Value.Should().Be(Decimal128.Zero);
+            result.Value.ShouldBe(Decimal128.Zero);
         }
 
         [Theory]
@@ -178,9 +178,9 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var hashCode = subject.GetHashCode();
             var otherHashCode = other.GetHashCode();
 
-            result1.Should().Be(expectedResult);
-            result2.Should().Be(expectedResult);
-            (hashCode == otherHashCode).Should().Be(expectedResult);
+            result1.ShouldBe(expectedResult);
+            result2.ShouldBe(expectedResult);
+            (hashCode == otherHashCode).ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -190,7 +190,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.GetTypeCode();
 
-            result.Should().Be(TypeCode.Object);
+            result.ShouldBe(TypeCode.Object);
         }
 
         [Theory]
@@ -203,7 +203,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToBoolean(null);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -215,7 +215,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToByte(null);
 
-            result.Should().Be((byte)doubleValue);
+            result.ShouldBe((byte)doubleValue);
         }
 
         [Theory]
@@ -227,7 +227,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal(null);
 
-            result.Should().Be((decimal)doubleValue);
+            result.ShouldBe((decimal)doubleValue);
         }
 
         [Theory]
@@ -239,7 +239,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDouble(null);
 
-            result.Should().Be(doubleValue);
+            result.ShouldBe(doubleValue);
         }
 
         [Theory]
@@ -251,7 +251,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToInt16(null);
 
-            result.Should().Be((short)doubleValue);
+            result.ShouldBe((short)doubleValue);
         }
 
         [Theory]
@@ -263,7 +263,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToInt32(null);
 
-            result.Should().Be((int)doubleValue);
+            result.ShouldBe((int)doubleValue);
         }
 
         [Theory]
@@ -275,7 +275,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToInt64(null);
 
-            result.Should().Be((long)doubleValue);
+            result.ShouldBe((long)doubleValue);
         }
 
         [Theory]
@@ -287,7 +287,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToSByte(null);
 
-            result.Should().Be((sbyte)doubleValue);
+            result.ShouldBe((sbyte)doubleValue);
         }
 
         [Theory]
@@ -299,7 +299,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToSingle(null);
 
-            result.Should().Be((float)doubleValue);
+            result.ShouldBe((float)doubleValue);
         }
 
         [Theory]
@@ -311,7 +311,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToString(null);
 
-            result.Should().Be(doubleValue.ToString());
+            result.ShouldBe(doubleValue.ToString());
         }
 
         [Theory]
@@ -323,7 +323,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToUInt16(null);
 
-            result.Should().Be((ushort)doubleValue);
+            result.ShouldBe((ushort)doubleValue);
         }
 
         [Theory]
@@ -335,7 +335,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToUInt32(null);
 
-            result.Should().Be((uint)doubleValue);
+            result.ShouldBe((uint)doubleValue);
         }
         [Theory]
         [InlineData(0.0)]
@@ -346,7 +346,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToUInt64(null);
 
-            result.Should().Be((ulong)doubleValue);
+            result.ShouldBe((ulong)doubleValue);
         }
 
         [Theory]
@@ -358,7 +358,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             BsonDecimal128 subject = decimal128Value;
 
-            subject.Value.Should().Be(decimal128Value);
+            subject.Value.ShouldBe(decimal128Value);
         }
 
         [Theory]
@@ -376,7 +376,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = lhs == rhs;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -389,7 +389,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToBoolean();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -401,7 +401,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal();
 
-            result.Should().Be((decimal)doubleValue);
+            result.ShouldBe((decimal)doubleValue);
         }
 
         [Theory]
@@ -413,7 +413,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDecimal128();
 
-            result.Should().Be(ToDecimal128(doubleValue));
+            result.ShouldBe(ToDecimal128(doubleValue));
         }
 
         [Theory]
@@ -425,7 +425,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToDouble();
 
-            result.Should().Be(doubleValue);
+            result.ShouldBe(doubleValue);
         }
 
         [Theory]
@@ -437,7 +437,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToInt32();
 
-            result.Should().Be((int)doubleValue);
+            result.ShouldBe((int)doubleValue);
         }
 
         [Theory]
@@ -449,7 +449,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToInt64();
 
-            result.Should().Be((long)doubleValue);
+            result.ShouldBe((long)doubleValue);
         }
 
         [Theory]
@@ -461,7 +461,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToString();
 
-            result.Should().Be(doubleValue.ToString());
+            result.ShouldBe(doubleValue.ToString());
         }
 
         [Theory]
@@ -474,7 +474,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.Value;
 
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         // private methods

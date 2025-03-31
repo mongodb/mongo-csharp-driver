@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new Decimal128Serializer();
 
-            subject.Representation.Should().Be(BsonType.Decimal128);
+            subject.Representation.ShouldBe(BsonType.Decimal128);
         }
 
         [Theory]
@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new Decimal128Serializer(representation);
 
-            subject.Representation.Should().Be(representation);
+            subject.Representation.ShouldBe(representation);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var exception = Record.Exception(() => new Decimal128Serializer(BsonType.Null));
 
-            exception.Should().BeOfType<ArgumentException>();
+            exception.ShouldBeOfType<ArgumentException>();
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Theory]
@@ -116,7 +116,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -126,7 +126,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         public static IEnumerable<object[]> SerializeSpecialValuesData()
@@ -150,7 +150,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             writer.WriteName("x");
 
             var exception = Record.Exception(() => subject.Serialize(context, value));
-            exception.Should().BeOfType<OverflowException>();
+            exception.ShouldBeOfType<OverflowException>();
         }
 
         [Theory]
@@ -163,10 +163,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.WithRepresentation(newRepresentation);
 
-            result.Representation.Should().Be(newRepresentation);
+            result.Representation.ShouldBe(newRepresentation);
             if (newRepresentation == oldRepresentation)
             {
-                result.Should().BeSameAs(subject);
+                result.ShouldBeSameAs(subject);
             }
         }
     }

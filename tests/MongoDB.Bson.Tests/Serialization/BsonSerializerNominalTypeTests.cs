@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using System;
@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 BsonSerializer.Serialize(writer, c);
                 var json = stringWriter.ToString();
 
-                json.Should().Be("{ \"X\" : 1 }");
+                json.ShouldBe("{ \"X\" : 1 }");
             }
         }
 
@@ -51,9 +51,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var exception = Record.Exception(() => BsonSerializer.Serialize(writer, c, args: args));
 
-                var e = exception.Should().BeOfType<ArgumentException>().Subject;
-                e.ParamName.Should().Be("args");
-                e.Message.Should().StartWith("args.NominalType must be equal to <TNominalType>."); ;
+                var e = exception.ShouldBeOfType<ArgumentException>();
+                e.ParamName.ShouldBe("args");
+                e.Message.ShouldStartWith("args.NominalType must be equal to <TNominalType>."); ;
             }
         }
 
@@ -68,7 +68,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 BsonSerializer.Serialize(writer, typeof(C), c);
                 var json = stringWriter.ToString();
 
-                json.Should().Be("{ \"X\" : 1 }");
+                json.ShouldBe("{ \"X\" : 1 }");
             }
         }
 
@@ -84,9 +84,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
                 var exception = Record.Exception(() => BsonSerializer.Serialize(writer, typeof(C), c, args: args));
 
-                var e = exception.Should().BeOfType<ArgumentException>().Subject;
-                e.ParamName.Should().Be("args");
-                e.Message.Should().StartWith("args.NominalType must be equal to nominalType."); ;
+                var e = exception.ShouldBeOfType<ArgumentException>();
+                e.ParamName.ShouldBe("args");
+                e.Message.ShouldStartWith("args.NominalType must be equal to nominalType."); ;
             }
         }
 

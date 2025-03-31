@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -33,8 +33,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new GuidSerializer();
 
-            subject.GuidRepresentation.Should().Be(GuidRepresentation.Unspecified);
-            subject.Representation.Should().Be(BsonType.Binary);
+            subject.GuidRepresentation.ShouldBe(GuidRepresentation.Unspecified);
+            subject.Representation.ShouldBe(BsonType.Binary);
         }
 
         [Theory]
@@ -45,8 +45,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new GuidSerializer(representation);
 
-            subject.GuidRepresentation.Should().Be(GuidRepresentation.Unspecified);
-            subject.Representation.Should().Be(representation);
+            subject.GuidRepresentation.ShouldBe(GuidRepresentation.Unspecified);
+            subject.Representation.ShouldBe(representation);
         }
 
         [Fact]
@@ -54,8 +54,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var exception = Record.Exception(() => new GuidSerializer(BsonType.Int32));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("representation");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("representation");
         }
 
         [Theory]
@@ -66,8 +66,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new GuidSerializer(guidRepresentation);
 
-            subject.GuidRepresentation.Should().Be(guidRepresentation);
-            subject.Representation.Should().Be(BsonType.Binary);
+            subject.GuidRepresentation.ShouldBe(guidRepresentation);
+            subject.Representation.ShouldBe(BsonType.Binary);
         }
 
         [Theory]
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.GuidRepresentation;
 
-            result.Should().Be(guidRepresentation);
+            result.ShouldBe(guidRepresentation);
         }
 
         [Theory]
@@ -93,7 +93,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.Representation;
 
-            result.Should().Be(representation);
+            result.ShouldBe(representation);
         }
 
         public static IEnumerable<object[]> Deserialize_should_return_expected_result_when_representation_is_binary_MemberData()
@@ -133,7 +133,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var guidBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
             var expectedGuid = GuidConverter.FromBytes(guidBytes, serializerGuidRepresentation);
-            result.Should().Be(expectedGuid);
+            result.ShouldBe(expectedGuid);
         }
 
         [Theory]
@@ -153,7 +153,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context, args));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Theory]
@@ -179,7 +179,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context, args));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Fact]
@@ -196,7 +196,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context, args));
 
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
 
         public static IEnumerable<object[]> Deserialize_should_throw_when_representation_is_binary_and_sub_type_does_not_match_MemberData()
@@ -236,7 +236,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context, args));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         [Fact]
@@ -250,7 +250,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.Deserialize(context, args);
 
-            result.Should().Be(new Guid("01020304-0506-0708-090a-0b0c0d0e0f10"));
+            result.ShouldBe(new Guid("01020304-0506-0708-090a-0b0c0d0e0f10"));
         }
 
         [Theory]
@@ -265,7 +265,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var exception = Record.Exception(() => subject.Deserialize(context, args));
 
-            exception.Should().BeOfType<FormatException>();
+            exception.ShouldBeOfType<FormatException>();
         }
 
         public static IEnumerable<object[]> Serialize_should_write_expected_bytes_MemberData()
@@ -310,7 +310,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var expectedBytes = new byte[] { 29, 0, 0, 0, 5, 120, 0, 16, 0, 0, 0, 4, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 0 };
             expectedBytes[11] = (byte)expectedSubType;
             Array.Copy(GuidConverter.ToBytes(value, serializerGuidRepresentation), 0, expectedBytes, 12, 16);
-            result.Should().Equal(expectedBytes);
+            result.ShouldBe(expectedBytes);
         }
 
         [Fact]
@@ -328,7 +328,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             writer.WriteName("x");
             var exception = Record.Exception(() => subject.Serialize(context, args, value));
 
-            exception.Should().BeOfType<BsonSerializationException>();
+            exception.ShouldBeOfType<BsonSerializationException>();
         }
 
         [Fact]
@@ -344,7 +344,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             subject.Serialize(context, args, value);
             var result = stringWriter.ToString();
 
-            result.Should().Be("\"01020304-0506-0708-090a-0b0c0d0e0f10\"");
+            result.ShouldBe("\"01020304-0506-0708-090a-0b0c0d0e0f10\"");
         }
 
         [Fact]
@@ -354,8 +354,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.WithGuidRepresentation(GuidRepresentation.JavaLegacy);
 
-            result.Representation.Should().Be(BsonType.Binary);
-            result.GuidRepresentation.Should().Be(GuidRepresentation.JavaLegacy);
+            result.Representation.ShouldBe(BsonType.Binary);
+            result.GuidRepresentation.ShouldBe(GuidRepresentation.JavaLegacy);
         }
 
         [Fact]
@@ -365,8 +365,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.WithRepresentation(BsonType.String);
 
-            result.Representation.Should().Be(BsonType.String);
-            result.GuidRepresentation.Should().Be(GuidRepresentation.Unspecified);
+            result.Representation.ShouldBe(BsonType.String);
+            result.GuidRepresentation.ShouldBe(GuidRepresentation.Unspecified);
         }
 
         [Fact]
@@ -376,7 +376,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -387,7 +387,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -397,7 +397,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -408,7 +408,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Theory]
@@ -426,7 +426,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -436,7 +436,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
     }
 }

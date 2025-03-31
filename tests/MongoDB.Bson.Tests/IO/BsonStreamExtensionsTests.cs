@@ -17,7 +17,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -49,8 +49,8 @@ namespace MongoDB.Bson.Tests.IO
 
                 stream.BackpatchSize(startPosition);
 
-                memoryStream.ToArray().Should().Equal(expectedBytes);
-                stream.Position.Should().Be(position);
+                memoryStream.ToArray().ShouldBe(expectedBytes);
+                stream.Position.ShouldBe(position);
             }
         }
 
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 Action action = () => stream.BackpatchSize(startPosition);
 
-                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("startPosition");
+                action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("startPosition");
             }
         }
 
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.BackpatchSize(0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -119,7 +119,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = stream.ReadBinarySubType();
 
-                result.Should().Be(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -142,7 +142,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.ReadBinarySubType();
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -157,7 +157,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = stream.ReadBoolean();
 
-                result.Should().Be(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -180,7 +180,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.ReadBoolean();
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -213,7 +213,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = stream.ReadBsonType();
 
-                result.Should().Be(expectedResult);
+                result.ShouldBe(expectedResult);
             }
         }
 
@@ -236,7 +236,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.ReadBsonType();
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -254,7 +254,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 var hexBsonType = string.Format("{0:x2}", n);
                 var expectedMessage = $"Detected unknown BSON type \"\\x{hexBsonType}\". Are you using the latest driver version?";
-                action.ShouldThrow<FormatException>().WithMessage(expectedMessage);
+                action.ShouldThrow<FormatException>().Message.ShouldBe(expectedMessage);
             }
         }
 
@@ -271,7 +271,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 stream.ReadBytes(buffer, 0, 3);
 
-                buffer.Should().Equal(new byte[] { 1, 2, 3 });
+                buffer.ShouldBe(new byte[] { 1, 2, 3 });
                 mockBaseStream.Verify(s => s.Read(buffer, 0, 3), Times.Once);
                 mockBaseStream.Verify(s => s.Read(buffer, 1, 2), Times.Once);
             }
@@ -290,7 +290,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 stream.ReadBytes(buffer, 0, 1);
 
-                buffer.Should().Equal(new byte[] { 1 });
+                buffer.ShouldBe(new byte[] { 1 });
                 mockBaseStream.Verify(s => s.ReadByte(), Times.Once);
             }
         }
@@ -310,8 +310,8 @@ namespace MongoDB.Bson.Tests.IO
 
                 stream.ReadBytes(buffer, 0, length);
 
-                buffer.Should().Equal(bytes);
-                stream.Position.Should().Be(length);
+                buffer.ShouldBe(bytes);
+                stream.Position.ShouldBe(length);
             }
         }
 
@@ -341,7 +341,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => mockStream.Object.ReadBytes(null, 0, 0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("buffer");
         }
 
         [Theory]
@@ -364,7 +364,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.ReadBytes(buffer, offset, count);
 
-                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+                action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
             }
         }
 
@@ -385,7 +385,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.ReadBytes(buffer, offset, count);
 
-                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+                action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
             }
         }
 
@@ -406,7 +406,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.ReadBytes(buffer, count, 0);
 
-                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
+                action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("offset");
             }
         }
 
@@ -418,7 +418,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.ReadBytes(buffer, 0, 0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -434,8 +434,8 @@ namespace MongoDB.Bson.Tests.IO
             {
                 var result = stream.ReadBytes(length);
 
-                result.Should().Equal(bytes);
-                stream.Position.Should().Be(length);
+                result.ShouldBe(bytes);
+                stream.Position.ShouldBe(length);
             }
         }
 
@@ -460,7 +460,7 @@ namespace MongoDB.Bson.Tests.IO
             {
                 Action action = () => stream.ReadBytes(-1);
 
-                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+                action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
             }
         }
 
@@ -471,7 +471,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.ReadBytes(1);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Fact]
@@ -479,11 +479,11 @@ namespace MongoDB.Bson.Tests.IO
         {
             var validBsonTypes = Reflector.__validBsonTypes;
 
-            validBsonTypes.Should().HaveCount(256);
+            validBsonTypes.Length.ShouldBe(256);
             for (var n = 0; n < 256; n++)
             {
                 var expectedValue = Enum.IsDefined(typeof(BsonType), n);
-                validBsonTypes[n].Should().Be(expectedValue);
+                validBsonTypes[n].ShouldBe(expectedValue);
             }
         }
 
@@ -511,7 +511,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 stream.WriteBinarySubType(value);
 
-                memoryStream.ToArray().Should().Equal(expectedBytes);
+                memoryStream.ToArray().ShouldBe(expectedBytes);
             }
         }
 
@@ -522,7 +522,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.WriteBinarySubType(0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -539,7 +539,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 stream.WriteBoolean(value);
 
-                memoryStream.ToArray().Should().Equal(expectedBytes);
+                memoryStream.ToArray().ShouldBe(expectedBytes);
             }
         }
 
@@ -550,7 +550,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.WriteBoolean(false);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -585,7 +585,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 stream.WriteBsonType(value);
 
-                memoryStream.ToArray().Should().Equal(expectedBytes);
+                memoryStream.ToArray().ShouldBe(expectedBytes);
             }
         }
 
@@ -596,7 +596,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.WriteBsonType(0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -621,7 +621,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 stream.WriteBytes(buffer, offset, count);
 
-                memoryStream.ToArray().Should().Equal(buffer.Skip(offset).Take(count));
+                memoryStream.ToArray().ShouldBe(buffer.Skip(offset).Take(count));
             }
         }
 
@@ -653,7 +653,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.WriteBytes(buffer, offset, count);
 
-                action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
+                action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("buffer");
             }
         }
 
@@ -673,7 +673,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.WriteBytes(buffer, offset, count);
 
-                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+                action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
             }
         }
 
@@ -694,7 +694,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 Action action = () => stream.WriteBytes(buffer, offset, count);
 
-                action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
+                action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("offset");
             }
         }
 
@@ -708,7 +708,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.WriteBytes(buffer, offset, count);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         [Theory]
@@ -741,7 +741,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 stream.WriteSlice(slice);
 
-                memoryStream.ToArray().Should().Equal(bytes);
+                memoryStream.ToArray().ShouldBe(bytes);
             }
         }
 
@@ -753,7 +753,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => mockStream.Object.WriteSlice(slice);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("slice");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("slice");
         }
 
         [Fact]
@@ -764,7 +764,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => stream.WriteSlice(slice);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("stream");
         }
 
         // nested types

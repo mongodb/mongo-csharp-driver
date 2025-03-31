@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Theory]
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().NotBeSameAs(result1);
+            result2.ShouldNotBeSameAs(result1);
         }
 
         [Theory]
@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Theory]
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().NotBeSameAs(result1);
+            result2.ShouldNotBeSameAs(result1);
         }
 
         [Theory]
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Theory]
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().NotBeSameAs(result1);
+            result2.ShouldNotBeSameAs(result1);
         }
 
         [Theory]
@@ -106,7 +106,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Theory]
@@ -118,7 +118,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().NotBeSameAs(result1);
+            result2.ShouldNotBeSameAs(result1);
         }
 
         [Theory]
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Tests
             var result1 = (BsonValue)value;
             var result2 = (BsonValue)value;
 
-            result2.Should().BeSameAs(result1);
+            result2.ShouldBeSameAs(result1);
         }
 
         [Fact]

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = PowerOf2.IsPowerOf2(n);
 
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
         }
 
         [Theory]
@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = PowerOf2.IsPowerOf2(n);
 
-            result.Should().BeTrue();
+            result.ShouldBeTrue();
         }
 
         [Theory]
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Tests
         {
             Action action = () => PowerOf2.IsPowerOf2(n);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("n");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("n");
         }
 
         [Theory]
@@ -79,7 +79,7 @@ namespace MongoDB.Bson.Tests
         {
             var result = PowerOf2.RoundUpToPowerOf2(n);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Tests
         {
             Action action = () => PowerOf2.RoundUpToPowerOf2(n);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("n");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("n");
         }
     }
 }

@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             subject.Apply(memberMap);
 
             var serializer = (EnumSerializer<E>)memberMap.GetSerializer();
-            serializer.Representation.Should().Be(representation);
+            serializer.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
-            childSerializer.Representation.Should().Be(representation);
+            childSerializer.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -87,7 +87,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
-            childSerializer.Representation.Should().Be(representation);
+            childSerializer.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -103,7 +103,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)((IChildSerializerConfigurable)serializer.ChildSerializer).ChildSerializer;
-            childSerializer.Representation.Should().Be(representation);
+            childSerializer.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -119,7 +119,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
-            childSerializer.Representation.Should().Be(representation);
+            childSerializer.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -135,7 +135,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IMultipleChildSerializersConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)serializer.ChildSerializers[0];
-            childSerializer.Representation.Should().Be(representation);
+            childSerializer.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -151,7 +151,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)((IChildSerializerConfigurable)serializer.ChildSerializer).ChildSerializer;
-            childSerializer.Representation.Should().Be(representation);
+            childSerializer.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -166,7 +166,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
-            childSerializer.Representation.Should().Be(BsonType.Int32);
+            childSerializer.Representation.ShouldBe(BsonType.Int32);
         }
 
         [Fact]
@@ -178,7 +178,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            memberMap.GetSerializer().Should().BeSameAs(serializer);
+            memberMap.GetSerializer().ShouldBeSameAs(serializer);
         }
 
         [Fact]
@@ -190,7 +190,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            memberMap.GetSerializer().Should().BeSameAs(serializer);
+            memberMap.GetSerializer().ShouldBeSameAs(serializer);
         }
 
         [Fact]
@@ -202,7 +202,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            memberMap.GetSerializer().Should().BeSameAs(serializer);
+            memberMap.GetSerializer().ShouldBeSameAs(serializer);
         }
 
         [Fact]
@@ -225,7 +225,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var subject = new EnumRepresentationConvention(representation);
 
-            subject.Representation.Should().Be(representation);
+            subject.Representation.ShouldBe(representation);
         }
 
         [Theory]
@@ -236,8 +236,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var subject = new EnumRepresentationConvention(representation, topLevelOnly);
 
-            subject.Representation.Should().Be(representation);
-            subject.TopLevelOnly.Should().Be(topLevelOnly);
+            subject.Representation.ShouldBe(representation);
+            subject.TopLevelOnly.ShouldBe(topLevelOnly);
         }
 
         [Theory]
@@ -247,8 +247,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var exception = Record.Exception(() => new EnumRepresentationConvention(representation));
 
-            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
-            argumentException.ParamName.Should().Be("representation");
+            var argumentException = exception.ShouldBeOfType<ArgumentException>();
+            argumentException.ParamName.ShouldBe("representation");
         }
 
         // private methods

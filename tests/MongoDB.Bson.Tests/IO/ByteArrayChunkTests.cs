@@ -15,7 +15,7 @@
 
 using System;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -33,9 +33,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.Bytes;
 
-            result.Array.Should().BeSameAs(bytes);
-            result.Offset.Should().Be(0);
-            result.Count.Should().Be(size);
+            result.Array.ShouldBeSameAs(bytes);
+            result.Offset.ShouldBe(0);
+            result.Count.ShouldBe(size);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.Bytes; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayChunk");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayChunk");
         }
 
         [Theory]
@@ -60,9 +60,9 @@ namespace MongoDB.Bson.Tests.IO
             var subject = new ByteArrayChunk(bytes);
 
             var segment = subject.Bytes;
-            segment.Array.Should().BeSameAs(bytes);
-            segment.Offset.Should().Be(0);
-            segment.Count.Should().Be(size);
+            segment.Array.ShouldBeSameAs(bytes);
+            segment.Offset.ShouldBe(0);
+            segment.Count.ShouldBe(size);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new ByteArrayChunk(null);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("bytes");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("bytes");
         }
 
         [Theory]
@@ -82,9 +82,9 @@ namespace MongoDB.Bson.Tests.IO
             var subject = new ByteArrayChunk(size);
 
             var segment = subject.Bytes;
-            segment.Array.Should().NotBeNull();
-            segment.Offset.Should().Be(0);
-            segment.Count.Should().Be(size);
+            segment.Array.ShouldNotBeNull();
+            segment.Offset.ShouldBe(0);
+            segment.Count.ShouldBe(size);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new ByteArrayChunk(-1);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("size");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("size");
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Tests.IO
             forked.Dispose();
 
             var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeFalse();
+            reflector._disposed.ShouldBeFalse();
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
 
             var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            reflector._disposed.ShouldBeTrue();
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
 
             var reflector = new Reflector((ByteArrayChunk)forked);
-            reflector._disposed.Should().BeFalse();
+            reflector._disposed.ShouldBeFalse();
         }
 
         [Fact]
@@ -146,12 +146,12 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.Fork();
 
-            result.Should().NotBeSameAs(subject);
+            result.ShouldNotBeSameAs(subject);
             var subjectSegment = subject.Bytes;
             var resultSegment = result.Bytes;
-            resultSegment.Array.Should().BeSameAs(subjectSegment.Array);
-            resultSegment.Offset.Should().Be(subjectSegment.Offset);
-            resultSegment.Count.Should().Be(subjectSegment.Count);
+            resultSegment.Array.ShouldBeSameAs(subjectSegment.Array);
+            resultSegment.Offset.ShouldBe(subjectSegment.Offset);
+            resultSegment.Count.ShouldBe(subjectSegment.Count);
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Fork();
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayChunk");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayChunk");
         }
 
         // nested types

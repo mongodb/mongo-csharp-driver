@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -93,8 +93,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var c = new { A = 1, B = 2 };
             var classMap = BsonClassMap.LookupClassMap(c.GetType());
 
-            classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
-            classMap.CreatorMaps.Count().Should().Be(1);
+            classMap.DeclaredMemberMaps.Select(m => m.MemberName).ShouldBe(["A", "B"]);
+            classMap.CreatorMaps.Count().ShouldBe(1);
         }
 
         [Fact]
@@ -102,8 +102,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(TestClassA));
 
-            classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
-            classMap.CreatorMaps.Count().Should().Be(0);
+            classMap.DeclaredMemberMaps.Select(m => m.MemberName).ShouldBe(["A", "B"]);
+            classMap.CreatorMaps.Count().ShouldBe(0);
         }
 
         [Fact]
@@ -111,8 +111,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(TestClassB));
 
-            classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
-            classMap.CreatorMaps.Count().Should().Be(1);
+            classMap.DeclaredMemberMaps.Select(m => m.MemberName).ShouldBe(["A", "B"]);
+            classMap.CreatorMaps.Count().ShouldBe(1);
         }
 
         [Fact]
@@ -120,8 +120,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(TestClassC));
 
-            classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
-            classMap.CreatorMaps.Count().Should().Be(2);
+            classMap.DeclaredMemberMaps.Select(m => m.MemberName).ShouldBe(["A", "B"]);
+            classMap.CreatorMaps.Count().ShouldBe(2);
         }
 
         [Fact]

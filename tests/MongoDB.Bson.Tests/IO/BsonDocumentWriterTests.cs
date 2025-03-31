@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using Xunit;
 
@@ -1540,8 +1540,8 @@ namespace MongoDB.Bson.Tests.IO
             writer.WriteEndDocument();
 
             var binaryData = document["v"].AsBsonBinaryData;
-            binaryData.SubType.Should().Be(BsonBinarySubType.UuidStandard);
-            binaryData.Bytes.Should().Equal(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+            binaryData.SubType.ShouldBe(BsonBinarySubType.UuidStandard);
+            binaryData.Bytes.ShouldBe([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
         }
 
         [Theory]
@@ -1589,8 +1589,8 @@ namespace MongoDB.Bson.Tests.IO
             }
 
             var binaryData = document["v"].AsBsonBinaryData;
-            binaryData.SubType.Should().Be(expectedSubType);
-            binaryData.Bytes.Should().Equal(expectedBytes);
+            binaryData.SubType.ShouldBe(expectedSubType);
+            binaryData.Bytes.ShouldBe(expectedBytes);
         }
     }
 }

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = ByteBufferFactory.Create(chunkSource, minimumCapacity);
 
-            result.Capacity.Should().BeGreaterOrEqualTo(minimumCapacity);
+            result.Capacity.ShouldBeGreaterThanOrEqualTo(minimumCapacity);
         }
 
         [Theory]
@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = ByteBufferFactory.Create(chunkSource, minimumCapacity);
 
-            result.Should().BeOfType<SingleChunkBuffer>();
+            result.ShouldBeOfType<SingleChunkBuffer>();
         }
 
         [Theory]
@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = ByteBufferFactory.Create(chunkSource, minimumCapacity);
 
-            result.Should().BeOfType<MultiChunkBuffer>();
+            result.ShouldBeOfType<MultiChunkBuffer>();
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => ByteBufferFactory.Create(null, 0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("chunkSource");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("chunkSource");
         }
 
         [Theory]
@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => ByteBufferFactory.Create(mockChunkSource.Object, minimumCapacity);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minimumCapacity");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("minimumCapacity");
         }
     }
 }

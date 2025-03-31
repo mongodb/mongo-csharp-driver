@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.ObjectModel
@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.BsonType;
 
-            result.Should().Be(BsonType.Timestamp);
+            result.ShouldBe(BsonType.Timestamp);
         }
 
         [Theory]
@@ -46,8 +46,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = subject.CompareTo(other);
             var result2 = subject.CompareTo((BsonValue)other);
 
-            result1.Should().Be(expectedResult);
-            result2.Should().Be(expectedResult);
+            result1.ShouldBe(expectedResult);
+            result2.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -57,7 +57,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(BsonMaxKey.Value);
 
-            result.Should().Be(-1);
+            result.ShouldBe(-1);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.CompareTo(BsonMinKey.Value);
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Theory]
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var result = new BsonTimestamp(timestamp, increment);
 
-            result.Value.Should().Be((long)expectedValue);
+            result.Value.ShouldBe((long)expectedValue);
         }
 
         [Theory]
@@ -93,7 +93,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var result = new BsonTimestamp(value);
 
-            result.Value.Should().Be(value);
+            result.Value.ShouldBe(value);
         }
 
         [Theory]
@@ -107,7 +107,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var result = BsonTimestamp.Create(value);
 
-            result.Value.Should().Be(expectedValue);
+            result.Value.ShouldBe(expectedValue);
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             Action action = () => { BsonTimestamp.Create(null); };
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("value");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("value");
         }
 
         [Fact]
@@ -127,8 +127,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = subject.Equals(other);
             var result2 = subject.Equals((object)other);
 
-            result1.Should().BeFalse();
-            result2.Should().BeFalse();
+            result1.ShouldBeFalse();
+            result2.ShouldBeFalse();
         }
 
         [Fact]
@@ -140,8 +140,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = subject.Equals(other);
             var result2 = subject.Equals((object)other);
 
-            result1.Should().BeFalse();
-            result2.Should().BeFalse();
+            result1.ShouldBeFalse();
+            result2.ShouldBeFalse();
         }
 
         [Theory]
@@ -156,9 +156,9 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var subjectHashCode = subject.GetHashCode();
             var otherHashCode = other.GetHashCode();
 
-            result1.Should().BeFalse();
-            result2.Should().BeFalse();
-            otherHashCode.Should().NotBe(subjectHashCode);
+            result1.ShouldBeFalse();
+            result2.ShouldBeFalse();
+            otherHashCode.ShouldNotBe(subjectHashCode);
         }
 
         [Theory]
@@ -169,16 +169,16 @@ namespace MongoDB.Bson.Tests.ObjectModel
         {
             var subject = new BsonTimestamp(value);
             var other = new BsonTimestamp(value);
-            other.Should().NotBeSameAs(subject);
+            other.ShouldNotBeSameAs(subject);
 
             var result1 = subject.Equals(other);
             var result2 = subject.Equals((object)other);
             var subjectHashCode = subject.GetHashCode();
             var otherHashCode = other.GetHashCode();
 
-            result1.Should().BeTrue();
-            result2.Should().BeTrue();
-            otherHashCode.Should().Be(subjectHashCode);
+            result1.ShouldBeTrue();
+            result2.ShouldBeTrue();
+            otherHashCode.ShouldBe(subjectHashCode);
         }
 
         [Theory]
@@ -194,7 +194,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.Increment;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -209,8 +209,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var result1 = lhs == rhs;
             var result2 = lhs != rhs;
 
-            result1.Should().BeFalse();
-            result2.Should().BeTrue();
+            result1.ShouldBeFalse();
+            result2.ShouldBeTrue();
         }
 
         [Theory]
@@ -224,14 +224,14 @@ namespace MongoDB.Bson.Tests.ObjectModel
             var rhs = value == null ? null : new BsonTimestamp(value.Value);
             if (value != null)
             {
-                rhs.Should().NotBeSameAs(lhs);
+                rhs.ShouldNotBeSameAs(lhs);
             }
 
             var result1 = lhs == rhs;
             var result2 = lhs != rhs;
 
-            result1.Should().BeTrue();
-            result2.Should().BeFalse();
+            result1.ShouldBeTrue();
+            result2.ShouldBeFalse();
         }
 
         [Theory]
@@ -247,7 +247,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.Timestamp;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -260,7 +260,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.ToString();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -273,7 +273,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
 
             var result = subject.Value;
 
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
     }
 }

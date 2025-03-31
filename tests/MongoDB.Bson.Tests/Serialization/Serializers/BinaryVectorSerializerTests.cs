@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var actualArray = DeserializeFromBinaryData<T[]>(vectorBson, subject);
 
-            actualArray.ShouldAllBeEquivalentTo(expectedArray);
+            actualArray.ShouldBe(expectedArray);
         }
 
         [Theory]
@@ -65,8 +65,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var (expectedArray, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
 
             var exception = Record.Exception(() => DeserializeFromBinaryData<byte[]>(vectorBson, subject));
-            exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Contain("padding");
+            exception.ShouldBeOfType<FormatException>();
+            exception.Message.ShouldContain("padding");
         }
 
         [Theory]
@@ -103,12 +103,12 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var binaryVector = DeserializeFromBinaryData<BinaryVector<T>>(vectorBson, subject);
 
-            binaryVector.Should().BeOfType(expectedType);
+            binaryVector.ShouldBeOfType(expectedType);
             binaryVector.Data.ToArray().ShouldBeEquivalentTo(expectedArray);
 
             if (binaryVector is BinaryVectorPackedBit vectorPackedBit)
             {
-                vectorPackedBit.Padding.Should().Be((byte)bitsPadding);
+                vectorPackedBit.Padding.ShouldBe((byte)bitsPadding);
             }
         }
 
@@ -131,10 +131,10 @@ namespace MongoDB.Bson.Tests.Serialization
             var itemType = serializerType.BaseType.GetGenericArguments().ElementAt(1);
 
             var exception = Record.Exception(() => Activator.CreateInstance(serializerType, dataType)).InnerException;
-            exception.Should().BeOfType<NotSupportedException>();
+            exception.ShouldBeOfType<NotSupportedException>();
 
-            exception.Message.Should().Contain(itemType.ToString());
-            exception.Message.Should().Contain(dataType.ToString());
+            exception.Message.ShouldContain(itemType.ToString());
+            exception.Message.ShouldContain(dataType.ToString());
         }
 
         [Fact]
@@ -194,8 +194,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var (expectedArray, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
 
             var exception = Record.Exception(() => DeserializeFromBinaryData<Memory<byte>>(vectorBson, subject));
-            exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Contain("padding");
+            exception.ShouldBeOfType<FormatException>();
+            exception.Message.ShouldContain("padding");
         }
 
         [Theory]
@@ -236,8 +236,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var (expectedArray, vectorBson) = GetTestData<byte>(BinaryVectorDataType.PackedBit, 2, 1);
 
             var exception = Record.Exception(() => DeserializeFromBinaryData<ReadOnlyMemory<byte>>(vectorBson, subject));
-            exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Contain("padding");
+            exception.ShouldBeOfType<FormatException>();
+            exception.Message.ShouldContain("padding");
         }
 
         [Fact]
@@ -247,7 +247,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -258,7 +258,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -268,7 +268,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -279,7 +279,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -290,7 +290,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -300,7 +300,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         private TCollection DeserializeFromBinaryData<TCollection>(byte[] vectorBson, IBsonSerializer serializer)
@@ -365,7 +365,7 @@ namespace MongoDB.Bson.Tests.Serialization
         private static (T[], byte[] VectorBson) GetTestData<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
             where T : struct
         {
-            var elementsSpan = new ReadOnlySpan<T>(Enumerable.Range(0, elementsCount).Select(i => Convert.ChangeType(i, typeof(T)).As<T>()).ToArray());
+            var elementsSpan = new ReadOnlySpan<T>(Enumerable.Range(0, elementsCount).Select(i => (T)Convert.ChangeType(i, typeof(T))).ToArray());
             byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. MemoryMarshal.Cast<T, byte>(elementsSpan)];
 
             return (elementsSpan.ToArray(), vectorBsonData);
@@ -412,7 +412,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public class BinaryVectorNoAttributeHolder
         {
             public BinaryVectorInt8 ValuesInt8 { get; set; }
-        
+
             public BinaryVectorPackedBit ValuesPackedBit { get; set; }
 
             public BinaryVectorFloat32 ValuesFloat { get; set; }

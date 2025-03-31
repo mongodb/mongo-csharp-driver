@@ -15,7 +15,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -262,7 +262,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
             Assert.NotNull(r.S);
             Assert.IsType<HashSet<int>>(r.S);
             Assert.Equal(2, r.S.Count);
-            r.S.Should().BeEquivalentTo(c.S);
+            r.S.ToArray().ShouldBeEquivalentTo(c.S.ToArray());
         }
     }
 
@@ -350,7 +350,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
             Assert.NotNull(r.S);
             Assert.IsType<SortedSet<int>>(r.S);
             Assert.Equal(2, r.S.Count);
-            r.S.Should().BeEquivalentTo(c.S);
+            r.S.OrderBy(i => i).ToArray().ShouldBeEquivalentTo(c.S.OrderBy(i => i).ToArray());
         }
 
         [Fact]

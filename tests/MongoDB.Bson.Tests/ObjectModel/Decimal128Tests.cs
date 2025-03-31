@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using System.Globalization;
 using System.Threading;
 using Xunit;
@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Tests
         {
             var subject = default(Decimal128);
 
-            subject.ToString().Should().Be("0");
+            subject.ToString().ShouldBe("0");
             AssertSpecialProperties(subject);
         }
 
@@ -47,14 +47,14 @@ namespace MongoDB.Bson.Tests
             var value = decimal.Parse(valueString, CultureInfo.InvariantCulture);
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(expectedResult);
+            subject.ToString().ShouldBe(expectedResult);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToDecimal(subject);
-            result.ToString().Should().Be(value.ToString());
+            result.ToString().ShouldBe(value.ToString());
 
             result = (decimal)subject;
-            result.ToString().Should().Be(value.ToString());
+            result.ToString().ShouldBe(value.ToString());
         }
 
         [Theory]
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Tests
 
             var result = Decimal128.ToDecimal(subject);
 
-            result.ToString().Should().Be(expectedResult.ToString());
+            result.ToString().ShouldBe(expectedResult.ToString());
         }
 
         [Theory]
@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Tests
 
             var result = Decimal128.ToDecimal(subject);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -119,7 +119,7 @@ namespace MongoDB.Bson.Tests
 
             var exception = Record.Exception(() => Decimal128.ToDecimal(subject));
 
-            exception.Should().BeOfType<OverflowException>();
+            exception.ShouldBeOfType<OverflowException>();
         }
 
         [Theory]
@@ -134,7 +134,7 @@ namespace MongoDB.Bson.Tests
 
                 var result = Decimal128.ToDouble(subject);
 
-                result.Should().Be(expectedDouble);
+                result.ShouldBe(expectedDouble);
             }
             finally
             {
@@ -154,7 +154,7 @@ namespace MongoDB.Bson.Tests
 
                 var result = Decimal128.ToSingle(subject);
 
-                result.Should().Be(expectedFloat);
+                result.ShouldBe(expectedFloat);
             }
             finally
             {
@@ -170,14 +170,14 @@ namespace MongoDB.Bson.Tests
         {
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(s);
+            subject.ToString().ShouldBe(s);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToByte(subject);
-            result.Should().Be(value);
+            result.ShouldBe(value);
 
             result = (byte)subject;
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -203,14 +203,14 @@ namespace MongoDB.Bson.Tests
         {
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(s);
+            subject.ToString().ShouldBe(s);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToInt16(subject);
-            result.Should().Be(value);
+            result.ShouldBe(value);
 
             result = (short)subject;
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -236,14 +236,14 @@ namespace MongoDB.Bson.Tests
         {
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(s);
+            subject.ToString().ShouldBe(s);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToInt32(subject);
-            result.Should().Be(value);
+            result.ShouldBe(value);
 
             result = (int)subject;
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -269,14 +269,14 @@ namespace MongoDB.Bson.Tests
         {
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(s);
+            subject.ToString().ShouldBe(s);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToInt64(subject);
-            result.Should().Be(value);
+            result.ShouldBe(value);
 
             result = (long)subject;
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -298,14 +298,14 @@ namespace MongoDB.Bson.Tests
         {
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(s);
+            subject.ToString().ShouldBe(s);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToSByte(subject);
-            result.Should().Be(value);
+            result.ShouldBe(value);
 
             result = (sbyte)subject;
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -329,14 +329,14 @@ namespace MongoDB.Bson.Tests
         {
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(s);
+            subject.ToString().ShouldBe(s);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToUInt16(subject);
-            result.Should().Be(value);
+            result.ShouldBe(value);
 
             result = (ushort)subject;
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -358,14 +358,14 @@ namespace MongoDB.Bson.Tests
         {
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(s);
+            subject.ToString().ShouldBe(s);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToUInt32(subject);
-            result.Should().Be(value);
+            result.ShouldBe(value);
 
             result = (uint)subject;
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -386,14 +386,14 @@ namespace MongoDB.Bson.Tests
         {
             var subject = new Decimal128(value);
 
-            subject.ToString().Should().Be(s);
+            subject.ToString().ShouldBe(s);
             AssertSpecialProperties(subject);
 
             var result = Decimal128.ToUInt64(subject);
-            result.Should().Be(value);
+            result.ShouldBe(value);
 
             result = (ulong)subject;
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -411,7 +411,7 @@ namespace MongoDB.Bson.Tests
         {
             var subject = Decimal128.NegativeInfinity;
 
-            subject.ToString().Should().Be("-Infinity");
+            subject.ToString().ShouldBe("-Infinity");
             AssertSpecialProperties(subject, negInfinity: true);
         }
 
@@ -420,7 +420,7 @@ namespace MongoDB.Bson.Tests
         {
             var subject = Decimal128.PositiveInfinity;
 
-            subject.ToString().Should().Be("Infinity");
+            subject.ToString().ShouldBe("Infinity");
             AssertSpecialProperties(subject, posInfinity: true);
         }
 
@@ -429,7 +429,7 @@ namespace MongoDB.Bson.Tests
         {
             var subject = Decimal128.QNaN;
 
-            subject.ToString().Should().Be("NaN");
+            subject.ToString().ShouldBe("NaN");
             AssertSpecialProperties(subject, qNaN: true);
         }
 
@@ -438,18 +438,18 @@ namespace MongoDB.Bson.Tests
         {
             var subject = Decimal128.SNaN;
 
-            subject.ToString().Should().Be("NaN");
+            subject.ToString().ShouldBe("NaN");
             AssertSpecialProperties(subject, sNaN: true);
         }
 
         private void AssertSpecialProperties(Decimal128 subject, bool qNaN = false, bool sNaN = false, bool posInfinity = false, bool negInfinity = false)
         {
-            Decimal128.IsNaN(subject).Should().Be(qNaN || sNaN);
-            Decimal128.IsQNaN(subject).Should().Be(qNaN);
-            Decimal128.IsSNaN(subject).Should().Be(sNaN);
-            Decimal128.IsInfinity(subject).Should().Be(posInfinity || negInfinity);
-            Decimal128.IsNegativeInfinity(subject).Should().Be(negInfinity);
-            Decimal128.IsPositiveInfinity(subject).Should().Be(posInfinity);
+            Decimal128.IsNaN(subject).ShouldBe(qNaN || sNaN);
+            Decimal128.IsQNaN(subject).ShouldBe(qNaN);
+            Decimal128.IsSNaN(subject).ShouldBe(sNaN);
+            Decimal128.IsInfinity(subject).ShouldBe(posInfinity || negInfinity);
+            Decimal128.IsNegativeInfinity(subject).ShouldBe(negInfinity);
+            Decimal128.IsPositiveInfinity(subject).ShouldBe(posInfinity);
         }
     }
 }

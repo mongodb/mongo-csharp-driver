@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -36,8 +36,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            memberMap.GetSerializer().Should().BeSameAs(_defaultStringSerializer);
-            memberMap.IdGenerator.Should().BeNull();
+            memberMap.GetSerializer().ShouldBeSameAs(_defaultStringSerializer);
+            memberMap.IdGenerator.ShouldBeNull();
         }
 
         [Fact]
@@ -48,8 +48,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            memberMap.GetSerializer().Should().BeSameAs(_defaultInt32Serializer);
-            memberMap.IdGenerator.Should().BeNull();
+            memberMap.GetSerializer().ShouldBeSameAs(_defaultInt32Serializer);
+            memberMap.IdGenerator.ShouldBeNull();
         }
 
         [Fact]
@@ -62,8 +62,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            memberMap.GetSerializer().Should().BeSameAs(serializer);
-            memberMap.IdGenerator.Should().BeNull();
+            memberMap.GetSerializer().ShouldBeSameAs(serializer);
+            memberMap.IdGenerator.ShouldBeNull();
         }
 
         [Fact]
@@ -76,8 +76,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            memberMap.GetSerializer().Should().BeSameAs(_defaultStringSerializer);
-            memberMap.IdGenerator.Should().BeSameAs(idGenerator);
+            memberMap.GetSerializer().ShouldBeSameAs(_defaultStringSerializer);
+            memberMap.IdGenerator.ShouldBeSameAs(idGenerator);
         }
 
         [Fact]
@@ -88,9 +88,9 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             subject.Apply(memberMap);
 
-            var stringSerializer = memberMap.GetSerializer().Should().BeOfType<StringSerializer>().Subject;
-            stringSerializer.Representation.Should().Be(BsonType.ObjectId);
-            memberMap.IdGenerator.Should().BeOfType<StringObjectIdGenerator>();
+            var stringSerializer = memberMap.GetSerializer().ShouldBeOfType<StringSerializer>();
+            stringSerializer.Representation.ShouldBe(BsonType.ObjectId);
+            memberMap.IdGenerator.ShouldBeOfType<StringObjectIdGenerator>();
         }
 
         // private methods

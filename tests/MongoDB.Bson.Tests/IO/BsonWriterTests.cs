@@ -16,7 +16,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 foreach (var levelName in levelNames)
                 {
-                    Record.Exception(() => writer.WriteInt32($"wrongname", 1)).Should().BeOfType<BsonSerializationException>();
+                    Record.Exception(() => writer.WriteInt32($"wrongname", 1)).ShouldBeOfType<BsonSerializationException>();
 
                     writer.WriteInt32($"{levelName}_int", 1);
                     writer.WriteStartDocument($"{levelName}_nested");

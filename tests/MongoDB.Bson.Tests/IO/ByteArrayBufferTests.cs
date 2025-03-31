@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -36,9 +36,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.AccessBackingBytes(0);
 
-            result.Array.Should().BeSameAs(bytes);
-            result.Offset.Should().Be(0);
-            result.Count.Should().Be(expectedCount);
+            result.Array.ShouldBeSameAs(bytes);
+            result.Offset.ShouldBe(0);
+            result.Count.ShouldBe(expectedCount);
         }
 
         [Theory]
@@ -52,9 +52,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.AccessBackingBytes(position);
 
-            result.Array.Should().BeSameAs(bytes);
-            result.Offset.Should().Be(expectedOffset);
-            result.Count.Should().Be(expectedCount);
+            result.Array.ShouldBeSameAs(bytes);
+            result.Offset.ShouldBe(expectedOffset);
+            result.Count.ShouldBe(expectedCount);
         }
 
         [Theory]
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.AccessBackingBytes(position);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("position");
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.AccessBackingBytes(0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Theory]
@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.Capacity;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.Capacity; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Theory]
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Clear(0, count);
 
-            bytes.Should().Equal(expectedBytes);
+            bytes.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -126,7 +126,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Clear(position, 1);
 
-            bytes.Should().Equal(expectedBytes);
+            bytes.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -140,7 +140,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Clear(position, count);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
         }
 
         [Theory]
@@ -153,7 +153,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Clear(position, 0);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("position");
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Clear(0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Fact]
@@ -189,10 +189,10 @@ namespace MongoDB.Bson.Tests.IO
             var subject = new ByteArrayBuffer(bytes, length, isReadOnly);
 
             var reflector = new Reflector(subject);
-            subject.IsReadOnly.Should().Be(isReadOnly);
-            subject.Length.Should().Be(length);
-            reflector._bytes.Should().BeSameAs(bytes);
-            reflector._disposed.Should().BeFalse();
+            subject.IsReadOnly.ShouldBe(isReadOnly);
+            subject.Length.ShouldBe(length);
+            reflector._bytes.ShouldBeSameAs(bytes);
+            reflector._disposed.ShouldBeFalse();
         }
 
         [Fact]
@@ -200,7 +200,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new ByteArrayBuffer(null, 0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("bytes");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("bytes");
         }
 
         [Theory]
@@ -213,7 +213,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => new ByteArrayBuffer(bytes, length);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("length");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("length");
         }
 
         [Theory]
@@ -227,10 +227,10 @@ namespace MongoDB.Bson.Tests.IO
             var subject = new ByteArrayBuffer(bytes, isReadOnly);
 
             var reflector = new Reflector(subject);
-            subject.IsReadOnly.Should().Be(isReadOnly);
-            subject.Length.Should().Be(bytes.Length);
-            reflector._bytes.Should().BeSameAs(bytes);
-            reflector._disposed.Should().BeFalse();
+            subject.IsReadOnly.ShouldBe(isReadOnly);
+            subject.Length.ShouldBe(bytes.Length);
+            reflector._bytes.ShouldBeSameAs(bytes);
+            reflector._disposed.ShouldBeFalse();
         }
 
         [Fact]
@@ -238,7 +238,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             Action action = () => new ByteArrayBuffer(null);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("bytes");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("bytes");
         }
 
         [Fact]
@@ -258,7 +258,7 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
 
             var reflector = new Reflector(subject);
-            reflector._disposed.Should().BeTrue();
+            reflector._disposed.ShouldBeTrue();
         }
 
         [Theory]
@@ -277,9 +277,9 @@ namespace MongoDB.Bson.Tests.IO
             subject.EnsureCapacity(minimumCapacity);
 
             var reflector = new Reflector(subject);
-            subject.Capacity.Should().Be(expectedCapacity);
-            reflector._bytes.Take(size).Should().Equal(bytes);
-            reflector._bytes.Skip(size).Should().Equal(Enumerable.Repeat<byte>(0, expectedCapacity - size));
+            subject.Capacity.ShouldBe(expectedCapacity);
+            reflector._bytes.Take(size).ShouldBe(bytes);
+            reflector._bytes.Skip(size).ShouldBe(Enumerable.Repeat<byte>(0, expectedCapacity - size));
         }
 
         [Fact]
@@ -289,7 +289,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.EnsureCapacity(-1);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("minimumCapacity");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("minimumCapacity");
         }
 
         [Fact]
@@ -299,7 +299,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.EnsureCapacity(0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Fact]
@@ -322,7 +322,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.GetByte(position);
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -335,7 +335,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetByte(position);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("position");
         }
 
         [Fact]
@@ -345,7 +345,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetByte(0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Theory]
@@ -360,7 +360,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.GetBytes(0, destination, 0, count);
 
-            destination.Should().Equal(expectedBytes);
+            destination.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -374,7 +374,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.GetBytes(0, destination, offset, 2);
 
-            destination.Should().Equal(expectedBytes);
+            destination.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -388,7 +388,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.GetBytes(position, destination, 0, 2);
 
-            destination.Should().Equal(expectedBytes);
+            destination.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -403,7 +403,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetBytes(position, destination, 0, count);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
         }
 
         [Theory]
@@ -418,7 +418,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetBytes(0, destination, offset, count);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
         }
 
         [Fact]
@@ -428,7 +428,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetBytes(0, null, 0, 0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("destination");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("destination");
         }
 
         [Theory]
@@ -442,7 +442,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetBytes(0, destination, offset, 0);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("offset");
         }
 
         [Theory]
@@ -456,7 +456,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetBytes(position, destination, 0, 0);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("position");
         }
 
         [Fact]
@@ -467,7 +467,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetBytes(0, destination, 0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Theory]
@@ -481,9 +481,9 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.GetSlice(position, length);
 
-            result.AccessBackingBytes(0).Array.Should().BeSameAs(bytes);
-            result.AccessBackingBytes(0).Offset.Should().Be(position);
-            result.AccessBackingBytes(0).Count.Should().Be(length);
+            result.AccessBackingBytes(0).Array.ShouldBeSameAs(bytes);
+            result.AccessBackingBytes(0).Offset.ShouldBe(position);
+            result.AccessBackingBytes(0).Count.ShouldBe(length);
         }
 
         [Fact]
@@ -495,7 +495,7 @@ namespace MongoDB.Bson.Tests.IO
 
             slice.Dispose();
 
-            subject.GetByte(1).Should().Be(2);
+            subject.GetByte(1).ShouldBe((byte)2);
         }
 
         [Fact]
@@ -507,7 +507,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Dispose();
 
-            slice.GetByte(0).Should().Be(2);
+            slice.GetByte(0).ShouldBe((byte)2);
         }
 
         [Theory]
@@ -521,7 +521,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetSlice(position, length);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("length");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("length");
         }
 
         [Theory]
@@ -534,7 +534,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetSlice(position, 0);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("position");
         }
 
         [Fact]
@@ -544,7 +544,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.GetSlice(0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Fact]
@@ -567,7 +567,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.IsReadOnly;
 
-            result.Should().Be(isReadOnly);
+            result.ShouldBe(isReadOnly);
         }
 
         [Fact]
@@ -577,7 +577,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.IsReadOnly; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Theory]
@@ -590,7 +590,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var result = subject.Length;
 
-            result.Should().Be(length);
+            result.ShouldBe(length);
         }
 
         [Fact]
@@ -600,7 +600,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => { var _ = subject.Length; };
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Theory]
@@ -613,7 +613,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.Length = length;
 
-            subject.Length.Should().Be(length);
+            subject.Length.ShouldBe(length);
         }
 
         [Fact]
@@ -637,7 +637,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Length = value;
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("value");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("value");
         }
 
         [Fact]
@@ -647,7 +647,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.Length = 0;
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Theory]
@@ -660,7 +660,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.MakeReadOnly();
 
-            subject.IsReadOnly.Should().BeTrue();
+            subject.IsReadOnly.ShouldBeTrue();
         }
 
         [Fact]
@@ -670,7 +670,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.MakeReadOnly();
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Theory]
@@ -683,7 +683,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.SetByte(position, 1);
 
-            bytes.Should().Equal(expectedBytes);
+            bytes.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -696,7 +696,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetByte(position, 0);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("position");
         }
 
         [Fact]
@@ -706,7 +706,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetByte(0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Fact]
@@ -730,7 +730,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.SetBytes(0, source, 0, count);
 
-            bytes.Should().Equal(expectedBytes);
+            bytes.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -744,7 +744,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.SetBytes(0, source, offset, 1);
 
-            bytes.Should().Equal(expectedBytes);
+            bytes.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -758,7 +758,7 @@ namespace MongoDB.Bson.Tests.IO
 
             subject.SetBytes(position, source, 0, 1);
 
-            bytes.Should().Equal(expectedBytes);
+            bytes.ShouldBe(expectedBytes);
         }
 
         [Theory]
@@ -772,7 +772,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetBytes(position, source, 0, count);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
         }
 
         [Theory]
@@ -786,7 +786,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetBytes(0, source, offset, count);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("count");
         }
 
         [Theory]
@@ -800,7 +800,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetBytes(0, source, offset, 0);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("offset");
         }
 
         [Theory]
@@ -814,7 +814,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetBytes(position, source, 0, 0);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("position");
+            action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe("position");
         }
 
         [Fact]
@@ -824,7 +824,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetBytes(0, null, 0, 0);
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("source");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("source");
         }
 
         [Fact]
@@ -835,7 +835,7 @@ namespace MongoDB.Bson.Tests.IO
 
             Action action = () => subject.SetBytes(0, source, 0, 0);
 
-            action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("ByteArrayBuffer");
+            action.ShouldThrow<ObjectDisposedException>().ObjectName.ShouldBe("ByteArrayBuffer");
         }
 
         [Fact]

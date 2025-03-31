@@ -20,7 +20,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -125,11 +125,11 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
 
-            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
-            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
-            rehydrated.LD.Should().Equal(obj.LD);
-            rehydrated.OD.Should().Equal(obj.OD);
-            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.HT.ShouldBeEquivalentTo(obj.HT);
+            rehydrated.ID.ShouldBeEquivalentTo(obj.ID);
+            rehydrated.LD.ShouldBe(obj.LD);
+            rehydrated.OD.ShouldBe(obj.OD);
+            rehydrated.LD.ShouldBe(obj.LD);
         }
 
         [Fact]
@@ -148,11 +148,11 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
 
-            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
-            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
-            rehydrated.LD.Should().Equal(obj.LD);
-            rehydrated.OD.Should().Equal(obj.OD);
-            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.HT.ShouldBeEquivalentTo(obj.HT);
+            rehydrated.ID.ShouldBeEquivalentTo(obj.ID);
+            rehydrated.LD.ShouldBe(obj.LD);
+            rehydrated.OD.ShouldBe(obj.OD);
+            rehydrated.LD.ShouldBe(obj.LD);
         }
 
         [Fact]
@@ -171,11 +171,11 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
 
-            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
-            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
-            rehydrated.LD.Should().Equal(obj.LD);
-            rehydrated.OD.Should().Equal(obj.OD);
-            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.HT.ShouldBeEquivalentTo(obj.HT);
+            rehydrated.ID.ShouldBeEquivalentTo(obj.ID);
+            rehydrated.LD.ShouldBe(obj.LD);
+            rehydrated.OD.ShouldBe(obj.OD);
+            rehydrated.LD.ShouldBe(obj.LD);
         }
 
         [Fact]
@@ -205,11 +205,11 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
 
-            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
-            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
-            rehydrated.LD.Should().Equal(obj.LD);
-            rehydrated.OD.Should().Equal(obj.OD);
-            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.HT.ShouldBeEquivalentTo(obj.HT);
+            rehydrated.ID.ShouldBeEquivalentTo(obj.ID);
+            rehydrated.LD.ShouldBe(obj.LD);
+            rehydrated.OD.ShouldBe(obj.OD);
+            rehydrated.LD.ShouldBe(obj.LD);
         }
 
         [Fact]
@@ -252,11 +252,11 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
 
-            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
-            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
-            rehydrated.LD.Should().Equal(obj.LD);
-            rehydrated.OD.Should().Equal(obj.OD);
-            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.HT.ShouldBeEquivalentTo(obj.HT);
+            rehydrated.ID.ShouldBeEquivalentTo(obj.ID);
+            rehydrated.LD.ShouldBe(obj.LD);
+            rehydrated.OD.ShouldBe(obj.OD);
+            rehydrated.LD.ShouldBe(obj.LD);
         }
 
         [Fact]
@@ -299,11 +299,11 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
 
-            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
-            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
-            rehydrated.LD.Should().Equal(obj.LD);
-            rehydrated.OD.Should().Equal(obj.OD);
-            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.HT.ShouldBeEquivalentTo(obj.HT);
+            rehydrated.ID.ShouldBeEquivalentTo(obj.ID);
+            rehydrated.LD.ShouldBe(obj.LD);
+            rehydrated.OD.ShouldBe(obj.OD);
+            rehydrated.LD.ShouldBe(obj.LD);
         }
 
         [Fact]
@@ -346,11 +346,11 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<T>(bson);
 
-            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
-            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
-            rehydrated.LD.Should().Equal(obj.LD);
-            rehydrated.OD.Should().Equal(obj.OD);
-            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.HT.ShouldBeEquivalentTo(obj.HT);
+            rehydrated.ID.ShouldBeEquivalentTo(obj.ID);
+            rehydrated.LD.ShouldBe(obj.LD);
+            rehydrated.OD.ShouldBe(obj.OD);
+            rehydrated.LD.ShouldBe(obj.LD);
         }
 
         [Fact]
@@ -420,11 +420,11 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var bson = obj.ToBson(writerSettings: new BsonBinaryWriterSettings());
             var rehydrated = BsonSerializer.Deserialize<T>(new BsonBinaryReader(new MemoryStream(bson), new BsonBinaryReaderSettings()));
 
-            rehydrated.HT.Should().BeEquivalentTo(obj.HT);
-            rehydrated.ID.Should().BeEquivalentTo(obj.ID);
-            rehydrated.LD.Should().Equal(obj.LD);
-            rehydrated.OD.Should().Equal(obj.OD);
-            rehydrated.LD.Should().Equal(obj.LD);
+            rehydrated.HT.ShouldBeEquivalentTo(obj.HT);
+            rehydrated.ID.ShouldBeEquivalentTo(obj.ID);
+            rehydrated.LD.ShouldBe(obj.LD);
+            rehydrated.OD.ShouldBe(obj.OD);
+            rehydrated.LD.ShouldBe(obj.LD);
         }
 
         [Fact]
