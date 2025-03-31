@@ -14,7 +14,7 @@
 */
 
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using Xunit;
 
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Examples
             using (var cursor = await collection.Indexes.ListAsync())
             {
                 var indexes = await cursor.ToListAsync();
-                indexes.Should().Contain(index => index["name"] == "cuisine_1");
+                indexes.ShouldContain(index => index["name"] == "cuisine_1");
             }
             // @results: end
 
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Examples
             using (var cursor = await collection.Indexes.ListAsync())
             {
                 var indexes = await cursor.ToListAsync();
-                indexes.Should().Contain(index => index["name"] == "cuisine_1_address.zipcode_1");
+                indexes.ShouldContain(index => index["name"] == "cuisine_1_address.zipcode_1");
             }
             // @results: end
 

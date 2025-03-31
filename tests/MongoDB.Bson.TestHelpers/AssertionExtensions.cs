@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization;
 using Shouldly;
 
 namespace MongoDB.Bson.TestHelpers;
@@ -24,5 +25,11 @@ public static class AssertionExtensions
     {
         var expectedDocument = expected == null ? null : BsonDocument.Parse(expected);
         subject.ShouldBe(expectedDocument);
+    }
+
+    public static void ShouldBe(this BsonArray subject, string expected)
+    {
+        var expectedArray = expected == null ? null : BsonSerializer.Deserialize<BsonArray>(expected);
+        subject.ShouldBe(expectedArray);
     }
 }

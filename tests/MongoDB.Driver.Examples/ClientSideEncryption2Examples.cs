@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -105,15 +105,15 @@ namespace MongoDB.Driver.Examples
 
             var findResult = encryptedCollection.Find(new BsonDocument("encryptedIndexed", "indexedValue")).Single().AsBsonDocument;
 
-            findResult["encryptedIndexed"].Should().Be(new BsonString(indexedValue));
-            findResult["encryptedUnindexed"].Should().Be(new BsonString(unindexedValue));
+            findResult["encryptedIndexed"].ShouldBe(new BsonString(indexedValue));
+            findResult["encryptedUnindexed"].ShouldBe(new BsonString(unindexedValue));
 
             // Find documents without decryption.
             var unencryptedDatabase = unencryptedClient.GetDatabase(CollectionNamespace.DatabaseNamespace.DatabaseName);
             var unencryptedCollection = unencryptedDatabase.GetCollection<BsonDocument>(CollectionNamespace.CollectionName);
             findResult = unencryptedCollection.Find(new BsonDocument("_id", 1)).Single().AsBsonDocument;
-            findResult["encryptedIndexed"].Should().BeOfType<BsonBinaryData>();
-            findResult["encryptedUnindexed"].Should().BeOfType<BsonBinaryData>();
+            findResult["encryptedIndexed"].ShouldBeOfType<BsonBinaryData>();
+            findResult["encryptedUnindexed"].ShouldBeOfType<BsonBinaryData>();
         }
 
         private void DropCollections(IMongoClient client)

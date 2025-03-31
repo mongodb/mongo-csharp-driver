@@ -13,7 +13,8 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using System;
@@ -66,9 +67,9 @@ namespace MongoDB.Driver.Examples
 
             var result = client.GetDatabase(testDatabaseName).GetCollection<BsonDocument>(itemsCollectionName).Find("{}").FirstOrDefault();
             RemoveIds(new[] { result });
-            result["start"].Should().NotBeNull();
+            result["start"].ShouldNotBeNull();
             result.Remove("start");
-            result.Should().Be("{ \"sku\" : \"nuts-111\", \"name\" : \"Pecans\" }");
+            result.ShouldBe("{ \"sku\" : \"nuts-111\", \"name\" : \"Pecans\" }");
         }
 
         [Fact]
@@ -143,7 +144,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").FirstOrDefault();
             RemoveIds(new[] { result });
-            result.Should().Be("{ name: 'John' }");
+            result.ShouldBe("{ name: 'John' }");
         }
 
         private IMongoClient CreateClient()

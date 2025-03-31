@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using Xunit;
 
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            count.Should().Be(25359);
+            count.ShouldBe(25359);
             // @results: end
 
             // @end: query-all
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.Count().Should().Be(15);
+            result.Count().ShouldBe(15);
             // @results: end
 
             // @end: logical-and
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.Count().Should().Be(1153);
+            result.Count().ShouldBe(1153);
             // @results: end
 
             // @end: logical-or
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.Count().Should().Be(10259);
+            result.Count().ShouldBe(10259);
             // @results: end
 
             // @end: query-top-level-field
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.Count().Should().Be(99);
+            result.Count().ShouldBe(99);
             // @results: end
 
             // @end: query-embedded-document
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.Count().Should().Be(8280);
+            result.Count().ShouldBe(8280);
             // @results: end
 
             // @end: query-field-in-array
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.Count().Should().Be(1959);
+            result.Count().ShouldBe(1959);
             // @results: end
 
             // @end: greater-than
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.Count().Should().Be(19065);
+            result.Count().ShouldBe(19065);
             // @results: end
 
             // @end: less-than
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Examples
 
             // @results: start
             Func<BsonDocument, BsonDocument> keyFunc = document => new BsonDocument { { "borough", document["borough"] }, { "address.zipcode", document.GetValue("address.zipcode", "") } };
-            IsInAscendingOrder(result, keyFunc).Should().BeTrue();
+            IsInAscendingOrder(result, keyFunc).ShouldBeTrue();
             // @results: end
 
             // @end: sort

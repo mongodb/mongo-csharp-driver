@@ -14,7 +14,7 @@
 */
 
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using Xunit;
 
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.DeletedCount.Should().Be(10259);
+            result.DeletedCount.ShouldBe(10259);
             // @results: end
 
             // @end: remove-matching-documents
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.DeletedCount.Should().Be(25359);
+            result.DeletedCount.ShouldBe(25359);
             // @results: end
 
             // @end: remove-all-documents
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Examples
             using (var cursor = await __database.ListCollectionsAsync())
             {
                 var collections = await cursor.ToListAsync();
-                collections.Should().NotContain(document => document["name"] == "restaurants");
+                collections.ShouldNotContain(document => document["name"] == "restaurants");
             }
             // @results: end
 

@@ -14,7 +14,7 @@
 */
 
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -82,17 +82,17 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
             }
             //End Transactions withTxn API Example 1
 
-            result.Should().Be("Inserted into collections in different databases");
+            result.ShouldBe("Inserted into collections in different databases");
 
             var collection1Documents = collection1.Find(FilterDefinition<BsonDocument>.Empty).ToList();
-            collection1Documents.Count.Should().Be(2);
-            collection1Documents[0]["abc"].Should().Be(0);
-            collection1Documents[1]["abc"].Should().Be(1);
+            collection1Documents.Count.ShouldBe(2);
+            collection1Documents[0]["abc"].ShouldBe(0);
+            collection1Documents[1]["abc"].ShouldBe(1);
 
             var collection2Documents = collection2.Find(FilterDefinition<BsonDocument>.Empty).ToList();
-            collection2Documents.Count.Should().Be(2);
-            collection2Documents[0]["xyz"].Should().Be(0);
-            collection2Documents[1]["xyz"].Should().Be(999);
+            collection2Documents.Count.ShouldBe(2);
+            collection2Documents[0]["xyz"].ShouldBe(0);
+            collection2Documents[1]["xyz"].ShouldBe(999);
         }
 
         // private methods

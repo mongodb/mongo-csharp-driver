@@ -14,7 +14,7 @@
 */
 
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using Xunit;
 
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Examples
                 BsonDocument.Parse("{ _id : 'Bronx', count : 2338 }"),
                 BsonDocument.Parse("{ _id : 'Missing', count : 51 }")
             };
-            results.Should().BeEquivalentTo(expectedResults);
+            results.ShouldBeEquivalentTo(expectedResults);
             // @results: end
 
             // @end: group-documents-by-a-field-and-calculate-count
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Examples
                 BsonDocument.Parse("{ _id : '11103', count : 1 }"),
                 BsonDocument.Parse("{ _id : '11101', count : 2 }")
             };
-            results.Should().BeEquivalentTo(expectedResults);
+            results.ShouldBeEquivalentTo(expectedResults);
             // @results: end
 
             // @end: filter-and-group-documents

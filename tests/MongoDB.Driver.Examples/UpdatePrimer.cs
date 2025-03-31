@@ -14,7 +14,7 @@
 */
 
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -40,10 +40,10 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.MatchedCount.Should().Be(1);
+            result.MatchedCount.ShouldBe(1);
             if (result.IsModifiedCountAvailable)
             {
-                result.ModifiedCount.Should().Be(1);
+                result.ModifiedCount.ShouldBe(1);
             }
             // @results: end
 
@@ -64,10 +64,10 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.MatchedCount.Should().Be(1);
+            result.MatchedCount.ShouldBe(1);
             if (result.IsModifiedCountAvailable)
             {
-                result.ModifiedCount.Should().Be(1);
+                result.ModifiedCount.ShouldBe(1);
             }
             // @results: end
 
@@ -92,10 +92,10 @@ namespace MongoDB.Driver.Examples
             // @code: end
 
             // @results: start
-            result.MatchedCount.Should().Be(20);
+            result.MatchedCount.ShouldBe(20);
             if (result.IsModifiedCountAvailable)
             {
-                result.ModifiedCount.Should().Be(20);
+                result.ModifiedCount.ShouldBe(20);
             }
             // @results: end
 

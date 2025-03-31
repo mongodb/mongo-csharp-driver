@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Examples
             cursor.Dispose();
             // End Changestream Example 1
 
-            next.FullDocument.Should().Be(document);
+            next.FullDocument.ShouldBe(document);
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Examples
             // End Changestream Example 2
 
             var expectedFullDocument = document.Set("x", 2);
-            next.FullDocument.Should().Be(expectedFullDocument);
+            next.FullDocument.ShouldBe(expectedFullDocument);
         }
 
         [Fact]
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Examples
                 cursor.Dispose();
                 // End Changestream Example 3
 
-                next.FullDocument.Should().Be(documents[1]);
+                next.FullDocument.ShouldBe(documents[1]);
             }
         }
 

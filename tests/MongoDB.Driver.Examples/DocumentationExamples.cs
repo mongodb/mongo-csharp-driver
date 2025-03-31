@@ -15,9 +15,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Example_1()
         {
-            // db.inventory.insertOne( { item: "canvas", qty: 100, tags: ["cotton"], size: { h: 28, w: 35.5, uom: "cm" } } ) 
+            // db.inventory.insertOne( { item: "canvas", qty: 100, tags: ["cotton"], size: { h: 28, w: 35.5, uom: "cm" } } )
 
             // Start Example 1
             var document = new BsonDocument
@@ -56,7 +57,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                 "{ item: \"canvas\", qty: 100, tags: [\"cotton\"], size: { h: 28, w: 35.5, uom: \"cm\" } }"));
         }
 
@@ -70,16 +71,16 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 2
 
-            Render(filter).Should().Be("{ item: \"canvas\" }");
+            Render(filter).ShouldBe("{ item: \"canvas\" }");
         }
 
         [Fact]
         public void Example_3()
         {
-            // db.inventory.insertMany([ 
+            // db.inventory.insertMany([
             //   { item: "journal", qty: 25, tags: ["blank", "red"], size: { h: 14, w: 21, uom: "cm" } },
             //   { item: "mat", qty: 85, tags: ["gray"], size: { h: 27.9, w: 35.5, uom: "cm" } },
-            //   { item: "mousepad", qty: 25, tags: ["gel", "blue"], size: { h: 19, w: 22.85, uom: "cm" } } ]) 
+            //   { item: "mousepad", qty: 25, tags: ["gel", "blue"], size: { h: 19, w: 22.85, uom: "cm" } } ])
 
             // Start Example 3
             var documents = new BsonDocument[]
@@ -111,7 +112,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                "{ item: \"journal\", qty: 25, tags: [\"blank\", \"red\"], size: { h: 14, w: 21, uom: \"cm\" } }",
                "{ item: \"mat\", qty: 85, tags: [\"gray\"], size: { h: 27.9, w: 35.5, uom: \"cm\" } }",
                "{ item: \"mousepad\", qty: 25, tags: [\"gel\", \"blue\"], size: { h: 19, w: 22.85, uom: \"cm\" } }"));
@@ -125,7 +126,7 @@ namespace MongoDB.Driver.Examples
             //   { item: "notebook", qty: 50, size: { h: 8.5, w: 11, uom: "in" }, status: "A" },
             //   { item: "paper", qty: 100, size: { h: 8.5, w: 11, uom: "in" }, status: "D" },
             //   { item: "planner", qty: 75, size: { h: 22.85, w: 30, uom: "cm" }, status: "D" },
-            //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" } ]) 
+            //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" } ])
 
             // Start Example 6
             var documents = new BsonDocument[]
@@ -171,7 +172,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                "{ item: \"journal\", qty: 25, size: { h: 14, w: 21, uom: \"cm\" }, status: \"A\" }",
                "{ item: \"notebook\", qty: 50, size: { h: 8.5, w: 11, uom: \"in\" }, status: \"A\" }",
                "{ item: \"paper\", qty: 100, size: { h: 8.5, w: 11, uom: \"in\" }, status: \"D\" }",
@@ -189,7 +190,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 7
 
-            Render(filter).Should().Be("{}");
+            Render(filter).ShouldBe("{}");
         }
 
         [Fact]
@@ -202,7 +203,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 9
 
-            Render(filter).Should().Be("{ status : \"D\" }");
+            Render(filter).ShouldBe("{ status : \"D\" }");
         }
 
         [Fact]
@@ -215,7 +216,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 10
 
-            Render(filter).Should().Be("{ status: { $in: [ \"A\", \"D\" ] } }");
+            Render(filter).ShouldBe("{ status: { $in: [ \"A\", \"D\" ] } }");
         }
 
         [Fact]
@@ -229,7 +230,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 11
 
-            Render(filter).Should().Be("{ status: \"A\", qty: { $lt: 30 } }");
+            Render(filter).ShouldBe("{ status: \"A\", qty: { $lt: 30 } }");
         }
 
         [Fact]
@@ -243,7 +244,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 12
 
-            Render(filter).Should().Be("{ $or: [ { status: \"A\" }, { qty: { $lt: 30 } } ] }");
+            Render(filter).ShouldBe("{ $or: [ { status: \"A\" }, { qty: { $lt: 30 } } ] }");
         }
 
         [Fact]
@@ -259,13 +260,13 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 13
 
-            Render(filter).Should().Be("{ status: \"A\", $or: [ { qty: { $lt: 30 } }, { item: /^p/ } ] }");
+            Render(filter).ShouldBe("{ status: \"A\", $or: [ { qty: { $lt: 30 } }, { item: /^p/ } ] }");
         }
 
         [Fact]
         public void Example_14()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "journal", qty: 25, size: { h: 14, w: 21, uom: "cm" }, status: "A" },
             //   { item: "notebook", qty: 50, size: { h: 8.5, w: 11, uom: "in" }, status: "A" },
             //   { item: "paper", qty: 100, size: { h: 8.5, w: 11, uom: "in" }, status: "D" },
@@ -315,7 +316,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                 "{ item: \"journal\", qty: 25, size: { h: 14, w: 21, uom: \"cm\" }, status: \"A\" }",
                 "{ item: \"notebook\", qty: 50, size: { h: 8.5, w: 11, uom: \"in\" }, status: \"A\" }",
                 "{ item: \"paper\", qty: 100, size: { h: 8.5, w: 11, uom: \"in\" }, status: \"D\" }",
@@ -333,7 +334,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 15
 
-            Render(filter).Should().Be("{ size: { h: 14, w: 21, uom: \"cm\" } }");
+            Render(filter).ShouldBe("{ size: { h: 14, w: 21, uom: \"cm\" } }");
         }
 
         [Fact]
@@ -346,7 +347,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 16
 
-            Render(filter).Should().Be("{ size: { w: 21, h: 14, uom: \"cm\" } }");
+            Render(filter).ShouldBe("{ size: { w: 21, h: 14, uom: \"cm\" } }");
         }
 
         [Fact]
@@ -359,7 +360,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 17
 
-            Render(filter).Should().Be("{ \"size.uom\": \"in\" }");
+            Render(filter).ShouldBe("{ \"size.uom\": \"in\" }");
         }
 
         [Fact]
@@ -372,7 +373,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 18
 
-            Render(filter).Should().Be("{ \"size.h\": { $lt: 15 } }");
+            Render(filter).ShouldBe("{ \"size.h\": { $lt: 15 } }");
         }
 
         [Fact]
@@ -386,13 +387,13 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 19
 
-            Render(filter).Should().Be("{ \"size.h\": { $lt: 15 }, \"size.uom\": \"in\", status: \"D\" }");
+            Render(filter).ShouldBe("{ \"size.h\": { $lt: 15 }, \"size.uom\": \"in\", status: \"D\" }");
         }
 
         [Fact]
         public void Example_20()
         {
-            // db.inventory.insertMany([ 
+            // db.inventory.insertMany([
             //   { item: "journal", qty: 25, tags: ["blank", "red"], dim_cm: [ 14, 21 ] },
             //   { item: "notebook", qty: 50, tags: ["red", "blank"], dim_cm: [ 14, 21 ] },
             //   { item: "paper", qty: 100, tags: ["red", "blank", "plain"], dim_cm: [ 14, 21 ] },
@@ -443,7 +444,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                 "{ item: \"journal\", qty: 25, tags: [\"blank\", \"red\"], dim_cm: [ 14, 21 ] }",
                 "{ item: \"notebook\", qty: 50, tags: [\"red\", \"blank\"], dim_cm: [ 14, 21 ] }",
                 "{ item: \"paper\", qty: 100, tags: [\"red\", \"blank\", \"plain\"], dim_cm: [ 14, 21 ] }",
@@ -461,7 +462,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 21
 
-            Render(filter).Should().Be("{ tags: [\"red\", \"blank\"] }");
+            Render(filter).ShouldBe("{ tags: [\"red\", \"blank\"] }");
         }
 
         [Fact]
@@ -474,7 +475,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 22
 
-            Render(filter).Should().Be("{ tags: { $all: [\"red\", \"blank\"] } }");
+            Render(filter).ShouldBe("{ tags: { $all: [\"red\", \"blank\"] } }");
         }
 
         [Fact]
@@ -487,7 +488,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 23
 
-            Render(filter).Should().Be("{ tags: \"red\" }");
+            Render(filter).ShouldBe("{ tags: \"red\" }");
         }
 
         [Fact]
@@ -500,7 +501,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 24
 
-            Render(filter).Should().Be("{ dim_cm: { $gt: 25 } }");
+            Render(filter).ShouldBe("{ dim_cm: { $gt: 25 } }");
         }
 
         [Fact]
@@ -514,7 +515,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 25
 
-            Render(filter).Should().Be("{ dim_cm: { $gt: 15, $lt: 20 } }");
+            Render(filter).ShouldBe("{ dim_cm: { $gt: 15, $lt: 20 } }");
         }
 
         [Fact]
@@ -527,7 +528,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 26
 
-            Render(filter).Should().Be("{ dim_cm: { $elemMatch: { $gt: 22, $lt: 30 } } }");
+            Render(filter).ShouldBe("{ dim_cm: { $elemMatch: { $gt: 22, $lt: 30 } } }");
         }
 
         [Fact]
@@ -540,7 +541,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 27
 
-            Render(filter).Should().Be("{ \"dim_cm.1\": { $gt: 25 } }");
+            Render(filter).ShouldBe("{ \"dim_cm.1\": { $gt: 25 } }");
         }
 
         [Fact]
@@ -553,13 +554,13 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 28
 
-            Render(filter).Should().Be("{ tags: { $size: 3 } }");
+            Render(filter).ShouldBe("{ tags: { $size: 3 } }");
         }
 
         [Fact]
         public void Example_29()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "journal", instock: [ { warehouse: "A", qty: 5 }, { warehouse: "C", qty: 15 } ] },
             //   { item: "notebook", instock: [ { warehouse: "C", qty: 5 } ] },
             //   { item: "paper", instock: [ { warehouse: "A", qty: 60 }, { warehouse: "B", qty: 15 } ] },
@@ -619,7 +620,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                 "{ item: \"journal\", instock: [ { warehouse: \"A\", qty: 5 }, { warehouse: \"C\", qty: 15 } ] }",
                 "{ item: \"notebook\", instock: [ { warehouse: \"C\", qty: 5 } ] }",
                 "{ item: \"paper\", instock: [ { warehouse: \"A\", qty: 60 }, { warehouse: \"B\", qty: 15 } ] }",
@@ -637,7 +638,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 30
 
-            Render(filter).Should().Be("{ instock: { warehouse: \"A\", qty: 5 } }");
+            Render(filter).ShouldBe("{ instock: { warehouse: \"A\", qty: 5 } }");
         }
 
         [Fact]
@@ -650,7 +651,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 31
 
-            Render(filter).Should().Be("{ instock: { qty: 5, warehouse: \"A\" } }");
+            Render(filter).ShouldBe("{ instock: { qty: 5, warehouse: \"A\" } }");
         }
 
         [Fact]
@@ -663,7 +664,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 32
 
-            Render(filter).Should().Be("{ \"instock.0.qty\": { $lte: 20 } }");
+            Render(filter).ShouldBe("{ \"instock.0.qty\": { $lte: 20 } }");
         }
 
         [Fact]
@@ -676,7 +677,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 33
 
-            Render(filter).Should().Be("{ \"instock.qty\": { $lte: 20 } }");
+            Render(filter).ShouldBe("{ \"instock.qty\": { $lte: 20 } }");
         }
 
         [Fact]
@@ -689,7 +690,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 34
 
-            Render(filter).Should().Be("{ instock: { $elemMatch: { qty: 5, warehouse: \"A\" } } }");
+            Render(filter).ShouldBe("{ instock: { $elemMatch: { qty: 5, warehouse: \"A\" } } }");
         }
 
         [Fact]
@@ -702,7 +703,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 35
 
-            Render(filter).Should().Be("{ instock: { $elemMatch: { qty: { $gt: 10, $lte: 20 } } } }");
+            Render(filter).ShouldBe("{ instock: { $elemMatch: { qty: { $gt: 10, $lte: 20 } } } }");
         }
 
         [Fact]
@@ -716,7 +717,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 36
 
-            Render(filter).Should().Be("{ \"instock.qty\": { $gt: 10, $lte: 20 } }");
+            Render(filter).ShouldBe("{ \"instock.qty\": { $gt: 10, $lte: 20 } }");
         }
 
         [Fact]
@@ -730,7 +731,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 37
 
-            Render(filter).Should().Be("{ \"instock.qty\": 5, \"instock.warehouse\": \"A\" }");
+            Render(filter).ShouldBe("{ \"instock.qty\": 5, \"instock.warehouse\": \"A\" }");
         }
 
         [Fact]
@@ -748,7 +749,7 @@ namespace MongoDB.Driver.Examples
             // End Example 38
 
             var result = collection.Find("{}").ToList();
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                 "{ _id: 1, item: null }",
                 "{ _id: 2 }"));
         }
@@ -763,7 +764,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 39
 
-            Render(filter).Should().Be("{ item: null }");
+            Render(filter).ShouldBe("{ item: null }");
         }
 
         [Fact]
@@ -776,7 +777,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 40
 
-            Render(filter).Should().Be("{ item : { $type: 10 } }");
+            Render(filter).ShouldBe("{ item : { $type: 10 } }");
         }
 
         [Fact]
@@ -789,13 +790,13 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 41
 
-            Render(filter).Should().Be("{ item : { $exists: false } }");
+            Render(filter).ShouldBe("{ item : { $exists: false } }");
         }
 
         [Fact]
         public void Example_42()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "journal", status: "A", size: { h: 14, w: 21, uom: "cm" }, instock: [ { warehouse: "A", qty: 5 } ] },
             //   { item: "notebook", status: "A", size: { h: 8.5, w: 11, uom: "in" }, instock: [ { warehouse: "C", qty: 5 } ] },
             //   { item: "paper", status: "D", size: { h: 8.5, w: 11, uom: "in" }, instock: [ { warehouse: "A", qty: 60 } ] },
@@ -862,7 +863,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                 "{ item: \"journal\", status: \"A\", size: { h: 14, w: 21, uom: \"cm\" }, instock: [ { warehouse: \"A\", qty: 5 } ] }",
                 "{ item: \"notebook\", status: \"A\", size: { h: 8.5, w: 11, uom: \"in\" }, instock: [ { warehouse: \"C\", qty: 5 } ] }",
                 "{ item: \"paper\", status: \"D\", size: { h: 8.5, w: 11, uom: \"in\" }, instock: [ { warehouse: \"A\", qty: 60 } ] }",
@@ -881,7 +882,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find(filter).ToList();
             // End Example 43
 
-            Render(filter).Should().Be("{ status: \"A\" }");
+            Render(filter).ShouldBe("{ status: \"A\" }");
         }
 
         [Fact]
@@ -895,8 +896,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 44
 
-            Render(filter).Should().Be("{ status: \"A\" }");
-            Render(projection).Should().Be("{ item: 1, status: 1 }");
+            Render(filter).ShouldBe("{ status: \"A\" }");
+            Render(projection).ShouldBe("{ item: 1, status: 1 }");
         }
 
         [Fact]
@@ -910,8 +911,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 45
 
-            Render(filter).Should().Be("{ status: \"A\" }");
-            Render(projection).Should().Be("{ item: 1, status: 1, _id: 0 }");
+            Render(filter).ShouldBe("{ status: \"A\" }");
+            Render(projection).ShouldBe("{ item: 1, status: 1, _id: 0 }");
         }
 
         [Fact]
@@ -925,8 +926,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 46
 
-            Render(filter).Should().Be("{ status: \"A\" }");
-            Render(projection).Should().Be("{ status: 0, instock: 0 }");
+            Render(filter).ShouldBe("{ status: \"A\" }");
+            Render(projection).ShouldBe("{ status: 0, instock: 0 }");
         }
 
         [Fact]
@@ -940,8 +941,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 47
 
-            Render(filter).Should().Be("{ status: \"A\" }");
-            Render(projection).Should().Be("{ item: 1, status: 1, \"size.uom\": 1 }");
+            Render(filter).ShouldBe("{ status: \"A\" }");
+            Render(projection).ShouldBe("{ item: 1, status: 1, \"size.uom\": 1 }");
         }
 
         [Fact]
@@ -955,8 +956,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 48
 
-            Render(filter).Should().Be("{ status: \"A\" }");
-            Render(projection).Should().Be("{ \"size.uom\": 0 }");
+            Render(filter).ShouldBe("{ status: \"A\" }");
+            Render(projection).ShouldBe("{ \"size.uom\": 0 }");
         }
 
         [Fact]
@@ -970,8 +971,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 49
 
-            Render(filter).Should().Be("{ status: \"A\" }");
-            Render(projection).Should().Be("{ item: 1, status: 1, \"instock.qty\": 1 }");
+            Render(filter).ShouldBe("{ status: \"A\" }");
+            Render(projection).ShouldBe("{ item: 1, status: 1, \"instock.qty\": 1 }");
         }
 
         [Fact]
@@ -985,14 +986,14 @@ namespace MongoDB.Driver.Examples
             var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 50
 
-            Render(filter).Should().Be("{ status: \"A\" }");
-            Render(projection).Should().Be("{ item: 1, status: 1, instock: { $slice: -1 } }");
+            Render(filter).ShouldBe("{ status: \"A\" }");
+            Render(projection).ShouldBe("{ item: 1, status: 1, instock: { $slice: -1 } }");
         }
 
         [Fact]
         public void Example_51()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "canvas", qty: 100, size: { h: 28, w: 35.5, uom: "cm" }, status: "A" },
             //   { item: "journal", qty: 25, size: { h: 14, w: 21, uom: "cm" }, status: "A" },
             //   { item: "mat", qty: 85, size: { h: 27.9, w: 35.5, uom: "cm" }, status: "A" },
@@ -1002,7 +1003,7 @@ namespace MongoDB.Driver.Examples
             //   { item: "planner", qty: 75, size: { h: 22.85, w: 30, uom: "cm" }, status: "D" },
             //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" },
             //   { item: "sketchbook", qty: 80, size: { h: 14, w: 21, uom: "cm" }, status: "A" },
-            //   { item: "sketch pad", qty: 95, size: { h: 22.85, w: 30.5, uom: "cm" }, status: "A" } ]); 
+            //   { item: "sketch pad", qty: 95, size: { h: 22.85, w: 30.5, uom: "cm" }, status: "A" } ]);
 
             // Start Example 51
             var documents = new[]
@@ -1080,7 +1081,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                 "{ item: \"canvas\", qty: 100, size: { h: 28, w: 35.5, uom: \"cm\" }, status: \"A\" }",
                 "{ item: \"journal\", qty: 25, size: { h: 14, w: 21, uom: \"cm\" }, status: \"A\" }",
                 "{ item: \"mat\", qty: 85, size: { h: 27.9, w: 35.5, uom: \"cm\" }, status: \"A\" }",
@@ -1104,8 +1105,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.UpdateOne(filter, update);
             // End Example 52
 
-            Render(filter).Should().Be("{ item: \"paper\" }");
-            Render(update).Should().Be("{ $set: { \"size.uom\": \"cm\", status: \"P\" }, $currentDate: { lastModified: true } }");
+            Render(filter).ShouldBe("{ item: \"paper\" }");
+            Render(update).ShouldBe("{ $set: { \"size.uom\": \"cm\", status: \"P\" }, $currentDate: { lastModified: true } }");
         }
 
         [Fact]
@@ -1119,8 +1120,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.UpdateMany(filter, update);
             // End Example 53
 
-            Render(filter).Should().Be("{ qty: { $lt: 50 } }");
-            Render(update).Should().Be("{ $set: { \"size.uom\": \"in\", status: \"P\" }, $currentDate: { lastModified: true } }");
+            Render(filter).ShouldBe("{ qty: { $lt: 50 } }");
+            Render(update).ShouldBe("{ $set: { \"size.uom\": \"in\", status: \"P\" }, $currentDate: { lastModified: true } }");
         }
 
         [Fact]
@@ -1142,19 +1143,19 @@ namespace MongoDB.Driver.Examples
             var result = collection.ReplaceOne(filter, replacement);
             // End Example 54
 
-            Render(filter).Should().Be("{ item: \"paper\" }");
-            replacement.Should().Be("{ item: \"paper\", instock: [ { warehouse: \"A\", qty: 60 }, { warehouse: \"B\", qty: 40 } ] }");
+            Render(filter).ShouldBe("{ item: \"paper\" }");
+            replacement.ShouldBe("{ item: \"paper\", instock: [ { warehouse: \"A\", qty: 60 }, { warehouse: \"B\", qty: 40 } ] }");
         }
 
         [Fact]
         public void Example_55()
         {
-            // db.inventory.insertMany( [ 
+            // db.inventory.insertMany( [
             //   { item: "journal", qty: 25, size: { h: 14, w: 21, uom: "cm" }, status: "A" },
             //   { item: "notebook", qty: 50, size: { h: 8.5, w: 11, uom: "in" }, status: "P" },
             //   { item: "paper", qty: 100, size: { h: 8.5, w: 11, uom: "in" }, status: "D" },
             //   { item: "planner", qty: 75, size: { h: 22.85, w: 30, uom: "cm" }, status: "D" },
-            //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" }, ]); 
+            //   { item: "postcard", qty: 45, size: { h: 10, w: 15.25, uom: "cm" }, status: "A" }, ]);
 
             // Start Example 55
             var documents = new[]
@@ -1200,7 +1201,7 @@ namespace MongoDB.Driver.Examples
 
             var result = collection.Find("{}").ToList();
             RemoveIds(result);
-            result.Should().Equal(ParseMultiple(
+            result.ShouldBe(ParseMultiple(
                 "{ item: \"journal\", qty: 25, size: { h: 14, w: 21, uom: \"cm\" }, status: \"A\" }",
                 "{ item: \"notebook\", qty: 50, size: { h: 8.5, w: 11, uom: \"in\" }, status: \"P\" }",
                 "{ item: \"paper\", qty: 100, size: { h: 8.5, w: 11, uom: \"in\" }, status: \"D\" }",
@@ -1218,7 +1219,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.DeleteMany(filter);
             // End Example 56
 
-            Render(filter).Should().Be("{}");
+            Render(filter).ShouldBe("{}");
         }
 
         [Fact]
@@ -1231,7 +1232,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.DeleteMany(filter);
             // End Example 57
 
-            Render(filter).Should().Be("{ status : \"A\" }");
+            Render(filter).ShouldBe("{ status : \"A\" }");
         }
 
         [Fact]
@@ -1244,7 +1245,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.DeleteOne(filter);
             // End Example 58
 
-            Render(filter).Should().Be("{ status : \"D\" }");
+            Render(filter).ShouldBe("{ status : \"D\" }");
         }
 
         [Fact]
@@ -1252,7 +1253,7 @@ namespace MongoDB.Driver.Examples
         {
             RequireServer.Check();
 
-            //db.sales.aggregate([ 
+            //db.sales.aggregate([
             //    { $match : { "items.fruit":"banana" } },
             //    { $sort : { "date" : 1 } }
             //])
@@ -1265,7 +1266,7 @@ namespace MongoDB.Driver.Examples
             var cursor = collection.Aggregate(pipeline);
             // End Aggregation Example 1
 
-            Render(pipeline).Should().Be("[{ $match : { \"items.fruit\" : \"banana\" } },   { $sort : { \"date\" : 1 } }]");
+            Render(pipeline).ShouldBe("[{ $match : { \"items.fruit\" : \"banana\" } },   { $sort : { \"date\" : 1 } }]");
         }
 
         [Fact]
@@ -1309,7 +1310,7 @@ namespace MongoDB.Driver.Examples
             var cursor = collection.Aggregate(pipeline);
             // End Aggregation Example 2
 
-            Render(pipeline).Should().Be(@"
+            Render(pipeline).ShouldBe(@"
                 [{
                     $unwind : '$items'
                 },
@@ -1347,7 +1348,7 @@ namespace MongoDB.Driver.Examples
             //    }
             //},
             //{
-            //    $project: { day: "$_id.day", revenue: 1, items_sold: 1, 
+            //    $project: { day: "$_id.day", revenue: 1, items_sold: 1,
             //                discount: { $cond: { if : { $lte: ["$revenue", 250] }, then: 25, else : 0 }}
             //    }
             //}])
@@ -1377,7 +1378,7 @@ namespace MongoDB.Driver.Examples
             var cursor = collection.Aggregate(pipeline);
             // End Aggregation Example 3
 
-            Render(pipeline).Should().Be(@"
+            Render(pipeline).ShouldBe(@"
                 [{
                     $unwind : '$items'
                 },
@@ -1421,7 +1422,7 @@ namespace MongoDB.Driver.Examples
             //    $project : {
             //        "_id" : 0,
             //        "name" : 1,
-            //        airlines : { 
+            //        airlines : {
             //            $filter : {
             //                input : "$airlines",
             //                   as : "airline",
@@ -1468,7 +1469,7 @@ namespace MongoDB.Driver.Examples
             var cursor = collection.Aggregate(pipeline);
             // End Aggregation Example 4
 
-            Render(pipeline).Should().Be(@"
+            Render(pipeline).ShouldBe(@"
                 [{
                     $lookup : {
                         from : 'air_airlines',
@@ -1502,7 +1503,7 @@ namespace MongoDB.Driver.Examples
             var result = database.RunCommand(command);
             // End runCommand Example 1
 
-            result["ok"].ToBoolean().Should().BeTrue();
+            result["ok"].ToBoolean().ShouldBeTrue();
         }
 
         [Fact]
@@ -1524,7 +1525,7 @@ namespace MongoDB.Driver.Examples
 
             database.DropCollection(collectionName);
 
-            result["ok"].ToBoolean().Should().BeTrue();
+            result["ok"].ToBoolean().ShouldBeTrue();
         }
 
         [Fact]
@@ -1539,7 +1540,7 @@ namespace MongoDB.Driver.Examples
             var result = collection.Indexes.CreateOne(indexModel);
             // End Index Example 1
 
-            result.Should().Be("score_1");
+            result.ShouldBe("score_1");
         }
 
         [Fact]
@@ -1562,8 +1563,8 @@ namespace MongoDB.Driver.Examples
             var result = collection.Indexes.CreateOne(indexModel);
             // End Index Example 2
 
-            Render(indexModel.Options.PartialFilterExpression).Should().Be("{ \"rating\" : { \"$gt\" : 5 } }");
-            result.Should().Be("cuisine_1_name_1");
+            Render(indexModel.Options.PartialFilterExpression).ShouldBe("{ \"rating\" : { \"$gt\" : 5 } }");
+            result.ShouldBe("cuisine_1_name_1");
         }
 
         [Fact]
@@ -1601,7 +1602,7 @@ namespace MongoDB.Driver.Examples
             // End Exploiting The Power Of Arrays Example
 
             var result = arrayUpdatesTestCollection.Find("{}").FirstOrDefault();
-            result.Should().Be("{ \"_id\" : 1, \"a\" : [{ \"b\" : 2 }, { \"b\" : 1 }] }");
+            result.ShouldBe("{ \"_id\" : 1, \"a\" : [{ \"b\" : 2 }, { \"b\" : 1 }] }");
         }
 
         // private methods
