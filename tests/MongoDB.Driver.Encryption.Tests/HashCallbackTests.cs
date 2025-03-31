@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace MongoDB.Driver.Encryption.Tests
@@ -26,12 +26,12 @@ namespace MongoDB.Driver.Encryption.Tests
         {
             var inputHex = "74657374206f66206d6163";
             var expectedHex = "9ff3e52fa31c9e0fa0b08e19c40591553ea64b73709633271975bfab2db9d980";
-            
+
             var inputBytes = CallbackUtils.GetBytesFromHex(inputHex);
             var expectedBytes = CallbackUtils.GetBytesFromHex(expectedHex);
 
             var resultBytes = HashCallback.CalculateHash(inputBytes);
-            resultBytes.Should().Equal(expectedBytes);
+            resultBytes.ShouldBe(expectedBytes);
         }
     }
 }

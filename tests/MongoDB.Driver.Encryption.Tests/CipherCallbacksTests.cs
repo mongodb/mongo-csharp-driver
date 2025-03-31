@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-using FluentAssertions;
+using Shouldly;
 using System.Security.Cryptography;
 using Xunit;
 
@@ -36,11 +36,11 @@ namespace MongoDB.Driver.Encryption.Tests
             var expectedEncryptedBytes = CallbackUtils.GetBytesFromHex(expectedHex);
             var encryptedBytes = CipherCallbacks.AesCrypt(keyBytes, ivBytes, inputBytes, CryptMode.Encrypt, mode);
 
-            encryptedBytes.Should().Equal(expectedEncryptedBytes);
+            encryptedBytes.ShouldBe(expectedEncryptedBytes);
 
             var decryptedBytes = CipherCallbacks.AesCrypt(keyBytes, ivBytes, encryptedBytes, CryptMode.Decrypt, mode);
 
-            decryptedBytes.Should().Equal(inputBytes);
+            decryptedBytes.ShouldBe(inputBytes);
         }
     }
 }

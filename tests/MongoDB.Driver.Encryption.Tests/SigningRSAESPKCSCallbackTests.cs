@@ -16,7 +16,7 @@
 
 using System;
 using System.Text;
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace MongoDB.Driver.Encryption.Tests
@@ -55,10 +55,10 @@ namespace MongoDB.Driver.Encryption.Tests
             byte[] signature = SigningRSAESPKCSCallback.HashAndSignBytes(dataBytes, privateKeyBytes);
             string output = Convert.ToBase64String(signature);
 
-            output.Should().Be(ExpectedSignature);
+            output.ShouldBe(ExpectedSignature);
 #else
             var ex = Record.Exception(() => SigningRSAESPKCSCallback.HashAndSignBytes(dataBytes, privateKeyBytes));
-            ex.Should().BeOfType<PlatformNotSupportedException>();
+            ex.ShouldBeOfType<PlatformNotSupportedException>();
 #endif
         }
     }

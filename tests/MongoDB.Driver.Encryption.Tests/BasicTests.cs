@@ -22,7 +22,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 using System.Text;
-using FluentAssertions;
+using Shouldly;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Encryption.Tests
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 cryptClient.StartEncryptionContext("test", command: BsonUtil.ToBytes(ReadJsonTestFile("cmd.json"))))
             {
                 var (_, bsonCommand) = ProcessContextToCompletion(context);
-                bsonCommand.Should().Equal((ReadJsonTestFile("encrypted-command.json")));
+                bsonCommand.ShouldBe(ReadJsonTestFile("encrypted-command.json"));
             }
         }
 
@@ -57,24 +57,24 @@ namespace MongoDB.Driver.Encryption.Tests
             using (var context = cryptClient.StartEncryptionContext("test", command: BsonUtil.ToBytes(ReadJsonTestFile("cmd.json"))))
             {
                 var (state, _, operationSent) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_COLLINFO);
-                operationSent.Should().Equal((ReadJsonTestFile("list-collections-filter.json")));
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_COLLINFO);
+                operationSent.ShouldBe((ReadJsonTestFile("list-collections-filter.json")));
 
                 (state, _, operationSent) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_MARKINGS);
-                operationSent.Should().Equal(ReadJsonTestFile("mongocryptd-command.json"));
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_MARKINGS);
+                operationSent.ShouldBe(ReadJsonTestFile("mongocryptd-command.json"));
 
                 (state, _, operationSent) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_KEYS);
-                operationSent.Should().Equal(ReadJsonTestFile("key-filter.json"));
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_KEYS);
+                operationSent.ShouldBe(ReadJsonTestFile("key-filter.json"));
 
                 (state, _, _) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
                 // kms fluent assertions inside ProcessState()
 
                 (state, _, operationSent) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                operationSent.Should().Equal((ReadJsonTestFile("encrypted-command.json")));
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                operationSent.ShouldBe((ReadJsonTestFile("encrypted-command.json")));
             }
         }
 
@@ -96,22 +96,22 @@ namespace MongoDB.Driver.Encryption.Tests
             {
 
                 var (state, _, operationSent) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_MARKINGS);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_MARKINGS);
                 var mongoCryptdCommand = ReadJsonTestFile("mongocryptd-command.json");
                 mongoCryptdCommand["isRemoteSchema"] = false;
-                operationSent.Should().Equal(mongoCryptdCommand);
+                operationSent.ShouldBe(mongoCryptdCommand);
 
                 (state, _, operationSent) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_KEYS);
-                operationSent.Should().Equal(ReadJsonTestFile("key-filter.json"));
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_KEYS);
+                operationSent.ShouldBe(ReadJsonTestFile("key-filter.json"));
 
                 (state, _, _) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
                 // kms fluent assertions inside ProcessState()
 
                 (state, _, operationSent) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                operationSent.Should().Equal((ReadJsonTestFile("encrypted-command.json")));
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                operationSent.ShouldBe((ReadJsonTestFile("encrypted-command.json")));
             }
         }
 
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 cryptClient.StartDecryptionContext(BsonUtil.ToBytes(ReadJsonTestFile("encrypted-command-reply.json"))))
             {
                 var (_, bsonCommand) = ProcessContextToCompletion(context);
-                bsonCommand.Should().Equal(ReadJsonTestFile("command-reply.json"));
+                bsonCommand.ShouldBe(ReadJsonTestFile("command-reply.json"));
             }
         }
 
@@ -134,19 +134,19 @@ namespace MongoDB.Driver.Encryption.Tests
             using (var context = cryptClient.StartDecryptionContext(BsonUtil.ToBytes(ReadJsonTestFile("encrypted-command-reply.json"))))
             {
                 var (state, _, operationProduced) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_KEYS);
-                operationProduced.Should().Equal(ReadJsonTestFile("key-filter.json"));
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_KEYS);
+                operationProduced.ShouldBe(ReadJsonTestFile("key-filter.json"));
 
                 (state, _, _) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
                 // kms fluent assertions inside ProcessState()
 
                 (state, _, operationProduced) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                operationProduced.Should().Equal(ReadJsonTestFile("command-reply.json"));
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                operationProduced.ShouldBe(ReadJsonTestFile("command-reply.json"));
 
                 (state, _, _) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
             }
         }
 
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 // Ensure if we encrypt non-sense, it throws an exception demonstrating our exception code is good
                 var exception = Record.Exception(startEncryptionContext);
 
-                exception.Should().BeOfType<CryptException>();
+                exception.ShouldBeOfType<CryptException>();
             }
         }
 
@@ -191,7 +191,7 @@ namespace MongoDB.Driver.Encryption.Tests
             {
                 var (decryptedResult, _) = ProcessContextToCompletion(context);
 
-                decryptedResult.ToArray().Should().Equal(testData);
+                decryptedResult.ToArray().ShouldBe(testData);
             }
         }
 
@@ -215,30 +215,30 @@ namespace MongoDB.Driver.Encryption.Tests
                     message: testData))
                 {
                     var (state, binaryProduced, operationProduced) = ProcessState(context);
-                    state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_KEYS);
-                    operationProduced.Should().Equal(ReadJsonTestFile("key-filter.json"));
+                    state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_KEYS);
+                    operationProduced.ShouldBe(ReadJsonTestFile("key-filter.json"));
 
                     (state, _, _) = ProcessState(context);
-                    state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
+                    state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
                     // kms fluent assertions inside ProcessState()
 
                     (state, binaryProduced, operationProduced) = ProcessState(context);
-                    state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                    operationProduced.Should().Equal(ReadJsonTestFile("encrypted-value.json"));
+                    state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                    operationProduced.ShouldBe(ReadJsonTestFile("encrypted-value.json"));
                     encryptedResult = binaryProduced.ToArray(); // need to copy bytes out before the context gets destroyed
 
                     (state, _, _) = ProcessState(context);
-                    state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
+                    state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
                 }
 
                 using (var context = cryptClient.StartExplicitDecryptionContext(encryptedResult))
                 {
                     var (state, decryptedBinary, _) = ProcessState(context);
-                    state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                    decryptedBinary.ToArray().Should().Equal(testData);
+                    state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                    decryptedBinary.ToArray().ShouldBe(testData);
 
                     (state, _, _) = ProcessState(context);
-                    state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
+                    state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
                 }
             }
         }
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Encryption.Tests
             using (var context = cryptClient.StartCreateDataKeyContext(keyId))
             {
                 var (_, dataKeyDocument) = ProcessContextToCompletion(context, isKmsDecrypt: false);
-                dataKeyDocument["masterKey"]["endpoint"].Should().Be(endpoint);
+                dataKeyDocument["masterKey"]["endpoint"].ShouldBe(endpoint);
             }
         }
 
@@ -270,14 +270,14 @@ namespace MongoDB.Driver.Encryption.Tests
             {
                 BsonDocument dataKeyDocument;
                 var (state, _, _) = ProcessState(context, isKmsDecrypt: false);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
 
                 (state, _, dataKeyDocument) = ProcessState(context, isKmsDecrypt: false);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                dataKeyDocument["masterKey"]["endpoint"].Should().Be(endpoint);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                dataKeyDocument["masterKey"]["endpoint"].ShouldBe(endpoint);
 
                 (state, _, _) = ProcessState(context, isKmsDecrypt: false);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
             }
         }
 
@@ -294,10 +294,10 @@ namespace MongoDB.Driver.Encryption.Tests
             using (var context = cryptClient.StartCreateDataKeyContext(keyId))
             {
                 var (_, dataKeyDocument) = ProcessContextToCompletion(context, isKmsDecrypt: false);
-                dataKeyDocument.Should().NotBeNull();
+                dataKeyDocument.ShouldNotBeNull();
                 var actualKeyAltNames = dataKeyDocument["keyAltNames"].AsBsonArray.Select(x => x.AsString);
                 var expectedKeyAltNames = keyAltNames.Reverse(); // https://jira.mongodb.org/browse/CDRIVER-3277?
-                actualKeyAltNames.Should().BeEquivalentTo(expectedKeyAltNames);
+                actualKeyAltNames.ShouldBeEquivalentTo(expectedKeyAltNames);
             }
         }
 
@@ -316,17 +316,17 @@ namespace MongoDB.Driver.Encryption.Tests
             {
                 BsonDocument dataKeyDocument;
                 var (state, _, _) = ProcessState(context, isKmsDecrypt: false);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS);
 
                 (state, _, dataKeyDocument) = ProcessState(context, isKmsDecrypt: false);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                dataKeyDocument.Should().NotBeNull();
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                dataKeyDocument.ShouldNotBeNull();
                 var actualKeyAltNames = dataKeyDocument["keyAltNames"].AsBsonArray.Select(x => x.AsString);
                 var expectedKeyAltNames = keyAltNames.Reverse(); // https://jira.mongodb.org/browse/CDRIVER-3277?
-                actualKeyAltNames.Should().BeEquivalentTo(expectedKeyAltNames);
+                actualKeyAltNames.ShouldBeEquivalentTo(expectedKeyAltNames);
 
                 (state, _, _) = ProcessState(context, isKmsDecrypt: false);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
             }
         }
 
@@ -345,10 +345,10 @@ namespace MongoDB.Driver.Encryption.Tests
                 cryptClient.StartCreateDataKeyContext(keyId))
             {
                 var (_, dataKeyDocument) = ProcessContextToCompletion(context);
-                dataKeyDocument.Should().NotBeNull();
+                dataKeyDocument.ShouldNotBeNull();
                 var actualKeyAltNames = dataKeyDocument["keyAltNames"].AsBsonArray.Select(x => x.AsString);
                 var expectedKeyAltNames = keyAltNames.Reverse(); // https://jira.mongodb.org/browse/CDRIVER-3277?
-                actualKeyAltNames.Should().BeEquivalentTo(expectedKeyAltNames);
+                actualKeyAltNames.ShouldBeEquivalentTo(expectedKeyAltNames);
             }
         }
 
@@ -367,14 +367,14 @@ namespace MongoDB.Driver.Encryption.Tests
                 cryptClient.StartCreateDataKeyContext(keyId))
             {
                 var (state, _, dataKeyDocument) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                dataKeyDocument.Should().NotBeNull();
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                dataKeyDocument.ShouldNotBeNull();
                 var actualKeyAltNames = dataKeyDocument["keyAltNames"].AsBsonArray.Select(x => x.AsString);
                 var expectedKeyAltNames = keyAltNames.Reverse(); // https://jira.mongodb.org/browse/CDRIVER-3277?
-                actualKeyAltNames.Should().BeEquivalentTo(expectedKeyAltNames);
+                actualKeyAltNames.ShouldBeEquivalentTo(expectedKeyAltNames);
 
                 (state, _, _) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
             }
         }
 
@@ -390,7 +390,7 @@ namespace MongoDB.Driver.Encryption.Tests
                 cryptClient.StartCreateDataKeyContext(keyId))
             {
                 var (_, dataKeyDocument) = ProcessContextToCompletion(context);
-                dataKeyDocument.Should().NotBeNull();
+                dataKeyDocument.ShouldNotBeNull();
             }
         }
 
@@ -407,11 +407,11 @@ namespace MongoDB.Driver.Encryption.Tests
                 cryptClient.StartCreateDataKeyContext(keyId))
             {
                 var (state, _, dataKeyDocument) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
-                dataKeyDocument.Should().NotBeNull();
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
+                dataKeyDocument.ShouldNotBeNull();
 
                 (state, _, _) = ProcessState(context);
-                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
+                state.ShouldBe(CryptContext.StateCode.MONGOCRYPT_CTX_DONE);
             }
         }
 
@@ -432,7 +432,7 @@ namespace MongoDB.Driver.Encryption.Tests
             using (var context = cryptClient.StartCreateDataKeyContext(keyId))
             {
                 var request = context.GetNextKmsMessageRequest();
-                request.KmsProvider.Should().Be(kmsName);
+                request.KmsProvider.ShouldBe(kmsName);
             }
         }
 
@@ -638,12 +638,12 @@ namespace MongoDB.Driver.Encryption.Tests
                             _output.WriteLine("Key Document: " + binary);
                             var postRequest = binary.ToString();
                             // TODO: add different hosts handling
-                            postRequest.Should().Contain("Host:kms.us-east-1.amazonaws.com"); // only AWS
+                            postRequest.ShouldContain("Host:kms.us-east-1.amazonaws.com"); // only AWS
 
                             var reply = ReadHttpTestFile(isKmsDecrypt ? "kms-decrypt-reply.txt" : "kms-encrypt-reply.txt");
                             _output.WriteLine("Reply: " + reply);
                             request.Feed(Encoding.UTF8.GetBytes(reply));
-                            request.BytesNeeded.Should().Be(0);
+                            request.BytesNeeded.ShouldBe(0u);
                         }
 
                         context.MarkKmsDone();
