@@ -43,7 +43,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": {}
+      "options": null
     },
     {
       "description": "Non-numeric maxStalenessSeconds causes a warning",
@@ -52,7 +52,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": {}
+      "options": null
     },
     {
       "description": "Too low maxStalenessSeconds causes a warning",
@@ -61,7 +61,7 @@
       "warning": true,
       "hosts": null,
       "auth": null,
-      "options": {}
+      "options": null
     }
   ]
 }
