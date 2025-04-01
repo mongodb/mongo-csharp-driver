@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -81,6 +80,52 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
         }
 
+        [Theory]
+        [InlineData(0, ByteOrder.BigEndian, null, null)]
+        [InlineData(2, ByteOrder.LittleEndian, null, "MongoCommandException")]
+        [InlineData(4, ByteOrder.LittleEndian, 674, null)]
+        [InlineData(6, ByteOrder.BigEndian, 42, null)]
+        public void Test3(int id, ByteOrder byteOrder, int? expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.BinaryProperty, new ConvertOptions<int?> {ByteOrder = byteOrder}));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int',  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(4, ByteOrder.LittleEndian, 674, null)]
+        [InlineData(6, ByteOrder.BigEndian, 42, null)]
+        public void Test4(int id, ByteOrder byteOrder, int expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.BinaryProperty, new ConvertOptions<int> {ByteOrder = byteOrder}));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int',  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
         private void AssertOutcome<TResult>(IMongoCollection<TestClass> collection,
             IQueryable<TResult> queryable,
             string[] expectedStages,
@@ -116,21 +161,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             return $"byteOrder: '{byteOrderString}'";
         }
-
-        private static string Format(double? value) =>
-            value?.ToString(NumberFormatInfo.InvariantInfo) ?? "null";
-
-        private static string Format(int? value) =>
-            value?.ToString(NumberFormatInfo.InvariantInfo) ?? "null";
-
-        private static string Format(long? value) =>
-            value?.ToString(NumberFormatInfo.InvariantInfo) ?? "null";
-
-        private static string Format(string value) =>
-            value is null ? "null" : $"'{value}'";
-
-        private static string FormatBase64(string base64String) =>
-            base64String is null ? "null" :$"BinData(0, '{base64String}')";
 
         public sealed class ClassFixture : MongoCollectionFixture<TestClass, BsonDocument>
         {
