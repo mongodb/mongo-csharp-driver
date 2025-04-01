@@ -58,11 +58,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return TranslateDateTimeToStringMethod(context, expression, method, arguments);
             }
 
-            if (ConvertMethodToAggregationExpressionTranslator.IsConvertToStringMethod(method))
-            {
-                return ConvertMethodToAggregationExpressionTranslator.Translate(context, expression);
-            }
-
             throw new ExpressionNotSupportedException(expression);
         }
 

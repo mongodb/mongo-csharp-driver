@@ -8,138 +8,78 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal class ConvertMethodToAggregationExpressionTranslator
     {
-        private static readonly List<(MethodInfo[] Methods, IBsonSerializer Serializer, BsonType Type, int? FormatIndex, int? SubTypeIndex, int? ByteOrderIndex, int? OptionsIndex)> _methodMappings =
-        [
-            ([MqlMethod.ToBinDataFromString], BsonValueSerializer.Instance, BsonType.Binary, 2, 1, null, null),
-            ([MqlMethod.ToBinDataFromInt, MqlMethod.ToBinDataFromLong, MqlMethod.ToBinDataFromDouble, MqlMethod.ToBinDataFromNullableInt, MqlMethod.ToBinDataFromNullableLong, MqlMethod.ToBinDataFromNullableDouble],
-                BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, null),
-            ([MqlMethod.ToBinDataFromStringWithOptions], BsonValueSerializer.Instance, BsonType.Binary, 2, 1, null, 3),
-            ([MqlMethod.ToBinDataFromIntWithOptions, MqlMethod.ToBinDataFromLongWithOptions, MqlMethod.ToBinDataFromDoubleWithOptions,
-                    MqlMethod.ToBinDataFromNullableIntWithOptions, MqlMethod.ToBinDataFromNullableLongWithOptions, MqlMethod.ToBinDataFromNullableDoubleWithOptions],
-                BsonValueSerializer.Instance, BsonType.Binary, null, 1, 2, 3),
-
-            ([MqlMethod.ToDoubleFromBinData], DoubleSerializer.Instance, BsonType.Double, null, null, 1, null),
-            ([MqlMethod.ToDoubleFromBinDataWithOptions], DoubleSerializer.Instance, BsonType.Double, null, null, 1, 2),
-            ([MqlMethod.ToIntFromBinData], Int32Serializer.Instance, BsonType.Int32, null, null, 1, null),
-            ([MqlMethod.ToIntFromBinDataWithOptions], Int32Serializer.Instance, BsonType.Int32, null, null, 1, 2),
-            ([MqlMethod.ToLongFromBinData], Int64Serializer.Instance, BsonType.Int64, null, null, 1, null),
-            ([MqlMethod.ToLongFromBinDataWithOptions], Int64Serializer.Instance, BsonType.Int64, null, null, 1, 2),
-
-            ([MqlMethod.ToNullableDoubleFromBinData], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, null),
-            ([MqlMethod.ToNullableDoubleFromBinDataWithOptions], new NullableSerializer<double>(DoubleSerializer.Instance), BsonType.Double, null, null, 1, 2),
-            ([MqlMethod.ToNullableIntFromBinData], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, null),
-            ([MqlMethod.ToNullableIntFromBinDataWithOptions], new NullableSerializer<int>(Int32Serializer.Instance), BsonType.Int32, null, null, 1, 2),
-            ([MqlMethod.ToNullableLongFromBinData], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, null),
-            ([MqlMethod.ToNullableLongFromBinDataWithOptions], new NullableSerializer<long>(Int64Serializer.Instance), BsonType.Int64, null, null, 1, 2),
-            ([MqlMethod.ToStringFromBinData], StringSerializer.Instance, BsonType.String, 1, null, null, null),
-            ([MqlMethod.ToStringFromBinDataWithOptions], StringSerializer.Instance, BsonType.String, 1, null, null, 2),
-        ];
-
-        private static readonly List<MethodInfo> ToStringMethods =
-            [MqlMethod.ToStringFromBinData, MqlMethod.ToStringFromBinDataWithOptions];
-
-        private static readonly List<MethodInfo> ToNumericalMethodsWithOptions =
-            [MqlMethod.ToIntFromBinDataWithOptions, MqlMethod.ToLongFromBinDataWithOptions, MqlMethod.ToDoubleFromBinDataWithOptions];
-
-        public static bool IsConvertToStringMethod(MethodInfo method)
-        {
-            return ToStringMethods.Contains(method);
-        }
-
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
-            
-            var mapping = _methodMappings.FirstOrDefault(m => m.Methods.Contains(method));
-            if (mapping == default)
-                throw new ExpressionNotSupportedException(expression);
 
-            ByteOrder? byteOrder = null;
-            BsonBinarySubType? subType = null;
-            string format = null;
-            ConvertOptions options = null;
+            if (!method.Is(MqlMethod.Convert))
+            {
+                throw new ExpressionNotSupportedException(expression);
+            }
+
             AstExpression onErrorAst = null;
             AstExpression onNullAst = null;
 
             var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
 
-            if (mapping.ByteOrderIndex.HasValue)
+            if (arguments[1] is not ConstantExpression constantExpression)
             {
-                if (arguments[mapping.ByteOrderIndex.Value] is ConstantExpression co)
-                {
-                    byteOrder = (ByteOrder)co.Value!;
-                }
-                else
-                {
-                    throw new InvalidOperationException("The 'byteOrder' argument must be a constant expression");
-                }
+                throw new InvalidOperationException("The 'options' argument must be a constant expression");
             }
 
-            if (mapping.FormatIndex.HasValue)
+            var options = (ConvertOptions)constantExpression.Value;
+
+            if (options.OnErrorWasSet)
             {
-                if (arguments[mapping.FormatIndex.Value] is ConstantExpression co)
-                {
-                    format = (string)co.Value!;
-                }
-                else
-                {
-                    throw new InvalidOperationException("The 'format' argument must be a constant expression");
-                }
+                onErrorAst = options.GetOnError();
             }
 
-            if (mapping.SubTypeIndex.HasValue)
+            if (options.OnNullWasSet)
             {
-                if (arguments[mapping.SubTypeIndex.Value] is ConstantExpression co)
-                {
-                    subType = (BsonBinarySubType)co.Value!;
-                }
-                else
-                {
-                    throw new InvalidOperationException("The 'subType' argument must be a constant expression");
-                }
+                onNullAst = options.GetOnNull();
             }
 
-            if (mapping.OptionsIndex.HasValue)
+            var toType = method.GetGenericArguments()[1];
+            var toBsonType = GetBsonType(toType).Render();
+            var serializer = BsonSerializer.LookupSerializer(toType);
+
+            var ast = AstExpression.Convert(fieldAst, toBsonType, subType: options.SubType, byteOrder: options.ByteOrder, format: options.Format, onError: onErrorAst, onNull: onNullAst);
+            return new TranslatedExpression(expression, ast, serializer);
+        }
+
+        public static BsonType GetBsonType(Type type)
+        {
+            return Type.GetTypeCode(Nullable.GetUnderlyingType(type) ?? type) switch
             {
-                if (arguments[mapping.OptionsIndex.Value] is ConstantExpression co)
-                {
-                    options = (ConvertOptions)co.Value!;
-
-                    if (options == null)
-                    {
-                        throw new InvalidOperationException("The 'options' argument cannot be null");
-                    }
-
-                    if (ToNumericalMethodsWithOptions.Contains(method) && !options.OnNullWasSet)
-                    {
-                        throw new InvalidOperationException("When converting to a non-nullable type, you need to set 'onNull'");
-                    }
-
-                    if (options.OnErrorWasSet)
-                    {
-                        onErrorAst = options.GetOnError();
-                    }
-
-                    if (options.OnNullWasSet)
-                    {
-                        onNullAst = options.GetOnNull();
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException("The 'options' argument must be a constant expression");
-                }
-            }
-
-            var ast = AstExpression.Convert(fieldAst, mapping.Type.Render(), subType: subType, byteOrder: byteOrder, format: format, onError: onErrorAst, onNull: onNullAst);
-            return new TranslatedExpression(expression, ast, mapping.Serializer);
+                TypeCode.Boolean => BsonType.Boolean,
+                TypeCode.Byte => BsonType.Int32,
+                TypeCode.SByte => BsonType.Int32,
+                TypeCode.Int16 => BsonType.Int32,
+                TypeCode.UInt16 => BsonType.Int32,
+                TypeCode.Int32 => BsonType.Int32,
+                TypeCode.UInt32 => BsonType.Int64,
+                TypeCode.Int64 => BsonType.Int64,
+                TypeCode.UInt64 => BsonType.Decimal128,
+                TypeCode.Single => BsonType.Double,
+                TypeCode.Double => BsonType.Double,
+                TypeCode.Decimal => BsonType.Decimal128,
+                TypeCode.String => BsonType.String,
+                TypeCode.Char => BsonType.String,
+                TypeCode.DateTime => BsonType.DateTime,
+                TypeCode.Object when type == typeof(byte[]) => BsonType.Binary,
+                TypeCode.Object when type == typeof(BsonBinaryData) => BsonType.Binary,
+                _ when type == typeof(Guid) => BsonType.Binary,
+                _ when type == typeof(ObjectId) => BsonType.ObjectId,
+                _ => BsonType.Document
+            };
         }
     }
 }
