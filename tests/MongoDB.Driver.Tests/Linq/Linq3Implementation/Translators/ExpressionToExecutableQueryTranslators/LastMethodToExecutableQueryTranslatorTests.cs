@@ -16,13 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Linq3Implementation;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -44,19 +39,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var result = queryable.Last();
             var stages = queryable.GetMongoQueryProvider().LoggedStages;
 
-            var expectedStages = new[] {
+            AssertStages(
+                stages,
                 """{ $sort : { _id : 1 } }""",
                 """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }"""
-            };
+                """{ $replaceRoot : { newRoot : "$_last" } }""");
 
-            AssertStages(stages, expectedStages);
-            result.Should().NotBeNull();
             result.Id.Should().Be(3);
         }
 
         [Fact]
-        public void Last_with_no_documents_should_throw()
+        public void Last_with_no_matching_documents_should_throw()
         {
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable().Where(t => t.Id > 5);
@@ -64,13 +57,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var exception = Record.Exception(() => queryable.Last());
             var stages = queryable.GetMongoQueryProvider().LoggedStages;
 
-            var expectedStages = new[] {
+            AssertStages(
+                stages,
                 """{ $match : { _id : { $gt : 5 } }}""",
                 """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }"""
-            };
+                """{ $replaceRoot : { newRoot : "$_last" } }""");
 
-            AssertStages(stages, expectedStages);
             exception.Should().BeOfType<InvalidOperationException>();
             exception.Message.Should().Contain("Sequence contains no elements");
         }
@@ -84,19 +76,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var result = queryable.LastOrDefault();
             var stages = queryable.GetMongoQueryProvider().LoggedStages;
 
-            var expectedStages = new[] {
+            AssertStages(
+                stages,
                 """{ $sort : { _id : 1 } }""",
                 """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }"""
-            };
+                """{ $replaceRoot : { newRoot : "$_last" } }""");
 
-            AssertStages(stages, expectedStages);
             result.Should().NotBeNull();
             result.Id.Should().Be(3);
         }
 
         [Fact]
-        public void LastOrDefault_with_no_documents_should_work()
+        public void LastOrDefault_with_no_matching_documents_should_work()
         {
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable().Where(t => t.Id > 5);
@@ -104,13 +95,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var result = queryable.LastOrDefault();
             var stages = queryable.GetMongoQueryProvider().LoggedStages;
 
-            var expectedStages = new[] {
+            AssertStages(
+                stages,
                 """{ $match : { _id : { $gt : 5 } }}""",
                 """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }"""
-            };
+                """{ $replaceRoot : { newRoot : "$_last" } }""");
 
-            AssertStages(stages, expectedStages);
             result.Should().BeNull();
         }
 
@@ -123,20 +113,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var result = queryable.LastOrDefault(t => t.Id > 1);
             var stages = queryable.GetMongoQueryProvider().LoggedStages;
 
-            var expectedStages = new[] {
+            AssertStages(
+                stages,
                 """{ $sort : { _id : 1 } }""",
                 """{ $match : { _id : { $gt : 1 } }}""",
                 """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }"""
-            };
+                """{ $replaceRoot : { newRoot : "$_last" } }""");
 
-            AssertStages(stages, expectedStages);
             result.Should().NotBeNull();
             result.Id.Should().Be(3);
         }
 
         [Fact]
-        public void LastOrDefaultWithPredicate_and_null_return_should_work()
+        public void LastOrDefaultWithPredicate_with_no_matching_documents_should_work()
         {
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable();
@@ -144,13 +133,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var result = queryable.LastOrDefault(t => t.Id > 4);
             var stages = queryable.GetMongoQueryProvider().LoggedStages;
 
-            var expectedStages = new[] {
+            AssertStages(
+                stages,
                 """{ $match : { _id : { $gt : 4 } }}""",
                 """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }"""
-            };
+                """{ $replaceRoot : { newRoot : "$_last" } }""");
 
-            AssertStages(stages, expectedStages);
             result.Should().BeNull();
         }
 
@@ -163,19 +151,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var result = queryable.Last(t => t.Id > 1);
             var stages = queryable.GetMongoQueryProvider().LoggedStages;
 
-            var expectedStages = new[] {
+            AssertStages(
+                stages,
                 """{ $sort : { _id : 1 } }""",
                 """{ $match : { _id : { $gt : 1 } }}""",
                 """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }"""
-            };
+                """{ $replaceRoot : { newRoot : "$_last" } }""");
 
-            AssertStages(stages, expectedStages);
-            Assert.Equal(3, result.Id);
+            result.Id.Should().Be(3);
         }
 
         [Fact]
-        public void LastWithPredicate_with_no_documents_should_throw()
+        public void LastWithPredicate_with_no_matching_documents_should_throw()
         {
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable();
@@ -183,13 +170,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var exception = Record.Exception(() => queryable.Last(t => t.Id > 4));
             var stages = queryable.GetMongoQueryProvider().LoggedStages;
 
-            var expectedStages = new[] {
+            AssertStages(
+                stages,
                 """{ $match : { _id : { $gt : 4 } }}""",
                 """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }"""
-            };
+                """{ $replaceRoot : { newRoot : "$_last" } }""");
 
-            AssertStages(stages, expectedStages);
             exception.Should().BeOfType<InvalidOperationException>();
             exception.Message.Should().Contain("Sequence contains no elements");
         }
