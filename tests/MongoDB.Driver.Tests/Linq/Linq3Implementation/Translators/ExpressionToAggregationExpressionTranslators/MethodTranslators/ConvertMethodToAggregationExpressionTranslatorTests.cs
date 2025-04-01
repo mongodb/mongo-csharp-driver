@@ -33,12 +33,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
         }
 
-
         [Theory]
         [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=", null)]
         [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null )]
-        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]  //TODO This one does not work
-        public void MongoDBFunctions_ToBsonBinaryDataFromDouble_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
+        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
+        public void Test1(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
@@ -55,6 +54,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 };
 
             var expectedResult = expectedBase64 == null ? default : new BsonBinaryData(Convert.FromBase64String(expectedBase64));
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=", null)]
+        [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null )]
+        [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
+        public void Test2(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.DoubleProperty, new ConvertOptions<byte[]> { ByteOrder = byteOrder, SubType = BsonBinarySubType.Binary }));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$DoubleProperty', to : {{ type: 'binData', subtype: 0  }}, {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            var expectedResult = expectedBase64 == null ? default : Convert.FromBase64String(expectedBase64);
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
         }
 
