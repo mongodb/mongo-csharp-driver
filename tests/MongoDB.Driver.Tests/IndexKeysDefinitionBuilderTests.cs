@@ -15,10 +15,11 @@
 
 using System;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -217,7 +218,7 @@ namespace MongoDB.Driver.Tests
         {
             var rendered = Render(keys);
 
-            rendered.Should().Be(expectedJson);
+            rendered.ShouldBe(expectedJson);
         }
 
         private BsonDocument Render<TDocument>(IndexKeysDefinition<TDocument> keys)

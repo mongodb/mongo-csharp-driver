@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
@@ -65,12 +65,12 @@ namespace MongoDB.Driver.Tests
                 if (batchSize.HasValue)
                 {
                     var asyncCursor = indexesCursor as AsyncCursor<BsonDocument>;
-                    asyncCursor._batchSize().Should().Be(batchSize.Value);
+                    asyncCursor._batchSize().ShouldBe(batchSize.Value);
                 }
 
                 var indexes = indexesCursor.ToList();
 
-                indexes.Count.Should().Be(2);
+                indexes.Count.ShouldBe(2);
                 AssertIndex(collection.CollectionNamespace, indexes[0], "_id_");
                 var indexName = IndexNameHelper.GetIndexName(indexKeyDocument);
                 AssertIndex(collection.CollectionNamespace, indexes[1], indexName, expectedUnique: unique, expectedHidden: hidden);
@@ -83,34 +83,34 @@ namespace MongoDB.Driver.Tests
 
             void AssertIndex(CollectionNamespace collectionNamespace, BsonDocument index, string expectedName, bool expectedUnique = false, bool? expectedHidden = false)
             {
-                index["name"].AsString.Should().Be(expectedName);
+                index["name"].AsString.ShouldBe(expectedName);
 
                 if (expectedUnique)
                 {
-                    index["unique"].AsBoolean.Should().BeTrue();
+                    index["unique"].AsBoolean.ShouldBeTrue();
                 }
                 else
                 {
-                    index.Contains("unique").Should().BeFalse();
+                    index.Contains("unique").ShouldBeFalse();
                 }
 
                 if (expectedHidden.GetValueOrDefault() && isHiddenIndexSupported)
                 {
-                    index["hidden"].AsBoolean.Should().BeTrue();
+                    index["hidden"].AsBoolean.ShouldBeTrue();
                 }
                 else
                 {
-                    index.Contains("hidden").Should().BeFalse();
+                    index.Contains("hidden").ShouldBeFalse();
                 }
 
                 if (CoreTestConfiguration.ServerVersion < new SemanticVersion(4, 3, 0))
                 {
-                    index["ns"].AsString.Should().Be(collectionNamespace.ToString());
+                    index["ns"].AsString.ShouldBe(collectionNamespace.ToString());
                 }
                 else
                 {
                     // the server doesn't return ns anymore
-                    index.Contains("ns").Should().BeFalse();
+                    index.Contains("ns").ShouldBeFalse();
                 }
             }
         }

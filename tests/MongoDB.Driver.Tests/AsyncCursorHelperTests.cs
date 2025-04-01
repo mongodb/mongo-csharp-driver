@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using Moq;
 using Xunit;
 
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.AnyAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.AnyAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.AnyAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.AnyAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.FirstAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.FirstAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.FirstOrDefaultAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.FirstOrDefaultAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Fact]
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.FirstOrDefaultAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.FirstOrDefaultAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.SingleAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.SingleAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.SingleOrDefaultAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.SingleOrDefaultAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.SingleOrDefaultAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(1);
+            result.ShouldBe(1);
         }
 
         [Fact]
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Tests
 
             var result = AsyncCursorHelper.SingleOrDefaultAsync(task, CancellationToken.None).Result;
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         private Task<IAsyncCursor<int>> SetupResultInFirstBatch()

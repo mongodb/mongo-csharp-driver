@@ -20,7 +20,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -33,6 +33,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -57,20 +58,20 @@ namespace MongoDB.Driver
         public void CollectionName_should_be_set()
         {
             var subject = CreateSubject<BsonDocument>();
-            subject.CollectionNamespace.CollectionName.Should().Be("bar");
+            subject.CollectionNamespace.CollectionName.ShouldBe("bar");
         }
 
         public void Database_should_be_set()
         {
             var subject = CreateSubject<BsonDateTime>();
-            subject.Database.Should().NotBeNull();
+            subject.Database.ShouldNotBeNull();
         }
 
         [Fact]
         public void Settings_should_be_set()
         {
             var subject = CreateSubject<BsonDocument>();
-            subject.Settings.Should().NotBeNull();
+            subject.Settings.ShouldNotBeNull();
         }
 
         [Theory]
@@ -126,22 +127,22 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<AggregateOperation<BsonDocument>>().Subject;
-            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
-            operation.BatchSize.Should().Be(options.BatchSize);
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Comment.Should().Be(options.Comment);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Let.Should().Be(options.Let);
-            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.Pipeline.Should().Equal(renderedPipeline.Documents);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
-            operation.ResultSerializer.Should().BeSameAs(renderedPipeline.OutputSerializer);
+            var operation = call.Operation.ShouldBeOfType<AggregateOperation<BsonDocument>>();
+            operation.AllowDiskUse.ShouldBe(options.AllowDiskUse);
+            operation.BatchSize.ShouldBe(options.BatchSize);
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Comment.ShouldBe(options.Comment);
+            operation.Hint.ShouldBe(options.Hint);
+            operation.Let.ShouldBe(options.Let);
+            operation.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.Pipeline.ShouldBe(renderedPipeline.Documents);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.RetryRequested.ShouldBeTrue();
+            operation.ResultSerializer.ShouldBeSameAs(renderedPipeline.OutputSerializer);
 #pragma warning disable 618
-            operation.UseCursor.Should().Be(options.UseCursor);
+            operation.UseCursor.ShouldBe(options.UseCursor);
 #pragma warning restore 618
         }
 
@@ -215,18 +216,18 @@ namespace MongoDB.Driver
             var aggregateCall = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(aggregateCall, session, cancellationToken1);
 
-            var aggregateOperation = aggregateCall.Operation.Should().BeOfType<AggregateToCollectionOperation>().Subject;
-            aggregateOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
-            aggregateOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
-            aggregateOperation.Collation.Should().BeSameAs(options.Collation);
-            aggregateOperation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            aggregateOperation.Comment.Should().Be(options.Comment);
-            aggregateOperation.Hint.Should().Be(options.Hint);
-            aggregateOperation.Let.Should().Be(options.Let);
-            aggregateOperation.MaxTime.Should().Be(options.MaxTime);
-            aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
-            aggregateOperation.ReadConcern.Should().Be(readConcern);
-            aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
+            var aggregateOperation = aggregateCall.Operation.ShouldBeOfType<AggregateToCollectionOperation>();
+            aggregateOperation.AllowDiskUse.ShouldBe(options.AllowDiskUse);
+            aggregateOperation.BypassDocumentValidation.ShouldBe(options.BypassDocumentValidation);
+            aggregateOperation.Collation.ShouldBeSameAs(options.Collation);
+            aggregateOperation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            aggregateOperation.Comment.ShouldBe(options.Comment);
+            aggregateOperation.Hint.ShouldBe(options.Hint);
+            aggregateOperation.Let.ShouldBe(options.Let);
+            aggregateOperation.MaxTime.ShouldBe(options.MaxTime);
+            aggregateOperation.Pipeline.ShouldBe(expectedPipeline);
+            aggregateOperation.ReadConcern.ShouldBe(readConcern);
+            aggregateOperation.WriteConcern.ShouldBeSameAs(writeConcern);
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(mockCursor.Object);
@@ -243,25 +244,25 @@ namespace MongoDB.Driver
             var findCall = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             VerifySessionAndCancellationToken(findCall, session, cancellationToken2);
 
-            var findOperation = findCall.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
-            findOperation.AllowDiskUse.Should().NotHaveValue();
-            findOperation.AllowPartialResults.Should().NotHaveValue();
-            findOperation.BatchSize.Should().Be(options.BatchSize);
-            findOperation.Collation.Should().BeSameAs(options.Collation);
-            findOperation.CollectionNamespace.FullName.Should().Be(outputCollection.CollectionNamespace.FullName);
-            findOperation.Comment.Should().BeNull();
-            findOperation.CursorType.Should().Be(CursorType.NonTailable);
-            findOperation.Filter.Should().BeNull();
-            findOperation.Limit.Should().Be(null);
-            findOperation.MaxTime.Should().Be(options.MaxTime);
-            findOperation.NoCursorTimeout.Should().NotHaveValue();
+            var findOperation = findCall.Operation.ShouldBeOfType<FindOperation<BsonDocument>>();
+            findOperation.AllowDiskUse.ShouldNotHaveValue();
+            findOperation.AllowPartialResults.ShouldNotHaveValue();
+            findOperation.BatchSize.ShouldBe(options.BatchSize);
+            findOperation.Collation.ShouldBeSameAs(options.Collation);
+            findOperation.CollectionNamespace.FullName.ShouldBe(outputCollection.CollectionNamespace.FullName);
+            findOperation.Comment.ShouldBeNull();
+            findOperation.CursorType.ShouldBe(CursorType.NonTailable);
+            findOperation.Filter.ShouldBeNull();
+            findOperation.Limit.ShouldBe(null);
+            findOperation.MaxTime.ShouldBe(options.MaxTime);
+            findOperation.NoCursorTimeout.ShouldNotHaveValue();
 #pragma warning disable 618
-            findOperation.OplogReplay.Should().NotHaveValue();
+            findOperation.OplogReplay.ShouldNotHaveValue();
 #pragma warning restore 618
-            findOperation.Projection.Should().BeNull();
-            findOperation.RetryRequested.Should().BeTrue();
-            findOperation.Skip.Should().Be(null);
-            findOperation.Sort.Should().BeNull();
+            findOperation.Projection.ShouldBeNull();
+            findOperation.RetryRequested.ShouldBeTrue();
+            findOperation.Skip.ShouldBe(null);
+            findOperation.Sort.ShouldBeNull();
         }
 
         [Theory]
@@ -300,9 +301,9 @@ namespace MongoDB.Driver
             }
             var aggregateCall = _operationExecutor.GetWriteCall<BsonDocument>();
 
-            var aggregateOperation = aggregateCall.Operation.Should().BeOfType<AggregateToCollectionOperation>().Subject;
-            aggregateOperation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
+            var aggregateOperation = aggregateCall.Operation.ShouldBeOfType<AggregateToCollectionOperation>();
+            aggregateOperation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            aggregateOperation.Pipeline.ShouldBe(expectedPipeline);
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult(mockCursor.Object);
@@ -316,8 +317,8 @@ namespace MongoDB.Driver
             }
             var findCall = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
 
-            var findOperation = findCall.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
-            findOperation.CollectionNamespace.Should().Be(expectedCollectionNamespace);
+            var findOperation = findCall.Operation.ShouldBeOfType<FindOperation<BsonDocument>>();
+            findOperation.CollectionNamespace.ShouldBe(expectedCollectionNamespace);
         }
 
         [Theory]
@@ -385,18 +386,18 @@ namespace MongoDB.Driver
             var aggregateCall = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(aggregateCall, session, cancellationToken);
 
-            var aggregateOperation = aggregateCall.Operation.Should().BeOfType<AggregateToCollectionOperation>().Subject;
-            aggregateOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
-            aggregateOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
-            aggregateOperation.Collation.Should().BeSameAs(options.Collation);
-            aggregateOperation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            aggregateOperation.Comment.Should().Be(options.Comment);
-            aggregateOperation.Hint.Should().Be(options.Hint);
-            aggregateOperation.Let.Should().Be(options.Let);
-            aggregateOperation.MaxTime.Should().Be(options.MaxTime);
-            aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
-            aggregateOperation.ReadConcern.Should().Be(readConcern);
-            aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
+            var aggregateOperation = aggregateCall.Operation.ShouldBeOfType<AggregateToCollectionOperation>();
+            aggregateOperation.AllowDiskUse.ShouldBe(options.AllowDiskUse);
+            aggregateOperation.BypassDocumentValidation.ShouldBe(options.BypassDocumentValidation);
+            aggregateOperation.Collation.ShouldBeSameAs(options.Collation);
+            aggregateOperation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            aggregateOperation.Comment.ShouldBe(options.Comment);
+            aggregateOperation.Hint.ShouldBe(options.Hint);
+            aggregateOperation.Let.ShouldBe(options.Let);
+            aggregateOperation.MaxTime.ShouldBe(options.MaxTime);
+            aggregateOperation.Pipeline.ShouldBe(expectedPipeline);
+            aggregateOperation.ReadConcern.ShouldBe(readConcern);
+            aggregateOperation.WriteConcern.ShouldBeSameAs(writeConcern);
         }
 
         [Theory]
@@ -437,7 +438,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
 
         [Theory]
@@ -466,8 +467,8 @@ namespace MongoDB.Driver
             var result = async ? await subject.BulkWriteAsync(wrappedRequests.Object) : subject.BulkWrite(wrappedRequests.Object);
 
             wrappedRequests.Verify(e => e.GetEnumerator(), Times.Once);
-            result.Should().NotBeNull();
-            result.RequestCount.Should().Be(1);
+            result.ShouldNotBeNull();
+            result.RequestCount.ShouldBe(1);
             result.ProcessedRequests.ShouldBeEquivalentTo(requests);
         }
 
@@ -542,173 +543,173 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
             // I know, this is a lot of stuff in one test :(
-            var operation = call.Operation.Should().BeOfType<BulkMixedWriteOperation>().Subject;
-            operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.IsOrdered.Should().Be(isOrdered);
-            operation.Let.Should().Be(letDocument);
-            operation.Requests.Count().Should().Be(14);
+            var operation = call.Operation.ShouldBeOfType<BulkMixedWriteOperation>();
+            operation.BypassDocumentValidation.ShouldBe(bypassDocumentValidation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.IsOrdered.ShouldBe(isOrdered);
+            operation.Let.ShouldBe(letDocument);
+            operation.Requests.Count().ShouldBe(14);
 
             var convertedRequests = operation.Requests.ToList();
 
             // InsertOneModel
-            convertedRequests[0].Should().BeOfType<InsertRequest>();
-            convertedRequests[0].CorrelationId.Should().Be(0);
+            convertedRequests[0].ShouldBeOfType<InsertRequest>();
+            convertedRequests[0].CorrelationId.ShouldBe(0);
             var convertedRequest0 = (InsertRequest)convertedRequests[0];
-            convertedRequest0.Document.Should().Be("{_id:1, a:1}");
+            convertedRequest0.Document.ShouldBe("{_id:1, a:1}");
 
             // RemoveManyModel
-            convertedRequests[1].Should().BeOfType<DeleteRequest>();
-            convertedRequests[1].CorrelationId.Should().Be(1);
+            convertedRequests[1].ShouldBeOfType<DeleteRequest>();
+            convertedRequests[1].CorrelationId.ShouldBe(1);
             var convertedRequest1 = (DeleteRequest)convertedRequests[1];
-            convertedRequest1.Collation.Should().BeSameAs(collation);
-            convertedRequest1.Filter.Should().Be("{b:1}");
-            convertedRequest1.Hint.Should().BeNull();
-            convertedRequest1.Limit.Should().Be(0);
+            convertedRequest1.Collation.ShouldBeSameAs(collation);
+            convertedRequest1.Filter.ShouldBe("{b:1}");
+            convertedRequest1.Hint.ShouldBeNull();
+            convertedRequest1.Limit.ShouldBe(0);
 
             // RemoveManyModel with hint
-            convertedRequests[2].Should().BeOfType<DeleteRequest>();
-            convertedRequests[2].CorrelationId.Should().Be(2);
+            convertedRequests[2].ShouldBeOfType<DeleteRequest>();
+            convertedRequests[2].CorrelationId.ShouldBe(2);
             var convertedRequest2 = (DeleteRequest)convertedRequests[2];
-            convertedRequest2.Collation.Should().BeSameAs(collation);
-            convertedRequest2.Filter.Should().Be("{c:1}");
-            convertedRequest2.Hint.Should().Be(hint);
-            convertedRequest2.Limit.Should().Be(0);
+            convertedRequest2.Collation.ShouldBeSameAs(collation);
+            convertedRequest2.Filter.ShouldBe("{c:1}");
+            convertedRequest2.Hint.ShouldBe(hint);
+            convertedRequest2.Limit.ShouldBe(0);
 
             // RemoveOneModel
-            convertedRequests[3].Should().BeOfType<DeleteRequest>();
-            convertedRequests[3].CorrelationId.Should().Be(3);
+            convertedRequests[3].ShouldBeOfType<DeleteRequest>();
+            convertedRequests[3].CorrelationId.ShouldBe(3);
             var convertedRequest3 = (DeleteRequest)convertedRequests[3];
-            convertedRequest3.Collation.Should().BeSameAs(collation);
-            convertedRequest3.Filter.Should().Be("{d:1}");
-            convertedRequest3.Hint.Should().BeNull();
-            convertedRequest3.Limit.Should().Be(1);
+            convertedRequest3.Collation.ShouldBeSameAs(collation);
+            convertedRequest3.Filter.ShouldBe("{d:1}");
+            convertedRequest3.Hint.ShouldBeNull();
+            convertedRequest3.Limit.ShouldBe(1);
 
             // RemoveOneModel with hint
-            convertedRequests[4].Should().BeOfType<DeleteRequest>();
-            convertedRequests[4].CorrelationId.Should().Be(4);
+            convertedRequests[4].ShouldBeOfType<DeleteRequest>();
+            convertedRequests[4].CorrelationId.ShouldBe(4);
             var convertedRequest4 = (DeleteRequest)convertedRequests[4];
-            convertedRequest4.Collation.Should().BeSameAs(collation);
-            convertedRequest4.Filter.Should().Be("{e:1}");
-            convertedRequest4.Hint.Should().Be(hint);
-            convertedRequest4.Limit.Should().Be(1);
+            convertedRequest4.Collation.ShouldBeSameAs(collation);
+            convertedRequest4.Filter.ShouldBe("{e:1}");
+            convertedRequest4.Hint.ShouldBe(hint);
+            convertedRequest4.Limit.ShouldBe(1);
 
             // ReplaceOneModel
-            convertedRequests[5].Should().BeOfType<UpdateRequest>();
-            convertedRequests[5].CorrelationId.Should().Be(5);
+            convertedRequests[5].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[5].CorrelationId.ShouldBe(5);
             var convertedRequest5 = (UpdateRequest)convertedRequests[5];
-            convertedRequest5.Collation.Should().BeSameAs(collation);
-            convertedRequest5.Filter.Should().Be("{f:1}");
-            convertedRequest5.Hint.Should().BeNull();
-            convertedRequest5.Update.Should().Be("{g:1}");
-            convertedRequest5.UpdateType.Should().Be(UpdateType.Replacement);
-            convertedRequest5.IsMulti.Should().BeFalse();
-            convertedRequest5.IsUpsert.Should().BeFalse();
+            convertedRequest5.Collation.ShouldBeSameAs(collation);
+            convertedRequest5.Filter.ShouldBe("{f:1}");
+            convertedRequest5.Hint.ShouldBeNull();
+            convertedRequest5.Update.ShouldBe("{g:1}");
+            convertedRequest5.UpdateType.ShouldBe(UpdateType.Replacement);
+            convertedRequest5.IsMulti.ShouldBeFalse();
+            convertedRequest5.IsUpsert.ShouldBeFalse();
 
             // ReplaceOneModel with hint
-            convertedRequests[6].Should().BeOfType<UpdateRequest>();
-            convertedRequests[6].CorrelationId.Should().Be(6);
+            convertedRequests[6].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[6].CorrelationId.ShouldBe(6);
             var convertedRequest6 = (UpdateRequest)convertedRequests[6];
-            convertedRequest6.Collation.Should().BeSameAs(collation);
-            convertedRequest6.Filter.Should().Be("{h:1}");
-            convertedRequest6.Hint.Should().Be(hint);
-            convertedRequest6.Update.Should().Be("{i:1}");
-            convertedRequest6.UpdateType.Should().Be(UpdateType.Replacement);
-            convertedRequest6.IsMulti.Should().BeFalse();
-            convertedRequest6.IsUpsert.Should().BeFalse();
+            convertedRequest6.Collation.ShouldBeSameAs(collation);
+            convertedRequest6.Filter.ShouldBe("{h:1}");
+            convertedRequest6.Hint.ShouldBe(hint);
+            convertedRequest6.Update.ShouldBe("{i:1}");
+            convertedRequest6.UpdateType.ShouldBe(UpdateType.Replacement);
+            convertedRequest6.IsMulti.ShouldBeFalse();
+            convertedRequest6.IsUpsert.ShouldBeFalse();
 
             // ReplaceOneModel with upsert
-            convertedRequests[7].Should().BeOfType<UpdateRequest>();
-            convertedRequests[7].CorrelationId.Should().Be(7);
+            convertedRequests[7].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[7].CorrelationId.ShouldBe(7);
             var convertedRequest7 = (UpdateRequest)convertedRequests[7];
-            convertedRequest7.Collation.Should().BeSameAs(collation);
-            convertedRequest7.Filter.Should().Be("{j:1}");
-            convertedRequest7.Hint.Should().BeNull();
-            convertedRequest7.Update.Should().Be("{k:1}");
-            convertedRequest7.UpdateType.Should().Be(UpdateType.Replacement);
-            convertedRequest7.IsMulti.Should().BeFalse();
-            convertedRequest7.IsUpsert.Should().BeTrue();
+            convertedRequest7.Collation.ShouldBeSameAs(collation);
+            convertedRequest7.Filter.ShouldBe("{j:1}");
+            convertedRequest7.Hint.ShouldBeNull();
+            convertedRequest7.Update.ShouldBe("{k:1}");
+            convertedRequest7.UpdateType.ShouldBe(UpdateType.Replacement);
+            convertedRequest7.IsMulti.ShouldBeFalse();
+            convertedRequest7.IsUpsert.ShouldBeTrue();
 
             // UpdateManyModel
-            convertedRequests[8].Should().BeOfType<UpdateRequest>();
-            convertedRequests[8].CorrelationId.Should().Be(8);
+            convertedRequests[8].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[8].CorrelationId.ShouldBe(8);
             var convertedRequest8 = (UpdateRequest)convertedRequests[8];
-            convertedRequest8.Collation.Should().BeSameAs(collation);
-            convertedRequest8.Filter.Should().Be("{l:1}");
-            convertedRequest8.Hint.Should().BeNull();
-            convertedRequest8.Update.Should().Be("{$set:{m:1}}");
-            convertedRequest8.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest8.IsMulti.Should().BeTrue();
-            convertedRequest8.IsUpsert.Should().BeFalse();
+            convertedRequest8.Collation.ShouldBeSameAs(collation);
+            convertedRequest8.Filter.ShouldBe("{l:1}");
+            convertedRequest8.Hint.ShouldBeNull();
+            convertedRequest8.Update.ShouldBe("{$set:{m:1}}");
+            convertedRequest8.UpdateType.ShouldBe(UpdateType.Update);
+            convertedRequest8.IsMulti.ShouldBeTrue();
+            convertedRequest8.IsUpsert.ShouldBeFalse();
 
             // UpdateManyModel with hint
-            convertedRequests[9].Should().BeOfType<UpdateRequest>();
-            convertedRequests[9].CorrelationId.Should().Be(9);
+            convertedRequests[9].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[9].CorrelationId.ShouldBe(9);
             var convertedRequest9 = (UpdateRequest)convertedRequests[9];
-            convertedRequest9.Collation.Should().BeSameAs(collation);
-            convertedRequest9.Filter.Should().Be("{n:1}");
-            convertedRequest9.Hint.Should().Be(hint);
-            convertedRequest9.Update.Should().Be("{$set:{o:1}}");
-            convertedRequest9.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest9.IsMulti.Should().BeTrue();
-            convertedRequest9.IsUpsert.Should().BeFalse();
+            convertedRequest9.Collation.ShouldBeSameAs(collation);
+            convertedRequest9.Filter.ShouldBe("{n:1}");
+            convertedRequest9.Hint.ShouldBe(hint);
+            convertedRequest9.Update.ShouldBe("{$set:{o:1}}");
+            convertedRequest9.UpdateType.ShouldBe(UpdateType.Update);
+            convertedRequest9.IsMulti.ShouldBeTrue();
+            convertedRequest9.IsUpsert.ShouldBeFalse();
 
             // UpdateManyModel with upsert
-            convertedRequests[10].Should().BeOfType<UpdateRequest>();
-            convertedRequests[10].CorrelationId.Should().Be(10);
+            convertedRequests[10].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[10].CorrelationId.ShouldBe(10);
             var convertedRequest10 = (UpdateRequest)convertedRequests[10];
-            convertedRequest10.Collation.Should().BeSameAs(collation);
-            convertedRequest10.Filter.Should().Be("{p:1}");
-            convertedRequest10.Hint.Should().BeNull();
-            convertedRequest10.Update.Should().Be("{$set:{q:1}}");
-            convertedRequest10.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest10.IsMulti.Should().BeTrue();
-            convertedRequest10.IsUpsert.Should().BeTrue();
+            convertedRequest10.Collation.ShouldBeSameAs(collation);
+            convertedRequest10.Filter.ShouldBe("{p:1}");
+            convertedRequest10.Hint.ShouldBeNull();
+            convertedRequest10.Update.ShouldBe("{$set:{q:1}}");
+            convertedRequest10.UpdateType.ShouldBe(UpdateType.Update);
+            convertedRequest10.IsMulti.ShouldBeTrue();
+            convertedRequest10.IsUpsert.ShouldBeTrue();
 
             // UpdateOneModel
-            convertedRequests[11].Should().BeOfType<UpdateRequest>();
-            convertedRequests[11].CorrelationId.Should().Be(11);
+            convertedRequests[11].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[11].CorrelationId.ShouldBe(11);
             var convertedRequest11 = (UpdateRequest)convertedRequests[11];
-            convertedRequest11.Collation.Should().BeSameAs(collation);
-            convertedRequest11.Filter.Should().Be("{r:1}");
-            convertedRequest11.Hint.Should().BeNull();
-            convertedRequest11.Update.Should().Be("{$set:{s:1}}");
-            convertedRequest11.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest11.IsMulti.Should().BeFalse();
-            convertedRequest11.IsUpsert.Should().BeFalse();
+            convertedRequest11.Collation.ShouldBeSameAs(collation);
+            convertedRequest11.Filter.ShouldBe("{r:1}");
+            convertedRequest11.Hint.ShouldBeNull();
+            convertedRequest11.Update.ShouldBe("{$set:{s:1}}");
+            convertedRequest11.UpdateType.ShouldBe(UpdateType.Update);
+            convertedRequest11.IsMulti.ShouldBeFalse();
+            convertedRequest11.IsUpsert.ShouldBeFalse();
 
             // UpdateOneModel with hint
-            convertedRequests[12].Should().BeOfType<UpdateRequest>();
-            convertedRequests[12].CorrelationId.Should().Be(12);
+            convertedRequests[12].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[12].CorrelationId.ShouldBe(12);
             var convertedRequest12 = (UpdateRequest)convertedRequests[12];
-            convertedRequest12.Collation.Should().BeSameAs(collation);
-            convertedRequest12.Filter.Should().Be("{t:1}");
-            convertedRequest12.Hint.Should().Be(hint);
-            convertedRequest12.Update.Should().Be("{$set:{u:1}}");
-            convertedRequest12.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest12.IsMulti.Should().BeFalse();
-            convertedRequest12.IsUpsert.Should().BeFalse();
+            convertedRequest12.Collation.ShouldBeSameAs(collation);
+            convertedRequest12.Filter.ShouldBe("{t:1}");
+            convertedRequest12.Hint.ShouldBe(hint);
+            convertedRequest12.Update.ShouldBe("{$set:{u:1}}");
+            convertedRequest12.UpdateType.ShouldBe(UpdateType.Update);
+            convertedRequest12.IsMulti.ShouldBeFalse();
+            convertedRequest12.IsUpsert.ShouldBeFalse();
 
             // UpdateOneModel with upsert
-            convertedRequests[13].Should().BeOfType<UpdateRequest>();
-            convertedRequests[13].CorrelationId.Should().Be(13);
+            convertedRequests[13].ShouldBeOfType<UpdateRequest>();
+            convertedRequests[13].CorrelationId.ShouldBe(13);
             var convertedRequest13 = (UpdateRequest)convertedRequests[13];
-            convertedRequest13.Collation.Should().BeSameAs(collation);
-            convertedRequest13.Filter.Should().Be("{v:1}");
-            convertedRequest13.Hint.Should().BeNull();
-            convertedRequest13.Update.Should().Be("{$set:{w:1}}");
-            convertedRequest13.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest13.IsMulti.Should().BeFalse();
-            convertedRequest13.IsUpsert.Should().BeTrue();
+            convertedRequest13.Collation.ShouldBeSameAs(collation);
+            convertedRequest13.Filter.ShouldBe("{v:1}");
+            convertedRequest13.Hint.ShouldBeNull();
+            convertedRequest13.Update.ShouldBe("{$set:{w:1}}");
+            convertedRequest13.UpdateType.ShouldBe(UpdateType.Update);
+            convertedRequest13.IsMulti.ShouldBeFalse();
+            convertedRequest13.IsUpsert.ShouldBeTrue();
 
             // Result
-            result.Should().NotBeNull();
-            result.IsAcknowledged.Should().BeFalse();
-            result.RequestCount.Should().Be(14);
-            result.ProcessedRequests.Should().BeEquivalentTo(requests);
+            result.ShouldNotBeNull();
+            result.IsAcknowledged.ShouldBeFalse();
+            result.RequestCount.ShouldBe(14);
+            result.ProcessedRequests.ShouldBeEquivalentTo(requests);
             for (int i = 0; i < requests.Length; i++)
             {
-                result.ProcessedRequests[i].Should().BeSameAs(requests[i]);
+                result.ProcessedRequests[i].ShouldBeSameAs(requests[i]);
             }
         }
 
@@ -751,7 +752,7 @@ namespace MongoDB.Driver
                     exception = Record.Exception(() => { subject.BulkWrite(new[] { model }); });
                 }
 
-                exception.Should().BeOfType<NotSupportedException>();
+                exception.ShouldBeOfType<NotSupportedException>();
             }
         }
 
@@ -809,16 +810,16 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<long>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<CountOperation>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filter);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Limit.Should().Be(options.Limit);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
-            operation.Skip.Should().Be(options.Skip);
+            var operation = call.Operation.ShouldBeOfType<CountOperation>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Filter.ShouldBe(filter);
+            operation.Hint.ShouldBe(options.Hint);
+            operation.Limit.ShouldBe(options.Limit);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.RetryRequested.ShouldBeTrue();
+            operation.Skip.ShouldBe(options.Skip);
         }
 
         [Theory]
@@ -867,16 +868,16 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<long>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<CountDocumentsOperation>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filter);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Limit.Should().Be(options.Limit);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
-            operation.Skip.Should().Be(options.Skip);
+            var operation = call.Operation.ShouldBeOfType<CountDocumentsOperation>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Filter.ShouldBe(filter);
+            operation.Hint.ShouldBe(options.Hint);
+            operation.Limit.ShouldBe(options.Limit);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.RetryRequested.ShouldBeTrue();
+            operation.Skip.ShouldBe(options.Skip);
         }
 
         [Theory]
@@ -985,7 +986,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            exception.Should().BeOfType<MongoWriteException>();
+            exception.ShouldBeOfType<MongoWriteException>();
         }
 
         [Theory]
@@ -1100,7 +1101,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            exception.Should().BeOfType<MongoWriteException>();
+            exception.ShouldBeOfType<MongoWriteException>();
         }
 
         [Theory]
@@ -1149,15 +1150,15 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<int>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<DistinctOperation<int>>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.FieldName.Should().Be(fieldName);
-            operation.Filter.Should().Be(filterDocument);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
-            operation.ValueSerializer.ValueType.Should().Be(typeof(int));
+            var operation = call.Operation.ShouldBeOfType<DistinctOperation<int>>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.FieldName.ShouldBe(fieldName);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.RetryRequested.ShouldBeTrue();
+            operation.ValueSerializer.ValueType.ShouldBe(typeof(int));
         }
 
         private enum EnumForDistinctWithArrayField { A, B }
@@ -1215,20 +1216,20 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<EnumForDistinctWithArrayField>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<DistinctOperation<EnumForDistinctWithArrayField>>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.FieldName.Should().Be(fieldName);
-            operation.Filter.Should().Be(filterDocument);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
+            var operation = call.Operation.ShouldBeOfType<DistinctOperation<EnumForDistinctWithArrayField>>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.FieldName.ShouldBe(fieldName);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.RetryRequested.ShouldBeTrue();
 
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<ClassForDistinctWithArrayField>();
             BsonSerializationInfo fieldSerializationInfo;
-            ((IBsonDocumentSerializer)documentSerializer).TryGetMemberSerializationInfo(fieldName, out fieldSerializationInfo).Should().BeTrue();
+            ((IBsonDocumentSerializer)documentSerializer).TryGetMemberSerializationInfo(fieldName, out fieldSerializationInfo).ShouldBeTrue();
             var fieldSerializer = (ArraySerializer<EnumForDistinctWithArrayField>)fieldSerializationInfo.Serializer;
-            operation.ValueSerializer.Should().BeSameAs(fieldSerializer.ItemSerializer);
+            operation.ValueSerializer.ShouldBeSameAs(fieldSerializer.ItemSerializer);
         }
 
         [Theory]
@@ -1277,17 +1278,17 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<string>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<DistinctOperation<string>>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.FieldName.Should().Be(fieldName);
-            operation.Filter.Should().Be(filterDocument);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
+            var operation = call.Operation.ShouldBeOfType<DistinctOperation<string>>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.FieldName.ShouldBe(fieldName);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.RetryRequested.ShouldBeTrue();
 
             var stringSerializer = BsonSerializer.SerializerRegistry.GetSerializer<string>();
-            operation.ValueSerializer.Should().BeSameAs(stringSerializer);
+            operation.ValueSerializer.ShouldBeSameAs(stringSerializer);
         }
 
         [Theory]
@@ -1341,19 +1342,19 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<EnumForDistinctWithArrayField>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<DistinctOperation<EnumForDistinctWithArrayField>>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.FieldName.Should().Be(fieldName);
-            operation.Filter.Should().Be(filterDocument);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
+            var operation = call.Operation.ShouldBeOfType<DistinctOperation<EnumForDistinctWithArrayField>>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.FieldName.ShouldBe(fieldName);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.RetryRequested.ShouldBeTrue();
 
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<ClassForDistinctWithArrayField>();
-            ((IBsonDocumentSerializer)documentSerializer).TryGetMemberSerializationInfo(fieldName, out var fieldSerializationInfo).Should().BeTrue();
+            ((IBsonDocumentSerializer)documentSerializer).TryGetMemberSerializationInfo(fieldName, out var fieldSerializationInfo).ShouldBeTrue();
             var fieldSerializer = (ArraySerializer<EnumForDistinctWithArrayField>)fieldSerializationInfo.Serializer;
-            operation.ValueSerializer.Should().BeSameAs(fieldSerializer.ItemSerializer);
+            operation.ValueSerializer.ShouldBeSameAs(fieldSerializer.ItemSerializer);
         }
 
         [Theory]
@@ -1381,11 +1382,11 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<long>();
             VerifySessionAndCancellationToken(call, null, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<EstimatedDocumentCountOperation>().Subject;
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(ReadConcern.Default);
-            operation.RetryRequested.Should().BeTrue();
+            var operation = call.Operation.ShouldBeOfType<EstimatedDocumentCountOperation>();
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.ReadConcern.ShouldBe(ReadConcern.Default);
+            operation.RetryRequested.ShouldBeTrue();
         }
 
         [Theory]
@@ -1453,30 +1454,30 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
+            call.Operation.ShouldBeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
-            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
-            operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
-            operation.BatchSize.Should().Be(options.BatchSize);
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Comment.Should().Be((BsonValue)"funny");
-            operation.CursorType.Should().Be(CursorType.TailableAwait);
-            operation.Filter.Should().Be(filterDocument);
-            operation.Let.Should().Be(options.Let);
-            operation.Limit.Should().Be(options.Limit);
-            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            operation.AllowDiskUse.ShouldBe(options.AllowDiskUse);
+            operation.AllowPartialResults.ShouldBe(options.AllowPartialResults);
+            operation.BatchSize.ShouldBe(options.BatchSize);
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Comment.ShouldBe((BsonValue)"funny");
+            operation.CursorType.ShouldBe(CursorType.TailableAwait);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.Let.ShouldBe(options.Let);
+            operation.Limit.ShouldBe(options.Limit);
+            operation.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.NoCursorTimeout.ShouldBe(options.NoCursorTimeout);
 #pragma warning disable 618
-            operation.OplogReplay.Should().Be(options.OplogReplay);
+            operation.OplogReplay.ShouldBe(options.OplogReplay);
 #pragma warning restore 618
-            operation.Projection.Should().Be(projectionDocument);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.ResultSerializer.ValueType.Should().Be(typeof(BsonDocument));
-            operation.RetryRequested.Should().BeTrue();
-            operation.Skip.Should().Be(options.Skip);
-            operation.Sort.Should().Be(sortDocument);
+            operation.Projection.ShouldBe(projectionDocument);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.ResultSerializer.ValueType.ShouldBe(typeof(BsonDocument));
+            operation.RetryRequested.ShouldBeTrue();
+            operation.Skip.ShouldBe(options.Skip);
+            operation.Sort.ShouldBe(sortDocument);
         }
 
         [Theory]
@@ -1542,29 +1543,29 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
-            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
-            operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
-            operation.BatchSize.Should().Be(options.BatchSize);
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Comment.Should().Be((BsonValue)"funny");
-            operation.CursorType.Should().Be(CursorType.TailableAwait);
-            operation.Filter.Should().Be(new BsonDocument("x", 1));
-            operation.Let.Should().Be(options.Let);
-            operation.Limit.Should().Be(options.Limit);
-            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            var operation = call.Operation.ShouldBeOfType<FindOperation<BsonDocument>>();
+            operation.AllowDiskUse.ShouldBe(options.AllowDiskUse);
+            operation.AllowPartialResults.ShouldBe(options.AllowPartialResults);
+            operation.BatchSize.ShouldBe(options.BatchSize);
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Comment.ShouldBe((BsonValue)"funny");
+            operation.CursorType.ShouldBe(CursorType.TailableAwait);
+            operation.Filter.ShouldBe(new BsonDocument("x", 1));
+            operation.Let.ShouldBe(options.Let);
+            operation.Limit.ShouldBe(options.Limit);
+            operation.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.NoCursorTimeout.ShouldBe(options.NoCursorTimeout);
 #pragma warning disable 618
-            operation.OplogReplay.Should().Be(options.OplogReplay);
+            operation.OplogReplay.ShouldBe(options.OplogReplay);
 #pragma warning restore 618
-            operation.Projection.Should().Be(projectionDocument);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.ResultSerializer.ValueType.Should().Be(typeof(BsonDocument));
-            operation.RetryRequested.Should().BeTrue();
-            operation.Skip.Should().Be(options.Skip);
-            operation.Sort.Should().Be(sortDocument);
+            operation.Projection.ShouldBe(projectionDocument);
+            operation.ReadConcern.ShouldBe(_readConcern);
+            operation.ResultSerializer.ValueType.ShouldBe(typeof(BsonDocument));
+            operation.RetryRequested.ShouldBeTrue();
+            operation.Skip.ShouldBe(options.Skip);
+            operation.Sort.ShouldBe(sortDocument);
         }
 
         [Theory]
@@ -1611,11 +1612,11 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
-            operation.Projection.Should().BeNull();
-            operation.Let.Should().Be(letDocument);
-            operation.ResultSerializer.Should().BeOfType<BsonDocumentSerializer>();
-            operation.ReadConcern.Should().Be(_readConcern);
+            var operation = call.Operation.ShouldBeOfType<FindOperation<BsonDocument>>();
+            operation.Projection.ShouldBeNull();
+            operation.Let.ShouldBe(letDocument);
+            operation.ResultSerializer.ShouldBeOfType<BsonDocumentSerializer>();
+            operation.ReadConcern.ShouldBe(_readConcern);
         }
 
         [Theory]
@@ -1671,16 +1672,16 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filterDocument);
-            operation.Let.Should().Be(letDocument);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.Projection.Should().Be(projectionDocument);
-            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
-            operation.Sort.Should().Be(sortDocument);
-            operation.WriteConcern.Should().BeSameAs(subject.Settings.WriteConcern);
+            var operation = call.Operation.ShouldBeOfType<FindOneAndDeleteOperation<BsonDocument>>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.Let.ShouldBe(letDocument);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.Projection.ShouldBe(projectionDocument);
+            operation.ResultSerializer.ShouldBeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
+            operation.Sort.ShouldBe(sortDocument);
+            operation.WriteConcern.ShouldBeSameAs(subject.Settings.WriteConcern);
         }
 
         [Theory]
@@ -1729,12 +1730,12 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Let.Should().Be(options.Let);
-            operation.Projection.Should().BeNull();
-            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
+            var operation = call.Operation.ShouldBeOfType<FindOneAndDeleteOperation<BsonDocument>>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.Hint.ShouldBe(options.Hint);
+            operation.Let.ShouldBe(options.Let);
+            operation.Projection.ShouldBeNull();
+            operation.ResultSerializer.ShouldBeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
 
         [Theory]
@@ -1798,21 +1799,21 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>().Subject;
-            operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Filter.Should().Be(filterDocument);
-            operation.IsUpsert.Should().Be(isUpsert);
-            operation.Let.Should().Be(options.Let);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.Projection.Should().Be(projectionDocument);
-            operation.Replacement.Should().Be(replacement);
-            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
-            operation.ReturnDocument.Should().Be(returnDocument);
-            operation.Sort.Should().Be(sortDocument);
-            operation.WriteConcern.Should().BeSameAs(subject.Settings.WriteConcern);
+            var operation = call.Operation.ShouldBeOfType<FindOneAndReplaceOperation<BsonDocument>>();
+            operation.BypassDocumentValidation.ShouldBe(bypassDocumentValidation);
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Hint.ShouldBe(options.Hint);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.IsUpsert.ShouldBe(isUpsert);
+            operation.Let.ShouldBe(options.Let);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.Projection.ShouldBe(projectionDocument);
+            operation.Replacement.ShouldBe(replacement);
+            operation.ResultSerializer.ShouldBeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
+            operation.ReturnDocument.ShouldBe(returnDocument);
+            operation.Sort.ShouldBe(sortDocument);
+            operation.WriteConcern.ShouldBeSameAs(subject.Settings.WriteConcern);
         }
 
         [Theory]
@@ -1861,11 +1862,11 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.Let.Should().BeSameAs(options.Let);
-            operation.Projection.Should().BeNull();
-            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
+            var operation = call.Operation.ShouldBeOfType<FindOneAndReplaceOperation<BsonDocument>>();
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.Let.ShouldBeSameAs(options.Let);
+            operation.Projection.ShouldBeNull();
+            operation.ResultSerializer.ShouldBeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
 
         [Theory]
@@ -1933,22 +1934,22 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>().Subject;
-            operation.ArrayFilters.Should().Equal(new[] { arrayFilterDocument });
-            operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Filter.Should().Be(filterDocument);
-            operation.IsUpsert.Should().Be(isUpsert);
-            operation.Let.Should().Be(options.Let);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.Projection.Should().Be(projectionDocument);
-            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
-            operation.ReturnDocument.Should().Be(returnDocument);
-            operation.Sort.Should().Be(sortDocument);
-            operation.Update.Should().Be(updateDocument);
-            operation.WriteConcern.Should().BeSameAs(subject.Settings.WriteConcern);
+            var operation = call.Operation.ShouldBeOfType<FindOneAndUpdateOperation<BsonDocument>>();
+            operation.ArrayFilters.ShouldBe(new[] { arrayFilterDocument });
+            operation.BypassDocumentValidation.ShouldBe(bypassDocumentValidation);
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Hint.ShouldBe(options.Hint);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.IsUpsert.ShouldBe(isUpsert);
+            operation.Let.ShouldBe(options.Let);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.Projection.ShouldBe(projectionDocument);
+            operation.ResultSerializer.ShouldBeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
+            operation.ReturnDocument.ShouldBe(returnDocument);
+            operation.Sort.ShouldBe(sortDocument);
+            operation.Update.ShouldBe(updateDocument);
+            operation.WriteConcern.ShouldBeSameAs(subject.Settings.WriteConcern);
         }
 
         [Theory]
@@ -1982,7 +1983,7 @@ namespace MongoDB.Driver
                 exception = Record.Exception(() => { subject.FindOneAndUpdate(filterDefinition, update, options, cancellationToken); });
             }
 
-            exception.Should().BeOfType<NotSupportedException>();
+            exception.ShouldBeOfType<NotSupportedException>();
         }
 
         [Theory]
@@ -2030,10 +2031,10 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>().Subject;
-            operation.Let.Should().Be(options.Let);
-            operation.Projection.Should().BeNull();
-            operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
+            var operation = call.Operation.ShouldBeOfType<FindOneAndUpdateOperation<BsonDocument>>();
+            operation.Let.ShouldBe(options.Let);
+            operation.Projection.ShouldBeNull();
+            operation.ResultSerializer.ShouldBeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
 
         [Theory]
@@ -2122,51 +2123,51 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.CommitQuorum.Should().BeSameAs(createOneIndexOptions?.CommitQuorum);
-            operation.MaxTime.Should().Be(createOneIndexOptions?.MaxTime);
-            operation.Requests.Count().Should().Be(1);
-            operation.WriteConcern.Should().BeSameAs(writeConcern);
+            var operation = call.Operation.ShouldBeOfType<CreateIndexesOperation>();
+            operation.CollectionNamespace.FullName.ShouldBe("foo.bar");
+            operation.CommitQuorum.ShouldBeSameAs(createOneIndexOptions?.CommitQuorum);
+            operation.MaxTime.ShouldBe(createOneIndexOptions?.MaxTime);
+            operation.Requests.Count().ShouldBe(1);
+            operation.WriteConcern.ShouldBeSameAs(writeConcern);
 
             var request = operation.Requests.Single();
-            request.AdditionalOptions.Should().BeNull();
-            request.Background.Should().Be(options.Background);
-            request.Bits.Should().Be(options.Bits);
+            request.AdditionalOptions.ShouldBeNull();
+            request.Background.ShouldBe(options.Background);
+            request.Bits.ShouldBe(options.Bits);
 #pragma warning disable 618
-            request.BucketSize.Should().Be(options.BucketSize);
+            request.BucketSize.ShouldBe(options.BucketSize);
 #pragma warning restore 618
-            request.Collation.Should().BeSameAs(options.Collation);
-            request.DefaultLanguage.Should().Be(options.DefaultLanguage);
-            request.ExpireAfter.Should().Be(options.ExpireAfter);
-            request.Hidden.Should().Be(options.Hidden);
+            request.Collation.ShouldBeSameAs(options.Collation);
+            request.DefaultLanguage.ShouldBe(options.DefaultLanguage);
+            request.ExpireAfter.ShouldBe(options.ExpireAfter);
+            request.Hidden.ShouldBe(options.Hidden);
             var expectedKeysResult =
                 usingWildcardIndex
                     ? new BsonDocument("$**", 1)
                     : keysDocument;
-            request.Keys.Should().Be(expectedKeysResult);
-            request.LanguageOverride.Should().Be(options.LanguageOverride);
-            request.Max.Should().Be(options.Max);
-            request.Min.Should().Be(options.Min);
-            request.Name.Should().Be(options.Name);
-            request.PartialFilterExpression.Should().Be(partialFilterDocument);
-            request.Sparse.Should().Be(options.Sparse);
-            request.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
-            request.StorageEngine.Should().Be(options.StorageEngine);
-            request.TextIndexVersion.Should().Be(options.TextIndexVersion);
-            request.Unique.Should().Be(options.Unique);
-            request.Version.Should().Be(options.Version);
-            request.Weights.Should().Be(options.Weights);
+            request.Keys.ShouldBe(expectedKeysResult);
+            request.LanguageOverride.ShouldBe(options.LanguageOverride);
+            request.Max.ShouldBe(options.Max);
+            request.Min.ShouldBe(options.Min);
+            request.Name.ShouldBe(options.Name);
+            request.PartialFilterExpression.ShouldBe(partialFilterDocument);
+            request.Sparse.ShouldBe(options.Sparse);
+            request.SphereIndexVersion.ShouldBe(options.SphereIndexVersion);
+            request.StorageEngine.ShouldBe(options.StorageEngine);
+            request.TextIndexVersion.ShouldBe(options.TextIndexVersion);
+            request.Unique.ShouldBe(options.Unique);
+            request.Version.ShouldBe(options.Version);
+            request.Weights.ShouldBe(options.Weights);
             if (usingWildcardIndex)
             {
                 var wildcardProjection = wildcardProjectionDefinition.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry));
-                request.WildcardProjection.Should().Be(wildcardProjection);
+                request.WildcardProjection.ShouldBe(wildcardProjection);
             }
             else
             {
-                request.WildcardProjection.Should().BeNull();
+                request.WildcardProjection.ShouldBeNull();
             }
-            request.GetIndexName().Should().Be(options.Name);
+            request.GetIndexName().ShouldBe(options.Name);
         }
 
         [Theory]
@@ -2259,79 +2260,79 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.CommitQuorum.Should().BeSameAs(createManyIndexesOptions?.CommitQuorum);
-            operation.MaxTime.Should().Be(createManyIndexesOptions?.MaxTime);
-            operation.Requests.Count().Should().Be(2);
-            operation.WriteConcern.Should().BeSameAs(writeConcern);
+            var operation = call.Operation.ShouldBeOfType<CreateIndexesOperation>();
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.CommitQuorum.ShouldBeSameAs(createManyIndexesOptions?.CommitQuorum);
+            operation.MaxTime.ShouldBe(createManyIndexesOptions?.MaxTime);
+            operation.Requests.Count().ShouldBe(2);
+            operation.WriteConcern.ShouldBeSameAs(writeConcern);
 
             var request1 = operation.Requests.ElementAt(0);
-            request1.AdditionalOptions.Should().BeNull();
-            request1.Background.Should().Be(options.Background);
-            request1.Bits.Should().Be(options.Bits);
+            request1.AdditionalOptions.ShouldBeNull();
+            request1.Background.ShouldBe(options.Background);
+            request1.Bits.ShouldBe(options.Bits);
 #pragma warning disable 618
-            request1.BucketSize.Should().Be(options.BucketSize);
+            request1.BucketSize.ShouldBe(options.BucketSize);
 #pragma warning restore 618
-            request1.Collation.Should().BeSameAs(options.Collation);
-            request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
-            request1.ExpireAfter.Should().Be(options.ExpireAfter);
-            request1.Hidden.Should().Be(options.Hidden);
+            request1.Collation.ShouldBeSameAs(options.Collation);
+            request1.DefaultLanguage.ShouldBe(options.DefaultLanguage);
+            request1.ExpireAfter.ShouldBe(options.ExpireAfter);
+            request1.Hidden.ShouldBe(options.Hidden);
             var expectedKeysResult =
                 usingWildcardIndex
                     ? new BsonDocument("$**", 1)
                     : keysDocument1;
-            request1.Keys.Should().Be(expectedKeysResult);
-            request1.LanguageOverride.Should().Be(options.LanguageOverride);
-            request1.Max.Should().Be(options.Max);
-            request1.Min.Should().Be(options.Min);
-            request1.Name.Should().Be(options.Name);
-            request1.PartialFilterExpression.Should().Be(partialFilterDocument);
-            request1.Sparse.Should().Be(options.Sparse);
-            request1.SphereIndexVersion.Should().Be(options.SphereIndexVersion);
-            request1.StorageEngine.Should().Be(storageEngine);
-            request1.TextIndexVersion.Should().Be(options.TextIndexVersion);
-            request1.Unique.Should().Be(options.Unique);
-            request1.Version.Should().Be(options.Version);
-            request1.Weights.Should().Be(weights);
+            request1.Keys.ShouldBe(expectedKeysResult);
+            request1.LanguageOverride.ShouldBe(options.LanguageOverride);
+            request1.Max.ShouldBe(options.Max);
+            request1.Min.ShouldBe(options.Min);
+            request1.Name.ShouldBe(options.Name);
+            request1.PartialFilterExpression.ShouldBe(partialFilterDocument);
+            request1.Sparse.ShouldBe(options.Sparse);
+            request1.SphereIndexVersion.ShouldBe(options.SphereIndexVersion);
+            request1.StorageEngine.ShouldBe(storageEngine);
+            request1.TextIndexVersion.ShouldBe(options.TextIndexVersion);
+            request1.Unique.ShouldBe(options.Unique);
+            request1.Version.ShouldBe(options.Version);
+            request1.Weights.ShouldBe(weights);
             if (usingWildcardIndex)
             {
                 var wildcardProjection = wildcardProjectionDefinition.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry));
-                request1.WildcardProjection.Should().Be(wildcardProjection);
+                request1.WildcardProjection.ShouldBe(wildcardProjection);
             }
             else
             {
-                request1.WildcardProjection.Should().BeNull();
+                request1.WildcardProjection.ShouldBeNull();
             }
 
-            request1.GetIndexName().Should().Be(options.Name);
+            request1.GetIndexName().ShouldBe(options.Name);
 
             var request2 = operation.Requests.ElementAt(1);
-            request2.AdditionalOptions.Should().BeNull();
-            request2.Background.Should().NotHaveValue();
-            request2.Bits.Should().NotHaveValue();
+            request2.AdditionalOptions.ShouldBeNull();
+            request2.Background.ShouldNotHaveValue();
+            request2.Bits.ShouldNotHaveValue();
 #pragma warning disable 618
-            request2.BucketSize.Should().NotHaveValue();
+            request2.BucketSize.ShouldNotHaveValue();
 #pragma warning restore 618
-            request2.Collation.Should().BeNull();
-            request2.DefaultLanguage.Should().BeNull();
-            request2.ExpireAfter.Should().NotHaveValue();
-            request2.Hidden.Should().NotHaveValue();
-            request2.Keys.Should().Be(keysDocument2);
-            request2.LanguageOverride.Should().BeNull();
-            request2.Max.Should().NotHaveValue();
-            request2.Min.Should().NotHaveValue(); ;
-            request2.Name.Should().BeNull();
-            request2.PartialFilterExpression.Should().BeNull();
-            request2.Sparse.Should().NotHaveValue(); ;
-            request2.SphereIndexVersion.Should().NotHaveValue();
-            request2.StorageEngine.Should().BeNull();
-            request2.TextIndexVersion.Should().NotHaveValue();
-            request2.Unique.Should().NotHaveValue();
-            request2.Version.Should().NotHaveValue();
-            request2.Weights.Should().BeNull();
-            request2.WildcardProjection.Should().BeNull();
-            request2.GetIndexName().Should().Be("z_1");
+            request2.Collation.ShouldBeNull();
+            request2.DefaultLanguage.ShouldBeNull();
+            request2.ExpireAfter.ShouldNotHaveValue();
+            request2.Hidden.ShouldNotHaveValue();
+            request2.Keys.ShouldBe(keysDocument2);
+            request2.LanguageOverride.ShouldBeNull();
+            request2.Max.ShouldNotHaveValue();
+            request2.Min.ShouldNotHaveValue(); ;
+            request2.Name.ShouldBeNull();
+            request2.PartialFilterExpression.ShouldBeNull();
+            request2.Sparse.ShouldNotHaveValue(); ;
+            request2.SphereIndexVersion.ShouldNotHaveValue();
+            request2.StorageEngine.ShouldBeNull();
+            request2.TextIndexVersion.ShouldNotHaveValue();
+            request2.Unique.ShouldNotHaveValue();
+            request2.Version.ShouldNotHaveValue();
+            request2.Weights.ShouldBeNull();
+            request2.WildcardProjection.ShouldBeNull();
+            request2.GetIndexName().ShouldBe("z_1");
         }
 
         [Theory]
@@ -2374,11 +2375,11 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<DropIndexOperation>().Subject;
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.IndexName.Should().Be("*");
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.WriteConcern.Should().BeSameAs(writeConcern);
+            var operation = call.Operation.ShouldBeOfType<DropIndexOperation>();
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.IndexName.ShouldBe("*");
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.WriteConcern.ShouldBeSameAs(writeConcern);
         }
 
         [Theory]
@@ -2421,11 +2422,11 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<DropIndexOperation>().Subject;
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.IndexName.Should().Be("name");
-            operation.WriteConcern.Should().BeSameAs(writeConcern);
-            operation.MaxTime.Should().Be(maxTime);
+            var operation = call.Operation.ShouldBeOfType<DropIndexOperation>();
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.IndexName.ShouldBe("name");
+            operation.WriteConcern.ShouldBeSameAs(writeConcern);
+            operation.MaxTime.ShouldBe(maxTime);
         }
 
         [Theory]
@@ -2449,8 +2450,8 @@ namespace MongoDB.Driver
                 exception = Record.Exception(() => subject.Indexes.DropOne("*", cancellationToken));
             }
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("name");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("name");
         }
 
         [Theory]
@@ -2521,10 +2522,10 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<ListIndexesOperation>().Subject;
-            operation.BatchSize.Should().Be(batchSize);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.RetryRequested.Should().BeTrue();
+            var operation = call.Operation.ShouldBeOfType<ListIndexesOperation>();
+            operation.BatchSize.ShouldBe(batchSize);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.RetryRequested.ShouldBeTrue();
         }
 
         [Theory]
@@ -2629,7 +2630,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            exception.Should().BeOfType<MongoWriteException>();
+            exception.ShouldBeOfType<MongoWriteException>();
         }
 
         [Theory]
@@ -2679,9 +2680,9 @@ namespace MongoDB.Driver
 
             VerifySingleWrite(call, bypassDocumentValidation: null, isOrdered: true, let: null, processedRequest);
 
-            var operation = call.Operation.Should().BeOfType<BulkMixedWriteOperation>().Subject;
+            var operation = call.Operation.ShouldBeOfType<BulkMixedWriteOperation>();
             var requests = operation.Requests.ToList(); // call ToList to force evaluation
-            document.Contains("_id").Should().Be(assignIdOnInsert);
+            document.Contains("_id").ShouldBe(assignIdOnInsert);
         }
 
         [Theory]
@@ -2793,7 +2794,7 @@ namespace MongoDB.Driver
 
             var operation = (BulkMixedWriteOperation)call.Operation;
             var requests = operation.Requests.ToList(); // call ToList to force evaluation
-            document.Contains("_id").Should().Be(assignIdOnInsert);
+            document.Contains("_id").ShouldBe(assignIdOnInsert);
         }
 
         [Theory]
@@ -2867,24 +2868,24 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
 #pragma warning disable CS0618 // Type or member is obsolete
-            var operation = call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>().Subject;
+            var operation = call.Operation.ShouldBeOfType<MapReduceOperation<BsonDocument>>();
 #pragma warning restore CS0618 // Type or member is obsolete
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filterDocument);
-            operation.FinalizeFunction.Should().Be(options.Finalize);
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.FinalizeFunction.ShouldBe(options.Finalize);
 #pragma warning disable 618
-            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+            operation.JavaScriptMode.ShouldBe(options.JavaScriptMode);
 #pragma warning restore 618
-            operation.Limit.Should().Be(options.Limit);
-            operation.MapFunction.Should().Be(map);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
-            operation.ReduceFunction.Should().Be(reduce);
-            operation.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
-            operation.Scope.Should().Be(options.Scope);
-            operation.Sort.Should().Be(sortDocument);
-            operation.Verbose.Should().Be(options.Verbose);
+            operation.Limit.ShouldBe(options.Limit);
+            operation.MapFunction.ShouldBe(map);
+            operation.MaxTime.ShouldBe(options.MaxTime);
+            operation.ReadConcern.ShouldBe(subject.Settings.ReadConcern);
+            operation.ReduceFunction.ShouldBe(reduce);
+            operation.ResultSerializer.ShouldBe(BsonDocumentSerializer.Instance);
+            operation.Scope.ShouldBe(options.Scope);
+            operation.Sort.ShouldBe(sortDocument);
+            operation.Verbose.ShouldBe(options.Verbose);
         }
 
         [Theory]
@@ -2960,34 +2961,34 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
 #pragma warning disable CS0618 // Type or member is obsolete
-            var operation = call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>().Subject;
+            var operation = call.Operation.ShouldBeOfType<MapReduceOutputToCollectionOperation>();
 #pragma warning restore CS0618 // Type or member is obsolete
-            operation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filterDocument);
-            operation.FinalizeFunction.Should().Be(options.Finalize);
+            operation.BypassDocumentValidation.ShouldBe(options.BypassDocumentValidation);
+            operation.Collation.ShouldBeSameAs(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.Filter.ShouldBe(filterDocument);
+            operation.FinalizeFunction.ShouldBe(options.Finalize);
 #pragma warning disable 618
-            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+            operation.JavaScriptMode.ShouldBe(options.JavaScriptMode);
 #pragma warning restore 618
-            operation.Limit.Should().Be(options.Limit);
-            operation.MapFunction.Should().Be(map);
-            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.Limit.ShouldBe(options.Limit);
+            operation.MapFunction.ShouldBe(map);
+            operation.MaxTime.ShouldBe(options.MaxTime);
 #pragma warning disable 618
-            operation.NonAtomicOutput.Should().NotHaveValue();
+            operation.NonAtomicOutput.ShouldNotHaveValue();
 #pragma warning restore 618
-            operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));
+            operation.OutputCollectionNamespace.ShouldBe(CollectionNamespace.FromFullName("otherDB.awesome"));
 #pragma warning disable CS0618 // Type or member is obsolete
-            operation.OutputMode.Should().Be(Core.Operations.MapReduceOutputMode.Replace);
+            operation.OutputMode.ShouldBe(Core.Operations.MapReduceOutputMode.Replace);
 #pragma warning restore CS0618 // Type or member is obsolete
-            operation.ReduceFunction.Should().Be(reduce);
-            operation.Scope.Should().Be(options.Scope);
+            operation.ReduceFunction.ShouldBe(reduce);
+            operation.Scope.ShouldBe(options.Scope);
 #pragma warning disable 618
-            operation.ShardedOutput.Should().Be(true);
+            operation.ShardedOutput.ShouldBe(true);
 #pragma warning restore 618
-            operation.Sort.Should().Be(sortDocument);
-            operation.Verbose.Should().Be(options.Verbose);
-            operation.WriteConcern.Should().BeSameAs(writeConcern);
+            operation.Sort.ShouldBe(sortDocument);
+            operation.Verbose.ShouldBe(options.Verbose);
+            operation.WriteConcern.ShouldBeSameAs(writeConcern);
         }
 
         [Theory]
@@ -3316,7 +3317,7 @@ namespace MongoDB.Driver
                 var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
                 VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-                exception.Should().BeOfType<MongoWriteException>();
+                exception.ShouldBeOfType<MongoWriteException>();
             }
         }
 
@@ -3476,7 +3477,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            exception.Should().BeOfType<MongoWriteException>();
+            exception.ShouldBeOfType<MongoWriteException>();
         }
 
         [Theory]
@@ -3636,7 +3637,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            exception.Should().BeOfType<MongoWriteException>();
+            exception.ShouldBeOfType<MongoWriteException>();
         }
 
         [Theory]
@@ -3706,23 +3707,23 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IChangeStreamCursor<ChangeStreamDocument<BsonDocument>>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>().Subject;
-            operation.BatchSize.Should().Be(options.BatchSize);
-            operation.Collation.Should().Be(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.DatabaseNamespace.Should().BeNull();
-            operation.FullDocument.Should().Be(options.FullDocument);
-            operation.FullDocumentBeforeChange.Should().Be(options.FullDocumentBeforeChange);
-            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            operation.MessageEncoderSettings.Should().NotBeNull();
-            operation.Pipeline.Should().HaveCount(1);
-            operation.Pipeline[0].Should().Be(stageDocument);
-            operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
-            operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamDocument<BsonDocument>));
-            operation.ResumeAfter.Should().Be(options.ResumeAfter);
-            operation.RetryRequested.Should().BeTrue();
-            operation.StartAfter.Should().Be(options.StartAfter);
-            operation.StartAtOperationTime.Should().Be(options.StartAtOperationTime);
+            var operation = call.Operation.ShouldBeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>();
+            operation.BatchSize.ShouldBe(options.BatchSize);
+            operation.Collation.ShouldBe(options.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.DatabaseNamespace.ShouldBeNull();
+            operation.FullDocument.ShouldBe(options.FullDocument);
+            operation.FullDocumentBeforeChange.ShouldBe(options.FullDocumentBeforeChange);
+            operation.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            operation.MessageEncoderSettings.ShouldNotBeNull();
+            operation.Pipeline.ShouldHaveCount(1);
+            operation.Pipeline[0].ShouldBe(stageDocument);
+            operation.ReadConcern.ShouldBe(subject.Settings.ReadConcern);
+            operation.ResultSerializer.ValueType.ShouldBe(typeof(ChangeStreamDocument<BsonDocument>));
+            operation.ResumeAfter.ShouldBe(options.ResumeAfter);
+            operation.RetryRequested.ShouldBeTrue();
+            operation.StartAfter.ShouldBe(options.StartAfter);
+            operation.StartAtOperationTime.ShouldBe(options.StartAtOperationTime);
         }
 
         [Theory]
@@ -3765,21 +3766,21 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<IChangeStreamCursor<ChangeStreamDocument<BsonDocument>>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>().Subject;
+            var operation = call.Operation.ShouldBeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>();
             var defaultOptions = new ChangeStreamOptions();
-            operation.BatchSize.Should().Be(defaultOptions.BatchSize);
-            operation.Collation.Should().Be(defaultOptions.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.FullDocument.Should().Be(defaultOptions.FullDocument);
-            operation.FullDocumentBeforeChange.Should().Be(defaultOptions.FullDocumentBeforeChange);
-            operation.MaxAwaitTime.Should().Be(defaultOptions.MaxAwaitTime);
-            operation.MessageEncoderSettings.Should().NotBeNull();
-            operation.Pipeline.Should().HaveCount(1);
-            operation.Pipeline[0].Should().Be(stageDocument);
-            operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
-            operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamDocument<BsonDocument>));
-            operation.ResumeAfter.Should().Be(defaultOptions.ResumeAfter);
-            operation.RetryRequested.Should().BeTrue();
+            operation.BatchSize.ShouldBe(defaultOptions.BatchSize);
+            operation.Collation.ShouldBe(defaultOptions.Collation);
+            operation.CollectionNamespace.ShouldBe(subject.CollectionNamespace);
+            operation.FullDocument.ShouldBe(defaultOptions.FullDocument);
+            operation.FullDocumentBeforeChange.ShouldBe(defaultOptions.FullDocumentBeforeChange);
+            operation.MaxAwaitTime.ShouldBe(defaultOptions.MaxAwaitTime);
+            operation.MessageEncoderSettings.ShouldNotBeNull();
+            operation.Pipeline.ShouldHaveCount(1);
+            operation.Pipeline[0].ShouldBe(stageDocument);
+            operation.ReadConcern.ShouldBe(subject.Settings.ReadConcern);
+            operation.ResultSerializer.ValueType.ShouldBe(typeof(ChangeStreamDocument<BsonDocument>));
+            operation.ResumeAfter.ShouldBe(defaultOptions.ResumeAfter);
+            operation.RetryRequested.ShouldBeTrue();
         }
 
         [Theory]
@@ -3800,8 +3801,8 @@ namespace MongoDB.Driver
                 exception = Record.Exception(() => subject.Watch(pipeline));
             }
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("pipeline");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("pipeline");
         }
 
         [Fact]
@@ -3823,18 +3824,18 @@ namespace MongoDB.Driver
                 ChangeStreamDocument<BsonDocument> changeStreamDocument = null;
                 var document = new BsonDocument(allowDuplicateNames: true) { { "_id", 1 }, { "x", 2 }, { "x", 3 } };
                 collection.InsertOne(document);
-                SpinWait.SpinUntil(() => cursor.MoveNext() && (changeStreamDocument = cursor.Current.FirstOrDefault()) != null, TimeSpan.FromSeconds(5)).Should().BeTrue();
+                SpinWait.SpinUntil(() => cursor.MoveNext() && (changeStreamDocument = cursor.Current.FirstOrDefault()) != null, TimeSpan.FromSeconds(5)).ShouldBeTrue();
                 var fullDocument = changeStreamDocument.FullDocument;
-                fullDocument.ElementCount.Should().Be(3);
+                fullDocument.ElementCount.ShouldBe(3);
                 var firstElement = fullDocument.GetElement(0);
-                firstElement.Name.Should().Be("_id");
-                firstElement.Value.Should().Be(1);
+                firstElement.Name.ShouldBe("_id");
+                firstElement.Value.ShouldBe(1);
                 var secondElement = fullDocument.GetElement(1);
-                secondElement.Name.Should().Be("x");
-                secondElement.Value.Should().Be(2);
+                secondElement.Name.ShouldBe("x");
+                secondElement.Value.ShouldBe(2);
                 var thirdElement = fullDocument.GetElement(2);
-                thirdElement.Name.Should().Be("x");
-                thirdElement.Value.Should().Be(3);
+                thirdElement.Name.ShouldBe("x");
+                thirdElement.Value.ShouldBe(3);
             }
             finally
             {
@@ -3847,7 +3848,7 @@ namespace MongoDB.Driver
         {
             var subject = CreateSubject<BsonDocument>();
             var newSubject = subject.WithReadPreference(ReadPreference.Nearest);
-            newSubject.Settings.ReadPreference.Should().Be(ReadPreference.Nearest);
+            newSubject.Settings.ReadPreference.ShouldBe(ReadPreference.Nearest);
         }
 
         [Fact]
@@ -3855,7 +3856,7 @@ namespace MongoDB.Driver
         {
             var subject = CreateSubject<BsonDocument>();
             var newSubject = subject.WithWriteConcern(WriteConcern.WMajority);
-            newSubject.Settings.WriteConcern.Should().Be(WriteConcern.WMajority);
+            newSubject.Settings.WriteConcern.ShouldBe(WriteConcern.WMajority);
         }
 
         // private methods
@@ -3917,14 +3918,14 @@ namespace MongoDB.Driver
 
         private static void VerifyBulkWrite(MockOperationExecutor.WriteCall<BulkWriteOperationResult> call, bool? bypassDocumentValidation, bool isOrdered, BsonDocument let, WriteRequest[] expectedRequests)
         {
-            var operation = call.Operation.Should().BeOfType<BulkMixedWriteOperation>().Subject;
-            operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
-            operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.IsOrdered.Should().Be(isOrdered);
-            operation.Let.Should().Be(let);
+            var operation = call.Operation.ShouldBeOfType<BulkMixedWriteOperation>();
+            operation.BypassDocumentValidation.ShouldBe(bypassDocumentValidation);
+            operation.CollectionNamespace.FullName.ShouldBe("foo.bar");
+            operation.IsOrdered.ShouldBe(isOrdered);
+            operation.Let.ShouldBe(let);
 
             var actualRequests = operation.Requests.ToList();
-            actualRequests.Count.Should().Be(expectedRequests.Length);
+            actualRequests.Count.ShouldBe(expectedRequests.Length);
 
             for (int i = 0; i < expectedRequests.Length; i++)
             {
@@ -3934,27 +3935,27 @@ namespace MongoDB.Driver
 
         private static void VerifySessionAndCancellationToken<TDocument>(MockOperationExecutor.ReadCall<TDocument> call, IClientSessionHandle session, CancellationToken cancellationToken)
         {
-            call.CancellationToken.Should().Be(cancellationToken);
+            call.CancellationToken.ShouldBe(cancellationToken);
             if (session == null)
             {
-                call.UsedImplicitSession.Should().BeTrue();
+                call.UsedImplicitSession.ShouldBeTrue();
             }
             else
             {
-                call.SessionId.Should().Be(session.ServerSession.Id);
+                call.SessionId.ShouldBe(session.ServerSession.Id);
             }
         }
 
         private static void VerifySessionAndCancellationToken<TDocument>(MockOperationExecutor.WriteCall<TDocument> call, IClientSessionHandle session, CancellationToken cancellationToken)
         {
-            call.CancellationToken.Should().Be(cancellationToken);
+            call.CancellationToken.ShouldBe(cancellationToken);
             if (session == null)
             {
-                call.UsedImplicitSession.Should().BeTrue();
+                call.UsedImplicitSession.ShouldBeTrue();
             }
             else
             {
-                call.SessionId.Should().Be(session.ServerSession.Id);
+                call.SessionId.ShouldBe(session.ServerSession.Id);
             }
         }
 

@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -47,21 +47,21 @@ namespace MongoDB.Driver.Tests
 
             var result = ChangeStreamHelper.CreateChangeStreamOperation(pipeline, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null);
 
-            result.BatchSize.Should().Be(options.BatchSize);
-            result.Collation.Should().BeSameAs(options.Collation);
-            result.CollectionNamespace.Should().BeNull();
-            result.DatabaseNamespace.Should().BeNull();
-            result.FullDocument.Should().Be(options.FullDocument);
-            result.FullDocumentBeforeChange.Should().Be(options.FullDocumentBeforeChange);
-            result.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
-            result.Pipeline.Should().Equal(renderedPipeline.Documents);
-            result.ReadConcern.Should().BeSameAs(readConcern);
-            result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
-            result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
-            result.RetryRequested.Should().Be(true);
-            result.StartAfter.Should().BeSameAs(options.StartAfter);
-            result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
+            result.BatchSize.ShouldBe(options.BatchSize);
+            result.Collation.ShouldBeSameAs(options.Collation);
+            result.CollectionNamespace.ShouldBeNull();
+            result.DatabaseNamespace.ShouldBeNull();
+            result.FullDocument.ShouldBe(options.FullDocument);
+            result.FullDocumentBeforeChange.ShouldBe(options.FullDocumentBeforeChange);
+            result.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            result.MessageEncoderSettings.ShouldBeSameAs(messageEncoderSettings);
+            result.Pipeline.ShouldBe(renderedPipeline.Documents);
+            result.ReadConcern.ShouldBeSameAs(readConcern);
+            result.ResultSerializer.ShouldBeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
+            result.ResumeAfter.ShouldBeSameAs(options.ResumeAfter);
+            result.RetryRequested.ShouldBe(true);
+            result.StartAfter.ShouldBeSameAs(options.StartAfter);
+            result.StartAtOperationTime.ShouldBeSameAs(options.StartAtOperationTime);
         }
 
         [Fact]
@@ -88,21 +88,21 @@ namespace MongoDB.Driver.Tests
 
             var result = ChangeStreamHelper.CreateChangeStreamOperation(mockDatabase.Object, pipeline, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null);
 
-            result.BatchSize.Should().Be(options.BatchSize);
-            result.Collation.Should().BeSameAs(options.Collation);
-            result.CollectionNamespace.Should().BeNull();
-            result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
-            result.FullDocument.Should().Be(options.FullDocument);
-            result.FullDocumentBeforeChange.Should().Be(options.FullDocumentBeforeChange);
-            result.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
-            result.Pipeline.Should().Equal(renderedPipeline.Documents);
-            result.ReadConcern.Should().BeSameAs(readConcern);
-            result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
-            result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
-            result.RetryRequested.Should().Be(true);
-            result.StartAfter.Should().BeSameAs(options.StartAfter);
-            result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
+            result.BatchSize.ShouldBe(options.BatchSize);
+            result.Collation.ShouldBeSameAs(options.Collation);
+            result.CollectionNamespace.ShouldBeNull();
+            result.DatabaseNamespace.ShouldBeSameAs(databaseNamespace);
+            result.FullDocument.ShouldBe(options.FullDocument);
+            result.FullDocumentBeforeChange.ShouldBe(options.FullDocumentBeforeChange);
+            result.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            result.MessageEncoderSettings.ShouldBeSameAs(messageEncoderSettings);
+            result.Pipeline.ShouldBe(renderedPipeline.Documents);
+            result.ReadConcern.ShouldBeSameAs(readConcern);
+            result.ResultSerializer.ShouldBeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
+            result.ResumeAfter.ShouldBeSameAs(options.ResumeAfter);
+            result.RetryRequested.ShouldBe(true);
+            result.StartAfter.ShouldBeSameAs(options.StartAfter);
+            result.StartAtOperationTime.ShouldBeSameAs(options.StartAtOperationTime);
         }
 
         [Fact]
@@ -131,21 +131,21 @@ namespace MongoDB.Driver.Tests
 
             var result = ChangeStreamHelper.CreateChangeStreamOperation(mockCollection.Object, pipeline, documentSerializer, options, readConcern, messageEncoderSettings, retryRequested: true, translationOptions: null);
 
-            result.BatchSize.Should().Be(options.BatchSize);
-            result.Collation.Should().BeSameAs(options.Collation);
-            result.CollectionNamespace.Should().BeSameAs(collectionNamespace);
-            result.DatabaseNamespace.Should().BeNull();
-            result.FullDocument.Should().Be(options.FullDocument);
-            result.FullDocumentBeforeChange.Should().Be(options.FullDocumentBeforeChange);
-            result.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
-            result.Pipeline.Should().Equal(renderedPipeline.Documents);
-            result.ReadConcern.Should().BeSameAs(readConcern);
-            result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
-            result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
-            result.RetryRequested.Should().Be(true);
-            result.StartAfter.Should().BeSameAs(options.StartAfter);
-            result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
+            result.BatchSize.ShouldBe(options.BatchSize);
+            result.Collation.ShouldBeSameAs(options.Collation);
+            result.CollectionNamespace.ShouldBeSameAs(collectionNamespace);
+            result.DatabaseNamespace.ShouldBeNull();
+            result.FullDocument.ShouldBe(options.FullDocument);
+            result.FullDocumentBeforeChange.ShouldBe(options.FullDocumentBeforeChange);
+            result.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            result.MessageEncoderSettings.ShouldBeSameAs(messageEncoderSettings);
+            result.Pipeline.ShouldBe(renderedPipeline.Documents);
+            result.ReadConcern.ShouldBeSameAs(readConcern);
+            result.ResultSerializer.ShouldBeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
+            result.ResumeAfter.ShouldBeSameAs(options.ResumeAfter);
+            result.RetryRequested.ShouldBe(true);
+            result.StartAfter.ShouldBeSameAs(options.StartAfter);
+            result.StartAtOperationTime.ShouldBeSameAs(options.StartAtOperationTime);
         }
 
         // private methods

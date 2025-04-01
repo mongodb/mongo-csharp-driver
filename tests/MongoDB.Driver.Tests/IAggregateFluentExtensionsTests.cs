@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests
                 result = mockSubject1.Object.First(cancellationToken);
             }
 
-            result.FirstName.Should().Be("John");
+            result.FirstName.ShouldBe("John");
         }
 #endif
 
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests
                 action = () => subject.First();
             }
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("aggregate");
         }
 
 #if WINDOWS
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Tests
                 result = mockSubject1.Object.FirstOrDefault(cancellationToken);
             }
 
-            result.FirstName.Should().Be("John");
+            result.FirstName.ShouldBe("John");
         }
 #endif
 
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Tests
                 action = () => subject.FirstOrDefault();
             }
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("aggregate");
         }
 
         [Fact]
@@ -365,7 +365,7 @@ namespace MongoDB.Driver.Tests
                 result = mockSubject1.Object.Single(cancellationToken);
             }
 
-            result.FirstName.Should().Be("John");
+            result.FirstName.ShouldBe("John");
         }
 #endif
 
@@ -386,7 +386,7 @@ namespace MongoDB.Driver.Tests
                 action = () => subject.Single();
             }
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("aggregate");
         }
 
 #if WINDOWS
@@ -424,7 +424,7 @@ namespace MongoDB.Driver.Tests
                 result = mockSubject1.Object.SingleOrDefault(cancellationToken);
             }
 
-            result.FirstName.Should().Be("John");
+            result.FirstName.ShouldBe("John");
         }
 #endif
 
@@ -445,7 +445,7 @@ namespace MongoDB.Driver.Tests
                 action = () => subject.SingleOrDefault();
             }
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("aggregate");
         }
 
         [Fact]

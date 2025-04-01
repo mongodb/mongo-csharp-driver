@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var collection = GetTestCollection(client, mongoUrl.DatabaseName);
 
             var exception = Record.Exception(() => { collection.CountDocuments(new BsonDocument()); });
-            var e = exception.Should().BeOfType<MongoCommandException>().Subject;
-            e.CodeName.Should().Be("Unauthorized");
+            var e = exception.ShouldBeOfType<MongoCommandException>();
+            e.CodeName.ShouldBe("Unauthorized");
         }
 
 
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 .FindSync(new BsonDocument())
                 .ToList();
 
-            result.Should().NotBeNull();
+            result.ShouldNotBeNull();
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var collection = GetTestCollection(client, mongoUrl.DatabaseName);
 
             var exception = Record.Exception(() => { collection.FindSync(new BsonDocument()).ToList(); });
-            exception.Should().BeOfType<MongoAuthenticationException>();
+            exception.ShouldBeOfType<MongoAuthenticationException>();
         }
 
         // private methods

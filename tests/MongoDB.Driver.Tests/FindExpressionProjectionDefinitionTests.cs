@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool renderForFind)
         {
             var expectedRenderedProjection = renderForFind switch
-            { 
+            {
                 true => "{ A : 1, X : '$B', _id : 0 }",
                 false => "{ A : '$A', X : '$B', _id : 0 }"
             };
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests
 
             var renderedProjection = projection.Render(new RenderArgs<Document>(documentSerializer, serializerRegistry, renderForFind: renderForFind));
 
-            renderedProjection.Document.Should().BeEquivalentTo(expectedRenderedProjection);
+            renderedProjection.Document.ShouldBeEquivalentTo(expectedRenderedProjection);
         }
 
         private class Document

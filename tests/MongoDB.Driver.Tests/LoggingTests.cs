@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests
                 client.ListDatabases(new ListDatabasesOptions());
             }
 
-            Logs.Any().Should().BeFalse();
+            Logs.Any().ShouldBeFalse();
         }
 
         [Theory]
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests
                 : new LoggingSettings(LoggerFactory, maxDocumentSize.Value);
             using (var client = DriverTestConfiguration.CreateMongoClient(loggingSettings))
             {
-                
+
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
 
                 try
@@ -121,11 +121,11 @@ namespace MongoDB.Driver.Tests
             var commands = Logs.Where(l => l.Category == commandCategory).ToArray();
 
             GetCommandParameter(commands, "insert", "Command started", StructuredLogTemplateProviders.Command)
-                .Length.Should().Be(expectedMaxSize);
+                .Length.ShouldBe(expectedMaxSize);
             GetCommandParameter(commands, "insert", "Command succeeded", StructuredLogTemplateProviders.Reply)
-                .Length.Should().BeLessOrEqualTo(expectedMaxSize);
+                .Length.ShouldBeLessThanOrEqualTo(expectedMaxSize);
             GetCommandParameter(commands, "find", "Command succeeded", StructuredLogTemplateProviders.Reply)
-                .Length.Should().Be(expectedMaxSize);
+                .Length.ShouldBe(expectedMaxSize);
         }
 
         [Fact]
@@ -150,11 +150,11 @@ namespace MongoDB.Driver.Tests
             var commands = Logs.Where(l => l.Category == commandCategory).ToArray();
 
             GetCommandParameter(commands, "hello", "Command started", StructuredLogTemplateProviders.Command)
-                .Length.Should().Be(maxDocumentSize);
+                .Length.ShouldBe(maxDocumentSize);
             GetCommandParameter(commands, "hello", "Command succeeded", StructuredLogTemplateProviders.Reply)
-                .Length.Should().Be(maxDocumentSize);
+                .Length.ShouldBe(maxDocumentSize);
             GetCommandParameter(commands, "notARealCommand", "Command failed", StructuredLogTemplateProviders.Failure)
-                .Length.Should().Be(maxDocumentSize);
+                .Length.ShouldBe(maxDocumentSize);
         }
 
         private void AssertLogs((LogLevel logLevel, string categorySubString, string messageSubString)[] expectedLogs, LogEntry[] actualLogs)

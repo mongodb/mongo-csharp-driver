@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new CreateViewOptions<BsonDocument>();
 
-            subject.Collation.Should().BeNull();
-            subject.DocumentSerializer.Should().BeNull();
-            subject.SerializerRegistry.Should().BeNull();
+            subject.Collation.ShouldBeNull();
+            subject.DocumentSerializer.ShouldBeNull();
+            subject.SerializerRegistry.ShouldBeNull();
         }
 
         [Theory]
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests
             subject.Collation = value;
             var result = subject.Collation;
 
-            result.Should().BeSameAs(value);
+            result.ShouldBeSameAs(value);
         }
 
         [Theory]
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests
             subject.DocumentSerializer = documentSerializer;
             var result = subject.DocumentSerializer;
 
-            result.Should().BeSameAs(documentSerializer);
+            result.ShouldBeSameAs(documentSerializer);
         }
 
         [Theory]
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests
             subject.SerializerRegistry = value;
             var result = subject.SerializerRegistry;
 
-            result.Should().BeSameAs(value);
+            result.ShouldBeSameAs(value);
         }
     }
 }

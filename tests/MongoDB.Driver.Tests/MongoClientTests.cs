@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Tests
         {
             var exception = Record.Exception(() => new MongoClient((MongoClientSettings)null));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("settings");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("settings");
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests
             var clusterId = client.Cluster.ClusterId;
             client.Dispose();
 
-            ClusterRegistry.Instance._registry().Values.Should().Contain(c => c.ClusterId == clusterId);
+            ClusterRegistry.Instance._registry().Values.ShouldContain(c => c.ClusterId == clusterId);
         }
 
         [Fact]
@@ -117,10 +117,10 @@ namespace MongoDB.Driver.Tests
             client.Dispose();
 
             var exception = Record.Exception(() => client.Cluster);
-            exception.Should().BeOfType<ObjectDisposedException>();
+            exception.ShouldBeOfType<ObjectDisposedException>();
 
             exception = Record.Exception(() => client.StartImplicitSession(default));
-            exception.Should().BeOfType<ObjectDisposedException>();
+            exception.ShouldBeOfType<ObjectDisposedException>();
         }
 
         [Theory]
@@ -162,17 +162,17 @@ namespace MongoDB.Driver.Tests
             var call = operationExecutor.GetWriteCall<BsonDocument>();
             if (usingSession)
             {
-                call.SessionId.Should().BeSameAs(session.ServerSession.Id);
+                call.SessionId.ShouldBeSameAs(session.ServerSession.Id);
             }
             else
             {
-                call.UsedImplicitSession.Should().BeTrue();
+                call.UsedImplicitSession.ShouldBeTrue();
             }
-            call.CancellationToken.Should().Be(cancellationToken);
+            call.CancellationToken.ShouldBe(cancellationToken);
 
-            var dropDatabaseOperation = call.Operation.Should().BeOfType<DropDatabaseOperation>().Subject;
-            dropDatabaseOperation.DatabaseNamespace.Should().Be(new DatabaseNamespace("awesome"));
-            dropDatabaseOperation.WriteConcern.Should().BeSameAs(writeConcern);
+            var dropDatabaseOperation = call.Operation.ShouldBeOfType<DropDatabaseOperation>();
+            dropDatabaseOperation.DatabaseNamespace.ShouldBe(new DatabaseNamespace("awesome"));
+            dropDatabaseOperation.WriteConcern.ShouldBeSameAs(writeConcern);
         }
 
         [Theory]
@@ -249,18 +249,18 @@ namespace MongoDB.Driver.Tests
 
             if (usingSession)
             {
-                call.SessionId.Should().BeSameAs(session.ServerSession.Id);
+                call.SessionId.ShouldBeSameAs(session.ServerSession.Id);
             }
             else
             {
-                call.UsedImplicitSession.Should().BeTrue();
+                call.UsedImplicitSession.ShouldBeTrue();
             }
 
-            call.CancellationToken.Should().Be(cancellationToken);
+            call.CancellationToken.ShouldBe(cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<ListDatabasesOperation>().Subject;
-            operation.NameOnly.Should().Be(true);
-            databaseNames.Should().Equal(operationResult["databases"].AsBsonArray.Select(record => record["name"].AsString));
+            var operation = call.Operation.ShouldBeOfType<ListDatabasesOperation>();
+            operation.NameOnly.ShouldBe(true);
+            databaseNames.ShouldBe(operationResult["databases"].AsBsonArray.Select(record => record["name"].AsString));
         }
 
         private IAsyncCursor<BsonDocument> CreateListDatabasesOperationCursor(BsonDocument reply)
@@ -315,17 +315,17 @@ namespace MongoDB.Driver.Tests
             var call = operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
             if (usingSession)
             {
-                call.SessionId.Should().BeSameAs(session.ServerSession.Id);
+                call.SessionId.ShouldBeSameAs(session.ServerSession.Id);
             }
             else
             {
-                call.UsedImplicitSession.Should().BeTrue();
+                call.UsedImplicitSession.ShouldBeTrue();
             }
-            call.CancellationToken.Should().Be(cancellationToken);
+            call.CancellationToken.ShouldBe(cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<ListDatabasesOperation>().Subject;
-            operation.Filter.Should().Be(filterDocument);
-            operation.NameOnly.Should().Be(nameOnly);
+            var operation = call.Operation.ShouldBeOfType<ListDatabasesOperation>();
+            operation.Filter.ShouldBe(filterDocument);
+            operation.NameOnly.ShouldBe(nameOnly);
         }
 
         [Theory]
@@ -379,28 +379,28 @@ namespace MongoDB.Driver.Tests
             var call = operationExecutor.GetReadCall<IChangeStreamCursor<ChangeStreamDocument<BsonDocument>>>();
             if (usingSession)
             {
-                call.SessionId.Should().BeSameAs(session.ServerSession.Id);
+                call.SessionId.ShouldBeSameAs(session.ServerSession.Id);
             }
             else
             {
-                call.UsedImplicitSession.Should().BeTrue();
+                call.UsedImplicitSession.ShouldBeTrue();
             }
-            call.CancellationToken.Should().Be(cancellationToken);
+            call.CancellationToken.ShouldBe(cancellationToken);
 
-            var changeStreamOperation = call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>().Subject;
-            changeStreamOperation.BatchSize.Should().Be(options.BatchSize);
-            changeStreamOperation.Collation.Should().BeSameAs(options.Collation);
-            changeStreamOperation.CollectionNamespace.Should().BeNull();
-            changeStreamOperation.DatabaseNamespace.Should().BeNull();
-            changeStreamOperation.FullDocument.Should().Be(options.FullDocument);
-            changeStreamOperation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            changeStreamOperation.MessageEncoderSettings.Should().NotBeNull();
-            changeStreamOperation.Pipeline.Should().Equal(renderedPipeline);
-            changeStreamOperation.ReadConcern.Should().Be(clientSettings.ReadConcern);
-            changeStreamOperation.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
-            changeStreamOperation.ResumeAfter.Should().Be(options.ResumeAfter);
-            changeStreamOperation.StartAfter.Should().Be(options.StartAfter);
-            changeStreamOperation.StartAtOperationTime.Should().Be(options.StartAtOperationTime);
+            var changeStreamOperation = call.Operation.ShouldBeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>();
+            changeStreamOperation.BatchSize.ShouldBe(options.BatchSize);
+            changeStreamOperation.Collation.ShouldBeSameAs(options.Collation);
+            changeStreamOperation.CollectionNamespace.ShouldBeNull();
+            changeStreamOperation.DatabaseNamespace.ShouldBeNull();
+            changeStreamOperation.FullDocument.ShouldBe(options.FullDocument);
+            changeStreamOperation.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            changeStreamOperation.MessageEncoderSettings.ShouldNotBeNull();
+            changeStreamOperation.Pipeline.ShouldBe(renderedPipeline);
+            changeStreamOperation.ReadConcern.ShouldBe(clientSettings.ReadConcern);
+            changeStreamOperation.ResultSerializer.ShouldBeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
+            changeStreamOperation.ResumeAfter.ShouldBe(options.ResumeAfter);
+            changeStreamOperation.StartAfter.ShouldBe(options.StartAfter);
+            changeStreamOperation.StartAtOperationTime.ShouldBe(options.StartAtOperationTime);
         }
 
         [Fact]
@@ -412,9 +412,9 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.WithReadConcern(newReadConcern);
 
-            subject.Settings.ReadConcern.Should().BeSameAs(originalReadConcern);
-            result.Settings.ReadConcern.Should().BeSameAs(newReadConcern);
-            result.WithReadConcern(originalReadConcern).Settings.Should().Be(subject.Settings);
+            subject.Settings.ReadConcern.ShouldBeSameAs(originalReadConcern);
+            result.Settings.ReadConcern.ShouldBeSameAs(newReadConcern);
+            result.WithReadConcern(originalReadConcern).Settings.ShouldBe(subject.Settings);
         }
 
         [Fact]
@@ -426,9 +426,9 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.WithReadPreference(newReadPreference);
 
-            subject.Settings.ReadPreference.Should().BeSameAs(originalReadPreference);
-            result.Settings.ReadPreference.Should().BeSameAs(newReadPreference);
-            result.WithReadPreference(originalReadPreference).Settings.Should().Be(subject.Settings);
+            subject.Settings.ReadPreference.ShouldBeSameAs(originalReadPreference);
+            result.Settings.ReadPreference.ShouldBeSameAs(newReadPreference);
+            result.WithReadPreference(originalReadPreference).Settings.ShouldBe(subject.Settings);
         }
 
         [Fact]
@@ -440,9 +440,9 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.WithWriteConcern(newWriteConcern);
 
-            subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
-            result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
-            result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
+            subject.Settings.WriteConcern.ShouldBeSameAs(originalWriteConcern);
+            result.Settings.WriteConcern.ShouldBeSameAs(newWriteConcern);
+            result.WithWriteConcern(originalWriteConcern).Settings.ShouldBe(subject.Settings);
         }
 
         // private methods

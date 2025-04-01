@@ -15,7 +15,7 @@
 
 using System;
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using Moq;
 using Xunit;
@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests
 
             var result = new ServerSession(coreServerSession);
 
-            result._coreServerSession().Should().BeSameAs(coreServerSession);
+            result._coreServerSession().ShouldBeSameAs(coreServerSession);
         }
 
         [Fact]
@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Tests
         {
             var exception = Record.Exception(() => new ServerSession(null));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("coreServerSession");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("coreServerSession");
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.Id;
 
-            result.Should().BeSameAs(id);
+            result.ShouldBeSameAs(id);
             mockCoreServerSession.VerifyGet(m => m.Id, Times.Once);
         }
 
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.LastUsedAt;
 
-            result.Should().Be(lastUsedAt);
+            result.ShouldBe(lastUsedAt);
             mockCoreServerSession.VerifyGet(m => m.LastUsedAt, Times.Once);
         }
 
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.AdvanceTransactionNumber();
 #pragma warning restore
 
-            result.Should().Be(-1);
+            result.ShouldBe(-1);
             mockCoreServerSession.Verify(m => m.AdvanceTransactionNumber(), Times.Never);
         }
 

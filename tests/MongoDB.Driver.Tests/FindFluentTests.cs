@@ -16,7 +16,7 @@
 using System;
 using System.Reflection;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -325,10 +325,10 @@ namespace MongoDB.Driver.Tests
 
             var str = find.ToString();
 
-            var expectedProjection = 
+            var expectedProjection =
                 "{ \"_v\" : { \"$concat\" : [\"$FirstName\", \" \", \"$LastName\"] }, \"_id\" : 0 }";
 
-            str.Should().Be(
+            str.ShouldBe(
                 "find({ \"Age\" : 20 }, " + expectedProjection + ")" +
                 ".collation({ \"locale\" : \"en_US\" })" +
                 ".sort({ \"LastName\" : 1, \"FirstName\" : -1 })" +

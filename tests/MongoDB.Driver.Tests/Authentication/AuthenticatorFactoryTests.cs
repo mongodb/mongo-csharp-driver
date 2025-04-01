@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Driver.Authentication;
 using Moq;
 using Xunit;
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Authentication
         {
             var exception = Record.Exception(() => new AuthenticatorFactory(null));
 
-            exception.Should().BeOfType<ArgumentNullException>();
+            exception.ShouldBeOfType<ArgumentNullException>();
         }
 
         [Fact]

@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
 using Xunit;
@@ -36,9 +36,9 @@ namespace MongoDB.Driver.Tests
 
             var result = WriteModel<BsonDocument>.FromCore(request);
 
-            result.Should().BeOfType<InsertOneModel<BsonDocument>>();
+            result.ShouldBeOfType<InsertOneModel<BsonDocument>>();
             var insertModel = (InsertOneModel<BsonDocument>)result;
-            insertModel.Document.Should().BeSameAs(document);
+            insertModel.Document.ShouldBeSameAs(document);
         }
 
         [Fact]
@@ -49,9 +49,9 @@ namespace MongoDB.Driver.Tests
 
             var result = WriteModel<TestClass>.FromCore(request);
 
-            result.Should().BeOfType<InsertOneModel<TestClass>>();
+            result.ShouldBeOfType<InsertOneModel<TestClass>>();
             var model = (InsertOneModel<TestClass>)result;
-            model.Document.Should().BeSameAs(document);
+            model.Document.ShouldBeSameAs(document);
         }
 
         [Theory]
@@ -71,11 +71,11 @@ namespace MongoDB.Driver.Tests
 
             var result = WriteModel<BsonDocument>.FromCore(request);
 
-            result.Should().BeOfType<ReplaceOneModel<BsonDocument>>();
+            result.ShouldBeOfType<ReplaceOneModel<BsonDocument>>();
             var model = (ReplaceOneModel<BsonDocument>)result;
-            ((BsonDocumentFilterDefinition<BsonDocument>)model.Filter).Document.Should().Be(filter);
-            model.Replacement.Should().BeSameAs(replacement);
-            model.IsUpsert.Should().Be(isUpsert);
+            ((BsonDocumentFilterDefinition<BsonDocument>)model.Filter).Document.ShouldBe(filter);
+            model.Replacement.ShouldBeSameAs(replacement);
+            model.IsUpsert.ShouldBe(isUpsert);
         }
 
         [Theory]
@@ -95,11 +95,11 @@ namespace MongoDB.Driver.Tests
 
             var result = WriteModel<TestClass>.FromCore(request);
 
-            result.Should().BeOfType<ReplaceOneModel<TestClass>>();
+            result.ShouldBeOfType<ReplaceOneModel<TestClass>>();
             var model = (ReplaceOneModel<TestClass>)result;
-            ((BsonDocumentFilterDefinition<TestClass>)model.Filter).Document.Should().Be(filter);
-            model.Replacement.Should().BeSameAs(replacement);
-            model.IsUpsert.Should().Be(isUpsert);
+            ((BsonDocumentFilterDefinition<TestClass>)model.Filter).Document.ShouldBe(filter);
+            model.Replacement.ShouldBeSameAs(replacement);
+            model.IsUpsert.ShouldBe(isUpsert);
         }
 
         [Theory]
@@ -119,11 +119,11 @@ namespace MongoDB.Driver.Tests
 
             var result = WriteModel<BsonDocument>.FromCore(request);
 
-            result.Should().BeOfType<UpdateManyModel<BsonDocument>>();
+            result.ShouldBeOfType<UpdateManyModel<BsonDocument>>();
             var model = (UpdateManyModel<BsonDocument>)result;
-            ((BsonDocumentFilterDefinition<BsonDocument>)model.Filter).Document.Should().BeSameAs(filter);
-            ((BsonDocumentUpdateDefinition<BsonDocument>)model.Update).Document.Should().BeSameAs(update);
-            model.IsUpsert.Should().Be(isUpsert);
+            ((BsonDocumentFilterDefinition<BsonDocument>)model.Filter).Document.ShouldBeSameAs(filter);
+            ((BsonDocumentUpdateDefinition<BsonDocument>)model.Update).Document.ShouldBeSameAs(update);
+            model.IsUpsert.ShouldBe(isUpsert);
         }
 
         private class TestClass

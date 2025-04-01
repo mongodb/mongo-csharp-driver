@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
@@ -90,8 +90,8 @@ namespace MongoDB.Driver.Tests
 
                 var exception = Record.Exception(() => collection.InsertOne(document));
 
-                var e = exception.Should().BeOfType<MongoCommandException>().Subject;
-                e.HasErrorLabel("RetryableWriteError").Should().BeFalse();
+                var e = exception.ShouldBeOfType<MongoCommandException>();
+                e.HasErrorLabel("RetryableWriteError").ShouldBeFalse();
             }
         }
 
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests
                 var document = new BsonDocument("x", 1);
                 var exception = Record.Exception(() => collection.InsertOne(document));
 
-                exception.Message.Should().Contain(
+                exception.Message.ShouldContain(
                     "This MongoDB deployment does not support retryable writes. " +
                     "Please add retryWrites=false to your connection string.");
             }
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Tests
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
 
-                commandStartedEvent.Command.GetValue("txnNumber").Should().Be(new BsonInt64(1));
+                commandStartedEvent.Command.GetValue("txnNumber").ShouldBe(new BsonInt64(1));
             }
         }
 
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Tests
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
 
-                commandStartedEvent.Command.GetValue("txnNumber").Should().Be(new BsonInt64(1));
+                commandStartedEvent.Command.GetValue("txnNumber").ShouldBe(new BsonInt64(1));
             }
         }
 
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
 
-                commandStartedEvent.Command.GetValue("txnNumber").Should().Be(new BsonInt64(1));
+                commandStartedEvent.Command.GetValue("txnNumber").ShouldBe(new BsonInt64(1));
             }
         }
 
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Tests
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
 
-                commandStartedEvent.Command.GetValue("txnNumber").Should().Be(new BsonInt64(1));
+                commandStartedEvent.Command.GetValue("txnNumber").ShouldBe(new BsonInt64(1));
             }
         }
 
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Tests
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
 
-                commandStartedEvent.Command.GetValue("txnNumber").Should().Be(new BsonInt64(1));
+                commandStartedEvent.Command.GetValue("txnNumber").ShouldBe(new BsonInt64(1));
             }
         }
 
@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Tests
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
 
-                commandStartedEvent.Command.GetValue("txnNumber").Should().Be(new BsonInt64(1));
+                commandStartedEvent.Command.GetValue("txnNumber").ShouldBe(new BsonInt64(1));
             }
         }
 
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Tests
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
 
-                commandStartedEvent.Command.GetValue("txnNumber").Should().Be(new BsonInt64(1));
+                commandStartedEvent.Command.GetValue("txnNumber").ShouldBe(new BsonInt64(1));
             }
         }
 

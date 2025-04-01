@@ -14,7 +14,7 @@
 */
 
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
@@ -62,9 +62,9 @@ namespace MongoDB.Driver.Tests
 
                 collection.CountDocuments(new BsonDocument());
 
-                customServerSelector.CustomSelectorWasCalled.Should().BeTrue();
-                eventCapturer.Next().Should().BeOfType<ClusterSelectingServerEvent>();
-                eventCapturer.Next().Should().BeOfType<ClusterSelectedServerEvent>();
+                customServerSelector.CustomSelectorWasCalled.ShouldBeTrue();
+                eventCapturer.Next().ShouldBeOfType<ClusterSelectingServerEvent>();
+                eventCapturer.Next().ShouldBeOfType<ClusterSelectedServerEvent>();
             }
         }
 

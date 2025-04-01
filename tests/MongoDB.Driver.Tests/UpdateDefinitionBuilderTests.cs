@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -652,7 +652,7 @@ namespace MongoDB.Driver.Tests
         {
             var renderedUpdate = Render(update).AsBsonDocument;
 
-            renderedUpdate.Should().Be(expected);
+            renderedUpdate.ShouldBe(expected);
         }
 
         private void Assert<TDocument>(UpdateDefinition<TDocument> update, string[] expectedArrayItems)
@@ -660,7 +660,7 @@ namespace MongoDB.Driver.Tests
             var renderedUpdate = Render(update).AsBsonArray;
 
             var bsonArray = new BsonArray(expectedArrayItems.Select(BsonDocument.Parse));
-            renderedUpdate.Should().Be(bsonArray);
+            renderedUpdate.ShouldBe(bsonArray);
         }
 
         private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected)
@@ -671,8 +671,8 @@ namespace MongoDB.Driver.Tests
         private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage) where TException : Exception
         {
             var exception = Record.Exception(() => { Render(update); });
-            exception.Should().BeOfType<TException>();
-            exception.Message.Should().Contain(errorMessage);
+            exception.ShouldBeOfType<TException>();
+            exception.Message.ShouldContain(errorMessage);
         }
 
         private UpdateDefinitionBuilder<TDocument> CreateSubject<TDocument>()

@@ -16,7 +16,7 @@
 using System;
 using System.Net;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Clusters;
@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Authentication
@@ -78,16 +79,16 @@ namespace MongoDB.Driver.Tests.Authentication
                 subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
+            sentMessages.Count.ShouldBe(1);
 
             var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+            actualRequestId.ShouldBeInRange(expectedRequestId, expectedRequestId + 10);
 
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", $db : \"$external\"{expectedServerApiString} }} }} ] }}");
+            sentMessages[0].ShouldBe($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", $db : \"$external\"{expectedServerApiString} }} }} ] }}");
         }
 
         [Theory]
@@ -113,16 +114,16 @@ namespace MongoDB.Driver.Tests.Authentication
                 subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
+            sentMessages.Count.ShouldBe(1);
 
             var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+            actualRequestId.ShouldBeInRange(expectedRequestId, expectedRequestId + 10);
 
             var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", $db : \"$external\"{expectedEndString} }} }} ] }}");
+            sentMessages[0].ShouldBe($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", $db : \"$external\"{expectedEndString} }} }} ] }}");
         }
 
 
@@ -205,7 +206,7 @@ namespace MongoDB.Driver.Tests.Authentication
                 exception = Record.Exception(() => subject.Authenticate(connection, description, CancellationToken.None));
             }
 
-            exception.Should().BeNull();
+            exception.ShouldBeNull();
         }
 
         // private methods

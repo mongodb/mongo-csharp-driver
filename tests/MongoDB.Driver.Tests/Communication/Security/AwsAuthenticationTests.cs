@@ -16,8 +16,9 @@
 using System;
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         {
             var isEcs = Environment.GetEnvironmentVariable("AWS_ECS_ENABLED") != null;
             var awsContainerUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") ?? Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI");
-            (awsContainerUri != null).Should().Be(isEcs);
+            (awsContainerUri != null).ShouldBe(isEcs);
         }
 
         [Fact]
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             {
                 var appConfigAWSCredentialsException = Record.Exception(() => RunTestCase());
                 // app.config/web.config case is based on ConfigurationManager. This is not configured for this test
-                appConfigAWSCredentialsException.Message.Should().Contain("The app.config/web.config files for the application did not contain credential information");
+                appConfigAWSCredentialsException.Message.ShouldContain("The app.config/web.config files for the application did not contain credential information");
             }
 
             // AssumeRoleWithWebIdentityCredentials.FromEnvironmentVariables()
@@ -84,13 +85,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
             if (Environment.GetEnvironmentVariable("AWS_WEB_IDENTITY_TOKEN_FILE") != null)
             {
                 // aws-web-identity-credentials is configured
-                exception.Should().BeNull();
-                credentials.Should().BeOfType<AssumeRoleWithWebIdentityCredentials>();
+                exception.ShouldBeNull();
+                credentials.ShouldBeOfType<AssumeRoleWithWebIdentityCredentials>();
             }
             else
             {
                 // otherwise fail
-                exception.Message.Should().Contain("webIdentityTokenFile");
+                exception.Message.ShouldContain("webIdentityTokenFile");
             }
 
             // GetAWSCredentials (Profile)
@@ -100,13 +101,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 // current machine contains configured aws profile, which may include:
                 // 1. BasicAWSCredentials (aws_access_key_id and aws_secret_access_key)
                 // 2. SessionAWSCredentials (aws_access_key_id, aws_secret_access_key, aws_session_token)
-                exception.Should().BeNull();
-                credentials.Should().Match(x => x is BasicAWSCredentials || x is SessionAWSCredentials);
+                exception.ShouldBeNull();
+                credentials.ShouldMatch(x => x is BasicAWSCredentials || x is SessionAWSCredentials);
             }
             else
             {
                 // otherwise fail
-                exception.Message.Should().Contain("Credential").And.Subject.Should().Contain("profile");
+                exception.Message.ShouldSatisfyAllConditions(m => m.ShouldContain("Credential"), m => m.ShouldContain("profile"));
             }
 
             // EnvironmentVariablesAWSCredentials
@@ -114,29 +115,29 @@ namespace MongoDB.Driver.Tests.Communication.Security
             if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") != null && Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") != null)
             {
                 // environment variables code path
-                exception.Should().BeNull();
-                credentials.Should().BeOfType<EnvironmentVariablesAWSCredentials>();
+                exception.ShouldBeNull();
+                credentials.ShouldBeOfType<EnvironmentVariablesAWSCredentials>();
             }
             else
             {
                 // otherwise fail
-                exception.Message.Should().Contain("The environment variables").And.Subject.Contains("were not set with AWS credentials");
+                exception.Message.ShouldSatisfyAllConditions(m => m.ShouldContain("The environment variables"), m => m.ShouldContain("were not set with AWS credentials"));
             }
 
             // ECSEC2CredentialsWrapper
             exception = Record.Exception(() => RunTestCase());
             if (Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") != null || Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI") != null)
             {
-                exception.Should().BeNull();
-                credentials.Should().BeOfType<ECSTaskCredentials>();
+                exception.ShouldBeNull();
+                credentials.ShouldBeOfType<ECSTaskCredentials>();
             }
             else
             {
-                exception.Should().BeNull();
-                credentials.GetType().Name.Should().Contain("DefaultInstanceProfileAWSCredentials"); // EC2 case
+                exception.ShouldBeNull();
+                credentials.GetType().Name.ShouldContain("DefaultInstanceProfileAWSCredentials"); // EC2 case
             }
 
-            credentialsGeneratorsDelegatesEnumerator.MoveNext().Should().BeFalse(); // no more handlers
+            credentialsGeneratorsDelegatesEnumerator.MoveNext().ShouldBeFalse(); // no more handlers
 
             bool IsWithAwsProfileOnMachine()
             {
@@ -160,7 +161,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             void RunTestCase()
             {
                 credentials = null;
-                credentialsGeneratorsDelegatesEnumerator.MoveNext().Should().BeTrue();
+                credentialsGeneratorsDelegatesEnumerator.MoveNext().ShouldBeTrue();
                 credentials = credentialsGeneratorsDelegatesEnumerator.Current();
             }
         }

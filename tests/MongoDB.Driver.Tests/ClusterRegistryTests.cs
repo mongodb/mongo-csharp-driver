@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Authentication;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
@@ -50,10 +50,10 @@ namespace MongoDB.Driver.Tests
             var cluster = clusterSource.Get(clusterKey);
 
             var clusterInRegistry = ClusterRegistry.Instance._registry()[clusterKey];
-            clusterInRegistry.Should().BeSameAs(cluster);
+            clusterInRegistry.ShouldBeSameAs(cluster);
 
             clusterSource.Return(cluster);
-            ClusterRegistry.Instance._registry().Keys.Should().Contain(clusterKey);
+            ClusterRegistry.Instance._registry().Keys.ShouldContain(clusterKey);
         }
 
         [Fact]
@@ -67,10 +67,10 @@ namespace MongoDB.Driver.Tests
             var cluster = clusterSource.Get(clusterKey);
 
             var clusterInRegistry = ClusterRegistry.Instance._registry()[clusterKey];
-            clusterInRegistry.Should().BeSameAs(cluster);
+            clusterInRegistry.ShouldBeSameAs(cluster);
 
             clusterSource.Return(cluster);
-            ClusterRegistry.Instance._registry().Keys.Should().NotContain(clusterKey);
+            ClusterRegistry.Instance._registry().Keys.ShouldNotContain(clusterKey);
         }
 
 #if WINDOWS
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject1 = ClusterRegistry.Instance;
             var subject2 = ClusterRegistry.Instance;
-            subject2.Should().BeSameAs(subject1);
+            subject2.ShouldBeSameAs(subject1);
         }
 
         [Fact]
@@ -159,19 +159,19 @@ namespace MongoDB.Driver.Tests
                     new IPEndPoint(IPAddress.Parse("127.0.0.1"), 30000),
                     new IPEndPoint(IPAddress.Parse("[::1]"), 27018)
                 };
-                cluster.Settings.CryptClientSettings.EncryptedFieldsMap.Should().BeEquivalentTo(dummyMap);
-                cluster.Settings.CryptClientSettings.KmsProviders.Should().BeEquivalentTo(kmsProviders);
-                cluster.Settings.DirectConnection.Should().Be(clusterKey.DirectConnection);
-                cluster.Settings.EndPoints.Should().Equal(expectedEndPoints);
-                cluster.Settings.LoadBalanced.Should().Be(clusterKey.LoadBalanced);
-                cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(clusterKey.WaitQueueSize);
-                cluster.Settings.ReplicaSetName.Should().Be(clusterKey.ReplicaSetName);
-                cluster.Settings.CryptClientSettings.SchemaMap.Should().BeEquivalentTo(dummyMap);
-                cluster.Settings.Scheme.Should().Be(clusterKey.Scheme);
-                cluster.Settings.ServerApi.Should().Be(clusterKey.ServerApi);
-                cluster.Settings.ServerSelectionTimeout.Should().Be(clusterKey.ServerSelectionTimeout);
+                cluster.Settings.CryptClientSettings.EncryptedFieldsMap.ShouldBeEquivalentTo(dummyMap);
+                cluster.Settings.CryptClientSettings.KmsProviders.ShouldBeEquivalentTo(kmsProviders);
+                cluster.Settings.DirectConnection.ShouldBe(clusterKey.DirectConnection);
+                cluster.Settings.EndPoints.ShouldBe(expectedEndPoints);
+                cluster.Settings.LoadBalanced.ShouldBe(clusterKey.LoadBalanced);
+                cluster.Settings.MaxServerSelectionWaitQueueSize.ShouldBe(clusterKey.WaitQueueSize);
+                cluster.Settings.ReplicaSetName.ShouldBe(clusterKey.ReplicaSetName);
+                cluster.Settings.CryptClientSettings.SchemaMap.ShouldBeEquivalentTo(dummyMap);
+                cluster.Settings.Scheme.ShouldBe(clusterKey.Scheme);
+                cluster.Settings.ServerApi.ShouldBe(clusterKey.ServerApi);
+                cluster.Settings.ServerSelectionTimeout.ShouldBe(clusterKey.ServerSelectionTimeout);
 
-                cluster.Description.Servers.Select(s => s.EndPoint).Should().BeEquivalentTo(expectedEndPoints);
+                cluster.Description.Servers.Select(s => s.EndPoint).ShouldBeEquivalentTo(expectedEndPoints);
 
                 // TODO: don't know how to test the rest of the settings because they are all private to the cluster
             }
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Tests
             using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey()))
             using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey()))
             {
-                cluster2.Should().NotBeSameAs(cluster1);
+                cluster2.ShouldNotBeSameAs(cluster1);
             }
         }
 
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Tests
             using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey()))
             using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey()))
             {
-                cluster2.Should().BeSameAs(cluster1);
+                cluster2.ShouldBeSameAs(cluster1);
             }
         }
 
@@ -217,8 +217,8 @@ namespace MongoDB.Driver.Tests
 
             subject.UnregisterAndDisposeCluster(cluster);
 
-            subject._registry().Count.Should().Be(0);
-            cluster._state().Should().Be(2);
+            subject._registry().Count.ShouldBe(0);
+            cluster._state().ShouldBe(2);
         }
 #endif
     }

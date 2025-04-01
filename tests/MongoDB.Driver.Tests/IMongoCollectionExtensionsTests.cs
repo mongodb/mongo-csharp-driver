@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -48,11 +48,11 @@ namespace MongoDB.Driver.Tests
                 result = collection.Aggregate(options);
             }
 
-            var fluent = result.Should().BeOfType<CollectionAggregateFluent<Person, Person>>().Subject;
-            fluent._collection().Should().BeSameAs(collection);
-            fluent._options().Should().BeSameAs(options);
-            fluent._pipeline().Should().BeOfType<EmptyPipelineDefinition<Person>>();
-            fluent._session().Should().BeSameAs(session);
+            var fluent = result.ShouldBeOfType<CollectionAggregateFluent<Person, Person>>();
+            fluent._collection().ShouldBeSameAs(collection);
+            fluent._options().ShouldBeSameAs(options);
+            fluent._pipeline().ShouldBeOfType<EmptyPipelineDefinition<Person>>();
+            fluent._session().ShouldBeSameAs(session);
         }
 
         [Theory]
@@ -74,11 +74,11 @@ namespace MongoDB.Driver.Tests
                 result = collection.AsQueryable(options);
             }
 
-            var queryable = result.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQuery<Person, Person>>().Subject;
-            var provider = queryable.Provider.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQueryProvider<Person>>().Subject;
-            provider._collection().Should().BeSameAs(collection);
-            provider._options().Should().BeSameAs(options);
-            provider._session().Should().BeSameAs(session);
+            var queryable = result.ShouldBeOfType<Driver.Linq.Linq3Implementation.MongoQuery<Person, Person>>();
+            var provider = queryable.Provider.ShouldBeOfType<Driver.Linq.Linq3Implementation.MongoQueryProvider<Person>>();
+            provider._collection().ShouldBeSameAs(collection);
+            provider._options().ShouldBeSameAs(options);
+            provider._session().ShouldBeSameAs(session);
         }
 
         [Theory]
@@ -622,14 +622,14 @@ namespace MongoDB.Driver.Tests
                 if (usingFilterExpression)
                 {
                     var result = collection.Find(session, filterExpression, options);
-                    fluent = result.Should().BeOfType<FindFluent<Person, Person>>().Subject;
-                    fluent._filter().Should().BeOfType<ExpressionFilterDefinition<Person>>();
+                    fluent = result.ShouldBeOfType<FindFluent<Person, Person>>();
+                    fluent._filter().ShouldBeOfType<ExpressionFilterDefinition<Person>>();
                 }
                 else
                 {
                     var result = collection.Find(session, filterDefinition, options);
-                    fluent = result.Should().BeOfType<FindFluent<Person, Person>>().Subject;
-                    fluent._filter().Should().BeSameAs(filterDefinition);
+                    fluent = result.ShouldBeOfType<FindFluent<Person, Person>>();
+                    fluent._filter().ShouldBeSameAs(filterDefinition);
                 }
             }
             else
@@ -637,32 +637,32 @@ namespace MongoDB.Driver.Tests
                 if (usingFilterExpression)
                 {
                     var result = collection.Find(filterExpression, options);
-                    fluent = result.Should().BeOfType<FindFluent<Person, Person>>().Subject;
-                    fluent._filter().Should().BeOfType<ExpressionFilterDefinition<Person>>();
+                    fluent = result.ShouldBeOfType<FindFluent<Person, Person>>();
+                    fluent._filter().ShouldBeOfType<ExpressionFilterDefinition<Person>>();
                 }
                 else
                 {
                     var result = collection.Find(filterDefinition, options);
-                    fluent = result.Should().BeOfType<FindFluent<Person, Person>>().Subject;
-                    fluent._filter().Should().BeSameAs(filterDefinition);
+                    fluent = result.ShouldBeOfType<FindFluent<Person, Person>>();
+                    fluent._filter().ShouldBeSameAs(filterDefinition);
                 }
             }
 
-            fluent._collection().Should().BeSameAs(collection);
-            fluent._session().Should().BeSameAs(session);
+            fluent._collection().ShouldBeSameAs(collection);
+            fluent._session().ShouldBeSameAs(session);
 
             var actualOptions = fluent._options();
-            actualOptions.AllowDiskUse.Should().Be(options.AllowDiskUse);
-            actualOptions.AllowPartialResults.Should().Be(options.AllowPartialResults);
-            actualOptions.BatchSize.Should().Be(options.BatchSize);
-            actualOptions.Collation.Should().Be(options.Collation);
-            actualOptions.Comment.Should().Be(options.Comment);
-            actualOptions.CursorType.Should().Be(options.CursorType);
-            actualOptions.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
-            actualOptions.MaxTime.Should().Be(options.MaxTime);
-            actualOptions.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+            actualOptions.AllowDiskUse.ShouldBe(options.AllowDiskUse);
+            actualOptions.AllowPartialResults.ShouldBe(options.AllowPartialResults);
+            actualOptions.BatchSize.ShouldBe(options.BatchSize);
+            actualOptions.Collation.ShouldBe(options.Collation);
+            actualOptions.Comment.ShouldBe(options.Comment);
+            actualOptions.CursorType.ShouldBe(options.CursorType);
+            actualOptions.MaxAwaitTime.ShouldBe(options.MaxAwaitTime);
+            actualOptions.MaxTime.ShouldBe(options.MaxTime);
+            actualOptions.NoCursorTimeout.ShouldBe(options.NoCursorTimeout);
 #pragma warning disable 618
-            actualOptions.OplogReplay.Should().Be(options.OplogReplay);
+            actualOptions.OplogReplay.ShouldBe(options.OplogReplay);
 #pragma warning restore 618
         }
 

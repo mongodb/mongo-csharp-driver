@@ -20,7 +20,7 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -47,7 +48,7 @@ namespace MongoDB.Driver.Tests
             var allowInsecureTls = true;
             settings.AllowInsecureTls = allowInsecureTls;
             Assert.Equal(allowInsecureTls, settings.AllowInsecureTls);
-            settings.SslSettings.CheckCertificateRevocation.Should().BeFalse();
+            settings.SslSettings.CheckCertificateRevocation.ShouldBeFalse();
 
             settings.Freeze();
             Assert.Equal(allowInsecureTls, settings.AllowInsecureTls);
@@ -77,8 +78,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => subject.ApplicationName = value);
 
-            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
-            argumentException.ParamName.Should().Be("value");
+            var argumentException = exception.ShouldBeOfType<ArgumentException>();
+            argumentException.ParamName.ShouldBe("value");
         }
 
         [Fact]
@@ -129,10 +130,10 @@ namespace MongoDB.Driver.Tests
             var settings = MongoClientSettings.FromUrl(url);
 
             // a few settings can only be made in code
-            settings.DirectConnection.Should().BeFalse();
+            settings.DirectConnection.ShouldBeFalse();
 
             var cloned = settings.Clone();
-            cloned.Should().Be(settings);
+            cloned.ShouldBe(settings);
         }
 
         [Fact]
@@ -145,7 +146,7 @@ namespace MongoDB.Driver.Tests
 
             var clone = settings.Clone();
 
-            clone.Should().Be(settings);
+            clone.ShouldBe(settings);
         }
 
         [Fact]
@@ -158,7 +159,7 @@ namespace MongoDB.Driver.Tests
 
             var clone = settings.Clone();
 
-            clone.Should().Be(settings);
+            clone.ShouldBe(settings);
         }
 
         [Fact]
@@ -171,7 +172,7 @@ namespace MongoDB.Driver.Tests
 
             var clone = settings.Clone();
 
-            clone.Should().Be(settings);
+            clone.ShouldBe(settings);
         }
 
         [Fact]
@@ -285,31 +286,31 @@ namespace MongoDB.Driver.Tests
         public void TestDirectConnection()
         {
             var settings = new MongoClientSettings();
-            settings.DirectConnection.Should().BeFalse();
+            settings.DirectConnection.ShouldBeFalse();
 
             var directConnection = true;
             settings.DirectConnection = directConnection;
-            settings.DirectConnection.Should().Be(directConnection);
+            settings.DirectConnection.ShouldBe(directConnection);
 
             settings.Freeze();
-            settings.DirectConnection.Should().Be(directConnection);
+            settings.DirectConnection.ShouldBe(directConnection);
             var exception = Record.Exception(() => settings.DirectConnection = false);
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
 
         [Fact]
         public void TestlibraryInfo()
         {
             var settings = new MongoClientSettings();
-            settings.LibraryInfo.Should().BeNull();
+            settings.LibraryInfo.ShouldBeNull();
 
             var libraryInfo = new LibraryInfo("lib_name", "1.0.0");
             settings.LibraryInfo = libraryInfo;
 
             settings.Freeze();
-            settings.LibraryInfo.Should().Be(libraryInfo);
+            settings.LibraryInfo.ShouldBe(libraryInfo);
             var exception = Record.Exception(() => settings.LibraryInfo = null);
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -566,7 +567,7 @@ namespace MongoDB.Driver.Tests
                 setAction(settings);
 
                 var exception = Record.Exception(() => settings.Freeze());
-                exception.Should().BeOfType<InvalidOperationException>();
+                exception.ShouldBeOfType<InvalidOperationException>();
             }
         }
 
@@ -645,7 +646,7 @@ namespace MongoDB.Driver.Tests
 
             var settings = MongoClientSettings.FromUrl(url);
 
-            settings.SslSettings.Should().Be(new SslSettings { CheckCertificateRevocation = !url.TlsDisableCertificateRevocationCheck });
+            settings.SslSettings.ShouldBe(new SslSettings { CheckCertificateRevocation = !url.TlsDisableCertificateRevocationCheck });
         }
 
         [Fact]
@@ -657,7 +658,7 @@ namespace MongoDB.Driver.Tests
 
             var settings = MongoClientSettings.FromUrl(url);
 
-            settings.LoadBalanced.Should().Be(url.LoadBalanced);
+            settings.LoadBalanced.ShouldBe(url.LoadBalanced);
         }
 
         [Fact]
@@ -669,7 +670,7 @@ namespace MongoDB.Driver.Tests
 
             var settings = MongoClientSettings.FromUrl(url);
 
-            settings.AllowInsecureTls.Should().Be(url.AllowInsecureTls);
+            settings.AllowInsecureTls.ShouldBe(url.AllowInsecureTls);
         }
 
         [Theory]
@@ -683,7 +684,7 @@ namespace MongoDB.Driver.Tests
 
             var settings = MongoClientSettings.FromUrl(url);
 
-            settings.MaxConnectionPoolSize.Should().Be(expectedValue);
+            settings.MaxConnectionPoolSize.ShouldBe(expectedValue);
         }
 
         [Fact]
@@ -725,9 +726,9 @@ namespace MongoDB.Driver.Tests
 
             var result = MongoClientSettings.FromUrl(url).Credential;
 
-            result.Mechanism.Should().Be(authMechanism);
-            result.Username.Should().Be(username);
-            result.GetMechanismProperty("AWS_SESSION_TOKEN", string.Empty).Should().Be(awsSessionToken);
+            result.Mechanism.ShouldBe(authMechanism);
+            result.Username.ShouldBe(username);
+            result.GetMechanismProperty("AWS_SESSION_TOKEN", string.Empty).ShouldBe(awsSessionToken);
         }
 
         [Fact]
@@ -794,15 +795,15 @@ namespace MongoDB.Driver.Tests
         public void TestLoadBalanced()
         {
             var settings = new MongoClientSettings();
-            settings.LoadBalanced.Should().BeFalse();
+            settings.LoadBalanced.ShouldBeFalse();
 
             var loadBalanaced = true;
             settings.LoadBalanced = loadBalanaced;
-            settings.LoadBalanced.Should().Be(loadBalanaced);
+            settings.LoadBalanced.ShouldBe(loadBalanaced);
 
             settings.Freeze();
-            settings.LoadBalanced.Should().Be(loadBalanaced);
-            Record.Exception(() => { settings.LoadBalanced= loadBalanaced; }).Should().BeOfType<InvalidOperationException>();
+            settings.LoadBalanced.ShouldBe(loadBalanaced);
+            Record.Exception(() => { settings.LoadBalanced= loadBalanaced; }).ShouldBeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -841,23 +842,23 @@ namespace MongoDB.Driver.Tests
         public void TestMaxConnecting()
         {
             var settings = new MongoClientSettings();
-            settings.MaxConnecting.Should().Be(MongoInternalDefaults.ConnectionPool.MaxConnecting);
+            settings.MaxConnecting.ShouldBe(MongoInternalDefaults.ConnectionPool.MaxConnecting);
 
             var maxConnecting = 3;
             settings.MaxConnecting = maxConnecting;
-            settings.MaxConnecting.Should().Be(maxConnecting);
+            settings.MaxConnecting.ShouldBe(maxConnecting);
 
             var exception = Record.Exception(() => settings.MaxConnecting = 0);
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.ShouldBeOfType<ArgumentOutOfRangeException>();
 
             exception = Record.Exception(() => settings.MaxConnecting = -1);
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.ShouldBeOfType<ArgumentOutOfRangeException>();
 
             settings.Freeze();
 
-            settings.MaxConnecting.Should().Be(maxConnecting);
+            settings.MaxConnecting.ShouldBe(maxConnecting);
             exception = Record.Exception(() => settings.MaxConnecting = maxConnecting);
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -1039,17 +1040,17 @@ namespace MongoDB.Driver.Tests
         public void TestServerApi()
         {
             var settings = new MongoClientSettings();
-            settings.ServerApi.Should().BeNull();
+            settings.ServerApi.ShouldBeNull();
 
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             settings.ServerApi = serverApi;
-            settings.ServerApi.Should().Be(serverApi);
+            settings.ServerApi.ShouldBe(serverApi);
 
             settings.Freeze();
-            settings.ServerApi.Should().Be(serverApi);
+            settings.ServerApi.ShouldBe(serverApi);
             var exception = Record.Exception(() => { settings.ServerApi = serverApi; });
 
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -1106,7 +1107,7 @@ namespace MongoDB.Driver.Tests
             };
             settings.Servers = servers;
 
-            settings.Servers.Should().HaveCount(2);
+            settings.Servers.ShouldHaveCount(2);
         }
 
         [Fact]
@@ -1178,7 +1179,7 @@ namespace MongoDB.Driver.Tests
         public void TestSslSettings()
         {
             var settings = new MongoClientSettings();
-            settings.SslSettings.Should().BeNull();
+            settings.SslSettings.ShouldBeNull();
 
             var sslSettings = new SslSettings { CheckCertificateRevocation = false };
             settings.SslSettings = sslSettings;
@@ -1231,7 +1232,7 @@ namespace MongoDB.Driver.Tests
             var verifySslCertificate = false;
             settings.VerifySslCertificate = verifySslCertificate;
             Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);
-            settings.SslSettings.CheckCertificateRevocation.Should().BeFalse();
+            settings.SslSettings.CheckCertificateRevocation.ShouldBeFalse();
 
             settings.Freeze();
             Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);
@@ -1335,55 +1336,55 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.ToClusterKey();
 
-            result.AllowInsecureTls.Should().Be(subject.AllowInsecureTls);
-            result.ApplicationName.Should().Be(subject.ApplicationName);
-            result.ClusterConfigurator.Should().BeSameAs(clusterConfigurator);
-            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
-            result.Credential.Should().Be(subject.Credential);
-            result.DirectConnection.Should().Be(subject.DirectConnection);
-            result.LibraryInfo.Should().Be(subject.LibraryInfo);
-            result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
-            result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
-            result.IPv6.Should().Be(subject.IPv6);
-            result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.LoggingSettings.Should().Be(subject.LoggingSettings);
-            result.MaxConnecting.Should().Be(subject.MaxConnecting);
-            result.MaxConnectionIdleTime.Should().Be(subject.MaxConnectionIdleTime);
-            result.MaxConnectionLifeTime.Should().Be(subject.MaxConnectionLifeTime);
-            result.MaxConnectionPoolSize.Should().Be(subject.MaxConnectionPoolSize);
-            result.MinConnectionPoolSize.Should().Be(subject.MinConnectionPoolSize);
-            result.ReceiveBufferSize.Should().Be(MongoDefaults.TcpReceiveBufferSize);
-            result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
-            result.Scheme.Should().Be(subject.Scheme);
-            result.SendBufferSize.Should().Be(MongoDefaults.TcpSendBufferSize);
-            result.ServerApi.Should().Be(subject.ServerApi);
-            result.Servers.Should().Equal(subject.Servers);
-            result.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Poll);
-            result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
-            result.SocketTimeout.Should().Be(subject.SocketTimeout);
-            result.SslSettings.Should().Be(subject.SslSettings);
-            result.UseTls.Should().Be(subject.UseTls);
+            result.AllowInsecureTls.ShouldBe(subject.AllowInsecureTls);
+            result.ApplicationName.ShouldBe(subject.ApplicationName);
+            result.ClusterConfigurator.ShouldBeSameAs(clusterConfigurator);
+            result.ConnectTimeout.ShouldBe(subject.ConnectTimeout);
+            result.Credential.ShouldBe(subject.Credential);
+            result.DirectConnection.ShouldBe(subject.DirectConnection);
+            result.LibraryInfo.ShouldBe(subject.LibraryInfo);
+            result.HeartbeatInterval.ShouldBe(subject.HeartbeatInterval);
+            result.HeartbeatTimeout.ShouldBe(subject.HeartbeatTimeout);
+            result.IPv6.ShouldBe(subject.IPv6);
+            result.LocalThreshold.ShouldBe(subject.LocalThreshold);
+            result.LoggingSettings.ShouldBe(subject.LoggingSettings);
+            result.MaxConnecting.ShouldBe(subject.MaxConnecting);
+            result.MaxConnectionIdleTime.ShouldBe(subject.MaxConnectionIdleTime);
+            result.MaxConnectionLifeTime.ShouldBe(subject.MaxConnectionLifeTime);
+            result.MaxConnectionPoolSize.ShouldBe(subject.MaxConnectionPoolSize);
+            result.MinConnectionPoolSize.ShouldBe(subject.MinConnectionPoolSize);
+            result.ReceiveBufferSize.ShouldBe(MongoDefaults.TcpReceiveBufferSize);
+            result.ReplicaSetName.ShouldBe(subject.ReplicaSetName);
+            result.Scheme.ShouldBe(subject.Scheme);
+            result.SendBufferSize.ShouldBe(MongoDefaults.TcpSendBufferSize);
+            result.ServerApi.ShouldBe(subject.ServerApi);
+            result.Servers.ShouldBe(subject.Servers);
+            result.ServerMonitoringMode.ShouldBe(ServerMonitoringMode.Poll);
+            result.ServerSelectionTimeout.ShouldBe(subject.ServerSelectionTimeout);
+            result.SocketTimeout.ShouldBe(subject.SocketTimeout);
+            result.SslSettings.ShouldBe(subject.SslSettings);
+            result.UseTls.ShouldBe(subject.UseTls);
 #pragma warning disable 618
-            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
+            result.WaitQueueSize.ShouldBe(subject.WaitQueueSize);
 #pragma warning restore 618
-            result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
+            result.WaitQueueTimeout.ShouldBe(subject.WaitQueueTimeout);
         }
 
         [Fact]
         public void TestSrvServiceName()
         {
             var subject = new MongoClientSettings { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
-            subject.SrvServiceName.Should().Be(MongoInternalDefaults.MongoClientSettings.SrvServiceName);
+            subject.SrvServiceName.ShouldBe(MongoInternalDefaults.MongoClientSettings.SrvServiceName);
 
             var srvServicName = "customname";
             subject.SrvServiceName = srvServicName;
-            subject.SrvServiceName.Should().Be(srvServicName);
+            subject.SrvServiceName.ShouldBe(srvServicName);
 
             subject.Freeze();
-            subject.SrvServiceName.Should().Be(srvServicName);
+            subject.SrvServiceName.ShouldBe(srvServicName);
 
             var exception = Record.Exception(() => subject.SrvServiceName = srvServicName);
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
 
         [Theory]
@@ -1391,16 +1392,16 @@ namespace MongoDB.Driver.Tests
         public void TestSrvMaxHosts([Values(0, 1, 5)]int srvMaxHosts)
         {
             var subject = new MongoClientSettings { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
-            subject.SrvMaxHosts.Should().Be(0);
+            subject.SrvMaxHosts.ShouldBe(0);
 
             subject.SrvMaxHosts = srvMaxHosts;
-            subject.SrvMaxHosts.Should().Be(srvMaxHosts);
+            subject.SrvMaxHosts.ShouldBe(srvMaxHosts);
 
             subject.Freeze();
-            subject.SrvMaxHosts.Should().Be(srvMaxHosts);
+            subject.SrvMaxHosts.ShouldBe(srvMaxHosts);
 
             var exception = Record.Exception(() => subject.SrvMaxHosts = int.MaxValue);
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -1410,7 +1411,7 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => subject.SrvMaxHosts = -1);
 
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            exception.ShouldBeOfType<ArgumentOutOfRangeException>();
         }
 
         [Fact]
@@ -1420,7 +1421,7 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => subject.Freeze());
 
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -1430,7 +1431,7 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => subject.Freeze());
 
-            exception.Should().BeOfType<InvalidOperationException>();
+            exception.ShouldBeOfType<InvalidOperationException>();
         }
     }
 }

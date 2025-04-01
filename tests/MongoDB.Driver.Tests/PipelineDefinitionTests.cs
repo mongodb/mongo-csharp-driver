@@ -14,10 +14,11 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -36,9 +37,9 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => new PipelineStagePipelineDefinition<Person, Person>(stages));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("stages");
-            e.Message.Should().Contain($"The input type to stage[2] was expected to be {typeof(Pet)}, but was {typeof(BsonDocument)}.");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("stages");
+            e.Message.ShouldContain($"The input type to stage[2] was expected to be {typeof(Pet)}, but was {typeof(BsonDocument)}.");
         }
 
         [Fact]
@@ -53,9 +54,9 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => new PipelineStagePipelineDefinition<Person, Person>(stages));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("stages");
-            e.Message.Should().Contain($"The output type to the last stage was expected to be {typeof(Person)}, but was {typeof(BsonDocument)}.");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("stages");
+            e.Message.ShouldContain($"The output type to the last stage was expected to be {typeof(Person)}, but was {typeof(BsonDocument)}.");
         }
 
         [Fact]
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Tests
 
             Action act = () => new PipelineStagePipelineDefinition<Person, Person>(stages);
 
-            act.ShouldNotThrow<ArgumentException>();
+            act.ShouldNotThrow();
         }
 
         private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson)
@@ -78,7 +79,7 @@ namespace MongoDB.Driver.Tests
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedProjection = projection.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
-            renderedProjection.Should().Be(expectedJson);
+            renderedProjection.ShouldBe(expectedJson);
         }
 
         private ProjectionDefinitionBuilder<TDocument> CreateSubject<TDocument>()

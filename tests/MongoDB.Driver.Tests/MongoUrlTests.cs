@@ -17,11 +17,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -36,7 +37,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.MaxConnectionPoolSize;
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Fact]
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.MaxConnectionPoolSize;
 
-            result.Should().Be(MongoDefaults.MaxConnectionPoolSize);
+            result.ShouldBe(MongoDefaults.MaxConnectionPoolSize);
         }
 
         [Theory]
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.IsResolved;
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         [Theory]
@@ -72,7 +73,7 @@ namespace MongoDB.Driver.Tests
 
             var result = new MongoUrl(builder);
 
-            result.IsResolved.Should().Be(true);
+            result.IsResolved.ShouldBe(true);
         }
 
         [Theory]
@@ -93,7 +94,7 @@ namespace MongoDB.Driver.Tests
             }
 
             var expectedServers = new[] { MongoServerAddress.Parse(expectedServer) };
-            result.Servers.Should().Equal(expectedServers);
+            result.Servers.ShouldBe(expectedServers);
         }
 
         [Theory]
@@ -116,7 +117,7 @@ namespace MongoDB.Driver.Tests
             }
 
             var expectedServers = new[] { MongoServerAddress.Parse(expectedServer) };
-            result.Servers.Should().Equal(expectedServers);
+            result.Servers.ShouldBe(expectedServers);
         }
 
         [Theory]
@@ -138,7 +139,7 @@ namespace MongoDB.Driver.Tests
                 result = subject.Resolve(resolveHosts);
             }
 
-            result.SrvMaxHosts.Should().Be(expectedSrvMaxHosts);
+            result.SrvMaxHosts.ShouldBe(expectedSrvMaxHosts);
         }
 
         [Fact]
@@ -297,7 +298,7 @@ namespace MongoDB.Driver.Tests
             var connectionString = $"mongodb://localhost/{directConnectionString}";
             var url = new MongoUrl(connectionString);
 
-            url.DirectConnection.Should().Be(directConnection ?? false);
+            url.DirectConnection.ShouldBe(directConnection ?? false);
         }
 
         [Theory]
@@ -308,7 +309,7 @@ namespace MongoDB.Driver.Tests
             var connectionString = $"mongodb://localhost/{loadBalancedString}";
             var url = new MongoUrl(connectionString);
 
-            url.LoadBalanced.Should().Be(loadBalanced);
+            url.LoadBalanced.ShouldBe(loadBalanced);
         }
 
         [Theory]
@@ -321,8 +322,8 @@ namespace MongoDB.Driver.Tests
         {
             var url = new MongoUrl(value);
 
-            url.ReadPreference.MaxStaleness.Should().NotHaveValue();
-            url.ToString().Should().Be("mongodb://localhost/?readPreference=secondary");
+            url.ReadPreference.MaxStaleness.ShouldNotHaveValue();
+            url.ToString().ShouldBe("mongodb://localhost/?readPreference=secondary");
         }
 
         [Fact]
@@ -334,7 +335,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = subject.Resolve();
 
-            resolved.Should().BeSameAs(subject);
+            resolved.ShouldBeSameAs(subject);
         }
 
         [Fact]
@@ -375,7 +376,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
-                url.TlsDisableCertificateRevocationCheck.Should().Be(true);
+                url.TlsDisableCertificateRevocationCheck.ShouldBe(true);
             }
         }
 
@@ -387,7 +388,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
-                url.SrvServiceName.Should().Be("customname");
+                url.SrvServiceName.ShouldBe("customname");
             }
         }
 
@@ -398,7 +399,7 @@ namespace MongoDB.Driver.Tests
 
             var subject = new MongoUrl(connectionString);
 
-            subject.SrvMaxHosts.Should().Be(2);
+            subject.SrvMaxHosts.ShouldBe(2);
         }
 
         [Fact]
@@ -406,7 +407,7 @@ namespace MongoDB.Driver.Tests
         {
             var converter = TypeDescriptor.GetConverter(typeof(MongoUrl));
 
-            converter.Should().BeOfType<MongoUrlTypeConverter>();
+            converter.ShouldBeOfType<MongoUrlTypeConverter>();
         }
 
         [Fact]
@@ -416,7 +417,7 @@ namespace MongoDB.Driver.Tests
 
             var result = converter.ConvertFrom("mongodb://localhost");
 
-            result.Should().Be(new MongoUrl("mongodb://localhost"));
+            result.ShouldBe(new MongoUrl("mongodb://localhost"));
         }
 
         [Fact]
@@ -426,7 +427,7 @@ namespace MongoDB.Driver.Tests
 
             var result = converter.ConvertTo(new MongoUrl("mongodb://localhost"), typeof(string));
 
-            result.Should().Be("mongodb://localhost");
+            result.ShouldBe("mongodb://localhost");
         }
 
         // private methods

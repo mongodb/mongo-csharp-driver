@@ -14,8 +14,9 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -27,8 +28,8 @@ namespace MongoDB.Driver.Tests
         {
             var result = new EstimatedDocumentCountOptions();
 
-            result.Comment.Should().BeNull();
-            result.MaxTime.Should().NotHaveValue();
+            result.Comment.ShouldBeNull();
+            result.MaxTime.ShouldNotHaveValue();
         }
 
         [Theory]
@@ -41,7 +42,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.MaxTime;
 
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Tests
 
             subject.MaxTime = value;
 
-            subject.MaxTime.Should().Be(value);
+            subject.MaxTime.ShouldBe(value);
         }
     }
 }

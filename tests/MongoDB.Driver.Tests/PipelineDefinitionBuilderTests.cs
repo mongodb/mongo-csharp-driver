@@ -15,12 +15,13 @@
 
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Search;
+using MongoDB.Bson.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -54,8 +55,8 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.ChangeStream(options);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be(expectedStage);
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe(expectedStage);
         }
 
         [Fact]
@@ -67,8 +68,8 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.ChangeStream(options);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("{ $changeStream : { } }");
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe("{ $changeStream : { } }");
         }
 
         [Fact]
@@ -79,8 +80,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.ChangeStream(options));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("pipeline");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("pipeline");
         }
 
         [Fact]
@@ -92,8 +93,8 @@ namespace MongoDB.Driver.Tests
 
             var serializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var stages = RenderStages(result, serializer);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("{ $changeStreamSplitLargeEvent : { } }");
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe("{ $changeStreamSplitLargeEvent : { } }");
         }
 
         [Fact]
@@ -102,8 +103,8 @@ namespace MongoDB.Driver.Tests
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>> pipeline = null;
             var exception = Record.Exception(() => pipeline.ChangeStreamSplitLargeEvent());
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("pipeline");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("pipeline");
         }
 
         [Fact]
@@ -121,8 +122,8 @@ namespace MongoDB.Driver.Tests
                 new StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>("asValue")
             ));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("pipeline");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("pipeline");
         }
 
         [Fact]
@@ -137,8 +138,8 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Merge(outputCollection, mergeOptions);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("{ $merge : { into : { db : 'database', coll : 'collection' } } }");
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe("{ $merge : { into : { db : 'database', coll : 'collection' } } }");
         }
 
         [Fact]
@@ -154,8 +155,8 @@ namespace MongoDB.Driver.Tests
             var result = new EmptyPipelineDefinition<BsonDocument>().Out(outputCollection, timeSeriesOptions);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("{ $out: { db: 'database', coll: 'collection', timeseries: { timeField: 'time', metaField: 'symbol' } } }");
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe("{ $out: { db: 'database', coll: 'collection', timeseries: { timeField: 'time', metaField: 'symbol' } } }");
         }
 
         [Fact]
@@ -175,18 +176,18 @@ namespace MongoDB.Driver.Tests
                 new RankFusionOptions<BsonDocument> { ScoreDetails = true });
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("""
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "p1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }] 
-                                               } 
+                                                 "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                               }
                                            },
                                            "combination" : { "weights" : { "p1" : 0.3, "p2" : 0.7 } }
-                                           "scoreDetails" : true 
+                                           "scoreDetails" : true
                                       }
                                   }
                                   """);
@@ -202,15 +203,15 @@ namespace MongoDB.Driver.Tests
             ]);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("""
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }] 
-                                               } 
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                               }
                                            }
                                       }
                                   }
@@ -228,16 +229,16 @@ namespace MongoDB.Driver.Tests
             ]);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("""
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }], 
-                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }] 
-                                               } 
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }],
+                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }]
+                                               }
                                            },
                                            "combination" : { "weights" : { "pipeline1" : 0.3, "pipeline2" : 0.7 } }
                                       }
@@ -253,17 +254,17 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentNullException>(() =>
             {
                 pipeline.RankFusion((Dictionary<string, PipelineDefinition<BsonDocument, BsonDocument>>)null);
-            }).ParamName.Should().Be("pipeline");
+            }).ParamName.ShouldBe("pipeline");
 
             Assert.Throws<ArgumentNullException>(() =>
             {
                 pipeline.RankFusion((PipelineDefinition<BsonDocument, BsonDocument>[])null);
-            }).ParamName.Should().Be("pipeline");
+            }).ParamName.ShouldBe("pipeline");
 
             Assert.Throws<ArgumentNullException>(() =>
             {
                 pipeline.RankFusion(((PipelineDefinition<BsonDocument, BsonDocument>, double?)[])null);
-            }).ParamName.Should().Be("pipeline");
+            }).ParamName.ShouldBe("pipeline");
         }
 
         [Theory]
@@ -276,8 +277,8 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Sample(size);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages.Count.Should().Be(1);
-            stages[0].Should().Be("{ $sample: { size: " + size + " } }");
+            stages.Count.ShouldBe(1);
+            stages[0].ShouldBe("{ $sample: { size: " + size + " } }");
         }
 
         [Fact]
@@ -287,8 +288,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.Sample(15));
 
-            exception.Should().BeOfType<ArgumentNullException>()
-                .Which.ParamName.Should().Be("pipeline");
+            exception.ShouldBeOfType<ArgumentNullException>()
+                .ParamName.ShouldBe("pipeline");
         }
 
         [Fact]
@@ -298,8 +299,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.Sample(-1));
 
-            exception.Should().BeOfType<ArgumentOutOfRangeException>()
-                .Which.ParamName.Should().Be("size");
+            exception.ShouldBeOfType<ArgumentOutOfRangeException>()
+                .ParamName.ShouldBe("size");
         }
 
         [Fact]
@@ -311,7 +312,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Search(builder.Text("bar", "foo"));
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' } } }");
+            stages[0].ShouldBe("{ $search: { text: { query: 'foo', path: 'bar' } } }");
         }
 
         [Fact]
@@ -323,7 +324,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Search(builder.Text("bar", "foo"), new SearchHighlightOptions<BsonDocument>("foo"));
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().BeEquivalentTo("{ $search: { text: { query: 'foo', path: 'bar' }, highlight: { path: 'foo' } } }");
+            stages[0].ShouldBeEquivalentTo("{ $search: { text: { query: 'foo', path: 'bar' }, highlight: { path: 'foo' } } }");
         }
 
         [Fact]
@@ -335,7 +336,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Search(builder.Text("bar", "foo"), indexName: "foo");
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, index: 'foo' } }");
+            stages[0].ShouldBe("{ $search: { text: { query: 'foo', path: 'bar' }, index: 'foo' } }");
         }
 
         [Fact]
@@ -351,7 +352,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Search(builder.Text("bar", "foo"), count: count);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, count: { type: 'total' } } }");
+            stages[0].ShouldBe("{ $search: { text: { query: 'foo', path: 'bar' }, count: { type: 'total' } } }");
         }
 
         [Fact]
@@ -363,7 +364,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Search(builder.Text("bar", "foo"), returnStoredSource: true);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, returnStoredSource: true } }");
+            stages[0].ShouldBe("{ $search: { text: { query: 'foo', path: 'bar' }, returnStoredSource: true } }");
         }
 
         [Fact]
@@ -375,7 +376,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Search(builder.Text("bar", "foo"), scoreDetails: true);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, scoreDetails: true } }");
+            stages[0].ShouldBe("{ $search: { text: { query: 'foo', path: 'bar' }, scoreDetails: true } }");
         }
 
         [Fact]
@@ -388,7 +389,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Search(builder.Text("bar", "foo"), new() { Sort = sortBuilder.Ascending("foo") });
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, sort: { 'foo': 1 } } }");
+            stages[0].ShouldBe("{ $search: { text: { query: 'foo', path: 'bar' }, sort: { 'foo': 1 } } }");
         }
 
         [Fact]
@@ -407,7 +408,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.Search(builder.Text("bar", "foo"), searchOptions);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $search: { text: { query: 'foo', path: 'bar' }, tracking: { searchTerms: 'foo' } } }");
+            stages[0].ShouldBe("{ $search: { text: { query: 'foo', path: 'bar' }, tracking: { searchTerms: 'foo' } } }");
         }
 
         [Fact]
@@ -418,8 +419,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.Search(builder.Text("bar", "foo")));
 
-            exception.Should().BeOfType<ArgumentNullException>()
-                .Which.ParamName.Should().Be("pipeline");
+            exception.ShouldBeOfType<ArgumentNullException>()
+                .ParamName.ShouldBe("pipeline");
         }
 
         [Fact]
@@ -429,8 +430,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.Search(null));
 
-            exception.Should().BeOfType<ArgumentNullException>()
-                .Which.ParamName.Should().Be("searchDefinition");
+            exception.ShouldBeOfType<ArgumentNullException>()
+                .ParamName.ShouldBe("searchDefinition");
         }
 
         [Fact]
@@ -442,7 +443,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.SearchMeta(builder.Text("bar", "foo"));
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $searchMeta: { text: { query: 'foo', path: 'bar' } } }");
+            stages[0].ShouldBe("{ $searchMeta: { text: { query: 'foo', path: 'bar' } } }");
         }
 
         [Fact]
@@ -454,7 +455,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.SearchMeta(builder.Text("bar", "foo"), indexName: "foo");
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $searchMeta: { text: { query: 'foo', path: 'bar' }, index: 'foo' } }");
+            stages[0].ShouldBe("{ $searchMeta: { text: { query: 'foo', path: 'bar' }, index: 'foo' } }");
         }
 
         [Fact]
@@ -470,7 +471,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.SearchMeta(builder.Text("bar", "foo"), count: count);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $searchMeta: { text: { query: 'foo', path: 'bar' }, count: { type: 'total' } } }");
+            stages[0].ShouldBe("{ $searchMeta: { text: { query: 'foo', path: 'bar' }, count: { type: 'total' } } }");
         }
 
         [Fact]
@@ -481,8 +482,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.SearchMeta(builder.Text("bar", "foo")));
 
-            exception.Should().BeOfType<ArgumentNullException>()
-                .Which.ParamName.Should().Be("pipeline");
+            exception.ShouldBeOfType<ArgumentNullException>()
+                .ParamName.ShouldBe("pipeline");
         }
 
         [Fact]
@@ -492,8 +493,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.SearchMeta(null));
 
-            exception.Should().BeOfType<ArgumentNullException>()
-                .Which.ParamName.Should().Be("searchDefinition");
+            exception.ShouldBeOfType<ArgumentNullException>()
+                .ParamName.ShouldBe("searchDefinition");
         }
 
         [Fact]
@@ -508,7 +509,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.UnionWith(withCollection, withPipeline);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $unionWith : { coll : 'test', pipeline : [{ $match : { b : 1 } }] } }");
+            stages[0].ShouldBe("{ $unionWith : { coll : 'test', pipeline : [{ $match : { b : 1 } }] } }");
         }
 
         [Fact]
@@ -520,8 +521,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.UnionWith(withCollection, withPipeline));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("pipeline");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("pipeline");
         }
 
         [Fact]
@@ -533,9 +534,9 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.UnionWith(withCollection, withPipeline: null));
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().StartWith("The withPipeline cannot be null when TWith != TInput. A pipeline is required to transform the TWith documents to TInput documents.");
-            e.ParamName.Should().Be("withPipeline");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.Message.ShouldStartWith("The withPipeline cannot be null when TWith != TInput. A pipeline is required to transform the TWith documents to TInput documents.");
+            e.ParamName.ShouldBe("withPipeline");
         }
 
         [Fact]
@@ -547,8 +548,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.UnionWith(withCollection, withPipeline));
 
-            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumentNullException.ParamName.Should().Be("withCollection");
+            var argumentNullException = exception.ShouldBeOfType<ArgumentNullException>();
+            argumentNullException.ParamName.ShouldBe("withCollection");
         }
 
         [Fact]
@@ -558,7 +559,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index : 'default' } }");
+            stages[0].ShouldBe("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 10, index : 'default' } }");
         }
 
         [Fact]
@@ -568,7 +569,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1f, 2f, 3f }, 1);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0],  path: 'x', limit: 1, numCandidates: 10, index : 'default'  } }");
+            stages[0].ShouldBe("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0],  path: 'x', limit: 1, numCandidates: 10, index : 'default'  } }");
         }
 
         [Fact]
@@ -584,7 +585,7 @@ namespace MongoDB.Driver.Tests
             var result = pipeline.VectorSearch("x", new[] { 1.0, 2.0, 3.0 }, 1, options);
 
             var stages = RenderStages(result, BsonDocumentSerializer.Instance);
-            stages[0].Should().Be("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter : { $and : [{ x : { $eq : 1 } }, { y : { $eq : 2 } }] } } }");
+            stages[0].ShouldBe("{ $vectorSearch: { queryVector: [1.0, 2.0, 3.0], path: 'x', limit: 1, numCandidates: 123, index: 'index_name', filter : { $and : [{ x : { $eq : 1 } }, { y : { $eq : 2 } }] } } }");
         }
 
         [Fact]
@@ -594,8 +595,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => pipeline.VectorSearch("x", new[] { 1.0 }, 1));
 
-            exception.Should().BeOfType<ArgumentNullException>()
-                .Which.ParamName.Should().Be("pipeline");
+            exception.ShouldBeOfType<ArgumentNullException>()
+                .ParamName.ShouldBe("pipeline");
         }
 
         [Theory]
@@ -606,7 +607,7 @@ namespace MongoDB.Driver.Tests
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
 
             var exception = Record.Exception(() => pipeline.VectorSearch("x", queryVector, 1));
-            exception.Should().BeOfType<ArgumentException>().Which.ParamName.Should().Be("array");
+            exception.ShouldBeOfType<ArgumentException>().ParamName.ShouldBe("array");
         }
 
         // private methods

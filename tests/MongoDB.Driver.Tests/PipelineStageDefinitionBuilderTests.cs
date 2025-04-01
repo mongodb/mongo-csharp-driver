@@ -15,12 +15,13 @@
 
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Theory]
@@ -59,7 +60,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Theory]
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Theory]
@@ -93,7 +94,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Theory]
@@ -110,7 +111,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Fact]
@@ -121,7 +122,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be("{ $changeStream : { } }");
+            stage.Document.ShouldBe("{ $changeStream : { } }");
         }
 
         [Fact]
@@ -130,7 +131,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.ChangeStreamSplitLargeEvent<BsonDocument>();
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be("{ $changeStreamSplitLargeEvent : { } }");
+            stage.Document.ShouldBe("{ $changeStreamSplitLargeEvent : { } }");
         }
 
         [Fact]
@@ -147,7 +148,7 @@ namespace MongoDB.Driver.Tests
                 startWith: (ManyToOne x) => x.From,
                 @as: (ManyToOneResult x) => x.Matches);
 
-            RenderStage(result).Document.Should().Be(
+            RenderStage(result).Document.ShouldBe(
                 @"{
                     $graphLookup : {
                         from : 'collectionManyToOne',
@@ -173,7 +174,7 @@ namespace MongoDB.Driver.Tests
                 startWith: (OneToMany x) => x.From,
                 @as: (OneToManyResult x) => x.Matches);
 
-            RenderStage(result).Document.Should().Be(
+            RenderStage(result).Document.ShouldBe(
                 @"{
                     $graphLookup : {
                         from : 'collectionOneToMany',
@@ -199,7 +200,7 @@ namespace MongoDB.Driver.Tests
                 startWith: (OneToOne x) => x.From,
                 @as: (OneToOneResult x) => x.Matches);
 
-            RenderStage(result).Document.Should().Be(
+            RenderStage(result).Document.ShouldBe(
                 @"{
                     $graphLookup : {
                         from : 'collectionOneToOne',
@@ -242,7 +243,7 @@ namespace MongoDB.Driver.Tests
                 new StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>("stockdata")
             );
 
-            RenderStage(result).Document.Should().Be(@"
+            RenderStage(result).Document.ShouldBe(@"
                 {
                     '$lookup' :
                     {
@@ -287,7 +288,7 @@ namespace MongoDB.Driver.Tests
                 new StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>("stockdata")
             );
 
-            RenderStage(result).Document.Should().Be(@"
+            RenderStage(result).Document.ShouldBe(@"
                 {
                     '$lookup' :
                     {
@@ -311,7 +312,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Theory]
@@ -333,7 +334,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Theory]
@@ -349,7 +350,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Theory]
@@ -372,7 +373,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Theory]
@@ -389,7 +390,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
+            stage.Document.ShouldBe(expectedStage);
         }
 
         [Fact]
@@ -404,7 +405,7 @@ namespace MongoDB.Driver.Tests
 
             var result = PipelineStageDefinitionBuilder.Out(outputCollection, timeSeriesOptions);
 
-            RenderStage(result).Document.Should().Be("{ $out: { db: 'database', coll: 'collection', timeseries: { timeField: 'time', metaField: 'symbol' } } }");
+            RenderStage(result).Document.ShouldBe("{ $out: { db: 'database', coll: 'collection', timeseries: { timeField: 'time', metaField: 'symbol' } } }");
         }
 
         public class Order
@@ -457,7 +458,7 @@ namespace MongoDB.Driver.Tests
                 order => order.StockData
             );
 
-            RenderStage(result).Document.Should().Be(@"
+            RenderStage(result).Document.ShouldBe(@"
                 {
                     '$lookup' :
                     {

@@ -14,7 +14,7 @@
  */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -26,30 +26,30 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new ExpressionTranslationOptions();
 
-            subject.CompatibilityLevel.Should().Be(null);
-            subject.EnableClientSideProjections.Should().Be(null);
+            subject.CompatibilityLevel.ShouldBe(null);
+            subject.EnableClientSideProjections.ShouldBe(null);
         }
 
         [Fact]
         public void CompatibilityLevel_should_return_expected_result()
         {
             var subject = new ExpressionTranslationOptions();
-            subject.CompatibilityLevel.Should().Be(null);
+            subject.CompatibilityLevel.ShouldBe(null);
 
             subject.CompatibilityLevel = ServerVersion.Server26;
 
-            subject.CompatibilityLevel.Should().Be(ServerVersion.Server26);
+            subject.CompatibilityLevel.ShouldBe(ServerVersion.Server26);
         }
 
         [Fact]
         public void EnableClientSideProjections_should_return_expected_result()
         {
             var subject = new ExpressionTranslationOptions();
-            subject.EnableClientSideProjections.Should().Be(null);
+            subject.EnableClientSideProjections.ShouldBe(null);
 
             subject.EnableClientSideProjections = false;
 
-            subject.EnableClientSideProjections.Should().Be(false);
+            subject.EnableClientSideProjections.ShouldBe(false);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests
 
             var result = x.Equals(null);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Tests
 
             var result = x.Equals(x);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Tests
 
             var result = x.Equals(y);
 
-            result.Should().Be(true);
+            result.ShouldBe(true);
         }
 
         [Theory]
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests
 
             var result = x.Equals(y);
 
-            result.Should().Be(false);
+            result.ShouldBe(false);
         }
 
         [Fact]
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests
 
             var result = x.GetHashCode();
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Theory]
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.ToString();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
     }
 }

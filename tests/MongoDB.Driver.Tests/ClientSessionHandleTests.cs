@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -59,13 +59,13 @@ namespace MongoDB.Driver.Tests
 
             var result = new ClientSessionHandle(client, options, coreSession);
 
-            result.Client.Should().BeSameAs(client);
-            result.Options.Should().BeSameAs(options);
-            result.WrappedCoreSession.Should().BeSameAs(coreSession);
-            result._disposed().Should().BeFalse();
+            result.Client.ShouldBeSameAs(client);
+            result.Options.ShouldBeSameAs(options);
+            result.WrappedCoreSession.ShouldBeSameAs(coreSession);
+            result._disposed().ShouldBeFalse();
 
-            var serverSession = result.ServerSession.Should().BeOfType<ServerSession>().Subject;
-            serverSession._coreServerSession().Should().BeSameAs(coreSession.ServerSession);
+            var serverSession = result.ServerSession.ShouldBeOfType<ServerSession>();
+            serverSession._coreServerSession().ShouldBeSameAs(coreSession.ServerSession);
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.Client;
 
-            result.Should().BeSameAs(client);
+            result.ShouldBeSameAs(client);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.ClusterTime;
 
-            result.Should().BeSameAs(value);
+            result.ShouldBeSameAs(value);
         }
 
         [Theory]
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.IsImplicit;
 
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.IsInTransaction;
 
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Fact]
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.OperationTime;
 
-            result.Should().BeSameAs(value);
+            result.ShouldBeSameAs(value);
         }
 
         [Fact]
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.Options;
 
-            result.Should().BeSameAs(options);
+            result.ShouldBeSameAs(options);
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.ServerSession;
 
-            result.Should().BeSameAs(subject._serverSession());
+            result.ShouldBeSameAs(subject._serverSession());
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.WrappedCoreSession;
 
-            result.Should().BeSameAs(coreSession);
+            result.ShouldBeSameAs(coreSession);
         }
 
         [Fact]
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.AbortTransactionAsync(cancellationToken);
 
-            result.Should().BeSameAs(task);
+            result.ShouldBeSameAs(task);
             Mock.Get(subject.WrappedCoreSession).Verify(m => m.AbortTransactionAsync(cancellationToken), Times.Once);
         }
 
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.CommitTransactionAsync(cancellationToken);
 
-            result.Should().BeSameAs(task);
+            result.ShouldBeSameAs(task);
             Mock.Get(subject.WrappedCoreSession).Verify(m => m.CommitTransactionAsync(cancellationToken), Times.Once);
         }
 
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Tests
                 subject.Dispose();
             }
 
-            subject._disposed().Should().BeTrue();
+            subject._disposed().ShouldBeTrue();
             Mock.Get(subject.WrappedCoreSession).Verify(m => m.Dispose(), Times.Once);
         }
 
@@ -255,17 +255,17 @@ namespace MongoDB.Driver.Tests
             var coreSession = new CoreSession(cluster, coreServerSession, options.ToCore());
             var coreSessionHandle = new CoreSessionHandle(coreSession);
             var subject = CreateSubject(coreSession: coreSessionHandle);
-            coreSessionHandle.ReferenceCount().Should().Be(1);
+            coreSessionHandle.ReferenceCount().ShouldBe(1);
 
             var result = subject.Fork();
 
-            result.Client.Should().BeSameAs(subject.Client);
-            result.Options.Should().BeSameAs(subject.Options);
-            result.WrappedCoreSession.Should().NotBeSameAs(subject.WrappedCoreSession);
+            result.Client.ShouldBeSameAs(subject.Client);
+            result.Options.ShouldBeSameAs(subject.Options);
+            result.WrappedCoreSession.ShouldNotBeSameAs(subject.WrappedCoreSession);
             var coreSessionHandle1 = (CoreSessionHandle)subject.WrappedCoreSession;
             var coreSessionHandle2 = (CoreSessionHandle)result.WrappedCoreSession;
-            coreSessionHandle2.Wrapped.Should().BeSameAs(coreSessionHandle1.Wrapped);
-            coreSessionHandle.ReferenceCount().Should().Be(2);
+            coreSessionHandle2.Wrapped.ShouldBeSameAs(coreSessionHandle1.Wrapped);
+            coreSessionHandle.ReferenceCount().ShouldBe(2);
         }
 
         [Fact]
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Tests
                 else
                 {
                     var withTransactionResult = subject.WithTransactionAsync(async (handle, cancellationToken) => await mockCallbackProcessing.Object.CallbackAsync(It.IsAny<IClientSessionHandle>())).Result;
-                    withTransactionResult.Should().BeTrue();
+                    withTransactionResult.ShouldBeTrue();
                     if (isTransactionInProgress)
                     {
                         var expectedAbortTransactionNumberOfCalls = callbackTransactionErrorStates.Count(c => c != WithTransactionErrorState.NoError);
@@ -405,7 +405,7 @@ namespace MongoDB.Driver.Tests
                 else
                 {
                     var withTransactionResult = subject.WithTransaction((handle, cancellationToken) => mockCallbackProcessing.Object.Callback(It.IsAny<IClientSessionHandle>()));
-                    withTransactionResult.Should().BeTrue();
+                    withTransactionResult.ShouldBeTrue();
                     if (isTransactionInProgress)
                     {
                         var expectedAbortTransactionNumberOfCalls = callbackTransactionErrorStates.Count(c => c != WithTransactionErrorState.NoError);
@@ -431,7 +431,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var result = subject.WithTransaction<object>((handle, cancellationToken) => value);
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Fact]
@@ -466,7 +466,7 @@ namespace MongoDB.Driver.Tests
             {
                 throw PrepareException(WithTransactionErrorState.TransientTransactionError);
             }));
-            exResult.HasErrorLabel(TransientTransactionErrorLabel).Should().BeTrue();
+            exResult.HasErrorLabel(TransientTransactionErrorLabel).ShouldBeTrue();
         }
 
         [Theory]
@@ -486,7 +486,7 @@ namespace MongoDB.Driver.Tests
             {
                 throw PrepareException(WithTransactionErrorState.UnknownTransactionCommitResult);
             }));
-            exResult.HasErrorLabel(UnknownTransactionCommitResultLabel).Should().BeTrue();
+            exResult.HasErrorLabel(UnknownTransactionCommitResultLabel).ShouldBeTrue();
         }
 
         [Theory]
@@ -576,7 +576,7 @@ namespace MongoDB.Driver.Tests
                 else
                 {
                     var result = TransactionExecutorReflector.CommitWithRetriesAsync(subject, now, mockClock.Object, CancellationToken.None).Result;
-                    expectedFullTransactionBeRetriedState.Should().Be(result);
+                    expectedFullTransactionBeRetriedState.ShouldBe(result);
                 }
 
                 mockCoreSession.Verify(handle => handle.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Exactly(expectedCommitTransactionAttempts));
@@ -590,7 +590,7 @@ namespace MongoDB.Driver.Tests
                 else
                 {
                     var result = TransactionExecutorReflector.CommitWithRetries(subject, now, mockClock.Object, CancellationToken.None);
-                    expectedFullTransactionBeRetriedState.Should().Be(result);
+                    expectedFullTransactionBeRetriedState.ShouldBe(result);
                 }
 
                 mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Exactly(expectedCommitTransactionAttempts));
@@ -607,7 +607,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.WithTransaction<object>((session, cancellationToken) => session);
 
-            result.Should().BeSameAs(subject);
+            result.ShouldBeSameAs(subject);
         }
 
         [Theory]

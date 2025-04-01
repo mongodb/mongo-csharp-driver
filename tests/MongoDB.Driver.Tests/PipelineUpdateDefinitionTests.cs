@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject("{ $addFields : { x : 2 } }");
             var result = subject.ToString();
-            result.Should().Be("[{ \"$addFields\" : { \"x\" : 2 } }]");
+            result.ShouldBe("[{ \"$addFields\" : { \"x\" : 2 } }]");
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
                 .AppendStage("{ $addFields : { x : 2 } }", BsonDocumentSerializer.Instance);
             var subject = CreateSubject(pipeline);
             var result = subject.ToString();
-            result.Should().Be("[{ \"$addFields\" : { \"x\" : 2 } }]");
+            result.ShouldBe("[{ \"$addFields\" : { \"x\" : 2 } }]");
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
                 .ReplaceWith((AggregateExpressionDefinition<BsonDocument, BsonDocument>)"{ _id : \"$_id\", s : { $sum : [\"$X\", \"$Y\"] } }");
             var subject = CreateSubject(pipeline);
             var result = subject.ToString();
-            result.Should().Be("[{ \"$replaceWith\" : { \"_id\" : \"$_id\", \"s\" : { \"$sum\" : [\"$X\", \"$Y\"] } } }]");
+            result.ShouldBe("[{ \"$replaceWith\" : { \"_id\" : \"$_id\", \"s\" : { \"$sum\" : [\"$X\", \"$Y\"] } } }]");
         }
 
         private PipelineUpdateDefinition<BsonDocument> CreateSubject(params string[] stages)

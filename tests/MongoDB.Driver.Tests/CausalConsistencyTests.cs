@@ -17,7 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests
             using (var client = GetClient(new EventCapturer()))
             using (var session = client.StartSession())
             {
-                session.OperationTime.Should().BeNull();
+                session.OperationTime.ShouldBeNull();
             }
         }
 
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
-                commandStartedEvent.Command.GetValue("readConcern", null).Should().BeNull();
+                commandStartedEvent.Command.GetValue("readConcern", null).ShouldBeNull();
             }
         }
 
@@ -80,10 +80,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
-                commandStartedEvent.Command.GetValue("readConcern", null).Should().BeNull();
+                commandStartedEvent.Command.GetValue("readConcern", null).ShouldBeNull();
 
                 var commandSucceededEvent = (CommandSucceededEvent)events.Next();
-                session.OperationTime.Should().Be(commandSucceededEvent.Reply.GetValue("operationTime"));
+                session.OperationTime.ShouldBe(commandSucceededEvent.Reply.GetValue("operationTime"));
             }
         }
 
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests
                     .FindSync(session, FilterDefinition<BsonDocument>.Empty, new FindOptions<BsonDocument, BsonDocument> { Limit = 1 });
 
                 var commandSucceededEvent = (CommandSucceededEvent)events.Next();
-                session.OperationTime.Should().Be(commandSucceededEvent.Reply.GetValue("operationTime"));
+                session.OperationTime.ShouldBe(commandSucceededEvent.Reply.GetValue("operationTime"));
                 var operationTime = session.OperationTime;
 
 #pragma warning disable 618
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
-                commandStartedEvent.Command["readConcern"]["afterClusterTime"].AsBsonTimestamp.Should().Be(operationTime);
+                commandStartedEvent.Command["readConcern"]["afterClusterTime"].AsBsonTimestamp.ShouldBe(operationTime);
             }
         }
 
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Tests
                     .InsertOne(session, new BsonDocument("x", 1));
 
                 var commandSucceededEvent = (CommandSucceededEvent)events.Next();
-                session.OperationTime.Should().Be(commandSucceededEvent.Reply.GetValue("operationTime"));
+                session.OperationTime.ShouldBe(commandSucceededEvent.Reply.GetValue("operationTime"));
                 var operationTime = session.OperationTime;
 
 #pragma warning disable 618
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
-                commandStartedEvent.Command["readConcern"]["afterClusterTime"].AsBsonTimestamp.Should().Be(operationTime);
+                commandStartedEvent.Command["readConcern"]["afterClusterTime"].AsBsonTimestamp.ShouldBe(operationTime);
             }
         }
 
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
-                commandStartedEvent.Command.Contains("readConcern").Should().BeFalse();
+                commandStartedEvent.Command.Contains("readConcern").ShouldBeFalse();
             }
         }
 
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
-                commandStartedEvent.Command["readConcern"].AsBsonDocument.Contains("level").Should().BeFalse();
+                commandStartedEvent.Command["readConcern"].AsBsonDocument.Contains("level").ShouldBeFalse();
             }
         }
 
@@ -216,8 +216,8 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
-                commandStartedEvent.Command["readConcern"].AsBsonDocument.Contains("level").Should().BeTrue();
-                commandStartedEvent.Command["readConcern"].AsBsonDocument.Contains("afterClusterTime").Should().BeTrue();
+                commandStartedEvent.Command["readConcern"].AsBsonDocument.Contains("level").ShouldBeTrue();
+                commandStartedEvent.Command["readConcern"].AsBsonDocument.Contains("afterClusterTime").ShouldBeTrue();
             }
         }
 

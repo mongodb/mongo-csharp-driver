@@ -15,7 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Authentication.AWS;
 using Xunit;
@@ -48,8 +48,8 @@ namespace MongoDB.Driver.Tests.Authentication
                 out var actualAuthorizationHeader,
                 out var actualTimestamp);
 
-            actualAuthorizationHeader.Should().Be(expectedAuthorizationHeader);
-            actualTimestamp.Should().Be(expectedTimestamp);
+            actualAuthorizationHeader.ShouldBe(expectedAuthorizationHeader);
+            actualTimestamp.ShouldBe(expectedTimestamp);
         }
 
         [Fact]
@@ -77,8 +77,8 @@ namespace MongoDB.Driver.Tests.Authentication
                 out var actualAuthorizationHeader,
                 out var actualTimestamp);
 
-            actualAuthorizationHeader.Should().Be(expectedAuthorizationHeader);
-            actualTimestamp.Should().Be(expectedTimestamp);
+            actualAuthorizationHeader.ShouldBe(expectedAuthorizationHeader);
+            actualTimestamp.ShouldBe(expectedTimestamp);
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var actual = AwsSignatureVersion4Reflector.GetCanonicalHeaders(requestHeaders);
 
-            actual.Should().Be(expected);
+            actual.ShouldBe(expected);
         }
 
         [Theory]
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Tests.Authentication
         {
             var region = AwsSignatureVersion4Reflector.GetRegion(host);
 
-            region.Should().Be(expectedRegion);
+            region.ShouldBe(expectedRegion);
         }
 
         [Fact]
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var actual = AwsSignatureVersion4Reflector.GetSignedHeaders(requestHeaders);
 
-            actual.Should().Be(expected);
+            actual.ShouldBe(expected);
         }
     }
 

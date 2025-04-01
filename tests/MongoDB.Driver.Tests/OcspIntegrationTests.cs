@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -61,20 +61,20 @@ namespace MongoDB.Driver.Tests
             var secureClientException = Record.Exception(() => Ping(tlsInsecure: false));
             var tlsInsecureClientException = Record.Exception(() => Ping(tlsInsecure: true));
 
-            tlsInsecureClientException.Should().BeNull();
+            tlsInsecureClientException.ShouldBeNull();
             if (shouldSucceed)
             {
-                secureClientException.Should().BeNull();
+                secureClientException.ShouldBeNull();
             }
             else
             {
-                secureClientException.Should().BeOfType<TimeoutException>();
+                secureClientException.ShouldBeOfType<TimeoutException>();
                 var message = secureClientException.Message;
                 // The exception will lack this message if the heartbeat doesn't fire
 #if NET6_0_OR_GREATER
-                message.Should().Contain("The remote certificate is invalid because of errors in the certificate chain");
+                message.ShouldContain("The remote certificate is invalid because of errors in the certificate chain");
 #else
-                message.Should().Contain("The remote certificate is invalid according to the validation procedure.");
+                message.ShouldContain("The remote certificate is invalid according to the validation procedure.");
 #endif
             }
 

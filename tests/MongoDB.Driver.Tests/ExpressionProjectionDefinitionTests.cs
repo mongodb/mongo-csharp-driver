@@ -15,7 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.Serialization;
 using Xunit;
 
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests
 
             var renderedProjection = projection.Render(new(BsonSerializer.LookupSerializer<C>(), BsonSerializer.SerializerRegistry, renderForFind: renderForFind));
 
-            renderedProjection.Document.Should().BeEquivalentTo(expectedProjection);
+            renderedProjection.Document.ShouldBeEquivalentTo(expectedProjection);
         }
 
         private class C

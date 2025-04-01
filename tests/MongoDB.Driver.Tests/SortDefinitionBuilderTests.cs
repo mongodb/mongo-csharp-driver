@@ -13,10 +13,11 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -122,7 +123,7 @@ namespace MongoDB.Driver.Tests
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedSort = sort.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
-            renderedSort.Should().Be(expectedJson);
+            renderedSort.ShouldBe(expectedJson);
         }
 
         private SortDefinitionBuilder<TDocument> CreateSubject<TDocument>()

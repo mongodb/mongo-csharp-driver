@@ -19,9 +19,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -48,19 +49,19 @@ namespace MongoDB.Driver.Tests
             };
             var mapped = BulkWriteResult<BsonDocument>.FromCore(core, models);
 
-            mapped.ProcessedRequests[0].Should().BeSameAs(models[0]);
+            mapped.ProcessedRequests[0].ShouldBeSameAs(models[0]);
 
-            mapped.IsAcknowledged.Should().BeTrue();
-            mapped.RequestCount.Should().Be(core.RequestCount);
-            mapped.MatchedCount.Should().Be(core.MatchedCount);
-            mapped.DeletedCount.Should().Be(core.DeletedCount);
-            mapped.InsertedCount.Should().Be(core.InsertedCount);
-            mapped.IsModifiedCountAvailable.Should().Be(core.IsModifiedCountAvailable);
+            mapped.IsAcknowledged.ShouldBeTrue();
+            mapped.RequestCount.ShouldBe(core.RequestCount);
+            mapped.MatchedCount.ShouldBe(core.MatchedCount);
+            mapped.DeletedCount.ShouldBe(core.DeletedCount);
+            mapped.InsertedCount.ShouldBe(core.InsertedCount);
+            mapped.IsModifiedCountAvailable.ShouldBe(core.IsModifiedCountAvailable);
             if (mapped.IsModifiedCountAvailable)
             {
-                mapped.ModifiedCount.Should().Be(core.ModifiedCount);
+                mapped.ModifiedCount.ShouldBe(core.ModifiedCount);
             }
-            mapped.Upserts.Count.Should().Be(core.Upserts.Count);
+            mapped.Upserts.Count.ShouldBe(core.Upserts.Count);
         }
 
         [Fact]
@@ -76,9 +77,9 @@ namespace MongoDB.Driver.Tests
             };
             var mapped = BulkWriteResult<BsonDocument>.FromCore(core, models);
 
-            mapped.ProcessedRequests[0].Should().BeSameAs(models[0]);
-            mapped.IsAcknowledged.Should().BeFalse();
-            mapped.RequestCount.Should().Be(core.RequestCount);
+            mapped.ProcessedRequests[0].ShouldBeSameAs(models[0]);
+            mapped.IsAcknowledged.ShouldBeFalse();
+            mapped.RequestCount.ShouldBe(core.RequestCount);
         }
 
         [Theory]
@@ -97,19 +98,19 @@ namespace MongoDB.Driver.Tests
 
             var mapped = BulkWriteResult<BsonDocument>.FromCore(core);
 
-            mapped.ProcessedRequests[0].Should().BeOfType<InsertOneModel<BsonDocument>>();
+            mapped.ProcessedRequests[0].ShouldBeOfType<InsertOneModel<BsonDocument>>();
 
-            mapped.IsAcknowledged.Should().BeTrue();
-            mapped.RequestCount.Should().Be(core.RequestCount);
-            mapped.MatchedCount.Should().Be(core.MatchedCount);
-            mapped.DeletedCount.Should().Be(core.DeletedCount);
-            mapped.InsertedCount.Should().Be(core.InsertedCount);
-            mapped.IsModifiedCountAvailable.Should().Be(core.IsModifiedCountAvailable);
+            mapped.IsAcknowledged.ShouldBeTrue();
+            mapped.RequestCount.ShouldBe(core.RequestCount);
+            mapped.MatchedCount.ShouldBe(core.MatchedCount);
+            mapped.DeletedCount.ShouldBe(core.DeletedCount);
+            mapped.InsertedCount.ShouldBe(core.InsertedCount);
+            mapped.IsModifiedCountAvailable.ShouldBe(core.IsModifiedCountAvailable);
             if (mapped.IsModifiedCountAvailable)
             {
-                mapped.ModifiedCount.Should().Be(core.ModifiedCount);
+                mapped.ModifiedCount.ShouldBe(core.ModifiedCount);
             }
-            mapped.Upserts.Count.Should().Be(core.Upserts.Count);
+            mapped.Upserts.Count.ShouldBe(core.Upserts.Count);
         }
 
         [Fact]
@@ -121,10 +122,10 @@ namespace MongoDB.Driver.Tests
 
             var mapped = BulkWriteResult<BsonDocument>.FromCore(core);
 
-            mapped.ProcessedRequests[0].Should().BeOfType<InsertOneModel<BsonDocument>>();
-            ((InsertOneModel<BsonDocument>)mapped.ProcessedRequests[0]).Document.Should().Be("{b:1}");
-            mapped.IsAcknowledged.Should().BeFalse();
-            mapped.RequestCount.Should().Be(core.RequestCount);
+            mapped.ProcessedRequests[0].ShouldBeOfType<InsertOneModel<BsonDocument>>();
+            ((InsertOneModel<BsonDocument>)mapped.ProcessedRequests[0]).Document.ShouldBe("{b:1}");
+            mapped.IsAcknowledged.ShouldBeFalse();
+            mapped.RequestCount.ShouldBe(core.RequestCount);
         }
     }
 }

@@ -16,7 +16,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication.External;
 using MongoDB.Driver.Core.Misc;
@@ -38,19 +38,19 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var creds1 = await CreateCredentials(subject, async);
             var creds2 = await CreateCredentials(subject, async);
-            creds1.Should().BeSameAs(creds2);
+            creds1.ShouldBeSameAs(creds2);
 
             isExpired = true;
             var creds3 = await CreateCredentials(subject, async);
-            creds2.Should().NotBeSameAs(creds3);
+            creds2.ShouldNotBeSameAs(creds3);
             var creds4 = await CreateCredentials(subject, async);
-            creds3.Should().NotBeSameAs(creds4);
+            creds3.ShouldNotBeSameAs(creds4);
 
             isExpired = false;
             var creds5 = await CreateCredentials(subject, async);
-            creds4.Should().BeSameAs(creds5);
+            creds4.ShouldBeSameAs(creds5);
             var creds6 = await CreateCredentials(subject, async);
-            creds5.Should().BeSameAs(creds6);
+            creds5.ShouldBeSameAs(creds6);
         }
 
         [Theory]
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Authentication
             Func<DateTime?> expiredDateFunc = () => expiredDate;
             var subject = CreateSubject(expirationDateFunc: expiredDateFunc);
             await CreateCredentials(subject, async);
-            subject.Credentials.Should().BeNull();
+            subject.Credentials.ShouldBeNull();
         }
 
         private async Task<DummyCredentials> CreateCredentials(CacheableCredentialsProvider<DummyCredentials> subject, bool async) =>

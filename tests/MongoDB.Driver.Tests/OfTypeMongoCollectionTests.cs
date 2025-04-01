@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Tests
                 m.IsUpsert == model.IsUpsert;
 
             Expression<Func<IEnumerable<WriteModel<TDerived>>, bool>> modelMatch = v =>
-                isModelValid(v.Single().As<UpdateManyModel<TDerived>>());
+                isModelValid(v.Single() as UpdateManyModel<TDerived>);
 
             if (async)
             {
@@ -438,7 +438,7 @@ namespace MongoDB.Driver.Tests
                 m.IsUpsert == model.IsUpsert;
 
             Expression<Func<IEnumerable<WriteModel<TDerived>>, bool>> modelMatch = v =>
-                isModelValid(v.Single().As<UpdateOneModel<TDerived>>());
+                isModelValid(v.Single() as UpdateOneModel<TDerived>);
 
             if (async)
             {
@@ -620,7 +620,7 @@ namespace MongoDB.Driver.Tests
 
             });
 
-            exception.Should().BeOfType<NotSupportedException>();
+            exception.ShouldBeOfType<NotSupportedException>();
         }
 
         [Theory]
@@ -1011,8 +1011,8 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
             }
 
-            result1.Should().Be(6);
-            result2.Should().Be(3);
+            result1.ShouldBe(6);
+            result2.ShouldBe(3);
         }
 
         [Theory]
@@ -1036,7 +1036,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
             }
 
-            result.Should().Be(4);
+            result.ShouldBe(4);
         }
 
         [Theory]
@@ -1057,7 +1057,7 @@ namespace MongoDB.Driver.Tests
             }
 
             var insertedB = _docsCollection.FindSync("{PropA: 10}").Single();
-            insertedB["_t"].Should().Be(new BsonArray(new[] { "A", "B" }));
+            insertedB["_t"].ShouldBe(new BsonArray(new[] { "A", "B" }));
         }
 
         [Theory]
@@ -1078,7 +1078,7 @@ namespace MongoDB.Driver.Tests
             }
 
             var insertedC = _docsCollection.FindSync("{PropA: 11}").Single();
-            insertedC["_t"].Should().Be(new BsonArray(new[] { "A", "B", "C" }));
+            insertedC["_t"].ShouldBe(new BsonArray(new[] { "A", "B", "C" }));
         }
 
         [Theory]
@@ -1099,7 +1099,7 @@ namespace MongoDB.Driver.Tests
                 result = subject.ReplaceOne("{PropA: 1}", repacement);
             }
 
-            result.MatchedCount.Should().Be(0); // document matching { PropA : 1 } is not of type B
+            result.MatchedCount.ShouldBe(0); // document matching { PropA : 1 } is not of type B
         }
 
         [Theory]
@@ -1121,9 +1121,9 @@ namespace MongoDB.Driver.Tests
                 result = subject.ReplaceOne("{PropA: 4}", replacement);
             }
 
-            result.MatchedCount.Should().Be(1); // document matching { PropA : 4 } is of type B
+            result.MatchedCount.ShouldBe(1); // document matching { PropA : 4 } is of type B
             var replacedB = _docsCollection.FindSync("{ PropA : 10 }").Single();
-            replacedB.Should().Be(new BsonDocument
+            replacedB.ShouldBe(new BsonDocument
             {
                 { "_id", originalDocument["_id"] },
                 { "_t", new BsonArray { "A", "B" } },
@@ -1161,8 +1161,8 @@ namespace MongoDB.Driver.Tests
                 ? subject.UpdateOneAsync(filter, pipeline, updateOptions).GetAwaiter().GetResult()
                 : subject.UpdateOne(filter, pipeline, updateOptions);
 
-            result.MatchedCount.Should().Be(1);
-            result.ModifiedCount.Should().Be(1);
+            result.MatchedCount.ShouldBe(1);
+            result.ModifiedCount.ShouldBe(1);
 
             var updateQuery = _eventsCapturer.Events.OfType<CommandStartedEvent>().Last().Command["updates"];
             var expectedUpdateDocument = BsonDocument.Parse($@"
@@ -1198,7 +1198,7 @@ namespace MongoDB.Driver.Tests
                 var uContent = expectedUpdateDocument["u"].AsBsonArray;
                 uContent.RemoveAt(uContent.Count - 1);
             }
-            updateQuery.Should().Be(new BsonArray { expectedUpdateDocument });
+            updateQuery.ShouldBe(new BsonArray { expectedUpdateDocument });
         }
 
         private IMongoCollection<B> CreateSubject()

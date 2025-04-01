@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using Xunit;
 
@@ -36,9 +36,9 @@ namespace MongoDB.Driver.Tests
 
             var subject = new WriteError(category, code, message, details);
 
-            subject.Category.Should().Be(category);
-            subject.Message.Should().Be(message);
-            subject.Details.Should().Be(details);
+            subject.Category.ShouldBe(category);
+            subject.Message.ShouldBe(message);
+            subject.Details.ShouldBe(details);
         }
 
         [Theory]
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests
 
             var result = writeError.ToString();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
     }
 }

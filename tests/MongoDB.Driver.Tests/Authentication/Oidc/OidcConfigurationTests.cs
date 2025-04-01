@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Driver.Authentication.Oidc;
 using Moq;
 using Xunit;
@@ -38,10 +38,10 @@ namespace MongoDB.Driver.Tests.Authentication.Oidc
         {
             var configuration = new OidcConfiguration(endPoints, principalName, mechanismProperties);
 
-            configuration.PrincipalName.Should().Be(principalName);
-            configuration.EndPoints.Should().BeEquivalentTo(endPoints);
-            configuration.Environment.Should().Be(expectedEnvironment);
-            configuration.Callback.Should().Be(expectedCallback);
+            configuration.PrincipalName.ShouldBe(principalName);
+            configuration.EndPoints.ShouldBeEquivalentTo(endPoints);
+            configuration.Environment.ShouldBe(expectedEnvironment);
+            configuration.Callback.ShouldBe(expectedCallback);
         }
 
         public static IEnumerable<object[]> ValidConfigurationTestCases = new[]
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.Authentication.Oidc
             var exception = Record.Exception(() =>
                 new OidcConfiguration(endPoints, principalName, mechanismProperties));
 
-            exception.Should().BeOfType(exceptionType);
+            exception.ShouldBeOfType(exceptionType);
         }
 
         public static IEnumerable<object[]> InvalidConfigurationTestCases = new[]
@@ -112,10 +112,10 @@ namespace MongoDB.Driver.Tests.Authentication.Oidc
             var hashCode1 = configuration1.GetHashCode();
             var hashCode2 = configuration1.GetHashCode();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
             if (expectedResult)
             {
-                hashCode1.Should().Be(hashCode2);
+                hashCode1.ShouldBe(hashCode2);
             }
         }
 

@@ -13,10 +13,11 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -40,7 +41,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Eq("E", value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -49,7 +50,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Eq(x => x.E, value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Gt("E", value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -67,7 +68,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Gt(x => x.E, value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Gte("E", value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -85,7 +86,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Gte(x => x.E, value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Lt("E", value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -103,7 +104,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Lt(x => x.E, value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -112,7 +113,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Lte("E", value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -121,7 +122,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Lte(x => x.E, value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -130,7 +131,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Ne("E", value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -139,7 +140,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Ne(x => x.E, value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -148,7 +149,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E == value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -157,7 +158,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E > value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -166,7 +167,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E >= value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -175,7 +176,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E < value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -184,7 +185,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E <= value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
 
         [Theory]
@@ -193,7 +194,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E != value);
 
-            filter.Render(__args).Should().Be(expectedFilter);
+            filter.Render(__args).ShouldBe(expectedFilter);
         }
     }
 }

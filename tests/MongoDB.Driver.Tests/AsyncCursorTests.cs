@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using FluentAssertions.Common;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
             collection.InsertOne(new BsonDocument("key", "value1"));
             collection.InsertOne(new BsonDocument("key", "value2"));
 
-            var cursor = collection.Find(FilterDefinition<BsonDocument>.Empty, new FindOptions { BatchSize = 1 }).ToCursor().As<AsyncCursor<BsonDocument>>();
+            var cursor = collection.Find(FilterDefinition<BsonDocument>.Empty, new FindOptions { BatchSize = 1 }).ToCursor() as AsyncCursor<BsonDocument>;
             if (async)
             {
                 cursor.CloseAsync().Wait();
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Tests
                 cursor.MoveNext();
 
                 var cursorId = ((AsyncCursor<BsonDocument>)cursor)._cursorId();
-                cursorId.Should().NotBe(0);
+                cursorId.ShouldNotBe(0);
                 cursor.Dispose();
 
                 var desiredResult = BsonDocument.Parse($"{{ \"cursorsKilled\" : [{cursorId}], \"cursorsNotFound\" : [], " +
@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Tests
                     }
                 }));
 
-                exception.Should().BeAssignableTo<OperationCanceledException>();
+                exception.ShouldBeAssignableTo<OperationCanceledException>();
             }
         }
 

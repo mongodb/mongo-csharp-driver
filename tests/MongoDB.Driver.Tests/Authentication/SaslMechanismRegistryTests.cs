@@ -14,8 +14,9 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Driver.Authentication;
+using MongoDB.Bson.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.Tests.Authentication
             registry.Register("test", Mock.Of<Func<SaslContext, ISaslMechanism>>());
             var created = registry.TryCreate(saslContext, out var _);
 
-            created.Should().BeTrue();
+            created.ShouldBeTrue();
         }
 
         [Theory]
@@ -44,7 +45,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var exception = Record.Exception(() => registry.Register(mechanismName, Mock.Of<Func<SaslContext, ISaslMechanism>>()));
 
-            exception.Should().BeAssignableTo<ArgumentException>();
+            exception.ShouldBeAssignableTo<ArgumentException>();
         }
 
         [Fact]
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var exception = Record.Exception(() => registry.Register("test", null));
 
-            exception.Should().BeOfType<ArgumentNullException>();
+            exception.ShouldBeOfType<ArgumentNullException>();
         }
 
         [Fact]
@@ -65,7 +66,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var exception = Record.Exception(() => registry.Register("test", Mock.Of<Func<SaslContext, ISaslMechanism>>()));
 
-            exception.Should().BeOfType<ArgumentException>();
+            exception.ShouldBeOfType<ArgumentException>();
         }
 
         [Fact]
@@ -80,8 +81,8 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var created = registry.TryCreate(saslContext, out var mechanism);
 
-            created.Should().BeTrue();
-            mechanism.Should().Be(mechanismMock);
+            created.ShouldBeTrue();
+            mechanism.ShouldBe(mechanismMock);
             factoryMock.Verify(x => x(It.IsAny<SaslContext>()), Times.Once);
         }
 
@@ -92,7 +93,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var exception = Record.Exception(() => registry.TryCreate(null, out _));
 
-            exception.Should().BeOfType<ArgumentNullException>();
+            exception.ShouldBeOfType<ArgumentNullException>();
         }
 
         [Fact]
@@ -104,8 +105,8 @@ namespace MongoDB.Driver.Tests.Authentication
             registry.Register("test", Mock.Of<Func<SaslContext, ISaslMechanism>>());
             var created = registry.TryCreate(saslContext, out var mechanism);
 
-            created.Should().BeFalse();
-            mechanism.Should().BeNull();
+            created.ShouldBeFalse();
+            mechanism.ShouldBeNull();
         }
     }
 }

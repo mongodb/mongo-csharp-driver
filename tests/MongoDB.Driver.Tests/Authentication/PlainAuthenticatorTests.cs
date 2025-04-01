@@ -16,7 +16,7 @@
 using System;
 using System.Net;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.Plain;
@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Authentication
@@ -101,15 +102,15 @@ namespace MongoDB.Driver.Tests.Authentication
             }
 
             act.ShouldNotThrow();
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
+            sentMessages.Count.ShouldBe(1);
 
             var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+            actualRequestId.ShouldBeInRange(expectedRequestId, expectedRequestId + 10);
 
-            sentMessages[0].Should().Be("{ \"opcode\" : \"opmsg\", \"requestId\" : " + actualRequestId + ", \"responseTo\" : 0, \"sections\" : [{ \"payloadType\" : 0, \"document\" : { \"saslStart\" : 1, \"mechanism\" : \"PLAIN\", \"payload\" : new BinData(0, \"AHVzZXIAcGVuY2ls\"), \"$db\" : \"source\" } }] }");
+            sentMessages[0].ShouldBe("{ \"opcode\" : \"opmsg\", \"requestId\" : " + actualRequestId + ", \"responseTo\" : 0, \"sections\" : [{ \"payloadType\" : 0, \"document\" : { \"saslStart\" : 1, \"mechanism\" : \"PLAIN\", \"payload\" : new BinData(0, \"AHVzZXIAcGVuY2ls\"), \"$db\" : \"source\" } }] }");
         }
 
         [Theory]
@@ -138,16 +139,16 @@ namespace MongoDB.Driver.Tests.Authentication
                 subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
+            sentMessages.Count.ShouldBe(1);
 
             var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+            actualRequestId.ShouldBeInRange(expectedRequestId, expectedRequestId + 10);
 
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedServerApiString} }} }} ] }}");
+            sentMessages[0].ShouldBe($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedServerApiString} }} }} ] }}");
         }
 
         [Theory]
@@ -173,16 +174,16 @@ namespace MongoDB.Driver.Tests.Authentication
                 subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
+            sentMessages.Count.ShouldBe(1);
 
             var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
+            actualRequestId.ShouldBeInRange(expectedRequestId, expectedRequestId + 10);
 
             var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedEndString} }} }} ] }}");
+            sentMessages[0].ShouldBe($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedEndString} }} }} ] }}");
         }
 
         private static IAuthenticator CreatePlainSaslAuthenticator(ServerApi serverApi)

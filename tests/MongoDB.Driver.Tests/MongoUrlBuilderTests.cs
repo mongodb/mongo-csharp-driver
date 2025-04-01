@@ -16,12 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.MaxConnectionPoolSize;
 
-            result.Should().Be(0);
+            result.ShouldBe(0);
         }
 
         [Fact]
@@ -48,7 +49,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.MaxConnectionPoolSize;
 
-            result.Should().Be(MongoDefaults.MaxConnectionPoolSize);
+            result.ShouldBe(MongoDefaults.MaxConnectionPoolSize);
         }
 
         [Fact]
@@ -243,8 +244,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => subject.ApplicationName = value);
 
-            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
-            argumentException.ParamName.Should().Be("value");
+            var argumentException = exception.ShouldBeOfType<ArgumentException>();
+            argumentException.ParamName.ShouldBe("value");
         }
 
         [Theory]
@@ -471,8 +472,8 @@ namespace MongoDB.Driver.Tests
         {
             var built = new MongoUrlBuilder { Server = _localhost, DirectConnection = directConnection };
 
-            directConnection.Should().Be(built.DirectConnection);
-            built.ToString().Should().Be(connectionString);
+            directConnection.ShouldBe(built.DirectConnection);
+            built.ToString().ShouldBe(connectionString);
         }
 
         [Theory]
@@ -671,9 +672,9 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoUrlBuilder { LoadBalanced = value };
 
-            subject.LoadBalanced.Should().Be(value);
+            subject.LoadBalanced.ShouldBe(value);
             var expectedConnectionString = $"mongodb://localhost{(value ? $"/?loadBalanced={JsonConvert.ToString(value)}" : "")}";
-            subject.ToString().Should().Be(expectedConnectionString);
+            subject.ToString().ShouldBe(expectedConnectionString);
         }
 
         [Theory]
@@ -683,9 +684,9 @@ namespace MongoDB.Driver.Tests
             var value = 3;
 
             var builder = new MongoUrlBuilder { MaxConnecting = value };
-            builder.MaxConnecting.Should().Be(value);
+            builder.MaxConnecting.ShouldBe(value);
 
-            Record.Exception(() => { builder.MaxConnecting = incorrectMaxConnecting; }).Should().BeOfType<ArgumentOutOfRangeException>();
+            Record.Exception(() => { builder.MaxConnecting = incorrectMaxConnecting; }).ShouldBeOfType<ArgumentOutOfRangeException>();
         }
 
         [Theory]
@@ -803,8 +804,8 @@ namespace MongoDB.Driver.Tests
         {
             var builder = new MongoUrlBuilder(value);
 
-            builder.ReadPreference.MaxStaleness.Should().NotHaveValue();
-            builder.ToString().Should().Be("mongodb://localhost/?readPreference=secondary");
+            builder.ReadPreference.MaxStaleness.ShouldNotHaveValue();
+            builder.ToString().ShouldBe("mongodb://localhost/?readPreference=secondary");
         }
 
         [Theory]
@@ -1353,7 +1354,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.ToString();
 
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
         }
 
         // private methods

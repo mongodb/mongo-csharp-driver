@@ -15,7 +15,7 @@
 
 using System;
 using System.Security;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests
             var result = new PasswordEvidence(securePassword);
 
             var decryptedPassword = new DecryptedSecureString(result.SecurePassword);
-            decryptedPassword.GetChars().Should().Equal(value);
+            decryptedPassword.GetChars().ShouldBe(value);
         }
 
         [Fact]
@@ -44,20 +44,20 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => new PasswordEvidence(password));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("password");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("password");
         }
 
         [Fact]
         public void constructor_with_SecureString_should_make_a_read_only_copy_of_password()
         {
             var securePassword = CreateSecureString("abc");
-            securePassword.IsReadOnly().Should().BeFalse();
+            securePassword.IsReadOnly().ShouldBeFalse();
 
             var result = new PasswordEvidence(securePassword);
 
-            result.SecurePassword.Should().NotBeSameAs(securePassword);
-            result.SecurePassword.IsReadOnly().Should().BeTrue();
+            result.SecurePassword.ShouldNotBeSameAs(securePassword);
+            result.SecurePassword.IsReadOnly().ShouldBeTrue();
         }
 
         [Theory]
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests
             var result = new PasswordEvidence(value);
 
             var decryptedPassword = new DecryptedSecureString(result.SecurePassword);
-            decryptedPassword.GetChars().Should().Equal(value);
+            decryptedPassword.GetChars().ShouldBe(value);
         }
 
         [Fact]
@@ -78,8 +78,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => new PasswordEvidence(password));
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("password");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("password");
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests
         {
             var result = new PasswordEvidence("abc");
 
-            result.SecurePassword.IsReadOnly().Should().BeTrue();
+            result.SecurePassword.IsReadOnly().ShouldBeTrue();
         }
 
         [Theory]
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.SecurePassword;
 
             var decryptedPassword = new DecryptedSecureString(result);
-            decryptedPassword.GetChars().Should().Equal(value);
+            decryptedPassword.GetChars().ShouldBe(value);
         }
 
         [Theory]
@@ -115,8 +115,8 @@ namespace MongoDB.Driver.Tests
             var hashCode1 = subject.GetHashCode();
             var hashCode2 = other.GetHashCode();
 
-            result.Should().BeTrue();
-            hashCode2.Should().Be(hashCode1);
+            result.ShouldBeTrue();
+            hashCode2.ShouldBe(hashCode1);
         }
 
         [Theory]
@@ -130,8 +130,8 @@ namespace MongoDB.Driver.Tests
             var hashCode1 = subject.GetHashCode();
             var hashCode2 = other.GetHashCode();
 
-            result.Should().BeFalse();
-            hashCode2.Should().NotBe(hashCode1);
+            result.ShouldBeFalse();
+            hashCode2.ShouldNotBe(hashCode1);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.Equals(other);
 
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
         }
 
         [Fact]
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.Equals(other);
 
-            result.Should().BeFalse();
+            result.ShouldBeFalse();
         }
 
         // private methods

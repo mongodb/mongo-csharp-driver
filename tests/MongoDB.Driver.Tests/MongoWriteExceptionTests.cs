@@ -20,7 +20,7 @@ using System.Net;
 #if NET472
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.Clusters;
@@ -61,12 +61,12 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoWriteException(__connectionId, __writeError, __writeConcernError, __innerException);
 
-            subject.ConnectionId.Should().Be(__connectionId);
-            subject.ErrorLabels.Should().BeEquivalentTo(__writeConcernError.ErrorLabels);
-            subject.InnerException.Should().Be(__innerException);
-            subject.Message.Should().Be("A write operation resulted in an error. WriteError: { Category : \"Uncategorized\", Code : 1, Message : \"writeError\", Details : \"{ \"details\" : \"writeError\" }\" }. WriteConcernError: { Code : \"1\", Message : \"writeConcernError\", Details : \"{ \"details\" : \"writeConcernError\" }\", ErrorLabels : [ \"RetryableWriteError\" ] }.");
-            subject.WriteConcernError.Should().Be(__writeConcernError);
-            subject.WriteError.Should().Be(__writeError);
+            subject.ConnectionId.ShouldBe(__connectionId);
+            subject.ErrorLabels.ShouldBeEquivalentTo(__writeConcernError.ErrorLabels);
+            subject.InnerException.ShouldBe(__innerException);
+            subject.Message.ShouldBe("A write operation resulted in an error. WriteError: { Category : \"Uncategorized\", Code : 1, Message : \"writeError\", Details : \"{ \"details\" : \"writeError\" }\" }. WriteConcernError: { Code : \"1\", Message : \"writeConcernError\", Details : \"{ \"details\" : \"writeConcernError\" }\", ErrorLabels : [ \"RetryableWriteError\" ] }.");
+            subject.WriteConcernError.ShouldBe(__writeConcernError);
+            subject.WriteError.ShouldBe(__writeError);
         }
 
         [Fact]
@@ -82,12 +82,12 @@ namespace MongoDB.Driver.Tests
 
             var result = MongoWriteException.FromBulkWriteException(bulkWriteException);
 
-            result.ConnectionId.Should().Be(__connectionId);
-            result.ErrorLabels.Should().BeEquivalentTo(writeConcernError.ErrorLabels);
-            result.InnerException.Should().BeSameAs(bulkWriteException);
-            result.Message.Should().Be("A write operation resulted in an error. WriteError: { Category : \"Uncategorized\", Code : 2, Message : \"message\", Details : \"{ \"details\" : 1 }\" }. WriteConcernError: { Code : \"1\", Message : \"message\", Details : \"{ \"details\" : 1 }\", ErrorLabels : [ \"RetryableWriteError\" ] }.");
-            result.WriteConcernError.Should().Be(writeConcernError);
-            result.WriteError.Should().Be(writeErrors[0]);
+            result.ConnectionId.ShouldBe(__connectionId);
+            result.ErrorLabels.ShouldBeEquivalentTo(writeConcernError.ErrorLabels);
+            result.InnerException.ShouldBeSameAs(bulkWriteException);
+            result.Message.ShouldBe("A write operation resulted in an error. WriteError: { Category : \"Uncategorized\", Code : 2, Message : \"message\", Details : \"{ \"details\" : 1 }\" }. WriteConcernError: { Code : \"1\", Message : \"message\", Details : \"{ \"details\" : 1 }\", ErrorLabels : [ \"RetryableWriteError\" ] }.");
+            result.WriteConcernError.ShouldBe(writeConcernError);
+            result.WriteError.ShouldBe(writeErrors[0]);
         }
     }
 }

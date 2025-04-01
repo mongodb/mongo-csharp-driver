@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Xunit;
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests
         public void Ctor_should_create_new_instance(Func<QueryVector> creator, BsonValue expectedBsonValue)
         {
             var vector = creator();
-            vector.Vector.Should().Be(expectedBsonValue);
+            vector.Vector.ShouldBe(expectedBsonValue);
         }
 
         [Fact]
@@ -38,8 +38,8 @@ namespace MongoDB.Driver.Tests
         {
             BsonBinaryData bsonBinaryData = null;
             var exception = Record.Exception(() => new QueryVector(bsonBinaryData));
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("bsonBinaryData");
+            var e = exception.ShouldBeOfType<ArgumentNullException>();
+            e.ParamName.ShouldBe("bsonBinaryData");
         }
 
         [Fact]
@@ -47,8 +47,8 @@ namespace MongoDB.Driver.Tests
         {
             var bsonBinaryData = new BsonBinaryData([1], BsonBinarySubType.Binary);
             var exception = Record.Exception(() => new QueryVector(bsonBinaryData));
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be(nameof(bsonBinaryData.SubType));
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe(nameof(bsonBinaryData.SubType));
         }
 
         [Theory]
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests
         public void Implicit_conversion_should_return_new_instance(Func<QueryVector> conversion, BsonValue expectedBsonValue)
         {
             var vector = conversion();
-            vector.Vector.Should().Be(expectedBsonValue);
+            vector.Vector.ShouldBe(expectedBsonValue);
         }
 
         [Theory]
@@ -65,15 +65,15 @@ namespace MongoDB.Driver.Tests
         public void Implicit_conversion_should_throw_on_empty_array(double[] array)
         {
             var exception = Record.Exception(() => (QueryVector)array);
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("array");
+            var e = exception.ShouldBeOfType<ArgumentException>();
+            e.ParamName.ShouldBe("array");
         }
 
         [Fact]
         public void QueryVectorBsonArray_should_use_correct_serializer()
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<QueryVectorBsonArray<float>>();
-            serializer.Should().BeOfType<QueryVectorArraySerializer<float>>();
+            serializer.ShouldBeOfType<QueryVectorArraySerializer<float>>();
         }
 
         [Theory]
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests
 
             var bsonActual = objectActual.ToBson();
             var bsonExpected = objectExpected.ToBson();
-            bsonActual.ShouldAllBeEquivalentTo(bsonExpected);
+            bsonActual.ShouldBe(bsonExpected);
         }
 
         public static IEnumerable<object[]> DataImplicitCast =>

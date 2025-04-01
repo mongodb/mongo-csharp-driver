@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers.Core;
@@ -32,7 +32,7 @@ public class FileOidcCallbackTests
     public void FileOidcCallback_ctor_throws_on_empty_fileSystemProvider()
     {
         var exception = Record.Exception(() => new FileOidcCallback(null, "filePath"));
-        exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("fileSystemProvider");
+        exception.ShouldBeOfType<ArgumentNullException>().ParamName.ShouldBe("fileSystemProvider");
     }
 
     [Theory]
@@ -41,7 +41,7 @@ public class FileOidcCallbackTests
     public void FileOidcCallback_ctor_throws_on_empty_filePath(string filePath)
     {
         var exception = Record.Exception(() => new FileOidcCallback(Mock.Of<IFileSystemProvider>(), filePath));
-        exception.Should().BeAssignableTo<ArgumentException>().Subject.ParamName.Should().Be("filePath");
+        exception.ShouldBeAssignableTo<ArgumentException>().ParamName.ShouldBe("filePath");
     }
 
     [Theory]
@@ -62,7 +62,7 @@ public class FileOidcCallbackTests
             await oidcCallback.GetOidcAccessTokenAsync(oidcParameters, default):
             oidcCallback.GetOidcAccessToken(oidcParameters, default);
 
-        result.AccessToken.Should().Be(fileContent);
+        result.AccessToken.ShouldBe(fileContent);
         if (async)
         {
             fileMock.Verify(f => f.ReadAllTextAsync(filePath), Times.Once);
@@ -81,7 +81,7 @@ public class FileOidcCallbackTests
             FileOidcCallback.CreateFromEnvironmentVariable(null, Mock.Of<IFileSystemProvider>(), ["env"], "defaultPath");
         });
 
-        exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("environmentVariableProvider");
+        exception.ShouldBeOfType<ArgumentNullException>().ParamName.ShouldBe("environmentVariableProvider");
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public class FileOidcCallbackTests
             FileOidcCallback.CreateFromEnvironmentVariable(Mock.Of<IEnvironmentVariableProvider>(), null, ["env"], "defaultPath");
         });
 
-        exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("fileSystemProvider");
+        exception.ShouldBeOfType<ArgumentNullException>().ParamName.ShouldBe("fileSystemProvider");
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public class FileOidcCallbackTests
             FileOidcCallback.CreateFromEnvironmentVariable(Mock.Of<IEnvironmentVariableProvider>(), Mock.Of<IFileSystemProvider>(), null, "defaultPath");
         });
 
-        exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("environmentVariableNames");
+        exception.ShouldBeOfType<ArgumentNullException>().ParamName.ShouldBe("environmentVariableNames");
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class FileOidcCallbackTests
             FileOidcCallback.CreateFromEnvironmentVariable(Mock.Of<IEnvironmentVariableProvider>(), Mock.Of<IFileSystemProvider>(), [], "defaultPath");
         });
 
-        exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("environmentVariableNames");
+        exception.ShouldBeOfType<ArgumentException>().ParamName.ShouldBe("environmentVariableNames");
     }
 
     [Theory]
@@ -125,7 +125,7 @@ public class FileOidcCallbackTests
 
         var fileOidcCallback = FileOidcCallback.CreateFromEnvironmentVariable(environmentVariableProviderMock.Object, Mock.Of<IFileSystemProvider>(), variablesToCheck, defaultPath);
 
-        fileOidcCallback.FilePath.Should().Be(expectedFilePath);
+        fileOidcCallback.FilePath.ShouldBe(expectedFilePath);
     }
 
     [Theory]
@@ -136,7 +136,7 @@ public class FileOidcCallbackTests
 
         var exception = Record.Exception(() => FileOidcCallback.CreateFromEnvironmentVariable(environmentVariableProviderMock.Object, Mock.Of<IFileSystemProvider>(), variablesToCheck));
 
-        exception.Should().BeAssignableTo<ArgumentException>().Subject.ParamName.Should().Be("filePath");
+        exception.ShouldBeAssignableTo<ArgumentException>().ParamName.ShouldBe("filePath");
     }
 
     public static IEnumerable<object[]> CreateFromEnvironmentVariable_ValidTestCases =

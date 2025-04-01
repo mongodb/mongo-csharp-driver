@@ -17,7 +17,7 @@ using System.Linq;
 using System.Net;
 using System.Security;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Clusters;
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(username, securePassword);
 
-            passwordDigest.Should().BeEquivalentTo(expected);
+            passwordDigest.ShouldBeEquivalentTo(expected);
         }
 
         [Theory]

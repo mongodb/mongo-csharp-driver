@@ -18,7 +18,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests
                 }
 
                 var (allCount, eventsOnSlowServerCount) = ExecuteFindOperations(collection, slowServer.ServerId, commandsFailPointPerThreadCount);
-                eventsOnSlowServerCount.Should().BeLessThan((int)(allCount * maxCommandsOnSlowServerRatio));
+                eventsOnSlowServerCount.ShouldBeLessThan((int)(allCount * maxCommandsOnSlowServerRatio));
 
                 failPoint.Dispose();
 
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Tests
                 var singleServerOperationsPortion = allCount / 2;
                 var singleServerOperationsRange = (int)Math.Ceiling(allCount * operationsCountTolerance);
 
-                eventsOnSlowServerCount.Should().BeInRange(singleServerOperationsPortion - singleServerOperationsRange, singleServerOperationsPortion + singleServerOperationsRange);
+                eventsOnSlowServerCount.ShouldBeInRange(singleServerOperationsPortion - singleServerOperationsRange, singleServerOperationsPortion + singleServerOperationsRange);
             }
 
             (int allCount, int slowServerCount) ExecuteFindOperations(IMongoCollection<BsonDocument> collection, ServerId serverId, int operationsCount)
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Tests
                 true);
             var timeOut = TimeSpan.FromSeconds(60);
             bool AllServersConnected() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected);
-            SpinWait.SpinUntil(AllServersConnected, timeOut).Should().BeTrue();
+            SpinWait.SpinUntil(AllServersConnected, timeOut).ShouldBeTrue();
             return client;
         }
 

@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Driver.Authentication.Oidc;
 using Moq;
 using Xunit;
@@ -48,11 +48,11 @@ namespace MongoDB.Driver.Tests
 
             var credential = MongoCredential.CreateOidcCredential(oidcTokenProvider.Object, principalName);
 
-            credential.Mechanism.Should().Be("MONGODB-OIDC");
-            credential.Username.Should().Be(principalName);
-            credential.Evidence.Should().BeOfType<ExternalEvidence>();
+            credential.Mechanism.ShouldBe("MONGODB-OIDC");
+            credential.Username.ShouldBe(principalName);
+            credential.Evidence.ShouldBeOfType<ExternalEvidence>();
             credential.GetMechanismProperty<IOidcCallback>("OIDC_CALLBACK", null)
-                .Should().Be(oidcTokenProvider.Object);
+                .ShouldBe(oidcTokenProvider.Object);
         }
 
         [Fact]
@@ -62,10 +62,10 @@ namespace MongoDB.Driver.Tests
 
             var credential = MongoCredential.CreateOidcCredential(environment);
 
-            credential.Mechanism.Should().Be("MONGODB-OIDC");
-            credential.Username.Should().BeNull();
-            credential.Evidence.Should().BeOfType<ExternalEvidence>();
-            credential.GetMechanismProperty<string>("ENVIRONMENT", defaultValue: null).Should().Be(environment);
+            credential.Mechanism.ShouldBe("MONGODB-OIDC");
+            credential.Username.ShouldBeNull();
+            credential.Evidence.ShouldBeOfType<ExternalEvidence>();
+            credential.GetMechanismProperty<string>("ENVIRONMENT", defaultValue: null).ShouldBe(environment);
         }
 
         [Fact]

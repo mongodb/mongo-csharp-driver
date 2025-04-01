@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.AWS;
@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Moq;
 using Xunit;
 using SystemClock = MongoDB.Driver.Authentication.AWS.SystemClock;
@@ -122,10 +123,10 @@ namespace MongoDB.Driver.Tests.Authentication
                 subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
+            sentMessages.Count.ShouldBe(2);
 
             var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
@@ -133,8 +134,8 @@ namespace MongoDB.Driver.Tests.Authentication
             var expectedFirstMessage = GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage);
             var expectedSecondMessage = GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage);
 
-            sentMessages[0].Should().Be(expectedFirstMessage);
-            sentMessages[1].Should().Be(expectedSecondMessage);
+            sentMessages[0].ShouldBe(expectedFirstMessage);
+            sentMessages[1].ShouldBe(expectedSecondMessage);
         }
 
         [Theory]
@@ -202,17 +203,17 @@ namespace MongoDB.Driver.Tests.Authentication
                 subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
+            sentMessages.Count.ShouldBe(2);
 
             var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
 
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedServerApiString));
-            sentMessages[1].Should().Be(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedServerApiString));
+            sentMessages[0].ShouldBe(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedServerApiString));
+            sentMessages[1].ShouldBe(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedServerApiString));
         }
 
         [Theory]
@@ -278,17 +279,17 @@ namespace MongoDB.Driver.Tests.Authentication
                 subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
+            sentMessages.Count.ShouldBe(2);
 
             var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
 
             var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
-            sentMessages[0].Should().Be(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedEndString));
-            sentMessages[1].Should().Be(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedEndString));
+            sentMessages[0].ShouldBe(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedEndString));
+            sentMessages[1].ShouldBe(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedEndString));
         }
 
         [Theory]
@@ -313,7 +314,7 @@ namespace MongoDB.Driver.Tests.Authentication
                 exception = Record.Exception(() => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None));
             }
 
-            exception.Should().BeOfType<MongoAuthenticationException>();
+            exception.ShouldBeOfType<MongoAuthenticationException>();
         }
 
         [Theory]
@@ -356,8 +357,8 @@ namespace MongoDB.Driver.Tests.Authentication
                 exception = Record.Exception(() => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None));
             }
 
-            exception.Should().BeOfType<MongoAuthenticationException>();
-            exception.Message.Should().Be("Server returned an invalid sts host.");
+            exception.ShouldBeOfType<MongoAuthenticationException>();
+            exception.Message.ShouldBe("Server returned an invalid sts host.");
         }
 
         [Theory]
@@ -397,8 +398,8 @@ namespace MongoDB.Driver.Tests.Authentication
                 exception = Record.Exception(() => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None));
             }
 
-            exception.Should().BeOfType<MongoAuthenticationException>();
-            exception.Message.Should().Be("Server sent an invalid nonce.");
+            exception.ShouldBeOfType<MongoAuthenticationException>();
+            exception.Message.ShouldBe("Server sent an invalid nonce.");
         }
 
         [Theory]
@@ -442,8 +443,8 @@ namespace MongoDB.Driver.Tests.Authentication
                 exception = Record.Exception(() => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None));
             }
 
-            exception.Should().BeOfType<MongoAuthenticationException>();
-            exception.Message.Should().Be("Server returned unexpected fields: u.");
+            exception.ShouldBeOfType<MongoAuthenticationException>();
+            exception.Message.ShouldBe("Server returned unexpected fields: u.");
         }
 
         [Theory]
@@ -512,10 +513,10 @@ namespace MongoDB.Driver.Tests.Authentication
                 subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
+            sentMessages.Count.ShouldBe(2);
 
             var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
@@ -523,8 +524,8 @@ namespace MongoDB.Driver.Tests.Authentication
             var expectedFirstMessage = GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage);
             var expectedSecondMessage = GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage);
 
-            sentMessages[0].Should().Be(expectedFirstMessage);
-            sentMessages[1].Should().Be(expectedSecondMessage);
+            sentMessages[0].ShouldBe(expectedFirstMessage);
+            sentMessages[1].ShouldBe(expectedSecondMessage);
         }
 
         // private methods

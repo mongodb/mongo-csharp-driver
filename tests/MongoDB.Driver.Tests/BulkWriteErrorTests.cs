@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using Xunit;
 
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
             var coreError = new Core.Operations.BulkWriteOperationError(0, code, "blah", new BsonDocument());
             var subject = BulkWriteError.FromCore(coreError);
 
-            subject.Category.Should().Be(expectedCategory);
+            subject.Category.ShouldBe(expectedCategory);
         }
     }
 }

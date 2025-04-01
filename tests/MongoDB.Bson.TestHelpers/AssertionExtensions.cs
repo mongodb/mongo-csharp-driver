@@ -13,8 +13,13 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using Shouldly;
+using Xunit;
 
 namespace MongoDB.Bson.TestHelpers;
 
@@ -31,5 +36,45 @@ public static class AssertionExtensions
     {
         var expectedArray = expected == null ? null : BsonSerializer.Deserialize<BsonArray>(expected);
         subject.ShouldBe(expectedArray);
+    }
+
+    public static void ShouldHaveCount<T>(this IEnumerable<T> subject, int expectedCount)
+    {
+        subject.Count().ShouldBe(expectedCount);
+    }
+
+    public static void ShouldContain(this BsonDocument subject, string expected)
+    {
+        subject.Elements.Select(e => e.Name).ShouldContain(expected);
+    }
+
+    public static void ShouldNotContain(this BsonDocument subject, string expected)
+    {
+        subject.Elements.Select(e => e.Name).ShouldNotContain(expected);
+    }
+
+    public static void ShouldMatch<T>(this T subject, Predicate<T> predicate)
+    {
+        predicate(subject).ShouldBeTrue();
+    }
+
+    public static void ShouldNotHaveValue(this object subject)
+    {
+        subject.ShouldBeNull();
+    }
+
+    public static void ShouldBeTrue(this bool? subject)
+    {
+        subject.ShouldBe(true);
+    }
+
+    public static void ShouldBeFalse(this bool? subject)
+    {
+        subject.ShouldBe(false);
+    }
+
+    public static void ShouldOnlyContain<T>(this IEnumerable<T> subject, Expression<Func<T, bool>> predicate)
+    {
+        subject.ShouldAllBe(predicate);
     }
 }

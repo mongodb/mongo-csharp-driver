@@ -14,8 +14,9 @@
  */
 
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Search;
 using Xunit;
@@ -60,11 +61,11 @@ namespace MongoDB.Driver.Tests
                 .Project<SimplePerson>(Builders<SimplePerson>.Projection.Exclude("_id"))
                 .ToList();
 
-            result.Count.Should().Be(4);
-            result[0].Age.Should().Be(34);
-            result[1].Age.Should().Be(43);
-            result[2].Age.Should().Be(24);
-            result[3].Age.Should().Be(42);
+            result.Count.ShouldBe(4);
+            result[0].Age.ShouldBe(34);
+            result[1].Age.ShouldBe(43);
+            result[2].Age.ShouldBe(24);
+            result[3].Age.ShouldBe(42);
         }
 
         [Fact]
@@ -88,11 +89,11 @@ namespace MongoDB.Driver.Tests
                 .Project<SimplePerson>(Builders<SimplePerson>.Projection.Exclude("_id"))
                 .ToList();
 
-            result.Count.Should().Be(4);
-            result[0].Age.Should().Be(24);
-            result[1].Age.Should().Be(34);
-            result[2].Age.Should().Be(42);
-            result[3].Age.Should().Be(43);
+            result.Count.ShouldBe(4);
+            result[0].Age.ShouldBe(24);
+            result[1].Age.ShouldBe(34);
+            result[2].Age.ShouldBe(42);
+            result[3].Age.ShouldBe(43);
         }
 
         [Fact]
@@ -116,11 +117,11 @@ namespace MongoDB.Driver.Tests
                 .Project<SimplePerson>(Builders<SimplePerson>.Projection.Exclude("_id"))
                 .ToList();
 
-            result.Count.Should().Be(4);
-            result[0].Age.Should().Be(34);
-            result[1].Age.Should().Be(43);
-            result[2].Age.Should().Be(24);
-            result[3].Age.Should().Be(42);
+            result.Count.ShouldBe(4);
+            result[0].Age.ShouldBe(34);
+            result[1].Age.ShouldBe(43);
+            result[2].Age.ShouldBe(24);
+            result[3].Age.ShouldBe(42);
         }
 
         [Fact]
@@ -149,13 +150,13 @@ namespace MongoDB.Driver.Tests
                     .MetaScoreDetails(r => r.ScoreDetails))
                 .ToList();
 
-            result.Should().ContainSingle();
-            result[0].Score.Should().BeGreaterThan(0);
-            result[0].ScoreDetails.Should().NotBeNull();
+            result.ShouldHaveCount(1);
+            result[0].Score.ShouldBeGreaterThan(0);
+            result[0].ScoreDetails.ShouldNotBeNull();
 
-            result[0].ScoreDetails.Description.Should().NotBeNullOrEmpty();
-            result[0].ScoreDetails.Value.Should().Be(result[0].Score);
-            result[0].ScoreDetails.Details.Should().NotBeEmpty();
+            result[0].ScoreDetails.Description.ShouldNotBeNullOrEmpty();
+            result[0].ScoreDetails.Value.ShouldBe(result[0].Score);
+            result[0].ScoreDetails.Details.ShouldNotBeEmpty();
         }
 
         public class SimplePerson

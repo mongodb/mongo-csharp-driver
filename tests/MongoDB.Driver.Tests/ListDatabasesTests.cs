@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
@@ -55,11 +55,11 @@ namespace MongoDB.Driver.Tests
 
             if (authorizedDatabases.HasValue && authorizedDatabases.Value)
             {
-                result.Should().BeEquivalentTo(new BsonArray { new BsonDocument { { "name", _databaseName } } });
+                result.ShouldBeEquivalentTo(new BsonArray { new BsonDocument { { "name", _databaseName } } });
             }
             else
             {
-                result.Count.Should().BeGreaterThan(1);
+                result.Count.ShouldBeGreaterThan(1);
             }
         }
 

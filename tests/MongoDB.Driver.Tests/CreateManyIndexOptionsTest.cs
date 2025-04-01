@@ -14,7 +14,7 @@
 */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.CommitQuorum;
 
-            result.Should().BeSameAs(commitQuorum);
+            result.ShouldBeSameAs(commitQuorum);
         }
 
         [Theory]
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests
 
             subject.CommitQuorum = commitQuorum;
 
-            subject.CommitQuorum.Should().Be(commitQuorum);
+            subject.CommitQuorum.ShouldBe(commitQuorum);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.MaxTime;
 
-            result.Should().Be(TimeSpan.FromSeconds(123));
+            result.ShouldBe(TimeSpan.FromSeconds(123));
         }
 
         [Theory]
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests
 
             subject.MaxTime = maxTime;
 
-            subject.MaxTime.Should().Be(maxTime);
+            subject.MaxTime.ShouldBe(maxTime);
         }
 
         [Theory]
@@ -81,8 +81,8 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => subject.MaxTime = value);
 
-            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
-            e.ParamName.Should().Be("value");
+            var e = exception.ShouldBeOfType<ArgumentOutOfRangeException>();
+            e.ParamName.ShouldBe("value");
         }
 
     }

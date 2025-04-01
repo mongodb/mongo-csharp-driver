@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests
                 }
 
                 CommandStartedEvent sentCommand = ((CommandStartedEvent)eventCapturer.Events[0]);
-                SpinWait.SpinUntil(() => client.Cluster.Description.Servers.Any(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(5)).Should().BeTrue();
+                SpinWait.SpinUntil(() => client.Cluster.Description.Servers.Any(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(5)).ShouldBeTrue();
 
                 var clusterType = client.Cluster.Description.Type;
 
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests
                     ? "$readPreference"
                     : "readPreference";
 
-                sentCommand.Command.Contains(readPreferenceFieldName).Should().Be(expectedContainsReadPreference);
+                sentCommand.Command.Contains(readPreferenceFieldName).ShouldBe(expectedContainsReadPreference);
             }
         }
 

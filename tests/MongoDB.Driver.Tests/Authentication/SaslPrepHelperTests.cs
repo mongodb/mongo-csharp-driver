@@ -14,7 +14,7 @@
  */
 
 using System;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Authentication;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -29,16 +29,16 @@ namespace MongoDB.Driver.Tests.Authentication
     {
         [Fact]
         public void SaslPrepQuery_accepts_undefined_codepoint()
-        {     
+        {
             var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(_unassignedCodePoint.Value)}";
-            
-            SaslPrepHelper.SaslPrepQuery(strWithUnassignedCodepoint).Should().Be(strWithUnassignedCodepoint);
+
+            SaslPrepHelper.SaslPrepQuery(strWithUnassignedCodepoint).ShouldBe(strWithUnassignedCodepoint);
         }
 
         [Fact]
         public void SaslPrepStored_accepts_RandALCat_Characters_in_first_and_last_position()
         {
-            SaslPrepHelper.SaslPrepStored("\u0627\u0031\u0627").Should().Be("\u0627\u0031\u0627");
+            SaslPrepHelper.SaslPrepStored("\u0627\u0031\u0627").ShouldBe("\u0627\u0031\u0627");
         }
 
         [Theory]
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Authentication
         [InlineData("A B", "A\u1680B")]
         public void SaslPrepStored_maps_space_equivalents_to_space(string expected, string input)
         {
-            SaslPrepHelper.SaslPrepStored(input).Should().Be(expected);
+            SaslPrepHelper.SaslPrepStored(input).ShouldBe(expected);
         }
 
         [Theory]
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Authentication
             string expected,
             string nonNormalizedStr)
         {
-            SaslPrepHelper.SaslPrepStored(nonNormalizedStr).Should().Be(expected);
+            SaslPrepHelper.SaslPrepStored(nonNormalizedStr).ShouldBe(expected);
         }
 
         [Theory]
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Authentication
             string expected,
             string partiallyPreppedStr)
         {
-            SaslPrepHelper.SaslPrepStored(partiallyPreppedStr).Should().Be(expected);
+            SaslPrepHelper.SaslPrepStored(partiallyPreppedStr).ShouldBe(expected);
         }
 
         [Theory]
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests.Authentication
         [InlineData("IX", "\u2168")]
         public void SaslPrepStored_returns_expected_output_when_passed_Rfc4013_examples(string expected, string input)
         {
-            SaslPrepHelper.SaslPrepStored(input).Should().Be(expected);
+            SaslPrepHelper.SaslPrepStored(input).ShouldBe(expected);
         }
 
         [Theory]
@@ -92,28 +92,28 @@ namespace MongoDB.Driver.Tests.Authentication
         public void SaslPrep_throws_argument_exception_when_passed_Rfc4013_examples(string expectedError, string input)
         {
             var exception = Record.Exception(()=>SaslPrepHelper.SaslPrepStored(input));
-            
-            exception.Should().BeOfType<ArgumentException>().Subject.Message.Should().Be(expectedError);
+
+            exception.ShouldBeOfType<ArgumentException>().Message.ShouldBe(expectedError);
         }
 
         [Fact]
         public void SaslPrepStored_throws_argument_exception_with_RandALCat_and_LCat_characters()
         {
             var exception = Record.Exception(() => SaslPrepHelper.SaslPrepStored("\u0627\u0041\u0627"));
-            
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Contains both RandALCat characters and LCat characters");
+
+            exception.ShouldBeOfType<ArgumentException>();
+            exception.Message.ShouldBe("Contains both RandALCat characters and LCat characters");
         }
-        
+
         [Fact]
         public void SaslPrepStored_throws_exception_when_passed_an_undefined_codepoint()
-        { 
+        {
             var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(_unassignedCodePoint.Value)}";
-            
+
             var exception = Record.Exception(()=>SaslPrepHelper.SaslPrepStored(strWithUnassignedCodepoint));
-            
-            exception.Should().BeOfType<ArgumentException>();
-            exception.Message.Should().Be("Character at position 3 is unassigned");
+
+            exception.ShouldBeOfType<ArgumentException>();
+            exception.Message.ShouldBe("Character at position 3 is unassigned");
         }
 
         private static readonly Lazy<int> _unassignedCodePoint = new Lazy<int>(FindUnassignedCodePoint);

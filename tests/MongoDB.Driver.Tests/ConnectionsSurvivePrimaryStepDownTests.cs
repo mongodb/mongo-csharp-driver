@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Net;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
@@ -60,15 +60,15 @@ namespace MongoDB.Driver.Tests
                 {
                     var exception = Record.Exception(() => { collection.InsertOne(new BsonDocument("test", 1)); });
 
-                    var e = exception.Should().BeOfType<MongoNodeIsRecoveringException>().Subject;
-                    e.Code.Should().Be(errorCode);
+                    var e = exception.ShouldBeOfType<MongoNodeIsRecoveringException>();
+                    e.Code.ShouldBe(errorCode);
 
-                    eventCapturer.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
-                    eventCapturer.Events.Should().BeEmpty();
+                    eventCapturer.Next().ShouldBeOfType<ConnectionPoolClearedEvent>();
+                    eventCapturer.Events.ShouldBeEmpty();
 
                     collection.InsertOne(new BsonDocument("test", 1));
-                    eventCapturer.Next().Should().BeOfType<ConnectionCreatedEvent>();
-                    eventCapturer.Events.Should().BeEmpty();
+                    eventCapturer.Next().ShouldBeOfType<ConnectionCreatedEvent>();
+                    eventCapturer.Events.ShouldBeEmpty();
                 }
             }
         }
@@ -117,12 +117,12 @@ namespace MongoDB.Driver.Tests
                     replSetStepDownResult = adminDatabase.RunCommand<BsonDocument>(replSetStepDownCommand);
                 }
 
-                replSetStepDownResult.Should().NotBeNull();
-                replSetStepDownResult.GetValue("ok", false).ToBoolean().Should().BeTrue();
+                replSetStepDownResult.ShouldNotBeNull();
+                replSetStepDownResult.GetValue("ok", false).ToBoolean().ShouldBeTrue();
 
                 cursor.MoveNext();
 
-                eventCapturer.Events.Should().BeEmpty(); // it also means that no new PoolClearedEvent
+                eventCapturer.Events.ShouldBeEmpty(); // it also means that no new PoolClearedEvent
             }
 
             void RunOnSecondary(IMongoClient primaryClient, EndPoint secondaryEndpoint, BsonDocument command)
@@ -161,25 +161,25 @@ namespace MongoDB.Driver.Tests
                 {
                     var exception = Record.Exception(() => { collection.InsertOne(new BsonDocument("test", 1)); });
 
-                    var e = exception.Should().BeOfType<MongoNotPrimaryException>().Subject;
-                    e.Code.Should().Be(10107);
+                    var e = exception.ShouldBeOfType<MongoNotPrimaryException>();
+                    e.Code.ShouldBe(10107);
 
                     if (shouldConnectionPoolBeCleared)
                     {
-                        eventCapturer.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
-                        eventCapturer.Events.Should().BeEmpty();
+                        eventCapturer.Next().ShouldBeOfType<ConnectionPoolClearedEvent>();
+                        eventCapturer.Events.ShouldBeEmpty();
                     }
                     else
                     {
-                        eventCapturer.Events.Should().BeEmpty();
+                        eventCapturer.Events.ShouldBeEmpty();
                     }
 
                     collection.InsertOne(new BsonDocument("test", 1));
                     if (shouldConnectionPoolBeCleared)
                     {
-                        eventCapturer.Next().Should().BeOfType<ConnectionCreatedEvent>();
+                        eventCapturer.Next().ShouldBeOfType<ConnectionCreatedEvent>();
                     }
-                    eventCapturer.Events.Should().BeEmpty();
+                    eventCapturer.Events.ShouldBeEmpty();
                 }
             }
         }

@@ -13,8 +13,9 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
+using Shouldly;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -26,7 +27,7 @@ namespace MongoDB.Driver.Tests
         {
             var result = new ClientSessionOptions();
 
-            result.CausalConsistency.Should().NotHaveValue();
+            result.CausalConsistency.ShouldNotHaveValue();
         }
 
         [Theory]
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.CausalConsistency;
 
-            result.Should().Be(value);
+            result.ShouldBe(value);
         }
 
         [Theory]
@@ -50,7 +51,7 @@ namespace MongoDB.Driver.Tests
 
             subject.CausalConsistency = value;
 
-            subject.CausalConsistency.Should().Be(value);
+            subject.CausalConsistency.ShouldBe(value);
         }
 
         [Theory]
@@ -63,7 +64,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.DefaultTransactionOptions;
 
-            result.Should().BeSameAs(value);
+            result.ShouldBeSameAs(value);
         }
 
         [Theory]
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Tests
 
             subject.DefaultTransactionOptions = value;
 
-            subject.DefaultTransactionOptions.Should().BeSameAs(value);
+            subject.DefaultTransactionOptions.ShouldBeSameAs(value);
         }
 
         [Theory]
@@ -93,9 +94,9 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.ToCore(isImplicit: isImplicit);
 
-            result.DefaultTransactionOptions.Should().BeSameAs(defaultTransactionOptions);
-            result.IsCausallyConsistent.Should().Be(causalConsistency ?? true);
-            result.IsImplicit.Should().Be(isImplicit);
+            result.DefaultTransactionOptions.ShouldBeSameAs(defaultTransactionOptions);
+            result.IsCausallyConsistent.ShouldBe(causalConsistency ?? true);
+            result.IsImplicit.ShouldBe(isImplicit);
         }
 
         // private methods

@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Encryption;
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongocryptdFactory(null, null);
             var clientSettings = subject.CreateMongocryptdClientSettings();
-            clientSettings.ServerSelectionTimeout.Should().Be(TimeSpan.FromSeconds(10));
+            clientSettings.ServerSelectionTimeout.ShouldBe(TimeSpan.FromSeconds(10));
         }
 
         [Theory]
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
             }
             var subject = new MongocryptdFactory(extraOptions, null);
             var connectionString = subject.CreateMongocryptdConnectionString();
-            connectionString.Should().Be(expectedConnectionString);
+            connectionString.ShouldBe(expectedConnectionString);
         }
 
         [Theory]
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests
             var extraOptions = new Dictionary<string, object>();
             var subject = new MongocryptdFactory(extraOptions, bypassQueryAnalysis);
             var shouldMongocryptdBeSpawned = subject.ShouldMongocryptdBeSpawned(out _, out _);
-            shouldMongocryptdBeSpawned.Should().Be(shouldBeSpawned);
+            shouldMongocryptdBeSpawned.ShouldBe(shouldBeSpawned);
         }
 
         [Theory]
@@ -116,9 +116,9 @@ namespace MongoDB.Driver.Tests
             var subject = new MongocryptdFactory(extraOptions, null);
 
             var result = subject.ShouldMongocryptdBeSpawned(out var path, out var args);
-            result.Should().Be(shouldBeSpawned);
-            path.Should().Be(expectedPath);
-            args.Should().Be(expectedArgs);
+            result.ShouldBe(shouldBeSpawned);
+            path.ShouldBe(expectedPath);
+            args.ShouldBe(expectedArgs);
 
             object CreateTypedExtraOptions(BsonValue value)
             {

@@ -16,7 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -106,9 +107,9 @@ namespace MongoDB.Driver.Tests
                 }
             }
 
-            listOfFindResults.Should().OnlyContain(findResult => findResult.Count > 0);
+            listOfFindResults.ShouldOnlyContain(findResult => findResult.Count > 0);
             var servers = new HashSet<ServerId>(eventCapturer.Events.Select(e => ((CommandStartedEvent)e).ConnectionId.ServerId));
-            servers.Count.Should().BeGreaterThan(1);
+            servers.Count.ShouldBeGreaterThan(1);
 
         }
 
@@ -159,9 +160,9 @@ namespace MongoDB.Driver.Tests
                 }
             }
 
-            listOfFindResults.Should().OnlyContain(findResult => findResult.Count > 0);
+            listOfFindResults.ShouldOnlyContain(findResult => findResult.Count > 0);
             var servers = new HashSet<ServerId>(eventCapturer.Events.Select(e => ((CommandStartedEvent)e).ConnectionId.ServerId));
-            servers.Count.Should().BeGreaterThan(1);
+            servers.Count.ShouldBeGreaterThan(1);
         }
 
         private EventCapturer CreateEventCapturer()
@@ -190,7 +191,7 @@ namespace MongoDB.Driver.Tests
                 useMultipleShardRouters);
             var timeOut = TimeSpan.FromSeconds(60);
             bool AllServersConnected() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected);
-            SpinWait.SpinUntil(AllServersConnected, timeOut).Should().BeTrue();
+            SpinWait.SpinUntil(AllServersConnected, timeOut).ShouldBeTrue();
             return client;
         }
 

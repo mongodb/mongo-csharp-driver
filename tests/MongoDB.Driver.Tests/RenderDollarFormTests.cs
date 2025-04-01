@@ -14,7 +14,7 @@
 */
 
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Xunit;
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests
 
             var actualFilter = filterDefinition.Render(new(documentSerializer, serializerRegistry, renderDollarForm: renderDollarForm));
 
-            actualFilter.Should().Be(expectedFilterDocument);
+            actualFilter.ShouldBe(expectedFilterDocument);
         }
 
         public static IEnumerable<object[]> Correct_form_should_be_rendered_test_cases()

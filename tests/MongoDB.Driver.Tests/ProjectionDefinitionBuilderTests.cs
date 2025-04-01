@@ -14,11 +14,12 @@
 */
 
 using System.Text;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -254,7 +255,7 @@ namespace MongoDB.Driver.Tests
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedProjection = projection.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
-            renderedProjection.Should().Be(expectedJson);
+            renderedProjection.ShouldBe(expectedJson);
         }
 
         private ProjectionDefinitionBuilder<TDocument> CreateSubject<TDocument>()

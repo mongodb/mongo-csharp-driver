@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Tests
                     var server = client.GetClusterInternal().SelectServer(serverSelector, cancellationToken);
                     var channel = server.GetChannel(cancellationToken);
                     var helloResult = channel.ConnectionDescription.HelloResult;
-                    helloResult.SpeculativeAuthenticate.Should().NotBeNull();
+                    helloResult.SpeculativeAuthenticate.ShouldNotBeNull();
                 }
             }
         }
@@ -361,7 +361,7 @@ namespace MongoDB.Driver.Tests
                     exception = Record.Exception(() => client.ListDatabaseNames().ToList());
                 }
 
-                exception.Should().BeOfType<MongoAuthenticationException>();
+                exception.ShouldBeOfType<MongoAuthenticationException>();
             }
         }
 

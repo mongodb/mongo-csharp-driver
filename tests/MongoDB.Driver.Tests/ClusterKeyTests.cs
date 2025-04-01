@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -37,9 +37,9 @@ namespace MongoDB.Driver.Tests
         {
             var subject1 = CreateSubject();
             var subject2 = CreateSubject();
-            subject1.Should().NotBeSameAs(subject2);
-            subject1.Equals(subject2).Should().BeTrue();
-            subject1.GetHashCode().Should().Be(subject2.GetHashCode());
+            subject1.ShouldNotBeSameAs(subject2);
+            subject1.Equals(subject2).ShouldBeTrue();
+            subject1.GetHashCode().ShouldBe(subject2.GetHashCode());
         }
 
         [Theory]
@@ -83,9 +83,9 @@ namespace MongoDB.Driver.Tests
         {
             var subject1 = CreateSubject();
             var subject2 = CreateSubject(notEqualFieldName);
-            subject1.Should().NotBeSameAs(subject2);
-            subject1.Equals(subject2).Should().BeFalse();
-            subject1.GetHashCode().Equals(subject2.GetHashCode()).Should().Be(expectEqualHashCode);
+            subject1.ShouldNotBeSameAs(subject2);
+            subject1.Equals(subject2).ShouldBeFalse();
+            subject1.GetHashCode().Equals(subject2.GetHashCode()).ShouldBe(expectEqualHashCode);
         }
 
         [Theory]
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests
 
             var subject1 = CreateSubjectWith(kmsProvidersValue: kmsProvider1);
             var subject2 = CreateSubjectWith(kmsProvidersValue: kmsProvider2);
-            subject1.Should().NotBe(subject2);
+            subject1.ShouldNotBe(subject2);
         }
 
         [Theory]
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Tests
 
             var subject1 = CreateSubjectWith(kmsProvidersValue: kmsProviders1);
             var subject2 = CreateSubjectWith(kmsProvidersValue: kmsProviders2);
-            subject1.Should().Be(subject2);
+            subject1.ShouldBe(subject2);
         }
 
         [Theory]
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Tests
 
             var subject1 = CreateSubjectWith(schemaMapValue: schemaMap1);
             var subject2 = CreateSubjectWith(schemaMapValue: schemaMap2);
-            subject1.Should().Be(subject2);
+            subject1.ShouldBe(subject2);
         }
 
         [Theory]
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Tests
 
             var subject1 = CreateSubjectWith(encryptedFieldsMap: map1);
             var subject2 = CreateSubjectWith(encryptedFieldsMap: map2);
-            subject1.Should().Be(subject2);
+            subject1.ShouldBe(subject2);
         }
 
         // private methods

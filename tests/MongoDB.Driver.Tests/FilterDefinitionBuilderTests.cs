@@ -16,13 +16,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -1047,7 +1048,7 @@ namespace MongoDB.Driver.Tests
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var renderedFilter = filter.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
-            renderedFilter.Should().Be(expected);
+            renderedFilter.ShouldBe(expected);
         }
 
         private FilterDefinitionBuilder<TDocument> CreateSubject<TDocument>()
@@ -1188,8 +1189,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1209,8 +1210,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1230,8 +1231,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1251,8 +1252,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1272,8 +1273,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1293,8 +1294,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1314,8 +1315,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1335,8 +1336,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         // private methods
@@ -1409,8 +1410,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1430,8 +1431,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1451,8 +1452,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1472,8 +1473,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1493,8 +1494,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1514,8 +1515,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1535,8 +1536,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         [Theory]
@@ -1556,8 +1557,8 @@ namespace MongoDB.Driver.Tests
             var renderedFilter = Render(filter);
             var ids = __collection.Find(filter).ToList().Select(d => d.Id);
 
-            renderedFilter.Should().Be(expectedFilter);
-            ids.Should().Equal(expectedIds);
+            renderedFilter.ShouldBe(expectedFilter);
+            ids.ShouldBe(expectedIds);
         }
 
         // private methods

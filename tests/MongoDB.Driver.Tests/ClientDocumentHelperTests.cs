@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers.Core;
 using MongoDB.TestHelpers.XunitExtensions;
-using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -88,16 +87,16 @@ namespace MongoDB.Driver.Tests
                     _ = database.RunCommand<BsonDocument>("{ ping : 1 }");
                 }
 
-                var command = eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject.Command["client"].AsBsonDocument;
-                eventCapturer.Any().Should().BeFalse();
+                var command = eventCapturer.Next().ShouldBeOfType<CommandStartedEvent>().Command["client"].AsBsonDocument;
+                eventCapturer.Any().ShouldBeFalse();
                 if (expectedValue == BsonNull.Value)
                 {
-                    command.Should().NotContain("env");
+                    command.ShouldNotContain("env");
                 }
                 else
                 {
                     var expectedDocument = expectedValue.AsBsonDocument;
-                    command["env"].AsBsonDocument.Should().Be(expectedDocument);
+                    command["env"].AsBsonDocument.ShouldBe(expectedDocument);
                 }
             }
         }
