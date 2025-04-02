@@ -27,19 +27,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             => expression.Type.IsConstructedGenericType && expression.Type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
 
         public static TranslatedExpression Translate(TranslationContext context, NewExpression expression)
-            => TranslateKeyValuePairExpression(context, expression, expression.Arguments);
-
-        public static TranslatedExpression TranslateKeyValuePairExpression(TranslationContext context, Expression expression, IReadOnlyList<Expression> arguments)
         {
-            var translatedKeyExpression = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]);
-            var translatedValueExpression = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[1]);
+            var arguments = expression.Arguments;
+            var keyExpression = arguments[0];
+            var valueExpression = arguments[1];
+            return Translate(context, expression, keyExpression, valueExpression);
+        }
+
+        public static TranslatedExpression Translate(TranslationContext context, Expression expression, Expression keyExpression, Expression valueExpression)
+        {
+            var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
+            var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
 
             var ast = AstExpression.ComputedDocument([
-                AstExpression.ComputedField("Key", translatedKeyExpression.Ast),
-                AstExpression.ComputedField("Value", translatedValueExpression.Ast)
+                AstExpression.ComputedField("Key", keyTranslation.Ast),
+                AstExpression.ComputedField("Value", valueTranslation.Ast)
             ]);
 
-            var serializer = CreateResultSerializer(expression.Type, translatedKeyExpression.Serializer, translatedValueExpression.Serializer);
+            var serializer = CreateResultSerializer(expression.Type, keyTranslation.Serializer, valueTranslation.Serializer);
 
             return new TranslatedExpression(expression, ast, serializer);
         }
@@ -54,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             classMap.GetMemberMap("Value").SetSerializer(valueSerializer);
             classMap.Freeze();
 
-            // have to use BsonClassMapSerializer here to mimic the MemberInitExpressionToAggregationExpressionTranslator to avoid behavioral breaking change
+            // have to use BsonClassMapSerializer here to mimic the MemberInitExpressionToAggregationExpressionTranslator to avoid risking a behavioral breaking change
             var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(resultType);
             return (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
         }

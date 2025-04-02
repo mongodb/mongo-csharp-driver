@@ -91,7 +91,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             if (method.Is(KeyValuePairMethod.Create))
             {
-                return NewKeyValuePairExpressionToAggregationExpressionTranslator.TranslateKeyValuePairExpression(context, expression, expression.Arguments);
+                var keyExpression = arguments[0];
+                var valueExpression = arguments[1];
+                return NewKeyValuePairExpressionToAggregationExpressionTranslator.Translate(context, expression, keyExpression, valueExpression);
             }
 #endif
             throw new ExpressionNotSupportedException(expression);
