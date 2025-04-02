@@ -41,9 +41,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertStages(
                 stages,
-                """{ $sort : { _id : 1 } }""",
-                """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }""");
+                "{ $sort : { _id : 1 } }",
+                "{ $group : { _id : null, _last : { $last : '$$ROOT' } } }",
+                "{ $replaceRoot : { newRoot : '$_last' } }");
 
             result.Id.Should().Be(3);
         }
@@ -59,9 +59,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertStages(
                 stages,
-                """{ $match : { _id : { $gt : 5 } }}""",
-                """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }""");
+                "{ $match : { _id : { $gt : 5 } }}",
+                "{ $group : { _id : null, _last : { $last : '$$ROOT' } } }",
+                "{ $replaceRoot : { newRoot : '$_last' } }");
 
             exception.Should().BeOfType<InvalidOperationException>();
             exception.Message.Should().Contain("Sequence contains no elements");
@@ -78,9 +78,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertStages(
                 stages,
-                """{ $sort : { _id : 1 } }""",
-                """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }""");
+                "{ $sort : { _id : 1 } }",
+                "{ $group : { _id : null, _last : { $last : '$$ROOT' } } }",
+                "{ $replaceRoot : { newRoot : '$_last' } }");
 
             result.Should().NotBeNull();
             result.Id.Should().Be(3);
@@ -97,9 +97,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertStages(
                 stages,
-                """{ $match : { _id : { $gt : 5 } }}""",
-                """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }""");
+                "{ $match : { _id : { $gt : 5 } }}",
+                "{ $group : { _id : null, _last : { $last : '$$ROOT' } } }",
+                "{ $replaceRoot : { newRoot : '$_last' } }");
 
             result.Should().BeNull();
         }
@@ -115,10 +115,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertStages(
                 stages,
-                """{ $sort : { _id : 1 } }""",
-                """{ $match : { _id : { $gt : 1 } }}""",
-                """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }""");
+                "{ $sort : { _id : 1 } }",
+                "{ $match : { _id : { $gt : 1 } }}",
+                "{ $group : { _id : null, _last : { $last : '$$ROOT' } } }",
+                "{ $replaceRoot : { newRoot : '$_last' } }");
 
             result.Should().NotBeNull();
             result.Id.Should().Be(3);
@@ -135,9 +135,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertStages(
                 stages,
-                """{ $match : { _id : { $gt : 4 } }}""",
-                """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }""");
+                "{ $match : { _id : { $gt : 4 } }}",
+                "{ $group : { _id : null, _last : { $last : '$$ROOT' } } }",
+                "{ $replaceRoot : { newRoot : '$_last' } }");
 
             result.Should().BeNull();
         }
@@ -153,10 +153,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertStages(
                 stages,
-                """{ $sort : { _id : 1 } }""",
-                """{ $match : { _id : { $gt : 1 } }}""",
-                """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }""");
+                "{ $sort : { _id : 1 } }",
+                "{ $match : { _id : { $gt : 1 } }}",
+                "{ $group : { _id : null, _last : { $last : '$$ROOT' } } }",
+                "{ $replaceRoot : { newRoot : '$_last' } }");
 
             result.Id.Should().Be(3);
         }
@@ -172,9 +172,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertStages(
                 stages,
-                """{ $match : { _id : { $gt : 4 } }}""",
-                """{ $group : { _id : null, _last : { $last : "$$ROOT" } } }""",
-                """{ $replaceRoot : { newRoot : "$_last" } }""");
+                "{ $match : { _id : { $gt : 4 } }}",
+                "{ $group : { _id : null, _last : { $last : '$$ROOT' } } }",
+                "{ $replaceRoot : { newRoot : '$_last' } }");
 
             exception.Should().BeOfType<InvalidOperationException>();
             exception.Message.Should().Contain("Sequence contains no elements");
