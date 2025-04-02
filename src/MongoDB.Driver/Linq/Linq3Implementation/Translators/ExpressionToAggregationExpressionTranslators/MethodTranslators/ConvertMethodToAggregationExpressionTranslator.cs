@@ -59,44 +59,44 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     switch (memberName)
                     {
-                        case "OnError":
+                        case nameof(ConvertOptions.ByteOrder):
                         {
-                            onErrorAst = ExpressionToAggregationExpressionTranslator.Translate(context, memberAssignment.Expression).Ast;
+                            if (memberAssignment.Expression is not ConstantExpression byteOrderExpression)
+                            {
+                                throw new ExpressionNotSupportedException($"The {nameof(ConvertOptions.ByteOrder)} field must be a constant expression");  //TODO Improve message?
+                            }
+
+                            byteOrder = (ByteOrder?)byteOrderExpression.Value;
                             break;
                         }
-                        case "OnNull":
-                        {
-                            onNullAst = ExpressionToAggregationExpressionTranslator.Translate(context, memberAssignment.Expression).Ast;
-                            break;
-                        }
-                        case "Format":
+                        case nameof(ConvertOptions.Format):
                         {
                             if (memberAssignment.Expression is not ConstantExpression formatExpression)
                             {
-                                throw new ExpressionNotSupportedException("The 'format' field must be a constant expression");  //TODO Improve message?
+                                throw new ExpressionNotSupportedException($"The {nameof(ConvertOptions.Format)} field must be a constant expression");  //TODO Improve message?
                             }
 
                             format = (string)formatExpression.Value;
                             break;
                         }
-                        case "ByteOrder":
+                        case nameof(ConvertOptions<object>.OnError):
                         {
-                            if (memberAssignment.Expression is not ConstantExpression byteOrderExpression)
-                            {
-                                throw new ExpressionNotSupportedException("The 'byteOrder' field must be a constant expression");  //TODO Improve message?
-                            }
-
-                            byteOrder = (ByteOrder)byteOrderExpression.Value;
+                            onErrorAst = ExpressionToAggregationExpressionTranslator.Translate(context, memberAssignment.Expression).Ast;
                             break;
                         }
-                        case "SubType":
+                        case nameof(ConvertOptions<object>.OnNull):
+                        {
+                            onNullAst = ExpressionToAggregationExpressionTranslator.Translate(context, memberAssignment.Expression).Ast;
+                            break;
+                        }
+                        case nameof(ConvertOptions.SubType):
                         {
                             if (memberAssignment.Expression is not ConstantExpression subTypeExpression)
                             {
-                                throw new ExpressionNotSupportedException("The 'subType' field must be a constant expression");  //TODO Improve message?
+                                throw new ExpressionNotSupportedException($"The {nameof(ConvertOptions.SubType)} field must be a constant expression");  //TODO Improve message?
                             }
 
-                            subType = (BsonBinarySubType)subTypeExpression.Value;
+                            subType = (BsonBinarySubType?)subTypeExpression.Value;
                             break;
                         }
                     }

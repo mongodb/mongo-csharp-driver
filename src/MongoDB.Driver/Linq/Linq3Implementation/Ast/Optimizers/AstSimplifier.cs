@@ -111,6 +111,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
         {
             var optimizedNode = (AstConvertExpression)base.VisitConvertExpression(node);
 
+            // If possible, uses $toType ($toInt, $toDouble, ...) operators instead of $convert
             if (optimizedNode is { OnError: null, OnNull: null, SubType: null, Format: null, ByteOrder: null, To: AstConstantExpression toConstantExpression } &&
                 (toConstantExpression.Value as BsonString)?.Value is { } toValue)
             {
