@@ -254,6 +254,45 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $geoNear stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates for the point.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GeoNear<TCoordinates, TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            GeoJsonPoint<TCoordinates> near,
+            GeoNearOptions<TResult> options = null)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GeoNear<TResult, GeoJsonPoint<TCoordinates>, TNewResult>(near, options));
+        }
+
+        /// <summary>
+        /// Appends a $geoNear stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates for the point.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="near">The point for which to find the closest documents.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> GeoNear<TCoordinates, TResult, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            TCoordinates[] near,
+            GeoNearOptions<TResult> options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GeoNear<TResult, TCoordinates, TNewResult>(near, options));
+        }
+
+        /// <summary>
         /// Appends a $graphLookup stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
