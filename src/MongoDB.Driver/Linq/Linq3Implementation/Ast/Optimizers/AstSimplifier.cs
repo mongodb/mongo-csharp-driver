@@ -107,6 +107,35 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             }
         }
 
+        public override AstNode VisitConvertExpression(AstConvertExpression node)
+        {
+            var optimizedNode = (AstConvertExpression)base.VisitConvertExpression(node);
+
+            if (optimizedNode is { OnError: null, OnNull: null, SubType: null, Format: null, ByteOrder: null, To: AstConstantExpression toConstantExpression } &&
+                (toConstantExpression.Value as BsonString)?.Value is { } toValue)
+            {
+                var unaryOperator = toValue switch
+                {
+                    "bool" => AstUnaryOperator.ToBool,
+                    "date" => AstUnaryOperator.ToDate,
+                    "decimal" => AstUnaryOperator.ToDecimal,
+                    "double" => AstUnaryOperator.ToDouble,
+                    "int" => AstUnaryOperator.ToInt,
+                    "long" => AstUnaryOperator.ToLong,
+                    "objectId" => AstUnaryOperator.ToObjectId,
+                    "string" => AstUnaryOperator.ToString,
+                    _ => (AstUnaryOperator?)null
+                };
+
+                if (unaryOperator.HasValue)
+                {
+                    return AstExpression.Unary(unaryOperator.Value, optimizedNode.Input);
+                }
+            }
+
+            return optimizedNode;
+        }
+
         public override AstNode VisitExprFilter(AstExprFilter node)
         {
             var optimizedNode = base.VisitExprFilter(node);
