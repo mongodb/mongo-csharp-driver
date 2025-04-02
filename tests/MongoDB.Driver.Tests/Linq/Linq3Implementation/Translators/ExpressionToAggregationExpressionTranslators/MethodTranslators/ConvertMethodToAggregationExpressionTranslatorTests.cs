@@ -126,6 +126,48 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
         }
 
+        [Theory]
+        [InlineData(0, ByteOrder.BigEndian, 50, null)]
+        public void Test5(int id, ByteOrder byteOrder, int? expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.BinaryProperty, new ConvertOptions<int?> {ByteOrder = byteOrder, OnNull = 50}));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int', 'onNull': 22,  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
+        [Theory]
+        [InlineData(0, ByteOrder.BigEndian, 22, null)]
+        public void Test6(int id, ByteOrder byteOrder, int? expectedResult, string expectedException)
+        {
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert(x.BinaryProperty, new ConvertOptions<int?> {ByteOrder = byteOrder, OnNull = x.ExtraIntProperty}));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int', 'onNull': 22,  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
+        }
+
         private void AssertOutcome<TResult>(IMongoCollection<TestClass> collection,
             IQueryable<TResult> queryable,
             string[] expectedStages,
@@ -166,7 +208,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             protected override IEnumerable<BsonDocument> InitialData =>
             [
-                BsonDocument.Parse("{ _id : 0 }"),
+                BsonDocument.Parse("{ _id : 0, ExtraIntProperty : 22 }"),
                 BsonDocument.Parse("{ _id : 1, BinaryProperty : BinData(0, 'ogIAAA==') }"),
                 BsonDocument.Parse("{ _id : 2, BinaryProperty : BinData(4, 'hn3uUsMxSE6S0cVkebjmfg=='), StringProperty: '867dee52-c331-484e-92d1-c56479b8e67e' }"),
                 BsonDocument.Parse("{ _id : 3, BinaryProperty : BinData(0, 'AAAAAAAA4L8='), DoubleProperty: -0.5, NullableDoubleProperty: -0.5 }"), // LittleEndian
@@ -189,6 +231,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public int? NullableIntProperty { get; set; }
             public long? NullableLongProperty { get; set; }
             public string StringProperty { get; set; }
+            public int ExtraIntProperty { get; set; }
         }
     }
 }

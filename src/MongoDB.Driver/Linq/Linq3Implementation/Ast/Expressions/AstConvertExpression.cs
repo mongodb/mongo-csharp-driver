@@ -22,8 +22,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
     internal sealed class AstConvertExpression : AstExpression
     {
         private readonly ByteOrder? _byteOrder;
-        private readonly AstExpression _input;
         private readonly string _format;
+        private readonly AstExpression _input;
         private readonly AstExpression _onError;
         private readonly AstExpression _onNull;
         private readonly BsonBinarySubType? _subType;
@@ -48,8 +48,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         }
 
         public ByteOrder? ByteOrder => _byteOrder;
-        public AstExpression Input => _input;
         public string Format => _format;
+        public AstExpression Input => _input;
         public override AstNodeType NodeType => AstNodeType.ConvertExpression;
         public AstExpression OnError => _onError;
         public AstExpression OnNull => _onNull;
@@ -71,14 +71,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                         { "to", _to.Render(), _subType == null },
                         { "to", () => new BsonDocument
                             {
-                                {"type", _to.Render() },
-                                {"subtype", (int)_subType!.Value},
-                            }, _subType != null
+                                { "type", _to.Render() },
+                                { "subtype", (int)_subType!.Value},
+                            },
+                            _subType != null
                         },
                         { "onError", () => _onError.Render(), _onError != null },
                         { "onNull", () => _onNull.Render(), _onNull != null },
-                        { "format", () => _format, _format != null},
-                        { "byteOrder", () => _byteOrder!.Value.Render(), _byteOrder != null}
+                        { "format", () => _format, _format != null },
+                        { "byteOrder", () => _byteOrder!.Value.Render(), _byteOrder != null }
                     }
                 }
             };
