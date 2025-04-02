@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
             {
                 ByteOrder.BigEndian => "big",
                 ByteOrder.LittleEndian => "little",
-                _ => throw new ArgumentException($"Unexpected Mql.ByteOrder: {byteOrder}.", nameof(byteOrder))
+                _ => throw new ArgumentException($"Unexpected {nameof(ByteOrder)}: {byteOrder}.", nameof(byteOrder))
             };
         }
     }

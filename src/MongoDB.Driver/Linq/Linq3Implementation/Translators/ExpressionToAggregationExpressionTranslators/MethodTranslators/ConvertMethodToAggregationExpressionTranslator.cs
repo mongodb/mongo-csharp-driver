@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return new TranslatedExpression(expression, ast, serializer);
         }
 
-        public static BsonType GetBsonType(Type type)
+        public static BsonType GetBsonType(Type type)  //TODO Do we have this kind of info somewhere else...?
         {
             return Type.GetTypeCode(Nullable.GetUnderlyingType(type) ?? type) switch
             {

@@ -233,18 +233,18 @@ namespace MongoDB.Driver
     /// Represents the typed options parameter for the conversion methods in the Mql static class.
     /// This class allows to set 'onError' and 'onNull'.
     /// </summary>
-    /// <typeparam name="TResult"> The type of 'onError' and 'onNull'.</typeparam>
-    public class ConvertOptions<TResult> : ConvertOptions
+    /// <typeparam name="TTo"> The type of 'onError' and 'onNull'.</typeparam>
+    public class ConvertOptions<TTo> : ConvertOptions
     {
-        private TResult _onError;
+        private TTo _onError;
         private bool _onErrorWasSet;
-        private TResult _onNull;
+        private TTo _onNull;
         private bool _onNullWasSet;
 
         /// <summary>
         /// The onError parameter.
         /// </summary>
-        public TResult OnError
+        public TTo OnError
         {
             get => _onError;
             set
@@ -257,7 +257,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// The onNull parameter.
         /// </summary>
-        public TResult OnNull
+        public TTo OnNull
         {
             get => _onNull;
             set
