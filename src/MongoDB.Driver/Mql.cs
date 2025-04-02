@@ -273,6 +273,5 @@ namespace MongoDB.Driver
         internal override BsonValue GetOnError() => BsonValue.Create(_onError);
 
         internal override BsonValue GetOnNull() => BsonValue.Create(_onNull);
-
     }
 }
