@@ -34,7 +34,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return Translate(context, expression, keyExpression, valueExpression);
         }
 
-        public static TranslatedExpression Translate(TranslationContext context, Expression expression, Expression keyExpression, Expression valueExpression)
+        public static TranslatedExpression Translate(
+            TranslationContext context,
+            Expression expression,
+            Expression keyExpression,
+            Expression valueExpression)
         {
             var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
