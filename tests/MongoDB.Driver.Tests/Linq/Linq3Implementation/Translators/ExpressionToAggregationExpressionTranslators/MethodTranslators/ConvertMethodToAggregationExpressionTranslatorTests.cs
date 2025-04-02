@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int', 'onNull': 22,  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int', 'onNull': 50,  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int', 'onNull': 22,  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
+                    $"{{ $project: {{ _v : {{ $convert : {{ input : '$BinaryProperty', to : 'int', 'onNull': '$ExtraIntProperty',  {ByteOrderToString(byteOrder)} }} }}, _id : 0 }} }}",
                 };
 
             AssertOutcome(collection, queryable, expectedStages, expectedResult, expectedException);

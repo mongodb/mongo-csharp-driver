@@ -25,33 +25,91 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression);
             }
 
-            AstExpression onErrorAst = null;
-            AstExpression onNullAst = null;
-
             var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
 
-            if (arguments[1] is not ConstantExpression constantExpression)
+            AstExpression onErrorAst = null;
+            AstExpression onNullAst = null;
+            BsonBinarySubType? subType = null;
+            ByteOrder? byteOrder = null;
+            string format = null;
+
+
+            var optionExpression = arguments[1];
+
+            if (optionExpression is ConstantExpression constantExpression)
             {
-                throw new InvalidOperationException("The 'options' argument must be a constant expression");
+                var options = (ConvertOptions)constantExpression.Value;
+
+                if (options.OnErrorWasSet)
+                {
+                    onErrorAst = options.GetOnError();
+                }
+
+                if (options.OnNullWasSet)
+                {
+                    onNullAst = options.GetOnNull();
+                }
+
+                subType = options.SubType;
+                format = options.Format;
+                byteOrder = options.ByteOrder;
             }
-
-            var options = (ConvertOptions)constantExpression.Value;
-
-            if (options.OnErrorWasSet)
+            else if (arguments[1] is MemberInitExpression memberInitExpression)
             {
-                onErrorAst = options.GetOnError();
-            }
+                foreach (var binding in memberInitExpression.Bindings)
+                {
+                    if (binding is not MemberAssignment memberAssignment) continue;
 
-            if (options.OnNullWasSet)
-            {
-                onNullAst = options.GetOnNull();
+                    var memberName = memberAssignment.Member.Name;
+
+
+                    if (memberName == "OnError")
+                    {
+                        var translatedExpression =
+                            ExpressionToAggregationExpressionTranslator.Translate(context, memberAssignment.Expression);
+                        onErrorAst = translatedExpression.Ast;
+                    }
+                    else if (memberName == "OnNull")
+                    {
+                        var translatedExpression =
+                            ExpressionToAggregationExpressionTranslator.Translate(context, memberAssignment.Expression);
+                        onNullAst = translatedExpression.Ast;
+                    }
+                    else if (memberName == "Format")
+                    {
+                        if (memberAssignment.Expression is not ConstantExpression formatExpression)
+                        {
+                            throw new ExpressionNotSupportedException(expression);  //TODO Improve
+                        }
+
+                        format = (string)formatExpression.Value;
+                    }
+                    else if (memberName == "ByteOrder")
+                    {
+                        if (memberAssignment.Expression is not ConstantExpression byteOrderExpression)
+                        {
+                            throw new ExpressionNotSupportedException(expression);  //TODO Improve
+                        }
+
+                        byteOrder = (ByteOrder)byteOrderExpression.Value;
+                    }
+                    else if (memberName == "SubType")
+                    {
+                        if (memberAssignment.Expression is not ConstantExpression subTypeExpression)
+                        {
+                            throw new ExpressionNotSupportedException(expression);  //TODO Improve
+                        }
+
+                        subType = (BsonBinarySubType)subTypeExpression.Value;
+                    }
+                }
             }
 
             var toType = method.GetGenericArguments()[1];
             var toBsonType = GetBsonType(toType).Render();
             var serializer = BsonSerializer.LookupSerializer(toType);
 
-            var ast = AstExpression.Convert(fieldAst, toBsonType, subType: options.SubType, byteOrder: options.ByteOrder, format: options.Format, onError: onErrorAst, onNull: onNullAst);
+            var ast = AstExpression.Convert(fieldAst, toBsonType, subType: subType, byteOrder: byteOrder, format: format, onError: onErrorAst, onNull: onNullAst);
             return new TranslatedExpression(expression, ast, serializer);
         }
 
