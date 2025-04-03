@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -87,6 +88,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return new TranslatedExpression(expression, ast, tupleSerializer);
             }
 
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            if (method.Is(KeyValuePairMethod.Create))
+            {
+                var keyExpression = arguments[0];
+                var valueExpression = arguments[1];
+                return NewKeyValuePairExpressionToAggregationExpressionTranslator.Translate(context, expression, keyExpression, valueExpression);
+            }
+#endif
             throw new ExpressionNotSupportedException(expression);
         }
 
