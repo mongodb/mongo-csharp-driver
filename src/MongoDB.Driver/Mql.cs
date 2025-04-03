@@ -50,7 +50,6 @@ namespace MongoDB.Driver
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
 
-
         /// <summary>
         /// Converts a value from one type to another using the $convert aggregation operator.
         /// </summary>
@@ -59,7 +58,7 @@ namespace MongoDB.Driver
         /// <param name="value">The value to convert.</param>
         /// <param name="options">The conversion options.</param>
         /// <returns>The converted value.</returns>
-        /// <exception cref="NotSupportedException">Thrown when the method is not supported.</exception>
+        /// <remarks>Not all conversions are supported by the $convert operator.</remarks>
         public static TTo Convert<TFrom, TTo>(TFrom value, ConvertOptions<TTo> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
@@ -171,7 +170,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// Represents the byte order of binData when converting to/from numerical types.
+    /// Represents the byte order of binary data when converting to/from numerical types using <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
     /// </summary>
     public enum ByteOrder
     {
@@ -186,7 +185,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// Represents the typed options parameter for <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
+    /// Represents the options parameter for <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
     /// </summary>
     public abstract class ConvertOptions
     {
@@ -230,9 +229,8 @@ namespace MongoDB.Driver
         internal abstract BsonValue GetOnNull();
     }
 
-
     /// <summary>
-    /// Represents the typed options parameter for <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
+    /// Represents the options parameter for <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
     /// This class allows to set 'onError' and 'onNull'.
     /// </summary>
     /// <typeparam name="TTo"> The type of 'onError' and 'onNull'.</typeparam>
