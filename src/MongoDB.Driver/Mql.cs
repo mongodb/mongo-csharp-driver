@@ -17,6 +17,7 @@ using System;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -51,7 +52,7 @@ namespace MongoDB.Driver
 
 
         /// <summary>
-        /// Converts a value from one type to another using the specified options.
+        /// Converts a value from one type to another using the $convert aggregation operator.
         /// </summary>
         /// <typeparam name="TFrom">The type of the input value.</typeparam>
         /// <typeparam name="TTo">The type of the output value.</typeparam>
@@ -185,7 +186,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// Represents the options parameter for the conversion methods in the Mql static class.
+    /// Represents the typed options parameter for <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
     /// </summary>
     public abstract class ConvertOptions
     {
@@ -229,8 +230,9 @@ namespace MongoDB.Driver
         internal abstract BsonValue GetOnNull();
     }
 
+
     /// <summary>
-    /// Represents the typed options parameter for the conversion methods in the Mql static class.
+    /// Represents the typed options parameter for <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
     /// This class allows to set 'onError' and 'onNull'.
     /// </summary>
     /// <typeparam name="TTo"> The type of 'onError' and 'onNull'.</typeparam>
@@ -240,6 +242,17 @@ namespace MongoDB.Driver
         private bool _onErrorWasSet;
         private TTo _onNull;
         private bool _onNullWasSet;
+        private readonly IBsonSerializer _serializer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConvertOptions{TTo}"/> class.
+        /// </summary>
+        public ConvertOptions()
+        {
+            _serializer = StandardSerializers.TryGetSerializer(typeof(TTo), out var serializer)
+                ? serializer
+                : BsonSerializer.LookupSerializer(typeof(TTo));
+        }
 
         /// <summary>
         /// The onError parameter.
@@ -270,8 +283,8 @@ namespace MongoDB.Driver
         internal override bool OnErrorWasSet => _onErrorWasSet;
         internal override bool OnNullWasSet => _onNullWasSet;
 
-        internal override BsonValue GetOnError() => BsonValue.Create(_onError);
+        internal override BsonValue GetOnError() => _serializer.ToBsonValue(_onError);
 
-        internal override BsonValue GetOnNull() => BsonValue.Create(_onNull);
+        internal override BsonValue GetOnNull() => _serializer.ToBsonValue(_onNull);
     }
 }

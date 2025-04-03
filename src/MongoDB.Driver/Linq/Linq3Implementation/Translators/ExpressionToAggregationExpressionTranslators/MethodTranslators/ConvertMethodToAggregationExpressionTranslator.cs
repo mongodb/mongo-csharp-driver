@@ -36,90 +36,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression);
             }
 
-            ByteOrder? byteOrder = null;
-            string format = null;
-            AstExpression onErrorAst = null;
-            AstExpression onNullAst = null;
-            BsonBinarySubType? subType = null;
-
             var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
 
+            ByteOrder? byteOrder;
+            string format;
+            AstExpression onErrorAst;
+            AstExpression onNullAst;
+            BsonBinarySubType? subType;
+
             var optionExpression = arguments[1];
-
-            if (optionExpression is ConstantExpression constantExpression)
+            switch (optionExpression)
             {
-                var options = (ConvertOptions)constantExpression.Value;
-
-                if (options.OnErrorWasSet)
-                {
-                    onErrorAst = options.GetOnError();
-                }
-
-                if (options.OnNullWasSet)
-                {
-                    onNullAst = options.GetOnNull();
-                }
-
-                subType = options.SubType;
-                format = options.Format;
-                byteOrder = options.ByteOrder;
-            }
-            else if (optionExpression is MemberInitExpression memberInitExpression)
-            {
-                foreach (var binding in memberInitExpression.Bindings)
-                {
-                    if (binding is not MemberAssignment memberAssignment) continue;
-
-                    var memberName = memberAssignment.Member.Name;
-
-                    switch (memberName)
-                    {
-                        case nameof(ConvertOptions.ByteOrder):
-                        {
-                            if (memberAssignment.Expression is not ConstantExpression byteOrderExpression)
-                            {
-                                throw new ExpressionNotSupportedException($"The {nameof(ConvertOptions.ByteOrder)} field must be a constant expression");  //TODO Improve message?
-                            }
-
-                            byteOrder = (ByteOrder?)byteOrderExpression.Value;
-                            break;
-                        }
-                        case nameof(ConvertOptions.Format):
-                        {
-                            if (memberAssignment.Expression is not ConstantExpression formatExpression)
-                            {
-                                throw new ExpressionNotSupportedException($"The {nameof(ConvertOptions.Format)} field must be a constant expression");  //TODO Improve message?
-                            }
-
-                            format = (string)formatExpression.Value;
-                            break;
-                        }
-                        case nameof(ConvertOptions<object>.OnError):
-                        {
-                            onErrorAst = ExpressionToAggregationExpressionTranslator.Translate(context, memberAssignment.Expression).Ast;
-                            break;
-                        }
-                        case nameof(ConvertOptions<object>.OnNull):
-                        {
-                            onNullAst = ExpressionToAggregationExpressionTranslator.Translate(context, memberAssignment.Expression).Ast;
-                            break;
-                        }
-                        case nameof(ConvertOptions.SubType):
-                        {
-                            if (memberAssignment.Expression is not ConstantExpression subTypeExpression)
-                            {
-                                throw new ExpressionNotSupportedException($"The {nameof(ConvertOptions.SubType)} field must be a constant expression");  //TODO Improve message?
-                            }
-
-                            subType = (BsonBinarySubType?)subTypeExpression.Value;
-                            break;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                throw new ExpressionNotSupportedException("The 'Options' argument can be either a constant expression or a member initialization expression");  //TODO Improve message?
+                case ConstantExpression constantExpression:
+                    ExtractOptionsFromConstantExpression(constantExpression, out byteOrder, out format, out onErrorAst, out onNullAst, out subType);
+                    break;
+                case MemberInitExpression memberInitExpression:
+                    ExtractOptionsFromMemberInitExpression(memberInitExpression, context, out byteOrder, out format, out onErrorAst, out onNullAst, out subType);
+                    break;
+                default:
+                    throw new ExpressionNotSupportedException("The 'Options' argument can be either a constant expression or a member initialization expression");
             }
 
             var toType = method.GetGenericArguments()[1];
@@ -128,6 +63,81 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             var ast = AstExpression.Convert(fieldAst, toBsonType, subType: subType, byteOrder: byteOrder, format: format, onError: onErrorAst, onNull: onNullAst);
             return new TranslatedExpression(expression, ast, serializer);
+        }
+
+        private static void ExtractOptionsFromConstantExpression(ConstantExpression constantExpression, out ByteOrder? byteOrder, out string format, out AstExpression onErrorAst, out AstExpression onNullAst, out BsonBinarySubType? subType)
+        {
+            byteOrder = null;
+            format = null;
+            onErrorAst = null;
+            onNullAst = null;
+            subType = null;
+
+            var options = (ConvertOptions)constantExpression.Value;
+
+            if (options is null)
+            {
+                return;
+            }
+
+            if (options.OnErrorWasSet)
+            {
+                onErrorAst = options.GetOnError();
+            }
+
+            if (options.OnNullWasSet)
+            {
+                onNullAst = options.GetOnNull();
+            }
+
+            subType = options.SubType;
+            format = options.Format;
+            byteOrder = options.ByteOrder;
+        }
+
+        private static void ExtractOptionsFromMemberInitExpression(MemberInitExpression memberInitExpression, TranslationContext context, out ByteOrder? byteOrder, out string format, out AstExpression onErrorAst, out AstExpression onNullAst, out BsonBinarySubType? subType)
+        {
+            byteOrder = null;
+            format = null;
+            onErrorAst = null;
+            onNullAst = null;
+            subType = null;
+
+            foreach (var binding in memberInitExpression.Bindings)
+            {
+                if (binding is not MemberAssignment memberAssignment) continue;
+
+                var memberName = memberAssignment.Member.Name;
+                var expression = memberAssignment.Expression;
+
+                switch (memberName)
+                {
+                    case nameof(ConvertOptions.ByteOrder):
+                        byteOrder = GetConstantValue<ByteOrder?>(expression, nameof(ConvertOptions.ByteOrder));
+                        break;
+                    case nameof(ConvertOptions.Format):
+                        format = GetConstantValue<string>(expression, nameof(ConvertOptions.Format));
+                        break;
+                    case nameof(ConvertOptions<object>.OnError):
+                        onErrorAst = ExpressionToAggregationExpressionTranslator.Translate(context, expression).Ast;
+                        break;
+                    case nameof(ConvertOptions<object>.OnNull):
+                        onNullAst = ExpressionToAggregationExpressionTranslator.Translate(context, expression).Ast;
+                        break;
+                    case nameof(ConvertOptions.SubType):
+                        subType = GetConstantValue<BsonBinarySubType?>(expression, nameof(ConvertOptions.SubType));
+                        break;
+                }
+            }
+        }
+
+        private static T GetConstantValue<T>(Expression expression, string fieldName)
+        {
+            if (expression is not ConstantExpression constantExpression)
+            {
+                throw new ExpressionNotSupportedException($"The {fieldName} field must be a constant expression.");
+            }
+            return (T)constantExpression.Value;
         }
 
         private static BsonType GetBsonType(Type type)  //TODO Do we have this kind of info somewhere else...?
