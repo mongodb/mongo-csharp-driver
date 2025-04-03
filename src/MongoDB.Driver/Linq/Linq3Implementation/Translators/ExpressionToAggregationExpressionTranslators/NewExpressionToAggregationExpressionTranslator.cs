@@ -50,6 +50,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 return NewKeyValuePairExpressionToAggregationExpressionTranslator.Translate(context, expression);
             }
+            if (NewDictionaryExpressionToAggregationExpressionTranslator.CanTranslate(expression))
+            {
+                return NewDictionaryExpressionToAggregationExpressionTranslator.Translate(context, expression);
+            }
             return MemberInitExpressionToAggregationExpressionTranslator.Translate(context, expression, expression, Array.Empty<MemberBinding>());
         }
     }
