@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(BsonBinarySubType.Binary, 0)]
         [InlineData(BsonBinarySubType.Sensitive, 8)]
         [InlineData(BsonBinarySubType.UserDefined, 128)]
-        public void Convert_with_BsonBinaryData_and_subtype_should_be_rendered_correctly(BsonBinarySubType subType, int expectedSubTypeValue)
+        public void Convert_with_subtype_should_be_rendered_correctly(BsonBinarySubType subType, int expectedSubTypeValue)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
 
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=")]
         [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=" )]
-        public void Convert_with_BsonBinaryData_and_byteOrder_should_be_rendered_correctly(int id, ByteOrder byteOrder, string expectedBase64)
+        public void Convert_with_byteOrder_should_be_rendered_correctly(int id, ByteOrder byteOrder, string expectedBase64)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
 
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Theory]
         [InlineData("uuid", "867dee52-c331-484e-92d1-c56479b8e67e")]
         [InlineData("base64", "hn3uUsMxSE6S0cVkebjmfg==")]
-        public void Convert_with_BsonBinaryData_and_format_should_be_rendered_correctly(string format, string expectedResult)
+        public void Convert_with_format_should_be_rendered_correctly(string format, string expectedResult)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
 
