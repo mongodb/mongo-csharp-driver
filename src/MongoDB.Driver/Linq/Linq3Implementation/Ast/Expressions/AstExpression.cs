@@ -267,6 +267,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             Ensure.IsNotNull(input, nameof(input));
             Ensure.IsNotNull(to, nameof(to));
 
+            if (onError == null && onNull == null && subType == null && format == null && byteOrder == null &&
+                to is AstConstantExpression toConstantExpression &&
+                (toConstantExpression.Value as BsonString)?.Value is { } toValue)
+            {
+                var unaryOperator = toValue switch
+                {
+                    "bool" => AstUnaryOperator.ToBool,
+                    "date" => AstUnaryOperator.ToDate,
+                    "decimal" => AstUnaryOperator.ToDecimal,
+                    "double" => AstUnaryOperator.ToDouble,
+                    "int" => AstUnaryOperator.ToInt,
+                    "long" => AstUnaryOperator.ToLong,
+                    "objectId" => AstUnaryOperator.ToObjectId,
+                    "string" => AstUnaryOperator.ToString,
+                    _ => (AstUnaryOperator?)null
+                };
+
+                if (unaryOperator.HasValue)
+                {
+                    return AstExpression.Unary(unaryOperator.Value, input);
+                }
+            }
+
             return new AstConvertExpression(input, to, subType, byteOrder, format, onError, onNull);
         }
 
