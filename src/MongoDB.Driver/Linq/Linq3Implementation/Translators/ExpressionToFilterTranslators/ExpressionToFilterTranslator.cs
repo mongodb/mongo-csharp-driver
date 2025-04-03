@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
@@ -56,9 +56,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             bool asRoot = false)
         {
             var parameterExpression = lambdaExpression.Parameters.Single();
-            if (parameterSerializer.ValueType != parameterExpression.Type)
+
+            if (parameterSerializer.ValueType != parameterExpression.Type && parameterExpression.Type.IsAssignableFrom(parameterSerializer.ValueType))
             {
-                throw new ArgumentException($"ValueType '{parameterSerializer.ValueType.FullName}' of parameterSerializer does not match parameter type '{parameterExpression.Type.FullName}'.", nameof(parameterSerializer));
+                parameterSerializer = DowncastingSerializer.Create(parameterExpression.Type, parameterSerializer.ValueType, parameterSerializer);
             }
 
             var parameterSymbol =

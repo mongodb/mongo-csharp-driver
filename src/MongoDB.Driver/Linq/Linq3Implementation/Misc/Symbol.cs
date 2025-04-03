@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -37,6 +38,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             _ast = Ensure.IsNotNull(ast, nameof(ast));
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
             _isCurrent = isCurrent;
+
+            if (_serializer.ValueType != _parameter.Type)
+            {
+                throw new ArgumentException($"Value type {_serializer.ValueType} of serializer type {_serializer.GetType()} does not match parameter type {_parameter.Type}.");
+            }
         }
 
         // public properties
