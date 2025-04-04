@@ -263,10 +263,10 @@ namespace MongoDB.Driver
         /// <param name="near">The point for which to find the closest documents.</param>
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        public static IAggregateFluent<TNewResult> GeoNear<TCoordinates, TResult, TNewResult>(
+        public static IAggregateFluent<TNewResult> GeoNear<TResult, TCoordinates, TNewResult>(
             this IAggregateFluent<TResult> aggregate,
             GeoJsonPoint<TCoordinates> near,
-            GeoNearOptions<TResult> options = null)
+            GeoNearOptions<TResult, TNewResult> options = null)
             where TCoordinates : GeoJsonCoordinates
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
@@ -278,18 +278,17 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <typeparam name="TCoordinates">The type of the coordinates for the point.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="near">The point for which to find the closest documents.</param>
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        public static IAggregateFluent<TNewResult> GeoNear<TCoordinates, TResult, TNewResult>(
+        public static IAggregateFluent<TNewResult> GeoNear<TResult, TNewResult>(
             this IAggregateFluent<TResult> aggregate,
-            TCoordinates[] near,
-            GeoNearOptions<TResult> options = null)
+            double[] near,
+            GeoNearOptions<TResult, TNewResult> options = null)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GeoNear<TResult, TCoordinates, TNewResult>(near, options));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.GeoNear<TResult, TNewResult>(near, options));
         }
 
         /// <summary>

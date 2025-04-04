@@ -14,7 +14,7 @@
  */
 
 using FluentAssertions;
-using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GeoJsonObjectModel;
 using Xunit;
@@ -27,21 +27,21 @@ namespace MongoDB.Driver.Tests
             : base(fixture)
         {
         }
-        
+
         [Fact]
         public void GeoNear_omitting_distanceField_should_return_expected_result()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("8.1.0");
-            
+
             var collection = Fixture.GeoCollection;
-            
+
             collection.Indexes.CreateOne(new CreateIndexModel<Place>(Builders<Place>.IndexKeys.Geo2DSphere(p => p.GeoJsonPointLocation)));
-            
+
             var result = collection
                 .Aggregate()
-                .GeoNear<GeoJson2DGeographicCoordinates, Place>(
+                .GeoNear(
                     GeoJson.Point(GeoJson.Geographic(-73.99279, 40.719296)),
-                    new GeoNearOptions<Place>
+                    new GeoNearOptions<Place, Place>
                     {
                         MaxDistance = 2,
                         Key = "GeoJsonPointLocation",
@@ -50,22 +50,22 @@ namespace MongoDB.Driver.Tests
                         Spherical = true
                     })
                 .ToList();
-            
+
             result.Count.Should().Be(1);
             result[0].Name.Should().Be("Sara D. Roosevelt Park");
         }
-        
+
         [Fact]
         public void GeoNear_using_pipeline_should_return_expected_result()
         {
             var collection = Fixture.GeoCollection;
-            
+
             collection.Indexes.CreateOne(new CreateIndexModel<Place>(Builders<Place>.IndexKeys.Geo2D(p => p.LegacyCoordinateLocation)));
-            
+
             var pipeline = new EmptyPipelineDefinition<Place>()
-                .GeoNear<Place, Place, double, PlaceResult>(
-                    new[] { -73.99279, 40.719296 },
-                    new GeoNearOptions<Place>
+                .GeoNear(
+                    [-73.99279, 40.719296],
+                    new GeoNearOptions<Place, PlaceResult>
                     {
                         DistanceField = "Distance",
                         MaxDistance = 0.000313917534,
@@ -74,23 +74,23 @@ namespace MongoDB.Driver.Tests
                             "Parks"),
                         Spherical = true
                     });
-            
+
             var result = collection.Aggregate(pipeline).ToList();
-            
+
             result.Count.Should().Be(1);
             result[0].Name.Should().Be("Sara D. Roosevelt Park");
         }
-        
+
         [Fact]
         public void GeoNear_with_array_legacy_coordinates_should_return_expected_result()
         {
             var collection = Fixture.GeoCollection;
-            
+
             var result = collection
                 .Aggregate()
-                .GeoNear<double, PlaceResult>(
-                    new[] { -73.99279, 40.719296 },
-                    new GeoNearOptions<Place>
+                .GeoNear(
+                    [-73.99279, 40.719296],
+                    new GeoNearOptions<Place, PlaceResult>
                     {
                         DistanceField = "Distance",
                         MaxDistance = 0.000313917534,
@@ -100,45 +100,21 @@ namespace MongoDB.Driver.Tests
                         Spherical = true
                     })
                 .ToList();
-            
+
             result.Count.Should().Be(1);
             result[0].Name.Should().Be("Sara D. Roosevelt Park");
         }
-        
-        [Fact]
-        public void GeoNear_with_BsonDocument_legacy_coordinates_should_return_expected_result()
-        {
-            var collection = Fixture.GeoCollection;
-            
-            var result = collection
-                .Aggregate()
-                .GeoNear<PlaceResult>(
-                    new BsonDocument {{"long", -73.99279}, {"lat", 40.719296}},
-                    new GeoNearOptions<Place>
-                    {
-                        DistanceField = "Distance",
-                        MaxDistance = 0.000313917534,
-                        Key = "LegacyCoordinateLocation",
-                        Query = Builders<Place>.Filter.Eq(p => p.Category,
-                            "Parks"),
-                        Spherical = true
-                    })
-                .ToList();
-            
-            result.Count.Should().Be(1);
-            result[0].Name.Should().Be("Sara D. Roosevelt Park");
-        }
-        
+
         [Fact]
         public void GeoNear_with_GeoJsonPoint_should_return_expected_result()
         {
             var collection = Fixture.GeoCollection;
-            
+
             var result = collection
                 .Aggregate()
-                .GeoNear<GeoJson2DGeographicCoordinates, PlaceResult>(
+                .GeoNear(
                     GeoJson.Point(GeoJson.Geographic(-73.99279, 40.719296)),
-                    new GeoNearOptions<Place>
+                    new GeoNearOptions<Place, PlaceResult>
                     {
                         DistanceField = "Distance",
                         MaxDistance = 2,
@@ -148,29 +124,31 @@ namespace MongoDB.Driver.Tests
                         Spherical = true
                     })
                 .ToList();
-            
+
             result.Count.Should().Be(1);
             result[0].Name.Should().Be("Sara D. Roosevelt Park");
         }
-        
+
+        [BsonIgnoreExtraElements]
         public class Place
         {
-            public ObjectId Id { get; set; }
             public string Name { get; set; }
             public GeoJsonPoint<GeoJson2DGeographicCoordinates> GeoJsonPointLocation { get; set; }
             public double[] LegacyCoordinateLocation { get; set; }
             public string Category { get; set; }
         }
-        
+
+        [BsonIgnoreExtraElements]
         public class PlaceResult : Place
         {
+            [BsonElement("dist")]
             public double Distance { get; set; }
         }
-        
+
         public sealed class ClassFixture : MongoDatabaseFixture
-        { 
+        {
             public IMongoCollection<Place> GeoCollection { get; private set; }
-            
+
             protected override void InitializeFixture()
             {
                 GeoCollection = CreateCollection<Place>("geoCollection");
@@ -197,7 +175,7 @@ namespace MongoDB.Driver.Tests
                         Category = "Stadiums"
                     }
                 ]);
-                
+
                 GeoCollection.Indexes.CreateOne(
                     new CreateIndexModel<Place>(Builders<Place>.IndexKeys.Geo2DSphere(p => p.GeoJsonPointLocation)));
                 GeoCollection.Indexes.CreateOne(

@@ -137,9 +137,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void GeoNear_with_array_should_return_the_expected_result()
         {
-            var result = PipelineStageDefinitionBuilder.GeoNear<BsonDocument, double, BsonDocument>(
+            var result = PipelineStageDefinitionBuilder.GeoNear(
                 [34.0, 67.0],
-                new GeoNearOptions<BsonDocument>
+                new GeoNearOptions<BsonDocument, BsonDocument>
                 {
                     DistanceField = "calculatedDistance",
                     MaxDistance = 3,
@@ -147,32 +147,28 @@ namespace MongoDB.Driver.Tests
                     Spherical = true,
                     Query = new BsonDocument("testfield", "testvalue")
                 });
-            
+
             var stage = RenderStage(result);
-            stage.Document.Should().Be("""{ "$geoNear" : { "near" : [34.0, 67.0], "distanceField" : "calculatedDistance", "maxDistance" : 3.0, "query" : { "testfield" : "testvalue" }, "includeLocs" : "usedLocation", "spherical" : true } }""");
-        }
-        
-        [Fact]
-        public void GeoNear_with_embedded_document_should_return_the_expected_result()
-        {
-            var result = 
-                PipelineStageDefinitionBuilder.GeoNear<BsonDocument, BsonDocument>(
-                    new BsonDocument
-                    {
-                        { "long", 34.0},
-                        { "lat", 67.0}
-                    });
-            
-            var stage = RenderStage(result);
-            stage.Document.Should().Be("""{ "$geoNear" : { "near" : { "long" : 34.0, "lat" : 67.0 } } }""");
+            stage.Document.Should().Be("""
+                                       { 
+                                        "$geoNear" : { 
+                                                "near" : [34.0, 67.0], 
+                                                "distanceField" : "calculatedDistance", 
+                                                "maxDistance" : 3.0, 
+                                                "query" : { "testfield" : "testvalue" }, 
+                                                "includeLocs" : "usedLocation", 
+                                                "spherical" : true 
+                                            } 
+                                       }
+                                       """);
         }
 
         [Fact]
         public void GeoNear_with_geojson_point_should_return_the_expected_result()
         {
-            var result = PipelineStageDefinitionBuilder.GeoNear<BsonDocument, GeoJson2DGeographicCoordinates, BsonDocument>(
+            var result = PipelineStageDefinitionBuilder.GeoNear(
                 GeoJson.Point(GeoJson.Geographic(34, 67)),
-                new GeoNearOptions<BsonDocument>
+                new GeoNearOptions<BsonDocument, BsonDocument>
                 {
                     DistanceField = "calculatedDistance",
                     MaxDistance = 3,
@@ -180,47 +176,46 @@ namespace MongoDB.Driver.Tests
                     Spherical = true,
                     Query = new BsonDocument("testfield", "testvalue")
                 });
-            
+
             var stage = RenderStage(result);
-            stage.Document.Should().Be("""{ "$geoNear" : { "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] }, "distanceField" : "calculatedDistance", "maxDistance" : 3.0, "query" : { "testfield" : "testvalue" }, "includeLocs" : "usedLocation", "spherical" : true } }""");
+            stage.Document.Should().Be("""
+                                       { 
+                                        "$geoNear" : { 
+                                                "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] }, 
+                                                "distanceField" : "calculatedDistance", 
+                                                "maxDistance" : 3.0, 
+                                                "query" : { "testfield" : "testvalue" }, 
+                                                "includeLocs" : "usedLocation", 
+                                                "spherical" : true 
+                                            } 
+                                       }
+                                       """);
         }
-        
+
         [Fact]
         public void GeoNear_with_no_options_should_return_the_expected_result()
         {
-            var result = 
+            var result =
                 PipelineStageDefinitionBuilder.GeoNear<BsonDocument, GeoJson2DGeographicCoordinates, BsonDocument>(
                 GeoJson.Point(GeoJson.Geographic(34, 67)));
-            
+
             var stage = RenderStage(result);
             stage.Document.Should().Be("""{ "$geoNear" : { "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] } } }""");
         }
-        
+
         [Fact]
         public void GeoNear_with_wrong_legacy_coordinates_should_throw_exception()
         {
             Assert.Throws<ArgumentException>(() =>
             {
-                var result = 
-                    PipelineStageDefinitionBuilder.GeoNear<BsonDocument, double, BsonDocument>([34.0, 67.0, 23.0, 34.5]);
+                var result =
+                    PipelineStageDefinitionBuilder.GeoNear<BsonDocument, BsonDocument>([34.0, 67.0, 23.0, 34.5]);
             });
-            
+
             Assert.Throws<ArgumentException>(() =>
             {
-                var result = 
-                    PipelineStageDefinitionBuilder.GeoNear<BsonDocument, double, BsonDocument>([34.0]);
-            });
-            
-            Assert.Throws<ArgumentException>(() =>
-            {
-                var result = 
-                    PipelineStageDefinitionBuilder.GeoNear<BsonDocument, BsonDocument>(new BsonDocument
-                    {
-                        { "x", 34.0},
-                        { "y", 67.0},
-                        { "z", 25.0},
-                        { "w", 57.0}
-                    });
+                var result =
+                    PipelineStageDefinitionBuilder.GeoNear<BsonDocument, BsonDocument>([34.0]);
             });
         }
 

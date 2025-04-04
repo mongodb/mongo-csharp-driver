@@ -484,7 +484,7 @@ namespace MongoDB.Driver
         {
             return new EmptyPipelineDefinition<TInput>(inputSerializer);
         }
-        
+
         /// <summary>
         /// Appends a $geoNear stage to the pipeline.
         /// </summary>
@@ -499,33 +499,13 @@ namespace MongoDB.Driver
         public static PipelineDefinition<TInput, TOutput> GeoNear<TInput, TIntermediate, TCoordinates, TOutput>(
             this PipelineDefinition<TInput, TIntermediate> pipeline,
             GeoJsonPoint<TCoordinates> near,
-            GeoNearOptions<TIntermediate> options = null) 
+            GeoNearOptions<TIntermediate, TOutput> options = null)
             where TCoordinates : GeoJsonCoordinates
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(PipelineStageDefinitionBuilder.GeoNear<TIntermediate, TCoordinates, TOutput>(near, options));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.GeoNear(near, options));
         }
-        
-        /// <summary>
-        /// Appends a $geoNear stage to the pipeline.
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
-        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <typeparam name="TCoordinates">The type of the coordinates for the point.</typeparam>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="near">The point for which to find the closest documents.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>A new pipeline with an additional stage.</returns>
-        public static PipelineDefinition<TInput, TOutput> GeoNear<TInput, TIntermediate, TCoordinates, TOutput>(
-            this PipelineDefinition<TInput, TIntermediate> pipeline,
-            TCoordinates[] near,
-            GeoNearOptions<TIntermediate> options = null)
-        {
-            Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(PipelineStageDefinitionBuilder.GeoNear<TIntermediate, TCoordinates, TOutput>(near, options));
-        }
-        
+
         /// <summary>
         /// Appends a $geoNear stage to the pipeline.
         /// </summary>
@@ -538,11 +518,11 @@ namespace MongoDB.Driver
         /// <returns>A new pipeline with an additional stage.</returns>
         public static PipelineDefinition<TInput, TOutput> GeoNear<TInput, TIntermediate, TOutput>(
             this PipelineDefinition<TInput, TIntermediate> pipeline,
-            BsonDocument near,
-            GeoNearOptions<TIntermediate> options = null)
+            double[] near,
+            GeoNearOptions<TIntermediate, TOutput> options = null)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(PipelineStageDefinitionBuilder.GeoNear<TIntermediate, BsonDocument, TOutput>(near, options));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.GeoNear(near, options));
         }
 
         /// <summary>
