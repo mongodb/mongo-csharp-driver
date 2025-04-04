@@ -21,9 +21,10 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private readonly BsonBinaryReaderContext _parentContext;
-        private readonly ContextType _contextType;
-        private readonly long _startPosition;
-        private readonly long _size;
+        private BsonBinaryReaderContext _cachedPushContext;
+        private ContextType _contextType;
+        private long _startPosition;
+        private long _size;
         private string _currentElementName;
         private int _currentArrayIndex = -1;
 
@@ -82,6 +83,21 @@ namespace MongoDB.Bson.IO
                 throw new FormatException(message);
             }
             return _parentContext;
+        }
+
+        internal BsonBinaryReaderContext PushContext(ContextType contextType, long startPosition, long size)
+        {
+            if (_cachedPushContext == null)
+                _cachedPushContext = new BsonBinaryReaderContext(this, contextType, startPosition, size);
+            else
+            {
+                _cachedPushContext._contextType = contextType;
+                _cachedPushContext._startPosition = startPosition;
+                _cachedPushContext._size = size;
+                _cachedPushContext._currentArrayIndex = -1;
+                _cachedPushContext._currentElementName = null;
+            }
+            return _cachedPushContext;
         }
     }
 }
