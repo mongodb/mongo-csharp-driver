@@ -17,6 +17,7 @@ using System;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -45,6 +46,20 @@ namespace MongoDB.Driver
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <returns>The value</returns>
         public static TValue Constant<TValue>(TValue value, BsonType representaion)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Converts a value from one type to another using the $convert aggregation operator.
+        /// </summary>
+        /// <typeparam name="TFrom">The type of the input value.</typeparam>
+        /// <typeparam name="TTo">The type of the output value.</typeparam>
+        /// <param name="value">The value to convert.</param>
+        /// <param name="options">The conversion options.</param>
+        /// <returns>The converted value.</returns>
+        /// <remarks>Not all conversions are supported by the $convert operator.</remarks>
+        public static TTo Convert<TFrom, TTo>(TFrom value, ConvertOptions<TTo> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -162,5 +177,122 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+    }
+
+    /// <summary>
+    /// Represents the byte order of binary data when converting to/from numerical types using <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
+    /// </summary>
+    public enum ByteOrder
+    {
+        /// <summary>
+        /// Big endian order.
+        /// </summary>
+        BigEndian,
+        /// <summary>
+        /// Little endian order.
+        /// </summary>
+        LittleEndian,
+    }
+
+    /// <summary>
+    /// Represents the options parameter for <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
+    /// </summary>
+    public abstract class ConvertOptions
+    {
+        private ByteOrder? _byteOrder;
+        private string _format;
+        private BsonBinarySubType? _subType;
+
+        /// <summary>
+        /// The byteOrder parameter.
+        /// </summary>
+        public ByteOrder? ByteOrder
+        {
+            get => _byteOrder;
+            set => _byteOrder = value;
+        }
+
+        /// <summary>
+        /// The format parameter.
+        /// </summary>
+        public string Format
+        {
+            get => _format;
+            set => _format = value;
+        }
+
+        /// <summary>
+        /// The subType parameter.
+        /// </summary>
+        public BsonBinarySubType? SubType
+        {
+            get => _subType;
+            set => _subType = value;
+        }
+
+        internal abstract bool OnErrorWasSet { get; }
+
+        internal abstract bool OnNullWasSet { get; }
+
+        internal abstract BsonValue GetOnError();
+
+        internal abstract BsonValue GetOnNull();
+    }
+
+    /// <summary>
+    /// Represents the options parameter for <see cref="Mql.Convert{TFrom, TTo}(TFrom, ConvertOptions{TTo})"/>.
+    /// This class allows to set 'onError' and 'onNull'.
+    /// </summary>
+    /// <typeparam name="TTo"> The type of 'onError' and 'onNull'.</typeparam>
+    public class ConvertOptions<TTo> : ConvertOptions
+    {
+        private TTo _onError;
+        private bool _onErrorWasSet;
+        private TTo _onNull;
+        private bool _onNullWasSet;
+        private readonly IBsonSerializer _serializer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConvertOptions{TTo}"/> class.
+        /// </summary>
+        public ConvertOptions()
+        {
+            _serializer = StandardSerializers.TryGetSerializer(typeof(TTo), out var serializer)
+                ? serializer
+                : BsonSerializer.LookupSerializer(typeof(TTo));
+        }
+
+        /// <summary>
+        /// The onError parameter.
+        /// </summary>
+        public TTo OnError
+        {
+            get => _onError;
+            set
+            {
+                _onError = value;
+                _onErrorWasSet = true;
+            }
+        }
+
+        /// <summary>
+        /// The onNull parameter.
+        /// </summary>
+        public TTo OnNull
+        {
+            get => _onNull;
+            set
+            {
+                _onNull = value;
+                _onNullWasSet = true;
+            }
+        }
+
+        internal override bool OnErrorWasSet => _onErrorWasSet;
+        internal override bool OnNullWasSet => _onNullWasSet;
+
+        internal override BsonValue GetOnError() => _serializer.ToBsonValue(_onError);
+
+        internal override BsonValue GetOnNull() => _serializer.ToBsonValue(_onNull);
     }
 }
