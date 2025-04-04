@@ -415,26 +415,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         public static IEnumerable<object[]> ConvertTestData => new List<object[]>
         {
-            // To binData
-            new object[] { 4, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, BsonBinaryData>(x.IntProperty, new ConvertOptions<BsonBinaryData> { SubType = BsonBinarySubType.Binary, ByteOrder = ByteOrder.LittleEndian })),
-                "{ $project: { _v : { $convert : { input : '$IntProperty', to : { type: 'binData', subtype: 0  }, byteOrder : 'little' }, _id : 0 } } }",
-                new BsonBinaryData(Convert.FromBase64String("ogIAAA==")) },
-
-            // To objectId
-            new object[] { 24, (Expression<Func<TestClass, object>>)(x => Mql.Convert<string, ObjectId>(x.StringProperty, null)),
-                "{ $project: { _v : { $toObjectId : '$StringProperty' }, _id : 0 } }",
-                ObjectId.Parse("5ab9cbfa31c2ab715d42129e") },
-
-            // To date
-            new object[] { 23, (Expression<Func<TestClass, object>>)(x => Mql.Convert<string, DateTime>(x.StringProperty, null)),
-                "{ $project: { _v : { $toDate : '$StringProperty' }, _id : 0 } }",
-                new DateTime(2018, 03, 03) },
-
-            // To string
-            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, string>(x.IntProperty, null)),
-                "{ $project: { _v : { $toString : '$IntProperty' }, _id : 0 } }",
-                "33" },
-
             // To int
             new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, int>(x.IntProperty, null)),
                 "{ $project: { _v : { $toInt : '$IntProperty' }, _id : 0 } }",
@@ -465,6 +445,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, double>(x.IntProperty, null)),
                 "{ $project: { _v : { $toDouble : '$IntProperty' }, _id : 0 } }",
                 33.0 },
+
+            // To objectId
+            new object[] { 24, (Expression<Func<TestClass, object>>)(x => Mql.Convert<string, ObjectId>(x.StringProperty, null)),
+                "{ $project: { _v : { $toObjectId : '$StringProperty' }, _id : 0 } }",
+                ObjectId.Parse("5ab9cbfa31c2ab715d42129e") },
+
+            // To date
+            new object[] { 23, (Expression<Func<TestClass, object>>)(x => Mql.Convert<string, DateTime>(x.StringProperty, null)),
+                "{ $project: { _v : { $toDate : '$StringProperty' }, _id : 0 } }",
+                new DateTime(2018, 03, 03) },
+
+            // To string
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, string>(x.IntProperty, null)),
+                "{ $project: { _v : { $toString : '$IntProperty' }, _id : 0 } }",
+                "33" },
+
+            // To binData
+            new object[] { 4, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, BsonBinaryData>(x.IntProperty, new ConvertOptions<BsonBinaryData> { SubType = BsonBinarySubType.Binary, ByteOrder = ByteOrder.LittleEndian })),
+                "{ $project: { _v : { $convert : { input : '$IntProperty', to : { type: 'binData', subtype: 0  }, byteOrder : 'little' }, _id : 0 } } }",
+                new BsonBinaryData(Convert.FromBase64String("ogIAAA==")) },
         };
 
         [Theory]
