@@ -187,8 +187,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(25)]
         public void Convert_with_constant_OnError_should_work(int? onError)
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
-
             const int id = 20;
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -211,8 +209,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(25)]
         public void Convert_with_constant_OnNull_should_work(int? onNull)
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
-
             const int id = 0;
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -233,8 +229,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Convert_with_field_OnError_should_work()
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
-
             const int id = 20;
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -254,8 +248,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Convert_with_field_OnNull_should_work()
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
-
             const int id = 22;
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -344,10 +336,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
-        public void Convert_without_options_should_be_reduced_if_possible()
+        public void Convert_with_null_options_should_be_reduced_if_possible()
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
-
             const int id = 21;
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -367,8 +357,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Convert_with_empty_options_should_be_reduced_if_possible()
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
-
             const int id = 21;
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
