@@ -13,49 +13,56 @@
  * limitations under the License.
  */
 
+using MongoDB.Bson.Serialization;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents options for the $geoNear stage.
     /// </summary>
-    public record GeoNearOptions<TDocument>
+    public class GeoNearOptions<TInputDocument, TOutputDocument>
     {
         /// <summary>
         /// Gets or sets the output field that contains the calculated distance. Required if querying a time-series collection.
         /// Optional for non-time series collections in MongoDB 8.1+
         /// </summary>
-        public string DistanceField { get; set; }
-    
+        public FieldDefinition<TOutputDocument> DistanceField { get; set; }
+
         /// <summary>
         /// Gets or sets the factor to multiply all distances returned by the query.
         /// </summary>
         public double? DistanceMultiplier { get; set; }
-    
+
         /// <summary>
         /// Gets or sets the output field that identifies the location used to calculate the distance.
         /// </summary>
-        public string IncludeLocs { get; set; }
-    
+        public FieldDefinition<TOutputDocument> IncludeLocs { get; set; }
+
         /// <summary>
         /// Gets or sets the geospatial indexed field used when calculating the distance.
         /// </summary>
         public string Key { get; set; }
-    
+
         /// <summary>
         /// Gets or sets the max distance from the center point that the documents can be.
         /// </summary>
         public double? MaxDistance { get; set; }
-    
+
         /// <summary>
         /// Gets or sets the min distance from the center point that the documents can be.
         /// </summary>
         public double? MinDistance { get; set; }
-    
+
+        /// <summary>
+        /// Gets or sets the output serializer.
+        /// </summary>
+        public IBsonSerializer<TOutputDocument> OutputSerializer { get; set; }
+
         /// <summary>
         /// Gets or sets the query that limits the results to the documents that match the query.
         /// </summary>
-        public FilterDefinition<TDocument> Query { get; set; }
-    
+        public FilterDefinition<TInputDocument> Query { get; set; }
+
         /// <summary>
         /// Gets or sets the spherical option which determines how to calculate the distance between two points.
         /// </summary>

@@ -604,7 +604,7 @@ namespace MongoDB.Driver
         {
             return Facet<TInput, TOutput>((IEnumerable<AggregateFacet<TInput>>)facets);
         }
-        
+
         /// <summary>
         /// Creates a $geoNear stage.
         /// </summary>
@@ -616,7 +616,8 @@ namespace MongoDB.Driver
         /// <returns>The stage.</returns>
         internal static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TPoint, TOutput>(
             TPoint near,
-            GeoNearOptions<TInput> options = null)
+            GeoNearOptions<TInput, TOutput> options = null)
+            // where TPoint is either a GeoJsonPoint or a legacy coordinate array
         {
             const string operatorName = "$geoNear";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
@@ -625,26 +626,27 @@ namespace MongoDB.Driver
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
                     var pointSerializer = args.SerializerRegistry.GetSerializer<TPoint>();
+                    var outputSerializer = options?.OutputSerializer ?? args.GetSerializer<TOutput>();
+                    var outputRenderArgs = args.WithNewDocumentType(outputSerializer);
                     var geoNearOptions = new BsonDocument
                     {
                         { "near", pointSerializer.ToBsonValue(near)},
-                        { "distanceField", options?.DistanceField, options?.DistanceField != null },
-                        { "maxDistance", () => options?.MaxDistance.Value, options?.MaxDistance != null },
-                        { "minDistance", () => options?.MinDistance.Value, options?.MinDistance != null },
-                        { "distanceMultiplier", () => options?.DistanceMultiplier.Value, options?.DistanceMultiplier != null },
+                        { "distanceField", options?.DistanceField?.Render(outputRenderArgs).FieldName, options?.DistanceField != null },
+                        { "maxDistance", options?.MaxDistance, options?.MaxDistance != null },
+                        { "minDistance", options?.MinDistance, options?.MinDistance != null },
+                        { "distanceMultiplier", options?.DistanceMultiplier, options?.DistanceMultiplier != null },
                         { "key", options?.Key, options?.Key != null },
                         { "query", options?.Query?.Render(args), options?.Query != null },
-                        { "includeLocs", options?.IncludeLocs, options?.IncludeLocs != null },
-                        { "spherical", () => options?.Spherical.Value, options?.Spherical != null }
+                        { "includeLocs", options?.IncludeLocs?.Render(outputRenderArgs).FieldName, options?.IncludeLocs != null },
+                        { "spherical", options?.Spherical, options?.Spherical != null }
                     };
-                    
-                    var outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
+
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, new BsonDocument(operatorName, geoNearOptions), outputSerializer);
                 });
-            
+
             return stage;
         }
-        
+
         /// <summary>
         /// Creates a $geoNear stage.
         /// </summary>
@@ -656,31 +658,13 @@ namespace MongoDB.Driver
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TCoordinates, TOutput>(
             GeoJsonPoint<TCoordinates> near,
-            GeoNearOptions<TInput> options = null) 
+            GeoNearOptions<TInput, TOutput> options = null)
             where TCoordinates : GeoJsonCoordinates
         {
             Ensure.IsNotNull(near, nameof(near));
             return GeoNear<TInput, GeoJsonPoint<TCoordinates>, TOutput>(near, options);
         }
-        
-        /// <summary>
-        /// Creates a $geoNear stage.
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <typeparam name="TCoordinates">The type of the coordinates for the point.</typeparam>
-        /// <param name="near">The point for which to find the closest documents.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>The stage.</returns>
-        public static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TCoordinates, TOutput>(
-            TCoordinates[] near,
-            GeoNearOptions<TInput> options = null)
-        {
-            Ensure.IsNotNull(near, nameof(near));
-            Ensure.That(near.Length, len => len is >= 2 and <= 3, nameof(near), "Legacy coordinates array should have 2 or 3 coordinates.");
-            return GeoNear<TInput, TCoordinates[], TOutput>(near, options);
-        }
-        
+
         /// <summary>
         /// Creates a $geoNear stage.
         /// </summary>
@@ -690,12 +674,12 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TOutput>(
-            BsonDocument near,
-            GeoNearOptions<TInput> options = null)
+            double[] near,
+            GeoNearOptions<TInput, TOutput> options = null)
         {
             Ensure.IsNotNull(near, nameof(near));
-            Ensure.That(near.ElementCount, len => len is >= 2 and <= 3, nameof(near), "Legacy coordinates document should have 2 or 3 coordinates.");
-            return GeoNear<TInput, BsonDocument, TOutput>(near, options);
+            Ensure.That(near.Length, len => len is >= 2 and <= 3, nameof(near), "Legacy coordinates array should have 2 or 3 coordinates.");
+            return GeoNear<TInput, double[], TOutput>(near, options);
         }
 
         /// <summary>
