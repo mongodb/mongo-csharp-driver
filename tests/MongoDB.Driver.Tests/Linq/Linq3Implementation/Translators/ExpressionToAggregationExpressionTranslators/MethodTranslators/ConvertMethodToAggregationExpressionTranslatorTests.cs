@@ -393,104 +393,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, 123);
         }
 
-        [Fact]
-        public void Test()
-        {
-            Expression<Func<TestClass, bool>> expression = x => Mql.Convert<int, bool>(x.IntProperty, null);
-
-            const int id = 22;
-            var collection = Fixture.Collection;
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Id == id)
-                .Select(expression);
-
-            var expectedStages =
-                new[]
-                {
-                    $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $toBool : '$IntProperty' }}, _id : 0 }} }}",
-                };
-
-            AssertOutcome(collection, queryable, expectedStages, true);
-        }
-
-
-        [Fact]
-        public void Convert_to_boolean_should_work()
-        {
-            const int id = 22;
-            var collection = Fixture.Collection;
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Id == id)
-                .Select(x => Mql.Convert<int, bool>(x.IntProperty, null));
-
-            var expectedStages =
-                new[]
-                {
-                    $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $toBool : '$IntProperty' }}, _id : 0 }} }}",
-                };
-
-            AssertOutcome(collection, queryable, expectedStages, true);
-        }
-
-        [Fact]
-        public void Convert_to_integer_should_work()
-        {
-            const int id = 21;
-            var collection = Fixture.Collection;
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Id == id)
-                .Select(x => Mql.Convert<string, int>(x.StringProperty, null));
-
-            var expectedStages =
-                new[]
-                {
-                    $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $toInt : '$StringProperty' }}, _id : 0 }} }}",
-                };
-
-            AssertOutcome(collection, queryable, expectedStages, 15);
-        }
-
-        [Fact]
-        public void Convert_to_decimal_should_work()
-        {
-            const int id = 22;
-            var collection = Fixture.Collection;
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Id == id)
-                .Select(x => Mql.Convert<int, decimal>(x.IntProperty, null));
-
-            var expectedStages =
-                new[]
-                {
-                    $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $toDecimal : '$IntProperty' }}, _id : 0 }} }}",
-                };
-
-            AssertOutcome(collection, queryable, expectedStages, 33);
-        }
-
-        [Fact]
-        public void Convert_to_decimal128_should_work()
-        {
-            const int id = 22;
-            var collection = Fixture.Collection;
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Id == id)
-                .Select(x => Mql.Convert<int, Decimal128>(x.IntProperty, null));
-
-            var expectedStages =
-                new[]
-                {
-                    $"{{ $match : {{ _id : {id} }} }}",
-                    $"{{ $project: {{ _v : {{ $toDecimal : '$IntProperty' }}, _id : 0 }} }}",
-                };
-
-            AssertOutcome(collection, queryable, expectedStages, 33);
-        }
-
         [Theory]
         [InlineData(0, null)]
         [InlineData(21, 15)]
@@ -511,12 +413,58 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertOutcome(collection, queryable, expectedStages, expectedResult);
         }
 
-
         public static IEnumerable<object[]> ConvertTestData => new List<object[]>
         {
-            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, bool>(x.IntProperty, null)), "{ $project: { _v : { $toBool : '$IntProperty' }, _id : 0 } }", true },
-            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, decimal>(x.IntProperty, null)), "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }", 33m },
-            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, Decimal128>(x.IntProperty, null)), "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }", new Decimal128(33) }
+            // To binData
+            new object[] { 4, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, BsonBinaryData>(x.IntProperty, new ConvertOptions<BsonBinaryData> { SubType = BsonBinarySubType.Binary, ByteOrder = ByteOrder.LittleEndian })),
+                "{ $project: { _v : { $convert : { input : '$IntProperty', to : { type: 'binData', subtype: 0  }, byteOrder : 'little' }, _id : 0 } } }",
+                new BsonBinaryData(Convert.FromBase64String("ogIAAA==")) },
+
+            // To objectId
+            new object[] { 24, (Expression<Func<TestClass, object>>)(x => Mql.Convert<string, ObjectId>(x.StringProperty, null)),
+                "{ $project: { _v : { $toObjectId : '$StringProperty' }, _id : 0 } }",
+                ObjectId.Parse("5ab9cbfa31c2ab715d42129e") },
+
+            // To date
+            new object[] { 23, (Expression<Func<TestClass, object>>)(x => Mql.Convert<string, DateTime>(x.StringProperty, null)),
+                "{ $project: { _v : { $toDate : '$StringProperty' }, _id : 0 } }",
+                new DateTime(2018, 03, 03) },
+
+            // To string
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, string>(x.IntProperty, null)),
+                "{ $project: { _v : { $toString : '$IntProperty' }, _id : 0 } }",
+                "33" },
+
+            // To int
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, int>(x.IntProperty, null)),
+                "{ $project: { _v : { $toInt : '$IntProperty' }, _id : 0 } }",
+                33 },
+
+            // To long
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, long>(x.IntProperty, null)),
+                "{ $project: { _v : { $toLong : '$IntProperty' }, _id : 0 } }",
+                (long)33 },
+
+            // To bool
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, bool>(x.IntProperty, null)),
+                "{ $project: { _v : { $toBool : '$IntProperty' }, _id : 0 } }",
+                true },
+
+            // To decimal
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, decimal>(x.IntProperty, null)),
+                "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }",
+                33m },
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, Decimal128>(x.IntProperty, null)),
+                "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }",
+                new Decimal128(33) },
+
+            // To float/double
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, float>(x.IntProperty, null)),
+                "{ $project: { _v : { $toDouble : '$IntProperty' }, _id : 0 } }",
+                (float)33.0 },
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, double>(x.IntProperty, null)),
+                "{ $project: { _v : { $toDouble : '$IntProperty' }, _id : 0 } }",
+                33.0 },
         };
 
         [Theory]
@@ -536,7 +484,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertOutcome(collection, queryable, expectedStages, expectedValue);
         }
-
 
         private void AssertOutcome<TResult>(IMongoCollection<TestClass> collection,
             IQueryable<TResult> queryable,
@@ -590,6 +537,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 BsonDocument.Parse("{ _id : 20, StringProperty: 'inValidInt', IntProperty: 22 }"),
                 BsonDocument.Parse("{ _id : 21, StringProperty: '15' }"),
                 BsonDocument.Parse("{ _id : 22, IntProperty: 33 }"),
+                BsonDocument.Parse("{ _id : 23, StringProperty: '2018-03-03' }"),
+                BsonDocument.Parse("{ _id : 24, StringProperty: '5ab9cbfa31c2ab715d42129e' }"),
             ];
         }
 
