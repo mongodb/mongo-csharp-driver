@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return (T)constantExpression.Value;
         }
 
-        private static BsonType GetBsonType(Type type)  //TODO Do we have this kind of info somewhere else...?
+        private static BsonType GetBsonType(Type type)
         {
             return Type.GetTypeCode(Nullable.GetUnderlyingType(type) ?? type) switch
             {
@@ -161,6 +161,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 TypeCode.DateTime => BsonType.DateTime,
                 TypeCode.Object when type == typeof(byte[]) => BsonType.Binary,
                 TypeCode.Object when type == typeof(BsonBinaryData) => BsonType.Binary,
+                _ when type == typeof(Decimal128) => BsonType.Decimal128,
                 _ when type == typeof(Guid) => BsonType.Binary,
                 _ when type == typeof(ObjectId) => BsonType.ObjectId,
                 _ => BsonType.Document
