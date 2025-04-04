@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -372,6 +373,170 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             AssertOutcome(collection, queryable, expectedStages, 15);
         }
+
+        [Fact]
+        public void Convert_with_constant_should_work()
+        {
+            const int id = 21;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert("123", new ConvertOptions<int>()));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $toInt : '123' }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, 123);
+        }
+
+        [Fact]
+        public void Test()
+        {
+            Expression<Func<TestClass, bool>> expression = x => Mql.Convert<int, bool>(x.IntProperty, null);
+
+            const int id = 22;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(expression);
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $toBool : '$IntProperty' }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, true);
+        }
+
+
+        [Fact]
+        public void Convert_to_boolean_should_work()
+        {
+            const int id = 22;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<int, bool>(x.IntProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $toBool : '$IntProperty' }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, true);
+        }
+
+        [Fact]
+        public void Convert_to_integer_should_work()
+        {
+            const int id = 21;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<string, int>(x.StringProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $toInt : '$StringProperty' }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, 15);
+        }
+
+        [Fact]
+        public void Convert_to_decimal_should_work()
+        {
+            const int id = 22;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<int, decimal>(x.IntProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $toDecimal : '$IntProperty' }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, 33);
+        }
+
+        [Fact]
+        public void Convert_to_decimal128_should_work()
+        {
+            const int id = 22;
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<int, Decimal128>(x.IntProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $toDecimal : '$IntProperty' }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, 33);
+        }
+
+        [Theory]
+        [InlineData(0, null)]
+        [InlineData(21, 15)]
+        public void Convert_to_nullable_value_type_should_work(int id, int? expectedResult)
+        {
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(x => Mql.Convert<string, int?>(x.StringProperty, null));
+
+            var expectedStages =
+                new[]
+                {
+                    $"{{ $match : {{ _id : {id} }} }}",
+                    $"{{ $project: {{ _v : {{ $toInt : '$StringProperty' }}, _id : 0 }} }}",
+                };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedResult);
+        }
+
+
+        public static IEnumerable<object[]> ConvertTestData => new List<object[]>
+        {
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, bool>(x.IntProperty, null)), "{ $project: { _v : { $toBool : '$IntProperty' }, _id : 0 } }", true },
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, decimal>(x.IntProperty, null)), "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }", 33m },
+            new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, Decimal128>(x.IntProperty, null)), "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }", new Decimal128(33) }
+        };
+
+        [Theory]
+        [MemberData(nameof(ConvertTestData))]
+        public void Convert_should_work(
+            int id,
+            Expression<Func<TestClass, object>> projection,
+            string expectedStage,
+            object expectedValue)
+        {
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == id)
+                .Select(projection);
+
+            var expectedStages = new[] { $"{{ $match : {{ _id : {id} }} }}", expectedStage };
+
+            AssertOutcome(collection, queryable, expectedStages, expectedValue);
+        }
+
 
         private void AssertOutcome<TResult>(IMongoCollection<TestClass> collection,
             IQueryable<TResult> queryable,
