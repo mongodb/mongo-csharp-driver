@@ -352,6 +352,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             public override AstNode VisitGetFieldExpression(AstGetFieldExpression node)
             {
+                // { $getField : { field : <elementField>, input : { $firstOrLast : "$_elements" } } } => { __agg0 : { $firstOrLast : <rootField> } } + "$__agg0"
+                if (IsGetFieldChainOnFirstOrLastElement(node, out var firstOrLastOperator, out var rootFieldExpression))
+                {
+                    var unaryAccumulatorOperator = firstOrLastOperator == AstUnaryOperator.First ? AstUnaryAccumulatorOperator.First : AstUnaryAccumulatorOperator.Last;
+                    var accumulatorExpression = AstExpression.UnaryAccumulator(unaryAccumulatorOperator, rootFieldExpression);
+                    var accumulatorFieldName = _accumulators.AddAccumulatorExpression(accumulatorExpression);
+                    return AstExpression.GetField(AstExpression.RootVar, accumulatorFieldName);
+                }
+
                 if (node.FieldName is AstConstantExpression constantFieldName &&
                     constantFieldName.Value.IsString &&
                     constantFieldName.Value.AsString == "_elements")
@@ -360,6 +369,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 }
 
                 return base.VisitGetFieldExpression(node);
+
+                bool IsGetFieldChainOnFirstOrLastElement(AstGetFieldExpression getFieldExpression, out AstUnaryOperator firstOrLastOperator, out AstExpression rootFieldExpression)
+                {
+                    if (getFieldExpression.Input is AstGetFieldExpression innerGetFieldExpression &&
+                        IsGetFieldChainOnFirstOrLastElement(innerGetFieldExpression, out firstOrLastOperator, out rootFieldExpression))
+                    {
+                        rootFieldExpression = AstExpression.GetField(rootFieldExpression, getFieldExpression.FieldName);
+                        return true;
+                    }
+
+                    if (getFieldExpression.Input is AstUnaryExpression unaryExpression &&
+                        unaryExpression.Operator is var unaryOperator &&
+                        (unaryOperator is AstUnaryOperator.First or AstUnaryOperator.Last) &&
+                        unaryExpression.Arg is AstGetFieldExpression innerMostGetFieldExpression &&
+                        innerMostGetFieldExpression.Input.IsRootVar() &&
+                        innerMostGetFieldExpression.FieldName.IsConstant("_elements"))
+                    {
+                        firstOrLastOperator = unaryOperator;
+                        rootFieldExpression = AstExpression.GetField(AstExpression.RootVar, getFieldExpression.FieldName);
+                        return true;
+                    }
+
+                    firstOrLastOperator = default;
+                    rootFieldExpression = null;
+                    return false;
+                }
             }
 
             public override AstNode VisitMapExpression(AstMapExpression node)
