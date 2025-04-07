@@ -77,6 +77,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
+        public static void EnsureSerializerIsCompatible(Expression expression, IBsonSerializer actualSerializer, IBsonSerializer expectedSerializer)
+        {
+            if (!actualSerializer.Equals(expectedSerializer))
+            {
+                throw new ExpressionNotSupportedException(expression, because: "the result serializer is not compatible with the expected serializer");
+            }
+        }
+
         public static BsonType GetRepresentation(IBsonSerializer serializer)
         {
             if (serializer is IDiscriminatedInterfaceSerializer discriminatedInterfaceSerializer)
@@ -238,11 +246,5 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 writer.WriteEndDocument();
             }
             return document["_v"].AsBsonArray;
-        }
-
-        public static void EnsureSerializerIsCompatible(Expression memberExpression, IBsonSerializer serializer, IBsonSerializer expectedSerializer)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
+        } }
 }

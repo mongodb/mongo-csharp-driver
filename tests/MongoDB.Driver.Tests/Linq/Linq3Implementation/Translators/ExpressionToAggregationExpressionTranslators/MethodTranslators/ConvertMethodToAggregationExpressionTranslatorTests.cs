@@ -463,7 +463,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             // To binData
             new object[] { 4, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, BsonBinaryData>(x.IntProperty, new ConvertOptions<BsonBinaryData> { SubType = BsonBinarySubType.Binary, ByteOrder = ByteOrder.LittleEndian })),
-                "{ $project: { _v : { $convert : { input : '$IntProperty', to : { type: 'binData', subtype: 0  }, byteOrder : 'little' }, _id : 0 } } }",
+                "{ $project: { _v : { $convert : { input : '$IntProperty', to : { type: 'binData', subtype: 0  }, byteOrder : 'little' } }, _id : 0 } }",
                 new BsonBinaryData(Convert.FromBase64String("ogIAAA==")) },
         };
 
