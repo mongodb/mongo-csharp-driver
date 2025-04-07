@@ -267,9 +267,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             Ensure.IsNotNull(input, nameof(input));
             Ensure.IsNotNull(to, nameof(to));
 
-            if (onError == null && onNull == null && subType == null && format == null && byteOrder == null &&
-                to is AstConstantExpression toConstantExpression &&
-                (toConstantExpression.Value as BsonString)?.Value is { } toValue)
+            if (to is AstConstantExpression toConstantExpression &&
+                (toConstantExpression.Value as BsonString)?.Value is { } toValue &&
+                subType == null &&
+                byteOrder == null &&
+                format == null &&
+                onError == null &&
+                onNull == null)
             {
                 var unaryOperator = toValue switch
                 {
