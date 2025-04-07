@@ -17,8 +17,10 @@ using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
@@ -36,135 +38,139 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 throw new ExpressionNotSupportedException(expression);
             }
 
-            var fieldAst = ExpressionToAggregationExpressionTranslator.Translate(context, arguments[0]).Ast;
-
-            ByteOrder? byteOrder;
-            string format;
-            AstExpression onErrorAst;
-            AstExpression onNullAst;
-            BsonBinarySubType? subType;
-
-            var optionExpression = arguments[1];
-            switch (optionExpression)
-            {
-                case ConstantExpression constantExpression:
-                    ExtractOptionsFromConstantExpression(constantExpression, out byteOrder, out format, out onErrorAst, out onNullAst, out subType);
-                    break;
-                case MemberInitExpression memberInitExpression:
-                    ExtractOptionsFromMemberInitExpression(memberInitExpression, context, out byteOrder, out format, out onErrorAst, out onNullAst, out subType);
-                    break;
-                default:
-                    throw new ExpressionNotSupportedException("The 'Options' argument can be either a constant expression or a member initialization expression");
-            }
-
             var toType = method.GetGenericArguments()[1];
-            var toBsonType = GetBsonType(toType).Render();
-            var serializer = BsonSerializer.LookupSerializer(toType);
+            var valueExpression = arguments[0];
+            var optionsExpression = arguments[1];
 
-            var ast = AstExpression.Convert(fieldAst, toBsonType, subType: subType, byteOrder: byteOrder, format: format, onError: onErrorAst, onNull: onNullAst);
-            return new TranslatedExpression(expression, ast, serializer);
+            var (toBsonType, toSerializer) = TranslateToType(expression, toType);
+            var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+            var (subType, byteOrder, format, onErrorAst, onNullAst) = TranslateOptions(context, expression, optionsExpression, toSerializer);
+
+            var ast = AstExpression.Convert(valueTranslation.Ast, toBsonType.Render(), subType, byteOrder, format, onErrorAst, onNullAst);
+            return new TranslatedExpression(expression, ast, toSerializer);
         }
 
-        private static void ExtractOptionsFromConstantExpression(ConstantExpression constantExpression, out ByteOrder? byteOrder, out string format, out AstExpression onErrorAst, out AstExpression onNullAst, out BsonBinarySubType? subType)
+        private static (BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
+            TranslateOptions(
+                TranslationContext context,
+                Expression expression,
+                Expression optionsExpression,
+                IBsonSerializer toSerializer)
         {
-            byteOrder = null;
-            format = null;
-            onErrorAst = null;
-            onNullAst = null;
-            subType = null;
-
-            var options = (ConvertOptions)constantExpression.Value;
-
-            if (options is null)
+            return optionsExpression switch
             {
-                return;
-            }
-
-            if (options.OnErrorWasSet)
-            {
-                onErrorAst = options.GetOnError();
-            }
-
-            if (options.OnNullWasSet)
-            {
-                onNullAst = options.GetOnNull();
-            }
-
-            subType = options.SubType;
-            format = options.Format;
-            byteOrder = options.ByteOrder;
+                ConstantExpression constantExpression => TranslateOptions(constantExpression, toSerializer),
+                MemberInitExpression memberInitExpressionExpression => TranslateOptions(context, expression, memberInitExpressionExpression, toSerializer),
+                _ => throw new ExpressionNotSupportedException(optionsExpression, containingExpression: expression, because: "the Options argument must be either a constant or a member initialization expression.")
+            };
         }
 
-        private static void ExtractOptionsFromMemberInitExpression(MemberInitExpression memberInitExpression, TranslationContext context, out ByteOrder? byteOrder, out string format, out AstExpression onErrorAst, out AstExpression onNullAst, out BsonBinarySubType? subType)
-        {
-            byteOrder = null;
-            format = null;
-            onErrorAst = null;
-            onNullAst = null;
-            subType = null;
 
-            foreach (var binding in memberInitExpression.Bindings)
+        private static (BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
+            TranslateOptions(
+                ConstantExpression optionsExpression,
+                IBsonSerializer toSerializer)
+        {
+            var options = (ConvertOptions)optionsExpression.Value;
+
+            AstExpression onErrorAst = null;
+            AstExpression onNullAst = null;
+            if (options != null)
             {
-                if (binding is not MemberAssignment memberAssignment) continue;
+                if (options.OnErrorWasSet(out var onErrorValue))
+                {
+                    var serializedOnErrorValue = SerializationHelper.SerializeValue(toSerializer, onErrorValue);
+                    onErrorAst = AstExpression.Constant(serializedOnErrorValue);
+                }
+
+                if (options.OnNullWasSet(out var onNullValue))
+                {
+                    var serializedOnNullValue = SerializationHelper.SerializeValue(toSerializer, onNullValue);
+                    onNullAst = AstExpression.Constant(serializedOnNullValue);
+                }
+            }
+
+            return (options?.SubType, options?.ByteOrder, options?.Format, onErrorAst, onNullAst);
+        }
+
+        private static (BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
+            TranslateOptions(
+                TranslationContext context,
+                Expression expression,
+                MemberInitExpression optionsExpression,
+                IBsonSerializer toSerializer
+            )
+        {
+            BsonBinarySubType? subType = null;
+            ByteOrder? byteOrder = null;
+            string format = null;
+            TranslatedExpression onErrorTranslation = null;
+            TranslatedExpression onNullTranslation = null;
+
+            foreach (var binding in optionsExpression.Bindings)
+            {
+                if (binding is not MemberAssignment memberAssignment)
+                {
+                    throw new ExpressionNotSupportedException(optionsExpression, containingExpression: expression, because: "only member assignment is supported");
+                }
 
                 var memberName = memberAssignment.Member.Name;
-                var expression = memberAssignment.Expression;
+                var memberExpression = memberAssignment.Expression;
 
                 switch (memberName)
                 {
                     case nameof(ConvertOptions.ByteOrder):
-                        byteOrder = GetConstantValue<ByteOrder?>(expression, nameof(ConvertOptions.ByteOrder));
+                        byteOrder = memberExpression.GetConstantValue<ByteOrder?>(expression);
                         break;
                     case nameof(ConvertOptions.Format):
-                        format = GetConstantValue<string>(expression, nameof(ConvertOptions.Format));
+                        format = memberExpression.GetConstantValue<string>(expression);
                         break;
                     case nameof(ConvertOptions<object>.OnError):
-                        onErrorAst = ExpressionToAggregationExpressionTranslator.Translate(context, expression).Ast;
+                        onErrorTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, memberExpression);
+                        SerializationHelper.EnsureSerializerIsCompatible(memberExpression, onErrorTranslation.Serializer, expectedSerializer: toSerializer);
                         break;
                     case nameof(ConvertOptions<object>.OnNull):
-                        onNullAst = ExpressionToAggregationExpressionTranslator.Translate(context, expression).Ast;
+                        onNullTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, memberExpression);
+                        SerializationHelper.EnsureSerializerIsCompatible(memberExpression, onNullTranslation.Serializer, expectedSerializer: toSerializer);
                         break;
                     case nameof(ConvertOptions.SubType):
-                        subType = GetConstantValue<BsonBinarySubType?>(expression, nameof(ConvertOptions.SubType));
+                        subType = memberExpression.GetConstantValue<BsonBinarySubType?>(expression);
                         break;
+                    default:
+                        throw new ExpressionNotSupportedException(memberExpression, because: $"memberName {memberName} is invalid");
                 }
             }
+
+            return (subType, byteOrder, format, onErrorTranslation?.Ast, onNullTranslation?.Ast);
         }
 
-        private static T GetConstantValue<T>(Expression expression, string fieldName)
+        private static (BsonType ToBsonType, IBsonSerializer ToSerialzier) TranslateToType(Expression expression, Type toType)
         {
-            if (expression is not ConstantExpression constantExpression)
+            return Type.GetTypeCode(Nullable.GetUnderlyingType(toType) ?? toType) switch
             {
-                throw new ExpressionNotSupportedException($"The {fieldName} field must be a constant expression.");
-            }
-            return (T)constantExpression.Value;
-        }
+                TypeCode.Boolean => (BsonType.Boolean, BooleanSerializer.Instance),
+                TypeCode.Byte => (BsonType.Int32, ByteSerializer.Instance),
+                TypeCode.Char => (BsonType.String, StringSerializer.Instance),
+                TypeCode.DateTime => (BsonType.DateTime, DateTimeSerializer.Instance),
+                TypeCode.Decimal => (BsonType.Decimal128, DecimalSerializer.Instance),
+                TypeCode.Double => (BsonType.Double, DoubleSerializer.Instance),
+                TypeCode.Int16 => (BsonType.Int32, Int16Serializer.Instance),
+                TypeCode.Int32 => (BsonType.Int32, Int32Serializer.Instance),
+                TypeCode.Int64 => (BsonType.Int64, Int64Serializer.Instance),
+                TypeCode.SByte => (BsonType.Int32, SByteSerializer.Instance),
+                TypeCode.Single => (BsonType.Double, DoubleSerializer.Instance),
+                TypeCode.String => (BsonType.String, StringSerializer.Instance),
+                TypeCode.UInt16 => (BsonType.Int32, UInt16Serializer.Instance),
+                TypeCode.UInt32 => (BsonType.Int64, Int32Serializer.Instance),
+                TypeCode.UInt64 => (BsonType.Decimal128, UInt64Serializer.Instance),
 
-        private static BsonType GetBsonType(Type type)
-        {
-            return Type.GetTypeCode(Nullable.GetUnderlyingType(type) ?? type) switch
-            {
-                TypeCode.Boolean => BsonType.Boolean,
-                TypeCode.Byte => BsonType.Int32,
-                TypeCode.SByte => BsonType.Int32,
-                TypeCode.Int16 => BsonType.Int32,
-                TypeCode.UInt16 => BsonType.Int32,
-                TypeCode.Int32 => BsonType.Int32,
-                TypeCode.UInt32 => BsonType.Int64,
-                TypeCode.Int64 => BsonType.Int64,
-                TypeCode.UInt64 => BsonType.Decimal128,
-                TypeCode.Single => BsonType.Double,
-                TypeCode.Double => BsonType.Double,
-                TypeCode.Decimal => BsonType.Decimal128,
-                TypeCode.String => BsonType.String,
-                TypeCode.Char => BsonType.String,
-                TypeCode.DateTime => BsonType.DateTime,
-                TypeCode.Object when type == typeof(byte[]) => BsonType.Binary,
-                TypeCode.Object when type == typeof(BsonBinaryData) => BsonType.Binary,
-                _ when type == typeof(Decimal128) => BsonType.Decimal128,
-                _ when type == typeof(Guid) => BsonType.Binary,
-                _ when type == typeof(ObjectId) => BsonType.ObjectId,
-                _ => BsonType.Document
+                _ when toType == typeof(byte[]) => (BsonType.Binary, ByteArraySerializer.Instance),
+                _ when toType == typeof(BsonBinaryData) => (BsonType.Binary, BsonBinaryDataSerializer.Instance),
+                _ when toType == typeof(Decimal128) => (BsonType.Decimal128, Decimal128Serializer.Instance),
+                _ when toType == typeof(Guid) => (BsonType.Binary, GuidSerializer.StandardInstance),
+                _ when toType == typeof(ObjectId) => (BsonType.ObjectId, ObjectIdSerializer.Instance),
+
+                _ => throw new ExpressionNotSupportedException(expression, because: $"{toType} is not a valid TTo for Convert")
             };
         }
     }

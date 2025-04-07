@@ -239,5 +239,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
             return document["_v"].AsBsonArray;
         }
+
+        public static void EnsureSerializerIsCompatible(Expression memberExpression, IBsonSerializer serializer, IBsonSerializer expectedSerializer)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

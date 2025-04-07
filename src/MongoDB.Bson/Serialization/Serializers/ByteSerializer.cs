@@ -23,6 +23,16 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public sealed class ByteSerializer : StructSerializerBase<byte>, IRepresentationConfigurable<ByteSerializer>
     {
+        #region static
+        private static readonly ByteSerializer __instance = new();
+
+        // public static properties
+        /// <summary>
+        /// Gets a cached instance of a default ByteSerializer.
+        /// </summary>
+        public static ByteSerializer Instance => __instance;
+        #endregion
+
         // private fields
         private readonly BsonType _representation;
 
