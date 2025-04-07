@@ -438,10 +438,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }",
                 new Decimal128(33) },
 
-            // To float/double
+            // To float
             new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, float>(x.IntProperty, null)),
                 "{ $project: { _v : { $toDouble : '$IntProperty' }, _id : 0 } }",
                 (float)33.0 },
+
+            // To double
             new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, double>(x.IntProperty, null)),
                 "{ $project: { _v : { $toDouble : '$IntProperty' }, _id : 0 } }",
                 33.0 },
@@ -461,10 +463,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 "{ $project: { _v : { $toString : '$IntProperty' }, _id : 0 } }",
                 "33" },
 
-            // To binData
+            // To BsonBinaryData
             new object[] { 4, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, BsonBinaryData>(x.IntProperty, new ConvertOptions<BsonBinaryData> { SubType = BsonBinarySubType.Binary, ByteOrder = ByteOrder.LittleEndian })),
                 "{ $project: { _v : { $convert : { input : '$IntProperty', to : { type: 'binData', subtype: 0  }, byteOrder : 'little' } }, _id : 0 } }",
                 new BsonBinaryData(Convert.FromBase64String("ogIAAA==")) },
+
+            // To byte[]
+            new object[] { 4, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, byte[]>(x.IntProperty, new ConvertOptions<byte[]> { SubType = BsonBinarySubType.Binary, ByteOrder = ByteOrder.LittleEndian })),
+                "{ $project: { _v : { $convert : { input : '$IntProperty', to : { type: 'binData', subtype: 0  }, byteOrder : 'little' } }, _id : 0 } }",
+                Convert.FromBase64String("ogIAAA==") },
         };
 
         [Theory]
