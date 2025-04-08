@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     case "HasValue": return HasValuePropertyToAggregationExpressionTranslator.Translate(context, expression);
                     case "Value": return ValuePropertyToAggregationExpressionTranslator.Translate(context, expression);
+                    default: break;
                 }
             }
 
@@ -65,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (!DocumentSerializerHelper.AreMembersRepresentedAsFields(containerTranslation.Serializer, out _))
             {
-                if (member is PropertyInfo propertyInfo && propertyInfo.Name == "Length")
+                if (member is PropertyInfo propertyInfo  && propertyInfo.Name == "Length")
                 {
                     return LengthPropertyToAggregationExpressionTranslator.Translate(context, expression);
                 }
