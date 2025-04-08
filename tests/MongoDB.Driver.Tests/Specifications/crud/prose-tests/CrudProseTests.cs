@@ -617,6 +617,65 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             documentCount.Should().Be(numModels);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Ensure_generated_ids_are_first_fields_in_document([Values(true, false)] bool async)
+        {
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
+            var client = CreateMongoClient(eventCapturer);
+            var testCollection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
+
+            var document = new BsonDocument("x", 1);
+            if (async)
+            {
+                await testCollection.InsertOneAsync(document);
+            }
+            else
+            {
+                testCollection.InsertOne(document);
+            }
+
+            eventCapturer.Next();
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
+                .Subject.Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
+            document.Names.Should().Contain("_id");
+
+            eventCapturer.Clear();
+            document = new BsonDocument("x", 2);
+            if (async)
+            {
+                await testCollection.BulkWriteAsync([new InsertOneModel<BsonDocument>(document)]);
+            }
+            else
+            {
+                testCollection.BulkWrite([new InsertOneModel<BsonDocument>(document)]);
+            }
+
+            eventCapturer.Count.Should().Be(1);
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
+                .Subject.Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
+            document.Names.Should().Contain("_id");
+
+            if (Feature.ClientBulkWrite.IsSupported(CoreTestConfiguration.MaxWireVersion))
+            {
+                eventCapturer.Clear();
+                document = new BsonDocument("x", 3);
+                if (async)
+                {
+                    await client.BulkWriteAsync([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
+                }
+                else
+                {
+                    client.BulkWrite([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
+                }
+
+                eventCapturer.Count.Should().Be(1);
+                eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
+                    .Subject.Command["ops"][0]["document"].AsBsonDocument.Names.First().Should().Be("_id");
+                document.Names.Should().Contain("_id");
+            }
+        }
+
         // private methods
         private FailPoint ConfigureFailPoint(string failpointCommand)
         {
