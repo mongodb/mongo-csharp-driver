@@ -17,9 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -490,6 +492,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var expectedStages = new[] { $"{{ $match : {{ _id : {id} }} }}", expectedStage };
 
             AssertOutcome(collection, queryable, expectedStages, expectedValue);
+        }
+
+        [Fact]
+        public void Convert_should_throw_when_using_unrecognized_to_type()
+        {
+            var collection = Fixture.Collection;
+            var queryable = collection.AsQueryable()
+                .Where(x => x.Id == 20)
+                .Select(x => Mql.Convert<string, TestClass>("123", new ConvertOptions<TestClass>()));
+
+            var exception = Record.Exception(() => Translate(collection, queryable));
+
+            Assert.NotNull(exception);
+            Assert.IsType<ExpressionNotSupportedException>(exception);
         }
 
         private void AssertOutcome<TResult>(IMongoCollection<TestClass> collection,
