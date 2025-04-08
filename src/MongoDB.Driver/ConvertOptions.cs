@@ -55,7 +55,7 @@ namespace MongoDB.Driver
 
         internal abstract bool OnErrorWasSet(out object onError);
 
-        internal abstract bool OnNullWasSet(out object onError);
+        internal abstract bool OnNullWasSet(out object onNull);
     }
 
     /// <summary>

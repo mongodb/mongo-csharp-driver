@@ -77,11 +77,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
         }
 
-        public static void EnsureSerializerIsCompatible(Expression expression, IBsonSerializer actualSerializer, IBsonSerializer expectedSerializer)
+        public static void EnsureSerializerIsCompatible(Expression expression, Expression containingExpression, IBsonSerializer actualSerializer, IBsonSerializer expectedSerializer)
         {
             if (!actualSerializer.Equals(expectedSerializer))
             {
-                throw new ExpressionNotSupportedException(expression, because: "the result serializer is not compatible with the expected serializer");
+                throw new ExpressionNotSupportedException(expression, containingExpression, because: "the result serializer is not compatible with the expected serializer");
             }
         }
 
@@ -246,5 +246,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 writer.WriteEndDocument();
             }
             return document["_v"].AsBsonArray;
-        } }
+        }
+    }
 }

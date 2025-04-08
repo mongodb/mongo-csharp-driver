@@ -23,7 +23,6 @@ using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -62,10 +61,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 ConstantExpression constantExpression => TranslateOptions(constantExpression, toSerializer),
                 MemberInitExpression memberInitExpressionExpression => TranslateOptions(context, expression, memberInitExpressionExpression, toSerializer),
-                _ => throw new ExpressionNotSupportedException(optionsExpression, containingExpression: expression, because: "the Options argument must be either a constant or a member initialization expression.")
+                _ => throw new ExpressionNotSupportedException(optionsExpression, containingExpression: expression, because: "the options argument must be either a constant or a member initialization expression.")
             };
         }
-
 
         private static (BsonBinarySubType? subType, ByteOrder? byteOrder, string format, AstExpression onErrorAst, AstExpression onNullAst)
             TranslateOptions(
@@ -128,11 +126,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         break;
                     case nameof(ConvertOptions<object>.OnError):
                         onErrorTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, memberExpression);
-                        SerializationHelper.EnsureSerializerIsCompatible(memberExpression, onErrorTranslation.Serializer, expectedSerializer: toSerializer);
+                        SerializationHelper.EnsureSerializerIsCompatible(memberExpression, containingExpression: expression, onErrorTranslation.Serializer, expectedSerializer: toSerializer);
                         break;
                     case nameof(ConvertOptions<object>.OnNull):
                         onNullTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, memberExpression);
-                        SerializationHelper.EnsureSerializerIsCompatible(memberExpression, onNullTranslation.Serializer, expectedSerializer: toSerializer);
+                        SerializationHelper.EnsureSerializerIsCompatible(memberExpression, containingExpression: expression, onNullTranslation.Serializer, expectedSerializer: toSerializer);
                         break;
                     case nameof(ConvertOptions.SubType):
                         subType = memberExpression.GetConstantValue<BsonBinarySubType?>(expression);
@@ -145,57 +143,41 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return (subType, byteOrder, format, onErrorTranslation?.Ast, onNullTranslation?.Ast);
         }
 
-        private static (BsonType ToBsonType, IBsonSerializer ToSerialzier) TranslateToType(Expression expression, Type toType)
+        private static (BsonType ToBsonType, IBsonSerializer ToSerializer) TranslateToType(Expression expression, Type toType)
         {
-            if (toType == typeof(byte[]))
-            {
-                return (BsonType.Binary, ByteArraySerializer.Instance);
-            }
-            if (toType == typeof(BsonBinaryData))
-            {
-                return (BsonType.Binary, BsonBinaryDataSerializer.Instance);
-            }
-            if (toType == typeof(Decimal128))
-            {
-                return (BsonType.Decimal128, Decimal128Serializer.Instance);
-            }
-            if (toType == typeof(Guid))
-            {
-                return (BsonType.Binary, GuidSerializer.StandardInstance);
-            }
-            if (toType == typeof(ObjectId))
-            {
-                return (BsonType.ObjectId, ObjectIdSerializer.Instance);
-            }
-            if (toType == typeof(string))
-            {
-                return (BsonType.String, StringSerializer.Instance);
-            }
-            if (toType == typeof(DateTime))
-            {
-                return (BsonType.DateTime, DateTimeSerializer.Instance);
-            }
+            var underlyingType = Nullable.GetUnderlyingType(toType);
+            var isNullable = underlyingType != null;
+            var effectiveType = underlyingType ?? toType;
 
-            var bsonType = Type.GetTypeCode(Nullable.GetUnderlyingType(toType) ?? toType) switch
+            (BsonType, IBsonSerializer) result = Type.GetTypeCode(effectiveType) switch
             {
-                TypeCode.Boolean => BsonType.Boolean,
-                TypeCode.Byte => BsonType.Int32,
-                TypeCode.Char => BsonType.String,
-                TypeCode.Decimal => BsonType.Decimal128,
-                TypeCode.Double => BsonType.Double,
-                TypeCode.Int16 => BsonType.Int32,
-                TypeCode.Int32 => BsonType.Int32,
-                TypeCode.Int64 => BsonType.Int64,
-                TypeCode.SByte => BsonType.Int32,
-                TypeCode.Single => BsonType.Double,
-                TypeCode.UInt16 => BsonType.Int32,
-                TypeCode.UInt32 => BsonType.Int64,
-                TypeCode.UInt64 => BsonType.Decimal128,
+                TypeCode.Boolean => (BsonType.Boolean, BooleanSerializer.Instance),
+                TypeCode.Byte => (BsonType.Int32, ByteSerializer.Instance),
+                TypeCode.Char => (BsonType.String, StringSerializer.Instance),
+                TypeCode.DateTime => (BsonType.DateTime, DateTimeSerializer.Instance),
+                TypeCode.Decimal => (BsonType.Decimal128, DecimalSerializer.Instance),
+                TypeCode.Double => (BsonType.Double, DoubleSerializer.Instance),
+                TypeCode.Int16 => (BsonType.Int32, Int16Serializer.Instance),
+                TypeCode.Int32 => (BsonType.Int32, Int32Serializer.Instance),
+                TypeCode.Int64 => (BsonType.Int64, Int64Serializer.Instance),
+                TypeCode.SByte => (BsonType.Int32, SByteSerializer.Instance),
+                TypeCode.Single => (BsonType.Double, SingleSerializer.Instance),
+                TypeCode.String => (BsonType.String, StringSerializer.Instance),
+                TypeCode.UInt16 => (BsonType.Int32, UInt16Serializer.Instance),
+                TypeCode.UInt32 => (BsonType.Int64, Int32Serializer.Instance),
+                TypeCode.UInt64 => (BsonType.Decimal128, UInt64Serializer.Instance),
+
+                _ when effectiveType == typeof(byte[]) => (BsonType.Binary, ByteArraySerializer.Instance),
+                _ when effectiveType == typeof(BsonBinaryData) => (BsonType.Binary, BsonBinaryDataSerializer.Instance),
+                _ when effectiveType == typeof(Decimal128) => (BsonType.Decimal128, Decimal128Serializer.Instance),
+                _ when effectiveType == typeof(Guid) => (BsonType.Binary, GuidSerializer.StandardInstance),
+                _ when effectiveType == typeof(ObjectId) => (BsonType.ObjectId, ObjectIdSerializer.Instance),
 
                 _ => throw new ExpressionNotSupportedException(expression, because: $"{toType} is not a valid TTo for Convert")
             };
 
-            return (bsonType, StandardSerializers.GetSerializer(toType));
+            var (bsonType, serializer) = result;
+            return (bsonType, isNullable ? NullableSerializer.Create(serializer) : serializer);
         }
     }
 }

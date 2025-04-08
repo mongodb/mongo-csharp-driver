@@ -436,6 +436,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, decimal>(x.IntProperty, null)),
                 "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }",
                 33m },
+
+            // To decimal128
             new object[] { 22, (Expression<Func<TestClass, object>>)(x => Mql.Convert<int, Decimal128>(x.IntProperty, null)),
                 "{ $project: { _v : { $toDecimal : '$IntProperty' }, _id : 0 } }",
                 new Decimal128(33) },
