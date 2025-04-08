@@ -14,8 +14,6 @@
  */
 
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -71,17 +69,6 @@ namespace MongoDB.Driver
         private bool _onErrorWasSet;
         private TTo _onNull;
         private bool _onNullWasSet;
-        private readonly IBsonSerializer _serializer;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConvertOptions{TTo}"/> class.
-        /// </summary>
-        public ConvertOptions()
-        {
-            _serializer = StandardSerializers.TryGetSerializer(typeof(TTo), out var serializer)
-                ? serializer
-                : BsonSerializer.LookupSerializer(typeof(TTo));
-        }
 
         /// <summary>
         /// The onError parameter.
