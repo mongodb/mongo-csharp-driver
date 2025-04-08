@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -300,6 +301,54 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
 
             collection.InsertOne(new BsonDocument("x", 1));
             await eventsTask.WithTimeout(1000);
+        }
+
+        [Fact]
+        public void Ensure_cluster_times_are_not_gossiped_on_SDAM_commands()
+        {
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+
+            var eventCapturer = new EventCapturer()
+                .Capture<ServerHeartbeatStartedEvent>()
+                .Capture<ServerHeartbeatSucceededEvent>()
+                .Capture<CommandStartedEvent>();
+
+            using var c1 = DriverTestConfiguration.CreateMongoClient(
+                settings =>
+                {
+                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                    settings.DirectConnection = true;
+                    settings.HeartbeatInterval = TimeSpan.FromSeconds(2000);
+                });
+
+            var pingCommand = new BsonDocument("ping", 1);
+            var pingResult = c1.GetDatabase("admin").RunCommand<BsonDocument>(pingCommand);
+
+            var clusterTime = pingResult["$clusterTime"];
+
+            var c2 = DriverTestConfiguration.Client;
+            c2.GetDatabase("test").GetCollection<BsonDocument>("test").InsertOne(new BsonDocument("advance", "$clusterTime"));
+
+            eventCapturer.Clear();
+
+            eventCapturer.WaitForOrThrowIfTimeout(
+                events =>
+                {
+                    var capturedEvents = events.ToArray();
+                    return capturedEvents.Count(e => e is ServerHeartbeatSucceededEvent) > 1 &&
+                           capturedEvents
+                               .Where((e, i) =>
+                                   e is ServerHeartbeatStartedEvent &&
+                                   capturedEvents[i + 1] is ServerHeartbeatSucceededEvent)
+                               .Any();
+                }, TimeSpan.FromSeconds(1), "Didn't get any server heartbeat pairs");
+
+            c1.GetDatabase("admin").RunCommand<BsonDocument>(pingCommand);
+
+            var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToArray();
+            commandStartedEvents.Length.Should().Be(1);
+            commandStartedEvents[0].CommandName.Should().Be("ping");
+            commandStartedEvents[0].Command["$clusterTime"].Should().Be(clusterTime);
         }
 
         private sealed class MongocryptdContext : IDisposable
