@@ -22,260 +22,92 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Encryption
 {
-    //TODO Add docs
-    //TODO BsonType can be multiple types in some cases
-
     /// <summary>
     ///
     /// </summary>
     public class CsfleSchemaBuilder
     {
-        private readonly Dictionary<string, CsfleTypeSchemaBuilder> _typeSchemaBuilders = new();
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static CsfleTypeSchemaBuilder<T> GetTypeBuilder<T>() => new();  //TODO Do we need this?
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="collectionNamespace">The namespace to which the encryption schema applies.</param>
-        /// <param name="typedBuilder"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public CsfleSchemaBuilder WithType<T>(CollectionNamespace collectionNamespace, CsfleTypeSchemaBuilder<T> typedBuilder)
+        private readonly Dictionary<string, TypedBuilder> _typedBuilders = [];
+        private CsfleSchemaBuilder()
         {
-            _typeSchemaBuilders.Add(collectionNamespace.FullName, typedBuilder);
-            return this;
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="collectionNamespace">The namespace to which the encryption schema applies.</param>
         /// <param name="configure"></param>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public CsfleSchemaBuilder WithType<T>(CollectionNamespace collectionNamespace, Action<CsfleTypeSchemaBuilder<T>> configure)  //TODO Do we want to keep this?
+        public static CsfleSchemaBuilder Create(Action<CsfleSchemaBuilder> configure)
         {
-            var typedBuilder = new CsfleTypeSchemaBuilder<T>();
+            var builder = new CsfleSchemaBuilder();
+            configure(builder);
+            return builder;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="collectionNamespace"></param>
+        /// <param name="configure"></param>
+        /// <typeparam name="TDocument"></typeparam>
+        public void Encrypt<TDocument>(CollectionNamespace collectionNamespace, Action<TypedBuilder<TDocument>> configure)
+        {
+            var typedBuilder = new TypedBuilder<TDocument>();
             configure(typedBuilder);
-            _typeSchemaBuilders.Add(collectionNamespace.FullName, typedBuilder);
-            return this;
+            _typedBuilders.Add(collectionNamespace.FullName, typedBuilder);
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyDictionary<string, BsonDocument> Build() => _typeSchemaBuilders.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Build());
+        public IReadOnlyDictionary<string, BsonDocument> Build() => _typedBuilders.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Build());
     }
 
     /// <summary>
     ///
     /// </summary>
-    public abstract class CsfleTypeSchemaBuilder
+    /// <typeparam name="TSelf"></typeparam>
+    public class ElementBuilder<TSelf> where TSelf : ElementBuilder<TSelf>
     {
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        public abstract BsonDocument Build();
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <typeparam name="TDocument"></typeparam>
-    public class CsfleTypeSchemaBuilder<TDocument> : CsfleTypeSchemaBuilder
-    {
-        private readonly List<SchemaField> _fields = [];
-        private readonly List<SchemaPattern> _patterns = [];
-        private SchemaMetadata _metadata;
+        internal CsfleEncryptionAlgorithm? _algorithm;  //TODO These should be protected as well
+        internal Guid? _keyId;
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="path">The field to be encrypted.</param>
-        /// <param name="keyId">The id of the Data Encryption Key to use for encrypting.</param>
-        /// <param name="algorithm">The encryption algorithm to use.</param>
-        /// <param name="bsonType">The BSON type of the field being encrypted.</param>
+        /// <param name="keyId"></param>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Property(FieldDefinition<TDocument> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public TSelf WithKeyId(Guid keyId)
         {
-            if (path == null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            _fields.Add(new SchemaSimpleField(path, keyId, algorithm, bsonType));
-            return this;
+            _keyId = keyId;
+            return (TSelf)this;
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="path">The field to be encrypted.</param>
-        /// <param name="keyId">The id of the Data Encryption Key to use for encrypting.</param>
-        /// <param name="algorithm">The encryption algorithm to use.</param>
-        /// <param name="bsonType">The BSON type of the field being encrypted.</param>
-        /// <typeparam name="TField"></typeparam>
+        /// <param name="algorithm"></param>
         /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Property<TField>(Expression<Func<TDocument, TField>> path, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
+        public TSelf WithAlgorithm(CsfleEncryptionAlgorithm algorithm)
         {
-            return Property(new ExpressionFieldDefinition<TDocument, TField>(path), keyId, algorithm, bsonType);
+            _algorithm = algorithm;
+            return (TSelf)this;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="path">The field to use for the nested property.</param>
-        /// <param name="configure"></param>
-        /// <typeparam name="TField"></typeparam>
-        /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Property<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
+        internal static BsonDocument GetEncryptBsonDocument(Guid? keyId, CsfleEncryptionAlgorithm? algorithm, List<BsonType> bsonTypes)
         {
-            if (path == null)
+            var bsonType = bsonTypes?.First(); //TODO need to support multiple types
+
+            return new BsonDocument
             {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            if (configure == null)
-            {
-                throw new ArgumentNullException(nameof(configure));
-            }
-
-            _fields.Add(new SchemaNestedField<TField>(path, configure));
-            return this;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="path">The field to be encrypted.</param>
-        /// <param name="configure"></param>
-        /// <typeparam name="TField"></typeparam>
-        /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> Property<TField>(Expression<Func<TDocument, TField>> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
-        {
-            return Property(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="pattern">The pattern to use.</param>
-        /// <param name="keyId">The id of the Data Encryption Key to use for encrypting.</param>
-        /// <param name="algorithm">The encryption algorithm to use.</param>
-        /// <param name="bsonType">The BSON type of the field being encrypted.</param>
-        /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> PatternProperty(string pattern, Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null, BsonType? bsonType = null)
-        {
-            if (string.IsNullOrWhiteSpace(pattern))
-            {
-                throw new ArgumentException("Input pattern cannot be empty or null", nameof(pattern));
-            }
-
-            _patterns.Add(new SchemaSimplePattern(pattern, keyId, algorithm, bsonType));
-            return this;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="path">The field to use for the nested pattern property.</param>
-        /// <param name="configure"></param>
-        /// <typeparam name="TField"></typeparam>
-        /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> PatternProperty<TField>(FieldDefinition<TDocument> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
-        {
-            if (path == null)
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            if (configure == null)
-            {
-                throw new ArgumentNullException(nameof(configure));
-            }
-
-            _patterns.Add(new SchemaNestedPattern<TField>(path, configure));
-            return this;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="path">The field to use for the nested pattern property.</param>
-        /// <param name="configure"></param>
-        /// <typeparam name="TField"></typeparam>
-        /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> PatternProperty<TField>(Expression<Func<TDocument, TField>> path, Action<CsfleTypeSchemaBuilder<TField>> configure)
-        {
-            return PatternProperty(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="keyId">The id of the Data Encryption Key to use for encrypting.</param>
-        /// <param name="algorithm">The encryption algorithm to use.</param>
-        /// <returns></returns>
-        public CsfleTypeSchemaBuilder<TDocument> EncryptMetadata(Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null )
-        {
-            _metadata = new SchemaMetadata(keyId, algorithm);
-            return this;
-        }
-
-        /// <inheritdoc />
-        public override BsonDocument Build()
-        {
-            var schema = new BsonDocument("bsonType", "object");
-
-            if (_metadata is not null)
-            {
-                schema.Merge(_metadata.Build());
-            }
-
-            var args = new RenderArgs<TDocument>(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
-
-            if (_fields.Any())
-            {
-                var properties = new BsonDocument();
-
-                foreach (var field in _fields)
+                { "bsonType", () => MapBsonTypeToString(bsonType!.Value), bsonType is not null },
+                { "algorithm", () => MapCsfleEncyptionAlgorithmToString(algorithm!.Value), algorithm is not null },
                 {
-                    properties.Merge(field.Build(args));
-                }
-
-                schema.Add("properties", properties);
-            }
-
-            if (_patterns.Any())
-            {
-                var patternProperties = new BsonDocument();
-
-                foreach (var pattern in _patterns)
-                {
-                    patternProperties.Merge(pattern.Build(args));
-                }
-
-                schema.Add("patternProperties", patternProperties);
-            }
-
-            return schema;
-        }
-
-        private static string MapCsfleEncyptionAlgorithmToString(CsfleEncryptionAlgorithm algorithm)
-        {
-            return algorithm switch
-            {
-                CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random => "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
-                CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic => "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
-                _ => throw new ArgumentException($"Unexpected algorithm type: {algorithm}.", nameof(algorithm))
+                    "keyId",
+                    () => new BsonArray(new[] { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }),
+                    keyId is not null
+                },
             };
         }
 
@@ -307,156 +139,307 @@ namespace MongoDB.Driver.Encryption
             };
         }
 
-        private abstract record SchemaField
+        private static string MapCsfleEncyptionAlgorithmToString(CsfleEncryptionAlgorithm algorithm)
         {
-            public abstract BsonDocument Build(RenderArgs<TDocument> args);
-        }
-
-        private record SchemaSimpleField(FieldDefinition<TDocument> Path, Guid? KeyId, CsfleEncryptionAlgorithm? Algorithm, BsonType? BsonType) : SchemaField
-        {
-            public override BsonDocument Build(RenderArgs<TDocument> args) =>
-                new(Path.Render(args).FieldName, new BsonDocument("encrypt", GetEncryptBsonDocument(KeyId, Algorithm, BsonType)));
-        }
-
-        private record SchemaNestedField<TField>(FieldDefinition<TDocument> Path, Action<CsfleTypeSchemaBuilder<TField>> Configure) : SchemaField
-        {
-            public override BsonDocument Build(RenderArgs<TDocument> args)
+            return algorithm switch
             {
-                var fieldBuilder = new CsfleTypeSchemaBuilder<TField>();
-                Configure(fieldBuilder);
-                return new BsonDocument(Path.Render(args).FieldName, fieldBuilder.Build());
-            }
-        }
-
-        private abstract record SchemaPattern
-        {
-            public abstract BsonDocument Build(RenderArgs<TDocument> args);
-        }
-
-        private record SchemaSimplePattern(
-            string Pattern,
-            Guid? KeyId,
-            CsfleEncryptionAlgorithm? Algorithm,
-            BsonType? BsonType) : SchemaPattern
-        {
-            public override BsonDocument Build(RenderArgs<TDocument> args) => new(Pattern, new BsonDocument("encrypt", GetEncryptBsonDocument(KeyId, Algorithm, BsonType)));
-        }
-
-        private record SchemaNestedPattern<TField>(
-            FieldDefinition<TDocument> Path,
-            Action<CsfleTypeSchemaBuilder<TField>> Configure) : SchemaPattern
-        {
-            public override BsonDocument Build(RenderArgs<TDocument> args)
-            {
-                var fieldBuilder = new CsfleTypeSchemaBuilder<TField>();
-                Configure(fieldBuilder);
-                return new BsonDocument(Path.Render(args).FieldName, fieldBuilder.Build());
-            }
-        }
-
-        private record SchemaMetadata(Guid? KeyId, CsfleEncryptionAlgorithm? Algorithm)
-        {
-            public BsonDocument Build() => new("encryptMetadata", GetEncryptBsonDocument(KeyId, Algorithm, null));
-        }
-
-        private static BsonDocument GetEncryptBsonDocument(Guid? keyId, CsfleEncryptionAlgorithm? algorithm, BsonType? bsonType)
-        {
-            return new BsonDocument
-            {
-                { "bsonType", () => MapBsonTypeToString(bsonType!.Value), bsonType is not null },
-                { "algorithm", () => MapCsfleEncyptionAlgorithmToString(algorithm!.Value), algorithm is not null },
-                {
-                    "keyId",
-                    () => new BsonArray(new[] { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }),
-                    keyId is not null
-                },
+                CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random => "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
+                CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic => "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                _ => throw new ArgumentException($"Unexpected algorithm type: {algorithm}.", nameof(algorithm))
             };
         }
     }
 
-    public class ElementBuilder<TSelf> where TSelf : ElementBuilder<TSelf>
-    {
-        private CsfleEncryptionAlgorithm _algorithm;
-        private Guid _keyId;
-
-        public TSelf WithKeyId(Guid keyId)
-        {
-            _keyId = keyId;
-            return (TSelf)this;
-        }
-
-        public TSelf WithAlgorithm(CsfleEncryptionAlgorithm algorithm)
-        {
-            _algorithm = algorithm;
-            return (TSelf)this;
-        }
-    }
-
+    /// <summary>
+    ///
+    /// </summary>
     public class EncryptMetadataBuilder : ElementBuilder<EncryptMetadataBuilder>
     {
-
+        internal BsonDocument Build() => new("encryptMetadata", GetEncryptBsonDocument(_keyId, _algorithm, null));
     }
 
-    public  abstract class PropertyBuilder: ElementBuilder<PropertyBuilder<PropertyBuilder>>
-    {
-    }
-
-    public class PropertyBuilder<TDocument> : PropertyBuilder
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TDocument"></typeparam>
+    public class PropertyBuilder<TDocument> : ElementBuilder<PropertyBuilder<TDocument>>  //TODO Maybe we can have a common class for this and patternPropertyBuilder
     {
         private readonly FieldDefinition<TDocument> _path;
         private List<BsonType> _bsonTypes;
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
         public PropertyBuilder(FieldDefinition<TDocument> path)
         {
             _path = path;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="bsonType"></param>
+        /// <returns></returns>
         public PropertyBuilder<TDocument> WithBsonType(BsonType bsonType)
         {
             _bsonTypes = [bsonType];
             return this;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="bsonTypes"></param>
+        /// <returns></returns>
         public PropertyBuilder<TDocument> WithBsonTypes(IEnumerable<BsonType> bsonTypes)
         {
             _bsonTypes = [..bsonTypes];
             return this;
         }
+
+        internal BsonDocument Build(RenderArgs<TDocument> args)
+        {
+            return new BsonDocument(_path.Render(args).FieldName, new BsonDocument("encrypt", GetEncryptBsonDocument(_keyId, _algorithm, _bsonTypes)));
+        }
     }
 
-    public  abstract class NestedDocumentBuilder: ElementBuilder<NestedDocumentBuilder>
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TDocument"></typeparam>
+    public class PatternPropertyBuilder<TDocument> : ElementBuilder<PropertyBuilder<TDocument>>
     {
+        private readonly string _pattern;
+        private List<BsonType> _bsonTypes;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="pattern"></param>
+        public PatternPropertyBuilder(string pattern)
+        {
+            _pattern = pattern;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="bsonType"></param>
+        /// <returns></returns>
+        public PatternPropertyBuilder<TDocument> WithBsonType(BsonType bsonType)
+        {
+            _bsonTypes = [bsonType];
+            return this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="bsonTypes"></param>
+        /// <returns></returns>
+        public PatternPropertyBuilder<TDocument> WithBsonTypes(IEnumerable<BsonType> bsonTypes)
+        {
+            _bsonTypes = [..bsonTypes];
+            return this;
+        }
+
+        internal BsonDocument Build(RenderArgs<TDocument> args)
+        {
+            return new BsonDocument(_pattern, new BsonDocument("encrypt", GetEncryptBsonDocument(_keyId, _algorithm, _bsonTypes)));
+        }
     }
 
-    public class NestedDocumentBuilder<TDocument, TField> : NestedDocumentBuilder
+    /// <summary>
+    ///
+    /// </summary>
+    public abstract class NestedPropertyBuilder<TDocument>
+    {
+        internal abstract BsonDocument Build(RenderArgs<TDocument> args);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TDocument"></typeparam>
+    /// <typeparam name="TField"></typeparam>
+    public class NestedPropertyBuilder<TDocument, TField> : NestedPropertyBuilder<TDocument>
     {
         private readonly FieldDefinition<TDocument> _path;
         private readonly Action<TypedBuilder<TField>> _configure;
 
-        public NestedDocumentBuilder(FieldDefinition<TDocument> path, Action<TypedBuilder<TField>> configure)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="configure"></param>
+        public NestedPropertyBuilder(FieldDefinition<TDocument> path, Action<TypedBuilder<TField>> configure)
         {
             _path = path;
             _configure = configure;
         }
+
+        internal override BsonDocument Build(RenderArgs<TDocument> args)
+        {
+            var fieldBuilder = new TypedBuilder<TField>();
+            _configure(fieldBuilder);
+            return new BsonDocument(_path.Render(args).FieldName, fieldBuilder.Build());
+        }
     }
 
-    public class TypedBuilder<TDocument>
+
+    /// <summary>
+    ///
+    /// </summary>
+    public abstract class NestedPatternPropertyBuilder<TDocument>
     {
-        private readonly List<NestedDocumentBuilder> _nestedDocument = [];
-        private readonly List<PropertyBuilder> _properties = [];
+        internal abstract BsonDocument Build(RenderArgs<TDocument> args);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TDocument"></typeparam>
+    /// <typeparam name="TField"></typeparam>
+    public class NestedPatternPropertyBuilder<TDocument, TField> : NestedPatternPropertyBuilder<TDocument>
+    {
+        private readonly FieldDefinition<TDocument> _path;
+        private readonly Action<TypedBuilder<TField>> _configure;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="configure"></param>
+        public NestedPatternPropertyBuilder(FieldDefinition<TDocument> path, Action<TypedBuilder<TField>> configure)
+        {
+            _path = path;
+            _configure = configure;
+        }
+
+        internal override BsonDocument Build(RenderArgs<TDocument> args)
+        {
+            var fieldBuilder = new TypedBuilder<TField>();
+            _configure(fieldBuilder);
+            return new BsonDocument(_path.Render(args).FieldName, fieldBuilder.Build());
+        }
+    }
+
+
+    /// <summary>
+    ///
+    /// </summary>
+    public abstract class TypedBuilder
+    {
+        internal abstract BsonDocument Build();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TDocument"></typeparam>
+    public class TypedBuilder<TDocument> : TypedBuilder
+    {
+        private readonly List<NestedPropertyBuilder<TDocument>> _nestedProperties = [];
+        private readonly List<PropertyBuilder<TDocument>> _properties = [];
         private EncryptMetadataBuilder _metadata;
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
         public EncryptMetadataBuilder EncryptMetadata()
         {
             _metadata = new EncryptMetadataBuilder();
             return _metadata;
         }
 
-        public PropertyBuilder Property(FieldDefinition<TDocument> path)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public PropertyBuilder<TDocument> Property(FieldDefinition<TDocument> path)
         {
             var property = new PropertyBuilder<TDocument>(path);
             _properties.Add(property);
             return property;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public PropertyBuilder<TDocument> Property<TField>(Expression<Func<TDocument, TField>> path)
+        {
+            return Property(new ExpressionFieldDefinition<TDocument, TField>(path));
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="configure"></param>
+        /// <returns></returns>
+        public NestedPropertyBuilder<TDocument, TField> NestedProperty<TField>(FieldDefinition<TDocument> path, Action<TypedBuilder<TField>> configure)
+        {
+            var nestedProperty = new NestedPropertyBuilder<TDocument,TField>(path, configure);
+            _nestedProperties.Add(nestedProperty);
+            return nestedProperty;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="configure"></param>
+        /// <returns></returns>
+        public NestedPropertyBuilder<TDocument, TField> NestedProperty<TField>(Expression<Func<TDocument, TField>> path, Action<TypedBuilder<TField>> configure)
+        {
+            return NestedProperty(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
+        }
+
+        internal override BsonDocument Build()
+        {
+            var schema = new BsonDocument("bsonType", "object");
+
+            if (_metadata is not null)
+            {
+                schema.Merge(_metadata.Build());
+            }
+
+            var args = new RenderArgs<TDocument>(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
+
+
+            BsonDocument properties = null;
+
+            if (_nestedProperties.Any())
+            {
+                properties = new BsonDocument();
+
+                foreach (var nestedProperty in _nestedProperties)
+                {
+                    properties.Merge(nestedProperty.Build(args));
+                }
+            }
+
+            if (_properties.Any())
+            {
+                properties ??= new BsonDocument();
+
+                foreach (var property in _properties)
+                {
+                    properties.Merge(property.Build(args));
+                }
+            }
+
+            if (properties != null)
+            {
+                schema.Add("properties", properties);
+            }
+
+            return schema;
         }
     }
 
