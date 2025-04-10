@@ -124,11 +124,11 @@ namespace MongoDB.Driver.Search
         }
     }
 
-    internal sealed class EqualsSearchDefinition<TDocument, TValue> : OperatorSearchDefinition<TDocument>
+    internal sealed class EqualsSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
-        private readonly TValue _value;
+        private readonly TField _value;
 
-        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TValue value, SearchScoreDefinition<TDocument> score)
+        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TField value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, path, score)
         {
             _value = value;
@@ -138,27 +138,24 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
-            if (!_useConfiguredSerialization)
+            BsonValue serializedValue;
+            if (_useConfiguredSerializers)
             {
-                return new BsonDocument("value", ToBsonValue(_value));
+                var valueSerializer = fieldSerializer switch
+                {
+                    null => args.SerializerRegistry.GetSerializer<TField>(),
+                    IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(fieldSerializer),
+                    _ => fieldSerializer
+                };
+
+                serializedValue = SerializationHelper.SerializeValue(valueSerializer, _value);
+            }
+            else
+            {
+                serializedValue = ToBsonValue(_value);
             }
 
-            var valueSerializer = fieldSerializer switch
-            {
-                null => args.SerializerRegistry.GetSerializer<TValue>(),
-                IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(fieldSerializer),
-                _ => fieldSerializer
-            };
-
-            var document = new BsonDocument();
-            using var bsonWriter = new BsonDocumentWriter(document);
-            var context = BsonSerializationContext.CreateRoot(bsonWriter);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName("value");
-            valueSerializer.Serialize(context, _value);
-            bsonWriter.WriteEndDocument();
-
-            return document;
+            return new BsonDocument("value", serializedValue);
         }
     }
 
@@ -239,13 +236,13 @@ namespace MongoDB.Driver.Search
             new(_area.Render());
     }
 
-    internal sealed class InSearchDefinition<TDocument, TValue> : OperatorSearchDefinition<TDocument>
+    internal sealed class InSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
-        private readonly TValue[] _values;
+        private readonly TField[] _values;
 
         public InSearchDefinition(
            SearchPathDefinition<TDocument> path,
-           IEnumerable<TValue> values,
+           IEnumerable<TField> values,
            SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.In, path, score)
         {
@@ -257,28 +254,24 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
-            if (!_useConfiguredSerialization)
+            BsonValue serializedValues;
+            if (_useConfiguredSerializers)
             {
-                var values = new BsonArray(_values.Select(ToBsonValue));
-                return new BsonDocument("value", values);
+                var arraySerializer = fieldSerializer switch
+                {
+                    null => new ArraySerializer<TField>(args.SerializerRegistry.GetSerializer<TField>()),
+                    IBsonArraySerializer => fieldSerializer,
+                    _ => new ArraySerializer<TField>((IBsonSerializer<TField>)fieldSerializer)
+                };
+
+                serializedValues = SerializationHelper.SerializeValue(arraySerializer, _values);
+            }
+            else
+            {
+                serializedValues = new BsonArray(_values.Select(ToBsonValue));
             }
 
-            var valueSerializer = fieldSerializer switch
-            {
-                null => new ArraySerializer<TValue>(args.SerializerRegistry.GetSerializer<TValue>()),
-                IBsonArraySerializer => fieldSerializer,
-                _ => new ArraySerializer<TValue>((IBsonSerializer<TValue>)fieldSerializer)
-            };
-
-            var document = new BsonDocument();
-            using var bsonWriter = new BsonDocumentWriter(document);
-            var context = BsonSerializationContext.CreateRoot(bsonWriter);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName("value");
-            valueSerializer.Serialize(context, _values);
-            bsonWriter.WriteEndDocument();
-
-            return document;
+            return new BsonDocument("value", serializedValues);
         }
     }
 
@@ -378,13 +371,13 @@ namespace MongoDB.Driver.Search
             };
     }
 
-    internal sealed class RangeSearchDefinition<TDocument, TValue> : OperatorSearchDefinition<TDocument>
+    internal sealed class RangeSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
-        private readonly SearchRangeV2<TValue> _range;
+        private readonly SearchRangeV2<TField> _range;
 
         public RangeSearchDefinition(
             SearchPathDefinition<TDocument> path,
-            SearchRangeV2<TValue> range,
+            SearchRangeV2<TField> range,
             SearchScoreDefinition<TDocument> score)
                 : base(OperatorType.Range, path, score)
         {
@@ -395,54 +388,34 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer)
         {
-            if (!_useConfiguredSerialization)
+            BsonValue serializedMin;
+            BsonValue serializedMax;
+            if (_useConfiguredSerializers)
             {
-                BsonValue min = null, max = null;
-                bool minInclusive = false, maxInclusive = false;
-
-                if (_range.Min != null)
+                var valueSerializer = fieldSerializer switch
                 {
-                    min = ToBsonValue(_range.Min.Value);
-                    minInclusive = _range.Min.Inclusive;
-                }
-
-                if (_range.Max != null)
-                {
-                    max = ToBsonValue(_range.Max.Value);
-                    maxInclusive = _range.Max.Inclusive;
-                }
-
-                return new()
-                {
-                    { minInclusive ? "gte" : "gt", min, min != null },
-                    { maxInclusive ? "lte" : "lt", max, max != null }
+                    null => args.SerializerRegistry.GetSerializer<TField>(),
+                    IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(fieldSerializer),
+                    _ => fieldSerializer
                 };
+
+                serializedMin = _range.Min == null ? null : SerializationHelper.SerializeValue(valueSerializer, _range.Min.Value);
+                serializedMax = _range.Max == null ? null : SerializationHelper.SerializeValue(valueSerializer, _range.Max.Value);
+            }
+            else
+            {
+                serializedMin = _range.Min == null ? null : ToBsonValue(_range.Min.Value);
+                serializedMax = _range.Max == null ? null : ToBsonValue(_range.Max.Value);
             }
 
-            var valueSerializer = fieldSerializer switch
+            var minInclusive = _range.Min?.Inclusive ?? false;
+            var maxInclusive = _range.Max?.Inclusive ?? false;
+
+            return new BsonDocument
             {
-                null => args.SerializerRegistry.GetSerializer<TValue>(),
-                IBsonArraySerializer => ArraySerializerHelper.GetItemSerializer(fieldSerializer),
-                _ => fieldSerializer
+                { minInclusive ? "gte" : "gt", serializedMin, serializedMin != null },
+                { maxInclusive ? "lte" : "lt", serializedMax, serializedMax != null }
             };
-
-            var document = new BsonDocument();
-            using var bsonWriter = new BsonDocumentWriter(document);
-            var context = BsonSerializationContext.CreateRoot(bsonWriter);
-            bsonWriter.WriteStartDocument();
-            if (_range.Min != null)
-            {
-                bsonWriter.WriteName(_range.Min.Inclusive? "gte" : "gt");
-                valueSerializer.Serialize(context, _range.Min.Value);
-            }
-            if (_range.Max is not null)
-            {
-                bsonWriter.WriteName(_range.Max.Inclusive? "lte" : "lt");
-                valueSerializer.Serialize(context, _range.Max.Value);
-            }
-            bsonWriter.WriteEndDocument();
-
-            return document;
         }
     }
 

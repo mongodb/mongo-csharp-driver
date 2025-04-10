@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Search
     }
 
     /// <summary>
-    /// Extensions for SearchDefinition
+    /// Extension methods for SearchDefinition
     /// </summary>
     public static class SearchDefinitionExtensions
     {
@@ -68,16 +68,18 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="searchDefinition">The search definition instance.</param>
-        /// <param name="useDefaultSerialization">Whether to use the configured serialization or not.</param>
+        /// <param name="useConfiguredSerializers">Whether to use the configured serializers or not.</param>
         /// <returns>The same <see cref="SearchDefinition{TDocument}"/> instance with default serialization enabled.</returns>
         /// <exception cref="InvalidOperationException">Thrown if <paramref name="searchDefinition"/> is not of a valid type/>.</exception>
-        public static SearchDefinition<TDocument> WithConfiguredSerialization<TDocument>(this SearchDefinition<TDocument> searchDefinition, bool useDefaultSerialization)
+        public static SearchDefinition<TDocument> SetUseConfiguredSerializers<TDocument>(this SearchDefinition<TDocument> searchDefinition, bool useConfiguredSerializers)
         {
-            if (searchDefinition is not OperatorSearchDefinition<TDocument> op)
-                throw new InvalidOperationException("Default serialization cannot be used with the current SearchDefinition type");
+            if (searchDefinition is not OperatorSearchDefinition<TDocument> operatorSearchDefinition)
+            {
+                throw new NotSupportedException($"{nameof(SetUseConfiguredSerializers)} cannot be used with SearchDefinition type: {searchDefinition.GetType()}.");
+            }
 
-            op.SetUseConfiguredSerialization(useDefaultSerialization);
-            return searchDefinition;
+            operatorSearchDefinition.SetUseConfiguredSerializersInternal(useConfiguredSerializers);
+            return operatorSearchDefinition;
         }
     }
 
@@ -160,7 +162,7 @@ namespace MongoDB.Driver.Search
         protected readonly SearchPathDefinition<TDocument> _path;
         protected readonly SearchScoreDefinition<TDocument> _score;
 
-        protected bool _useConfiguredSerialization = false;
+        protected bool _useConfiguredSerializers = false;
 
         private protected OperatorSearchDefinition(OperatorType operatorType)
             : this(operatorType, null)
@@ -204,9 +206,9 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer) => new();
 
-        internal void SetUseConfiguredSerialization(bool useDefaultSerialization)
+        internal void SetUseConfiguredSerializersInternal(bool useConfiguredSerializers)
         {
-            _useConfiguredSerialization = useDefaultSerialization;
+            _useConfiguredSerializers = useConfiguredSerializers;
         }
 
         protected static BsonValue ToBsonValue<T>(T value) =>
