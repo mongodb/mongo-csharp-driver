@@ -303,8 +303,8 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Theory]
-        [MemberData(nameof(EqualsWithConfiguredSerializerSupportedTypesTestData))]
-        public void Equals_with_configured_serializer_should_render_supported_type<T>(
+        [MemberData(nameof(EqualsWithConfiguredSerializersSupportedTypesTestData))]
+        public void Equals_with_configured_serializers_should_render_supported_type<T>(
             T value,
             string valueRendered,
             Expression<Func<Person, T>> fieldExpression,
@@ -352,7 +352,7 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { "Jim", "\"Jim\"", Exp(p => p.FirstName), "fn" }
         };
 
-        public static object[][] EqualsWithConfiguredSerializerSupportedTypesTestData => new[]
+        public static object[][] EqualsWithConfiguredSerializersSupportedTypesTestData => new[]
         {
             new object[] { true, "true", Exp(p => p.Retired), "ret" },
             new object[] { (sbyte)1, "1", Exp(p => p.Int8), nameof(Person.Int8), },
@@ -583,8 +583,8 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Theory]
-        [MemberData(nameof(InWithConfiguredSerializationTestData))]
-        public void InWithConfiguredSerialization<T>(T[] fieldValues, string[] fieldsRendered)
+        [MemberData(nameof(InWithConfiguredSerializersTestData))]
+        public void InWithConfiguredSerializers<T>(T[] fieldValues, string[] fieldsRendered)
         {
             var subject = CreateSubject<BsonDocument>();
 
@@ -613,7 +613,7 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" } }
         };
 
-        public static readonly object[][] InWithConfiguredSerializationTestData =
+        public static readonly object[][] InWithConfiguredSerializersTestData =
         {
             new object[] { new bool[] { true, false }, new[] { "true", "false" } },
             new object[] { new byte[] { 1, 2 }, new[] { "1", "2" } },
@@ -653,7 +653,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Theory]
-        [MemberData(nameof(InTypedWithConfiguredSerializationTestData))]
+        [MemberData(nameof(InTypedWithConfiguredSerializersTestData))]
         public void InWithConfiguredSerialization_typed<T>(
             T[] fieldValues,
             string[] fieldValuesRendered,
@@ -697,7 +697,7 @@ namespace MongoDB.Driver.Tests.Search
              new object[] { new object[] { (byte)1, (short)2, (int)3 }, new[] { "1", "2", "3" }, Exp(p => p.Object), nameof(Person.Object) }
         };
 
-        public static readonly object[][] InTypedWithConfiguredSerializationTestData =
+        public static readonly object[][] InTypedWithConfiguredSerializersTestData =
         {
              new object[] { new bool[] { true, false }, new[] { "true", "false" }, Exp(p => p.Retired), "ret" },
              new object[] { new byte[] { 1, 2 }, new[] { "1", "2" }, Exp(p => p.UInt8), nameof(Person.UInt8) },
@@ -1074,8 +1074,8 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Theory]
-        [MemberData(nameof(RangeWithConfiguredSerializationSupportedTypesTestData))]
-        public void Range_with_configured_serialization_should_render_supported_types<T>(
+        [MemberData(nameof(RangeWithConfiguredSerializersSupportedTypesTestData))]
+        public void Range_with_configured_serializers_should_render_supported_types<T>(
             T min,
             T max,
             string minRendered,
@@ -1111,7 +1111,7 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) }
         };
 
-        public static object[][] RangeWithConfiguredSerializationSupportedTypesTestData => new[]
+        public static object[][] RangeWithConfiguredSerializersSupportedTypesTestData => new[]
         {
             new object[] { (sbyte)1, (sbyte)2, "1", "2", Exp(p => p.Int8), nameof(Person.Int8) },
             new object[] { (byte)1, (byte)2, "1", "2", Exp(p => p.UInt8), nameof(Person.UInt8) },
