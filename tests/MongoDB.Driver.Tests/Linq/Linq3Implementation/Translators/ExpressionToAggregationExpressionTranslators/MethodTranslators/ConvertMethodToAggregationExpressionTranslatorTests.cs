@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void Convert_to_BsonBinaryData_from_int_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void Convert_to_BsonBinaryData_from_long_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void Convert_to_BsonBinaryData_from_double_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -295,7 +295,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=" )]
         public void Convert_with_byteOrder_should_be_rendered_correctly(int id, ByteOrder byteOrder, string expectedBase64)
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(BsonBinarySubType.UserDefined, 128)]
         public void Convert_with_subtype_should_be_rendered_correctly(BsonBinarySubType subType, int expectedSubTypeValue)
         {
-            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromString);
+            RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
 
             const int id = 3;
             var collection = Fixture.Collection;
@@ -486,6 +486,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             string expectedStage,
             object expectedValue)
         {
+            if (expectedStage.Contains("byteOrder"))
+            {
+                RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);
+            }
+
             var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)

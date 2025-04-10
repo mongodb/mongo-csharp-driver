@@ -76,13 +76,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             AstExpression onNullAst = null;
             if (options != null)
             {
-                if (options.OnErrorWasSet(out var onErrorValue))
+                if (options.TryGetOnError(out var onErrorValue))
                 {
                     var serializedOnErrorValue = SerializationHelper.SerializeValue(toSerializer, onErrorValue);
                     onErrorAst = AstExpression.Constant(serializedOnErrorValue);
                 }
 
-                if (options.OnNullWasSet(out var onNullValue))
+                if (options.TryGetOnNull(out var onNullValue))
                 {
                     var serializedOnNullValue = SerializationHelper.SerializeValue(toSerializer, onNullValue);
                     onNullAst = AstExpression.Constant(serializedOnNullValue);
@@ -145,11 +145,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static (BsonType ToBsonType, IBsonSerializer ToSerializer) TranslateToType(Expression expression, Type toType)
         {
-            var underlyingType = Nullable.GetUnderlyingType(toType);
-            var isNullable = underlyingType != null;
-            var effectiveType = underlyingType ?? toType;
+            var isNullable = toType.IsNullable();
+            var valueType = isNullable ? Nullable.GetUnderlyingType(toType) : toType;
 
-            (BsonType, IBsonSerializer) result = Type.GetTypeCode(effectiveType) switch
+            var (bsonType, valueSerializer) = (ValueTuple<BsonType, IBsonSerializer>)(Type.GetTypeCode(valueType) switch
             {
                 TypeCode.Boolean => (BsonType.Boolean, BooleanSerializer.Instance),
                 TypeCode.Byte => (BsonType.Int32, ByteSerializer.Instance),
@@ -167,17 +166,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 TypeCode.UInt32 => (BsonType.Int64, Int32Serializer.Instance),
                 TypeCode.UInt64 => (BsonType.Decimal128, UInt64Serializer.Instance),
 
-                _ when effectiveType == typeof(byte[]) => (BsonType.Binary, ByteArraySerializer.Instance),
-                _ when effectiveType == typeof(BsonBinaryData) => (BsonType.Binary, BsonBinaryDataSerializer.Instance),
-                _ when effectiveType == typeof(Decimal128) => (BsonType.Decimal128, Decimal128Serializer.Instance),
-                _ when effectiveType == typeof(Guid) => (BsonType.Binary, GuidSerializer.StandardInstance),
-                _ when effectiveType == typeof(ObjectId) => (BsonType.ObjectId, ObjectIdSerializer.Instance),
+                _ when valueType == typeof(byte[]) => (BsonType.Binary, ByteArraySerializer.Instance),
+                _ when valueType == typeof(BsonBinaryData) => (BsonType.Binary, BsonBinaryDataSerializer.Instance),
+                _ when valueType == typeof(Decimal128) => (BsonType.Decimal128, Decimal128Serializer.Instance),
+                _ when valueType == typeof(Guid) => (BsonType.Binary, GuidSerializer.StandardInstance),
+                _ when valueType == typeof(ObjectId) => (BsonType.ObjectId, ObjectIdSerializer.Instance),
 
                 _ => throw new ExpressionNotSupportedException(expression, because: $"{toType} is not a valid TTo for Convert")
-            };
+            });
 
-            var (bsonType, serializer) = result;
-            return (bsonType, isNullable ? NullableSerializer.Create(serializer) : serializer);
+            return (bsonType, isNullable ? NullableSerializer.Create(valueSerializer) : valueSerializer);
         }
     }
 }

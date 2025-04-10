@@ -53,9 +53,9 @@ namespace MongoDB.Driver
             set => _subType = value;
         }
 
-        internal abstract bool OnErrorWasSet(out object onError);
+        internal abstract bool TryGetOnError(out object onError);
 
-        internal abstract bool OnNullWasSet(out object onNull);
+        internal abstract bool TryGetOnNull(out object onNull);
     }
 
     /// <summary>
@@ -96,13 +96,13 @@ namespace MongoDB.Driver
             }
         }
 
-        internal override bool OnErrorWasSet(out object onError)
+        internal override bool TryGetOnError(out object onError)
         {
             onError = _onError;
             return _onErrorWasSet;
         }
 
-        internal override bool OnNullWasSet(out object onNull)
+        internal override bool TryGetOnNull(out object onNull)
         {
             onNull = _onNull;
             return _onNullWasSet;
