@@ -697,16 +697,13 @@ namespace MongoDB.Driver.Core.Configuration
         private void ExtractScheme(Match match)
         {
             var schemeGroup = match.Groups["scheme"];
-            if (schemeGroup.Success)
+            if (schemeGroup.Success && schemeGroup.Value == "mongodb+srv")
             {
-                if (schemeGroup.Value == "mongodb+srv")
+                _scheme = ConnectionStringScheme.MongoDBPlusSrv;
+                if (!_tls.HasValue)
                 {
-                    _scheme = ConnectionStringScheme.MongoDBPlusSrv;
-                    if (!_tls.HasValue)
-                    {
-                        _tls = true;
-                        _allOptions.Add("tls", "true");
-                    }
+                    _tls = true;
+                    _allOptions.Add("tls", "true");
                 }
             }
         }
@@ -925,7 +922,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _authMechanism = value;
                     break;
                 case "authmechanismproperties":
-                    foreach (var property in GetAuthMechanismProperties(name, value))
+                    foreach (var property in GetAuthMechanismProperties(name, value, _isInternalRepresentation))
                     {
                         _authMechanismProperties.Add(property.Key, property.Value);
                     }
@@ -1128,11 +1125,19 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // private static methods
-        private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
+        private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value, bool isEscaped = false)
         {
-            foreach (var property in value.Split(','))
+            if (isEscaped)
             {
-                var unescapedProperty = Uri.UnescapeDataString(property);
+                value = Uri.UnescapeDataString(value);
+            }
+
+            // The regex splits at commas that are followed by a word and a colon
+            var parts = isEscaped ? Regex.Split(value, @",(?=\w+:)") : value.Split(',');
+
+            foreach (var part in parts)
+            {
+                var unescapedProperty = isEscaped ? part : Uri.UnescapeDataString(part);
                 var separatorPosition = unescapedProperty.IndexOf(':');
                 if (separatorPosition == -1)
                 {
