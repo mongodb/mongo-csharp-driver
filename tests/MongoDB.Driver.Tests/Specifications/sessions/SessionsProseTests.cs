@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                 {
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.DirectConnection = true;
-                    settings.HeartbeatInterval = TimeSpan.FromSeconds(2000);
+                    settings.HeartbeatInterval = TimeSpan.FromMilliseconds(10);
                 });
 
             var pingCommand = new BsonDocument("ping", 1);
