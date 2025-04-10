@@ -303,6 +303,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             await eventsTask.WithTimeout(1000);
         }
 
+        // https://specifications.readthedocs.io/en/latest/sessions/tests/#20-drivers-do-not-gossip-clustertime-on-sdam-commands
         [Fact]
         public void Ensure_cluster_times_are_not_gossiped_on_SDAM_commands()
         {
@@ -319,6 +320,10 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.DirectConnection = true;
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(10);
+                    if (settings.Servers.Count() > 1)
+                    {
+                        settings.Servers = settings.Servers.Take(1);
+                    }
                 });
 
             var pingCommand = new BsonDocument("ping", 1);
