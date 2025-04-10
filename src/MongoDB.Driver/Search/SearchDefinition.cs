@@ -57,12 +57,12 @@ namespace MongoDB.Driver.Search
     }
 
     /// <summary>
-    /// Extension methods for SearchDefinition
+    /// Extension methods for SearchDefinition.
     /// </summary>
     public static class SearchDefinitionExtensions
     {
         /// <summary>
-        /// Sets the use of the configured serialization for the specified <see cref="SearchDefinition{TDocument}"/>.
+        /// Determines whether to use the configured serializers for the specified <see cref="SearchDefinition{TDocument}"/>.
         /// When set to true, the configured serializers will be used to serialize the values of certain Atlas Search operators, such as "Equals", "In" and "Range". This will become the default behaviour in version 4.0 of the library.
         /// If not enabled, then a default conversion will be used.
         /// </summary>
@@ -70,15 +70,14 @@ namespace MongoDB.Driver.Search
         /// <param name="searchDefinition">The search definition instance.</param>
         /// <param name="useConfiguredSerializers">Whether to use the configured serializers or not.</param>
         /// <returns>The same <see cref="SearchDefinition{TDocument}"/> instance with default serialization enabled.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if <paramref name="searchDefinition"/> is not of a valid type/>.</exception>
-        public static SearchDefinition<TDocument> SetUseConfiguredSerializers<TDocument>(this SearchDefinition<TDocument> searchDefinition, bool useConfiguredSerializers)
+        public static SearchDefinition<TDocument> UseConfiguredSerializers<TDocument>(this SearchDefinition<TDocument> searchDefinition, bool useConfiguredSerializers)
         {
             if (searchDefinition is not OperatorSearchDefinition<TDocument> operatorSearchDefinition)
             {
-                throw new NotSupportedException($"{nameof(SetUseConfiguredSerializers)} cannot be used with SearchDefinition type: {searchDefinition.GetType()}.");
+                throw new NotSupportedException($"{nameof(UseConfiguredSerializers)} cannot be used with SearchDefinition type: {searchDefinition.GetType()}.");
             }
 
-            operatorSearchDefinition.SetUseConfiguredSerializersInternal(useConfiguredSerializers);
+            operatorSearchDefinition.SetUseConfiguredSerializers(useConfiguredSerializers);
             return operatorSearchDefinition;
         }
     }
@@ -206,7 +205,7 @@ namespace MongoDB.Driver.Search
             RenderArgs<TDocument> args,
             IBsonSerializer fieldSerializer) => new();
 
-        internal void SetUseConfiguredSerializersInternal(bool useConfiguredSerializers)
+        internal void SetUseConfiguredSerializers(bool useConfiguredSerializers)
         {
             _useConfiguredSerializers = useConfiguredSerializers;
         }

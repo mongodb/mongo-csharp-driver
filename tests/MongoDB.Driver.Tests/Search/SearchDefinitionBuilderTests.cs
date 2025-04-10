@@ -318,17 +318,17 @@ namespace MongoDB.Driver.Tests.Search
             if (typeof(T) != typeof(Guid))
             {
                 AssertRendered(
-                    subject.Equals("x", value).SetUseConfiguredSerializers(true),
+                    subject.Equals("x", value).UseConfiguredSerializers(true),
                     $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
 
                 var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
                 AssertRendered(
-                    subject.Equals("x", value, scoreBuilder.Constant(1)).SetUseConfiguredSerializers(true),
+                    subject.Equals("x", value, scoreBuilder.Constant(1)).UseConfiguredSerializers(true),
                     $"{{ equals: {{ path: 'x', value: {valueRendered}, score: {{ constant: {{ value: 1 }} }} }} }}");
             }
 
             AssertRendered(
-                subjectTyped.Equals(fieldExpression, value).SetUseConfiguredSerializers(true),
+                subjectTyped.Equals(fieldExpression, value).UseConfiguredSerializers(true),
                 $"{{ equals: {{ path: '{fieldRendered}', value: {valueRendered} }} }}");
         }
 
@@ -379,11 +379,11 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Equals(t => t.DefaultGuid, testGuid).SetUseConfiguredSerializers(true),
+                subjectTyped.Equals(t => t.DefaultGuid, testGuid).UseConfiguredSerializers(true),
                 """{ "equals" : { "value" : { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, "path" : "DefaultGuid" } } """);
 
             AssertRendered(
-                subjectTyped.Equals(t => t.StringGuid, testGuid).SetUseConfiguredSerializers(true),
+                subjectTyped.Equals(t => t.StringGuid, testGuid).UseConfiguredSerializers(true),
                 """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "StringGuid" } }""");
         }
 
@@ -394,11 +394,11 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Equals("DefaultGuid", testGuid).SetUseConfiguredSerializers(true),
+                subjectTyped.Equals("DefaultGuid", testGuid).UseConfiguredSerializers(true),
                 """{ "equals" : { "value" : { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, "path" : "DefaultGuid" } } """);
 
             AssertRendered(
-                subjectTyped.Equals("StringGuid", testGuid).SetUseConfiguredSerializers(true),
+                subjectTyped.Equals("StringGuid", testGuid).UseConfiguredSerializers(true),
                 """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "StringGuid" } }""");
         }
 
@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Equals(t => t.UndefinedRepresentationGuid, testGuid).SetUseConfiguredSerializers(true),
+                subjectTyped.Equals(t => t.UndefinedRepresentationGuid, testGuid).UseConfiguredSerializers(true),
                 """{ "equals" : { "value" : "01020304-0506-0708-090a-0b0c0d0e0f10", "path" : "UndefinedRepresentationGuid" } }""");
         }
 
@@ -589,7 +589,7 @@ namespace MongoDB.Driver.Tests.Search
             var subject = CreateSubject<BsonDocument>();
 
             AssertRendered(
-                subject.In("x", fieldValues).SetUseConfiguredSerializers(true),
+                subject.In("x", fieldValues).UseConfiguredSerializers(true),
                 $"{{ in: {{ path: 'x', value: [{string.Join(",", fieldsRendered)}] }} }}");
         }
 
@@ -654,7 +654,7 @@ namespace MongoDB.Driver.Tests.Search
 
         [Theory]
         [MemberData(nameof(InTypedWithConfiguredSerializersTestData))]
-        public void InWithConfiguredSerialization_typed<T>(
+        public void InWithConfiguredSerializers_typed<T>(
             T[] fieldValues,
             string[] fieldValuesRendered,
             Expression<Func<Person, T>> fieldExpression,
@@ -667,12 +667,12 @@ namespace MongoDB.Driver.Tests.Search
             if (typeof(T) != typeof(Guid))
             {
                 AssertRendered(
-                    subject.In("x", fieldValues).SetUseConfiguredSerializers(true),
+                    subject.In("x", fieldValues).UseConfiguredSerializers(true),
                     $"{{ in: {{ path: 'x', value: {fieldValuesArray} }} }}");
             }
 
             AssertRendered(
-                subject.In(fieldExpression, fieldValues).SetUseConfiguredSerializers(true),
+                subject.In(fieldExpression, fieldValues).UseConfiguredSerializers(true),
                 $"{{ in: {{path: '{fieldNameRendered}', value: {fieldValuesArray} }} }}");
         }
 
@@ -736,11 +736,11 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.In(t => t.DefaultGuid, [testGuid, testGuid]).SetUseConfiguredSerializers(true),
+                subjectTyped.In(t => t.DefaultGuid, [testGuid, testGuid]).UseConfiguredSerializers(true),
                 """{ "in" : { "value" : [{ "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }], "path" : "DefaultGuid" } } """);
 
             AssertRendered(
-                subjectTyped.In(t => t.StringGuid, [testGuid, testGuid]).SetUseConfiguredSerializers(true),
+                subjectTyped.In(t => t.StringGuid, [testGuid, testGuid]).UseConfiguredSerializers(true),
                 """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "StringGuid" } }""");
         }
 
@@ -751,11 +751,11 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.In("DefaultGuid", [testGuid, testGuid]).SetUseConfiguredSerializers(true),
+                subjectTyped.In("DefaultGuid", [testGuid, testGuid]).UseConfiguredSerializers(true),
                 """{ "in" : { "value" : [{ "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }, { "$binary" : { "base64" : "AQIDBAUGBwgJCgsMDQ4PEA==", "subType" : "04" } }], "path" : "DefaultGuid" } } """);
 
             AssertRendered(
-                subjectTyped.In("StringGuid", [testGuid, testGuid]).SetUseConfiguredSerializers(true),
+                subjectTyped.In("StringGuid", [testGuid, testGuid]).UseConfiguredSerializers(true),
                 """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "StringGuid" } }""");
         }
 
@@ -768,7 +768,7 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.In(t => t.UndefinedRepresentationGuid, [testGuid, testGuid]).SetUseConfiguredSerializers(true),
+                subjectTyped.In(t => t.UndefinedRepresentationGuid, [testGuid, testGuid]).UseConfiguredSerializers(true),
                 """{ "in" : { "value" : ["01020304-0506-0708-090a-0b0c0d0e0f10", "01020304-0506-0708-090a-0b0c0d0e0f10"], "path" : "UndefinedRepresentationGuid" } }""");
         }
 
@@ -1088,11 +1088,11 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<Person>();
 
             AssertRendered(
-                subject.Range("age", SearchRangeBuilder.Gte(min).Lt(max)).SetUseConfiguredSerializers(true),
+                subject.Range("age", SearchRangeBuilder.Gte(min).Lt(max)).UseConfiguredSerializers(true),
                 $"{{ range: {{ path: 'age', gte: {minRendered}, lt: {maxRendered} }} }}");
 
             AssertRendered(
-                subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(min).Lt(max)).SetUseConfiguredSerializers(true),
+                subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(min).Lt(max)).UseConfiguredSerializers(true),
                 $"{{ range: {{ path: '{fieldRendered}', gte: {minRendered}, lt: {maxRendered} }} }}");
         }
 
@@ -1134,12 +1134,12 @@ namespace MongoDB.Driver.Tests.Search
 
             AssertRendered(
                 subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false ))
-                    .SetUseConfiguredSerializers(true),
+                    .UseConfiguredSerializers(true),
                 """{"range" :{ "gt" : 23, "path" : "DefaultLong" }}""");
 
             AssertRendered(
                 subjectTyped.Range(t => t.StringLong, new SearchRange<long>(testLong, null, false, false ))
-                    .SetUseConfiguredSerializers(true),
+                    .UseConfiguredSerializers(true),
                 """{"range":{ "gt" : "23", "path" : "StringLong" }}""");
         }
 
@@ -1151,12 +1151,12 @@ namespace MongoDB.Driver.Tests.Search
 
             AssertRendered(
                 subjectTyped.Range("DefaultLong", new SearchRange<long>(testLong, null, false, false ))
-                    .SetUseConfiguredSerializers(true),
+                    .UseConfiguredSerializers(true),
                 """{"range" :{ "gt" : 23, "path" : "DefaultLong" }}""");
 
             AssertRendered(
                 subjectTyped.Range("StringLong", new SearchRange<long>(testLong, null, false, false ))
-                    .SetUseConfiguredSerializers(true),
+                    .UseConfiguredSerializers(true),
                 """{"range":{ "gt" : "23", "path" : "StringLong" }}""");
         }
 
