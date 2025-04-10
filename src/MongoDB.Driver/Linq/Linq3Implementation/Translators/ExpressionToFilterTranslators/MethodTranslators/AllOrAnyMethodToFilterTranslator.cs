@@ -42,6 +42,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return AnyWithContainsInPredicateMethodToFilterTranslator.Translate(context, arrayFieldExpression, arrayConstantExpression);
             }
 
+            if (AnyWithArrayConstantAndItemEqualsFieldPredicateMethodToFilterTranslator.CanTranslate(expression, out arrayConstantExpression, out var fieldExpression))
+            {
+                return AnyWithArrayConstantAndItemEqualsFieldPredicateMethodToFilterTranslator.Translate(context, arrayConstantExpression, fieldExpression);
+            }
+
             var method = expression.Method;
             var arguments = expression.Arguments;
 
