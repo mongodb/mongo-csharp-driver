@@ -614,7 +614,7 @@ namespace MongoDB.Driver
         /// <param name="near">The point for which to find the closest documents.</param>
         /// <param name="options">The options.</param>
         /// <returns>The stage.</returns>
-        private static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TPoint, TOutput>(
+        internal static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TPoint, TOutput>(
             TPoint near,
             GeoNearOptions<TInput, TOutput> options = null)
             // where TPoint is either a GeoJsonPoint or a legacy coordinate array
