@@ -76,13 +76,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             AstExpression onNullAst = null;
             if (options != null)
             {
-                if (options.TryGetOnError(out var onErrorValue))
+                if (options.OnErrorWasSet(out var onErrorValue))
                 {
                     var serializedOnErrorValue = SerializationHelper.SerializeValue(toSerializer, onErrorValue);
                     onErrorAst = AstExpression.Constant(serializedOnErrorValue);
                 }
 
-                if (options.TryGetOnNull(out var onNullValue))
+                if (options.OnNullWasSet(out var onNullValue))
                 {
                     var serializedOnNullValue = SerializationHelper.SerializeValue(toSerializer, onNullValue);
                     onNullAst = AstExpression.Constant(serializedOnNullValue);
