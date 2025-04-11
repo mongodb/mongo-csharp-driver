@@ -260,9 +260,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             Ensure.IsNotNull(input, nameof(input));
             Ensure.IsNotNull(to, nameof(to));
 
-            if (to is AstConstantExpression toConstantExpression &&
-                (toConstantExpression.Value as BsonString)?.Value is string toValue &&
-                toValue != null &&
+            if (to.IsStringConstant(out var toValue) &&
                 onError == null &&
                 onNull == null)
             {
@@ -365,26 +363,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression Divide(AstExpression arg1, AstExpression arg2)
         {
-            if (arg1 is AstConstantExpression constant1 && arg2 is AstConstantExpression constant2)
+            if (arg1.IsConstant(out var constant1) && arg2.IsConstant(out var constant2))
             {
                 return Divide(constant1, constant2);
             }
 
             return new AstBinaryExpression(AstBinaryOperator.Divide, arg1, arg2);
 
-            static AstExpression Divide(AstConstantExpression constant1, AstConstantExpression constant2)
+            static AstExpression Divide(BsonValue constant1, BsonValue constant2)
             {
-                return (constant1.Value.BsonType, constant2.Value.BsonType) switch
+                return (constant1.BsonType, constant2.BsonType) switch
                 {
-                    (BsonType.Double, BsonType.Double) => constant1.Value.AsDouble / constant2.Value.AsDouble,
-                    (BsonType.Double, BsonType.Int32) => constant1.Value.AsDouble / constant2.Value.AsInt32,
-                    (BsonType.Double, BsonType.Int64) => constant1.Value.AsDouble / constant2.Value.AsInt64,
-                    (BsonType.Int32, BsonType.Double) => constant1.Value.AsInt32 / constant2.Value.AsDouble,
-                    (BsonType.Int32, BsonType.Int32) => (double)constant1.Value.AsInt32 / constant2.Value.AsInt32,
-                    (BsonType.Int32, BsonType.Int64) => (double)constant1.Value.AsInt32 / constant2.Value.AsInt64,
-                    (BsonType.Int64, BsonType.Double) => constant1.Value.AsInt64 / constant2.Value.AsDouble,
-                    (BsonType.Int64, BsonType.Int32) => (double)constant1.Value.AsInt64 / constant2.Value.AsInt32,
-                    (BsonType.Int64, BsonType.Int64) => (double)constant1.Value.AsInt64 / constant2.Value.AsInt64,
+                    (BsonType.Double, BsonType.Double) => constant1.AsDouble / constant2.AsDouble,
+                    (BsonType.Double, BsonType.Int32) => constant1.AsDouble / constant2.AsInt32,
+                    (BsonType.Double, BsonType.Int64) => constant1.AsDouble / constant2.AsInt64,
+                    (BsonType.Int32, BsonType.Double) => constant1.AsInt32 / constant2.AsDouble,
+                    (BsonType.Int32, BsonType.Int32) => (double)constant1.AsInt32 / constant2.AsInt32,
+                    (BsonType.Int32, BsonType.Int64) => (double)constant1.AsInt32 / constant2.AsInt64,
+                    (BsonType.Int64, BsonType.Double) => constant1.AsInt64 / constant2.AsDouble,
+                    (BsonType.Int64, BsonType.Int32) => (double)constant1.AsInt64 / constant2.AsInt32,
+                    (BsonType.Int64, BsonType.Int64) => (double)constant1.AsInt64 / constant2.AsInt64,
                     _ => new AstBinaryExpression(AstBinaryOperator.Divide, constant1, constant2)
                 };
             }
@@ -819,9 +817,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression StrLenCP(AstExpression arg)
         {
-            if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
+            if (arg.IsStringConstant(out var stringConstant))
             {
-                var value = constantExpression.Value.AsString.Length;
+                var value = stringConstant.Length;
                 return new AstConstantExpression(value);
             }
             return new AstUnaryExpression(AstUnaryOperator.StrLenCP, arg);
@@ -880,9 +878,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression ToLower(AstExpression arg)
         {
-            if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
+            if (arg.IsStringConstant(out var stringConstant))
             {
-                var value = constantExpression.Value.AsString.ToLowerInvariant();
+                var value = stringConstant.ToLowerInvariant();
                 return new AstConstantExpression(value);
             }
 
@@ -896,9 +894,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression ToUpper(AstExpression arg)
         {
-            if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
+            if (arg.IsStringConstant(out var stringConstant))
             {
-                var value = constantExpression.Value.AsString.ToUpperInvariant();
+                var value = stringConstant.ToUpperInvariant();
                 return new AstConstantExpression(value);
             }
 
@@ -975,7 +973,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         // private static methods
         private static bool AllArgsAreConstantBools(AstExpression[] args, out List<bool> values)
         {
-            if (args.All(arg => arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.Boolean))
+            if (args.All(arg => arg.IsBooleanConstant()))
             {
                 values = args.Select(arg => ((AstConstantExpression)arg).Value.AsBoolean).ToList();
                 return true;
@@ -987,7 +985,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         private static bool AllArgsAreConstantInt32s(AstExpression[] args, out List<int> values)
         {
-            if (args.All(arg => arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.Int32))
+            if (args.All(arg => arg.IsInt32Constant()))
             {
                 values = args.Select(arg => ((AstConstantExpression)arg).Value.AsInt32).ToList();
                 return true;

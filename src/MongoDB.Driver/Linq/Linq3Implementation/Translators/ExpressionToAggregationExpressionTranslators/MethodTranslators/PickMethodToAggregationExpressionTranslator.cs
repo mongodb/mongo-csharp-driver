@@ -262,21 +262,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return
                 source is AstGetFieldExpression getFieldExpression &&
                 getFieldExpression.Input.IsRootVar() &&
-                getFieldExpression.FieldName is AstConstantExpression fieldNameConstantExpression &&
-                fieldNameConstantExpression.Value == "_elements";
+                getFieldExpression.FieldName.IsStringConstant("_elements");
         }
 
         private static bool IsValidKey(TranslatedExpression keyTranslation)
         {
-            if (keyTranslation.Ast is AstGetFieldExpression getFieldExpression &&
+            return
+                keyTranslation.Ast is AstGetFieldExpression getFieldExpression &&
                 getFieldExpression.Input.IsRootVar() &&
-                getFieldExpression.FieldName is AstConstantExpression constantFieldName &&
-                constantFieldName.Value == "_id")
-            {
-                return true;
-            }
-
-            return false;
+                getFieldExpression.FieldName.IsStringConstant("_id");
         }
 
         private static AstSortFields TranslateSortByDefinition(

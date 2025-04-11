@@ -352,9 +352,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             public override AstNode VisitGetFieldExpression(AstGetFieldExpression node)
             {
-                if (node.FieldName is AstConstantExpression constantFieldName &&
-                    constantFieldName.Value.IsString &&
-                    constantFieldName.Value.AsString == "_elements")
+                if (node.FieldName.IsStringConstant("_elements"))
                 {
                     throw new UnableToRemoveReferenceToElementsException();
                 }
@@ -366,9 +364,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             {
                 // { $map : { input : { $getField : { input : "$$ROOT", field : "_elements" } }, as : "x", in : f(x) } } => { __agg0 : { $push : f(x => element) } } + "$__agg0"
                 if (node.Input is AstGetFieldExpression mapInputGetFieldExpression &&
-                    mapInputGetFieldExpression.FieldName is AstConstantExpression mapInputconstantFieldExpression &&
-                    mapInputconstantFieldExpression.Value.IsString &&
-                    mapInputconstantFieldExpression.Value.AsString == "_elements" &&
+                    mapInputGetFieldExpression.FieldName.IsStringConstant("_elements") &&
                     mapInputGetFieldExpression.Input.IsRootVar())
                 {
                     var rewrittenArg = (AstExpression)AstNodeReplacer.Replace(node.In, (node.As, _element));
@@ -386,9 +382,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 // => { __agg0 : { $pickAccumulatorOperator : { sortBy : s, selector : f(x => element) } } } + "$__agg0"
                 if (node.Source is AstGetFieldExpression getFieldExpression &&
                     getFieldExpression.Input.IsRootVar() &&
-                    getFieldExpression.FieldName is AstConstantExpression constantFieldNameExpression &&
-                    constantFieldNameExpression.Value.IsString &&
-                    constantFieldNameExpression.Value.AsString == "_elements")
+                    getFieldExpression.FieldName.IsStringConstant("_elements"))
                 {
                     var @operator = node.Operator.ToAccumulatorOperator();
                     var rewrittenSelector = (AstExpression)AstNodeReplacer.Replace(node.Selector, (node.As, _element));
@@ -425,9 +419,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                     if (node.Operator == AstUnaryOperator.Size)
                     {
                         if (node.Arg is AstGetFieldExpression argGetFieldExpression &&
-                            argGetFieldExpression.FieldName is AstConstantExpression constantFieldNameExpression &&
-                            constantFieldNameExpression.Value.IsString &&
-                            constantFieldNameExpression.Value.AsString == "_elements")
+                            argGetFieldExpression.FieldName.IsStringConstant("_elements"))
                         {
                             var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.Sum, 1);
                             var accumulatorFieldName = _accumulators.AddAccumulatorExpression(accumulatorExpression);
@@ -445,9 +437,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                     // { $accumulator : { $getField : { input : "$$ROOT", field : "_elements" } } } => { __agg0 : { $accumulator : element } } + "$__agg0"
                     if (node.Operator.IsAccumulator(out var accumulatorOperator) &&
                         node.Arg is AstGetFieldExpression getFieldExpression &&
-                        getFieldExpression.FieldName is AstConstantExpression getFieldConstantFieldNameExpression &&
-                        getFieldConstantFieldNameExpression.Value.IsString &&
-                        getFieldConstantFieldNameExpression.Value == "_elements" &&
+                        getFieldExpression.FieldName.IsStringConstant("_elements") &&
                         getFieldExpression.Input.IsRootVar())
                     {
                         var accumulatorExpression = AstExpression.UnaryAccumulator(accumulatorOperator, _element);
@@ -467,9 +457,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                     if (node.Operator.IsAccumulator(out var accumulatorOperator) &&
                         node.Arg is AstMapExpression mapExpression &&
                         mapExpression.Input is AstGetFieldExpression mapInputGetFieldExpression &&
-                        mapInputGetFieldExpression.FieldName is AstConstantExpression mapInputconstantFieldExpression &&
-                        mapInputconstantFieldExpression.Value.IsString &&
-                        mapInputconstantFieldExpression.Value.AsString == "_elements" &&
+                        mapInputGetFieldExpression.FieldName.IsStringConstant("_elements") &&
                         mapInputGetFieldExpression.Input.IsRootVar())
                     {
                         var rewrittenArg = (AstExpression)AstNodeReplacer.Replace(mapExpression.In, (mapExpression.As, _element));

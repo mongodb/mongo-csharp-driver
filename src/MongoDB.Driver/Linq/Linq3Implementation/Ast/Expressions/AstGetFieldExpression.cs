@@ -63,10 +63,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public bool HasSafeFieldName(out string fieldName)
         {
-            if (_fieldName is AstConstantExpression constantFieldName &&
-                constantFieldName.Value is BsonString stringfieldName)
+            if (_fieldName.IsStringConstant(out var constantFieldName))
             {
-                fieldName = stringfieldName.Value;
+                fieldName = constantFieldName;
                 if (fieldName.Length > 0 && fieldName[0] != '$' && !fieldName.Contains('.'))
                 {
                     return true;
