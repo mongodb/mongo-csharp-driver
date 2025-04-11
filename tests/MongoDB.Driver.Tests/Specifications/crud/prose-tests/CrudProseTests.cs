@@ -617,9 +617,11 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             documentCount.Should().Be(numModels);
         }
 
+        // https://specifications.readthedocs.io/en/latest/crud/tests/#16-generated-document-identifiers-are-the-first-field-in-their-document
+        // The next three consecutive tests defined below are part of the prose test linked above.
         [Theory]
         [ParameterAttributeData]
-        public async Task Ensure_generated_ids_are_first_fields_in_document([Values(true, false)] bool async)
+        public async Task Ensure_generated_ids_are_first_fields_in_document_using_insertOne([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
             var client = CreateMongoClient(eventCapturer);
@@ -635,13 +637,21 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 testCollection.InsertOne(document);
             }
 
-            eventCapturer.Next();
+            eventCapturer.Next(); // skip the hello command that is captured.
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
                 .Subject.Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
             document.Names.Should().Contain("_id");
+        }
 
-            eventCapturer.Clear();
-            document = new BsonDocument("x", 2);
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Ensure_generated_ids_are_first_fields_in_document_using_collection_bulkWrite([Values(true, false)] bool async)
+        {
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
+            var client = CreateMongoClient(eventCapturer);
+            var testCollection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
+
+            var document = new BsonDocument("x", 1);
             if (async)
             {
                 await testCollection.BulkWriteAsync([new InsertOneModel<BsonDocument>(document)]);
@@ -651,29 +661,35 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 testCollection.BulkWrite([new InsertOneModel<BsonDocument>(document)]);
             }
 
-            eventCapturer.Count.Should().Be(1);
+            eventCapturer.Next(); // skip the hello command that is captured.
             eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
                 .Subject.Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
             document.Names.Should().Contain("_id");
+        }
 
-            if (Feature.ClientBulkWrite.IsSupported(CoreTestConfiguration.MaxWireVersion))
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Ensure_generated_ids_are_first_fields_in_document_using_client_bulkWrite([Values(true, false)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
+            var client = CreateMongoClient(eventCapturer);
+
+            var document = new BsonDocument("x", 1);
+            if (async)
             {
-                eventCapturer.Clear();
-                document = new BsonDocument("x", 3);
-                if (async)
-                {
-                    await client.BulkWriteAsync([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
-                }
-                else
-                {
-                    client.BulkWrite([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
-                }
-
-                eventCapturer.Count.Should().Be(1);
-                eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
-                    .Subject.Command["ops"][0]["document"].AsBsonDocument.Names.First().Should().Be("_id");
-                document.Names.Should().Contain("_id");
+                await client.BulkWriteAsync([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
             }
+            else
+            {
+                client.BulkWrite([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
+            }
+
+            eventCapturer.Next(); // skip the hello command that is captured.
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
+                .Subject.Command["ops"][0]["document"].AsBsonDocument.Names.First().Should().Be("_id");
+            document.Names.Should().Contain("_id");
         }
 
         // private methods
