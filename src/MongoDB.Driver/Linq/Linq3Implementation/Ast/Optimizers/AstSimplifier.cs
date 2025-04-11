@@ -47,15 +47,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             if (node.Operator == AstBinaryOperator.IfNull)
             {
-                if (arg1 is AstConstantExpression arg1ConstantExpression)
+                if (arg1.IsConstant(out var arg1Constant))
                 {
                     // { $ifNull : [expr1, expr2] } => expr2 when expr1 == null
                     // { $ifNull : [expr1, expr2] } => expr1 when expr1 != null
-                    return arg1ConstantExpression.Value == BsonNull.Value ? arg2 : arg1;
+                    return arg1Constant == BsonNull.Value ? arg2 : arg1;
                 }
 
-                if (arg2 is AstConstantExpression arg2ConstantExpression &&
-                    arg2ConstantExpression.Value == BsonNull.Value)
+                if (arg2.IsBsonNull())
                 {
                     // { $ifNull : [expr1, expr2] } => expr1 when expr2 == null
                     return arg1;
@@ -71,10 +70,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             if (node.If is AstBinaryExpression binaryIfpression &&
                 binaryIfpression.Operator == AstBinaryOperator.Eq &&
                 binaryIfpression.Arg1 is AstExpression expr1 &&
-                binaryIfpression.Arg2 is AstConstantExpression constantComparandExpression &&
-                constantComparandExpression.Value == BsonNull.Value &&
-                node.Then is AstConstantExpression constantThenExpression &&
-                constantThenExpression.Value == BsonNull.Value &&
+                binaryIfpression.Arg2.IsBsonNull() &&
+                node.Then.IsBsonNull() &&
                 node.Else is AstExpression expr2)
             {
                 // { $cond : [{ $eq : [expr, null] }, null, expr] } => expr
@@ -115,8 +112,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 exprFilter.Expression is AstUnaryExpression unaryExpression &&
                 unaryExpression.Operator == AstUnaryOperator.AnyElementTrue &&
                 unaryExpression.Arg is AstMapExpression mapExpression &&
-                mapExpression.Input is AstConstantExpression inputConstant &&
-                inputConstant.Value is BsonArray inputArrayValue &&
+                mapExpression.Input.IsConstant<BsonArray>(out var inputArrayConstant) &&
                 mapExpression.In is AstBinaryExpression inBinaryExpression &&
                 inBinaryExpression.Operator == AstBinaryOperator.Eq &&
                 TryGetBinaryExpressionArguments(inBinaryExpression, out AstFieldPathExpression fieldPathExpression, out AstVarExpression varExpression) &&
@@ -125,7 +121,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             {
                 // { $expr : { $anyElementTrue : { $map : { input : <constantArray>, as : "<var>", in : { $eq : ["$<dottedFieldName>", "$$<var>"] } } } } }
                 //      => { "<dottedFieldName>" : { $in : <constantArray> } }
-                return AstFilter.In(AstFilter.Field(fieldPathExpression.Path.Substring(1)), inputArrayValue);
+                return AstFilter.In(AstFilter.Field(fieldPathExpression.Path.Substring(1)), inputArrayConstant);
             }
 
             return optimizedNode;
@@ -359,10 +355,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             var condExpression = VisitAndConvert(node.Cond);
             var limitExpression = VisitAndConvert(node.Limit);
 
-            if (condExpression is AstConstantExpression condConstantExpression &&
-                condConstantExpression.Value is BsonBoolean condBsonBoolean)
+            if (condExpression.IsBooleanConstant(out var booleanConstant))
             {
-                if (condBsonBoolean.Value)
+                if (booleanConstant)
                 {
                     // { $filter : { input : <input>, as : "x", cond : true } } => <input>
                     if (limitExpression == null)
@@ -510,13 +505,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 return array;
             }
 
-            if (array is AstConstantExpression arrayConstant &&
-                arrayConstant.Value is BsonArray bsonArrayConstant &&
-                position.IsInt32Constant(out var positionValue) && positionValue >= 0 &&
-                n.IsInt32Constant(out var nValue) && nValue >= 0)
+            if (array.IsConstant<BsonArray>(out var arrayConstant) &&
+                position.IsInt32Constant(out var positionConstant) && positionConstant >= 0 &&
+                n.IsInt32Constant(out var nConstant) && nConstant >= 0)
             {
                 // { slice : [array, position, n] } => array.Skip(position).Take(n) when all arguments are non-negative constants
-                return AstExpression.Constant(new BsonArray(bsonArrayConstant.Skip(positionValue).Take(nValue)));
+                return AstExpression.Constant(new BsonArray(arrayConstant.Skip(positionConstant).Take(nConstant)));
             }
 
             if (array is AstSliceExpression inner &&
@@ -558,10 +552,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             // { $not : booleanConstant } => !booleanConstant
             if (node.Operator is AstUnaryOperator.Not &&
-                arg is AstConstantExpression argConstantExpression &&
-                argConstantExpression.Value is BsonBoolean argBsonBoolean)
+                arg.IsBooleanConstant(out var booleanConstant))
             {
-                return AstExpression.Constant(!argBsonBoolean.Value);
+                return AstExpression.Constant(!booleanConstant);
             }
 
             // { $not : { $eq : [expr1, expr2] } } => { $ne : [expr1, expr2] }
