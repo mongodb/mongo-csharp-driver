@@ -34,9 +34,6 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().VersionGreaterThanOrEqualTo("8.1.0");
 
             var collection = Fixture.GeoCollection;
-
-            collection.Indexes.CreateOne(new CreateIndexModel<Place>(Builders<Place>.IndexKeys.Geo2DSphere(p => p.GeoJsonPointLocation)));
-
             var result = collection
                 .Aggregate()
                 .GeoNear(
@@ -59,9 +56,6 @@ namespace MongoDB.Driver.Tests
         public void GeoNear_using_pipeline_should_return_expected_result()
         {
             var collection = Fixture.GeoCollection;
-
-            collection.Indexes.CreateOne(new CreateIndexModel<Place>(Builders<Place>.IndexKeys.Geo2D(p => p.LegacyCoordinateLocation)));
-
             var pipeline = new EmptyPipelineDefinition<Place>()
                 .GeoNear(
                     [-73.99279, 40.719296],
