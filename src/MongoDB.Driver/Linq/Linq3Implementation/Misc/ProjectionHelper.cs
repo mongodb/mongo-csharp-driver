@@ -140,10 +140,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static AstExpression QuoteIfNecessary(AstExpression expression)
         {
             var simplifiedExpression = AstSimplifier.SimplifyAndConvert(expression);
-            if (simplifiedExpression is AstConstantExpression constantExpression &&
-                ValueNeedsToBeQuoted(constantExpression.Value))
+            if (simplifiedExpression.IsConstant(out var constant) &&
+                ValueNeedsToBeQuoted(constant))
             {
-                return AstExpression.Literal(constantExpression);
+                return AstExpression.Literal(simplifiedExpression);
             }
 
             return expression; // not the simplified expression
