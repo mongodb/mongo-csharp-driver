@@ -637,9 +637,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 testCollection.InsertOne(document);
             }
 
-            eventCapturer.Next(); // skip the hello command that is captured.
-            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
-                .Subject.Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
+            var insertEvents = eventCapturer.Events.OfType<CommandStartedEvent>().Where(e => e.CommandName == "insert").ToArray();
+            insertEvents.Length.Should().Be(1);
+            insertEvents[0].Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
             document.Names.Should().Contain("_id");
         }
 
@@ -661,9 +661,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 testCollection.BulkWrite([new InsertOneModel<BsonDocument>(document)]);
             }
 
-            eventCapturer.Next(); // skip the hello command that is captured.
-            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
-                .Subject.Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
+            var insertEvents = eventCapturer.Events.OfType<CommandStartedEvent>().Where(e => e.CommandName == "insert").ToArray();
+            insertEvents.Length.Should().Be(1);
+            insertEvents[0].Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
             document.Names.Should().Contain("_id");
         }
 
@@ -686,9 +686,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 client.BulkWrite([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
             }
 
-            eventCapturer.Next(); // skip the hello command that is captured.
-            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>()
-                .Subject.Command["ops"][0]["document"].AsBsonDocument.Names.First().Should().Be("_id");
+            var bulkEvents = eventCapturer.Events.OfType<CommandStartedEvent>().Where(e => e.CommandName == "bulkWrite").ToArray();
+            bulkEvents.Length.Should().Be(1);
+            bulkEvents[0].Command["ops"][0]["document"].AsBsonDocument.Names.First().Should().Be("_id");
             document.Names.Should().Contain("_id");
         }
 
