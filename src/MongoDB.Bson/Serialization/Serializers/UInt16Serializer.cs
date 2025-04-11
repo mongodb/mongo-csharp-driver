@@ -25,6 +25,15 @@ namespace MongoDB.Bson.Serialization.Serializers
     [CLSCompliant(false)]
     public sealed class UInt16Serializer : StructSerializerBase<ushort>, IRepresentationConfigurable<UInt16Serializer>, IRepresentationConverterConfigurable<UInt16Serializer>
     {
+        #region static
+        private static readonly UInt16Serializer __instance = new();
+
+        /// <summary>
+        /// Gets a cached instance of an UInt16Serializer;
+        /// </summary>
+        public static UInt16Serializer Instance => __instance;
+        #endregion
+
         // private fields
         private readonly BsonType _representation;
         private readonly RepresentationConverter _converter;

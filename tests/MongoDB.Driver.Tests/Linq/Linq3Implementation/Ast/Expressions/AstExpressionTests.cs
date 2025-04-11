@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Ast.Expressions
             var to = AstExpression.Constant(toValue);
             var onError = AstExpression.Constant(BsonNull.Value);
 
-            var result = AstExpression.Convert(input, to, onError, onNull: null);
+            var result = AstExpression.Convert(input, to, onError: onError, onNull: null);
 
             var convertExpression = result.Should().BeOfType<AstConvertExpression>().Subject;
             convertExpression.Input.Should().BeSameAs(input);
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Ast.Expressions
             var to = AstExpression.Constant(toValue);
             var onNull = AstExpression.Constant(BsonNull.Value);
 
-            var result = AstExpression.Convert(input, to, onError: null, onNull);
+            var result = AstExpression.Convert(input, to, onError: null, onNull: onNull);
 
             var convertExpression = result.Should().BeOfType<AstConvertExpression>().Subject;
             convertExpression.Input.Should().BeSameAs(input);
