@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             if (expression.Method.DeclaringType == typeof(Queryable) &&
                 sourceTranslation.Serializer is not INestedAsQueryableSerializer)
             {
-                throw new ExpressionNotSupportedException(expression, because: "source serializer is not a NestedAsQueryableSerializer");
+                throw new ExpressionNotSupportedException(expression, because: "source argument is an unsupported IQueryable type");
             }
         }
 
