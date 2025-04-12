@@ -156,10 +156,11 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(10, withProperties.GetMechanismProperty<int>("OTHER", 0));
         }
 
-        [Fact]
-        public void TestMechanismPropertyFromUnresolvedConnectionString()
+        [Theory]
+        [InlineData("mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster,ANOTHER:test")]
+        [InlineData("mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb://test-cluster,ANOTHER:test")]
+        public void TestMechanismPropertyFromUnresolvedConnectionString(string url)
         {
-            var url = "mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster,ANOTHER:test";
             var mongoConnection = MongoClientSettings.FromConnectionString(url);
             mongoConnection.Credential.GetMechanismProperty("ENVIRONMENT", "").Should().Be("azure");
             mongoConnection.Credential.GetMechanismProperty("prop", "").Should().Be("ab,cd,ef,jh");
@@ -167,16 +168,16 @@ namespace MongoDB.Driver.Tests
             mongoConnection.Credential.GetMechanismProperty("ANOTHER", "").Should().Be("test");
         }
 
-        [Fact]
-        public void TestMechanismPropertyFromResolvedConnectionString()
+        [Theory]
+        [InlineData("mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authSource=$external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster,ANOTHER:test")]
+        [InlineData("mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authSource=$external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb://test-cluster,ANOTHER:test")]
+        public void TestMechanismPropertyFromResolvedConnectionString(string url)
         {
-            var url = "mongodb://user@localhost/?authMechanism=MONGODB-OIDC&authSource=$external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster,ANOTHER:test";
             var mongoConnection = MongoClientSettings.FromConnectionString(url);
             mongoConnection.Credential.GetMechanismProperty("ENVIRONMENT", "").Should().Be("azure");
             mongoConnection.Credential.GetMechanismProperty("prop", "").Should().Be("ab,cd,ef,jh");
             mongoConnection.Credential.GetMechanismProperty("TOKEN_RESOURCE", "").Should().Be("mongodb://test-cluster");
             mongoConnection.Credential.GetMechanismProperty("ANOTHER", "").Should().Be("test");
-
         }
     }
 }
