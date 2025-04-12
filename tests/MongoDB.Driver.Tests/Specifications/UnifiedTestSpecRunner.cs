@@ -43,6 +43,14 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("auth.tests.unified")]
         public void Auth(JsonDrivenTestCase testCase) => Run(testCase);
 
+        [Trait("Category", "AtlasDataLake")]
+        [UnifiedTestsTheory("atlas_data_lake_testing.tests.unified")]
+        public void AtlasDataLake(JsonDrivenTestCase testCase)
+        {
+            RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
+            Run(testCase);
+        }
+
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("change_streams.tests.unified")]
         public void ChangeStreams(JsonDrivenTestCase testCase) => Run(testCase);
@@ -83,15 +91,7 @@ namespace MongoDB.Driver.Tests.Specifications
         public void GridFS(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("index_management.tests")]
-        public void IndexManagement(JsonDrivenTestCase testCase)
-        {
-            // Skip sharded due to CSHARP-4736/SERVER-78848
-            RequireServer
-                .Check()
-                .ClusterTypes(Core.Clusters.ClusterType.LoadBalanced, Core.Clusters.ClusterType.ReplicaSet);
-
-            Run(testCase);
-        }
+        public void IndexManagement(JsonDrivenTestCase testCase) => Run(testCase);
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("load_balancers.tests")]
@@ -126,6 +126,10 @@ namespace MongoDB.Driver.Tests.Specifications
         }
 
         [Category("Serverless", "SupportLoadBalancing")]
+        [UnifiedTestsTheory("read_write_concern.tests.operation")]
+        public void ReadWriteConcern(JsonDrivenTestCase testCase) => Run(testCase);
+
+        [Category("Serverless", "SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_reads.tests.unified")]
         public void RetryableReads(JsonDrivenTestCase testCase) => Run(testCase);
 
@@ -152,7 +156,7 @@ namespace MongoDB.Driver.Tests.Specifications
         public void ServerSelection(JsonDrivenTestCase testCase) => Run(testCase);
 
         [Category("Serverless")]
-        [UnifiedTestsTheory("sessions.tests.unified")]
+        [UnifiedTestsTheory("sessions.tests")]
         public void Sessions(JsonDrivenTestCase testCase) => Run(testCase);
 
         [Category("Serverless", "SupportLoadBalancing")]
@@ -214,8 +218,8 @@ namespace MongoDB.Driver.Tests.Specifications
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
 
         // used by SkippedTestsProvider property in UnifiedTests attribute.
-        private static readonly HashSet<string> __ignoredTests = new(new []
-        {
+        private static readonly HashSet<string> __ignoredTests = new(
+        [
             // CMAP
             "waitQueueMultiple should be included in connection pool created message when specified",
 
@@ -263,7 +267,22 @@ namespace MongoDB.Driver.Tests.Specifications
 
             // CSHARP Driver does not comply with the requirement to throw in case explicit writeConcern were used, see CSHARP-5468
             "client bulkWrite with writeConcern in a transaction causes a transaction error",
-        });
+        ]);
+
+        private static readonly HashSet<string> __ignoredTestFiles = new(
+        [
+            // retryableReads
+            // .NET/C# driver does not implement FindOne, ListCollectionObjects, ListDatabaseObjects, ListIndexNames helpers
+            "findOne.json",
+            "findOne-serverErrors.json",
+            "listCollectionObjects.json",
+            "listCollectionObjects.json",
+            "listCollectionObjects-serverErrors.json",
+            "listDatabaseObjects.json",
+            "listDatabaseObjects-serverErrors.json",
+            "listIndexNames.json",
+            "listIndexNames-serverErrors.json"
+        ]);
 
         #region CMAP helpers
 

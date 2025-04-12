@@ -125,15 +125,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 throw new SkipException($"Test skipped because '{skipReason}'.");
             }
 
-            KillOpenTransactions(DriverTestConfiguration.Client);
-
-            _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async);
-            _entityMap.AddRange(entities);
-
-            if (initialData != null)
+            // should skip on KillOpenTransactions for Atlas Data Lake tests.
+            // https://github.com/mongodb/specifications/blob/80f88d0af6e47407c03874512e0d9b73708edad5/source/atlas-data-lake-testing/tests/README.md?plain=1#L23
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED")))
             {
-                AddInitialData(DriverTestConfiguration.Client, initialData, _entityMap);
+                KillOpenTransactions(DriverTestConfiguration.Client);
             }
+
+            BsonDocument lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
+            _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async, lastKnownClusterTime);
+            _entityMap.AddRange(entities);
 
             foreach (var operation in operations)
             {
@@ -176,45 +177,36 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // private methods
-        private void AddInitialData(IMongoClient client, BsonArray initialData, UnifiedEntityMap entityMap)
+        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData)
         {
-            var mongoCollectionSettings = new MongoCollectionSettings();
-
-            var writeConcern = WriteConcern.WMajority;
-            if (DriverTestConfiguration.IsReplicaSet(client))
+            if (initialData == null)
             {
-                // Makes server to wait for ack from all data nodes to make sure the test data availability before running the test itself.
-                // It's limited to replica set only because there is no simple way to calculate proper w for sharded cluster.
-                var dataBearingServersCount = DriverTestConfiguration.GetReplicaSetNumberOfDataBearingMembers(client);
-                writeConcern = WriteConcern.Acknowledged.With(w: dataBearingServersCount, journal:true);
+                return null;
             }
 
-            BsonDocument serverTime = null;
+            BsonDocument lastKnownClusterTime = null;
             foreach (var dataItem in initialData)
             {
                 var collectionName = dataItem["collectionName"].AsString;
                 var databaseName = dataItem["databaseName"].AsString;
                 var documents = dataItem["documents"].AsBsonArray.Cast<BsonDocument>().ToList();
 
-                var database = client.GetDatabase(databaseName).WithWriteConcern(writeConcern);
-                var collection = database.GetCollection<BsonDocument>(collectionName, mongoCollectionSettings);
+                var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
 
                 _logger.LogDebug("Dropping {0}", collectionName);
-                var session = client.StartSession();
+                using var session = client.StartSession();
                 database.DropCollection(session, collectionName);
+                database.CreateCollection(session, collectionName);
                 if (documents.Any())
                 {
+                    var collection = database.GetCollection<BsonDocument>(collectionName);
                     collection.InsertMany(session, documents);
                 }
-                else
-                {
-                    database.CreateCollection(session, collectionName);
-                }
 
-                serverTime = session.ClusterTime;
+                lastKnownClusterTime = session.ClusterTime;
             }
 
-            entityMap.AdjustSessionsClusterTime(serverTime);
+            return lastKnownClusterTime;
         }
 
         private void AssertEvents(BsonArray eventItems, UnifiedEntityMap entityMap)
@@ -263,7 +255,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        private void CreateAndRunOperation(BsonDocument operationDocument, bool async, CancellationToken cancellationToken)
+        private OperationResult CreateAndRunOperation(BsonDocument operationDocument, bool async, CancellationToken cancellationToken)
         {
             var operation = CreateOperation(operationDocument, _entityMap);
 
@@ -274,20 +266,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         ? entityOperation.ExecuteAsync(cancellationToken).GetAwaiter().GetResult()
                         : entityOperation.Execute(cancellationToken);
                     AssertResult(result, operationDocument, _entityMap);
-                    break;
+                    return result;
                 case IUnifiedSpecialTestOperation specialOperation:
                     specialOperation.Execute();
-                    break;
+                    return OperationResult.Empty();
                 case IUnifiedOperationWithCreateAndRunOperationCallback operationWithCreateAndRunCallback:
-                    if (async)
-                    {
-                        operationWithCreateAndRunCallback.ExecuteAsync(CreateAndRunOperation, cancellationToken).GetAwaiter().GetResult();
-                    }
-                    else
-                    {
-                        operationWithCreateAndRunCallback.Execute(CreateAndRunOperation, cancellationToken);
-                    }
-                    break;
+                    var innerResult = async
+                        ? operationWithCreateAndRunCallback.ExecuteAsync(CreateAndRunOperation, cancellationToken).GetAwaiter().GetResult()
+                        : operationWithCreateAndRunCallback.Execute(CreateAndRunOperation, cancellationToken);
+                    AssertResult(innerResult, operationDocument, _entityMap);
+                    return innerResult;
                 default:
                     throw new FormatException($"Unexpected operation type: '{operation.GetType()}'.");
             }

@@ -1432,6 +1432,111 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $rankFusion stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelines">The map of named pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="weights">The map of pipeline names to non-negative numerical weights determining result importance during combination. Default weight is 1 when unspecified.</param>
+        /// <param name="options">The rankFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> RankFusion<TInput, TOutput>(
+            Dictionary<string, PipelineDefinition<TInput, TOutput>> pipelines,
+            Dictionary<string, double> weights = null,
+            RankFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNull(pipelines, nameof(pipelines));
+            if (pipelines.Any(pipeline => pipeline.Value == null))
+            {
+                throw new ArgumentNullException(nameof(pipelines), "Pipelines cannot contain a null pipeline.");
+            }
+
+            const string operatorName = "$rankFusion";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var renderedPipelines = new BsonDocument();
+                    foreach (var pipeline in pipelines)
+                    {
+                        renderedPipelines.Add(pipeline.Key, new BsonArray(pipeline.Value.Render(args).Documents));
+                    }
+
+                    var document = new BsonDocument
+                    {
+                        { "input", new BsonDocument("pipelines", renderedPipelines) },
+                        {
+                            "combination", () => new BsonDocument
+                            {
+                                { "weights", new BsonDocument(weights.Select(w => new BsonElement(w.Key, w.Value))) }
+                            },
+                            weights != null
+                        },
+                        { "scoreDetails", true, options?.ScoreDetails == true }
+                    };
+
+                    return new RenderedPipelineStageDefinition<TOutput>(
+                        operatorName,
+                        new BsonDocument(operatorName, document),
+                        options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>());
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $rankFusion stage. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelines">The collection of pipelines whose results will be combined. The pipelines must operate on the same collection.</param>
+        /// <param name="options">The rankFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> RankFusion<TInput, TOutput>(
+            PipelineDefinition<TInput, TOutput>[] pipelines,
+            RankFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNull(pipelines, nameof(pipelines));
+
+            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
+            for (var i = 0; i < pipelines.Length; i++)
+            {
+                pipelinesMap[$"pipeline{i + 1}"] = pipelines[i];
+            }
+            return RankFusion(pipelinesMap, null, options);
+        }
+
+        /// <summary>
+        /// Creates a $rankFusion stage. Pipelines will be automatically named as "pipeline1", "pipeline2", etc.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipelinesWithWeights">The collection of tuples containing (pipeline, weight) pairs. The pipelines must operate on the same collection.</param>
+        /// <param name="options">The rankFusion options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> RankFusion<TInput, TOutput>(
+            (PipelineDefinition<TInput, TOutput> Pipeline, double? Weight)[] pipelinesWithWeights,
+            RankFusionOptions<TOutput> options = null)
+        {
+            Ensure.IsNotNull(pipelinesWithWeights, nameof(pipelinesWithWeights));
+
+            var pipelinesMap = new Dictionary<string, PipelineDefinition<TInput, TOutput>>();
+            var weightsMap = new Dictionary<string, double>();
+            for (var i = 0; i < pipelinesWithWeights.Length; i++)
+            {
+                var pipelineName = $"pipeline{i + 1}";
+                pipelinesMap[pipelineName] = pipelinesWithWeights[i].Pipeline;
+
+                if (pipelinesWithWeights[i].Weight.HasValue)
+                {
+                    weightsMap[pipelineName] = pipelinesWithWeights[i].Weight.Value;
+                }
+            }
+            return RankFusion(pipelinesMap, weightsMap, options);
+        }
+
+        /// <summary>
         /// Creates a $replaceRoot stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

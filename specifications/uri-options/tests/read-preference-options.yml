@@ -33,7 +33,7 @@ tests:
         warning: true
         hosts: ~
         auth: ~
-        options: {}
+        options: ~
     -
         description: "Non-numeric maxStalenessSeconds causes a warning"
         uri: "mongodb://example.com/?maxStalenessSeconds=invalid"
@@ -41,7 +41,7 @@ tests:
         warning: true
         hosts: ~
         auth: ~
-        options: {}
+        options: ~
     -
         description: "Too low maxStalenessSeconds causes a warning"
         uri: "mongodb://example.com/?maxStalenessSeconds=-2"
@@ -49,5 +49,5 @@ tests:
         warning: true
         hosts: ~
         auth: ~
-        options: {}
+        options: ~
 

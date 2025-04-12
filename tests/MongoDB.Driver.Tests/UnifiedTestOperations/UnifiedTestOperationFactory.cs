@@ -109,6 +109,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "insertOne" => new UnifiedInsertOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listIndexes" => new UnifiedListIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listSearchIndexes" => new UnifiedListSearchIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "mapReduce" => new UnifiedMapReduceOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "rename" => new UnifiedRenameCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "replaceOne" => new UnifiedReplaceOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "updateMany" => new UnifiedUpdateManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),

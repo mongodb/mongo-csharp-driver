@@ -36,36 +36,58 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _options = options;
         }
 
-        public void Execute(Action<BsonDocument, bool, CancellationToken> assertOperationCallback, CancellationToken cancellationToken)
+        public OperationResult Execute(Func<BsonDocument, bool, CancellationToken, OperationResult> assertOperationCallback, CancellationToken cancellationToken)
         {
-            _session.WithTransaction(
-                callback: (session, token) =>
-                {
-                    foreach (var operationItem in _operations)
+            try
+            {
+                return _session.WithTransaction(
+                    callback: (session, token) =>
                     {
-                        assertOperationCallback(operationItem.AsBsonDocument, false, token);
-                    }
+                        foreach (var operationItem in _operations)
+                        {
+                            var operationResult = assertOperationCallback(operationItem.AsBsonDocument, false, token);
+                            if (operationResult.Exception != null)
+                            {
+                                throw operationResult.Exception;
+                            }
+                        }
 
-                    return (object)null;
-                },
-                transactionOptions: _options,
-                cancellationToken: cancellationToken);
+                        return OperationResult.Empty();
+                    },
+                    transactionOptions: _options,
+                    cancellationToken: cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult.FromException(exception);
+            }
         }
 
-        public async Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> assertOperationCallback, CancellationToken cancellationToken)
+        public async Task<OperationResult> ExecuteAsync(Func<BsonDocument, bool, CancellationToken, OperationResult> assertOperationCallback, CancellationToken cancellationToken)
         {
-            await _session.WithTransactionAsync(
-                callbackAsync: (session, token) =>
-                {
-                    foreach (var operationItem in _operations)
+            try
+            {
+                return await _session.WithTransactionAsync(
+                    callbackAsync: (session, token) =>
                     {
-                        assertOperationCallback(operationItem.AsBsonDocument, true, token);
-                    }
+                        foreach (var operationItem in _operations)
+                        {
+                            var operationResult = assertOperationCallback(operationItem.AsBsonDocument, true, token);
+                            if (operationResult.Exception != null)
+                            {
+                                throw operationResult.Exception;
+                            }
+                        }
 
-                    return Task.FromResult<object>(null);
-                },
-                transactionOptions: _options,
-                cancellationToken: cancellationToken);
+                        return Task.FromResult(OperationResult.Empty());
+                    },
+                    transactionOptions: _options,
+                    cancellationToken: cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult.FromException(exception);
+            }
         }
     }
 
@@ -91,6 +113,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     case "callback":
                         operations = argument.Value.AsBsonArray;
+                        break;
+                    case "maxCommitTimeMS":
+                        options = options ?? new TransactionOptions();
+                        options = options.With(maxCommitTime: TimeSpan.FromMilliseconds(argument.Value.AsInt32));
                         break;
                     case "readConcern":
                         options = options ?? new TransactionOptions();

@@ -26,16 +26,11 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public sealed class UnifiedTestsDiscoverer : IXunitTestCaseDiscoverer
+    public sealed class UnifiedTestsDiscoverer(IMessageSink messageSink) : IXunitTestCaseDiscoverer
     {
         private const string SpecPathPrefix = "MongoDB.Driver.Tests.Specifications";
 
-        private readonly IMessageSink _messageSink;
-
-        public UnifiedTestsDiscoverer(IMessageSink messageSink)
-        {
-            _messageSink = messageSink;
-        }
+        private readonly IMessageSink _messageSink = messageSink;
 
         public IEnumerable<IXunitTestCase> Discover(
             ITestFrameworkDiscoveryOptions discoveryOptions,
@@ -44,9 +39,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var specPath = factAttribute.GetNamedArgument<string>(nameof(UnifiedTestsTheoryAttribute.Path));
             var skipTestsProvider = factAttribute.GetNamedArgument<string>(nameof(UnifiedTestsTheoryAttribute.SkippedTestsProvider));
-            var testsToSkip = GetTestsToSkip(testMethod.TestClass.Class, skipTestsProvider);
+            var skipFilesProvider = factAttribute.GetNamedArgument<string>(nameof(UnifiedTestsTheoryAttribute.SkippedFilesProvider));
+            var testsToSkip = GetHashSetMember(testMethod.TestClass.Class, skipTestsProvider);
+            var filesToSkip = GetHashSetMember(testMethod.TestClass.Class, skipFilesProvider);
 
-            var testsFactory = new UnifiedTestCaseFactory(specPath, testsToSkip);
+            var testsFactory = new UnifiedTestCaseFactory(specPath, testsToSkip, filesToSkip);
 
             foreach (var testCaseArguments in testsFactory)
             {
@@ -57,7 +54,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     TestMethodDisplay.ClassAndMethod,
                     TestMethodDisplayOptions.None,
                     testMethod,
-                    new object[] { jsonTestCase });
+                    [jsonTestCase]);
 
                 testCase.SourceInformation = new SourceInformation()
                 {
@@ -69,29 +66,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        private HashSet<string> GetTestsToSkip(ITypeInfo testClassName, string skipTestsProvider)
+        private HashSet<string> GetHashSetMember(ITypeInfo testClassName, string memberName)
         {
-            if (skipTestsProvider == null || testClassName is not ReflectionTypeInfo reflectionTypeInfo)
+            if (memberName == null || testClassName is not ReflectionTypeInfo reflectionTypeInfo)
             {
                 return null;
             }
 
-            var provider = reflectionTypeInfo.Type.GetField(skipTestsProvider, BindingFlags.NonPublic | BindingFlags.Static);
+            var provider = reflectionTypeInfo.Type.GetField(memberName, BindingFlags.NonPublic | BindingFlags.Static);
             return provider.GetValue(null) as HashSet<string>;
         }
 
-        private sealed class UnifiedTestCaseFactory : JsonDrivenTestCaseFactory
+        private sealed class UnifiedTestCaseFactory(string path, HashSet<string> testsToSkip, HashSet<string> filesToSkip) : JsonDrivenTestCaseFactory
         {
-            private readonly HashSet<string> _testsToSkip;
-            private readonly string _path;
+            private readonly HashSet<string> _filesToSkip = filesToSkip;
+            private readonly HashSet<string> _testsToSkip = testsToSkip;
+            private readonly string _path = $"{SpecPathPrefix}.{path}.";
 
             protected override string PathPrefix => _path;
-
-            public UnifiedTestCaseFactory(string path, HashSet<string> testsToSkip)
-            {
-                _testsToSkip = testsToSkip;
-                _path = $"{SpecPathPrefix}.{path}.";
-            }
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
@@ -139,18 +131,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             protected override string GetTestCaseName(BsonDocument shared, BsonDocument test, int index) =>
                 GetTestName(test, index);
+
+            protected override bool ShouldReadJsonDocument(string path) =>
+                base.ShouldReadJsonDocument(path) &&
+                _filesToSkip?.Any(path.Contains) != true;
         }
     }
 
     [XunitTestCaseDiscoverer("MongoDB.Driver.Tests.UnifiedTestOperations.UnifiedTestsDiscoverer", "MongoDB.Driver.Tests")]
-    public class UnifiedTestsTheoryAttribute : FactAttribute
+    public class UnifiedTestsTheoryAttribute(string path) : FactAttribute
     {
-        public string Path { get; set; }
+        public string Path { get; set; } = path;
         public string SkippedTestsProvider { get; set; } = "__ignoredTests";
-
-        public UnifiedTestsTheoryAttribute(string path)
-        {
-            Path = path;
-        }
+        public string SkippedFilesProvider { get; set; } = "__ignoredTestFiles";
     }
 }

@@ -46,6 +46,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 return NewTupleExpressionToAggregationExpressionTranslator.Translate(context, expression);
             }
+            if (NewKeyValuePairExpressionToAggregationExpressionTranslator.CanTranslate(expression))
+            {
+                return NewKeyValuePairExpressionToAggregationExpressionTranslator.Translate(context, expression);
+            }
             return MemberInitExpressionToAggregationExpressionTranslator.Translate(context, expression, expression, Array.Empty<MemberBinding>());
         }
     }
