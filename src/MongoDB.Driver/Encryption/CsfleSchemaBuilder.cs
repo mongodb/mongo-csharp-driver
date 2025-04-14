@@ -159,13 +159,21 @@ namespace MongoDB.Driver.Encryption
     }
 
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="TDocument"></typeparam>
+    public abstract class SinglePropertyBuilder<TDocument> : ElementBuilder<SinglePropertyBuilder<TDocument>>
+    {
+        internal abstract BsonDocument Build(RenderArgs<TDocument> args);
+    }
 
     /// <summary>
     ///
     /// </summary>
     /// <typeparam name="TSelf"></typeparam>
     /// <typeparam name="TDocument"></typeparam>
-    public abstract class SinglePropertyBuilder<TSelf, TDocument> : ElementBuilder<SinglePropertyBuilder<TSelf, TDocument>> where TSelf : SinglePropertyBuilder<TSelf, TDocument>
+    public abstract class SinglePropertyBuilder<TSelf, TDocument> : SinglePropertyBuilder<TDocument> where TSelf : SinglePropertyBuilder<TSelf, TDocument>
     {
         private protected List<BsonType> _bsonTypes;
 
@@ -190,8 +198,6 @@ namespace MongoDB.Driver.Encryption
             _bsonTypes = [..bsonTypes];
             return (TSelf)this;
         }
-
-        internal abstract BsonDocument Build(RenderArgs<TDocument> args);
     }
 
     /// <summary>
@@ -321,7 +327,7 @@ namespace MongoDB.Driver.Encryption
     public class TypedBuilder<TDocument> : TypedBuilder
     {
         private readonly List<SubdocumentPropertyBuilder<TDocument>> _subdocumentProperties = [];
-        private readonly List<PropertyBuilder<TDocument>> _properties = [];
+        private readonly List<SinglePropertyBuilder<TDocument>> _properties = [];
         private EncryptMetadataBuilder _metadata;
 
         /// <summary>
