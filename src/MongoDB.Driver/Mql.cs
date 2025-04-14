@@ -17,6 +17,7 @@ using System;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -45,6 +46,20 @@ namespace MongoDB.Driver
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <returns>The value</returns>
         public static TValue Constant<TValue>(TValue value, BsonType representaion)
+        {
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+        }
+
+        /// <summary>
+        /// Converts a value from one type to another using the $convert aggregation operator.
+        /// </summary>
+        /// <typeparam name="TFrom">The type of the input value.</typeparam>
+        /// <typeparam name="TTo">The type of the output value.</typeparam>
+        /// <param name="value">The value to convert.</param>
+        /// <param name="options">The conversion options.</param>
+        /// <returns>The converted value.</returns>
+        /// <remarks>Not all conversions are supported by the $convert operator.</remarks>
+        public static TTo Convert<TFrom, TTo>(TFrom value, ConvertOptions<TTo> options)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }

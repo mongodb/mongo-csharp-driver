@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         // private static fields
         private static readonly MethodInfo __constantWithRepresentation;
         private static readonly MethodInfo __constantWithSerializer;
+        private static readonly MethodInfo __convert;
         private static readonly MethodInfo __dateFromString;
         private static readonly MethodInfo __dateFromStringWithFormat;
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezone;
@@ -40,6 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         {
             __constantWithRepresentation = ReflectionInfo.Method((object value, BsonType representation) => Mql.Constant(value, representation));
             __constantWithSerializer = ReflectionInfo.Method((object value, IBsonSerializer<object> serializer) => Mql.Constant(value, serializer));
+            __convert = ReflectionInfo.Method((object value, ConvertOptions<object> options) => Mql.Convert(value, options));
             __dateFromString = ReflectionInfo.Method((string dateStringl) => Mql.DateFromString(dateStringl));
             __dateFromStringWithFormat = ReflectionInfo.Method((string dateString, string format) => Mql.DateFromString(dateString, format));
             __dateFromStringWithFormatAndTimezone = ReflectionInfo.Method((string dateString, string format, string timezone) => Mql.DateFromString(dateString, format, timezone));
@@ -54,6 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         // public properties
         public static MethodInfo ConstantWithRepresentation => __constantWithRepresentation;
         public static MethodInfo ConstantWithSerializer => __constantWithSerializer;
+        public static MethodInfo Convert => __convert;
         public static MethodInfo DateFromString => __dateFromString;
         public static MethodInfo DateFromStringWithFormat => __dateFromStringWithFormat;
         public static MethodInfo DateFromStringWithFormatAndTimezone => __dateFromStringWithFormatAndTimezone;

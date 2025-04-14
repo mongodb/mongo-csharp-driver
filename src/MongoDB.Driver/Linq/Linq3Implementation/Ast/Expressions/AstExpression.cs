@@ -255,14 +255,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstConstantExpression(value);
         }
 
-        public static AstExpression Convert(AstExpression input, AstExpression to, AstExpression onError = null, AstExpression onNull = null)
+        public static AstExpression Convert(
+            AstExpression input,
+            AstExpression to,
+            BsonBinarySubType? subType = null,
+            ByteOrder? byteOrder = null,
+            string format = null,
+            AstExpression onError = null,
+            AstExpression onNull = null)
         {
             Ensure.IsNotNull(input, nameof(input));
             Ensure.IsNotNull(to, nameof(to));
 
             if (to is AstConstantExpression toConstantExpression &&
-                (toConstantExpression.Value as BsonString)?.Value is string toValue &&
-                toValue != null &&
+                (toConstantExpression.Value as BsonString)?.Value is { } toValue &&
+                subType == null &&
+                byteOrder == null &&
+                format == null &&
                 onError == null &&
                 onNull == null)
             {
@@ -278,13 +287,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                     "string" => AstUnaryOperator.ToString,
                     _ => (AstUnaryOperator?)null
                 };
+
                 if (unaryOperator.HasValue)
                 {
                     return AstExpression.Unary(unaryOperator.Value, input);
                 }
             }
 
-            return new AstConvertExpression(input, to, onError, onNull);
+            return new AstConvertExpression(input, to, subType, byteOrder, format, onError, onNull);
         }
 
         public static AstExpression DateAdd(
