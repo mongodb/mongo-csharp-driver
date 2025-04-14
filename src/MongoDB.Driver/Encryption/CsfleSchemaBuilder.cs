@@ -70,8 +70,8 @@ namespace MongoDB.Driver.Encryption
     /// <typeparam name="TSelf"></typeparam>
     public class ElementBuilder<TSelf> where TSelf : ElementBuilder<TSelf>
     {
-        internal CsfleEncryptionAlgorithm? _algorithm;  //TODO These should be protected as well
-        internal Guid? _keyId;
+        private protected CsfleEncryptionAlgorithm? _algorithm;
+        private protected Guid? _keyId;
 
         /// <summary>
         ///
@@ -161,11 +161,41 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     ///
     /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class SinglePropertyBuilder<T> : ElementBuilder<SinglePropertyBuilder<T>> where T : SinglePropertyBuilder<T>
+    {
+        private protected List<BsonType> _bsonTypes;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="bsonType"></param>
+        /// <returns></returns>
+        public T WithBsonType(BsonType bsonType)
+        {
+            _bsonTypes = [bsonType];
+            return (T)this;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="bsonTypes"></param>
+        /// <returns></returns>
+        public T WithBsonTypes(IEnumerable<BsonType> bsonTypes)
+        {
+            _bsonTypes = [..bsonTypes];
+            return (T)this;
+        }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
     /// <typeparam name="TDocument"></typeparam>
-    public class PropertyBuilder<TDocument> : ElementBuilder<PropertyBuilder<TDocument>>  //TODO Maybe we can have a common class for this and patternPropertyBuilder
+    public class PropertyBuilder<TDocument> : SinglePropertyBuilder<PropertyBuilder<TDocument>>
     {
         private readonly FieldDefinition<TDocument> _path;
-        private List<BsonType> _bsonTypes;
 
         /// <summary>
         ///
@@ -174,28 +204,6 @@ namespace MongoDB.Driver.Encryption
         public PropertyBuilder(FieldDefinition<TDocument> path)
         {
             _path = path;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="bsonType"></param>
-        /// <returns></returns>
-        public PropertyBuilder<TDocument> WithBsonType(BsonType bsonType)
-        {
-            _bsonTypes = [bsonType];
-            return this;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="bsonTypes"></param>
-        /// <returns></returns>
-        public PropertyBuilder<TDocument> WithBsonTypes(IEnumerable<BsonType> bsonTypes)
-        {
-            _bsonTypes = [..bsonTypes];
-            return this;
         }
 
         internal BsonDocument Build(RenderArgs<TDocument> args)
@@ -208,10 +216,9 @@ namespace MongoDB.Driver.Encryption
     ///
     /// </summary>
     /// <typeparam name="TDocument"></typeparam>
-    public class PatternPropertyBuilder<TDocument> : ElementBuilder<PropertyBuilder<TDocument>>
+    public class PatternPropertyBuilder<TDocument> : SinglePropertyBuilder<PatternPropertyBuilder<TDocument>>
     {
         private readonly string _pattern;
-        private List<BsonType> _bsonTypes;
 
         /// <summary>
         ///
@@ -220,28 +227,6 @@ namespace MongoDB.Driver.Encryption
         public PatternPropertyBuilder(string pattern)
         {
             _pattern = pattern;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="bsonType"></param>
-        /// <returns></returns>
-        public PatternPropertyBuilder<TDocument> WithBsonType(BsonType bsonType)
-        {
-            _bsonTypes = [bsonType];
-            return this;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="bsonTypes"></param>
-        /// <returns></returns>
-        public PatternPropertyBuilder<TDocument> WithBsonTypes(IEnumerable<BsonType> bsonTypes)
-        {
-            _bsonTypes = [..bsonTypes];
-            return this;
         }
 
         internal BsonDocument Build(RenderArgs<TDocument> args)
@@ -286,7 +271,6 @@ namespace MongoDB.Driver.Encryption
             return new BsonDocument(_path.Render(args).FieldName, fieldBuilder.Build());
         }
     }
-
 
     /// <summary>
     ///
