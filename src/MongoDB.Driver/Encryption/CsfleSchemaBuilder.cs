@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     ///
     /// </summary>
-    public abstract class SubdocumentPropertyBuilder<TDocument>
+    public abstract class NestedPropertyBuilderBase<TDocument>
     {
         internal abstract BsonDocument Build(RenderArgs<TDocument> args);
     }
@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Encryption
     /// </summary>
     /// <typeparam name="TDocument"></typeparam>
     /// <typeparam name="TField"></typeparam>
-    public class NestedPropertyBuilder<TDocument, TField> : SubdocumentPropertyBuilder<TDocument>
+    public class NestedPropertyBuilder<TDocument, TField> : NestedPropertyBuilderBase<TDocument>
     {
         private readonly FieldDefinition<TDocument> _path;
         private readonly Action<TypedBuilder<TField>> _configure;
@@ -290,9 +290,17 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     ///
     /// </summary>
+    public abstract class NestedPatternPropertyBuilderBase<TDocument>
+    {
+        internal abstract BsonDocument Build(RenderArgs<TDocument> args);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
     /// <typeparam name="TDocument"></typeparam>
     /// <typeparam name="TField"></typeparam>
-    public class NestedPatternPropertyBuilder<TDocument, TField> : SubdocumentPropertyBuilder<TDocument>
+    public class NestedPatternPropertyBuilder<TDocument, TField> : NestedPatternPropertyBuilderBase<TDocument>
     {
         private readonly FieldDefinition<TDocument> _path;
         private readonly Action<TypedBuilder<TField>> _configure;
@@ -330,7 +338,8 @@ namespace MongoDB.Driver.Encryption
     /// <typeparam name="TDocument"></typeparam>
     public class TypedBuilder<TDocument> : TypedBuilder
     {
-        private readonly List<SubdocumentPropertyBuilder<TDocument>> _subdocumentProperties = [];
+        private readonly List<NestedPropertyBuilderBase<TDocument>> _nestedProperties = [];
+        private readonly List<NestedPatternPropertyBuilderBase<TDocument>> _nestedPatternProperties = [];
         private readonly List<PropertyBuilder<TDocument>> _properties = [];
         private readonly List<PatternPropertyBuilder<TDocument>> _patternProperties = [];
         private EncryptMetadataBuilder _metadata;
@@ -388,7 +397,7 @@ namespace MongoDB.Driver.Encryption
         public NestedPropertyBuilder<TDocument, TField> NestedProperty<TField>(FieldDefinition<TDocument> path, Action<TypedBuilder<TField>> configure)
         {
             var nestedProperty = new NestedPropertyBuilder<TDocument,TField>(path, configure);
-            _subdocumentProperties.Add(nestedProperty);
+            _nestedProperties.Add(nestedProperty);
             return nestedProperty;
         }
 
@@ -412,7 +421,7 @@ namespace MongoDB.Driver.Encryption
         public NestedPatternPropertyBuilder<TDocument, TField> NestedPatternProperty<TField>(string pattern, Action<TypedBuilder<TField>> configure)
         {
             var nestedProperty = new NestedPatternPropertyBuilder<TDocument,TField>(pattern, configure);
-            _subdocumentProperties.Add(nestedProperty);
+            _nestedPatternProperties.Add(nestedProperty);
             return nestedProperty;
         }
 
@@ -429,16 +438,7 @@ namespace MongoDB.Driver.Encryption
 
 
             BsonDocument properties = null;
-
-            if (_subdocumentProperties.Any())
-            {
-                properties = new BsonDocument();
-
-                foreach (var nestedProperty in _subdocumentProperties)
-                {
-                    properties.Merge(nestedProperty.Build(args));
-                }
-            }
+            BsonDocument patternProperties = null;
 
             if (_properties.Any())
             {
@@ -450,9 +450,44 @@ namespace MongoDB.Driver.Encryption
                 }
             }
 
+            if (_nestedProperties.Any())
+            {
+                properties ??= new BsonDocument();
+
+                foreach (var nestedProperty in _nestedProperties)
+                {
+                    properties.Merge(nestedProperty.Build(args));
+                }
+            }
+
+            if (_patternProperties.Any())
+            {
+                patternProperties ??= new BsonDocument();
+
+                foreach (var patternProperty in _patternProperties)
+                {
+                    patternProperties.Merge(patternProperty.Build(args));
+                }
+            }
+
+            if (_nestedPatternProperties.Any())
+            {
+                patternProperties ??= new BsonDocument();
+
+                foreach (var nestedPatternProperty in _nestedPatternProperties)
+                {
+                    patternProperties.Merge(nestedPatternProperty.Build(args));
+                }
+            }
+
             if (properties != null)
             {
                 schema.Add("properties", properties);
+            }
+
+            if (patternProperties != null)
+            {
+                schema.Add("patternProperties", patternProperties);
             }
 
             return schema;
