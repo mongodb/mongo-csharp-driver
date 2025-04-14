@@ -158,11 +158,14 @@ namespace MongoDB.Driver.Encryption
         internal BsonDocument Build() => new("encryptMetadata", GetEncryptBsonDocument(_keyId, _algorithm, null));
     }
 
+
+
     /// <summary>
     ///
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class SinglePropertyBuilder<T> : ElementBuilder<SinglePropertyBuilder<T>> where T : SinglePropertyBuilder<T>
+    /// <typeparam name="TSelf"></typeparam>
+    /// <typeparam name="TDocument"></typeparam>
+    public abstract class SinglePropertyBuilder<TSelf, TDocument> : ElementBuilder<SinglePropertyBuilder<TSelf, TDocument>> where TSelf : SinglePropertyBuilder<TSelf, TDocument>
     {
         private protected List<BsonType> _bsonTypes;
 
@@ -171,10 +174,10 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <param name="bsonType"></param>
         /// <returns></returns>
-        public T WithBsonType(BsonType bsonType)
+        public TSelf WithBsonType(BsonType bsonType)
         {
             _bsonTypes = [bsonType];
-            return (T)this;
+            return (TSelf)this;
         }
 
         /// <summary>
@@ -182,18 +185,20 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <param name="bsonTypes"></param>
         /// <returns></returns>
-        public T WithBsonTypes(IEnumerable<BsonType> bsonTypes)
+        public TSelf WithBsonTypes(IEnumerable<BsonType> bsonTypes)
         {
             _bsonTypes = [..bsonTypes];
-            return (T)this;
+            return (TSelf)this;
         }
+
+        internal abstract BsonDocument Build(RenderArgs<TDocument> args);
     }
 
     /// <summary>
     ///
     /// </summary>
     /// <typeparam name="TDocument"></typeparam>
-    public class PropertyBuilder<TDocument> : SinglePropertyBuilder<PropertyBuilder<TDocument>>
+    public class PropertyBuilder<TDocument> : SinglePropertyBuilder<PropertyBuilder<TDocument>, TDocument>
     {
         private readonly FieldDefinition<TDocument> _path;
 
@@ -206,7 +211,7 @@ namespace MongoDB.Driver.Encryption
             _path = path;
         }
 
-        internal BsonDocument Build(RenderArgs<TDocument> args)
+        internal override BsonDocument Build(RenderArgs<TDocument> args)
         {
             return new BsonDocument(_path.Render(args).FieldName, new BsonDocument("encrypt", GetEncryptBsonDocument(_keyId, _algorithm, _bsonTypes)));
         }
@@ -216,7 +221,7 @@ namespace MongoDB.Driver.Encryption
     ///
     /// </summary>
     /// <typeparam name="TDocument"></typeparam>
-    public class PatternPropertyBuilder<TDocument> : SinglePropertyBuilder<PatternPropertyBuilder<TDocument>>
+    public class PatternPropertyBuilder<TDocument> : SinglePropertyBuilder<PatternPropertyBuilder<TDocument>, TDocument>
     {
         private readonly string _pattern;
 
@@ -229,7 +234,7 @@ namespace MongoDB.Driver.Encryption
             _pattern = pattern;
         }
 
-        internal BsonDocument Build(RenderArgs<TDocument> args)
+        internal override BsonDocument Build(RenderArgs<TDocument> args)
         {
             return new BsonDocument(_pattern, new BsonDocument("encrypt", GetEncryptBsonDocument(_keyId, _algorithm, _bsonTypes)));
         }
@@ -238,7 +243,7 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     ///
     /// </summary>
-    public abstract class NestedPropertyBuilder<TDocument>
+    public abstract class SubdocumentPropertyBuilder<TDocument>
     {
         internal abstract BsonDocument Build(RenderArgs<TDocument> args);
     }
@@ -248,7 +253,7 @@ namespace MongoDB.Driver.Encryption
     /// </summary>
     /// <typeparam name="TDocument"></typeparam>
     /// <typeparam name="TField"></typeparam>
-    public class NestedPropertyBuilder<TDocument, TField> : NestedPropertyBuilder<TDocument>
+    public class NestedPropertyBuilder<TDocument, TField> : SubdocumentPropertyBuilder<TDocument>
     {
         private readonly FieldDefinition<TDocument> _path;
         private readonly Action<TypedBuilder<TField>> _configure;
@@ -275,17 +280,9 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     ///
     /// </summary>
-    public abstract class NestedPatternPropertyBuilder<TDocument>
-    {
-        internal abstract BsonDocument Build(RenderArgs<TDocument> args);
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
     /// <typeparam name="TDocument"></typeparam>
     /// <typeparam name="TField"></typeparam>
-    public class NestedPatternPropertyBuilder<TDocument, TField> : NestedPatternPropertyBuilder<TDocument>
+    public class NestedPatternPropertyBuilder<TDocument, TField> : SubdocumentPropertyBuilder<TDocument>
     {
         private readonly FieldDefinition<TDocument> _path;
         private readonly Action<TypedBuilder<TField>> _configure;
@@ -309,7 +306,6 @@ namespace MongoDB.Driver.Encryption
         }
     }
 
-
     /// <summary>
     ///
     /// </summary>
@@ -324,7 +320,7 @@ namespace MongoDB.Driver.Encryption
     /// <typeparam name="TDocument"></typeparam>
     public class TypedBuilder<TDocument> : TypedBuilder
     {
-        private readonly List<NestedPropertyBuilder<TDocument>> _nestedProperties = [];
+        private readonly List<SubdocumentPropertyBuilder<TDocument>> _subdocumentProperties = [];
         private readonly List<PropertyBuilder<TDocument>> _properties = [];
         private EncryptMetadataBuilder _metadata;
 
@@ -363,13 +359,25 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         ///
         /// </summary>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        public PatternPropertyBuilder<TDocument> PatternProperty(string pattern)
+        {
+            var property = new PatternPropertyBuilder<TDocument>(pattern);
+            _properties.Add(property);
+            return property;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
         /// <param name="path"></param>
         /// <param name="configure"></param>
         /// <returns></returns>
         public NestedPropertyBuilder<TDocument, TField> NestedProperty<TField>(FieldDefinition<TDocument> path, Action<TypedBuilder<TField>> configure)
         {
             var nestedProperty = new NestedPropertyBuilder<TDocument,TField>(path, configure);
-            _nestedProperties.Add(nestedProperty);
+            _subdocumentProperties.Add(nestedProperty);
             return nestedProperty;
         }
 
@@ -382,6 +390,19 @@ namespace MongoDB.Driver.Encryption
         public NestedPropertyBuilder<TDocument, TField> NestedProperty<TField>(Expression<Func<TDocument, TField>> path, Action<TypedBuilder<TField>> configure)
         {
             return NestedProperty(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <param name="configure"></param>
+        /// <returns></returns>
+        public NestedPatternPropertyBuilder<TDocument, TField> NestedPatternProperty<TField>(string pattern, Action<TypedBuilder<TField>> configure)
+        {
+            var nestedProperty = new NestedPatternPropertyBuilder<TDocument,TField>(pattern, configure);
+            _subdocumentProperties.Add(nestedProperty);
+            return nestedProperty;
         }
 
         internal override BsonDocument Build()
@@ -398,11 +419,11 @@ namespace MongoDB.Driver.Encryption
 
             BsonDocument properties = null;
 
-            if (_nestedProperties.Any())
+            if (_subdocumentProperties.Any())
             {
                 properties = new BsonDocument();
 
-                foreach (var nestedProperty in _nestedProperties)
+                foreach (var nestedProperty in _subdocumentProperties)
                 {
                     properties.Merge(nestedProperty.Build(args));
                 }
