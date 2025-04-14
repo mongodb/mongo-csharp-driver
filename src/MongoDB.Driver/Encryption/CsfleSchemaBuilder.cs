@@ -171,9 +171,11 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     ///
     /// </summary>
-    /// <typeparam name="TSelf"></typeparam>
+    /// <typeparam name="TBuilder"></typeparam>
     /// <typeparam name="TDocument"></typeparam>
-    public abstract class SinglePropertyBuilder<TSelf, TDocument> : SinglePropertyBuilder<TDocument> where TSelf : SinglePropertyBuilder<TSelf, TDocument>
+    public abstract class SinglePropertyBuilder<TBuilder, TDocument>
+        : ElementBuilder<TBuilder>
+        where TBuilder : SinglePropertyBuilder<TBuilder, TDocument>
     {
         private protected List<BsonType> _bsonTypes;
 
@@ -182,10 +184,10 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <param name="bsonType"></param>
         /// <returns></returns>
-        public TSelf WithBsonType(BsonType bsonType)
+        public TBuilder WithBsonType(BsonType bsonType)
         {
             _bsonTypes = [bsonType];
-            return (TSelf)this;
+            return (TBuilder)this;
         }
 
         /// <summary>
@@ -193,11 +195,13 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <param name="bsonTypes"></param>
         /// <returns></returns>
-        public TSelf WithBsonTypes(IEnumerable<BsonType> bsonTypes)
+        public TBuilder WithBsonTypes(IEnumerable<BsonType> bsonTypes)
         {
             _bsonTypes = [..bsonTypes];
-            return (TSelf)this;
+            return (TBuilder)this;
         }
+
+        internal abstract BsonDocument Build(RenderArgs<TDocument> args);
     }
 
     /// <summary>
@@ -327,7 +331,8 @@ namespace MongoDB.Driver.Encryption
     public class TypedBuilder<TDocument> : TypedBuilder
     {
         private readonly List<SubdocumentPropertyBuilder<TDocument>> _subdocumentProperties = [];
-        private readonly List<SinglePropertyBuilder<TDocument>> _properties = [];
+        private readonly List<PropertyBuilder<TDocument>> _properties = [];
+        private readonly List<PatternPropertyBuilder<TDocument>> _patternProperties = [];
         private EncryptMetadataBuilder _metadata;
 
         /// <summary>
@@ -370,7 +375,7 @@ namespace MongoDB.Driver.Encryption
         public PatternPropertyBuilder<TDocument> PatternProperty(string pattern)
         {
             var property = new PatternPropertyBuilder<TDocument>(pattern);
-            _properties.Add(property);
+            _patternProperties.Add(property);
             return property;
         }
 
