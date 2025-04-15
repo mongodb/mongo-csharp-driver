@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -454,7 +455,41 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 }
             }
 
+            if (node.In is AstComputedDocumentExpression inComputedDocumentExpression &&
+                inComputedDocumentExpression.Fields.All(f => f.Value is AstGetFieldExpression getFieldExpression && getFieldExpression.Input == node.As && getFieldExpression.CanBeConvertedToFieldPath()))
+            {
+
+                // { $map : { input : { $map : { input : <input>, as : "y", in : { A : "$$y.FieldA" } } }, as: "v", in : { B : '$$v.A' } } } => { $map : { input : <input>, as: "v", in : { B : "$$v.FieldA" } } }
+                if (node.Input is AstMapExpression inputMapExpression &&
+                    inputMapExpression.In is AstComputedDocumentExpression innerInComputedDocumentExpression)
+                {
+                    var simplified = AstExpression.Map(
+                        inputMapExpression.Input,
+                        inputMapExpression.As,
+                        AstExpression.ComputedDocument(inComputedDocumentExpression.Fields.Select(f => RemapField(f, node.As.Name, innerInComputedDocumentExpression.Fields))));
+
+                    return Visit(simplified);
+                }
+
+                // { $map : { input : [{ A: "$$ROOT.FieldA" }], as : "v", in: { B : "$$v.A" } } } => [{ B : "$FieldA }]
+                if (node.Input is AstComputedArrayExpression inputArrayExpression &&
+                    inputArrayExpression.Items.All(i => i is AstComputedDocumentExpression))
+                {
+                    var simplified = AstExpression.ComputedArray(inputArrayExpression.Items.Select(i =>
+                        AstExpression.ComputedDocument(inComputedDocumentExpression.Fields.Select(f => RemapField(f, node.As.Name, ((AstComputedDocumentExpression)i).Fields)))));
+                    return Visit(simplified);
+                }
+            }
+
             return base.VisitMapExpression(node);
+
+            static AstComputedField RemapField(AstComputedField field, string @as, IEnumerable<AstComputedField> innerFields)
+            {
+                var fieldPath = ((AstGetFieldExpression)field.Value).ConvertToFieldPath().Replace($"$${@as}.", string.Empty);
+                var innerField = innerFields.Single(f => f.Path == fieldPath);
+
+                return AstExpression.ComputedField(field.Path, innerField.Value);
+            }
 
             static AstExpression UltimateGetFieldInput(AstGetFieldExpression getField)
             {
@@ -574,7 +609,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 return AstExpression.Binary(oppositeComparisonOperator, argBinaryExpression.Arg1, argBinaryExpression.Arg2);
             }
 
+            // { $arrayToObject : [[{ k : 'A', v : '$A' }, { k : 'B', v : '$B' }]] } => { A : '$A', B : '$B' }
+            if (node.Operator is AstUnaryOperator.ArrayToObject &&
+                arg is AstComputedArrayExpression computedArrayExpression &&
+                computedArrayExpression.Items.All(
+                    i => i is AstComputedDocumentExpression computedDocumentExpression &&
+                    computedDocumentExpression.Fields.FirstOrDefault(f => f.Path == "k")?.Value is AstConstantExpression &&
+                    computedDocumentExpression.Fields.Any(f => f.Path == "v"))
+               )
+            {
+                var fields = computedArrayExpression.Items.Select(KeyValuePairDocumentToComputedField);
+                return AstExpression.ComputedDocument(fields);
+            }
+
             return node.Update(arg);
+
+            static AstComputedField KeyValuePairDocumentToComputedField(AstExpression expression)
+            {
+                var documentExpression = (AstComputedDocumentExpression)expression;
+                var keyExpression = documentExpression.Fields.First(f => f.Path == "k").Value;
+                var valueExpression = documentExpression.Fields.First(f => f.Path == "v").Value;
+
+                return AstExpression.ComputedField(((AstConstantExpression)keyExpression).Value.AsString, valueExpression);
+            }
         }
     }
 }
