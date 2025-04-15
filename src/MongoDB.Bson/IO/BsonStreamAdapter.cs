@@ -495,9 +495,8 @@ namespace MongoDB.Bson.IO
         public override void WriteDouble(double value)
         {
             ThrowIfDisposed();
-            var bytes = new byte[8];
-            BinaryPrimitivesCompat.WriteDoubleLittleEndian(bytes, value);
-            _stream.Write(bytes, 0, 8);
+            BinaryPrimitivesCompat.WriteDoubleLittleEndian(_temp, value);
+            _stream.Write(_temp, 0, 8);
         }
 
         /// <inheritdoc/>
@@ -515,9 +514,8 @@ namespace MongoDB.Bson.IO
         public override void WriteInt64(long value)
         {
             ThrowIfDisposed();
-            var bytes = new byte[8];
-            BinaryPrimitives.WriteInt64LittleEndian(bytes, value);
-            _stream.Write(bytes, 0, 8);
+            BinaryPrimitives.WriteInt64LittleEndian(_temp, value);
+            _stream.Write(_temp, 0, 8);
         }
 
         /// <inheritdoc/>
