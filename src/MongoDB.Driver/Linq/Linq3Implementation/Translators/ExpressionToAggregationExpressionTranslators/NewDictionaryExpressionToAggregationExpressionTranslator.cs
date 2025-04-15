@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer valueSerializer = null;
                 AstExpression collectionTranslationAst;
 
-                if (itemSerializationInfo.Serializer is IRepresentationConfigurable { Representation: BsonType.Array })
+                if (itemSerializationInfo.Serializer is IKeyValuePairSerializer { Representation: BsonType.Array })
                 {
                     collectionTranslationAst = collectionTranslation.Ast;
                 }
