@@ -484,6 +484,15 @@ namespace MongoDB.Bson.IO
         }
 
         /// <inheritdoc/>
+        public override void WriteCStringBytes(ArraySegment<byte> value)
+        {
+            ThrowIfDisposed();
+
+            this.WriteBytes(value.Array, value.Offset, value.Count);
+            WriteByte(0);
+        }
+
+        /// <inheritdoc/>
         public override void WriteDecimal128(Decimal128 value)
         {
             ThrowIfDisposed();

@@ -101,6 +101,12 @@ namespace MongoDB.Bson.IO
         public abstract void WriteCStringBytes(byte[] value);
 
         /// <summary>
+        /// Writes the CString bytes to the stream.
+        /// </summary>
+        /// <param name="value"></param>
+        public abstract void WriteCStringBytes(ArraySegment<byte> value);
+
+        /// <summary>
         /// Writes a BSON Decimal128 to the stream.
         /// </summary>
         /// <param name="value">The value.</param>
