@@ -110,11 +110,14 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceType = typeof(TInterface);
             _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention();
-            _objectSerializer = objectSerializer ?? new ObjectSerializer(allowedTypes: type => typeof(TInterface).IsAssignableFrom(type));
 
+           _objectSerializer = objectSerializer ?? BsonSerializer.LookupSerializer<object>();
             if (_objectSerializer is ObjectSerializer standardObjectSerializer)
             {
-                _objectSerializer = standardObjectSerializer.WithDiscriminatorConvention(_discriminatorConvention);
+                Func<Type, bool> allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);
+                _objectSerializer = standardObjectSerializer
+                    .WithDiscriminatorConvention(_discriminatorConvention)
+                    .WithAllowedTypes(allowedTypes, allowedTypes);
             }
             else
             {
