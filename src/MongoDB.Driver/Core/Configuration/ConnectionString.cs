@@ -684,7 +684,7 @@ namespace MongoDB.Driver.Core.Configuration
                 .AllKeys
                 .SelectMany(key => resolvedOptions
                     .GetValues(key)
-                    .Select(value => $"{key}={Uri.EscapeDataString(value)}")));
+                    .Select(value => $"{key}={EscapeOptionValue(key, value)}")));
 
             if (mergedOptions.Count > 0)
             {
@@ -692,6 +692,10 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             return new ConnectionString(connectionString, isResolved: true);
+
+            string EscapeOptionValue(string key, string value)
+                => string.Equals(key, "authmechanismproperties", StringComparison.OrdinalIgnoreCase) ? value : Uri.EscapeDataString(value);
+
         }
 
         private void ExtractScheme(Match match)
@@ -758,7 +762,13 @@ namespace MongoDB.Driver.Core.Configuration
                 var parts = option.Value.Split('=');
                 var name = parts[0].Trim();
                 var value = parts[1].Trim();
-                _allOptions.Add(name, Uri.UnescapeDataString(value));
+                // Should not decode authmechanismproperties before splitting by separator.
+                if (!string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = Uri.UnescapeDataString(value);
+                }
+
+                _allOptions.Add(name, value);
                 ParseOption(name, value);
             }
         }
@@ -902,12 +912,6 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ParseOption(string name, string value)
         {
-            // Should not decode authmechanismproperties before splitting by separator.
-            if (!string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
-            {
-                value = Uri.UnescapeDataString(value);
-            }
-
             switch (name.ToLowerInvariant())
             {
                 case "appname":
