@@ -572,7 +572,7 @@ namespace MongoDB.Bson.IO
             {
                 // Compare to 128 to preserve original behavior
                 const int maxLengthToUseCStringUtf8EncodingWith = 128;
-          
+
                 if (maxLength <= maxLengthToUseCStringUtf8EncodingWith)
                 {
                     using var rentedBuffer = ThreadStaticBuffer.RentBuffer(maxLengthToUseCStringUtf8EncodingWith);
@@ -618,6 +618,21 @@ namespace MongoDB.Bson.IO
             PrepareToWrite(length + 1);
 
             _buffer.SetBytes(_position, value, 0, length);
+            _buffer.SetByte(_position + length, 0);
+
+            SetPositionAfterWrite(_position + length + 1);
+        }
+
+        /// <inheritdoc/>
+        public override void WriteCStringBytes(ArraySegment<byte> value)
+        {
+            ThrowIfDisposed();
+
+            var length = value.Count;
+
+            PrepareToWrite(length + 1);
+
+            _buffer.SetBytes(_position, value.Array, value.Offset, length);
             _buffer.SetByte(_position + length, 0);
 
             SetPositionAfterWrite(_position + length + 1);

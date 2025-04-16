@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IO;
 
@@ -29,6 +30,7 @@ namespace MongoDB.Bson.IO
         private readonly Stream _baseStream;
 #pragma warning restore CA2213 // Disposable never disposed
         private readonly BsonStream _bsonStream;
+        private readonly byte[] _temp10Bytes = new byte[10];
         private BsonBinaryWriterContext _context;
 
         // constructors
@@ -719,8 +721,8 @@ namespace MongoDB.Bson.IO
             if (_context.ContextType == ContextType.Array)
             {
                 var index = _context.Index++;
-                var nameBytes = ArrayElementNameAccelerator.Default.GetElementNameBytes(index);
-                _bsonStream.WriteCStringBytes(nameBytes);
+                Utf8Formatter.TryFormat(index, _temp10Bytes.AsSpan(), out var bytesWritten);
+                _bsonStream.WriteCStringBytes(new ArraySegment<byte>(_temp10Bytes, 0, bytesWritten));
             }
             else
             {

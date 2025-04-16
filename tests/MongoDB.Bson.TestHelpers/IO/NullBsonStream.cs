@@ -158,6 +158,11 @@ namespace MongoDB.Bson.TestHelpers.IO
             Position += value.Length + 1;
         }
 
+        public override void WriteCStringBytes(ArraySegment<byte> value)
+        {
+            Position += value.Count + 1;
+        }
+
         public override void WriteDecimal128(Decimal128 value)
         {
             Position += 16;
