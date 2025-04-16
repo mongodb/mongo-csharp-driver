@@ -16,6 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Search
 {
@@ -104,10 +105,25 @@ namespace MongoDB.Driver.Search
         /// <param name="args">The render arguments.</param>
         /// <returns>The rendered field.</returns>
         protected string RenderField(FieldDefinition<TDocument> fieldDefinition, RenderArgs<TDocument> args)
+            => RenderField(fieldDefinition, args, out _);
+
+        internal virtual BsonValue RenderAndGetFieldSerializer(
+            RenderArgs<TDocument> args,
+            out IBsonSerializer fieldSerializer)
+        {
+            fieldSerializer = null;
+            return Render(args);
+        }
+
+        internal string RenderField(
+            FieldDefinition<TDocument> fieldDefinition,
+            RenderArgs<TDocument> args,
+            out IBsonSerializer fieldSerializer)
         {
             var renderedField = fieldDefinition.Render(args);
             var prefix = args.PathRenderArgs.PathPrefix;
 
+            fieldSerializer = renderedField.FieldSerializer;
             return prefix == null ? renderedField.FieldName : $"{prefix}.{renderedField.FieldName}";
         }
     }

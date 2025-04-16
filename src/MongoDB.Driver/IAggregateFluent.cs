@@ -404,7 +404,6 @@ namespace MongoDB.Driver
         IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output);
 
-        //TODO If I add a parameter here, then this would be a binary breaking change
         /// <summary>
         /// Appends a $search stage to the pipeline.
         /// </summary>
