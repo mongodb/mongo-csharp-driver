@@ -926,7 +926,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _authMechanism = value;
                     break;
                 case "authmechanismproperties":
-                    foreach (var property in GetAuthMechanismProperties(name, value, _isInternalRepresentation))
+                    foreach (var property in GetAuthMechanismProperties(name, value))
                     {
                         _authMechanismProperties.Add(property.Key, property.Value);
                     }
@@ -1129,19 +1129,11 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // private static methods
-        private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value, bool isEscaped = false)
+        private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
         {
-            if (isEscaped)
+            foreach (var property in value.Split(','))
             {
-                value = Uri.UnescapeDataString(value);
-            }
-
-            // The regex splits at commas that are followed by a word and a colon
-            var parts = isEscaped ? Regex.Split(value, @",(?=\w+:)") : value.Split(',');
-
-            foreach (var part in parts)
-            {
-                var unescapedProperty = isEscaped ? part : Uri.UnescapeDataString(part);
+                var unescapedProperty = Uri.UnescapeDataString(property);
                 var separatorPosition = unescapedProperty.IndexOf(':');
                 if (separatorPosition == -1)
                 {
