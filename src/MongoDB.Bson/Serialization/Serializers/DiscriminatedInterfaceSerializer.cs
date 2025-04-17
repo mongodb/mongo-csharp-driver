@@ -110,24 +110,25 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceType = typeof(TInterface);
             _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention();
+            _interfaceSerializer = interfaceSerializer;
 
-           _objectSerializer = objectSerializer ?? BsonSerializer.LookupSerializer<object>();
-            if (_objectSerializer is ObjectSerializer standardObjectSerializer)
+            if (objectSerializer == null)
             {
-                Func<Type, bool> allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);
-                _objectSerializer = standardObjectSerializer
-                    .WithDiscriminatorConvention(_discriminatorConvention)
-                    .WithAllowedTypes(allowedTypes, allowedTypes);
-            }
-            else
-            {
-                if (discriminatorConvention != null)
+                objectSerializer = BsonSerializer.LookupSerializer<object>();
+                if (objectSerializer is ObjectSerializer standardObjectSerializer)
+                {
+                    Func<Type, bool> allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);
+                    objectSerializer = standardObjectSerializer
+                        .WithDiscriminatorConvention(_discriminatorConvention)
+                        .WithAllowedTypes(allowedTypes, allowedTypes);
+                }
+                else
                 {
                     throw new BsonSerializationException("Can't set discriminator convention on custom object serializer.");
                 }
             }
 
-            _interfaceSerializer = interfaceSerializer;
+            _objectSerializer = objectSerializer;
         }
 
         // public properties
