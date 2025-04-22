@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Search
         /// <summary>
         /// Determines whether to use the configured serializers for the specified <see cref="SearchDefinition{TDocument}"/>.
         /// When set to true, the configured serializers will be used to serialize the values of certain Atlas Search operators, such as "Equals", "In" and "Range". This will become the default behaviour in version 4.0 of the library.
-        /// If not enabled, then a default conversion will be used.
+        /// If set to false, then a default conversion will be used.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="searchDefinition">The search definition instance.</param>
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Search
         protected readonly SearchPathDefinition<TDocument> _path;
         protected readonly SearchScoreDefinition<TDocument> _score;
 
-        protected bool _useConfiguredSerializers = false;
+        protected bool _useConfiguredSerializers = true;
 
         private protected OperatorSearchDefinition(OperatorType operatorType)
             : this(operatorType, null)
