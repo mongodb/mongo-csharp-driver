@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Encryption
 #pragma warning disable CA1801
         public static byte[] HashAndSignBytes(byte[] dataToSign, byte[] key)
         {
-#if !NET472
+#if !NETSTANDARD2_0
             using (var rsaProvider = new RSACryptoServiceProvider())
             {
                 rsaProvider.ImportPkcs8PrivateKey(key, out _);
