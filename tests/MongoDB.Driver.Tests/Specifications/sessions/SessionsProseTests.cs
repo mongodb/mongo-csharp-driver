@@ -337,15 +337,11 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             eventCapturer.Clear();
 
             eventCapturer.WaitForOrThrowIfTimeout(
-                events =>
+                capturedEvents =>
                 {
-                    var capturedEvents = events.ToArray();
-                    return capturedEvents.Count(e => e is ServerHeartbeatSucceededEvent) > 1 &&
-                           capturedEvents
-                               .Where((e, i) =>
-                                   e is ServerHeartbeatStartedEvent &&
-                                   capturedEvents[i + 1] is ServerHeartbeatSucceededEvent)
-                               .Any();
+                    return capturedEvents
+                        .SkipWhile(e => e is not ServerHeartbeatStartedEvent)
+                        .Any(e => e is ServerHeartbeatSucceededEvent);
                 }, TimeSpan.FromSeconds(1), "Didn't get any server heartbeat pairs");
 
             c1.GetDatabase("admin").RunCommand<BsonDocument>(pingCommand);
