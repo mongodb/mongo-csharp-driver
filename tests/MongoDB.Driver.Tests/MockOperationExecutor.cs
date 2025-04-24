@@ -58,15 +58,19 @@ namespace MongoDB.Driver.Tests
             _results.Enqueue(exception);
         }
 
-        public TResult ExecuteReadOperation<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        public TResult ExecuteReadOperation<TResult>(
+            IReadOperation<TResult> operation,
+            ReadOperationOptions readOperationOptions,
+            IClientSessionHandle session = null,
+            CancellationToken cancellationToken = default)
         {
             _calls.Enqueue(new ReadCall<TResult>
             {
-                Binding = binding,
                 Operation = operation,
                 CancellationToken = cancellationToken,
-                SessionId = binding.Session.Id,
-                UsedImplicitSession = binding.Session.IsImplicit
+                Options = readOperationOptions,
+                SessionId = session?.WrappedCoreSession.Id,
+                UsedImplicitSession = session == null || session.IsImplicit
             });
 
             if (_results.Count > 0)
@@ -85,11 +89,15 @@ namespace MongoDB.Driver.Tests
             return default(TResult);
         }
 
-        public Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        public Task<TResult> ExecuteReadOperationAsync<TResult>(
+            IReadOperation<TResult> operation,
+            ReadOperationOptions readOperationOptions,
+            IClientSessionHandle session = null,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                var result = ExecuteReadOperation<TResult>(binding, operation, cancellationToken);
+                var result = ExecuteReadOperation(operation, readOperationOptions, session, cancellationToken);
                 return Task.FromResult(result);
             }
             catch (Exception ex)
@@ -100,15 +108,19 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        public TResult ExecuteWriteOperation<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+        public TResult ExecuteWriteOperation<TResult>(
+            IWriteOperation<TResult> operation,
+            WriteOperationOptions writeOperationOptions,
+            IClientSessionHandle session = null,
+            CancellationToken cancellationToken = default)
         {
             _calls.Enqueue(new WriteCall<TResult>
             {
-                Binding = binding,
                 Operation = operation,
                 CancellationToken = cancellationToken,
-                SessionId = binding.Session.Id,
-                UsedImplicitSession = binding.Session.IsImplicit
+                Options = writeOperationOptions,
+                SessionId = session?.WrappedCoreSession.Id,
+                UsedImplicitSession = session == null || session.IsImplicit
             });
 
             if (_results.Count > 0)
@@ -127,11 +139,15 @@ namespace MongoDB.Driver.Tests
             return default(TResult);
         }
 
-        public Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+        public Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            IWriteOperation<TResult> operation,
+            WriteOperationOptions writeOperationOptions,
+            IClientSessionHandle session = null,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                var result = ExecuteWriteOperation<TResult>(binding, operation, cancellationToken);
+                var result = ExecuteWriteOperation(operation, writeOperationOptions, session, cancellationToken);
                 return Task.FromResult(result);
             }
             catch (Exception ex)
@@ -193,18 +209,18 @@ namespace MongoDB.Driver.Tests
 
         public class ReadCall<TResult>
         {
-            public IReadBinding Binding { get; set; }
             public IReadOperation<TResult> Operation { get; set; }
             public CancellationToken CancellationToken { get; set; }
+            public ReadOperationOptions Options { get; set; }
             public BsonDocument SessionId { get; set; }
             public bool UsedImplicitSession { get; set; }
         }
 
         public class WriteCall<TResult>
         {
-            public IWriteBinding Binding { get; set; }
             public IWriteOperation<TResult> Operation { get; set; }
             public CancellationToken CancellationToken { get; set; }
+            public WriteOperationOptions Options { get; set; }
             public BsonDocument SessionId { get; set; }
             public bool UsedImplicitSession { get; set; }
         }

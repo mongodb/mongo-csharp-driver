@@ -118,9 +118,6 @@ namespace MongoDB.Driver.Tests
 
             var exception = Record.Exception(() => client.Cluster);
             exception.Should().BeOfType<ObjectDisposedException>();
-
-            exception = Record.Exception(() => client.StartImplicitSession(default));
-            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
