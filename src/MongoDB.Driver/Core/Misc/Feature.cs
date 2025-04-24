@@ -311,6 +311,8 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the geoNear command feature.
         /// </summary>
+        ///
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature GeoNearCommand => __geoNearCommand;
 
         /// <summary>

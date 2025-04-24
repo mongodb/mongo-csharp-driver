@@ -605,15 +605,6 @@ namespace MongoDB.Driver
             return Facet<TInput, TOutput>((IEnumerable<AggregateFacet<TInput>>)facets);
         }
 
-        /// <summary>
-        /// Creates a $geoNear stage.
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <typeparam name="TPoint">The type of the point. This could be a <see cref="GeoJsonPoint{TCoordinates}"/>, a 2d array or embedded document.</typeparam>
-        /// <param name="near">The point for which to find the closest documents.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>The stage.</returns>
         internal static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TPoint, TOutput>(
             TPoint near,
             GeoNearOptions<TInput, TOutput> options = null)
