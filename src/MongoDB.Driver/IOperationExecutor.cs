@@ -16,20 +16,42 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
-    internal interface IOperationExecutor
+    internal interface IOperationExecutor : IDisposable
     {
-        TResult ExecuteReadOperation<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken);
-        Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken);
+        TResult ExecuteReadOperation<TResult>(
+            IReadOperation<TResult> operation,
+            ReadOperationOptions options,
+            IClientSessionHandle session = null,
+            bool disableChannelPinning = false,
+            CancellationToken cancellationToken = default);
 
-        TResult ExecuteWriteOperation<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken);
-        Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken);
+        Task<TResult> ExecuteReadOperationAsync<TResult>(
+            IReadOperation<TResult> operation,
+            ReadOperationOptions options,
+            IClientSessionHandle session = null,
+            bool disableChannelPinning = false,
+            CancellationToken cancellationToken = default);
+
+        TResult ExecuteWriteOperation<TResult>(
+            IWriteOperation<TResult> operation,
+            WriteOperationOptions options,
+            IClientSessionHandle session = null,
+            bool disableChannelPinning = false,
+            CancellationToken cancellationToken = default);
+
+        Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            IWriteOperation<TResult> operation,
+            WriteOperationOptions options,
+            IClientSessionHandle session = null,
+            bool disableChannelPinning = false,
+            CancellationToken cancellationToken = default);
 
         IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken);
+
         Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken);
     }
 }

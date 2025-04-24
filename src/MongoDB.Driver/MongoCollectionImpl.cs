@@ -21,8 +21,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -41,6 +39,8 @@ namespace MongoDB.Driver
         private readonly IOperationExecutor _operationExecutor;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly MongoCollectionSettings _settings;
+        private readonly ReadOperationOptions _readOperationOptions;
+        private readonly WriteOperationOptions _writeOperationOptions;
 
         // constructors
         public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, IClusterInternal cluster, IOperationExecutor operationExecutor)
@@ -58,6 +58,8 @@ namespace MongoDB.Driver
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
 
             _messageEncoderSettings = GetMessageEncoderSettings();
+            _readOperationOptions = new(DefaultReadPreference: _settings.ReadPreference);
+            _writeOperationOptions = new();
         }
 
         // properties
@@ -94,160 +96,121 @@ namespace MongoDB.Driver
         }
 
         // public methods
-        public override IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSession(session => Aggregate(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession(cancellationToken: cancellationToken);
+            return Aggregate(session, pipeline, options, cancellationToken: cancellationToken);
         }
 
-        public override IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            options = options ?? new AggregateOptions();
+            options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var renderedPipeline = pipeline.Render(renderArgs);
-
-            var lastStage = renderedPipeline.Documents.LastOrDefault();
-            var lastStageName = lastStage?.GetElement(0).Name;
-            if (lastStage != null && (lastStageName == "$out" || lastStageName == "$merge"))
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-                ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
-
-                // we want to delay execution of the find because the user may
-                // not want to iterate the results at all...
-                var findOperation = CreateAggregateToCollectionFindOperation(lastStage, renderedPipeline.OutputSerializer, options);
-                var forkedSession = session.Fork();
-                var deferredCursor = new DeferredAsyncCursor<TResult>(
-                    () => forkedSession.Dispose(),
-                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
-                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
-                return deferredCursor;
+                _operationExecutor.ExecuteWriteOperation(aggregateOperation, _writeOperationOptions, session, cancellationToken: cancellationToken);
+                return CreateAggregateToCollectionResultCursor(session, renderedPipeline, options);
             }
             else
             {
                 var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
-                return ExecuteReadOperation(session, aggregateOperation, cancellationToken);
+                return _operationExecutor.ExecuteReadOperation(aggregateOperation, _readOperationOptions, session, cancellationToken: cancellationToken);
             }
         }
 
-        public override Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSessionAsync(session => AggregateAsync(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            return await AggregateAsync(session, pipeline, options, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            options = options ?? new AggregateOptions();
+            options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var renderedPipeline = pipeline.Render(renderArgs);
-
-            var lastStage = renderedPipeline.Documents.LastOrDefault();
-            var lastStageName = lastStage?.GetElement(0).Name;
-            if (lastStage != null && (lastStageName == "$out" || lastStageName == "$merge"))
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-                await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
-
-                // we want to delay execution of the find because the user may
-                // not want to iterate the results at all...
-                var findOperation = CreateAggregateToCollectionFindOperation(lastStage, renderedPipeline.OutputSerializer, options);
-                var forkedSession = session.Fork();
-                var deferredCursor = new DeferredAsyncCursor<TResult>(
-                    () => forkedSession.Dispose(),
-                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
-                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
-                return await Task.FromResult<IAsyncCursor<TResult>>(deferredCursor).ConfigureAwait(false);
+                await _operationExecutor.ExecuteWriteOperationAsync(aggregateOperation, _writeOperationOptions, session, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return CreateAggregateToCollectionResultCursor(session, renderedPipeline, options);
             }
             else
             {
                 var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
-                return await ExecuteReadOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(aggregateOperation, _readOperationOptions, session, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
 
-        public override void AggregateToCollection<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override void AggregateToCollection<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            UsingImplicitSession(session => AggregateToCollection(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession(cancellationToken: cancellationToken);
+            AggregateToCollection(session, pipeline, options, cancellationToken: cancellationToken);
         }
 
-        public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            options = options ?? new AggregateOptions();
+            options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var renderedPipeline = pipeline.Render(renderArgs);
-
-            var lastStage = renderedPipeline.Documents.LastOrDefault();
-            var lastStageName = lastStage?.GetElement(0).Name;
-            if (lastStage == null || (lastStageName != "$out" && lastStageName != "$merge"))
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            if (renderedPipeline.Documents.Count == 0 || !isAggregateToCollection)
             {
                 throw new InvalidOperationException("AggregateToCollection requires that the last stage be $out or $merge.");
             }
 
             var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-            ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
+            _operationExecutor.ExecuteWriteOperation(aggregateOperation, _writeOperationOptions, session, cancellationToken: cancellationToken);
         }
 
-        public override Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSessionAsync(session => AggregateToCollectionAsync(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            await AggregateToCollectionAsync(session, pipeline, options, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        public override async Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            options = options ?? new AggregateOptions();
+            options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var renderedPipeline = pipeline.Render(renderArgs);
-
-            var lastStage = renderedPipeline.Documents.LastOrDefault();
-            var lastStageName = lastStage?.GetElement(0).Name;
-            if (lastStage == null || (lastStageName != "$out" && lastStageName != "$merge"))
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            if (renderedPipeline.Documents.Count == 0 || !isAggregateToCollection)
             {
                 throw new InvalidOperationException("AggregateToCollectionAsync requires that the last stage be $out or $merge.");
             }
 
             var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-            await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
+            await _operationExecutor.ExecuteWriteOperationAsync(aggregateOperation, _writeOperationOptions, session, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSession(session => BulkWrite(session, requests, options, cancellationToken), cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession(cancellationToken: cancellationToken);
+            return BulkWrite(session, requests, options, cancellationToken: cancellationToken);
         }
 
-        public override BulkWriteResult<TDocument> BulkWrite(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override BulkWriteResult<TDocument> BulkWrite(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull((object)requests, nameof(requests));
-
             var requestsArray = requests.ToArray();
-            if (requestsArray.Length == 0)
-            {
-                throw new ArgumentException("Must contain at least 1 request.", nameof(requests));
-            }
 
-            foreach (var request in requestsArray)
-            {
-                request.ThrowIfNotValid();
-            }
-
-            options = options ?? new BulkWriteOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateBulkWriteOperation(session, requestsArray, options, renderArgs);
+            var operation = CreateBulkWriteOperation(session, requestsArray, options);
             try
             {
-                var result = ExecuteWriteOperation(session, operation, cancellationToken);
+                var result = _operationExecutor.ExecuteWriteOperation(operation, _writeOperationOptions, session, cancellationToken: cancellationToken);
                 return BulkWriteResult<TDocument>.FromCore(result, requestsArray);
             }
             catch (MongoBulkWriteOperationException ex)
@@ -256,34 +219,21 @@ namespace MongoDB.Driver
             }
         }
 
-        public override Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSessionAsync(session => BulkWriteAsync(session, requests, options, cancellationToken), cancellationToken);
+            using var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            return await BulkWriteAsync(session, requests, options, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        public override async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull((object)requests, nameof(requests));
-
             var requestsArray = requests.ToArray();
-            if (requestsArray.Length == 0)
-            {
-                throw new ArgumentException("Must contain at least 1 request.", nameof(requests));
-            }
 
-            foreach (var request in requestsArray)
-            {
-                request.ThrowIfNotValid();
-            }
-
-            options = options ?? new BulkWriteOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateBulkWriteOperation(session, requestsArray, options, renderArgs);
+            var operation = CreateBulkWriteOperation(session, requestsArray, options);
             try
             {
-                var result = await ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
+                var result = await _operationExecutor.ExecuteWriteOperationAsync(operation, _writeOperationOptions, session, cancellationToken: cancellationToken).ConfigureAwait(false);
                 return BulkWriteResult<TDocument>.FromCore(result, requestsArray);
             }
             catch (MongoBulkWriteOperationException ex)
@@ -293,314 +243,243 @@ namespace MongoDB.Driver
         }
 
         [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public override long Count(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => Count(session, filter, options, cancellationToken), cancellationToken);
-        }
+        public override long Count(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateCountOperation(filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
 
         [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public override long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new CountOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateCountOperation(filter, options, renderArgs);
-            return ExecuteReadOperation(session, operation, cancellationToken);
-        }
+        public override long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateCountOperation(filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
 
         [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public override Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => CountAsync(session, filter, options, cancellationToken), cancellationToken);
-        }
+        public override Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateCountOperation(filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
 
         [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public override Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateCountOperation(filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateCountDocumentsOperation(filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override long CountDocuments(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateCountDocumentsOperation(filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override Task<long> CountDocumentsAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateCountDocumentsOperation(filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override Task<long> CountDocumentsAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateCountDocumentsOperation(filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override IAsyncCursor<TField> Distinct<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateDistinctOperation(field, filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override IAsyncCursor<TField> Distinct<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateDistinctOperation(field, filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateDistinctOperation(field, filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateDistinctOperation(field, filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override IAsyncCursor<TItem> DistinctMany<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateDistinctManyOperation(field, filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override IAsyncCursor<TItem> DistinctMany<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateDistinctManyOperation(field, filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateDistinctManyOperation(field, filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateDistinctManyOperation(field, filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override long EstimatedDocumentCount(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateEstimatedDocumentCountOperation(options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override Task<long> EstimatedDocumentCountAsync(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateEstimatedDocumentCountOperation(options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateFindOperation(filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override IAsyncCursor<TProjection> FindSync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateFindOperation(filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateFindOperation(filter, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateFindOperation(filter, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override TProjection FindOneAndDelete<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperation(
+                CreateFindOneAndDeleteOperation(filter, options),
+                _writeOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override TProjection FindOneAndDelete<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperation(
+                CreateFindOneAndDeleteOperation(filter, options),
+                _writeOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperationAsync(
+                CreateFindOneAndDeleteOperation(filter, options),
+                _writeOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperationAsync(
+                CreateFindOneAndDeleteOperation(filter, options),
+                _writeOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override TProjection FindOneAndReplace<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperation(
+                CreateFindOneAndReplaceOperation(filter, replacement, options),
+                _writeOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override TProjection FindOneAndReplace<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperation(
+                CreateFindOneAndReplaceOperation(filter, replacement, options),
+                _writeOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperationAsync(
+                CreateFindOneAndReplaceOperation(filter, replacement, options),
+                _writeOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperationAsync(
+                CreateFindOneAndReplaceOperation(filter, replacement, options),
+                _writeOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override TProjection FindOneAndUpdate<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperation(
+                CreateFindOneAndUpdateOperation(filter, update, options),
+                _writeOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override TProjection FindOneAndUpdate<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperation(
+                CreateFindOneAndUpdateOperation(filter, update, options),
+                _writeOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperationAsync(
+                CreateFindOneAndUpdateOperation(filter, update, options),
+                _writeOperationOptions,
+                cancellationToken: cancellationToken);
+
+        public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteWriteOperationAsync(
+                CreateFindOneAndUpdateOperation(filter, update, options),
+                _writeOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
+
+        [Obsolete("Use Aggregation pipeline instead.")]
+        public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new CountOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateCountOperation(filter, options, renderArgs);
-            return ExecuteReadOperationAsync(session, operation, cancellationToken);
-        }
-
-        public override long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => CountDocuments(session, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override long CountDocuments(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new CountOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateCountDocumentsOperation(filter, options, renderArgs);
-            return ExecuteReadOperation(session, operation, cancellationToken);
-        }
-
-        public override Task<long> CountDocumentsAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => CountDocumentsAsync(session, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override Task<long> CountDocumentsAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new CountOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateCountDocumentsOperation(filter, options, renderArgs);
-            return ExecuteReadOperationAsync(session, operation, cancellationToken);
-        }
-
-        public override IAsyncCursor<TField> Distinct<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => Distinct(session, field, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override IAsyncCursor<TField> Distinct<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new DistinctOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateDistinctOperation(field, filter, options, renderArgs);
-            return ExecuteReadOperation(session, operation, cancellationToken);
-        }
-
-        public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => DistinctAsync(session, field, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new DistinctOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateDistinctOperation(field, filter, options, renderArgs);
-            return ExecuteReadOperationAsync(session, operation, cancellationToken);
-        }
-
-        public override IAsyncCursor<TItem> DistinctMany<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => DistinctMany(session, field, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override IAsyncCursor<TItem> DistinctMany<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new DistinctOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateDistinctManyOperation(field, filter, options, renderArgs);
-            return ExecuteReadOperation(session, operation, cancellationToken);
-        }
-
-        public override Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => DistinctManyAsync(session, field, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new DistinctOptions();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateDistinctManyOperation(field, filter, options, renderArgs);
-            return ExecuteReadOperationAsync(session, operation, cancellationToken);
-        }
-
-        public override long EstimatedDocumentCount(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session =>
-            {
-                var operation = CreateEstimatedDocumentCountOperation(options);
-                return ExecuteReadOperation(session, operation, cancellationToken);
-            });
-        }
-
-        public override Task<long> EstimatedDocumentCountAsync(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session =>
-            {
-                var operation = CreateEstimatedDocumentCountOperation(options);
-                return ExecuteReadOperationAsync(session, operation, cancellationToken);
-            });
-        }
-
-        public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => FindSync(session, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override IAsyncCursor<TProjection> FindSync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new FindOptions<TDocument, TProjection>();
-
-            var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var operation = CreateFindOperation<TProjection>(filter, options, renderArgs);
-            return ExecuteReadOperation(session, operation, cancellationToken);
-        }
-
-        public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => FindAsync(session, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new FindOptions<TDocument, TProjection>();
-
-            var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var operation = CreateFindOperation<TProjection>(filter, options, renderArgs);
-            return ExecuteReadOperationAsync(session, operation, cancellationToken);
-        }
-
-        public override TProjection FindOneAndDelete<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => FindOneAndDelete(session, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override TProjection FindOneAndDelete<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new FindOneAndDeleteOptions<TDocument, TProjection>();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateFindOneAndDeleteOperation<TProjection>(filter, options, renderArgs);
-            return ExecuteWriteOperation(session, operation, cancellationToken);
-        }
-
-        public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => FindOneAndDeleteAsync(session, filter, options, cancellationToken), cancellationToken);
-        }
-
-        public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            options = options ?? new FindOneAndDeleteOptions<TDocument, TProjection>();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateFindOneAndDeleteOperation<TProjection>(filter, options, renderArgs);
-            return ExecuteWriteOperationAsync(session, operation, cancellationToken);
-        }
-
-        public override TProjection FindOneAndReplace<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => FindOneAndReplace(session, filter, replacement, options, cancellationToken), cancellationToken);
-        }
-
-        public override TProjection FindOneAndReplace<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            var replacementObject = Ensure.IsNotNull((object)replacement, nameof(replacement)); // only box once if it's a struct
-            options = options ?? new FindOneAndReplaceOptions<TDocument, TProjection>();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateFindOneAndReplaceOperation(filter, replacementObject, options, renderArgs);
-            return ExecuteWriteOperation(session, operation, cancellationToken);
-        }
-
-        public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => FindOneAndReplaceAsync(session, filter, replacement, options, cancellationToken), cancellationToken);
-        }
-
-        public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            var replacementObject = Ensure.IsNotNull((object)replacement, nameof(replacement)); // only box once if it's a struct
-            options = options ?? new FindOneAndReplaceOptions<TDocument, TProjection>();
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateFindOneAndReplaceOperation(filter, replacementObject, options, renderArgs);
-            return ExecuteWriteOperationAsync(session, operation, cancellationToken);
-        }
-
-        public override TProjection FindOneAndUpdate<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => FindOneAndUpdate(session, filter, update, options, cancellationToken), cancellationToken);
-        }
-
-        public override TProjection FindOneAndUpdate<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            Ensure.IsNotNull(update, nameof(update));
-            options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
-
-            if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
-            {
-                throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
-            }
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateFindOneAndUpdateOperation(filter, update, options, renderArgs);
-            return ExecuteWriteOperation(session, operation, cancellationToken);
-        }
-
-        public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => FindOneAndUpdateAsync(session, filter, update, options, cancellationToken), cancellationToken);
-        }
-
-        public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-            Ensure.IsNotNull(update, nameof(update));
-            options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
-
-            if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
-            {
-                throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
-            }
-
-            var renderArgs = GetRenderArgs();
-            var operation = CreateFindOneAndUpdateOperation(filter, update, options, renderArgs);
-            return ExecuteWriteOperationAsync(session, operation, cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession(cancellationToken: cancellationToken);
+            return MapReduce(session, map, reduce, options, cancellationToken: cancellationToken);
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
-        public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => MapReduce(session, map, reduce, options, cancellationToken), cancellationToken);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(map, nameof(map));
             Ensure.IsNotNull(reduce, nameof(reduce));
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
+            options ??= new MapReduceOptions<TDocument, TResult>();
 
             var outputOptions = options.OutputOptions ?? MapReduceOutputOptions.Inline;
             var resultSerializer = ResolveResultSerializer<TResult>(options.ResultSerializer);
@@ -609,38 +488,30 @@ namespace MongoDB.Driver
             if (outputOptions == MapReduceOutputOptions.Inline)
             {
                 var operation = CreateMapReduceOperation(map, reduce, options, resultSerializer, renderArgs);
-                return ExecuteReadOperation(session, operation, cancellationToken);
+                return _operationExecutor.ExecuteReadOperation(operation, _readOperationOptions, session, cancellationToken: cancellationToken);
             }
             else
             {
                 var mapReduceOperation = CreateMapReduceOutputToCollectionOperation(map, reduce, options, outputOptions, renderArgs);
-                ExecuteWriteOperation(session, mapReduceOperation, cancellationToken);
-
-                // we want to delay execution of the find because the user may
-                // not want to iterate the results at all...
-                var findOperation = CreateMapReduceOutputToCollectionFindOperation<TResult>(options, mapReduceOperation.OutputCollectionNamespace, resultSerializer);
-                var forkedSession = session.Fork();
-                var deferredCursor = new DeferredAsyncCursor<TResult>(
-                    () => forkedSession.Dispose(),
-                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
-                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
-                return deferredCursor;
+                _operationExecutor.ExecuteWriteOperation(mapReduceOperation, _writeOperationOptions, session, cancellationToken: cancellationToken);
+                return CreateMapReduceOutputToCollectionResultCursor(session, options, mapReduceOperation.OutputCollectionNamespace, resultSerializer);
             }
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
-        public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSessionAsync(session => MapReduceAsync(session, map, reduce, options, cancellationToken), cancellationToken);
+            using var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            return await MapReduceAsync(session, map, reduce, options, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
-        public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(map, nameof(map));
             Ensure.IsNotNull(reduce, nameof(reduce));
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
+            options ??= new MapReduceOptions<TDocument, TResult>();
 
             var outputOptions = options.OutputOptions ?? MapReduceOutputOptions.Inline;
             var resultSerializer = ResolveResultSerializer<TResult>(options.ResultSerializer);
@@ -649,22 +520,13 @@ namespace MongoDB.Driver
             if (outputOptions == MapReduceOutputOptions.Inline)
             {
                 var operation = CreateMapReduceOperation(map, reduce, options, resultSerializer, renderArgs);
-                return await ExecuteReadOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(operation, _readOperationOptions, session, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var mapReduceOperation = CreateMapReduceOutputToCollectionOperation(map, reduce, options, outputOptions, renderArgs);
-                await ExecuteWriteOperationAsync(session, mapReduceOperation, cancellationToken).ConfigureAwait(false);
-
-                // we want to delay execution of the find because the user may
-                // not want to iterate the results at all...
-                var findOperation = CreateMapReduceOutputToCollectionFindOperation<TResult>(options, mapReduceOperation.OutputCollectionNamespace, resultSerializer);
-                var forkedSession = session.Fork();
-                var deferredCursor = new DeferredAsyncCursor<TResult>(
-                    () => forkedSession.Dispose(),
-                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
-                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
-                return await Task.FromResult(deferredCursor).ConfigureAwait(false);
+                await _operationExecutor.ExecuteWriteOperationAsync(mapReduceOperation, _writeOperationOptions, session, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return CreateMapReduceOutputToCollectionResultCursor(session, options, mapReduceOperation.OutputCollectionNamespace, resultSerializer);
             }
         }
 
@@ -685,44 +547,42 @@ namespace MongoDB.Driver
         public override IChangeStreamCursor<TResult> Watch<TResult>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSession(session => Watch(session, pipeline, options, cancellationToken), cancellationToken);
-        }
+            CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateChangeStreamOperation(pipeline, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
 
         public override IChangeStreamCursor<TResult> Watch<TResult>(
             IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var translationOptions = _database.Client.Settings.TranslationOptions;
-            var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
-            return ExecuteReadOperation(session, operation, cancellationToken);
-        }
+            CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperation(
+                CreateChangeStreamOperation(pipeline, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
 
         public override Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return UsingImplicitSessionAsync(session => WatchAsync(session, pipeline, options, cancellationToken), cancellationToken);
-        }
+            CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateChangeStreamOperation(pipeline, options),
+                _readOperationOptions,
+                cancellationToken: cancellationToken);
 
         public override Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
             IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var translationOptions = _database.Client.Settings.TranslationOptions;
-            var operation = CreateChangeStreamOperation(pipeline, options, translationOptions);
-            return ExecuteReadOperationAsync(session, operation, cancellationToken);
-        }
+            CancellationToken cancellationToken = default)
+            => _operationExecutor.ExecuteReadOperationAsync(
+                CreateChangeStreamOperation(pipeline, options),
+                _readOperationOptions,
+                Ensure.IsNotNull(session, nameof(session)),
+                cancellationToken: cancellationToken);
 
         public override IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
         {
@@ -850,72 +710,11 @@ namespace MongoDB.Driver
             };
         }
 
-        private FindOperation<TResult> CreateAggregateToCollectionFindOperation<TResult>(BsonDocument outStage, IBsonSerializer<TResult> resultSerializer, AggregateOptions options)
+        private IAsyncCursor<TResult> CreateAggregateToCollectionResultCursor<TResult>(IClientSessionHandle session, RenderedPipelineDefinition<TResult> pipeline, AggregateOptions options)
         {
-            CollectionNamespace outputCollectionNamespace;
-            var stageName = outStage.GetElement(0).Name;
-            switch (stageName)
-            {
-                case "$out":
-                    {
-                        var outValue = outStage[0];
-                        DatabaseNamespace outputDatabaseNamespace;
-                        string outputCollectionName;
-                        if (outValue.IsString)
-                        {
-                            outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
-                            outputCollectionName = outValue.AsString;
-                        }
-                        else
-                        {
-                            outputDatabaseNamespace = new DatabaseNamespace(outValue["db"].AsString);
-                            outputCollectionName = outValue["coll"].AsString;
-                        }
-                        outputCollectionNamespace = new CollectionNamespace(outputDatabaseNamespace, outputCollectionName);
-                    }
-                    break;
-                case "$merge":
-                    {
-                        var mergeArguments = outStage[0];
-                        DatabaseNamespace outputDatabaseNamespace;
-                        string outputCollectionName;
-                        if (mergeArguments.IsString)
-                        {
-                            outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
-                            outputCollectionName = mergeArguments.AsString;
-                        }
-                        else
-                        {
-                            var into = mergeArguments.AsBsonDocument["into"];
-                            if (into.IsString)
-                            {
-                                outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
-                                outputCollectionName = into.AsString;
-                            }
-                            else
-                            {
-                                if (into.AsBsonDocument.Contains("db"))
-                                {
-                                    outputDatabaseNamespace = new DatabaseNamespace(into["db"].AsString);
-                                }
-                                else
-                                {
-                                    outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
-                                }
-                                outputCollectionName = into["coll"].AsString;
-                            }
-                        }
-                        outputCollectionNamespace = new CollectionNamespace(outputDatabaseNamespace, outputCollectionName);
-                    }
-                    break;
-                default:
-                    throw new ArgumentException($"Unexpected stage name: {stageName}.");
-            }
+            var outputCollectionNamespace = AggregateHelper.GetOutCollection(pipeline.Documents.Last(), _collectionNamespace.DatabaseNamespace);
 
-            return new FindOperation<TResult>(
-                outputCollectionNamespace,
-                resultSerializer,
-                _messageEncoderSettings)
+            var findOperation = new FindOperation<TResult>(outputCollectionNamespace, pipeline.OutputSerializer, _messageEncoderSettings)
             {
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
@@ -923,6 +722,16 @@ namespace MongoDB.Driver
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads
             };
+
+            // we want to delay execution of the find because the user may
+            // not want to iterate the results at all...
+            var forkedSession = session.Fork();
+            var readOperationOptions = _readOperationOptions with { ExplicitReadPreference = ReadPreference.Primary };
+            var deferredCursor = new DeferredAsyncCursor<TResult>(
+                () => forkedSession.Dispose(),
+                ct => _operationExecutor.ExecuteReadOperation(findOperation, readOperationOptions, forkedSession, cancellationToken: ct),
+                ct => _operationExecutor.ExecuteReadOperationAsync(findOperation, readOperationOptions, forkedSession, cancellationToken: ct));
+            return deferredCursor;
         }
 
         private AggregateToCollectionOperation CreateAggregateToCollectionOperation<TResult>(RenderedPipelineDefinition<TResult> renderedPipeline, AggregateOptions options)
@@ -947,15 +756,28 @@ namespace MongoDB.Driver
 
         private BulkMixedWriteOperation CreateBulkWriteOperation(
             IClientSessionHandle session,
-            IEnumerable<WriteModel<TDocument>> requests,
-            BulkWriteOptions options,
-            RenderArgs<TDocument> renderArgs)
+            IReadOnlyList<WriteModel<TDocument>> requests,
+            BulkWriteOptions options)
         {
+            Ensure.IsNotNull((object)requests, nameof(requests));
+            if (requests.Count == 0)
+            {
+                throw new ArgumentException("Must contain at least 1 request.", nameof(requests));
+            }
+
+            options ??= new BulkWriteOptions();
+            var renderArgs = GetRenderArgs();
             var effectiveWriteConcern = session.IsInTransaction ? WriteConcern.Acknowledged : _settings.WriteConcern;
+
+            var writeModels = requests.Select((model, index) =>
+            {
+                model.ThrowIfNotValid();
+                return ConvertWriteModelToWriteRequest(model, index, renderArgs);
+            }).ToArray();
 
             return new BulkMixedWriteOperation(
                 _collectionNamespace,
-                requests.Select((model, index) => ConvertWriteModelToWriteRequest(model, index, renderArgs)),
+                writeModels,
                 _messageEncoderSettings)
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
@@ -969,9 +791,11 @@ namespace MongoDB.Driver
 
         private ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
-            ChangeStreamOptions options,
-            ExpressionTranslationOptions translationOptions)
+            ChangeStreamOptions options)
         {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            var translationOptions = _database.Client.Settings.TranslationOptions;
+
             return ChangeStreamHelper.CreateChangeStreamOperation(
                 this,
                 pipeline,
@@ -984,9 +808,12 @@ namespace MongoDB.Driver
 
         private CountDocumentsOperation CreateCountDocumentsOperation(
             FilterDefinition<TDocument> filter,
-            CountOptions options,
-            RenderArgs<TDocument> renderArgs)
+            CountOptions options)
         {
+            Ensure.IsNotNull(filter, nameof(filter));
+            options ??= new CountOptions();
+            var renderArgs = GetRenderArgs();
+
             return new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Collation = options.Collation,
@@ -1003,9 +830,12 @@ namespace MongoDB.Driver
 
         private CountOperation CreateCountOperation(
             FilterDefinition<TDocument> filter,
-            CountOptions options,
-            RenderArgs<TDocument> renderArgs)
+            CountOptions options)
         {
+            Ensure.IsNotNull(filter, nameof(filter));
+            options ??= new CountOptions();
+            var renderArgs = GetRenderArgs();
+
             return new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Collation = options.Collation,
@@ -1023,9 +853,12 @@ namespace MongoDB.Driver
         private DistinctOperation<TField> CreateDistinctOperation<TField>(
             FieldDefinition<TDocument, TField> field,
             FilterDefinition<TDocument> filter,
-            DistinctOptions options,
-            RenderArgs<TDocument> renderArgs)
+            DistinctOptions options)
         {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+            options ??= new DistinctOptions();
+            var renderArgs = GetRenderArgs();
             var renderedField = field.Render(renderArgs);
             var valueSerializer = GetValueSerializerForDistinct(renderedField, _settings.SerializerRegistry);
 
@@ -1047,9 +880,12 @@ namespace MongoDB.Driver
         private DistinctOperation<TItem> CreateDistinctManyOperation<TItem>(
             FieldDefinition<TDocument, IEnumerable<TItem>> field,
             FilterDefinition<TDocument> filter,
-            DistinctOptions options,
-            RenderArgs<TDocument> renderArgs)
+            DistinctOptions options)
         {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+            options ??= new DistinctOptions();
+            var renderArgs = GetRenderArgs();
             var renderedField = field.Render(renderArgs);
             var itemSerializer = GetItemSerializerForDistinctMany(renderedField, _settings.SerializerRegistry);
 
@@ -1080,9 +916,11 @@ namespace MongoDB.Driver
 
         private FindOneAndDeleteOperation<TProjection> CreateFindOneAndDeleteOperation<TProjection>(
             FilterDefinition<TDocument> filter,
-            FindOneAndDeleteOptions<TDocument, TProjection> options,
-            RenderArgs<TDocument> renderArgs)
+            FindOneAndDeleteOptions<TDocument, TProjection> options)
         {
+            Ensure.IsNotNull(filter, nameof(filter));
+            options ??= new FindOneAndDeleteOptions<TDocument, TProjection>();
+            var renderArgs = GetRenderArgs();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(renderArgs with { RenderForFind = true });
 
@@ -1106,17 +944,21 @@ namespace MongoDB.Driver
 
         private FindOneAndReplaceOperation<TProjection> CreateFindOneAndReplaceOperation<TProjection>(
             FilterDefinition<TDocument> filter,
-            object replacementObject,
-            FindOneAndReplaceOptions<TDocument, TProjection> options,
-            RenderArgs<TDocument> renderArgs)
+            object replacement,
+            FindOneAndReplaceOptions<TDocument, TProjection> options)
         {
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(replacement, nameof(replacement));
+            options ??= new FindOneAndReplaceOptions<TDocument, TProjection>();
+
+            var renderArgs = GetRenderArgs();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(renderArgs with { RenderForFind = true });
 
             return new FindOneAndReplaceOperation<TProjection>(
                 _collectionNamespace,
                 filter.Render(renderArgs),
-                new BsonDocumentWrapper(replacementObject, _documentSerializer),
+                new BsonDocumentWrapper(replacement, _documentSerializer),
                 new FindAndModifyValueDeserializer<TProjection>(renderedProjection.ProjectionSerializer),
                 _messageEncoderSettings)
             {
@@ -1138,9 +980,18 @@ namespace MongoDB.Driver
         private FindOneAndUpdateOperation<TProjection> CreateFindOneAndUpdateOperation<TProjection>(
             FilterDefinition<TDocument> filter,
             UpdateDefinition<TDocument> update,
-            FindOneAndUpdateOptions<TDocument, TProjection> options,
-            RenderArgs<TDocument> renderArgs)
+            FindOneAndUpdateOptions<TDocument, TProjection> options)
         {
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
+            options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
+
+            if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
+            {
+                throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
+            }
+
+            var renderArgs = GetRenderArgs();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(renderArgs with { RenderForFind = true });
 
@@ -1169,9 +1020,12 @@ namespace MongoDB.Driver
 
         private FindOperation<TProjection> CreateFindOperation<TProjection>(
             FilterDefinition<TDocument> filter,
-            FindOptions<TDocument, TProjection> options,
-            RenderArgs<TDocument> renderArgs)
+            FindOptions<TDocument, TProjection> options)
         {
+            Ensure.IsNotNull(filter, nameof(filter));
+            options ??= new FindOptions<TDocument, TProjection>();
+
+            var renderArgs = GetRenderArgs(options.TranslationOptions);
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(renderArgs with { RenderForFind = true });
 
@@ -1285,10 +1139,10 @@ namespace MongoDB.Driver
         }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        private FindOperation<TResult> CreateMapReduceOutputToCollectionFindOperation<TResult>(MapReduceOptions<TDocument, TResult> options, CollectionNamespace outputCollectionNamespace, IBsonSerializer<TResult> resultSerializer)
+        private IAsyncCursor<TResult> CreateMapReduceOutputToCollectionResultCursor<TResult>(IClientSessionHandle session, MapReduceOptions<TDocument, TResult> options, CollectionNamespace outputCollectionNamespace, IBsonSerializer<TResult> resultSerializer)
 #pragma warning restore CS0618 // Type or member is obsolete
         {
-            return new FindOperation<TResult>(
+            var findOperation = new FindOperation<TResult>(
                 outputCollectionNamespace,
                 resultSerializer,
                 _messageEncoderSettings)
@@ -1298,21 +1152,16 @@ namespace MongoDB.Driver
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads
             };
-        }
 
-        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference)
-        {
-            if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
-            {
-                throw new InvalidOperationException("Read preference in a transaction must be primary.");
-            }
-
-            return ChannelPinningHelper.CreateReadBinding(_cluster, session.WrappedCoreSession.Fork(), readPreference);
-        }
-
-        private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
-        {
-            return ChannelPinningHelper.CreateReadWriteBinding(_cluster, session.WrappedCoreSession.Fork());
+            // we want to delay execution of the find because the user may
+            // not want to iterate the results at all...
+            var forkedSession = session.Fork();
+            var readOperationOptions = _readOperationOptions with { ExplicitReadPreference = ReadPreference.Primary };
+            var deferredCursor = new DeferredAsyncCursor<TResult>(
+                () => forkedSession.Dispose(),
+                ct => _operationExecutor.ExecuteReadOperation(findOperation, readOperationOptions, forkedSession, cancellationToken: ct),
+                ct => _operationExecutor.ExecuteReadOperationAsync(findOperation, readOperationOptions, forkedSession, cancellationToken: ct));
+            return deferredCursor;
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()
@@ -1389,50 +1238,6 @@ namespace MongoDB.Driver
             return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
         }
 
-        private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, _settings.ReadPreference);
-            return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
-        }
-
-        private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = CreateReadBinding(session, readPreference))
-            {
-                return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
-            }
-        }
-
-        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, _settings.ReadPreference);
-            return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
-        }
-
-        private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = CreateReadBinding(session, readPreference))
-            {
-                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
-            }
-        }
-
-        private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
         private IEnumerable<BsonDocument> RenderArrayFilters(IEnumerable<ArrayFilterDefinition> arrayFilters)
         {
             if (arrayFilters == null)
@@ -1465,38 +1270,6 @@ namespace MongoDB.Driver
             return _settings.SerializerRegistry.GetSerializer<TResult>();
         }
 
-        private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var session = _operationExecutor.StartImplicitSession(cancellationToken))
-            {
-                func(session);
-            }
-        }
-
-        private TResult UsingImplicitSession<TResult>(Func<IClientSessionHandle, TResult> func, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var session = _operationExecutor.StartImplicitSession(cancellationToken))
-            {
-                return func(session);
-            }
-        }
-
-        private async Task UsingImplicitSessionAsync(Func<IClientSessionHandle, Task> funcAsync, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
-            {
-                await funcAsync(session).ConfigureAwait(false);
-            }
-        }
-
-        private async Task<TResult> UsingImplicitSessionAsync<TResult>(Func<IClientSessionHandle, Task<TResult>> funcAsync, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
-            {
-                return await funcAsync(session).ConfigureAwait(false);
-            }
-        }
-
         // nested types
         private class MongoIndexManager : MongoIndexManagerBase<TDocument>
         {
@@ -1526,231 +1299,192 @@ namespace MongoDB.Driver
             }
 
             // public methods
-            public override IEnumerable<string> CreateMany(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return CreateMany(models, null, cancellationToken);
-            }
+            public override IEnumerable<string> CreateMany(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default)
+                => CreateMany(models, null, cancellationToken: cancellationToken);
 
             public override IEnumerable<string> CreateMany(
                 IEnumerable<CreateIndexModel<TDocument>> models,
                 CreateManyIndexesOptions options,
-                CancellationToken cancellationToken = default(CancellationToken))
+                CancellationToken cancellationToken = default)
             {
-                return _collection.UsingImplicitSession(session => CreateMany(session, models, options, cancellationToken), cancellationToken);
+                var operation = CreateCreateIndexesOperation(models, options);
+                _collection._operationExecutor.ExecuteWriteOperation(operation, _collection._writeOperationOptions, null, cancellationToken: cancellationToken);
+                return operation.Requests.Select(x => x.GetIndexName());
             }
 
-            public override IEnumerable<string> CreateMany(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return CreateMany(session, models, null, cancellationToken);
-            }
+            public override IEnumerable<string> CreateMany(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default)
+                => CreateMany(session, models, null, cancellationToken: cancellationToken);
 
             public override IEnumerable<string> CreateMany(
                 IClientSessionHandle session,
                 IEnumerable<CreateIndexModel<TDocument>> models,
                 CreateManyIndexesOptions options,
-                CancellationToken cancellationToken = default(CancellationToken))
+                CancellationToken cancellationToken = default)
             {
                 Ensure.IsNotNull(session, nameof(session));
-                Ensure.IsNotNull(models, nameof(models));
 
-                var renderArgs = _collection.GetRenderArgs();
-                var requests = CreateCreateIndexRequests(models, renderArgs);
-                var operation = CreateCreateIndexesOperation(requests, options);
-                _collection.ExecuteWriteOperation(session, operation, cancellationToken);
-
-                return requests.Select(x => x.GetIndexName());
+                var operation = CreateCreateIndexesOperation(models, options);
+                _collection._operationExecutor.ExecuteWriteOperation(operation, _collection._writeOperationOptions, session, cancellationToken: cancellationToken);
+                return operation.Requests.Select(x => x.GetIndexName());
             }
 
-            public override Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return CreateManyAsync(models, null, cancellationToken);
-            }
+            public override Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default)
+                => CreateManyAsync(models, null, cancellationToken: cancellationToken);
 
-            public override Task<IEnumerable<string>> CreateManyAsync(
+            public override async Task<IEnumerable<string>> CreateManyAsync(
                 IEnumerable<CreateIndexModel<TDocument>> models,
                 CreateManyIndexesOptions options,
-                CancellationToken cancellationToken = default(CancellationToken))
+                CancellationToken cancellationToken = default)
             {
-                return _collection.UsingImplicitSessionAsync(session => CreateManyAsync(session, models, options, cancellationToken), cancellationToken);
+                var operation = CreateCreateIndexesOperation(models, options);
+                await _collection._operationExecutor.ExecuteWriteOperationAsync(operation, _collection._writeOperationOptions, null, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return operation.Requests.Select(x => x.GetIndexName());
             }
 
-            public override Task<IEnumerable<string>> CreateManyAsync(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return CreateManyAsync(session, models, null, cancellationToken);
-            }
+            public override Task<IEnumerable<string>> CreateManyAsync(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default)
+                => CreateManyAsync(session, models, null, cancellationToken: cancellationToken);
 
             public override async Task<IEnumerable<string>> CreateManyAsync(
                 IClientSessionHandle session,
                 IEnumerable<CreateIndexModel<TDocument>> models,
                 CreateManyIndexesOptions options,
-                CancellationToken cancellationToken = default(CancellationToken))
+                CancellationToken cancellationToken = default)
             {
                 Ensure.IsNotNull(session, nameof(session));
-                Ensure.IsNotNull(models, nameof(models));
 
-                var renderArgs = _collection.GetRenderArgs();
-                var requests = CreateCreateIndexRequests(models, renderArgs);
-                var operation = CreateCreateIndexesOperation(requests, options);
-                await _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
-
-                return requests.Select(x => x.GetIndexName());
+                var operation = CreateCreateIndexesOperation(models, options);
+                await _collection._operationExecutor.ExecuteWriteOperationAsync(operation, _collection._writeOperationOptions, session, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return operation.Requests.Select(x => x.GetIndexName());
             }
 
             public override void DropAll(CancellationToken cancellationToken)
-            {
-                _collection.UsingImplicitSession(session => DropAll(session, cancellationToken), cancellationToken);
-            }
+                => DropAll(options: null, cancellationToken: cancellationToken);
 
-            public override void DropAll(DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                _collection.UsingImplicitSession(session => DropAll(session, options, cancellationToken), cancellationToken);
-            }
+            public override void DropAll(DropIndexOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteWriteOperation(
+                    CreateDropAllOperation(options),
+                    _collection._writeOperationOptions,
+                    cancellationToken: cancellationToken);
 
-            public override void DropAll(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                DropAll(session, null, cancellationToken);
-            }
+            public override void DropAll(IClientSessionHandle session, CancellationToken cancellationToken = default)
+                => DropAll(session, null, cancellationToken: cancellationToken);
 
-            public override void DropAll(IClientSessionHandle session, DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                Ensure.IsNotNull(session, nameof(session));
-                var operation = CreateDropAllOperation(options);
-                _collection.ExecuteWriteOperation(session, operation, cancellationToken);
-            }
+            public override void DropAll(IClientSessionHandle session, DropIndexOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteWriteOperation(
+                    CreateDropAllOperation(options),
+                    _collection._writeOperationOptions,
+                    Ensure.IsNotNull(session, nameof(session)),
+                    cancellationToken: cancellationToken);
 
             public override Task DropAllAsync(CancellationToken cancellationToken)
-            {
-                return _collection.UsingImplicitSessionAsync(session => DropAllAsync(session, cancellationToken), cancellationToken);
-            }
+                => DropAllAsync(options: null, cancellationToken: cancellationToken);
 
-            public override Task DropAllAsync(DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return _collection.UsingImplicitSessionAsync(session => DropAllAsync(session, options, cancellationToken), cancellationToken);
-            }
+            public override Task DropAllAsync(DropIndexOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteWriteOperationAsync(
+                    CreateDropAllOperation(options),
+                    _collection._writeOperationOptions,
+                    cancellationToken: cancellationToken);
 
-            public override Task DropAllAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return DropAllAsync(session, null, cancellationToken);
-            }
+            public override Task DropAllAsync(IClientSessionHandle session, CancellationToken cancellationToken = default)
+                => DropAllAsync(session, null, cancellationToken: cancellationToken);
 
-            public override Task DropAllAsync(IClientSessionHandle session, DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                Ensure.IsNotNull(session, nameof(session));
-                var operation = CreateDropAllOperation(options);
-                return _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken);
-            }
+            public override Task DropAllAsync(IClientSessionHandle session, DropIndexOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteWriteOperationAsync(
+                    CreateDropAllOperation(options),
+                    _collection._writeOperationOptions,
+                    Ensure.IsNotNull(session, nameof(session)),
+                    cancellationToken: cancellationToken);
 
-            public override void DropOne(string name, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                _collection.UsingImplicitSession(session => DropOne(session, name, cancellationToken), cancellationToken);
-            }
+            public override void DropOne(string name, CancellationToken cancellationToken = default)
+                => DropOne(name, null, cancellationToken: cancellationToken);
 
-            public override void DropOne(string name, DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                _collection.UsingImplicitSession(session => DropOne(session, name, options, cancellationToken), cancellationToken);
-            }
+            public override void DropOne(string name, DropIndexOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteWriteOperation(
+                    CreateDropOneOperation(name, options),
+                    _collection._writeOperationOptions,
+                    cancellationToken: cancellationToken);
 
-            public override void DropOne(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                DropOne(session, name, null, cancellationToken);
-            }
+            public override void DropOne(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
+                => DropOne(session, name, null, cancellationToken: cancellationToken);
 
             public override void DropOne(
                 IClientSessionHandle session,
                 string name,
                 DropIndexOptions options,
                 CancellationToken cancellationToken)
-            {
-                Ensure.IsNotNull(session, nameof(session));
-                Ensure.IsNotNullOrEmpty(name, nameof(name));
-                if (name == "*")
-                {
-                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAllAsync to drop all indexes.", "name");
-                }
+                => _collection._operationExecutor.ExecuteWriteOperation(
+                    CreateDropOneOperation(name, options),
+                    _collection._writeOperationOptions,
+                    Ensure.IsNotNull(session, nameof(session)),
+                    cancellationToken: cancellationToken);
 
-                var operation = CreateDropOneOperation(name, options);
-                _collection.ExecuteWriteOperation(session, operation, cancellationToken);
-            }
+            public override Task DropOneAsync(string name, CancellationToken cancellationToken = default)
+                => DropOneAsync(name, null, cancellationToken: cancellationToken);
 
-            public override Task DropOneAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return _collection.UsingImplicitSessionAsync(session => DropOneAsync(session, name, cancellationToken), cancellationToken);
-            }
+            public override Task DropOneAsync(string name, DropIndexOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteWriteOperationAsync(
+                    CreateDropOneOperation(name, options),
+                    _collection._writeOperationOptions,
+                    cancellationToken: cancellationToken);
 
-            public override Task DropOneAsync(string name, DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return _collection.UsingImplicitSessionAsync(session => DropOneAsync(session, name, options, cancellationToken), cancellationToken);
-            }
-
-            public override Task DropOneAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return DropOneAsync(session, name, null, cancellationToken);
-            }
+            public override Task DropOneAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
+                => DropOneAsync(session, name, null, cancellationToken: cancellationToken);
 
             public override Task DropOneAsync(
                 IClientSessionHandle session,
                 string name,
                 DropIndexOptions options,
                 CancellationToken cancellationToken)
-            {
-                Ensure.IsNotNull(session, nameof(session));
-                Ensure.IsNotNullOrEmpty(name, nameof(name));
-                if (name == "*")
-                {
-                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAllAsync to drop all indexes.", "name");
-                }
+                => _collection._operationExecutor.ExecuteWriteOperationAsync(
+                    CreateDropOneOperation(name, options),
+                    _collection._writeOperationOptions,
+                    Ensure.IsNotNull(session, nameof(session)),
+                    cancellationToken: cancellationToken);
 
-                var operation = CreateDropOneOperation(name, options);
-                return _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken);
-            }
+            public override IAsyncCursor<BsonDocument> List(CancellationToken cancellationToken = default)
+                => List(options: null, cancellationToken: cancellationToken);
 
-            public override IAsyncCursor<BsonDocument> List(CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return List(options: null, cancellationToken);
-            }
-
-            public override IAsyncCursor<BsonDocument> List(ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return _collection.UsingImplicitSession(session => List(session, options, cancellationToken), cancellationToken);
-            }
+            public override IAsyncCursor<BsonDocument> List(ListIndexesOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteReadOperation(
+                    CreateListIndexesOperation(options),
+                    _collection._readOperationOptions,
+                    cancellationToken: cancellationToken);
 
             public override IAsyncCursor<BsonDocument> List(IClientSessionHandle session, CancellationToken cancellationToken = default)
-            {
-                return List(session, options: null, cancellationToken);
-            }
+                => List(session, options: null, cancellationToken: cancellationToken);
 
-            public override IAsyncCursor<BsonDocument> List(IClientSessionHandle session, ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                Ensure.IsNotNull(session, nameof(session));
-                var operation = CreateListIndexesOperation(options);
-                return _collection.ExecuteReadOperation(session, operation, ReadPreference.Primary, cancellationToken);
-            }
+            public override IAsyncCursor<BsonDocument> List(IClientSessionHandle session, ListIndexesOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteReadOperation(
+                    CreateListIndexesOperation(options),
+                    _collection._readOperationOptions,
+                    Ensure.IsNotNull(session, nameof(session)),
+                    cancellationToken: cancellationToken);
 
-            public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return ListAsync(options: null, cancellationToken);
-            }
+            public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default)
+                => ListAsync(options: null, cancellationToken: cancellationToken);
 
-            public override Task<IAsyncCursor<BsonDocument>> ListAsync(ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return _collection.UsingImplicitSessionAsync(session => ListAsync(session, options, cancellationToken), cancellationToken);
-            }
+            public override Task<IAsyncCursor<BsonDocument>> ListAsync(ListIndexesOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteReadOperationAsync(
+                    CreateListIndexesOperation(options),
+                    _collection._readOperationOptions,
+                    cancellationToken: cancellationToken);
 
             public override Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, CancellationToken cancellationToken = default)
-            {
-                return ListAsync(session, options: null, cancellationToken);
-            }
+                => ListAsync(session, options: null, cancellationToken: cancellationToken);
 
-            public override Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                Ensure.IsNotNull(session, nameof(session));
-                var operation = CreateListIndexesOperation(options);
-                return _collection.ExecuteReadOperationAsync(session, operation, ReadPreference.Primary, cancellationToken);
-            }
+            public override Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, ListIndexesOptions options, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteReadOperationAsync(
+                    CreateListIndexesOperation(options),
+                    _collection._readOperationOptions,
+                    Ensure.IsNotNull(session, nameof(session)),
+                    cancellationToken: cancellationToken);
 
             // private methods
-            private CreateIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateIndexRequest> requests, CreateManyIndexesOptions options)
+            private CreateIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateIndexModel<TDocument>> models, CreateManyIndexesOptions options)
             {
+                Ensure.IsNotNull((object)models, nameof(models));
+                var requests = CreateCreateIndexRequests(models);
+
                 return new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings)
                 {
                     Comment = options?.Comment,
@@ -1760,8 +1494,9 @@ namespace MongoDB.Driver
                 };
             }
 
-            private IEnumerable<CreateIndexRequest> CreateCreateIndexRequests(IEnumerable<CreateIndexModel<TDocument>> models, RenderArgs<TDocument> renderArgs)
+            private IEnumerable<CreateIndexRequest> CreateCreateIndexRequests(IEnumerable<CreateIndexModel<TDocument>> models)
             {
+                var renderArgs = _collection.GetRenderArgs();
                 return models.Select(m =>
                 {
                     var options = m.Options ?? new CreateIndexOptions<TDocument>();
@@ -1809,6 +1544,12 @@ namespace MongoDB.Driver
 
             private DropIndexOperation CreateDropOneOperation(string name, DropIndexOptions options)
             {
+                Ensure.IsNotNullOrEmpty(name, nameof(name));
+                if (name == "*")
+                {
+                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAll and DropAllAsync to drop all indexes.", "name");
+                }
+
                 return new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings)
                 {
                     Comment = options?.Comment,
@@ -1842,74 +1583,68 @@ namespace MongoDB.Driver
             public IEnumerable<string> CreateMany(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default)
             {
                 var operation = CreateCreateIndexesOperation(models);
-                var result = _collection.UsingImplicitSession(session => _collection.ExecuteWriteOperation(session, operation, cancellationToken), cancellationToken);
-                var indexNames = GetIndexNames(result);
-
-                return indexNames;
+                var result = _collection._operationExecutor.ExecuteWriteOperation(operation, _collection._writeOperationOptions, cancellationToken: cancellationToken);
+                return GetIndexNames(result);
             }
 
             public async Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateSearchIndexModel> models, CancellationToken cancellationToken = default)
             {
                 var operation = CreateCreateIndexesOperation(models);
-                var result = await _collection.UsingImplicitSessionAsync(session => _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken), cancellationToken).ConfigureAwait(false);
-                var indexNames = GetIndexNames(result);
-
-                return indexNames;
+                var result = await _collection._operationExecutor.ExecuteWriteOperationAsync(operation, _collection._writeOperationOptions, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return GetIndexNames(result);
             }
 
             public string CreateOne(BsonDocument definition, string name = null, CancellationToken cancellationToken = default) =>
-                CreateOne(new CreateSearchIndexModel(name, definition), cancellationToken);
+                CreateOne(new CreateSearchIndexModel(name, definition), cancellationToken: cancellationToken);
 
             public string CreateOne(CreateSearchIndexModel model, CancellationToken cancellationToken = default)
             {
-                var result = CreateMany(new[] { model }, cancellationToken);
+                var result = CreateMany(new[] { model }, cancellationToken: cancellationToken);
                 return result.Single();
             }
 
             public Task<string> CreateOneAsync(BsonDocument definition, string name = null, CancellationToken cancellationToken = default) =>
-                CreateOneAsync(new CreateSearchIndexModel(name, definition), cancellationToken);
+                CreateOneAsync(new CreateSearchIndexModel(name, definition), cancellationToken: cancellationToken);
 
             public async Task<string> CreateOneAsync(CreateSearchIndexModel model, CancellationToken cancellationToken = default)
             {
-                var result = await CreateManyAsync(new[] { model }, cancellationToken).ConfigureAwait(false);
+                var result = await CreateManyAsync(new[] { model }, cancellationToken: cancellationToken).ConfigureAwait(false);
                 return result.Single();
             }
 
             public void DropOne(string indexName, CancellationToken cancellationToken = default)
-            {
-                var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings);
-                _collection.UsingImplicitSession(session => _collection.ExecuteWriteOperation(session, operation, cancellationToken), cancellationToken);
-            }
+                => _collection._operationExecutor.ExecuteWriteOperation(
+                    new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings),
+                    _collection._writeOperationOptions,
+                    cancellationToken: cancellationToken);
 
             public Task DropOneAsync(string indexName, CancellationToken cancellationToken = default)
-            {
-                var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings);
-                return _collection.UsingImplicitSessionAsync(session => _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken), cancellationToken);
-            }
+                => _collection._operationExecutor.ExecuteWriteOperationAsync(
+                    new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings),
+                    _collection._writeOperationOptions,
+                    cancellationToken: cancellationToken);
 
             public IAsyncCursor<BsonDocument> List(string indexName, AggregateOptions aggregateOptions = null, CancellationToken cancellationToken = default)
             {
-                return _collection.WithReadConcern(ReadConcern.Default).Aggregate(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken);
+                return _collection.WithReadConcern(ReadConcern.Default).Aggregate(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken: cancellationToken);
             }
 
             public Task<IAsyncCursor<BsonDocument>> ListAsync(string indexName, AggregateOptions aggregateOptions = null, CancellationToken cancellationToken = default)
             {
-                return _collection.WithReadConcern(ReadConcern.Default).AggregateAsync(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken);
+                return _collection.WithReadConcern(ReadConcern.Default).AggregateAsync(CreateListIndexesStage(indexName), aggregateOptions, cancellationToken: cancellationToken);
             }
 
             public void Update(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
-            {
-                var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
+                => _collection._operationExecutor.ExecuteWriteOperation(
+                    new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings),
+                    _collection._writeOperationOptions,
+                    cancellationToken: cancellationToken);
 
-                _collection.UsingImplicitSession(session => _collection.ExecuteWriteOperation(session, operation, cancellationToken), cancellationToken);
-            }
-
-            public async Task UpdateAsync(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
-            {
-                var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
-
-                await _collection.UsingImplicitSessionAsync(session => _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken), cancellationToken).ConfigureAwait(false);
-            }
+            public Task UpdateAsync(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
+                => _collection._operationExecutor.ExecuteWriteOperationAsync(
+                    new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings),
+                    _collection._writeOperationOptions,
+                    cancellationToken: cancellationToken);
 
             // private methods
             private PipelineDefinition<TDocument, BsonDocument> CreateListIndexesStage(string indexName)
