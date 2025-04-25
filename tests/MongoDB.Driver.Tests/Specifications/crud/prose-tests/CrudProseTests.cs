@@ -624,7 +624,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         public async Task Ensure_generated_ids_are_first_fields_in_document_using_insertOne([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
-            var client = CreateMongoClient(eventCapturer);
+            using var client = CreateMongoClient(eventCapturer);
             var testCollection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
 
             var document = new BsonDocument("x", 1);
@@ -648,7 +648,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         public async Task Ensure_generated_ids_are_first_fields_in_document_using_collection_bulkWrite([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
-            var client = CreateMongoClient(eventCapturer);
+            using var client = CreateMongoClient(eventCapturer);
             var testCollection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
 
             var document = new BsonDocument("x", 1);
@@ -674,7 +674,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
 
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
-            var client = CreateMongoClient(eventCapturer);
+            using var client = CreateMongoClient(eventCapturer);
 
             var document = new BsonDocument("x", 1);
             if (async)
