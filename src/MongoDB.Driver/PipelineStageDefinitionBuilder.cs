@@ -669,7 +669,7 @@ namespace MongoDB.Driver
             GeoNearOptions<TInput, TOutput> options = null)
         {
             Ensure.IsNotNull(near, nameof(near));
-            Ensure.That(near.Length, len => len is >= 2 and <= 3, nameof(near), "Legacy coordinates array should have 2 or 3 coordinates.");
+            Ensure.That(near.Length, len => len is 2 or 3, nameof(near), "Legacy coordinates array should have 2 or 3 coordinates.");
             return GeoNear<TInput, double[], TOutput>(near, options);
         }
 
