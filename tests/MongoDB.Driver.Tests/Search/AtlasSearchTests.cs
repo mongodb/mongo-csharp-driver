@@ -749,7 +749,7 @@ namespace MongoDB.Driver.Tests.Search
             var result =
                 GetSynonymTestCollection().Aggregate()
                     .Search(
-                        Builders<Movie>.Search.Text("plot", "attire", new SearchTextOptions<Movie> { Synonyms = "attireSynonyms", MatchCriteria = "any"}),
+                        Builders<Movie>.Search.Text("plot", "attire", new SearchTextOptions<Movie> { Synonyms = "attireSynonyms", MatchCriteria = MatchCriteria.Any}),
                         indexName: "synonyms-tests")
                     .Project<Movie>(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
                     .Limit(5)

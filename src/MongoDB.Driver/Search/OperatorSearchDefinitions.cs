@@ -475,7 +475,7 @@ namespace MongoDB.Driver.Search
     internal sealed class TextSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
     {
         private readonly SearchFuzzyOptions _fuzzy;
-        private readonly string _matchCriteria;
+        private readonly MatchCriteria? _matchCriteria;
         private readonly SearchQueryDefinition _query;
         private readonly string _synonyms;
 
@@ -512,7 +512,7 @@ namespace MongoDB.Driver.Search
                 { "query", _query.Render() },
                 { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
                 { "synonyms", _synonyms, _synonyms != null },
-                { "matchCriteria", _matchCriteria, _matchCriteria != null }
+                { "matchCriteria", _matchCriteria == MatchCriteria.Any ? "any" : "all", _matchCriteria != null }
             };
     }
 

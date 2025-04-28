@@ -1325,7 +1325,7 @@ namespace MongoDB.Driver.Tests.Search
                 "{ text: { query: ['foo', 'bar'], synonyms: 'testSynonyms', path: ['x', 'y'] } }");
 
             AssertRendered(
-                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, new SearchTextOptions<BsonDocument>{ MatchCriteria = "any" }),
+                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, new SearchTextOptions<BsonDocument>{ MatchCriteria = MatchCriteria.Any }),
                 "{ text: { query: ['foo', 'bar'], matchCriteria: 'any', path: ['x', 'y'] } }");
 
             AssertRendered(
@@ -1349,7 +1349,7 @@ namespace MongoDB.Driver.Tests.Search
                 "{ text: { query: 'foo', synonyms: 'testSynonyms', path: 'x', score: { constant: { value: 1 } } } }");
 
             AssertRendered(
-                subject.Text("x", "foo", new SearchTextOptions<BsonDocument> {Score = scoreBuilder.Constant(1), MatchCriteria = "all"}),
+                subject.Text("x", "foo", new SearchTextOptions<BsonDocument> {Score = scoreBuilder.Constant(1), MatchCriteria = MatchCriteria.All}),
                 "{ text: { query: 'foo', matchCriteria: 'all', path: 'x', score: { constant: { value: 1 } } } }");
         }
 
@@ -1362,7 +1362,7 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Text(x => x.FirstName, "foo"),
                 "{ text: { query: 'foo', path: 'fn' } }");
             AssertRendered(
-                subject.Text(x => x.FirstName, "foo", new SearchTextOptions<Person> { MatchCriteria = "all"}),
+                subject.Text(x => x.FirstName, "foo", new SearchTextOptions<Person> { MatchCriteria = MatchCriteria.All}),
                 "{ text: { query: 'foo', matchCriteria: 'all', path: 'fn' } }");
             AssertRendered(
                 subject.Text("FirstName", "foo"),
