@@ -13,6 +13,7 @@ parser.add_argument('template_file')
 
 options = parser.parse_args()
 
+options.docs_version = options.version_tag[:options.version_tag.rfind('.')]
 options.github_api_base_url = 'https://api.github.com/repos/'
 options.github_api_key = os.environ.get("GITHUB_APIKEY")
 options.github_headers = {
