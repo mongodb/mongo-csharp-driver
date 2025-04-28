@@ -475,9 +475,9 @@ namespace MongoDB.Driver.Search
     internal sealed class TextSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
     {
         private readonly SearchFuzzyOptions _fuzzy;
+        private readonly string _matchCriteria;
         private readonly SearchQueryDefinition _query;
         private readonly string _synonyms;
-        private readonly string _matchCriteria;
 
         public TextSearchDefinition(
             SearchPathDefinition<TDocument> path,

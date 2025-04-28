@@ -21,14 +21,14 @@ namespace MongoDB.Driver.Search
     public sealed class SearchPhraseOptions<TDocument>
     {
         /// <summary>
-        /// The allowable distance between words in the query phrase.
-        /// </summary>
-        public int? Slop { get; set; }
-
-        /// <summary>
         /// The score modifier.
         /// </summary>
         public SearchScoreDefinition<TDocument> Score { get; set; }
+
+        /// <summary>
+        /// The allowable distance between words in the query phrase.
+        /// </summary>
+        public int? Slop { get; set; }
 
         /// <summary>
         /// The name of the synonym mapping definition in the index definition. Value can't be an empty string.
