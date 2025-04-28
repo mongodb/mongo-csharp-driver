@@ -73,18 +73,23 @@ def load_pull_requests(opts):
     total_pages = 1
     page_size = 100
     commits_url = "{github_api_base_url}{repo}/compare/{previous_tag}...{version_tag}".format(
-        github_api_base_url=opts.github_api_base_url, repo=opts.repo, previous_tag=opts.previous_tag,
+        github_api_base_url=opts.github_api_base_url,
+        repo=opts.repo,
+        previous_tag=opts.previous_tag,
         version_tag=opts.version_tag)
     ignore_section = opts.template["ignore"]
 
     while total_pages > page:
-        commits = requests.get(commits_url, params={'per_page': page_size, 'page': page},
-                               headers=opts.github_headers).json()
+        response = requests.get(commits_url, params={'per_page': page_size, 'page': page}, headers=opts.github_headers)
+        response.raise_for_status()
+        commits = response.json()
         total_pages = commits["total_commits"] / page_size
 
         for commit in commits["commits"]:
             pullrequests_url = "{github_api_base_url}{repo}/commits/{commit_sha}/pulls".format(
-                github_api_base_url=opts.github_api_base_url, repo=opts.repo, commit_sha=commit["sha"])
+                github_api_base_url=opts.github_api_base_url,
+                repo=opts.repo,
+                commit_sha=commit["sha"])
             pullrequests = requests.get(pullrequests_url, headers=opts.github_headers).json()
             for pullrequest in pullrequests:
                 mapped = mapPullRequest(pullrequest, opts)
@@ -133,8 +138,9 @@ def process_section(section):
 def publish_release_notes(opts, title, content):
     print("Publishing release notes...")
     url = '{github_api_base_url}{repo}/releases/tags/{tag}'.format(github_api_base_url=opts.github_api_base_url, repo=opts.repo, tag=opts.version_tag)
-    r = requests.get(url, headers=options.github_headers)
-    if r.status_code == 200:
+    response = requests.get(url, headers=opts.github_headers)
+    response.raise_for_status()
+    if response.status_code == 200:
         raise SystemExit("Release with the tag already exists")
 
     post_data = {
@@ -145,10 +151,8 @@ def publish_release_notes(opts, title, content):
         "generate_release_notes": False,
         "make_latest": "false"
     }
-    r = requests.post(url, json=post_data, headers=headers)
-    if not r.ok:
-        raise SystemExit(
-            "Failed to create the release notes: ({code}) {reason}".format(code=r.status_code, reason=r.reason))
+    response = requests.post(url, json=post_data, headers=opts.github_headers)
+    response.raise_for_status()
 
 
 load_config(options)
@@ -177,6 +181,6 @@ print("----------")
 print(release_content)
 print("----------")
 
-# publish_release_notes(options, release_title, release_content)
+publish_release_notes(options, release_title, release_content)
 
 print("Done.")

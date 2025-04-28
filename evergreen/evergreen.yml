@@ -305,8 +305,8 @@ functions:
       params:
         working_dir: "mongo-csharp-driver"
         shell: "bash"
-        include_expansions_in_env:
-          - github_apikey
+        env:
+          GITHUB_APIKEY: ${github_apikey}
         script: |
           ${PREPARE_SHELL}
           ./evergreen/generate-release-notes.sh ${PACKAGE_VERSION} ${triggered_by_git_tag}
