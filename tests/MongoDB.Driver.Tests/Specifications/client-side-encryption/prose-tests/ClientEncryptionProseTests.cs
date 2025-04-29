@@ -766,7 +766,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [InlineData("aws", null, null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com", null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com:443", null, null)]
-        [InlineData("aws", "kms.us-east-1.amazonaws.com:12345", "$ConnectionRefused$", null)]
+        [InlineData("kmip", "localhost:12345", "$ConnectionRefused$", null)]
         [InlineData("aws", "kms.us-east-2.amazonaws.com", "_GenericCryptException_", null)]
         [InlineData("aws", "doesnotexist.invalid", "$HostNotFound,TryAgain$", null)]
         // additional not spec tests
@@ -779,7 +779,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         // kmip
         [InlineData("kmip", null, null, "$HostNotFound$")]
         [InlineData("kmip", "localhost:5698", null, null)]
-        [InlineData("kmip", "doesnotexist.local:5698", "$HostNotFound,TryAgain$", null)]
+        [InlineData("kmip", "doesnotexist.invalid:5698", "$HostNotFound,TryAgain$", null)]
         public void CustomEndpointTest(
             string kmsType,
             string customEndpoint,
@@ -889,7 +889,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         ko.Add("endpoint", "doesnotexist.invalid:443");
                         break;
                     case "kmip":
-                        AddOrReplace(ko, "endpoint", "doesnotexist.local:5698");
+                        AddOrReplace(ko, "endpoint", "doesnotexist.invalid:5698");
                         break;
                 }
             }
@@ -1600,7 +1600,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         },
                         "azure" or "azure:name1" => new BsonDocument
                         {
-                            { "keyVaultEndpoint", "doesnotexist.local" },
+                            { "keyVaultEndpoint", "doesnotexist.invalid" },
                             { "keyName", "foo" }
                         },
                         "gcp" or "gcp:name1" => new BsonDocument
