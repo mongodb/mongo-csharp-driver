@@ -550,7 +550,7 @@ namespace MongoDB.Driver.Search
             SearchQueryDefinition query,
             int? slop = null,
             SearchScoreDefinition<TDocument> score = null) =>
-                new PhraseSearchDefinition<TDocument>(path, query, slop, score);
+                new PhraseSearchDefinition<TDocument>(path, query, new SearchPhraseOptions<TDocument> { Slop = slop, Score = score });
 
         /// <summary>
         /// Creates a search definition that performs search for documents containing an ordered
@@ -789,7 +789,7 @@ namespace MongoDB.Driver.Search
             SearchQueryDefinition query,
             SearchFuzzyOptions fuzzy = null,
             SearchScoreDefinition<TDocument> score = null) =>
-                new TextSearchDefinition<TDocument>(path, query, fuzzy, score, null);
+                new TextSearchDefinition<TDocument>(path, query, new SearchTextOptions<TDocument> { Fuzzy = fuzzy, Score = score });
 
         /// <summary>
         /// Creates a search definition that performs full-text search with synonyms using the analyzer specified
@@ -805,7 +805,7 @@ namespace MongoDB.Driver.Search
             SearchQueryDefinition query,
             string synonyms,
             SearchScoreDefinition<TDocument> score = null) =>
-                new TextSearchDefinition<TDocument>(path, query, null, score, synonyms);
+                new TextSearchDefinition<TDocument>(path, query, new SearchTextOptions<TDocument> { Score = score, Synonyms = synonyms });
 
         /// <summary>
         /// Creates a search definition that performs full-text search using the analyzer specified

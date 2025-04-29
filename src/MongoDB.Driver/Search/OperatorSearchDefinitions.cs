@@ -333,17 +333,6 @@ namespace MongoDB.Driver.Search
         public PhraseSearchDefinition(
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
-            int? slop,
-            SearchScoreDefinition<TDocument> score)
-                : base(OperatorType.Phrase, path, score)
-        {
-            _query = Ensure.IsNotNull(query, nameof(query));
-            _slop = slop;
-        }
-
-        public PhraseSearchDefinition(
-            SearchPathDefinition<TDocument> path,
-            SearchQueryDefinition query,
             SearchPhraseOptions<TDocument> options)
             : base(OperatorType.Phrase, path, options?.Score)
         {
@@ -478,19 +467,6 @@ namespace MongoDB.Driver.Search
         private readonly MatchCriteria? _matchCriteria;
         private readonly SearchQueryDefinition _query;
         private readonly string _synonyms;
-
-        public TextSearchDefinition(
-            SearchPathDefinition<TDocument> path,
-            SearchQueryDefinition query,
-            SearchFuzzyOptions fuzzy,
-            SearchScoreDefinition<TDocument> score,
-            string synonyms)
-                : base(OperatorType.Text, path, score)
-        {
-            _query = Ensure.IsNotNull(query, nameof(query));
-            _fuzzy = fuzzy;
-            _synonyms = synonyms;
-        }
 
         public TextSearchDefinition(
             SearchPathDefinition<TDocument> path,

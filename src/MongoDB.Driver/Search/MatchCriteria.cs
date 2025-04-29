@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver.Search
 {
     /// <summary>
     /// Represents the criteria used to match terms in a query for the Atlas Search Text operator.

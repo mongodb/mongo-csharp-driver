@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Search
         /// The criteria to use to match the terms in the query. Value can be either "any" or "all".
         /// Defaults to "all" if omitted.
         /// </summary>
-        public MatchCriteria MatchCriteria { get; set; }
+        public MatchCriteria? MatchCriteria { get; set; }
 
         /// <summary>
         /// The score modifier.
