@@ -300,6 +300,17 @@ functions:
         content_type: text/markdown
         display_name: ssdlc_compliance_report.md
 
+  generate-release-notes:
+    - command: shell.exec
+      params:
+        working_dir: "mongo-csharp-driver"
+        shell: "bash"
+        env:
+          GITHUB_APIKEY: ${github_apikey}
+        script: |
+          ${PREPARE_SHELL}
+          ./evergreen/generate-release-notes.sh ${PACKAGE_VERSION} ${triggered_by_git_tag}
+
   bootstrap-mongohoused:
     - command: shell.exec
       params:
@@ -1581,6 +1592,10 @@ tasks:
         - func: download-and-promote-augmented-sbom-to-s3-bucket
         - func: generate-ssdlc-report
 
+    - name: generate-release-notes
+      commands:
+        - func: generate-release-notes
+
     - name: validate-apidocs
       commands:
         - func: install-dotnet
@@ -2525,7 +2540,6 @@ buildvariants:
       depends_on:
         - name: build-packages
           variant: ".build-packages"
-      ## add dependency onto packages smoke test once it implemented
 
 - matrix_name: test-SK
   matrix_spec:
@@ -2549,7 +2563,6 @@ buildvariants:
       depends_on:
         - name: build-packages
           variant: ".build-packages"
-        ## add dependency onto packages smoke test once it implemented
 
 - matrix_name: push-packages-myget
   matrix_spec:
@@ -2561,7 +2574,18 @@ buildvariants:
       depends_on:
         - name: build-packages
           variant: ".build-packages"
-        ## add dependency onto packages smoke test once it implemented
+
+- matrix_name: generate-release-notes
+  matrix_spec:
+    os: "ubuntu-2004"
+  display_name: "Generate release notes"
+  tags: ["release-tag"]
+  tasks:
+    - name: generate-release-notes
+      git_tag_only: true
+      depends_on:
+        - name: push-packages-nuget
+          variant: ".push-packages"
 
 - matrix_name: ssdlc-reports
   matrix_spec:
