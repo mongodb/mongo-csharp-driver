@@ -777,7 +777,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [InlineData("gcp", "cloudkms.googleapis.com:443", null, "$HostNotFound,TryAgain$")]
         [InlineData("gcp", "doesnotexist.invalid:443", "Invalid KMS response", null)]
         // kmip
-        [InlineData("kmip", null, null, "$HostNotFound$")]
+        [InlineData("kmip", null, null, "$HostNotFound,TryAgain$")]
         [InlineData("kmip", "localhost:5698", null, null)]
         [InlineData("kmip", "doesnotexist.invalid:5698", "$HostNotFound,TryAgain$", null)]
         public void CustomEndpointTest(
