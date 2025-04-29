@@ -22,7 +22,7 @@ options.github_headers = {
     "Accept": "application/vnd.github+json"
 }
 
-print("Prepare release notes for: tag {version_tag}, previous tag {previous_tag}".format(version_tag = options.version_tag, previous_tag = options.previous_tag))
+print("Preparing release notes for: tag {version_tag}, previous tag {previous_tag}".format(version_tag = options.version_tag, previous_tag = options.previous_tag))
 
 def load_config(opts):
     print("Loading template...")
@@ -141,7 +141,7 @@ def publish_release_notes(opts, title, content):
     url = '{github_api_base_url}{repo}/releases/tags/{tag}'.format(github_api_base_url=opts.github_api_base_url, repo=opts.repo, tag=opts.version_tag)
     response = requests.get(url, headers=opts.github_headers)
     response.raise_for_status()
-    if response.status_code == 200:
+    if response.status_code != 404:
         raise SystemExit("Release with the tag already exists")
 
     post_data = {
