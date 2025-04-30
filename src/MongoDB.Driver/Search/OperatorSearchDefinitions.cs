@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Search
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
             SearchPhraseOptions<TDocument> options)
-            : base(OperatorType.Phrase, path, options?.Score)
+                : base(OperatorType.Phrase, path, options?.Score)
         {
             _query = Ensure.IsNotNull(query, nameof(query));
             _slop = options?.Slop;
@@ -472,7 +472,7 @@ namespace MongoDB.Driver.Search
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
             SearchTextOptions<TDocument> options)
-            : base(OperatorType.Text, path, options?.Score)
+                : base(OperatorType.Text, path, options?.Score)
         {
             _query = Ensure.IsNotNull(query, nameof(query));
             _fuzzy = options?.Fuzzy;
@@ -488,7 +488,15 @@ namespace MongoDB.Driver.Search
                 { "query", _query.Render() },
                 { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
                 { "synonyms", _synonyms, _synonyms != null },
-                { "matchCriteria", _matchCriteria == MatchCriteria.Any ? "any" : "all", _matchCriteria != null }
+                {
+                    "matchCriteria", () => _matchCriteria switch
+                    {
+                        MatchCriteria.All => "all",
+                        MatchCriteria.Any => "any",
+                        _ => throw new ArgumentException("Invalid match criteria set for Atlas Search text operator.")
+                    },
+                    _matchCriteria != null
+                }
             };
     }
 
