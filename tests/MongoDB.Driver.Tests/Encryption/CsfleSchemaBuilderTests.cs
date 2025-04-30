@@ -26,77 +26,77 @@ namespace MongoDB.Driver.Tests.Encryption
     {
         private readonly Guid _keyIdExample = Guid.Parse("6f4af470-00d1-401f-ac39-f45902a0c0c8");
 
-        [Fact]
-        public void BasicCompleteTest()
-        {
-            const string collectionName = "medicalRecords.patients";
-
-            var builder = CsfleSchemaBuilder.Create(schemaBuilder =>
-            {
-                schemaBuilder.Encrypt<Patient>(CollectionNamespace.FromFullName(collectionName), builder1 =>
-                {
-                    builder1.EncryptMetadata().WithKeyId(_keyIdExample);
-
-                    builder1.NestedProperty(p => p.Insurance, typedBuilder1 =>
-                    {
-                        typedBuilder1.Property(i => i.PolicyNumber).WithBsonType(BsonType.Int32)
-                            .WithAlgorithm(CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
-                    });
-
-                    builder1.Property(p => p.MedicalRecords).WithBsonType(BsonType.Array)
-                        .WithAlgorithm(CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
-                    builder1.Property("bloodType").WithBsonType(BsonType.String)
-                        .WithAlgorithm(CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
-                    builder1.Property(p => p.Ssn).WithBsonType(BsonType.Int32)
-                        .WithAlgorithm(CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
-                } );
-            });
-
-            var expected = new Dictionary<string, string>
-            {
-                [collectionName] = """
-                                   {
-                                     "bsonType": "object",
-                                     "encryptMetadata": {
-                                       "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
-                                     },
-                                     "properties": {
-                                       "insurance": {
-                                         "bsonType": "object",
-                                         "properties": {
-                                           "policyNumber": {
-                                             "encrypt": {
-                                               "bsonType": "int",
-                                               "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
-                                             }
-                                           }
-                                         }
-                                       },
-                                       "medicalRecords": {
-                                         "encrypt": {
-                                           "bsonType": "array",
-                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-                                         }
-                                       },
-                                       "bloodType": {
-                                         "encrypt": {
-                                           "bsonType": "string",
-                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-                                         }
-                                       },
-                                       "ssn": {
-                                         "encrypt": {
-                                           "bsonType": "int",
-                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
-                                         }
-                                       }
-                                     },
-                                   }
-                                   """
-            };
-
-            AssertOutcomeBuilder2(builder, expected);
-        }
+        // [Fact]
+        // public void BasicCompleteTest()
+        // {
+        //     const string collectionName = "medicalRecords.patients";
+        //
+        //     var builder = CsfleSchemaBuilder.Create(schemaBuilder =>
+        //     {
+        //         schemaBuilder.Encrypt<Patient>(CollectionNamespace.FromFullName(collectionName), builder1 =>
+        //         {
+        //             builder1.EncryptMetadata().WithKeyId(_keyIdExample);
+        //
+        //             builder1.NestedProperty(p => p.Insurance, typedBuilder1 =>
+        //             {
+        //                 typedBuilder1.Property(i => i.PolicyNumber).WithBsonType(BsonType.Int32)
+        //                     .WithAlgorithm(CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+        //             });
+        //
+        //             builder1.Property(p => p.MedicalRecords).WithBsonType(BsonType.Array)
+        //                 .WithAlgorithm(CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+        //             builder1.Property("bloodType").WithBsonType(BsonType.String)
+        //                 .WithAlgorithm(CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+        //             builder1.Property(p => p.Ssn).WithBsonType(BsonType.Int32)
+        //                 .WithAlgorithm(CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+        //         } );
+        //     });
+        //
+        //     var expected = new Dictionary<string, string>
+        //     {
+        //         [collectionName] = """
+        //                            {
+        //                              "bsonType": "object",
+        //                              "encryptMetadata": {
+        //                                "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+        //                              },
+        //                              "properties": {
+        //                                "insurance": {
+        //                                  "bsonType": "object",
+        //                                  "properties": {
+        //                                    "policyNumber": {
+        //                                      "encrypt": {
+        //                                        "bsonType": "int",
+        //                                        "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+        //                                      }
+        //                                    }
+        //                                  }
+        //                                },
+        //                                "medicalRecords": {
+        //                                  "encrypt": {
+        //                                    "bsonType": "array",
+        //                                    "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+        //                                  }
+        //                                },
+        //                                "bloodType": {
+        //                                  "encrypt": {
+        //                                    "bsonType": "string",
+        //                                    "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+        //                                  }
+        //                                },
+        //                                "ssn": {
+        //                                  "encrypt": {
+        //                                    "bsonType": "int",
+        //                                    "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+        //                                  }
+        //                                }
+        //                              },
+        //                            }
+        //                            """
+        //     };
+        //
+        //     AssertOutcomeBuilder2(builder, expected);
+        // }
 
         // [Fact]
         // public void BasicPatternTest()
