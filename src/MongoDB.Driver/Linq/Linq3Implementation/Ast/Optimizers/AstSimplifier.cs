@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -449,6 +450,79 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 }
             }
 
+            // { $map : { input : { $map : { input : <innerInput>, as : "inner", in : { A : <exprA>, B : <exprB>, ... } } }, as: "outer", in : { F : '$$outer.A', G : "$$outer.B", ... } } }
+            // => { $map : { input : <innerInput>, as: "inner", in : { F : <exprA>, G : <exprB>, ... } } }
+            if (node.Input is AstMapExpression innerMapExpression &&
+                node.As is var outerVar &&
+                node.In is AstComputedDocumentExpression outerComputedDocumentExpression &&
+                innerMapExpression.Input is var innerInput &&
+                innerMapExpression.As is var innerVar &&
+                innerMapExpression.In is AstComputedDocumentExpression innerComputedDocumentExpression &&
+                outerComputedDocumentExpression.Fields.All(outerField =>
+                    outerField.Value is AstGetFieldExpression outerGetFieldExpression &&
+                    outerGetFieldExpression.Input == outerVar &&
+                    outerGetFieldExpression.FieldName is AstConstantExpression { Value : BsonString { Value : var matchingFieldName } } &&
+                    innerComputedDocumentExpression.Fields.Any(innerField => innerField.Path == matchingFieldName)))
+            {
+                var rewrittenOuterFields = new List<AstComputedField>();
+                foreach (var outerField in outerComputedDocumentExpression.Fields)
+                {
+                    var outerGetFieldExpression = (AstGetFieldExpression)outerField.Value;
+                    var matchingFieldName = ((AstConstantExpression)outerGetFieldExpression.FieldName).Value.AsString;
+                    var matchingInnerField = innerComputedDocumentExpression.Fields.Single(innerField => innerField.Path == matchingFieldName);
+                    var rewrittenOuterField = AstExpression.ComputedField(outerField.Path, matchingInnerField.Value);
+                    rewrittenOuterFields.Add(rewrittenOuterField);
+                }
+
+                var simplified = AstExpression.Map(
+                    input: innerInput,
+                    @as: innerVar,
+                    @in: AstExpression.ComputedDocument(rewrittenOuterFields));
+
+                return Visit(simplified);
+            }
+
+            // { $map : { input : [{ A : <exprA1>, B : <exprB1>, ... }, { A : <exprA2>, B : <exprB2>, ... }, ...], as : "item", in: { F : "$$item.A", G : "$$item.B", ... } } }
+            // => [{ F : <exprA1>, G : <exprB1>", ... }, { F : <exprA2>, G : <exprB2>, ... }, ...]
+            if (node.Input is AstComputedArrayExpression inputComputedArray &&
+                inputComputedArray.Items.Count >= 1 &&
+                inputComputedArray.Items[0] is AstComputedDocumentExpression firstComputedDocument &&
+                firstComputedDocument.Fields.Select(inputField => inputField.Path).ToArray() is var inputFieldNames &&
+                inputComputedArray.Items.Skip(1).All(otherItem =>
+                    otherItem is AstComputedDocumentExpression otherComputedDocument &&
+                    otherComputedDocument.Fields.Select(otherField => otherField.Path).SequenceEqual(inputFieldNames)) &&
+                node.As is var itemVar &&
+                node.In is AstComputedDocumentExpression mappedDocument &&
+                mappedDocument.Fields.All(mappedField =>
+                    mappedField.Value is AstGetFieldExpression mappedGetField &&
+                    mappedGetField.Input == itemVar &&
+                    mappedGetField.FieldName is AstConstantExpression { Value : BsonString { Value : var matchingFieldName } } &&
+                    inputFieldNames.Contains(matchingFieldName)))
+            {
+                var rewrittenItems = new List<AstExpression>();
+                foreach (var inputItem in inputComputedArray.Items)
+                {
+                    var inputDocument = (AstComputedDocumentExpression)inputItem;
+
+                    var rewrittenFields = new List<AstComputedField>();
+                    foreach (var mappedField in mappedDocument.Fields)
+                    {
+                        var mappedGetField = (AstGetFieldExpression)mappedField.Value;
+                        var matchingFieldName = ((AstConstantExpression)mappedGetField.FieldName).Value.AsString;
+                        var matchingInputField = inputDocument.Fields.Single(inputField => inputField.Path == matchingFieldName);
+                        var rewrittenField = AstExpression.ComputedField(mappedField.Path, matchingInputField.Value);
+                        rewrittenFields.Add(rewrittenField);
+                    }
+
+                    var rewrittenItem = AstExpression.ComputedDocument(rewrittenFields);
+                    rewrittenItems.Add(rewrittenItem);
+                }
+
+                var simplified = AstExpression.ComputedArray(rewrittenItems);
+
+                return Visit(simplified);
+            }
+
             return base.VisitMapExpression(node);
 
             static AstExpression UltimateGetFieldInput(AstGetFieldExpression getField)
@@ -567,7 +641,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 return AstExpression.Binary(oppositeComparisonOperator, argBinaryExpression.Arg1, argBinaryExpression.Arg2);
             }
 
+            // { $arrayToObject : [[{ k : 'A', v : <exprA> }, { k : 'B', v : <exprB> }, ...]] } => { A : <exprA>, B : <exprB>, ... }
+            if (node.Operator == AstUnaryOperator.ArrayToObject &&
+                arg is AstComputedArrayExpression computedArrayExpression &&
+                computedArrayExpression.Items.All(
+                    item =>
+                        item is AstComputedDocumentExpression computedDocumentExpression &&
+                        computedDocumentExpression.Fields.Count == 2 &&
+                        computedDocumentExpression.Fields[0].Path == "k" &&
+                        computedDocumentExpression.Fields[1].Path == "v" &&
+                        computedDocumentExpression.Fields[0].Value is AstConstantExpression { Value : { IsString : true } }))
+            {
+                var computedFields = computedArrayExpression.Items.Select(KeyValuePairDocumentToComputedField);
+                return AstExpression.ComputedDocument(computedFields);
+            }
+
             return node.Update(arg);
+
+            static AstComputedField KeyValuePairDocumentToComputedField(AstExpression expression)
+            {
+                // caller has verified that expression is of the form: { k : <stringConstant>, v : <valueExpression> }
+                var keyValuePairDocumentExpression = (AstComputedDocumentExpression)expression;
+                var keyConstantExpression = (AstConstantExpression)keyValuePairDocumentExpression.Fields[0].Value;
+                var valueExpression = keyValuePairDocumentExpression.Fields[1].Value;
+
+                return AstExpression.ComputedField(keyConstantExpression.Value.AsString, valueExpression);
+            }
         }
     }
 }
