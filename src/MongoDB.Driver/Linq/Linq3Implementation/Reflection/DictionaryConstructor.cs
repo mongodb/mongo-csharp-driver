@@ -23,8 +23,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     {
         public static bool IsWithIEnumerableKeyValuePairConstructor(ConstructorInfo constructor)
         {
+            var declaringType = constructor.DeclaringType;
             var parameters = constructor.GetParameters();
             return
+                declaringType.IsConstructedGenericType &&
+                declaringType.GetGenericTypeDefinition() == typeof(Dictionary<,>) &&
                 parameters.Length == 1 &&
                 parameters[0].ParameterType.ImplementsIEnumerable(out var enumerableType) &&
                 enumerableType.IsConstructedGenericType &&

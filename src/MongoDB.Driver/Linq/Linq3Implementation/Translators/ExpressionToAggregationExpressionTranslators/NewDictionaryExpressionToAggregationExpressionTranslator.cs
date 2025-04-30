@@ -26,12 +26,10 @@ using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
-        internal static class NewDictionaryExpressionToAggregationExpressionTranslator
+    internal static class NewDictionaryExpressionToAggregationExpressionTranslator
     {
         public static bool CanTranslate(NewExpression expression)
-            => expression.Type.IsConstructedGenericType &&
-               expression.Type.GetGenericTypeDefinition() == typeof(Dictionary<,>) &&
-               DictionaryConstructor.IsWithIEnumerableKeyValuePairConstructor(expression.Constructor);
+            => DictionaryConstructor.IsWithIEnumerableKeyValuePairConstructor(expression.Constructor);
 
         public static TranslatedExpression Translate(TranslationContext context, NewExpression expression)
         {
