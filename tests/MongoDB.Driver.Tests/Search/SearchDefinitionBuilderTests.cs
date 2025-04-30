@@ -1354,6 +1354,21 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Text_should_throw_with_invalid_options()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var query = subject.Text("x", "foo", new SearchTextOptions<BsonDocument> { MatchCriteria = (MatchCriteria)3 });
+
+            Action act = () =>
+                query.Render(new RenderArgs<BsonDocument>(
+                    BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>(),
+                    BsonSerializer.SerializerRegistry));
+
+            act.ShouldThrow<ArgumentException>();
+        }
+
+        [Fact]
         public void Text_typed()
         {
             var subject = CreateSubject<Person>();
