@@ -21,14 +21,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
     internal static class DictionaryConstructor
     {
-        // public static methods
-        public static bool IsIEnumerableKeyValuePairConstructor(ConstructorInfo ctor)
+        public static bool IsWithIEnumerableKeyValuePairConstructor(ConstructorInfo constructor)
         {
-            var parameters = ctor.GetParameters();
-            return parameters.Length == 1 &&
-                   parameters[0].ParameterType.ImplementsIEnumerable(out var enumerableType) &&
-                   enumerableType.IsConstructedGenericType &&
-                   enumerableType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
+            var parameters = constructor.GetParameters();
+            return
+                parameters.Length == 1 &&
+                parameters[0].ParameterType.ImplementsIEnumerable(out var enumerableType) &&
+                enumerableType.IsConstructedGenericType &&
+                enumerableType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
         }
     }
 }

@@ -15,85 +15,81 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
-    internal static class NewDictionaryExpressionToAggregationExpressionTranslator
+        internal static class NewDictionaryExpressionToAggregationExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, NewExpression expression)
-        {
-            var arguments = expression.Arguments;
-            var collectionExpression = arguments.Single();
-            var collectionTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, collectionExpression);
-
-            if (collectionTranslation.Serializer is IBsonArraySerializer bsonArraySerializer &&
-                bsonArraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
-            {
-                IBsonSerializer keySerializer = null;
-                IBsonSerializer valueSerializer = null;
-                AstExpression collectionTranslationAst;
-
-                if (itemSerializationInfo.Serializer is IKeyValuePairSerializer { Representation: BsonType.Array })
-                {
-                    collectionTranslationAst = collectionTranslation.Ast;
-                }
-                else if (itemSerializationInfo.Serializer is IBsonDocumentSerializer itemDocumentSerializer)
-                {
-                    if (!itemDocumentSerializer.TryGetMemberSerializationInfo("Key", out var keyMemberSerializationInfo) ||
-                        !itemDocumentSerializer.TryGetMemberSerializationInfo("Value", out var valueMemberSerializationInfo))
-                    {
-                        throw new ExpressionNotSupportedException(expression, because: $"document serializer class {itemSerializationInfo.Serializer.GetType()} does not provide member serialization info for required fields.");
-                    }
-
-                    if (keyMemberSerializationInfo.ElementName == "k" && valueMemberSerializationInfo.ElementName == "v")
-                    {
-                        collectionTranslationAst = collectionTranslation.Ast;
-                    }
-                    else
-                    {
-                        keySerializer = keyMemberSerializationInfo.Serializer;
-                        valueSerializer = valueMemberSerializationInfo.Serializer;
-
-                        var pairVar = AstExpression.Var("pair");
-                        var computedDocumentAst = AstExpression.ComputedDocument([
-                            AstExpression.ComputedField("k", AstExpression.GetField(pairVar, keyMemberSerializationInfo.ElementName)),
-                            AstExpression.ComputedField("v", AstExpression.GetField(pairVar, valueMemberSerializationInfo.ElementName))
-                        ]);
-                        collectionTranslationAst = AstExpression.Map(collectionTranslation.Ast, pairVar, computedDocumentAst);
-                    }
-                }
-                else
-                {
-                    throw new ExpressionNotSupportedException(expression, because: $"document serializer class {itemSerializationInfo.Serializer.GetType()} does not implement {nameof(IBsonDocumentSerializer)}");
-                }
-
-                if (keySerializer is not IRepresentationConfigurable { Representation: BsonType.String })
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "key did not serialize as a string");
-                }
-
-                var ast = AstExpression.Unary(AstUnaryOperator.ArrayToObject, collectionTranslationAst);
-                var resultSerializer = CreateDictionarySerializer(keySerializer, valueSerializer);
-                return new TranslatedExpression(expression, ast, resultSerializer);
-            }
-
-            throw new ExpressionNotSupportedException(expression);
-        }
-
         public static bool CanTranslate(NewExpression expression)
             => expression.Type.IsConstructedGenericType &&
                expression.Type.GetGenericTypeDefinition() == typeof(Dictionary<,>) &&
-                DictionaryConstructor.IsIEnumerableKeyValuePairConstructor(expression.Constructor);
+               DictionaryConstructor.IsWithIEnumerableKeyValuePairConstructor(expression.Constructor);
 
-        private static IBsonSerializer CreateDictionarySerializer(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        public static TranslatedExpression Translate(TranslationContext context, NewExpression expression)
+        {
+            var arguments = expression.Arguments;
+
+            var collectionExpression = arguments[0];
+            var collectionTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, collectionExpression);
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(collectionTranslation.Serializer);
+
+            IBsonSerializer keySerializer;
+            IBsonSerializer valueSerializer;
+            AstExpression collectionTranslationAst;
+
+            if (itemSerializer is IBsonDocumentSerializer itemDocumentSerializer)
+            {
+                if (!itemDocumentSerializer.TryGetMemberSerializationInfo("Key", out var keyMemberSerializationInfo))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {itemSerializer.GetType()} does not have a Key member");
+                }
+                keySerializer = keyMemberSerializationInfo.Serializer;
+
+                if (!itemDocumentSerializer.TryGetMemberSerializationInfo("Value", out var valueMemberSerializationInfo))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"serializer class {itemSerializer.GetType()} does not have a Value member");
+                }
+                valueSerializer = valueMemberSerializationInfo.Serializer;
+
+                if (keyMemberSerializationInfo.ElementName == "k" && valueMemberSerializationInfo.ElementName == "v")
+                {
+                    collectionTranslationAst = collectionTranslation.Ast;
+                }
+                else
+                {
+                    var pairVar = AstExpression.Var("pair");
+                    var computedDocumentAst = AstExpression.ComputedDocument([
+                        AstExpression.ComputedField("k", AstExpression.GetField(pairVar, keyMemberSerializationInfo.ElementName)),
+                        AstExpression.ComputedField("v", AstExpression.GetField(pairVar, valueMemberSerializationInfo.ElementName))
+                    ]);
+
+                    collectionTranslationAst = AstExpression.Map(collectionTranslation.Ast, pairVar, computedDocumentAst);
+                }
+            }
+            else
+            {
+                throw new ExpressionNotSupportedException(expression);
+            }
+
+            if (keySerializer is not IRepresentationConfigurable { Representation: BsonType.String })
+            {
+                throw new ExpressionNotSupportedException(expression, because: "key does not serialize as a string");
+            }
+
+            var ast = AstExpression.Unary(AstUnaryOperator.ArrayToObject, collectionTranslationAst);
+            var resultSerializer = CreateResultSerializer(keySerializer, valueSerializer);
+            return new TranslatedExpression(expression, ast, resultSerializer);
+        }
+
+        private static IBsonSerializer CreateResultSerializer(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
         {
             var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keySerializer.ValueType, valueSerializer.ValueType);
             var serializerType = typeof(DictionaryInterfaceImplementerSerializer<,,>).MakeGenericType(dictionaryType, keySerializer.ValueType, valueSerializer.ValueType);
