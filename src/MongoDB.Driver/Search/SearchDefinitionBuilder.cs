@@ -564,7 +564,7 @@ namespace MongoDB.Driver.Search
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
             SearchPhraseOptions<TDocument> options) =>
-            new PhraseSearchDefinition<TDocument>(path, query, options);
+                new PhraseSearchDefinition<TDocument>(path, query, options);
 
         /// <summary>
         /// Creates a search definition that performs search for documents containing an ordered
@@ -596,7 +596,7 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, TField>> path,
             SearchQueryDefinition query,
             SearchPhraseOptions<TDocument> options) =>
-            Phrase(new ExpressionFieldDefinition<TDocument>(path), query, options);
+                Phrase(new ExpressionFieldDefinition<TDocument>(path), query, options);
 
         /// <summary>
         /// Creates a search definition that queries a combination of indexed fields and values.
@@ -773,7 +773,7 @@ namespace MongoDB.Driver.Search
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
             SearchTextOptions<TDocument> options) =>
-            new TextSearchDefinition<TDocument>(path, query, options);
+                new TextSearchDefinition<TDocument>(path, query, options);
 
         /// <summary>
         /// Creates a search definition that performs full-text search using the analyzer specified
@@ -820,7 +820,7 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, TField>> path,
             SearchQueryDefinition query,
             SearchTextOptions<TDocument> options) =>
-            Text(new ExpressionFieldDefinition<TDocument>(path), query, options);
+                Text(new ExpressionFieldDefinition<TDocument>(path), query, options);
 
         /// <summary>
         /// Creates a search definition that performs full-text search using the analyzer specified

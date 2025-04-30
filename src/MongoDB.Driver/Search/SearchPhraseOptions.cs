@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Search
         public int? Slop { get; set; }
 
         /// <summary>
-        /// The name of the synonym mapping definition in the index definition. Value can't be an empty string.
+        /// The name of the synonym mapping definition in the index definition. Value can't be an empty string (e.g. "").
         /// </summary>
         public string Synonyms { get; set; }
     }
