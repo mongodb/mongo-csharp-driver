@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Encryption
 
         private CsfleSchemaBuilder()
         {
-
         }
 
         /// <summary>
@@ -72,7 +71,7 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// //TODO
         /// </summary>
-        internal EncryptedCollectionBuilder()  //TODO Probably this should be internal
+        internal EncryptedCollectionBuilder()
         {
         }
 
@@ -92,12 +91,59 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// //TODO
         /// </summary>
+        public EncryptedCollectionBuilder<TDocument> PatternProperty(
+            string pattern,
+            BsonType bsonType,
+            CsfleEncryptionAlgorithm? algorithm = null,
+            Guid? keyId = null)
+            => PatternProperty(pattern, [bsonType], algorithm, keyId);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public EncryptedCollectionBuilder<TDocument> PatternProperty(
+            string pattern,
+            BsonType[] bsonTypes,
+            CsfleEncryptionAlgorithm? algorithm = null,
+            Guid? keyId = null)
+        {
+            AddToPatternProperties(pattern, CreateEncryptDocument(bsonTypes, algorithm, keyId));
+            return this;
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public EncryptedCollectionBuilder<TDocument> PatternProperty<TField>(
+            Expression<Func<TDocument, TField>> path,
+            Action<EncryptedCollectionBuilder<TField>> configure)
+            => PatternProperty(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public EncryptedCollectionBuilder<TDocument> PatternProperty<TField>(
+            FieldDefinition<TDocument> path,
+            Action<EncryptedCollectionBuilder<TField>> configure)
+        {
+            var nestedBuilder = new EncryptedCollectionBuilder<TField>();
+            configure(nestedBuilder);
+
+            var fieldName = path.Render(_args).FieldName;
+
+            AddToPatternProperties(fieldName, nestedBuilder.Build());
+            return this;
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
             BsonType bsonType,
             CsfleEncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
-            => Property(path, new[] { bsonType }, algorithm, keyId);
+            => Property(path, [bsonType], algorithm, keyId);
 
         /// <summary>
         /// //TODO
@@ -117,7 +163,7 @@ namespace MongoDB.Driver.Encryption
             BsonType bsonType,
             CsfleEncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
-            => Property(path, new[] { bsonType }, algorithm, keyId);
+            => Property(path, [bsonType], algorithm, keyId);
 
         /// <summary>
         /// //TODO
@@ -128,30 +174,8 @@ namespace MongoDB.Driver.Encryption
             CsfleEncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
-            _schema["properties"] ??= new BsonDocument();
-            var properties = _schema["properties"].AsBsonDocument;
-
             var fieldName = path.Render(_args).FieldName;
-
-            var convertedBsonTypes = bsonTypes.Select(MapBsonTypeToString).ToList();
-            BsonValue bsonTypeVal = convertedBsonTypes.Count == 1
-                ? convertedBsonTypes[0]
-                : new BsonArray(convertedBsonTypes);
-
-            properties[fieldName] = new BsonDocument
-            {
-                { "encrypt", new BsonDocument
-                    {
-                        { "bsonType", bsonTypeVal },
-                        { "algorithm", () => MapCsfleEncyptionAlgorithmToString(algorithm!.Value), algorithm is not null },
-                        {
-                            "keyId",
-                            () => new BsonArray(new[] { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }),
-                            keyId is not null
-                        },
-                    }
-                }
-            };
+            AddToProperties(fieldName, CreateEncryptDocument(bsonTypes, algorithm, keyId));
             return this;
         }
 
@@ -174,11 +198,7 @@ namespace MongoDB.Driver.Encryption
             configure(nestedBuilder);
 
             var fieldName = path.Render(_args).FieldName;
-
-            _schema["properties"] ??= new BsonDocument();
-            var properties = _schema["properties"].AsBsonDocument;
-            properties[fieldName] = nestedBuilder.Build();
-
+            AddToProperties(fieldName, nestedBuilder.Build());
             return this;
         }
 
@@ -186,6 +206,54 @@ namespace MongoDB.Driver.Encryption
         /// //TODO
         /// </summary>
         public BsonDocument Build() => _schema;
+
+        private static BsonDocument CreateEncryptDocument(
+            BsonType[] bsonTypes,
+            CsfleEncryptionAlgorithm? algorithm = null,
+            Guid? keyId = null)
+        {
+            var convertedBsonTypes = bsonTypes.Select(MapBsonTypeToString).ToList();
+            BsonValue bsonTypeVal = convertedBsonTypes.Count == 1
+                ? convertedBsonTypes[0]
+                : new BsonArray(convertedBsonTypes);
+
+            return new BsonDocument
+            {
+                { "encrypt", new BsonDocument
+                    {
+                        { "bsonType", bsonTypeVal },
+                        { "algorithm", () => MapCsfleEncyptionAlgorithmToString(algorithm!.Value), algorithm is not null },
+                        {
+                            "keyId",
+                            () => new BsonArray(new[] { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }),
+                            keyId is not null
+                        },
+                    }
+                }
+            };
+        }
+
+        private void AddToPatternProperties(string field, BsonDocument document)
+        {
+            if (!_schema.TryGetValue("patternProperties", out var value))
+            {
+                value = new BsonDocument();
+                _schema["patternProperties"] = value;
+            }
+            var patternProperties = value.AsBsonDocument;
+            patternProperties[field] = document;
+        }
+
+        private void AddToProperties(string field, BsonDocument document)
+        {
+            if (!_schema.TryGetValue("properties", out var value))
+            {
+                value = new BsonDocument();
+                _schema["properties"] = value;
+            }
+            var properties = value.AsBsonDocument;
+            properties[field] = document;
+        }
 
         private static string MapBsonTypeToString(BsonType type)  //TODO Taken from AstTypeFilterOperation, do we have a common place where this could go?
         {
