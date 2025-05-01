@@ -328,6 +328,7 @@ namespace MongoDB.Driver.Search
     {
         private readonly SearchQueryDefinition _query;
         private readonly int? _slop;
+        private readonly string _synonyms;
 
         public PhraseSearchDefinition(
             SearchPathDefinition<TDocument> path,
@@ -340,12 +341,25 @@ namespace MongoDB.Driver.Search
             _slop = slop;
         }
 
+        public PhraseSearchDefinition(
+            SearchPathDefinition<TDocument> path,
+            SearchQueryDefinition query,
+            SearchPhraseOptions<TDocument> options)
+            : base(OperatorType.Phrase, path, options?.Score)
+        {
+            _query = Ensure.IsNotNull(query, nameof(query));
+            _slop = options?.Slop;
+            _synonyms = options?.Synonyms;
+        }
+
         private protected override BsonDocument RenderArguments(
             RenderArgs<TDocument> args,
-            IBsonSerializer fieldSerializer) => new()
+            IBsonSerializer fieldSerializer) =>
+            new()
             {
                 { "query", _query.Render() },
-                { "slop", _slop, _slop != null }
+                { "slop", _slop, _slop != null },
+                { "synonyms", _synonyms, _synonyms != null }
             };
     }
 
@@ -463,6 +477,7 @@ namespace MongoDB.Driver.Search
         private readonly SearchFuzzyOptions _fuzzy;
         private readonly SearchQueryDefinition _query;
         private readonly string _synonyms;
+        private readonly string _matchCriteria;
 
         public TextSearchDefinition(
             SearchPathDefinition<TDocument> path,
@@ -477,12 +492,27 @@ namespace MongoDB.Driver.Search
             _synonyms = synonyms;
         }
 
-        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            IBsonSerializer fieldSerializer) => new()
+        public TextSearchDefinition(
+            SearchPathDefinition<TDocument> path,
+            SearchQueryDefinition query,
+            SearchTextOptions<TDocument> options)
+            : base(OperatorType.Text, path, options?.Score)
+        {
+            _query = Ensure.IsNotNull(query, nameof(query));
+            _fuzzy = options?.Fuzzy;
+            _synonyms = options?.Synonyms;
+            _matchCriteria = options?.MatchCriteria;
+        }
+
+        private protected override BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer) =>
+            new()
             {
                 { "query", _query.Render() },
                 { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
-                { "synonyms", _synonyms, _synonyms != null }
+                { "synonyms", _synonyms, _synonyms != null },
+                { "matchCriteria", _matchCriteria, _matchCriteria != null }
             };
     }
 

@@ -556,6 +556,20 @@ namespace MongoDB.Driver.Search
         /// Creates a search definition that performs search for documents containing an ordered
         /// sequence of terms.
         /// </summary>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="query">The string or strings to search for.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>A phrase search definition.</returns>
+        public SearchDefinition<TDocument> Phrase(
+            SearchPathDefinition<TDocument> path,
+            SearchQueryDefinition query,
+            SearchPhraseOptions<TDocument> options) =>
+            new PhraseSearchDefinition<TDocument>(path, query, options);
+
+        /// <summary>
+        /// Creates a search definition that performs search for documents containing an ordered
+        /// sequence of terms.
+        /// </summary>
         /// <typeparam name="TField">The type of the field.</typeparam>
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
@@ -568,6 +582,21 @@ namespace MongoDB.Driver.Search
             int? slop = null,
             SearchScoreDefinition<TDocument> score = null) =>
                 Phrase(new ExpressionFieldDefinition<TDocument>(path), query, slop, score);
+
+        /// <summary>
+        /// Creates a search definition that performs search for documents containing an ordered
+        /// sequence of terms.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="query">The string or strings to search for.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>A phrase search definition.</returns>
+        public SearchDefinition<TDocument> Phrase<TField>(
+            Expression<Func<TDocument, TField>> path,
+            SearchQueryDefinition query,
+            SearchPhraseOptions<TDocument> options) =>
+            Phrase(new ExpressionFieldDefinition<TDocument>(path), query, options);
 
         /// <summary>
         /// Creates a search definition that queries a combination of indexed fields and values.
@@ -738,6 +767,20 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <param name="path">The indexed field or fields to search.</param>
         /// <param name="query">The string or strings to search for.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>A text search definition.</returns>
+        public SearchDefinition<TDocument> Text(
+            SearchPathDefinition<TDocument> path,
+            SearchQueryDefinition query,
+            SearchTextOptions<TDocument> options) =>
+            new TextSearchDefinition<TDocument>(path, query, options);
+
+        /// <summary>
+        /// Creates a search definition that performs full-text search using the analyzer specified
+        /// in the index configuration.
+        /// </summary>
+        /// <param name="path">The indexed field or fields to search.</param>
+        /// <param name="query">The string or strings to search for.</param>
         /// <param name="fuzzy">The options for fuzzy search.</param>
         /// <param name="score">The score modifier.</param>
         /// <returns>A text search definition.</returns>
@@ -763,6 +806,21 @@ namespace MongoDB.Driver.Search
             string synonyms,
             SearchScoreDefinition<TDocument> score = null) =>
                 new TextSearchDefinition<TDocument>(path, query, null, score, synonyms);
+
+        /// <summary>
+        /// Creates a search definition that performs full-text search using the analyzer specified
+        /// in the index configuration.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The indexed field or field to search.</param>
+        /// <param name="query">The string or strings to search for.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>A text search definition.</returns>
+        public SearchDefinition<TDocument> Text<TField>(
+            Expression<Func<TDocument, TField>> path,
+            SearchQueryDefinition query,
+            SearchTextOptions<TDocument> options) =>
+            Text(new ExpressionFieldDefinition<TDocument>(path), query, options);
 
         /// <summary>
         /// Creates a search definition that performs full-text search using the analyzer specified

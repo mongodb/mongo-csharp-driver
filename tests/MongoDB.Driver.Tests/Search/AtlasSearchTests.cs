@@ -422,6 +422,26 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void PhraseSynonym()
+        {
+            var result =
+                GetSynonymTestCollection().Aggregate()
+                    .Search(
+                        Builders<Movie>.Search.Phrase("plot", "automobile race", new SearchPhraseOptions<Movie> { Synonyms = "transportSynonyms" }),
+                        indexName: "synonyms-tests")
+                    .Project<Movie>(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
+                    .Limit(5)
+                    .ToList();
+
+            result.Count.Should().Be(5);
+            result[0].Title.Should().Be("The Great Race");
+            result[1].Title.Should().Be("The Cannonball Run");
+            result[2].Title.Should().Be("National Mechanics");
+            result[3].Title.Should().Be("Genevieve");
+            result[4].Title.Should().Be("Speedway Junky");
+        }
+
+        [Fact]
         public void PhraseWildcardPath()
         {
             var result = SearchSingle(
@@ -721,6 +741,26 @@ namespace MongoDB.Driver.Tests.Search
             var result = SearchSingle(Builders.Search.Text(x => x.Body, "life, liberty, and the pursuit of happiness"));
 
             result.Title.Should().Be("Declaration of Independence");
+        }
+
+        [Fact]
+        public void TextMatchCriteria()
+        {
+            var result =
+                GetSynonymTestCollection().Aggregate()
+                    .Search(
+                        Builders<Movie>.Search.Text("plot", "attire", new SearchTextOptions<Movie> { Synonyms = "attireSynonyms", MatchCriteria = "any"}),
+                        indexName: "synonyms-tests")
+                    .Project<Movie>(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
+                    .Limit(5)
+                    .ToList();
+
+            result.Count.Should().Be(5);
+            result[0].Title.Should().Be("The Royal Tailor");
+            result[1].Title.Should().Be("La guerre des tuques");
+            result[2].Title.Should().Be("The Dress");
+            result[3].Title.Should().Be("The Club");
+            result[4].Title.Should().Be("The Triple Echo");
         }
 
         [Theory]
