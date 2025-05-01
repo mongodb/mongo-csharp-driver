@@ -1358,12 +1358,8 @@ namespace MongoDB.Driver.Tests.Search
         {
             var subject = CreateSubject<BsonDocument>();
 
-            var query = subject.Text("x", "foo", new SearchTextOptions<BsonDocument> { MatchCriteria = (MatchCriteria)3 });
-
             Action act = () =>
-                query.Render(new RenderArgs<BsonDocument>(
-                    BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>(),
-                    BsonSerializer.SerializerRegistry));
+                subject.Text("x", "foo", new SearchTextOptions<BsonDocument> { MatchCriteria = (MatchCriteria)3 });
 
             act.ShouldThrow<ArgumentException>();
         }

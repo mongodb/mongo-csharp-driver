@@ -464,7 +464,7 @@ namespace MongoDB.Driver.Search
     internal sealed class TextSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
     {
         private readonly SearchFuzzyOptions _fuzzy;
-        private readonly MatchCriteria? _matchCriteria;
+        private readonly string _matchCriteria;
         private readonly SearchQueryDefinition _query;
         private readonly string _synonyms;
 
@@ -477,27 +477,27 @@ namespace MongoDB.Driver.Search
             _query = Ensure.IsNotNull(query, nameof(query));
             _fuzzy = options?.Fuzzy;
             _synonyms = options?.Synonyms;
-            _matchCriteria = options?.MatchCriteria;
+            _matchCriteria = options?.MatchCriteria switch
+            {
+                MatchCriteria.All => "all",
+                MatchCriteria.Any => "any",
+                null => null,
+                _ => throw new ArgumentException("Invalid match criteria set for Atlas Search text operator.")
+            };
         }
 
         private protected override BsonDocument RenderArguments(
             RenderArgs<TDocument> args,
-            IBsonSerializer fieldSerializer) =>
-            new()
+            IBsonSerializer fieldSerializer)
+        {
+            return new BsonDocument
             {
                 { "query", _query.Render() },
                 { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
                 { "synonyms", _synonyms, _synonyms != null },
-                {
-                    "matchCriteria", () => _matchCriteria switch
-                    {
-                        MatchCriteria.All => "all",
-                        MatchCriteria.Any => "any",
-                        _ => throw new ArgumentException("Invalid match criteria set for Atlas Search text operator.")
-                    },
-                    _matchCriteria != null
-                }
+                { "matchCriteria", _matchCriteria, _matchCriteria != null }
             };
+        }
     }
 
     internal sealed class WildcardSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
