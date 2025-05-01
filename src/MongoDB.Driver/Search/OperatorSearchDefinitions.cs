@@ -343,8 +343,7 @@ namespace MongoDB.Driver.Search
 
         private protected override BsonDocument RenderArguments(
             RenderArgs<TDocument> args,
-            IBsonSerializer fieldSerializer) =>
-            new()
+            IBsonSerializer fieldSerializer) => new()
             {
                 { "query", _query.Render() },
                 { "slop", _slop, _slop != null },
