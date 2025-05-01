@@ -1,0 +1,375 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Namespace MongoDB.Driver.Search
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Namespace MongoDB.Driver.Search
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/blob/main/apidocs/namespaces/MongoDB.Driver/MongoDB.Driver.Search.md/#L2">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.Search">
+
+  <h1 id="MongoDB_Driver_Search" data-uid="MongoDB.Driver.Search" class="text-break">Namespace MongoDB.Driver.Search
+</h1>
+  <div class="markdown level0 summary">
+<p>The MongoDB.Driver.Search namespace contains the Atlas Search related classes.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+
+    <h3 id="classes">
+Classes
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.Bound-1.html">Bound&lt;TValue&gt;</a></dt>
+      <dd><p>Represents a bound value.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.BsonDocumentSearchDefinition-1.html">BsonDocumentSearchDefinition&lt;TDocument&gt;</a></dt>
+      <dd><p>A search definition based on a BSON document.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.CompoundSearchDefinitionBuilder-1.html">CompoundSearchDefinitionBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>A builder for compound search definitions.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.GeoWithinArea-1.html">GeoWithinArea&lt;TCoordinates&gt;</a></dt>
+      <dd><p>Base class for area argument for GeoWithin queries.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.GeoWithinBox-1.html">GeoWithinBox&lt;TCoordinates&gt;</a></dt>
+      <dd><p>Object that specifies the bottom left and top right GeoJSON points of a box to
+search within.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.GeoWithinCircle-1.html">GeoWithinCircle&lt;TCoordinates&gt;</a></dt>
+      <dd><p>Object that specifies the center point and the radius in meters to search within.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.GeoWithinGeometry-1.html">GeoWithinGeometry&lt;TCoordinates&gt;</a></dt>
+      <dd><p>Object that specifies the GeoJson geometry to search within.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.JsonSearchDefinition-1.html">JsonSearchDefinition&lt;TDocument&gt;</a></dt>
+      <dd><p>A search definition based on a JSON string.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.MultiSearchQueryDefinition.html">MultiSearchQueryDefinition</a></dt>
+      <dd><p>A query definition for multiple strings.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.RankFusionScoreDetails.html">RankFusionScoreDetails</a></dt>
+      <dd><p>Represents the scoreDetails object for a document from a $rankFusion result.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchCountOptions.html">SearchCountOptions</a></dt>
+      <dd><p>Options for counting the search results.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionBuilder-1.html">SearchDefinitionBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>A builder for a search definition.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinitionExtensions.html">SearchDefinitionExtensions</a></dt>
+      <dd><p>Extension methods for SearchDefinition.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchDefinition-1.html">SearchDefinition&lt;TDocument&gt;</a></dt>
+      <dd><p>Base class for search definitions.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacetBuilder-1.html">SearchFacetBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>A builder for a search facet.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchFacet-1.html">SearchFacet&lt;TDocument&gt;</a></dt>
+      <dd><p>Base class for search facets.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchFuzzyOptions.html">SearchFuzzyOptions</a></dt>
+      <dd><p>Options for fuzzy search.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchHighlight.html">SearchHighlight</a></dt>
+      <dd><p>Represents a result of highlighting.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchHighlightOptions-1.html">SearchHighlightOptions&lt;TDocument&gt;</a></dt>
+      <dd><p>Options for highlighting.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchHighlightText.html">SearchHighlightText</a></dt>
+      <dd><p>Represents the matching text or the surrounding text of a highlighting result.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchMetaCountResult.html">SearchMetaCountResult</a></dt>
+      <dd><p>A search count result set.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchMetaFacetBucketResult.html">SearchMetaFacetBucketResult</a></dt>
+      <dd><p>A search facet bucket result set.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchMetaFacetResult.html">SearchMetaFacetResult</a></dt>
+      <dd><p>A search facet result set.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchMetaResult.html">SearchMetaResult</a></dt>
+      <dd><p>A result set for a search metadata query.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchOptions-1.html">SearchOptions&lt;TDocument&gt;</a></dt>
+      <dd><p>Options for search.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinitionBuilder-1.html">SearchPathDefinitionBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>A builder for a search path.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchPathDefinition-1.html">SearchPathDefinition&lt;TDocument&gt;</a></dt>
+      <dd><p>Base class for search paths.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchPhraseOptions-1.html">SearchPhraseOptions&lt;TDocument&gt;</a></dt>
+      <dd><p>Options for atlas search phrase operator.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchQueryDefinition.html">SearchQueryDefinition</a></dt>
+      <dd><p>Base class for search queries.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchRangeBuilder.html">SearchRangeBuilder</a></dt>
+      <dd><p>A builder for a SearchRange.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchRangeV2Builder.html">SearchRangeV2Builder</a></dt>
+      <dd><p>A builder for a SearchRangeV2.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinitionBuilder-1.html">SearchScoreDefinitionBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>A builder for a score modifier.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDefinition-1.html">SearchScoreDefinition&lt;TDocument&gt;</a></dt>
+      <dd><p>Base class for search score modifiers.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreDetails.html">SearchScoreDetails</a></dt>
+      <dd><p>Represents the scoreDetails object for a document from a $search result.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunctionBuilder-1.html">SearchScoreFunctionBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>A builder for a score function.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchScoreFunction-1.html">SearchScoreFunction&lt;TDocument&gt;</a></dt>
+      <dd><p>Base class for search score functions.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinitionBuilder-1.html">SearchSpanDefinitionBuilder&lt;TDocument&gt;</a></dt>
+      <dd><p>A builder for a span clause.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchSpanDefinition-1.html">SearchSpanDefinition&lt;TDocument&gt;</a></dt>
+      <dd><p>Base class for span clauses.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchTextOptions-1.html">SearchTextOptions&lt;TDocument&gt;</a></dt>
+      <dd><p>Options for atlas search text operator.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchTrackingOptions.html">SearchTrackingOptions</a></dt>
+      <dd><p>Options for tracking the search query.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SingleSearchQueryDefinition.html">SingleSearchQueryDefinition</a></dt>
+      <dd><p>A query definition for a single string.</p>
+</dd>
+    </dl>
+    <h3 id="structs">
+Structs
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchRangeV2-1.html">SearchRangeV2&lt;TValue&gt;</a></dt>
+      <dd><p>Object that specifies the boundaries for a range query.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchRange-1.html">SearchRange&lt;TValue&gt;</a></dt>
+      <dd><p>Object that specifies range of scalar and DateTime values.</p>
+</dd>
+    </dl>
+    <h3 id="interfaces">
+Interfaces
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.IMongoSearchIndexManager.html">IMongoSearchIndexManager</a></dt>
+      <dd><p>An interface representing methods used to create, delete and modify search indexes.</p>
+</dd>
+    </dl>
+    <h3 id="enums">
+Enums
+</h3>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.GeoShapeRelation.html">GeoShapeRelation</a></dt>
+      <dd><p>The relation of the query shape geometry to the indexed field geometry in a
+geo shape search definition.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.HighlightTextType.html">HighlightTextType</a></dt>
+      <dd><p>Represents the type of text in a highlighting result, matching or surrounding.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.MatchCriteria.html">MatchCriteria</a></dt>
+      <dd><p>Represents the criteria used to match terms in a query for the Atlas Search Text operator.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchAutocompleteTokenOrder.html">SearchAutocompleteTokenOrder</a></dt>
+      <dd><p>The order in which to search for tokens in an autocomplete search definition.</p>
+</dd>
+    </dl>
+    <dl class="jumplist">
+      <dt><a class="xref" href="MongoDB.Driver.Search.SearchCountType.html">SearchCountType</a></dt>
+      <dd><p>The type of count of the documents in a search result set.</p>
+</dd>
+    </dl>
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

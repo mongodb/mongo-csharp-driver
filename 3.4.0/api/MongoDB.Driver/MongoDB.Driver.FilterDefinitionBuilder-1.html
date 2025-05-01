@@ -1,0 +1,862 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class FilterDefinitionBuilder&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class FilterDefinitionBuilder&lt;TDocument&gt;
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_FilterDefinitionBuilder_1.md&amp;value=---%0Auid%3A%20MongoDB.Driver.FilterDefinitionBuilder%601%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.FilterDefinitionBuilder`1">
+
+
+
+  <h1 id="MongoDB_Driver_FilterDefinitionBuilder_1" data-uid="MongoDB.Driver.FilterDefinitionBuilder`1" class="text-break">
+    Class FilterDefinitionBuilder&lt;TDocument&gt;
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/FilterDefinitionBuilder.cs/#L38"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>A builder for a <a class="xref" href="MongoDB.Driver.FilterDefinition-1.html">FilterDefinition&lt;TDocument&gt;</a>.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class FilterDefinitionBuilder&lt;TDocument&gt;</code></pre>
+  </div>
+
+
+
+  <h4 class="section">Type Parameters</h4>
+  <dl class="parameters">
+    <dt><code>TDocument</code></dt>
+    <dd><p>The type of the document.</p>
+</dd>
+  </dl>
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">FilterDefinitionBuilder&lt;TDocument&gt;</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="properties">Properties
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Empty.html#MongoDB_Driver_FilterDefinitionBuilder_1_Empty">Empty</a></dt>
+    <dd><p>Gets an empty filter. An empty filter matches everything.</p>
+</dd>
+  </dl>
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.All.html#MongoDB_Driver_FilterDefinitionBuilder_1_All__1_MongoDB_Driver_FieldDefinition__0__System_Collections_Generic_IEnumerable___0__">All&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, IEnumerable&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates an all filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.All.html#MongoDB_Driver_FilterDefinitionBuilder_1_All__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">All&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, IEnumerable&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates an all filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.And.html#MongoDB_Driver_FilterDefinitionBuilder_1_And_MongoDB_Driver_FilterDefinition__0____">And(params FilterDefinition&lt;TDocument&gt;[])</a></dt>
+    <dd><p>Creates an and filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.And.html#MongoDB_Driver_FilterDefinitionBuilder_1_And_System_Collections_Generic_IEnumerable_MongoDB_Driver_FilterDefinition__0___">And(IEnumerable&lt;FilterDefinition&lt;TDocument&gt;&gt;)</a></dt>
+    <dd><p>Creates an and filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyEq.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyEq__1_MongoDB_Driver_FieldDefinition__0____0_">AnyEq&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, TItem)</a></dt>
+    <dd><p>Creates an equality filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyEq.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyEq__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">AnyEq&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, TItem)</a></dt>
+    <dd><p>Creates an equality filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyGt.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyGt__1_MongoDB_Driver_FieldDefinition__0____0_">AnyGt&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, TItem)</a></dt>
+    <dd><p>Creates a greater than filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyGt.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyGt__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">AnyGt&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, TItem)</a></dt>
+    <dd><p>Creates a greater than filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyGte.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyGte__1_MongoDB_Driver_FieldDefinition__0____0_">AnyGte&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, TItem)</a></dt>
+    <dd><p>Creates a greater than or equal filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyGte.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyGte__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">AnyGte&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, TItem)</a></dt>
+    <dd><p>Creates a greater than or equal filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyIn__1_MongoDB_Driver_FieldDefinition__0__System_Collections_Generic_IEnumerable___0__">AnyIn&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, IEnumerable&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates an in filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyIn__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">AnyIn&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, IEnumerable&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates an in filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyLt.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyLt__1_MongoDB_Driver_FieldDefinition__0____0_">AnyLt&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, TItem)</a></dt>
+    <dd><p>Creates a less than filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyLt.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyLt__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">AnyLt&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, TItem)</a></dt>
+    <dd><p>Creates a less than filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyLte.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyLte__1_MongoDB_Driver_FieldDefinition__0____0_">AnyLte&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, TItem)</a></dt>
+    <dd><p>Creates a less than or equal filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyLte.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyLte__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">AnyLte&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, TItem)</a></dt>
+    <dd><p>Creates a less than or equal filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyNe.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyNe__1_MongoDB_Driver_FieldDefinition__0____0_">AnyNe&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, TItem)</a></dt>
+    <dd><p>Creates a not equal filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyNe.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyNe__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0______0_">AnyNe&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, TItem)</a></dt>
+    <dd><p>Creates a not equal filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyNin__1_MongoDB_Driver_FieldDefinition__0__System_Collections_Generic_IEnumerable___0__">AnyNin&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, IEnumerable&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates a not in filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyNin__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Collections_Generic_IEnumerable___0__">AnyNin&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, IEnumerable&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates a not in filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyStringIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyStringIn_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable_System_String___MongoDB_Driver_StringOrRegularExpression___">AnyStringIn(FieldDefinition&lt;TDocument, IEnumerable&lt;string&gt;&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Creates an in filter for a string array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyStringIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyStringIn_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable_System_String___System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">AnyStringIn(FieldDefinition&lt;TDocument, IEnumerable&lt;string&gt;&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Creates an in filter for a string array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyStringIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyStringIn_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_String____MongoDB_Driver_StringOrRegularExpression___">AnyStringIn(Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Creates an in filter for a string array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyStringIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyStringIn_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_String____System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">AnyStringIn(Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Creates an in filter for a string array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyStringNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyStringNin_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable_System_String___MongoDB_Driver_StringOrRegularExpression___">AnyStringNin(FieldDefinition&lt;TDocument, IEnumerable&lt;string&gt;&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Creates a not in filter for a string array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyStringNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyStringNin_MongoDB_Driver_FieldDefinition__0_System_Collections_Generic_IEnumerable_System_String___System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">AnyStringNin(FieldDefinition&lt;TDocument, IEnumerable&lt;string&gt;&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Creates a not in filter for a string array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyStringNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyStringNin_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_String____MongoDB_Driver_StringOrRegularExpression___">AnyStringNin(Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Creates a not in filter for a string array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.AnyStringNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_AnyStringNin_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable_System_String____System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">AnyStringNin(Expression&lt;Func&lt;TDocument, IEnumerable&lt;string&gt;&gt;&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Creates a not in filter for a string array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.BitsAllClear.html#MongoDB_Driver_FilterDefinitionBuilder_1_BitsAllClear_MongoDB_Driver_FieldDefinition__0__System_Int64_">BitsAllClear(FieldDefinition&lt;TDocument&gt;, long)</a></dt>
+    <dd><p>Creates a bits all clear filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.BitsAllClear.html#MongoDB_Driver_FilterDefinitionBuilder_1_BitsAllClear_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_">BitsAllClear(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)</a></dt>
+    <dd><p>Creates a bits all clear filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.BitsAllSet.html#MongoDB_Driver_FilterDefinitionBuilder_1_BitsAllSet_MongoDB_Driver_FieldDefinition__0__System_Int64_">BitsAllSet(FieldDefinition&lt;TDocument&gt;, long)</a></dt>
+    <dd><p>Creates a bits all set filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.BitsAllSet.html#MongoDB_Driver_FilterDefinitionBuilder_1_BitsAllSet_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_">BitsAllSet(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)</a></dt>
+    <dd><p>Creates a bits all set filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.BitsAnyClear.html#MongoDB_Driver_FilterDefinitionBuilder_1_BitsAnyClear_MongoDB_Driver_FieldDefinition__0__System_Int64_">BitsAnyClear(FieldDefinition&lt;TDocument&gt;, long)</a></dt>
+    <dd><p>Creates a bits any clear filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.BitsAnyClear.html#MongoDB_Driver_FilterDefinitionBuilder_1_BitsAnyClear_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_">BitsAnyClear(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)</a></dt>
+    <dd><p>Creates a bits any clear filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.BitsAnySet.html#MongoDB_Driver_FilterDefinitionBuilder_1_BitsAnySet_MongoDB_Driver_FieldDefinition__0__System_Int64_">BitsAnySet(FieldDefinition&lt;TDocument&gt;, long)</a></dt>
+    <dd><p>Creates a bits any set filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.BitsAnySet.html#MongoDB_Driver_FilterDefinitionBuilder_1_BitsAnySet_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_">BitsAnySet(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long)</a></dt>
+    <dd><p>Creates a bits any set filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.ElemMatch.html#MongoDB_Driver_FilterDefinitionBuilder_1_ElemMatch__1_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_FilterDefinition___0__">ElemMatch&lt;TItem&gt;(FieldDefinition&lt;TDocument&gt;, FilterDefinition&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates an element match filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.ElemMatch.html#MongoDB_Driver_FilterDefinitionBuilder_1_ElemMatch__1_MongoDB_Driver_FilterDefinition___0__">ElemMatch&lt;TItem&gt;(FilterDefinition&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates an element match filter for an array value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.ElemMatch.html#MongoDB_Driver_FilterDefinitionBuilder_1_ElemMatch__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____MongoDB_Driver_FilterDefinition___0__">ElemMatch&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, FilterDefinition&lt;TItem&gt;)</a></dt>
+    <dd><p>Creates an element match filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.ElemMatch.html#MongoDB_Driver_FilterDefinitionBuilder_1_ElemMatch__1_System_Linq_Expressions_Expression_System_Func__0_System_Collections_Generic_IEnumerable___0____System_Linq_Expressions_Expression_System_Func___0_System_Boolean___">ElemMatch&lt;TItem&gt;(Expression&lt;Func&lt;TDocument, IEnumerable&lt;TItem&gt;&gt;&gt;, Expression&lt;Func&lt;TItem, bool&gt;&gt;)</a></dt>
+    <dd><p>Creates an element match filter for an array field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.ElemMatch.html#MongoDB_Driver_FilterDefinitionBuilder_1_ElemMatch__1_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___">ElemMatch&lt;TItem&gt;(Expression&lt;Func&lt;TItem, bool&gt;&gt;)</a></dt>
+    <dd><p>Creates an element match filter for an array value.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Eq.html#MongoDB_Driver_FilterDefinitionBuilder_1_Eq__1_MongoDB_Driver_FieldDefinition__0___0____0_">Eq&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, TField)</a></dt>
+    <dd><p>Creates an equality filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Eq.html#MongoDB_Driver_FilterDefinitionBuilder_1_Eq__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Eq&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField)</a></dt>
+    <dd><p>Creates an equality filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Exists.html#MongoDB_Driver_FilterDefinitionBuilder_1_Exists_MongoDB_Driver_FieldDefinition__0__System_Boolean_">Exists(FieldDefinition&lt;TDocument&gt;, bool)</a></dt>
+    <dd><p>Creates an exists filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Exists.html#MongoDB_Driver_FilterDefinitionBuilder_1_Exists_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Boolean_">Exists(Expression&lt;Func&lt;TDocument, object&gt;&gt;, bool)</a></dt>
+    <dd><p>Creates an exists filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoIntersects.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoIntersects__1_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__">GeoIntersects&lt;TCoordinates&gt;(FieldDefinition&lt;TDocument&gt;, GeoJsonGeometry&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Creates a geo intersects filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoIntersects.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoIntersects__1_System_Linq_Expressions_Expression_System_Func__0_System_Object___MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__">GeoIntersects&lt;TCoordinates&gt;(Expression&lt;Func&lt;TDocument, object&gt;&gt;, GeoJsonGeometry&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Creates a geo intersects filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithinBox.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithinBox_MongoDB_Driver_FieldDefinition__0__System_Double_System_Double_System_Double_System_Double_">GeoWithinBox(FieldDefinition&lt;TDocument&gt;, double, double, double, double)</a></dt>
+    <dd><p>Creates a geo within box filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithinBox.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithinBox_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Double_System_Double_System_Double_System_Double_">GeoWithinBox(Expression&lt;Func&lt;TDocument, object&gt;&gt;, double, double, double, double)</a></dt>
+    <dd><p>Creates a geo within box filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithinCenter.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithinCenter_MongoDB_Driver_FieldDefinition__0__System_Double_System_Double_System_Double_">GeoWithinCenter(FieldDefinition&lt;TDocument&gt;, double, double, double)</a></dt>
+    <dd><p>Creates a geo within center filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithinCenter.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithinCenter_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Double_System_Double_System_Double_">GeoWithinCenter(Expression&lt;Func&lt;TDocument, object&gt;&gt;, double, double, double)</a></dt>
+    <dd><p>Creates a geo within center filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithinCenterSphere.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithinCenterSphere_MongoDB_Driver_FieldDefinition__0__System_Double_System_Double_System_Double_">GeoWithinCenterSphere(FieldDefinition&lt;TDocument&gt;, double, double, double)</a></dt>
+    <dd><p>Creates a geo within center sphere filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithinCenterSphere.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithinCenterSphere_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Double_System_Double_System_Double_">GeoWithinCenterSphere(Expression&lt;Func&lt;TDocument, object&gt;&gt;, double, double, double)</a></dt>
+    <dd><p>Creates a geo within center sphere filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithinPolygon.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithinPolygon_MongoDB_Driver_FieldDefinition__0__System_Double_0__0___">GeoWithinPolygon(FieldDefinition&lt;TDocument&gt;, double[,])</a></dt>
+    <dd><p>Creates a geo within polygon filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithinPolygon.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithinPolygon_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Double_0__0___">GeoWithinPolygon(Expression&lt;Func&lt;TDocument, object&gt;&gt;, double[,])</a></dt>
+    <dd><p>Creates a geo within polygon filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithin.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithin__1_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__">GeoWithin&lt;TCoordinates&gt;(FieldDefinition&lt;TDocument&gt;, GeoJsonGeometry&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Creates a geo within filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.GeoWithin.html#MongoDB_Driver_FilterDefinitionBuilder_1_GeoWithin__1_System_Linq_Expressions_Expression_System_Func__0_System_Object___MongoDB_Driver_GeoJsonObjectModel_GeoJsonGeometry___0__">GeoWithin&lt;TCoordinates&gt;(Expression&lt;Func&lt;TDocument, object&gt;&gt;, GeoJsonGeometry&lt;TCoordinates&gt;)</a></dt>
+    <dd><p>Creates a geo within filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gt_MongoDB_Driver_FieldDefinition__0_System_UInt32__System_UInt32_">Gt(FieldDefinition&lt;TDocument, uint&gt;, uint)</a></dt>
+    <dd><p>Creates a greater than filter for a UInt32 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gt_MongoDB_Driver_FieldDefinition__0_System_UInt64__System_UInt64_">Gt(FieldDefinition&lt;TDocument, ulong&gt;, ulong)</a></dt>
+    <dd><p>Creates a greater than filter for a UInt64 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gt_System_Linq_Expressions_Expression_System_Func__0_System_UInt32___System_UInt32_">Gt(Expression&lt;Func&lt;TDocument, uint&gt;&gt;, uint)</a></dt>
+    <dd><p>Creates a greater than filter for a UInt32 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gt_System_Linq_Expressions_Expression_System_Func__0_System_UInt64___System_UInt64_">Gt(Expression&lt;Func&lt;TDocument, ulong&gt;&gt;, ulong)</a></dt>
+    <dd><p>Creates a greater than filter for a UInt64 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gt__1_MongoDB_Driver_FieldDefinition__0___0____0_">Gt&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, TField)</a></dt>
+    <dd><p>Creates a greater than filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gt__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Gt&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField)</a></dt>
+    <dd><p>Creates a greater than filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gte_MongoDB_Driver_FieldDefinition__0_System_UInt32__System_UInt32_">Gte(FieldDefinition&lt;TDocument, uint&gt;, uint)</a></dt>
+    <dd><p>Creates a greater than or equal filter for a UInt32 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gte_MongoDB_Driver_FieldDefinition__0_System_UInt64__System_UInt64_">Gte(FieldDefinition&lt;TDocument, ulong&gt;, ulong)</a></dt>
+    <dd><p>Creates a greater than or equal filter for a UInt64 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gte_System_Linq_Expressions_Expression_System_Func__0_System_UInt32___System_UInt32_">Gte(Expression&lt;Func&lt;TDocument, uint&gt;&gt;, uint)</a></dt>
+    <dd><p>Creates a greater than or equal filter for a UInt32 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gte_System_Linq_Expressions_Expression_System_Func__0_System_UInt64___System_UInt64_">Gte(Expression&lt;Func&lt;TDocument, ulong&gt;&gt;, ulong)</a></dt>
+    <dd><p>Creates a greater than or equal filter for a UInt64 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gte__1_MongoDB_Driver_FieldDefinition__0___0____0_">Gte&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, TField)</a></dt>
+    <dd><p>Creates a greater than or equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Gte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Gte__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Gte&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField)</a></dt>
+    <dd><p>Creates a greater than or equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.In.html#MongoDB_Driver_FilterDefinitionBuilder_1_In__1_MongoDB_Driver_FieldDefinition__0___0__System_Collections_Generic_IEnumerable___0__">In&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, IEnumerable&lt;TField&gt;)</a></dt>
+    <dd><p>Creates an in filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.In.html#MongoDB_Driver_FilterDefinitionBuilder_1_In__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable___0__">In&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, IEnumerable&lt;TField&gt;)</a></dt>
+    <dd><p>Creates an in filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.JsonSchema.html#MongoDB_Driver_FilterDefinitionBuilder_1_JsonSchema_MongoDB_Bson_BsonDocument_">JsonSchema(BsonDocument)</a></dt>
+    <dd><p>Creates a json schema filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lt_MongoDB_Driver_FieldDefinition__0_System_UInt32__System_UInt32_">Lt(FieldDefinition&lt;TDocument, uint&gt;, uint)</a></dt>
+    <dd><p>Creates a less than filter for a UInt32 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lt_MongoDB_Driver_FieldDefinition__0_System_UInt64__System_UInt64_">Lt(FieldDefinition&lt;TDocument, ulong&gt;, ulong)</a></dt>
+    <dd><p>Creates a less than filter for a UInt64 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lt_System_Linq_Expressions_Expression_System_Func__0_System_UInt32___System_UInt32_">Lt(Expression&lt;Func&lt;TDocument, uint&gt;&gt;, uint)</a></dt>
+    <dd><p>Creates a less than filter for a UInt32 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lt_System_Linq_Expressions_Expression_System_Func__0_System_UInt64___System_UInt64_">Lt(Expression&lt;Func&lt;TDocument, ulong&gt;&gt;, ulong)</a></dt>
+    <dd><p>Creates a less than filter for a UInt64 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lt__1_MongoDB_Driver_FieldDefinition__0___0____0_">Lt&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, TField)</a></dt>
+    <dd><p>Creates a less than filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lt.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lt__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Lt&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField)</a></dt>
+    <dd><p>Creates a less than filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lte_MongoDB_Driver_FieldDefinition__0_System_UInt32__System_UInt32_">Lte(FieldDefinition&lt;TDocument, uint&gt;, uint)</a></dt>
+    <dd><p>Creates a less than or equal filter for a UInt32 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lte_MongoDB_Driver_FieldDefinition__0_System_UInt64__System_UInt64_">Lte(FieldDefinition&lt;TDocument, ulong&gt;, ulong)</a></dt>
+    <dd><p>Creates a less than or equal filter for a UInt64 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lte_System_Linq_Expressions_Expression_System_Func__0_System_UInt32___System_UInt32_">Lte(Expression&lt;Func&lt;TDocument, uint&gt;&gt;, uint)</a></dt>
+    <dd><p>Creates a less than or equal filter for a UInt32 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lte_System_Linq_Expressions_Expression_System_Func__0_System_UInt64___System_UInt64_">Lte(Expression&lt;Func&lt;TDocument, ulong&gt;&gt;, ulong)</a></dt>
+    <dd><p>Creates a less than or equal filter for a UInt64 field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lte__1_MongoDB_Driver_FieldDefinition__0___0____0_">Lte&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, TField)</a></dt>
+    <dd><p>Creates a less than or equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Lte.html#MongoDB_Driver_FilterDefinitionBuilder_1_Lte__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Lte&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField)</a></dt>
+    <dd><p>Creates a less than or equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Mod.html#MongoDB_Driver_FilterDefinitionBuilder_1_Mod_MongoDB_Driver_FieldDefinition__0__System_Int64_System_Int64_">Mod(FieldDefinition&lt;TDocument&gt;, long, long)</a></dt>
+    <dd><p>Creates a modulo filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Mod.html#MongoDB_Driver_FilterDefinitionBuilder_1_Mod_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int64_System_Int64_">Mod(Expression&lt;Func&lt;TDocument, object&gt;&gt;, long, long)</a></dt>
+    <dd><p>Creates a modulo filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Ne.html#MongoDB_Driver_FilterDefinitionBuilder_1_Ne__1_MongoDB_Driver_FieldDefinition__0___0____0_">Ne&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, TField)</a></dt>
+    <dd><p>Creates a not equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Ne.html#MongoDB_Driver_FilterDefinitionBuilder_1_Ne__1_System_Linq_Expressions_Expression_System_Func__0___0_____0_">Ne&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, TField)</a></dt>
+    <dd><p>Creates a not equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Near.html#MongoDB_Driver_FilterDefinitionBuilder_1_Near_MongoDB_Driver_FieldDefinition__0__System_Double_System_Double_System_Nullable_System_Double__System_Nullable_System_Double__">Near(FieldDefinition&lt;TDocument&gt;, double, double, double?, double?)</a></dt>
+    <dd><p>Creates a near filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Near.html#MongoDB_Driver_FilterDefinitionBuilder_1_Near_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Double_System_Double_System_Nullable_System_Double__System_Nullable_System_Double__">Near(Expression&lt;Func&lt;TDocument, object&gt;&gt;, double, double, double?, double?)</a></dt>
+    <dd><p>Creates a near filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.NearSphere.html#MongoDB_Driver_FilterDefinitionBuilder_1_NearSphere_MongoDB_Driver_FieldDefinition__0__System_Double_System_Double_System_Nullable_System_Double__System_Nullable_System_Double__">NearSphere(FieldDefinition&lt;TDocument&gt;, double, double, double?, double?)</a></dt>
+    <dd><p>Creates a near sphere filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.NearSphere.html#MongoDB_Driver_FilterDefinitionBuilder_1_NearSphere_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Double_System_Double_System_Nullable_System_Double__System_Nullable_System_Double__">NearSphere(Expression&lt;Func&lt;TDocument, object&gt;&gt;, double, double, double?, double?)</a></dt>
+    <dd><p>Creates a near sphere filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.NearSphere.html#MongoDB_Driver_FilterDefinitionBuilder_1_NearSphere__1_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Nullable_System_Double__System_Nullable_System_Double__">NearSphere&lt;TCoordinates&gt;(FieldDefinition&lt;TDocument&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double?, double?)</a></dt>
+    <dd><p>Creates a near sphere filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.NearSphere.html#MongoDB_Driver_FilterDefinitionBuilder_1_NearSphere__1_System_Linq_Expressions_Expression_System_Func__0_System_Object___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Nullable_System_Double__System_Nullable_System_Double__">NearSphere&lt;TCoordinates&gt;(Expression&lt;Func&lt;TDocument, object&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double?, double?)</a></dt>
+    <dd><p>Creates a near sphere filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Near.html#MongoDB_Driver_FilterDefinitionBuilder_1_Near__1_MongoDB_Driver_FieldDefinition__0__MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Nullable_System_Double__System_Nullable_System_Double__">Near&lt;TCoordinates&gt;(FieldDefinition&lt;TDocument&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double?, double?)</a></dt>
+    <dd><p>Creates a near filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Near.html#MongoDB_Driver_FilterDefinitionBuilder_1_Near__1_System_Linq_Expressions_Expression_System_Func__0_System_Object___MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___0__System_Nullable_System_Double__System_Nullable_System_Double__">Near&lt;TCoordinates&gt;(Expression&lt;Func&lt;TDocument, object&gt;&gt;, GeoJsonPoint&lt;TCoordinates&gt;, double?, double?)</a></dt>
+    <dd><p>Creates a near filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Nin.html#MongoDB_Driver_FilterDefinitionBuilder_1_Nin__1_MongoDB_Driver_FieldDefinition__0___0__System_Collections_Generic_IEnumerable___0__">Nin&lt;TField&gt;(FieldDefinition&lt;TDocument, TField&gt;, IEnumerable&lt;TField&gt;)</a></dt>
+    <dd><p>Creates a not in filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Nin.html#MongoDB_Driver_FilterDefinitionBuilder_1_Nin__1_System_Linq_Expressions_Expression_System_Func__0___0___System_Collections_Generic_IEnumerable___0__">Nin&lt;TField&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, IEnumerable&lt;TField&gt;)</a></dt>
+    <dd><p>Creates a not in filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Not.html#MongoDB_Driver_FilterDefinitionBuilder_1_Not_MongoDB_Driver_FilterDefinition__0__">Not(FilterDefinition&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a not filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.OfType.html#MongoDB_Driver_FilterDefinitionBuilder_1_OfType__1">OfType&lt;TDerived&gt;()</a></dt>
+    <dd><p>Creates an OfType filter that matches documents of a derived type.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.OfType.html#MongoDB_Driver_FilterDefinitionBuilder_1_OfType__1_MongoDB_Driver_FilterDefinition___0__">OfType&lt;TDerived&gt;(FilterDefinition&lt;TDerived&gt;)</a></dt>
+    <dd><p>Creates an OfType filter that matches documents of a derived type and that also match a filter on the derived document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.OfType.html#MongoDB_Driver_FilterDefinitionBuilder_1_OfType__1_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___">OfType&lt;TDerived&gt;(Expression&lt;Func&lt;TDerived, bool&gt;&gt;)</a></dt>
+    <dd><p>Creates an OfType filter that matches documents of a derived type and that also match a filter on the derived document.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.OfType.html#MongoDB_Driver_FilterDefinitionBuilder_1_OfType__2_MongoDB_Driver_FieldDefinition__0___0__">OfType&lt;TField, TDerived&gt;(FieldDefinition&lt;TDocument, TField&gt;)</a></dt>
+    <dd><p>Creates an OfType filter that matches documents with a field of a derived typer.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.OfType.html#MongoDB_Driver_FilterDefinitionBuilder_1_OfType__2_MongoDB_Driver_FieldDefinition__0___0__MongoDB_Driver_FilterDefinition___1__">OfType&lt;TField, TDerived&gt;(FieldDefinition&lt;TDocument, TField&gt;, FilterDefinition&lt;TDerived&gt;)</a></dt>
+    <dd><p>Creates an OfType filter that matches documents with a field of a derived type and that also match a filter on the derived field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.OfType.html#MongoDB_Driver_FilterDefinitionBuilder_1_OfType__2_System_Linq_Expressions_Expression_System_Func__0___0___">OfType&lt;TField, TDerived&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;)</a></dt>
+    <dd><p>Creates an OfType filter that matches documents with a field of a derived type.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.OfType.html#MongoDB_Driver_FilterDefinitionBuilder_1_OfType__2_System_Linq_Expressions_Expression_System_Func__0___0___System_Linq_Expressions_Expression_System_Func___1_System_Boolean___">OfType&lt;TField, TDerived&gt;(Expression&lt;Func&lt;TDocument, TField&gt;&gt;, Expression&lt;Func&lt;TDerived, bool&gt;&gt;)</a></dt>
+    <dd><p>Creates an OfType filter that matches documents with a field of a derived type and that also match a filter on the derived field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Or.html#MongoDB_Driver_FilterDefinitionBuilder_1_Or_MongoDB_Driver_FilterDefinition__0____">Or(params FilterDefinition&lt;TDocument&gt;[])</a></dt>
+    <dd><p>Creates an or filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Or.html#MongoDB_Driver_FilterDefinitionBuilder_1_Or_System_Collections_Generic_IEnumerable_MongoDB_Driver_FilterDefinition__0___">Or(IEnumerable&lt;FilterDefinition&lt;TDocument&gt;&gt;)</a></dt>
+    <dd><p>Creates an or filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Regex.html#MongoDB_Driver_FilterDefinitionBuilder_1_Regex_MongoDB_Driver_FieldDefinition__0__MongoDB_Bson_BsonRegularExpression_">Regex(FieldDefinition&lt;TDocument&gt;, BsonRegularExpression)</a></dt>
+    <dd><p>Creates a regular expression filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Regex.html#MongoDB_Driver_FilterDefinitionBuilder_1_Regex_System_Linq_Expressions_Expression_System_Func__0_System_Object___MongoDB_Bson_BsonRegularExpression_">Regex(Expression&lt;Func&lt;TDocument, object&gt;&gt;, BsonRegularExpression)</a></dt>
+    <dd><p>Creates a regular expression filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Size.html#MongoDB_Driver_FilterDefinitionBuilder_1_Size_MongoDB_Driver_FieldDefinition__0__System_Int32_">Size(FieldDefinition&lt;TDocument&gt;, int)</a></dt>
+    <dd><p>Creates a size filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Size.html#MongoDB_Driver_FilterDefinitionBuilder_1_Size_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int32_">Size(Expression&lt;Func&lt;TDocument, object&gt;&gt;, int)</a></dt>
+    <dd><p>Creates a size filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.SizeGt.html#MongoDB_Driver_FilterDefinitionBuilder_1_SizeGt_MongoDB_Driver_FieldDefinition__0__System_Int32_">SizeGt(FieldDefinition&lt;TDocument&gt;, int)</a></dt>
+    <dd><p>Creates a size greater than filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.SizeGt.html#MongoDB_Driver_FilterDefinitionBuilder_1_SizeGt_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int32_">SizeGt(Expression&lt;Func&lt;TDocument, object&gt;&gt;, int)</a></dt>
+    <dd><p>Creates a size greater than filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.SizeGte.html#MongoDB_Driver_FilterDefinitionBuilder_1_SizeGte_MongoDB_Driver_FieldDefinition__0__System_Int32_">SizeGte(FieldDefinition&lt;TDocument&gt;, int)</a></dt>
+    <dd><p>Creates a size greater than or equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.SizeGte.html#MongoDB_Driver_FilterDefinitionBuilder_1_SizeGte_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int32_">SizeGte(Expression&lt;Func&lt;TDocument, object&gt;&gt;, int)</a></dt>
+    <dd><p>Creates a size greater than or equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.SizeLt.html#MongoDB_Driver_FilterDefinitionBuilder_1_SizeLt_MongoDB_Driver_FieldDefinition__0__System_Int32_">SizeLt(FieldDefinition&lt;TDocument&gt;, int)</a></dt>
+    <dd><p>Creates a size less than filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.SizeLt.html#MongoDB_Driver_FilterDefinitionBuilder_1_SizeLt_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int32_">SizeLt(Expression&lt;Func&lt;TDocument, object&gt;&gt;, int)</a></dt>
+    <dd><p>Creates a size less than filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.SizeLte.html#MongoDB_Driver_FilterDefinitionBuilder_1_SizeLte_MongoDB_Driver_FieldDefinition__0__System_Int32_">SizeLte(FieldDefinition&lt;TDocument&gt;, int)</a></dt>
+    <dd><p>Creates a size less than or equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.SizeLte.html#MongoDB_Driver_FilterDefinitionBuilder_1_SizeLte_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_Int32_">SizeLte(Expression&lt;Func&lt;TDocument, object&gt;&gt;, int)</a></dt>
+    <dd><p>Creates a size less than or equal filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.StringIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_StringIn_MongoDB_Driver_FieldDefinition__0_System_String__MongoDB_Driver_StringOrRegularExpression___">StringIn(FieldDefinition&lt;TDocument, string&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Creates an in filter for a string field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.StringIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_StringIn_MongoDB_Driver_FieldDefinition__0_System_String__System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">StringIn(FieldDefinition&lt;TDocument, string&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Creates an in filter for a string field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.StringIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_StringIn_System_Linq_Expressions_Expression_System_Func__0_System_String___MongoDB_Driver_StringOrRegularExpression___">StringIn(Expression&lt;Func&lt;TDocument, string&gt;&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Creates an in filter for a string field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.StringIn.html#MongoDB_Driver_FilterDefinitionBuilder_1_StringIn_System_Linq_Expressions_Expression_System_Func__0_System_String___System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">StringIn(Expression&lt;Func&lt;TDocument, string&gt;&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Creates an in filter for a string field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.StringNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_StringNin_MongoDB_Driver_FieldDefinition__0_System_String__MongoDB_Driver_StringOrRegularExpression___">StringNin(FieldDefinition&lt;TDocument, string&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Creates a not in filter for a string field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.StringNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_StringNin_MongoDB_Driver_FieldDefinition__0_System_String__System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">StringNin(FieldDefinition&lt;TDocument, string&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Creates a not in filter for a string field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.StringNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_StringNin_System_Linq_Expressions_Expression_System_Func__0_System_String___MongoDB_Driver_StringOrRegularExpression___">StringNin(Expression&lt;Func&lt;TDocument, string&gt;&gt;, params StringOrRegularExpression[])</a></dt>
+    <dd><p>Creates a not in filter for a string field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.StringNin.html#MongoDB_Driver_FilterDefinitionBuilder_1_StringNin_System_Linq_Expressions_Expression_System_Func__0_System_String___System_Collections_Generic_IEnumerable_MongoDB_Driver_StringOrRegularExpression__">StringNin(Expression&lt;Func&lt;TDocument, string&gt;&gt;, IEnumerable&lt;StringOrRegularExpression&gt;)</a></dt>
+    <dd><p>Creates a not in filter for a string field.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Text.html#MongoDB_Driver_FilterDefinitionBuilder_1_Text_System_String_MongoDB_Driver_TextSearchOptions_">Text(string, TextSearchOptions)</a></dt>
+    <dd><p>Creates a text filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Text.html#MongoDB_Driver_FilterDefinitionBuilder_1_Text_System_String_System_String_">Text(string, string)</a></dt>
+    <dd><p>Creates a text filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Type.html#MongoDB_Driver_FilterDefinitionBuilder_1_Type_MongoDB_Driver_FieldDefinition__0__MongoDB_Bson_BsonType_">Type(FieldDefinition&lt;TDocument&gt;, BsonType)</a></dt>
+    <dd><p>Creates a type filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Type.html#MongoDB_Driver_FilterDefinitionBuilder_1_Type_MongoDB_Driver_FieldDefinition__0__System_String_">Type(FieldDefinition&lt;TDocument&gt;, string)</a></dt>
+    <dd><p>Creates a type filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Type.html#MongoDB_Driver_FilterDefinitionBuilder_1_Type_System_Linq_Expressions_Expression_System_Func__0_System_Object___MongoDB_Bson_BsonType_">Type(Expression&lt;Func&lt;TDocument, object&gt;&gt;, BsonType)</a></dt>
+    <dd><p>Creates a type filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Type.html#MongoDB_Driver_FilterDefinitionBuilder_1_Type_System_Linq_Expressions_Expression_System_Func__0_System_Object___System_String_">Type(Expression&lt;Func&lt;TDocument, object&gt;&gt;, string)</a></dt>
+    <dd><p>Creates a type filter.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.FilterDefinitionBuilder-1.Where.html#MongoDB_Driver_FilterDefinitionBuilder_1_Where_System_Linq_Expressions_Expression_System_Func__0_System_Boolean___">Where(Expression&lt;Func&lt;TDocument, bool&gt;&gt;)</a></dt>
+    <dd><p>Creates a filter based on the expression.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

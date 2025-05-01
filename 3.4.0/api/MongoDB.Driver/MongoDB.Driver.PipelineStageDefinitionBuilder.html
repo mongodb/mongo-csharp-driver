@@ -1,0 +1,548 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Class PipelineStageDefinitionBuilder
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Class PipelineStageDefinitionBuilder
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_PipelineStageDefinitionBuilder.md&amp;value=---%0Auid%3A%20MongoDB.Driver.PipelineStageDefinitionBuilder%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder">
+
+
+
+  <h1 id="MongoDB_Driver_PipelineStageDefinitionBuilder" data-uid="MongoDB.Driver.PipelineStageDefinitionBuilder" class="text-break">
+    Class PipelineStageDefinitionBuilder
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/PipelineStageDefinitionBuilder.cs/#L40"><i class="bi bi-code-slash"></i></a>
+  </h1>
+
+  <div class="facts text-secondary">
+    <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+  </div>
+
+  <div class="markdown summary"><p>Methods for building pipeline stages.</p>
+</div>
+  <div class="markdown conceptual"></div>
+
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class PipelineStageDefinitionBuilder</code></pre>
+  </div>
+
+
+
+
+  <dl class="typelist inheritance">
+    <dt>Inheritance</dt>
+    <dd>
+      <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+      <div><span class="xref">PipelineStageDefinitionBuilder</span></div>
+    </dd>
+  </dl>
+
+
+
+  <dl class="typelist derived">
+    <dt>Inherited Members</dt>
+    <dd>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone">object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </dd></dl>
+
+
+
+
+
+  <h2 class="section" id="methods">Methods
+</h2>
+
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto.html#MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__System_Int32_MongoDB_Driver_AggregateBucketAutoOptions_">BucketAuto&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;, int, AggregateBucketAutoOptions)</a></dt>
+    <dd><p>Creates a $bucketAuto stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto.html#MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto__2_System_Linq_Expressions_Expression_System_Func___0___1___System_Int32_MongoDB_Driver_AggregateBucketAutoOptions_">BucketAuto&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, int, AggregateBucketAutoOptions)</a></dt>
+    <dd><p>Creates a $bucketAuto stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto.html#MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto__3_MongoDB_Driver_AggregateExpressionDefinition___0___1__System_Int32_MongoDB_Driver_ProjectionDefinition___0___2__MongoDB_Driver_AggregateBucketAutoOptions_">BucketAuto&lt;TInput, TValue, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;, int, ProjectionDefinition&lt;TInput, TOutput&gt;, AggregateBucketAutoOptions)</a></dt>
+    <dd><p>Creates a $bucketAuto stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.BucketAuto.html#MongoDB_Driver_PipelineStageDefinitionBuilder_BucketAuto__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Int32_System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping_MongoDB_Driver_AggregateBucketAutoResultId___1____0____2___MongoDB_Driver_AggregateBucketAutoOptions_">BucketAuto&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, int, Expression&lt;Func&lt;IGrouping&lt;AggregateBucketAutoResultId&lt;TValue&gt;, TInput&gt;, TOutput&gt;&gt;, AggregateBucketAutoOptions)</a></dt>
+    <dd><p>Creates a $bucketAuto stage (this overload can only be used with LINQ3).</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__System_Collections_Generic_IEnumerable___1__MongoDB_Driver_AggregateBucketOptions___1__">Bucket&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;, IEnumerable&lt;TValue&gt;, AggregateBucketOptions&lt;TValue&gt;)</a></dt>
+    <dd><p>Creates a $bucket stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket__2_System_Linq_Expressions_Expression_System_Func___0___1___System_Collections_Generic_IEnumerable___1__MongoDB_Driver_AggregateBucketOptions___1__">Bucket&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, IEnumerable&lt;TValue&gt;, AggregateBucketOptions&lt;TValue&gt;)</a></dt>
+    <dd><p>Creates a $bucket stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket__3_MongoDB_Driver_AggregateExpressionDefinition___0___1__System_Collections_Generic_IEnumerable___1__MongoDB_Driver_ProjectionDefinition___0___2__MongoDB_Driver_AggregateBucketOptions___1__">Bucket&lt;TInput, TValue, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;, IEnumerable&lt;TValue&gt;, ProjectionDefinition&lt;TInput, TOutput&gt;, AggregateBucketOptions&lt;TValue&gt;)</a></dt>
+    <dd><p>Creates a $bucket stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Bucket.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Bucket__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Collections_Generic_IEnumerable___1__System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___MongoDB_Driver_AggregateBucketOptions___1__">Bucket&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, IEnumerable&lt;TValue&gt;, Expression&lt;Func&lt;IGrouping&lt;TValue, TInput&gt;, TOutput&gt;&gt;, AggregateBucketOptions&lt;TValue&gt;)</a></dt>
+    <dd><p>Creates a $bucket stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.ChangeStreamSplitLargeEvent.html#MongoDB_Driver_PipelineStageDefinitionBuilder_ChangeStreamSplitLargeEvent__1">ChangeStreamSplitLargeEvent&lt;TInput&gt;()</a></dt>
+    <dd><p>Creates a $changeStreamSplitLargeEvent stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.ChangeStream.html#MongoDB_Driver_PipelineStageDefinitionBuilder_ChangeStream__1_MongoDB_Driver_ChangeStreamStageOptions_">ChangeStream&lt;TInput&gt;(ChangeStreamStageOptions)</a></dt>
+    <dd><p>Creates a $changeStream stage.
+Normally you would prefer to use the Watch method of <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection&lt;TDocument&gt;</a>.
+Only use this method if subsequent stages project away the resume token (the _id)
+or you don't want the resulting cursor to automatically resume.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Count.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Count__1">Count&lt;TInput&gt;()</a></dt>
+    <dd><p>Creates a $count stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Densify__1_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_DensifyRange_MongoDB_Driver_FieldDefinition___0____">Densify&lt;TInput&gt;(FieldDefinition&lt;TInput&gt;, DensifyRange, params FieldDefinition&lt;TInput&gt;[])</a></dt>
+    <dd><p>Creates a $densify stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Densify__1_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_DensifyRange_System_Collections_Generic_IEnumerable_MongoDB_Driver_FieldDefinition___0___">Densify&lt;TInput&gt;(FieldDefinition&lt;TInput&gt;, DensifyRange, IEnumerable&lt;FieldDefinition&lt;TInput&gt;&gt;)</a></dt>
+    <dd><p>Creates a $densify stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Densify__1_System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_DensifyRange_System_Collections_Generic_IEnumerable_System_Linq_Expressions_Expression_System_Func___0_System_Object____">Densify&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt;, DensifyRange, IEnumerable&lt;Expression&lt;Func&lt;TInput, object&gt;&gt;&gt;)</a></dt>
+    <dd><p>Creates a $densify stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Densify.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Densify__1_System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_DensifyRange_System_Linq_Expressions_Expression_System_Func___0_System_Object_____">Densify&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt;, DensifyRange, params Expression&lt;Func&lt;TInput, object&gt;&gt;[])</a></dt>
+    <dd><p>Creates a $densify stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Documents.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Documents__1_MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_NoPipelineInput_System_Collections_Generic_IEnumerable___0___MongoDB_Bson_Serialization_IBsonSerializer___0__">Documents&lt;TDocument&gt;(AggregateExpressionDefinition&lt;NoPipelineInput, IEnumerable&lt;TDocument&gt;&gt;, IBsonSerializer&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a $documents stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Documents.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Documents__1_System_Collections_Generic_IEnumerable___0__MongoDB_Bson_Serialization_IBsonSerializer___0__">Documents&lt;TDocument&gt;(IEnumerable&lt;TDocument&gt;, IBsonSerializer&lt;TDocument&gt;)</a></dt>
+    <dd><p>Creates a $documents stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Facet__1_MongoDB_Driver_AggregateFacet___0____">Facet&lt;TInput&gt;(params AggregateFacet&lt;TInput&gt;[])</a></dt>
+    <dd><p>Creates a $facet stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Facet__1_System_Collections_Generic_IEnumerable_MongoDB_Driver_AggregateFacet___0___">Facet&lt;TInput&gt;(IEnumerable&lt;AggregateFacet&lt;TInput&gt;&gt;)</a></dt>
+    <dd><p>Creates a $facet stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Facet__2_MongoDB_Driver_AggregateFacet___0____">Facet&lt;TInput, TOutput&gt;(params AggregateFacet&lt;TInput&gt;[])</a></dt>
+    <dd><p>Creates a $facet stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Facet.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Facet__2_System_Collections_Generic_IEnumerable_MongoDB_Driver_AggregateFacet___0___MongoDB_Driver_AggregateFacetOptions___1__">Facet&lt;TInput, TOutput&gt;(IEnumerable&lt;AggregateFacet&lt;TInput&gt;&gt;, AggregateFacetOptions&lt;TOutput&gt;)</a></dt>
+    <dd><p>Creates a $facet stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.GeoNear.html#MongoDB_Driver_PipelineStageDefinitionBuilder_GeoNear__2_System_Double___MongoDB_Driver_GeoNearOptions___0___1__">GeoNear&lt;TInput, TOutput&gt;(double[], GeoNearOptions&lt;TInput, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $geoNear stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.GeoNear.html#MongoDB_Driver_PipelineStageDefinitionBuilder_GeoNear__3_MongoDB_Driver_GeoJsonObjectModel_GeoJsonPoint___1__MongoDB_Driver_GeoNearOptions___0___2__">GeoNear&lt;TInput, TCoordinates, TOutput&gt;(GeoJsonPoint&lt;TCoordinates&gt;, GeoNearOptions&lt;TInput, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $geoNear stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__2_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___1_MongoDB_Bson_BsonValue__MongoDB_Driver_FieldDefinition___1_MongoDB_Bson_BsonValue__MongoDB_Driver_AggregateExpressionDefinition___0_MongoDB_Bson_BsonValue__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument___MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Int32__">GraphLookup&lt;TInput, TFrom&gt;(IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, BsonValue&gt;, FieldDefinition&lt;TFrom, BsonValue&gt;, AggregateExpressionDefinition&lt;TInput, BsonValue&gt;, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt;, FieldDefinition&lt;BsonDocument, int&gt;)</a></dt>
+    <dd><p>Creates a $graphLookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__7_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___1___2__MongoDB_Driver_FieldDefinition___1___3__MongoDB_Driver_AggregateExpressionDefinition___0___4__MongoDB_Driver_FieldDefinition___6___5__MongoDB_Driver_AggregateGraphLookupOptions___1___1___6__">GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, TConnectFrom&gt;, FieldDefinition&lt;TFrom, TConnectTo&gt;, AggregateExpressionDefinition&lt;TInput, TStartWith&gt;, FieldDefinition&lt;TOutput, TAs&gt;, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $graphLookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__7_MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___1___3___System_Linq_Expressions_Expression_System_Func___0___4___System_Linq_Expressions_Expression_System_Func___6___5___MongoDB_Driver_AggregateGraphLookupOptions___1___1___6__">GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt;, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt;, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt;, Expression&lt;Func&lt;TInput, TStartWith&gt;&gt;, Expression&lt;Func&lt;TOutput, TAs&gt;&gt;, AggregateGraphLookupOptions&lt;TFrom, TFrom, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $graphLookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__8_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___1___2__MongoDB_Driver_FieldDefinition___1___3__MongoDB_Driver_AggregateExpressionDefinition___0___4__MongoDB_Driver_FieldDefinition___7___6__MongoDB_Driver_FieldDefinition___5_System_Int32__MongoDB_Driver_AggregateGraphLookupOptions___1___5___7__">GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt;, FieldDefinition&lt;TFrom, TConnectFrom&gt;, FieldDefinition&lt;TFrom, TConnectTo&gt;, AggregateExpressionDefinition&lt;TInput, TStartWith&gt;, FieldDefinition&lt;TOutput, TAs&gt;, FieldDefinition&lt;TAsElement, int&gt;, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $graphLookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.GraphLookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_GraphLookup__8_MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___1___2___System_Linq_Expressions_Expression_System_Func___1___3___System_Linq_Expressions_Expression_System_Func___0___4___System_Linq_Expressions_Expression_System_Func___7___6___System_Linq_Expressions_Expression_System_Func___5_System_Int32___MongoDB_Driver_AggregateGraphLookupOptions___1___5___7__">GraphLookup&lt;TInput, TFrom, TConnectFrom, TConnectTo, TStartWith, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TFrom&gt;, Expression&lt;Func&lt;TFrom, TConnectFrom&gt;&gt;, Expression&lt;Func&lt;TFrom, TConnectTo&gt;&gt;, Expression&lt;Func&lt;TInput, TStartWith&gt;&gt;, Expression&lt;Func&lt;TOutput, TAs&gt;&gt;, Expression&lt;Func&lt;TAsElement, int&gt;&gt;, AggregateGraphLookupOptions&lt;TFrom, TAsElement, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $graphLookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Group.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Group__1_MongoDB_Driver_ProjectionDefinition___0_MongoDB_Bson_BsonDocument__">Group&lt;TInput&gt;(ProjectionDefinition&lt;TInput, BsonDocument&gt;)</a></dt>
+    <dd><p>Creates a $group stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Group.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Group__2_MongoDB_Driver_ProjectionDefinition___0___1__">Group&lt;TInput, TOutput&gt;(ProjectionDefinition&lt;TInput, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $group stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Group.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Group__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func_System_Linq_IGrouping___1___0____2___">Group&lt;TInput, TValue, TOutput&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;, Expression&lt;Func&lt;IGrouping&lt;TValue, TInput&gt;, TOutput&gt;&gt;)</a></dt>
+    <dd><p>Creates a $group stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Limit.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Limit__1_System_Int64_">Limit&lt;TInput&gt;(long)</a></dt>
+    <dd><p>Creates a $limit stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup__3_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_FieldDefinition___1__MongoDB_Driver_FieldDefinition___2__MongoDB_Driver_AggregateLookupOptions___1___2__">Lookup&lt;TInput, TForeignDocument, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt;, FieldDefinition&lt;TInput&gt;, FieldDefinition&lt;TForeignDocument&gt;, FieldDefinition&lt;TOutput&gt;, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $lookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup__3_MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0_System_Object___System_Linq_Expressions_Expression_System_Func___1_System_Object___System_Linq_Expressions_Expression_System_Func___2_System_Object___MongoDB_Driver_AggregateLookupOptions___1___2__">Lookup&lt;TInput, TForeignDocument, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt;, Expression&lt;Func&lt;TInput, object&gt;&gt;, Expression&lt;Func&lt;TForeignDocument, object&gt;&gt;, Expression&lt;Func&lt;TOutput, object&gt;&gt;, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $lookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup__5_MongoDB_Driver_IMongoCollection___1__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition___1___2__MongoDB_Driver_FieldDefinition___4___3__MongoDB_Driver_AggregateLookupOptions___1___4__">Lookup&lt;TInput, TForeignDocument, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt;, BsonDocument, PipelineDefinition&lt;TForeignDocument, TAsElement&gt;, FieldDefinition&lt;TOutput, TAs&gt;, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $lookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Lookup.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Lookup__5_MongoDB_Driver_IMongoCollection___1__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition___1___2__System_Linq_Expressions_Expression_System_Func___4___3___MongoDB_Driver_AggregateLookupOptions___1___4__">Lookup&lt;TInput, TForeignDocument, TAsElement, TAs, TOutput&gt;(IMongoCollection&lt;TForeignDocument&gt;, BsonDocument, PipelineDefinition&lt;TForeignDocument, TAsElement&gt;, Expression&lt;Func&lt;TOutput, TAs&gt;&gt;, AggregateLookupOptions&lt;TForeignDocument, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $lookup stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Match.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Match__1_MongoDB_Driver_FilterDefinition___0__">Match&lt;TInput&gt;(FilterDefinition&lt;TInput&gt;)</a></dt>
+    <dd><p>Creates a $match stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Match.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Match__1_System_Linq_Expressions_Expression_System_Func___0_System_Boolean___">Match&lt;TInput&gt;(Expression&lt;Func&lt;TInput, bool&gt;&gt;)</a></dt>
+    <dd><p>Creates a $match stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Merge.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Merge__2_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_MergeStageOptions___1__">Merge&lt;TInput, TOutput&gt;(IMongoCollection&lt;TOutput&gt;, MergeStageOptions&lt;TOutput&gt;)</a></dt>
+    <dd><p>Creates a $merge stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.OfType.html#MongoDB_Driver_PipelineStageDefinitionBuilder_OfType__2_MongoDB_Bson_Serialization_IBsonSerializer___1__">OfType&lt;TInput, TOutput&gt;(IBsonSerializer&lt;TOutput&gt;)</a></dt>
+    <dd><p>Create a $match stage that select documents of a sub type.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Out.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Out__1_MongoDB_Driver_IMongoCollection___0__MongoDB_Driver_TimeSeriesOptions_">Out&lt;TInput&gt;(IMongoCollection&lt;TInput&gt;, TimeSeriesOptions)</a></dt>
+    <dd><p>Creates a $out stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Project.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Project__1_MongoDB_Driver_ProjectionDefinition___0_MongoDB_Bson_BsonDocument__">Project&lt;TInput&gt;(ProjectionDefinition&lt;TInput, BsonDocument&gt;)</a></dt>
+    <dd><p>Creates a $project stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Project.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Project__2_MongoDB_Driver_ProjectionDefinition___0___1__">Project&lt;TInput, TOutput&gt;(ProjectionDefinition&lt;TInput, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $project stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Project.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Project__2_System_Linq_Expressions_Expression_System_Func___0___1___">Project&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt;)</a></dt>
+    <dd><p>Creates a $project stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.RankFusion.html#MongoDB_Driver_PipelineStageDefinitionBuilder_RankFusion__2_MongoDB_Driver_PipelineDefinition___0___1____MongoDB_Driver_RankFusionOptions___1__">RankFusion&lt;TInput, TOutput&gt;(PipelineDefinition&lt;TInput, TOutput&gt;[], RankFusionOptions&lt;TOutput&gt;)</a></dt>
+    <dd><p>Creates a $rankFusion stage. Pipelines will be automatically named as &quot;pipeline1&quot;, &quot;pipeline2&quot;, etc.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.RankFusion.html#MongoDB_Driver_PipelineStageDefinitionBuilder_RankFusion__2_System_Collections_Generic_Dictionary_System_String_MongoDB_Driver_PipelineDefinition___0___1___System_Collections_Generic_Dictionary_System_String_System_Double__MongoDB_Driver_RankFusionOptions___1__">RankFusion&lt;TInput, TOutput&gt;(Dictionary&lt;string, PipelineDefinition&lt;TInput, TOutput&gt;&gt;, Dictionary&lt;string, double&gt;, RankFusionOptions&lt;TOutput&gt;)</a></dt>
+    <dd><p>Creates a $rankFusion stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.RankFusion.html#MongoDB_Driver_PipelineStageDefinitionBuilder_RankFusion__2_System_ValueTuple_MongoDB_Driver_PipelineDefinition___0___1__System_Nullable_System_Double_____MongoDB_Driver_RankFusionOptions___1__">RankFusion&lt;TInput, TOutput&gt;((PipelineDefinition&lt;TInput, TOutput&gt; Pipeline, double? Weight)[], RankFusionOptions&lt;TOutput&gt;)</a></dt>
+    <dd><p>Creates a $rankFusion stage. Pipelines will be automatically named as &quot;pipeline1&quot;, &quot;pipeline2&quot;, etc.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceRoot.html#MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceRoot__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__">ReplaceRoot&lt;TInput, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $replaceRoot stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceRoot.html#MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceRoot__2_System_Linq_Expressions_Expression_System_Func___0___1___">ReplaceRoot&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt;)</a></dt>
+    <dd><p>Creates a $replaceRoot stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceWith.html#MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceWith__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__">ReplaceWith&lt;TInput, TOutput&gt;(AggregateExpressionDefinition&lt;TInput, TOutput&gt;)</a></dt>
+    <dd><p>Creates a $replaceWith stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.ReplaceWith.html#MongoDB_Driver_PipelineStageDefinitionBuilder_ReplaceWith__2_System_Linq_Expressions_Expression_System_Func___0___1___">ReplaceWith&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, TOutput&gt;&gt;)</a></dt>
+    <dd><p>Creates a $replaceWith stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Sample.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Sample__1_System_Int64_">Sample&lt;TInput&gt;(long)</a></dt>
+    <dd><p>Creates a $sample stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SearchMeta.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SearchMeta__1_MongoDB_Driver_Search_SearchDefinition___0__System_String_MongoDB_Driver_Search_SearchCountOptions_">SearchMeta&lt;TInput&gt;(SearchDefinition&lt;TInput&gt;, string, SearchCountOptions)</a></dt>
+    <dd><p>Creates a $searchMeta stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Search.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Search__1_MongoDB_Driver_Search_SearchDefinition___0__MongoDB_Driver_Search_SearchHighlightOptions___0__System_String_MongoDB_Driver_Search_SearchCountOptions_System_Boolean_System_Boolean_">Search&lt;TInput&gt;(SearchDefinition&lt;TInput&gt;, SearchHighlightOptions&lt;TInput&gt;, string, SearchCountOptions, bool, bool)</a></dt>
+    <dd><p>Creates a $search stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Search.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Search__1_MongoDB_Driver_Search_SearchDefinition___0__MongoDB_Driver_Search_SearchOptions___0__">Search&lt;TInput&gt;(SearchDefinition&lt;TInput&gt;, SearchOptions&lt;TInput&gt;)</a></dt>
+    <dd><p>Creates a $search stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__2_MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition___0____1__">SetWindowFields&lt;TInput, TWindowFields&gt;(AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;)</a></dt>
+    <dd><p>Create a $setWindowFields stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__2_System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____1___">SetWindowFields&lt;TInput, TWindowFields&gt;(Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt;)</a></dt>
+    <dd><p>Create a $setWindowFields stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__3_MongoDB_Driver_AggregateExpressionDefinition___0___1__MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition___0____2__">SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TInput, TPartitionBy&gt;, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;)</a></dt>
+    <dd><p>Create a $setWindowFields stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__3_MongoDB_Driver_AggregateExpressionDefinition___0___1__MongoDB_Driver_SortDefinition___0__MongoDB_Driver_AggregateExpressionDefinition_MongoDB_Driver_ISetWindowFieldsPartition___0____2__">SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(AggregateExpressionDefinition&lt;TInput, TPartitionBy&gt;, SortDefinition&lt;TInput&gt;, AggregateExpressionDefinition&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;)</a></dt>
+    <dd><p>Create a $setWindowFields stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__3_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_SortDefinition___0__System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____2___">SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(Expression&lt;Func&lt;TInput, TPartitionBy&gt;&gt;, SortDefinition&lt;TInput&gt;, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt;)</a></dt>
+    <dd><p>Create a $setWindowFields stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SetWindowFields.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SetWindowFields__3_System_Linq_Expressions_Expression_System_Func___0___1___System_Linq_Expressions_Expression_System_Func_MongoDB_Driver_ISetWindowFieldsPartition___0____2___">SetWindowFields&lt;TInput, TPartitionBy, TWindowFields&gt;(Expression&lt;Func&lt;TInput, TPartitionBy&gt;&gt;, Expression&lt;Func&lt;ISetWindowFieldsPartition&lt;TInput&gt;, TWindowFields&gt;&gt;)</a></dt>
+    <dd><p>Create a $setWindowFields stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Set.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Set__1_MongoDB_Driver_SetFieldDefinitions___0__">Set&lt;TInput&gt;(SetFieldDefinitions&lt;TInput&gt;)</a></dt>
+    <dd><p>Creates a $set stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Set.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Set__2_System_Linq_Expressions_Expression_System_Func___0___1___">Set&lt;TInput, TFields&gt;(Expression&lt;Func&lt;TInput, TFields&gt;&gt;)</a></dt>
+    <dd><p>Creates a $set stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Skip.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Skip__1_System_Int64_">Skip&lt;TInput&gt;(long)</a></dt>
+    <dd><p>Creates a $skip stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SortByCount.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SortByCount__2_MongoDB_Driver_AggregateExpressionDefinition___0___1__">SortByCount&lt;TInput, TValue&gt;(AggregateExpressionDefinition&lt;TInput, TValue&gt;)</a></dt>
+    <dd><p>Creates a $sortByCount stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.SortByCount.html#MongoDB_Driver_PipelineStageDefinitionBuilder_SortByCount__2_System_Linq_Expressions_Expression_System_Func___0___1___">SortByCount&lt;TInput, TValue&gt;(Expression&lt;Func&lt;TInput, TValue&gt;&gt;)</a></dt>
+    <dd><p>Creates a $sortByCount stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Sort.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Sort__1_MongoDB_Driver_SortDefinition___0__">Sort&lt;TInput&gt;(SortDefinition&lt;TInput&gt;)</a></dt>
+    <dd><p>Creates a $sort stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.UnionWith.html#MongoDB_Driver_PipelineStageDefinitionBuilder_UnionWith__2_MongoDB_Driver_IMongoCollection___1__MongoDB_Driver_PipelineDefinition___1___0__">UnionWith&lt;TInput, TWith&gt;(IMongoCollection&lt;TWith&gt;, PipelineDefinition&lt;TWith, TInput&gt;)</a></dt>
+    <dd><p>Creates a $unionWith stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind__1_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_AggregateUnwindOptions_MongoDB_Bson_BsonDocument__">Unwind&lt;TInput&gt;(FieldDefinition&lt;TInput&gt;, AggregateUnwindOptions&lt;BsonDocument&gt;)</a></dt>
+    <dd><p>Creates an $unwind stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind__1_System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_AggregateUnwindOptions_MongoDB_Bson_BsonDocument__">Unwind&lt;TInput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt;, AggregateUnwindOptions&lt;BsonDocument&gt;)</a></dt>
+    <dd><p>Creates an $unwind stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind__2_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_AggregateUnwindOptions___1__">Unwind&lt;TInput, TOutput&gt;(FieldDefinition&lt;TInput&gt;, AggregateUnwindOptions&lt;TOutput&gt;)</a></dt>
+    <dd><p>Creates an $unwind stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.Unwind.html#MongoDB_Driver_PipelineStageDefinitionBuilder_Unwind__2_System_Linq_Expressions_Expression_System_Func___0_System_Object___MongoDB_Driver_AggregateUnwindOptions___1__">Unwind&lt;TInput, TOutput&gt;(Expression&lt;Func&lt;TInput, object&gt;&gt;, AggregateUnwindOptions&lt;TOutput&gt;)</a></dt>
+    <dd><p>Creates an $unwind stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.VectorSearch.html#MongoDB_Driver_PipelineStageDefinitionBuilder_VectorSearch__1_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_VectorSearchOptions___0__">VectorSearch&lt;TInput&gt;(FieldDefinition&lt;TInput&gt;, QueryVector, int, VectorSearchOptions&lt;TInput&gt;)</a></dt>
+    <dd><p>Creates a $vectorSearch stage.</p>
+</dd>
+  </dl>
+  <dl class="jumplist">
+    <dt><a class="xref" href="MongoDB.Driver.PipelineStageDefinitionBuilder.VectorSearch.html#MongoDB_Driver_PipelineStageDefinitionBuilder_VectorSearch__2_System_Linq_Expressions_Expression_System_Func___0___1___MongoDB_Driver_QueryVector_System_Int32_MongoDB_Driver_VectorSearchOptions___0__">VectorSearch&lt;TInput, TField&gt;(Expression&lt;Func&lt;TInput, TField&gt;&gt;, QueryVector, int, VectorSearchOptions&lt;TInput&gt;)</a></dt>
+    <dd><p>Creates a $vectorSearch stage.</p>
+</dd>
+  </dl>
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

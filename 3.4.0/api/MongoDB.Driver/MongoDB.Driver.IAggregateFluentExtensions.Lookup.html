@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Method Lookup
+ | MongoDB CSharp Driver API Reference </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Method Lookup
+ | MongoDB CSharp Driver API Reference ">
+      
+      <link rel="icon" href="../../images/favicon.ico">
+      <link rel="stylesheet" href="../../public/docfx.min.css">
+      <link rel="stylesheet" href="../../public/main.css">
+      <meta name="docfx:navrel" content="">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/mongodb/mongo-csharp-driver/new/main/apiSpec/new?filename=MongoDB_Driver_IAggregateFluentExtensions_Lookup_.md&amp;value=---%0Auid%3A%20MongoDB.Driver.IAggregateFluentExtensions.Lookup*%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+  </head>
+
+  <script type="module" src="./../../public/docfx.min.js"></script>
+
+  <script>
+    const theme = localStorage.getItem('theme') || 'auto'
+    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+  </script>
+
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="ManagedReference">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../../index.html">
+            <img id="logo" class="svg" src="../../images/mongodb-logo.svg" alt="">
+            
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+      <div class="toc-offcanvas">
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="tocOffcanvasLabel">Table of Contents</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#tocOffcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <nav class="toc" id="toc"></nav>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="actionbar">
+          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em" type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas" aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup*">
+
+
+
+
+
+<h1 id="MongoDB_Driver_IAggregateFluentExtensions_Lookup_" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup*" class="text-break">
+  Method Lookup
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/IAggregateFluentExtensions.cs/#L462"><i class="bi bi-code-slash"></i></a>
+</h1>
+
+<div class="facts text-secondary">
+  <dl><dt>Namespace</dt><dd><a class="xref" href="MongoDB.html">MongoDB</a>.<a class="xref" href="MongoDB.Driver.html">Driver</a></dd></dl>
+  <dl><dt>Assembly</dt><dd>MongoDB.Driver.dll</dd></dl>
+</div>
+
+<div class="markdown summary"></div>
+<div class="markdown conceptual"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_IAggregateFluentExtensions_Lookup_" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_IAggregateFluentExtensions_Lookup__1_MongoDB_Driver_IAggregateFluent___0__System_String_MongoDB_Driver_FieldDefinition___0__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument__" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup``1(MongoDB.Driver.IAggregateFluent{``0},System.String,MongoDB.Driver.FieldDefinition{``0},MongoDB.Driver.FieldDefinition{MongoDB.Bson.BsonDocument},MongoDB.Driver.FieldDefinition{MongoDB.Bson.BsonDocument})">
+  Lookup&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, string, FieldDefinition&lt;TResult&gt;, FieldDefinition&lt;BsonDocument&gt;, FieldDefinition&lt;BsonDocument&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/IAggregateFluentExtensions.cs/#L462"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a lookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IAggregateFluent&lt;BsonDocument&gt; Lookup&lt;TResult&gt;(this IAggregateFluent&lt;TResult&gt; aggregate, string foreignCollectionName, FieldDefinition&lt;TResult&gt; localField, FieldDefinition&lt;BsonDocument&gt; foreignField, FieldDefinition&lt;BsonDocument&gt; @as)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>aggregate</code> <a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+  <dd><p>The aggregate.</p>
+</dd>
+  <dt><code>foreignCollectionName</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></dt>
+  <dd><p>Name of the foreign collection.</p>
+</dd>
+  <dt><code>localField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;TResult&gt;</dt>
+  <dd><p>The local field.</p>
+</dd>
+  <dt><code>foreignField</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+  <dd><p>The foreign field.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-1.html">FieldDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+  <dd><p>The field in the result to place the foreign matches.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+  <dd><p>The fluent aggregate interface.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TResult</code></dt>
+  <dd><p>The type of the result.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_IAggregateFluentExtensions_Lookup_" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_IAggregateFluentExtensions_Lookup__3_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection___1__System_Linq_Expressions_Expression_System_Func___0_System_Object___System_Linq_Expressions_Expression_System_Func___1_System_Object___System_Linq_Expressions_Expression_System_Func___2_System_Object___MongoDB_Driver_AggregateLookupOptions___1___2__" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup``3(MongoDB.Driver.IAggregateFluent{``0},MongoDB.Driver.IMongoCollection{``1},System.Linq.Expressions.Expression{System.Func{``0,System.Object}},System.Linq.Expressions.Expression{System.Func{``1,System.Object}},System.Linq.Expressions.Expression{System.Func{``2,System.Object}},MongoDB.Driver.AggregateLookupOptions{``1,``2})">
+  Lookup&lt;TResult, TForeignDocument, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;TForeignDocument&gt;, Expression&lt;Func&lt;TResult, object&gt;&gt;, Expression&lt;Func&lt;TForeignDocument, object&gt;&gt;, Expression&lt;Func&lt;TNewResult, object&gt;&gt;, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/IAggregateFluentExtensions.cs/#L488"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a lookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IAggregateFluent&lt;TNewResult&gt; Lookup&lt;TResult, TForeignDocument, TNewResult&gt;(this IAggregateFluent&lt;TResult&gt; aggregate, IMongoCollection&lt;TForeignDocument&gt; foreignCollection, Expression&lt;Func&lt;TResult, object&gt;&gt; localField, Expression&lt;Func&lt;TForeignDocument, object&gt;&gt; foreignField, Expression&lt;Func&lt;TNewResult, object&gt;&gt; @as, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt; options = null)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>aggregate</code> <a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+  <dd><p>The aggregate.</p>
+</dd>
+  <dt><code>foreignCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeignDocument&gt;</dt>
+  <dd><p>The foreign collection.</p>
+</dd>
+  <dt><code>localField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TResult, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+  <dd><p>The local field.</p>
+</dd>
+  <dt><code>foreignField</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TForeignDocument, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+  <dd><p>The foreign field.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TNewResult, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a>&gt;&gt;</dt>
+  <dd><p>The field in the result to place the foreign matches.</p>
+</dd>
+  <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateLookupOptions-2.html">AggregateLookupOptions</a>&lt;TForeignDocument, TNewResult&gt;</dt>
+  <dd><p>The options.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+  <dd><p>The fluent aggregate interface.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TResult</code></dt>
+  <dd><p>The type of the result.</p>
+</dd>
+  <dt><code>TForeignDocument</code></dt>
+  <dd><p>The type of the foreign collection.</p>
+</dd>
+  <dt><code>TNewResult</code></dt>
+  <dd><p>The type of the new result.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_IAggregateFluentExtensions_Lookup_" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_IAggregateFluentExtensions_Lookup__1_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection_MongoDB_Bson_BsonDocument__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition_MongoDB_Bson_BsonDocument_MongoDB_Bson_BsonDocument__MongoDB_Driver_FieldDefinition_MongoDB_Bson_BsonDocument_System_Collections_Generic_IEnumerable_MongoDB_Bson_BsonDocument___" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup``1(MongoDB.Driver.IAggregateFluent{``0},MongoDB.Driver.IMongoCollection{MongoDB.Bson.BsonDocument},MongoDB.Bson.BsonDocument,MongoDB.Driver.PipelineDefinition{MongoDB.Bson.BsonDocument,MongoDB.Bson.BsonDocument},MongoDB.Driver.FieldDefinition{MongoDB.Bson.BsonDocument,System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonDocument}})">
+  Lookup&lt;TResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;BsonDocument&gt;, BsonDocument, PipelineDefinition&lt;BsonDocument, BsonDocument&gt;, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/IAggregateFluentExtensions.cs/#L510"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a lookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IAggregateFluent&lt;BsonDocument&gt; Lookup&lt;TResult&gt;(this IAggregateFluent&lt;TResult&gt; aggregate, IMongoCollection&lt;BsonDocument&gt; foreignCollection, BsonDocument let, PipelineDefinition&lt;BsonDocument, BsonDocument&gt; lookupPipeline, FieldDefinition&lt;BsonDocument, IEnumerable&lt;BsonDocument&gt;&gt; @as)</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>aggregate</code> <a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+  <dd><p>The aggregate.</p>
+</dd>
+  <dt><code>foreignCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+  <dd><p>The foreign collection.</p>
+</dd>
+  <dt><code>let</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+  <dd><p>The &quot;let&quot; definition.</p>
+</dd>
+  <dt><code>lookupPipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>, <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+  <dd><p>The lookup pipeline.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="MongoDB.Driver.FieldDefinition-2.html">FieldDefinition</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable-1">IEnumerable</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;&gt;</dt>
+  <dd><p>The as field in the result in which to place the results of the lookup pipeline.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;<a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a>&gt;</dt>
+  <dd><p>The fluent aggregate interface.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TResult</code></dt>
+  <dd><p>The type of the result.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+<a id="MongoDB_Driver_IAggregateFluentExtensions_Lookup_" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup*"></a>
+
+<h3 id="MongoDB_Driver_IAggregateFluentExtensions_Lookup__5_MongoDB_Driver_IAggregateFluent___0__MongoDB_Driver_IMongoCollection___1__MongoDB_Bson_BsonDocument_MongoDB_Driver_PipelineDefinition___1___2__System_Linq_Expressions_Expression_System_Func___4___3___MongoDB_Driver_AggregateLookupOptions___1___4__" data-uid="MongoDB.Driver.IAggregateFluentExtensions.Lookup``5(MongoDB.Driver.IAggregateFluent{``0},MongoDB.Driver.IMongoCollection{``1},MongoDB.Bson.BsonDocument,MongoDB.Driver.PipelineDefinition{``1,``2},System.Linq.Expressions.Expression{System.Func{``4,``3}},MongoDB.Driver.AggregateLookupOptions{``1,``4})">
+  Lookup&lt;TResult, TForeignDocument, TAsElement, TAs, TNewResult&gt;(IAggregateFluent&lt;TResult&gt;, IMongoCollection&lt;TForeignDocument&gt;, BsonDocument, PipelineDefinition&lt;TForeignDocument, TAsElement&gt;, Expression&lt;Func&lt;TNewResult, TAs&gt;&gt;, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt;)
+  <a class="header-action link-secondary" title="View source" href="https://github.com/mongodb/mongo-csharp-driver/blob/main/src/MongoDB.Driver/IAggregateFluentExtensions.cs/#L541"><i class="bi bi-code-slash"></i></a>
+</h3>
+
+<div class="markdown level1 summary"><p>Appends a lookup stage to the pipeline.</p>
+</div>
+<div class="markdown level1 conceptual"></div>
+
+<div class="codewrapper">
+  <pre><code class="lang-csharp hljs">public static IAggregateFluent&lt;TNewResult&gt; Lookup&lt;TResult, TForeignDocument, TAsElement, TAs, TNewResult&gt;(this IAggregateFluent&lt;TResult&gt; aggregate, IMongoCollection&lt;TForeignDocument&gt; foreignCollection, BsonDocument let, PipelineDefinition&lt;TForeignDocument, TAsElement&gt; lookupPipeline, Expression&lt;Func&lt;TNewResult, TAs&gt;&gt; @as, AggregateLookupOptions&lt;TForeignDocument, TNewResult&gt; options = null) where TAs : IEnumerable&lt;TAsElement&gt;</code></pre>
+</div>
+
+<h4 class="section">Parameters</h4>
+<dl class="parameters">
+  <dt><code>aggregate</code> <a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TResult&gt;</dt>
+  <dd><p>The aggregate.</p>
+</dd>
+  <dt><code>foreignCollection</code> <a class="xref" href="MongoDB.Driver.IMongoCollection-1.html">IMongoCollection</a>&lt;TForeignDocument&gt;</dt>
+  <dd><p>The foreign collection.</p>
+</dd>
+  <dt><code>let</code> <a class="xref" href="../MongoDB.Bson/MongoDB.Bson.BsonDocument.html">BsonDocument</a></dt>
+  <dd><p>The &quot;let&quot; definition.</p>
+</dd>
+  <dt><code>lookupPipeline</code> <a class="xref" href="MongoDB.Driver.PipelineDefinition-2.html">PipelineDefinition</a>&lt;TForeignDocument, TAsElement&gt;</dt>
+  <dd><p>The lookup pipeline.</p>
+</dd>
+  <dt><code>as</code> <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.linq.expressions.expression-1">Expression</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;TNewResult, TAs&gt;&gt;</dt>
+  <dd><p>The as field in <code class="typeparamref">TNewResult</code> in which to place the results of the lookup pipeline.</p>
+</dd>
+  <dt><code>options</code> <a class="xref" href="MongoDB.Driver.AggregateLookupOptions-2.html">AggregateLookupOptions</a>&lt;TForeignDocument, TNewResult&gt;</dt>
+  <dd><p>The options.</p>
+</dd>
+</dl>
+
+<h4 class="section">Returns</h4>
+<dl class="parameters">
+  <dt><a class="xref" href="MongoDB.Driver.IAggregateFluent-1.html">IAggregateFluent</a>&lt;TNewResult&gt;</dt>
+  <dd><p>The fluent aggregate interface.</p>
+</dd>
+</dl>
+
+<h4 class="section">Type Parameters</h4>
+<dl class="parameters">
+  <dt><code>TResult</code></dt>
+  <dd><p>The type of the result.</p>
+</dd>
+  <dt><code>TForeignDocument</code></dt>
+  <dd><p>The type of the foreign collection documents.</p>
+</dd>
+  <dt><code>TAsElement</code></dt>
+  <dd><p>The type of the as field elements.</p>
+</dd>
+  <dt><code>TAs</code></dt>
+  <dd><p>The type of the as field.</p>
+</dd>
+  <dt><code>TNewResult</code></dt>
+  <dd><p>The type of the new result.</p>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+</article>
+
+
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          &copy; 2023 MongoDB, Inc.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
