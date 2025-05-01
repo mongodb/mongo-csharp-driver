@@ -949,10 +949,22 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Phrase("x", "foo", 5),
                 "{ phrase: { query: 'foo', path: 'x', slop: 5 } }");
 
+            AssertRendered(
+                subject.Phrase("x", "foo", new SearchPhraseOptions<BsonDocument> { Synonyms = "testSynonyms" }),
+                "{ phrase: { query: 'foo', path: 'x', synonyms: 'testSynonyms' } }");
+
+            AssertRendered(
+                subject.Phrase("x", "foo", 5),
+                "{ phrase: { query: 'foo', path: 'x', slop: 5 } }");
+
             var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
             AssertRendered(
                 subject.Phrase("x", "foo", score: scoreBuilder.Constant(1)),
                 "{ phrase: { query: 'foo', path: 'x', score: { constant: { value: 1 } } } }");
+
+            AssertRendered(
+                subject.Phrase("x", "foo", new SearchPhraseOptions<BsonDocument> { Score = scoreBuilder.Constant(1), Slop = 5}),
+                "{ phrase: { query: 'foo', slop: 5, path: 'x', score: { constant: { value: 1 } } } }");
         }
 
         [Fact]
@@ -969,6 +981,10 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Phrase(x => x.Hobbies, "foo"),
                 "{ phrase: { query: 'foo', path: 'hobbies' } }");
+
+            AssertRendered(
+                subject.Phrase(x => x.FirstName, "foo", new SearchPhraseOptions<Person> { Synonyms = "testSynonyms" }),
+                "{ phrase: { query: 'foo', synonyms: 'testSynonyms', path: 'fn' } }");
 
             AssertRendered(
                 subject.Phrase(
@@ -1309,6 +1325,10 @@ namespace MongoDB.Driver.Tests.Search
                 "{ text: { query: ['foo', 'bar'], synonyms: 'testSynonyms', path: ['x', 'y'] } }");
 
             AssertRendered(
+                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, new SearchTextOptions<BsonDocument>{ MatchCriteria = MatchCriteria.Any }),
+                "{ text: { query: ['foo', 'bar'], matchCriteria: 'any', path: ['x', 'y'] } }");
+
+            AssertRendered(
                 subject.Text("x", "foo", new SearchFuzzyOptions()),
                 "{ text: { query: 'foo', path: 'x', fuzzy: {} } }");
             AssertRendered(
@@ -1327,6 +1347,21 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Text("x", "foo", "testSynonyms", scoreBuilder.Constant(1)),
                 "{ text: { query: 'foo', synonyms: 'testSynonyms', path: 'x', score: { constant: { value: 1 } } } }");
+
+            AssertRendered(
+                subject.Text("x", "foo", new SearchTextOptions<BsonDocument> {Score = scoreBuilder.Constant(1), MatchCriteria = MatchCriteria.All}),
+                "{ text: { query: 'foo', matchCriteria: 'all', path: 'x', score: { constant: { value: 1 } } } }");
+        }
+
+        [Fact]
+        public void Text_should_throw_with_invalid_options()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Action act = () =>
+                subject.Text("x", "foo", new SearchTextOptions<BsonDocument> { MatchCriteria = (MatchCriteria)3 });
+
+            act.ShouldThrow<ArgumentException>();
         }
 
         [Fact]
@@ -1337,6 +1372,9 @@ namespace MongoDB.Driver.Tests.Search
             AssertRendered(
                 subject.Text(x => x.FirstName, "foo"),
                 "{ text: { query: 'foo', path: 'fn' } }");
+            AssertRendered(
+                subject.Text(x => x.FirstName, "foo", new SearchTextOptions<Person> { MatchCriteria = MatchCriteria.All}),
+                "{ text: { query: 'foo', matchCriteria: 'all', path: 'fn' } }");
             AssertRendered(
                 subject.Text("FirstName", "foo"),
                 "{ text: { query: 'foo', path: 'fn' } }");

@@ -328,16 +328,17 @@ namespace MongoDB.Driver.Search
     {
         private readonly SearchQueryDefinition _query;
         private readonly int? _slop;
+        private readonly string _synonyms;
 
         public PhraseSearchDefinition(
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
-            int? slop,
-            SearchScoreDefinition<TDocument> score)
-                : base(OperatorType.Phrase, path, score)
+            SearchPhraseOptions<TDocument> options)
+                : base(OperatorType.Phrase, path, options?.Score)
         {
             _query = Ensure.IsNotNull(query, nameof(query));
-            _slop = slop;
+            _slop = options?.Slop;
+            _synonyms = options?.Synonyms;
         }
 
         private protected override BsonDocument RenderArguments(
@@ -345,7 +346,8 @@ namespace MongoDB.Driver.Search
             IBsonSerializer fieldSerializer) => new()
             {
                 { "query", _query.Render() },
-                { "slop", _slop, _slop != null }
+                { "slop", _slop, _slop != null },
+                { "synonyms", _synonyms, _synonyms != null }
             };
     }
 
@@ -461,29 +463,40 @@ namespace MongoDB.Driver.Search
     internal sealed class TextSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
     {
         private readonly SearchFuzzyOptions _fuzzy;
+        private readonly string _matchCriteria;
         private readonly SearchQueryDefinition _query;
         private readonly string _synonyms;
 
         public TextSearchDefinition(
             SearchPathDefinition<TDocument> path,
             SearchQueryDefinition query,
-            SearchFuzzyOptions fuzzy,
-            SearchScoreDefinition<TDocument> score,
-            string synonyms)
-                : base(OperatorType.Text, path, score)
+            SearchTextOptions<TDocument> options)
+                : base(OperatorType.Text, path, options?.Score)
         {
             _query = Ensure.IsNotNull(query, nameof(query));
-            _fuzzy = fuzzy;
-            _synonyms = synonyms;
+            _fuzzy = options?.Fuzzy;
+            _synonyms = options?.Synonyms;
+            _matchCriteria = options?.MatchCriteria switch
+            {
+                MatchCriteria.All => "all",
+                MatchCriteria.Any => "any",
+                null => null,
+                _ => throw new ArgumentException("Invalid match criteria set for Atlas Search text operator.")
+            };
         }
 
-        private protected override BsonDocument RenderArguments(RenderArgs<TDocument> args,
-            IBsonSerializer fieldSerializer) => new()
+        private protected override BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer)
+        {
+            return new BsonDocument
             {
                 { "query", _query.Render() },
                 { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
-                { "synonyms", _synonyms, _synonyms != null }
+                { "synonyms", _synonyms, _synonyms != null },
+                { "matchCriteria", _matchCriteria, _matchCriteria != null }
             };
+        }
     }
 
     internal sealed class WildcardSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
