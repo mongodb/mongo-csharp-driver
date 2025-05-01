@@ -23,7 +23,7 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// Entry point for building CSFLE (Client-Side Field Level Encryption) schemas.
+    /// //TODO
     /// </summary>
     public class CsfleSchemaBuilder
     {
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Creates a new CSFLE schema builder and configures it using the specified action.
+        /// //TODO
         /// </summary>
         public static CsfleSchemaBuilder Create(Action<CsfleSchemaBuilder> configure)
         {
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Defines encryption rules for a given collection.
+        /// //TODO
         /// </summary>
         public CsfleSchemaBuilder Encrypt<T>(string collectionNamespace, Action<EncryptedCollectionBuilder<T>> configure)
         {
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Encryption
     public class EncryptedCollectionBuilder<TDocument>
     {
         private readonly BsonDocument _schema = new("bsonType", "object");
-        private readonly RenderArgs<TDocument> _args = new(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);  //TODO Create those two in the constructor...?
+        private readonly RenderArgs<TDocument> _args = new(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
 
         /// <summary>
         /// //TODO
@@ -295,7 +295,7 @@ namespace MongoDB.Driver.Encryption
     }
 
     /// <summary>
-    /// The type of possible encryption algorithms.
+    /// The type of possible encryption algorithms.  //TODO Maybe we need a more generic name?
     /// </summary>
     public enum CsfleEncryptionAlgorithm
     {
