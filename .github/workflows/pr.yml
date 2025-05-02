@@ -10,29 +10,24 @@ on:
       - unlabeled
 
 jobs:
-  release-notes-check-labels:
-    name: Check assigned labels.
+  pull-request-validation:
+    name: Pull Request validation.
     runs-on: ubuntu-latest
     steps:
-      - if: github.event.pull_request.labels[0] == null
+      - name: Validate label.
+        if: ${{ always() && github.event.pull_request.labels[0] == null }}
         run: |
           echo "Pull Request should have label assigned."
-          exit 2
+          exit 1
 
-  release-notes-check-jira-ticket:
-    name: Check title to contains Jira ticket.
-    runs-on: ubuntu-latest
-    steps:
-      - if: ${{ !(contains(github.event.pull_request.title, 'CSHARP-')) }}
+      - name: Title should contain Jira ticket.
+        if: ${{ always() && !(contains(github.event.pull_request.title, 'CSHARP-')) }}
         run: |
           echo "Title should contains Jira ticket."
-          exit 2
+          exit 1
 
-  release-notes-check-title:
-    name: Title should not ends with period or elipses
-    runs-on: ubuntu-latest
-    steps:
-      - if: ${{ endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, '…') }}
+      - name: Title should not end with period or elipses
+        if: ${{ always() && (endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, 'â€¦')) }}
         run: |
-          echo "Title should not ends with period or elipses."
-          exit 2
+          echo "Title should not end with a period or ellipses."
+          exit 1
