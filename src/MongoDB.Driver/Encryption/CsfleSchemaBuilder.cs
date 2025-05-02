@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> PatternProperty(
             string pattern,
-            BsonType[] bsonTypes,
+            IEnumerable<BsonType> bsonTypes,
             CsfleEncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
-            BsonType[] bsonTypes,
+            IEnumerable<BsonType> bsonTypes,
             CsfleEncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
             => Property(new ExpressionFieldDefinition<TDocument, TField>(path), bsonTypes, algorithm, keyId);
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property(
             FieldDefinition<TDocument> path,
-            BsonType[] bsonTypes,
+            IEnumerable<BsonType> bsonTypes,
             CsfleEncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Encryption
         internal BsonDocument Build() => _schema;
 
         private static BsonDocument CreateEncryptDocument(
-            BsonType[] bsonTypes,
+            IEnumerable<BsonType> bsonTypes,
             CsfleEncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
