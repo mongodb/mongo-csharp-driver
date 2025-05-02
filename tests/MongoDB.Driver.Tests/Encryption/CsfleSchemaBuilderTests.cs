@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Tests.Encryption
             AssertOutcomeCollectionBuilder(builder, expected);
         }
 
-                [Fact]
+        [Fact]
         public void EncryptedCollection_PatternPropertyNestedWithString_works_as_expected()
         {
             Guid? keyId = Guid.Parse(_keyIdString);
@@ -475,14 +475,14 @@ namespace MongoDB.Driver.Tests.Encryption
             AssertOutcomeBuilder(builder, expected);
         }
 
-        private void AssertOutcomeBuilder(CsfleSchemaBuilder builder, Dictionary<string, string> expected)
+        private void AssertOutcomeBuilder(CsfleSchemaBuilder builder, Dictionary<string, string> expectedSchema)
         {
             var builtSchema = builder.Build();
-            expected.Should().HaveCount(builtSchema.Count);
-            foreach (var collectionNamespace in expected.Keys)
+            expectedSchema.Should().HaveCount(builtSchema.Count);
+            foreach (var collectionNamespace in expectedSchema.Keys)
             {
-                var parsed = BsonDocument.Parse(expected[collectionNamespace]);
-                parsed.Should().BeEquivalentTo(builtSchema[collectionNamespace]);
+                var parsed = BsonDocument.Parse(expectedSchema[collectionNamespace]);
+                builtSchema[collectionNamespace].Should().BeEquivalentTo(parsed);
             }
         }
 
@@ -491,7 +491,7 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             var builtSchema = builder.Build();
             var expectedSchema = BsonDocument.Parse(expected);
-            expectedSchema.Should().BeEquivalentTo(builtSchema);
+            builtSchema.Should().BeEquivalentTo(expectedSchema);
         }
 
         /** To test:
