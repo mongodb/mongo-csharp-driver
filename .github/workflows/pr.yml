@@ -1,0 +1,38 @@
+name: Pull Request validation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - edited
+      - labeled
+      - unlabeled
+
+jobs:
+  release-notes-check-labels:
+    name: Check assigned labels.
+    runs-on: ubuntu-latest
+    steps:
+      - if: github.event.pull_request.labels[0] == null
+        run: |
+          echo "Pull Request should have label assigned."
+          exit 2
+
+  release-notes-check-jira-ticket:
+    name: Check title to contains Jira ticket.
+    runs-on: ubuntu-latest
+    steps:
+      - if: ${{ !(contains(github.event.pull_request.title, 'CSHARP-')) }}
+        run: |
+          echo "Title should contains Jira ticket."
+          exit 2
+
+  release-notes-check-title:
+    name: Title should not ends with period or elipses
+    runs-on: ubuntu-latest
+    steps:
+      - if: ${{ endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, '…') }}
+        run: |
+          echo "Title should not ends with period or elipses."
+          exit 2
