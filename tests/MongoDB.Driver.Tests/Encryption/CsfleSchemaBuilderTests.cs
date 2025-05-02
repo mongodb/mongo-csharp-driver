@@ -25,8 +25,209 @@ namespace MongoDB.Driver.Tests.Encryption
 {
     public class CsfleSchemaBuilderTests
     {
-        private static Guid _keyIdExample = Guid.Parse("6f4af470-00d1-401f-ac39-f45902a0c0c8");
         private const string _keyIdString = "6f4af470-00d1-401f-ac39-f45902a0c0c8";
+        private static Guid _keyIdExample = Guid.Parse(_keyIdString);  //TODO Check if I should remove this
+
+        [Theory]
+        [InlineData(
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            null,
+            """ "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
+        [InlineData(
+            null,
+            _keyIdString,
+            """ "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        public void EncryptedCollection_Metadata_works_as_expected(CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        {
+            Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.EncryptMetadata(keyId, algorithm);
+
+            var expected = $$"""
+                             {
+                               "bsonType": "object",
+                               "encryptMetadata": {
+                                       {{expectedContent}}
+                               }
+                             }
+                             """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Array,
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            null,
+            """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
+        [InlineData(BsonType.Array,
+            null,
+            _keyIdString,
+            """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        [InlineData(BsonType.Array,
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            _keyIdString,
+            """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        public void EncryptedCollection_PatternProperty_works_as_expected(BsonType bsonType, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        {
+            Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.PatternProperty("randomRegex*", bsonType, algorithm, keyId);
+
+            var expected = $$"""
+                             {
+                               "bsonType": "object",
+                               "patternProperties": {
+                                 "randomRegex*": {
+                                   "encrypt": {
+                                       {{expectedContent}}
+                                   }
+                                 }
+                               }
+                             }
+                             """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Theory]
+        [InlineData(new[] {BsonType.Array, BsonType.String},
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            null,
+            """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
+        [InlineData(new[] {BsonType.Array, BsonType.String},
+            null,
+            _keyIdString,
+            """ "bsonType": ["array", "string"], "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        [InlineData(new[] {BsonType.Array, BsonType.String},
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            _keyIdString,
+            """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        public void EncryptedCollection_PatternPropertyWithMultipleBsonTypes_works_as_expected(IEnumerable<BsonType> bsonTypes, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        {
+            Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.PatternProperty("randomRegex*", bsonTypes, algorithm, keyId);
+
+            var expected = $$"""
+                             {
+                               "bsonType": "object",
+                               "patternProperties": {
+                                 "randomRegex*": {
+                                   "encrypt": {
+                                       {{expectedContent}}
+                                   }
+                                 }
+                               }
+                             }
+                             """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Fact]
+        public void EncryptedCollection_PatternPropertyNested_works_as_expected()
+        {
+            Guid? keyId = Guid.Parse(_keyIdString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.PatternProperty(p => p.Insurance, innerBuilder =>
+            {
+                innerBuilder
+                    .EncryptMetadata(keyId)
+                    .Property("policyNumber", BsonType.Int32,
+                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                    .PatternProperty("randomRegex*", BsonType.String,
+                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+            });
+
+            var expected = """
+                           {
+                               "bsonType": "object",
+                               "patternProperties": {
+                                   "bsonType": "object",
+                                   "encryptMetadata": {
+                                     "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                   },
+                                   "properties": {
+                                       "policyNumber": {
+                                           "encrypt": {
+                                               "bsonType": "int",
+                                               "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                           }
+                                       }
+                                   },
+                                   "patternProperties": {
+                                       "randomRegex*": {
+                                           "encrypt": {
+                                               "bsonType": "string",
+                                               "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                           }
+                                       }
+                                   }
+                               }
+                           }
+                           """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+                [Fact]
+        public void EncryptedCollection_PatternPropertyNestedWithString_works_as_expected()
+        {
+            Guid? keyId = Guid.Parse(_keyIdString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.PatternProperty<Insurance>("insurance", innerBuilder =>
+            {
+                innerBuilder
+                    .EncryptMetadata(keyId)
+                    .Property("policyNumber", BsonType.Int32,
+                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                    .PatternProperty("randomRegex*", BsonType.String,
+                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+            });
+
+            var expected = """
+                             {
+                                 "bsonType": "object",
+                                 "patternProperties": {
+                                     "bsonType": "object",
+                                     "encryptMetadata": {
+                                         "keyId": [
+                                         {
+                                             "$binary": {
+                                                 "base64": "b0r0cADRQB+sOfRZAqDAyA==",
+                                                 "subType": "04"
+                                             }
+                                         }
+                                         ]
+                                     },
+                                     "properties": {
+                                         "policyNumber": {
+                                             "encrypt": {
+                                                 "bsonType": "int",
+                                                 "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                             }
+                                         }
+                                     },
+                                     "patternProperties": {
+                                         "randomRegex*": {
+                                             "encrypt": {
+                                                 "bsonType": "string",
+                                                 "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                             }
+                                         }
+                                     }
+                                 }
+                             }
+                             """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
 
         [Theory]
         [InlineData(BsonType.Array,
@@ -60,6 +261,78 @@ namespace MongoDB.Driver.Tests.Encryption
                                 }
                               }
                               """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Theory]
+        [InlineData(new[] {BsonType.Array, BsonType.String},
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            null,
+            """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
+        [InlineData(new[] {BsonType.Array, BsonType.String},
+            null,
+            _keyIdString,
+            """ "bsonType": ["array", "string"], "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        [InlineData(new[] {BsonType.Array, BsonType.String},
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            _keyIdString,
+            """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        public void EncryptedCollection_PropertyWithMultipleBsonTypes_works_as_expected(IEnumerable<BsonType> bsonTypes, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        {
+            Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.Property(p => p.MedicalRecords, bsonTypes, algorithm, keyId);
+
+            var expected = $$"""
+                             {
+                               "bsonType": "object",
+                               "properties": {
+                                 "medicalRecords": {
+                                   "encrypt": {
+                                       {{expectedContent}}
+                                   }
+                                 }
+                               }
+                             }
+                             """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Array,
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            null,
+            """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
+        [InlineData(BsonType.Array,
+            null,
+            _keyIdString,
+            """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        [InlineData(BsonType.Array,
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            _keyIdString,
+            """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        public void EncryptedCollection_PropertyWithString_works_as_expected(BsonType bsonType, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        {
+            Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.Property("medicalRecords", bsonType, algorithm, keyId);
+
+            var expected = $$"""
+                             {
+                               "bsonType": "object",
+                               "properties": {
+                                 "medicalRecords": {
+                                   "encrypt": {
+                                       {{expectedContent}}
+                                   }
+                                 }
+                               }
+                             }
+                             """;
 
             AssertOutcomeCollectionBuilder(builder, expected);
         }
@@ -223,18 +496,28 @@ namespace MongoDB.Driver.Tests.Encryption
 
         /** To test:
          * - Metadata
-         * - Property with expression
-         * - Property with string
-         * - Property with single bsonType
-         * - Property with multiple bsonType
+         * - *Property with expression
+         * - *Property with string
+         * - *Property with single bsonType
+         * - *Property with multiple bsonType
+         * - *Pattern property with string
+         * - *Pattern property with multiple bsonType
+         *
          * - Nested property with expression
          * - Nested property with string
-         * - Pattern property with string
-         * - Pattern property with multiple bsonType
+
          * - Nested pattern property with expression
          * - Nested pattern property with string
+         *
          * - Multiple types in schema
          * - Property and pattern property together
+         * - Do it with BsonDocument....?
+         *
+         * ERRORS
+         * - No empty properties and empty pattern properties?
+         * - No empty schema
+         * - Wrong string
+         * - Empty bson type array
          */
 
         internal class Patient
