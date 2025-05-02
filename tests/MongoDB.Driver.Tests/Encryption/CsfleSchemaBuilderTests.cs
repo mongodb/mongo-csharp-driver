@@ -25,7 +25,44 @@ namespace MongoDB.Driver.Tests.Encryption
 {
     public class CsfleSchemaBuilderTests
     {
-        private readonly Guid _keyIdExample = Guid.Parse("6f4af470-00d1-401f-ac39-f45902a0c0c8");
+        private static Guid _keyIdExample = Guid.Parse("6f4af470-00d1-401f-ac39-f45902a0c0c8");
+        private const string _keyIdString = "6f4af470-00d1-401f-ac39-f45902a0c0c8";
+
+        [Theory]
+        [InlineData(BsonType.Array,
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            null,
+            """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
+        [InlineData(BsonType.Array,
+            null,
+            _keyIdString,
+            """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        [InlineData(BsonType.Array,
+            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            _keyIdString,
+            """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
+        public void EncryptedCollection_PropertyWithExpression_works_as_expected(BsonType bsonType, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        {
+            Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.Property(p => p.MedicalRecords, bsonType, algorithm, keyId);
+
+            var expected = $$"""
+                              {
+                                "bsonType": "object",
+                                "properties": {
+                                  "medicalRecords": {
+                                    "encrypt": {
+                                        {{expectedContent}}
+                                    }
+                                  }
+                                }
+                              }
+                              """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
 
         [Fact]
         public void BasicPropertyTest()
@@ -175,6 +212,30 @@ namespace MongoDB.Driver.Tests.Encryption
                 parsed.Should().BeEquivalentTo(builtSchema[collectionNamespace]);
             }
         }
+
+        //TODO Give better name...
+        private void AssertOutcomeCollectionBuilder<T>(EncryptedCollectionBuilder<T> builder, string expected)
+        {
+            var builtSchema = builder.Build();
+            var expectedSchema = BsonDocument.Parse(expected);
+            expectedSchema.Should().BeEquivalentTo(builtSchema);
+        }
+
+        /** To test:
+         * - Metadata
+         * - Property with expression
+         * - Property with string
+         * - Property with single bsonType
+         * - Property with multiple bsonType
+         * - Nested property with expression
+         * - Nested property with string
+         * - Pattern property with string
+         * - Pattern property with multiple bsonType
+         * - Nested pattern property with expression
+         * - Nested pattern property with string
+         * - Multiple types in schema
+         * - Property and pattern property together
+         */
 
         internal class Patient
         {

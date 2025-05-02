@@ -202,10 +202,7 @@ namespace MongoDB.Driver.Encryption
             return this;
         }
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        public BsonDocument Build() => _schema;
+        internal BsonDocument Build() => _schema;
 
         private static BsonDocument CreateEncryptDocument(
             BsonType[] bsonTypes,
