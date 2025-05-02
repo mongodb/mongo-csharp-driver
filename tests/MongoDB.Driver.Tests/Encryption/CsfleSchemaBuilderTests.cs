@@ -26,7 +26,80 @@ namespace MongoDB.Driver.Tests.Encryption
     public class CsfleSchemaBuilderTests
     {
         private const string _keyIdString = "6f4af470-00d1-401f-ac39-f45902a0c0c8";
-        private static Guid _keyIdExample = Guid.Parse(_keyIdString);  //TODO Check if I should remove this
+        private static Guid _keyId = Guid.Parse(_keyIdString);
+
+                [Fact]
+        public void BasicPropertyTest()
+        {
+            const string collectionName = "medicalRecords.patients";
+
+            var builder = CsfleSchemaBuilder.Create(schemaBuilder =>
+            {
+                schemaBuilder.Encrypt<Patient>(collectionName, builder =>
+                {
+                    builder
+                        .EncryptMetadata(keyId: _keyId)
+                        .Property(p => p.MedicalRecords, BsonType.Array,
+                            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
+                        .Property("bloodType", BsonType.String,
+                            algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
+                        .Property(p => p.Ssn, BsonType.Int32,
+                            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                        .Property(p => p.Insurance, innerBuilder =>
+                        {
+                            innerBuilder
+                                .Property(i => i.PolicyNumber, BsonType.Int32,
+                                    CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+                        });
+                } );
+            });
+
+            var expected = new Dictionary<string, string>
+            {
+                [collectionName] = """
+                                   {
+                                     "bsonType": "object",
+                                     "encryptMetadata": {
+                                       "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                     },
+                                     "properties": {
+                                       "insurance": {
+                                         "bsonType": "object",
+                                         "properties": {
+                                           "policyNumber": {
+                                             "encrypt": {
+                                               "bsonType": "int",
+                                               "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                             }
+                                           }
+                                         }
+                                       },
+                                       "medicalRecords": {
+                                         "encrypt": {
+                                           "bsonType": "array",
+                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                         }
+                                       },
+                                       "bloodType": {
+                                         "encrypt": {
+                                           "bsonType": "string",
+                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                         }
+                                       },
+                                       "ssn": {
+                                         "encrypt": {
+                                           "bsonType": "int",
+                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                         }
+                                       }
+                                     },
+                                   }
+                                   """
+            };
+
+            AssertOutcomeBuilder(builder, expected);
+        }
+
 
         [Theory]
         [InlineData(
@@ -148,23 +221,25 @@ namespace MongoDB.Driver.Tests.Encryption
                            {
                                "bsonType": "object",
                                "patternProperties": {
-                                   "bsonType": "object",
-                                   "encryptMetadata": {
-                                     "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
-                                   },
-                                   "properties": {
-                                       "policyNumber": {
-                                           "encrypt": {
-                                               "bsonType": "int",
-                                               "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                   "insurance": {
+                                       "bsonType": "object",
+                                       "encryptMetadata": {
+                                         "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                       },
+                                       "properties": {
+                                           "policyNumber": {
+                                               "encrypt": {
+                                                   "bsonType": "int",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                               }
                                            }
-                                       }
-                                   },
-                                   "patternProperties": {
-                                       "randomRegex*": {
-                                           "encrypt": {
-                                               "bsonType": "string",
-                                               "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                       },
+                                       "patternProperties": {
+                                           "randomRegex*": {
+                                               "encrypt": {
+                                                   "bsonType": "string",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                               }
                                            }
                                        }
                                    }
@@ -192,39 +267,34 @@ namespace MongoDB.Driver.Tests.Encryption
             });
 
             var expected = """
-                             {
-                                 "bsonType": "object",
-                                 "patternProperties": {
-                                     "bsonType": "object",
-                                     "encryptMetadata": {
-                                         "keyId": [
-                                         {
-                                             "$binary": {
-                                                 "base64": "b0r0cADRQB+sOfRZAqDAyA==",
-                                                 "subType": "04"
-                                             }
-                                         }
-                                         ]
-                                     },
-                                     "properties": {
-                                         "policyNumber": {
-                                             "encrypt": {
-                                                 "bsonType": "int",
-                                                 "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
-                                             }
-                                         }
-                                     },
-                                     "patternProperties": {
-                                         "randomRegex*": {
-                                             "encrypt": {
-                                                 "bsonType": "string",
-                                                 "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-                                             }
-                                         }
-                                     }
-                                 }
-                             }
-                             """;
+                           {
+                               "bsonType": "object",
+                               "patternProperties": {
+                                   "insurance": {
+                                       "bsonType": "object",
+                                       "encryptMetadata": {
+                                         "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                       },
+                                       "properties": {
+                                           "policyNumber": {
+                                               "encrypt": {
+                                                   "bsonType": "int",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                               }
+                                           }
+                                       },
+                                       "patternProperties": {
+                                           "randomRegex*": {
+                                               "encrypt": {
+                                                   "bsonType": "string",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                               }
+                                           }
+                                       }
+                                   }
+                               }
+                           }
+                           """;
 
             AssertOutcomeCollectionBuilder(builder, expected);
         }
@@ -337,6 +407,105 @@ namespace MongoDB.Driver.Tests.Encryption
             AssertOutcomeCollectionBuilder(builder, expected);
         }
 
+                [Fact]
+        public void EncryptedCollection_PropertyNested_works_as_expected()
+        {
+            Guid? keyId = Guid.Parse(_keyIdString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.Property(p => p.Insurance, innerBuilder =>
+            {
+                innerBuilder
+                    .EncryptMetadata(keyId)
+                    .Property("policyNumber", BsonType.Int32,
+                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                    .PatternProperty("randomRegex*", BsonType.String,
+                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+            });
+
+            var expected = """
+                           {
+                               "bsonType": "object",
+                               "properties": {
+                                   "insurance": {
+                                       "bsonType": "object",
+                                       "encryptMetadata": {
+                                         "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                       },
+                                       "properties": {
+                                           "policyNumber": {
+                                               "encrypt": {
+                                                   "bsonType": "int",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                               }
+                                           }
+                                       },
+                                       "patternProperties": {
+                                           "randomRegex*": {
+                                               "encrypt": {
+                                                   "bsonType": "string",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                               }
+                                           }
+                                       }
+                                   }
+                               }
+                           }
+                           """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Fact]
+        public void EncryptedCollection_PropertyNestedWithString_works_as_expected()
+        {
+            Guid? keyId = Guid.Parse(_keyIdString);
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.Property<Insurance>("insurance", innerBuilder =>
+            {
+                innerBuilder
+                    .EncryptMetadata(keyId)
+                    .Property("policyNumber", BsonType.Int32,
+                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                    .PatternProperty("randomRegex*", BsonType.String,
+                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+            });
+
+            var expected = """
+                           {
+                               "bsonType": "object",
+                               "properties": {
+                                   "insurance": {
+                                       "bsonType": "object",
+                                       "encryptMetadata": {
+                                         "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                       },
+                                       "properties": {
+                                           "policyNumber": {
+                                               "encrypt": {
+                                                   "bsonType": "int",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                               }
+                                           }
+                                       },
+                                       "patternProperties": {
+                                           "randomRegex*": {
+                                               "encrypt": {
+                                                   "bsonType": "string",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                               }
+                                           }
+                                       }
+                                   }
+                               }
+                           }
+                           """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+
         [Fact]
         public void BasicPropertyTest()
         {
@@ -347,7 +516,7 @@ namespace MongoDB.Driver.Tests.Encryption
                 schemaBuilder.Encrypt<Patient>(collectionName, builder =>
                 {
                     builder
-                        .EncryptMetadata(keyId: _keyIdExample)
+                        .EncryptMetadata(keyId: _keyId)
                         .Property(p => p.MedicalRecords, BsonType.Array,
                             CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                         .Property("bloodType", BsonType.String,
@@ -502,12 +671,10 @@ namespace MongoDB.Driver.Tests.Encryption
          * - *Property with multiple bsonType
          * - *Pattern property with string
          * - *Pattern property with multiple bsonType
-         *
-         * - Nested property with expression
-         * - Nested property with string
-
-         * - Nested pattern property with expression
-         * - Nested pattern property with string
+         * - *Nested property with expression
+         * - *Nested property with string
+         * - *Nested pattern property with expression
+         * - *Nested pattern property with string
          *
          * - Multiple types in schema
          * - Property and pattern property together
