@@ -23,11 +23,11 @@ jobs:
       - name: Title should contain Jira ticket.
         if: ${{ always() && !(contains(github.event.pull_request.title, 'CSHARP-')) }}
         run: |
-          echo "Title should contains Jira ticket."
+          echo "Title should contain Jira ticket."
           exit 1
 
       - name: Title should not end with period or elipses
-        if: ${{ always() && (endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, 'â€¦')) }}
+        if: ${{ always() && (endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, '…')) }}
         run: |
           echo "Title should not end with a period or ellipses."
           exit 1
