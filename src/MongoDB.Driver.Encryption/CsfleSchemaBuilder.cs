@@ -51,11 +51,11 @@ namespace MongoDB.Driver.Encryption
         /// <param name="collectionNamespace">The namespace of the collection.</param>
         /// <param name="configure">An action to configure the encrypted collection builder.</param>
         /// <returns>The current <see cref="CsfleSchemaBuilder"/> instance.</returns>
-        public CsfleSchemaBuilder Encrypt<T>(string collectionNamespace, Action<EncryptedCollectionBuilder<T>> configure)
+        public CsfleSchemaBuilder Encrypt<T>(CollectionNamespace collectionNamespace, Action<EncryptedCollectionBuilder<T>> configure)
         {
             var builder = new EncryptedCollectionBuilder<T>();
             configure(builder);
-            _schemas.Add(collectionNamespace, builder.Build());
+            _schemas.Add(collectionNamespace.FullName, builder.Build());
             return this;
         }
 
