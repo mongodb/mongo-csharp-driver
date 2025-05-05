@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// //TODO
         /// </summary>
-        public EncryptedCollectionBuilder<TDocument> EncryptMetadata(Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null)
+        public EncryptedCollectionBuilder<TDocument> EncryptMetadata(Guid? keyId = null, EncryptionAlgorithm? algorithm = null)
         {
             if (keyId is null && algorithm is null)
             {
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Encryption
         public EncryptedCollectionBuilder<TDocument> PatternProperty(
             string pattern,
             BsonType bsonType,
-            CsfleEncryptionAlgorithm? algorithm = null,
+            EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
             => PatternProperty(pattern, [bsonType], algorithm, keyId);
 
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Encryption
         public EncryptedCollectionBuilder<TDocument> PatternProperty(
             string pattern,
             IEnumerable<BsonType> bsonTypes,
-            CsfleEncryptionAlgorithm? algorithm = null,
+            EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
             AddToPatternProperties(pattern, CreateEncryptDocument(bsonTypes, algorithm, keyId));
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Encryption
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
             BsonType bsonType,
-            CsfleEncryptionAlgorithm? algorithm = null,
+            EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
             => Property(path, [bsonType], algorithm, keyId);
 
@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Encryption
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
             IEnumerable<BsonType> bsonTypes,
-            CsfleEncryptionAlgorithm? algorithm = null,
+            EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
             => Property(new ExpressionFieldDefinition<TDocument, TField>(path), bsonTypes, algorithm, keyId);
 
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Encryption
         public EncryptedCollectionBuilder<TDocument> Property(
             FieldDefinition<TDocument> path,
             BsonType bsonType,
-            CsfleEncryptionAlgorithm? algorithm = null,
+            EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
             => Property(path, [bsonType], algorithm, keyId);
 
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Encryption
         public EncryptedCollectionBuilder<TDocument> Property(
             FieldDefinition<TDocument> path,
             IEnumerable<BsonType> bsonTypes,
-            CsfleEncryptionAlgorithm? algorithm = null,
+            EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
             var fieldName = path.Render(_args).FieldName;
@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Encryption
 
         private static BsonDocument CreateEncryptDocument(
             IEnumerable<BsonType> bsonTypes,
-            CsfleEncryptionAlgorithm? algorithm = null,
+            EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
             if (bsonTypes == null)
@@ -296,30 +296,14 @@ namespace MongoDB.Driver.Encryption
             };
         }
 
-        private static string MapCsfleEncyptionAlgorithmToString(CsfleEncryptionAlgorithm algorithm)
+        private static string MapCsfleEncyptionAlgorithmToString(EncryptionAlgorithm algorithm)
         {
             return algorithm switch
             {
-                CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random => "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
-                CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic => "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random => "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
+                EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic => "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
                 _ => throw new ArgumentException($"Unexpected algorithm type: {algorithm}.", nameof(algorithm))
             };
         }
-    }
-
-    /// <summary>
-    /// The type of possible encryption algorithms.  //TODO Maybe we need a more generic name but EncryptionAlgorithm is already taken (it's a superset of these values)
-    /// </summary>
-    public enum CsfleEncryptionAlgorithm
-    {
-        /// <summary>
-        /// Randomized encryption algorithm.
-        /// </summary>
-        AEAD_AES_256_CBC_HMAC_SHA_512_Random,
-
-        /// <summary>
-        /// Deterministic encryption algorithm.
-        /// </summary>
-        AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic
     }
 }

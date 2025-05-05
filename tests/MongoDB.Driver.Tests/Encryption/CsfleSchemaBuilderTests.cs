@@ -40,26 +40,26 @@ namespace MongoDB.Driver.Tests.Encryption
                     builder
                         .EncryptMetadata(keyId: _keyId)
                         .Property(p => p.MedicalRecords, BsonType.Array,
-                            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
+                            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                         .Property("bloodType", BsonType.String,
-                            algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
+                            algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                         .Property(p => p.Ssn, BsonType.Int32,
-                            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
                         .Property(p => p.Insurance, innerBuilder =>
                         {
                             innerBuilder
                                 .Property(i => i.PolicyNumber, BsonType.Int32,
-                                    CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+                                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
                         })
-                        .PatternProperty("_PIIString$", BsonType.String, CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
-                        .PatternProperty("_PIIArray$", BsonType.Array, CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
+                        .PatternProperty("_PIIString$", BsonType.String, EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                        .PatternProperty("_PIIArray$", BsonType.Array, EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
                         .PatternProperty(p => p.Insurance, innerBuilder =>
                         {
                             innerBuilder
                                 .PatternProperty("_PIIString$", BsonType.String,
-                                    CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
                                 .PatternProperty("_PIINumber$", BsonType.Int32,
-                                    algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+                                    algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
                         });
 
                 } );
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Tests.Encryption
                     builder
                         .EncryptMetadata(keyId: _keyId)
                         .Property(p => p.MedicalRecords, BsonType.Array,
-                            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+                            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
                 });
 
                 schemaBuilder.Encrypt<TestClass>(testClassCollectionName, builder =>
@@ -201,14 +201,14 @@ namespace MongoDB.Driver.Tests.Encryption
 
         [Theory]
         [InlineData(
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(
             null,
             _keyIdString,
             """ "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_Metadata_works_as_expected(CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_Metadata_works_as_expected(EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
         [Theory]
         [InlineData(BsonType.Array,
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(BsonType.Array,
@@ -237,10 +237,10 @@ namespace MongoDB.Driver.Tests.Encryption
             _keyIdString,
             """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         [InlineData(BsonType.Array,
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PatternProperty_works_as_expected(BsonType bsonType, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_PatternProperty_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
         [Theory]
         [InlineData(new[] {BsonType.Array, BsonType.String},
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(new[] {BsonType.Array, BsonType.String},
@@ -273,10 +273,10 @@ namespace MongoDB.Driver.Tests.Encryption
             _keyIdString,
             """ "bsonType": ["array", "string"], "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         [InlineData(new[] {BsonType.Array, BsonType.String},
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PatternPropertyWithMultipleBsonTypes_works_as_expected(IEnumerable<BsonType> bsonTypes, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_PatternPropertyWithMultipleBsonTypes_works_as_expected(IEnumerable<BsonType> bsonTypes, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -310,9 +310,9 @@ namespace MongoDB.Driver.Tests.Encryption
                 innerBuilder
                     .EncryptMetadata(keyId)
                     .Property("policyNumber", BsonType.Int32,
-                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
                     .PatternProperty("randomRegex*", BsonType.String,
-                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
             });
 
             var expected = """
@@ -359,9 +359,9 @@ namespace MongoDB.Driver.Tests.Encryption
                 innerBuilder
                     .EncryptMetadata(keyId)
                     .Property("policyNumber", BsonType.Int32,
-                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
                     .PatternProperty("randomRegex*", BsonType.String,
-                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
             });
 
             var expected = """
@@ -399,7 +399,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
         [Theory]
         [InlineData(BsonType.Array,
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(BsonType.Array,
@@ -407,10 +407,10 @@ namespace MongoDB.Driver.Tests.Encryption
             _keyIdString,
             """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         [InlineData(BsonType.Array,
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PropertyWithExpression_works_as_expected(BsonType bsonType, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_PropertyWithExpression_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -435,7 +435,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
         [Theory]
         [InlineData(new[] {BsonType.Array, BsonType.String},
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(new[] {BsonType.Array, BsonType.String},
@@ -443,10 +443,10 @@ namespace MongoDB.Driver.Tests.Encryption
             _keyIdString,
             """ "bsonType": ["array", "string"], "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         [InlineData(new[] {BsonType.Array, BsonType.String},
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PropertyWithMultipleBsonTypes_works_as_expected(IEnumerable<BsonType> bsonTypes, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_PropertyWithMultipleBsonTypes_works_as_expected(IEnumerable<BsonType> bsonTypes, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -471,7 +471,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
         [Theory]
         [InlineData(BsonType.Array,
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(BsonType.Array,
@@ -479,10 +479,10 @@ namespace MongoDB.Driver.Tests.Encryption
             _keyIdString,
             """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         [InlineData(BsonType.Array,
-            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+            EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PropertyWithString_works_as_expected(BsonType bsonType, CsfleEncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_PropertyWithString_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -516,9 +516,9 @@ namespace MongoDB.Driver.Tests.Encryption
                 innerBuilder
                     .EncryptMetadata(keyId)
                     .Property("policyNumber", BsonType.Int32,
-                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
                     .PatternProperty("randomRegex*", BsonType.String,
-                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
             });
 
             var expected = """
@@ -565,9 +565,9 @@ namespace MongoDB.Driver.Tests.Encryption
                 innerBuilder
                     .EncryptMetadata(keyId)
                     .Property("policyNumber", BsonType.Int32,
-                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
                     .PatternProperty("randomRegex*", BsonType.String,
-                        CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
             });
 
             var expected = """
