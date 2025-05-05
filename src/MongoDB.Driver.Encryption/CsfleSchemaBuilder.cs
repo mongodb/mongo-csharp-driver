@@ -98,17 +98,17 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> PatternProperty(
             string pattern,
-            BsonType bsonType,
+            BsonType? bsonType = null,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
-            => PatternProperty(pattern, [bsonType], algorithm, keyId);
+            => PatternProperty(pattern, bsonType is null? [] : [bsonType.Value], algorithm, keyId);
 
         /// <summary>
         /// //TODO
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> PatternProperty(
             string pattern,
-            IEnumerable<BsonType> bsonTypes,
+            IEnumerable<BsonType> bsonTypes = null,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
@@ -145,17 +145,17 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
-            BsonType bsonType,
+            BsonType? bsonType = null,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
-            => Property(path, [bsonType], algorithm, keyId);
+            => Property(path, bsonType is null? null : [bsonType.Value], algorithm, keyId);
 
         /// <summary>
         /// //TODO
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
-            IEnumerable<BsonType> bsonTypes,
+            IEnumerable<BsonType> bsonTypes = null,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
             => Property(new ExpressionFieldDefinition<TDocument, TField>(path), bsonTypes, algorithm, keyId);
@@ -165,17 +165,17 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property(
             FieldDefinition<TDocument> path,
-            BsonType bsonType,
+            BsonType? bsonType = null,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
-            => Property(path, [bsonType], algorithm, keyId);
+            => Property(path, bsonType is null? null : [bsonType.Value], algorithm, keyId);
 
         /// <summary>
         /// //TODO
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property(
             FieldDefinition<TDocument> path,
-            IEnumerable<BsonType> bsonTypes,
+            IEnumerable<BsonType> bsonTypes = null,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Encryption
         internal BsonDocument Build() => _schema;
 
         private static BsonDocument CreateEncryptDocument(
-            IEnumerable<BsonType> bsonTypes,
+            IEnumerable<BsonType> bsonTypes = null,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Encryption
             properties[field] = document;
         }
 
-        private static string MapBsonTypeToString(BsonType type)  //TODO Taken from AstTypeFilterOperation, do we have a common place where this could go?
+        private static string MapBsonTypeToString(BsonType type)
         {
             return type switch
             {
@@ -283,16 +283,12 @@ namespace MongoDB.Driver.Encryption
                 BsonType.Int64 => "long",
                 BsonType.JavaScript => "javascript",
                 BsonType.JavaScriptWithScope => "javascriptWithScope",
-                BsonType.MaxKey => "maxKey",
-                BsonType.MinKey => "minKey",
-                BsonType.Null => "null",
                 BsonType.ObjectId => "objectId",
                 BsonType.RegularExpression => "regex",
                 BsonType.String => "string",
                 BsonType.Symbol => "symbol",
                 BsonType.Timestamp => "timestamp",
-                BsonType.Undefined => "undefined",
-                _ => throw new ArgumentException($"Unexpected BSON type: {type}.", nameof(type))
+                _ => throw new ArgumentException($"Unsupported BSON type: {type}.", nameof(type))
             };
         }
 
