@@ -98,10 +98,10 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> PatternProperty(
             string pattern,
-            BsonType? bsonType = null,
+            BsonType bsonType,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
-            => PatternProperty(pattern, bsonType is null? [] : [bsonType.Value], algorithm, keyId);
+            => PatternProperty(pattern, [bsonType], algorithm, keyId);
 
         /// <summary>
         /// //TODO
@@ -145,10 +145,10 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
-            BsonType? bsonType = null,
+            BsonType bsonType,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
-            => Property(path, bsonType is null? null : [bsonType.Value], algorithm, keyId);
+            => Property(path, [bsonType], algorithm, keyId);
 
         /// <summary>
         /// //TODO
@@ -165,10 +165,10 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> Property(
             FieldDefinition<TDocument> path,
-            BsonType? bsonType = null,
+            BsonType bsonType,
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
-            => Property(path, bsonType is null? null : [bsonType.Value], algorithm, keyId);
+            => Property(path, [bsonType], algorithm, keyId);
 
         /// <summary>
         /// //TODO
@@ -214,27 +214,27 @@ namespace MongoDB.Driver.Encryption
             EncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
-            if (bsonTypes == null)
+            BsonValue bsonTypeVal = null;
+
+            if (bsonTypes != null)
             {
-                throw new ArgumentNullException(nameof(bsonTypes));
+                var convertedBsonTypes = bsonTypes.Select(MapBsonTypeToString).ToList();
+
+                if (convertedBsonTypes.Count == 0)
+                {
+                    throw new ArgumentException("At least one BSON type must be specified.", nameof(bsonTypes));
+                }
+
+                bsonTypeVal = convertedBsonTypes.Count == 1
+                    ? convertedBsonTypes[0]
+                    : new BsonArray(convertedBsonTypes);
             }
-
-            var convertedBsonTypes = bsonTypes.Select(MapBsonTypeToString).ToList();
-
-            if (convertedBsonTypes.Count == 0)
-            {
-                throw new ArgumentException("At least one BSON type must be specified.", nameof(bsonTypes));
-            }
-
-            BsonValue bsonTypeVal = convertedBsonTypes.Count == 1
-                ? convertedBsonTypes[0]
-                : new BsonArray(convertedBsonTypes);
 
             return new BsonDocument
             {
                 { "encrypt", new BsonDocument
                     {
-                        { "bsonType", bsonTypeVal },
+                        { "bsonType", () => bsonTypeVal, bsonTypeVal is not null },
                         { "algorithm", () => MapCsfleEncyptionAlgorithmToString(algorithm!.Value), algorithm is not null },
                         {
                             "keyId",
