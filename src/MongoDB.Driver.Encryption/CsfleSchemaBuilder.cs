@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Encryption
             _schema["encryptMetadata"] = new BsonDocument
             {
                 { "keyId", () => new BsonArray { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }, keyId is not null },
-                { "algorithm", () => MapCsfleEncyptionAlgorithmToString(algorithm!.Value), algorithm is not null }
+                { "algorithm", () => MapCsfleEncryptionAlgorithmToString(algorithm!.Value), algorithm is not null }
             };
             return this;
         }
@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Encryption
                 { "encrypt", new BsonDocument
                     {
                         { "bsonType", () => bsonTypeVal, bsonTypeVal is not null },
-                        { "algorithm", () => MapCsfleEncyptionAlgorithmToString(algorithm!.Value), algorithm is not null },
+                        { "algorithm", () => MapCsfleEncryptionAlgorithmToString(algorithm!.Value), algorithm is not null },
                         {
                             "keyId",
                             () => new BsonArray(new[] { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }),
@@ -355,7 +355,7 @@ namespace MongoDB.Driver.Encryption
             };
         }
 
-        private static string MapCsfleEncyptionAlgorithmToString(EncryptionAlgorithm algorithm)
+        private static string MapCsfleEncryptionAlgorithmToString(EncryptionAlgorithm algorithm)
         {
             return algorithm switch
             {
