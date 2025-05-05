@@ -19,26 +19,89 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
     internal static class AstExpressionExtensions
     {
-        public static bool IsInt32Constant(this AstExpression expression, out int value)
+        public static bool IsBooleanConstant(this AstExpression expression)
+            => expression.IsConstant<BsonBoolean>(out _);
+
+        public static bool IsBooleanConstant(this AstExpression expression, out bool booleanConstant)
         {
-            if (expression is AstConstantExpression constantExpression &&
-                constantExpression.Value is BsonInt32 bsonInt32)
+            if (expression.IsConstant<BsonBoolean>(out var bsonBooleanConstant))
             {
-                value = bsonInt32.Value;
+                booleanConstant = bsonBooleanConstant.Value;
                 return true;
             }
 
-            value = default;
+            booleanConstant = default;
             return false;
-       }
+        }
+
+        public static bool IsBsonNull(this AstExpression expression)
+            => expression.IsConstant(out var constant) && constant.IsBsonNull;
+
+        public static bool IsConstant(this AstExpression expression, out BsonValue constant)
+        {
+            if (expression is AstConstantExpression constantExpression)
+            {
+                constant = constantExpression.Value;
+                return true;
+            }
+
+            constant = null;
+            return false;
+        }
+
+        public static bool IsConstant<TBsonValue>(this AstExpression expression, out TBsonValue constant)
+            where TBsonValue : BsonValue
+        {
+            if (expression.IsConstant(out var bsonValueConstant) && bsonValueConstant is TBsonValue derivedBsonValueConstant)
+            {
+                constant = derivedBsonValueConstant;
+                return true;
+            }
+
+            constant = null;
+            return false;
+        }
+
+        public static bool IsInt32Constant(this AstExpression expression)
+            => expression.IsConstant<BsonInt32>(out _);
+
+        public static bool IsInt32Constant(this AstExpression expression, int comparand)
+            => expression.IsInt32Constant(out var int32Constant) && int32Constant == comparand;
+
+        public static bool IsInt32Constant(this AstExpression expression, out int int32Constant)
+        {
+            if (expression.IsConstant<BsonInt32>(out var bsonInt32Constant))
+            {
+                int32Constant = bsonInt32Constant.Value;
+                return true;
+            }
+
+            int32Constant = default;
+            return false;
+        }
 
         public static bool IsMaxInt32(this AstExpression expression)
-            => expression.IsInt32Constant(out var value) && value == int.MaxValue;
+            => expression.IsInt32Constant(out var int32Constant) && int32Constant == int.MaxValue;
 
         public static bool IsRootVar(this AstExpression expression)
             => expression is AstVarExpression varExpression && varExpression.Name == "ROOT" && varExpression.IsCurrent;
 
+        public static bool IsStringConstant(this AstExpression expression, string comparand)
+            => expression.IsStringConstant(out var stringConstant) && stringConstant == comparand;
+
+        public static bool IsStringConstant(this AstExpression expression, out string stringConstant)
+        {
+            if (expression.IsConstant<BsonString>(out var bsonStringConstant))
+            {
+                stringConstant = bsonStringConstant.Value;
+                return true;
+            }
+
+            stringConstant = default;
+            return false;
+        }
+
        public static bool IsZero(this AstExpression expression)
-            => expression is AstConstantExpression constantExpression && constantExpression.Value == 0;
+            => expression.IsConstant(out var constant) && constant == 0; // works for all numeric BSON types
     }
 }

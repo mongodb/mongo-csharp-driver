@@ -617,6 +617,81 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             documentCount.Should().Be(numModels);
         }
 
+        // https://specifications.readthedocs.io/en/latest/crud/tests/#16-generated-document-identifiers-are-the-first-field-in-their-document
+        // The next three consecutive tests defined below are part of the prose test linked above.
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Ensure_generated_ids_are_first_fields_in_document_using_insertOne([Values(true, false)] bool async)
+        {
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
+            using var client = CreateMongoClient(eventCapturer);
+            var testCollection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
+
+            var document = new BsonDocument("x", 1);
+            if (async)
+            {
+                await testCollection.InsertOneAsync(document);
+            }
+            else
+            {
+                testCollection.InsertOne(document);
+            }
+
+            var insertEvents = eventCapturer.Events.OfType<CommandStartedEvent>().Where(e => e.CommandName == "insert").ToArray();
+            insertEvents.Length.Should().Be(1);
+            insertEvents[0].Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
+            document.Names.Should().Contain("_id");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Ensure_generated_ids_are_first_fields_in_document_using_collection_bulkWrite([Values(true, false)] bool async)
+        {
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
+            using var client = CreateMongoClient(eventCapturer);
+            var testCollection = client.GetDatabase("test").GetCollection<BsonDocument>("test");
+
+            var document = new BsonDocument("x", 1);
+            if (async)
+            {
+                await testCollection.BulkWriteAsync([new InsertOneModel<BsonDocument>(document)]);
+            }
+            else
+            {
+                testCollection.BulkWrite([new InsertOneModel<BsonDocument>(document)]);
+            }
+
+            var insertEvents = eventCapturer.Events.OfType<CommandStartedEvent>().Where(e => e.CommandName == "insert").ToArray();
+            insertEvents.Length.Should().Be(1);
+            insertEvents[0].Command["documents"][0].AsBsonDocument.Names.First().Should().Be("_id");
+            document.Names.Should().Contain("_id");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Ensure_generated_ids_are_first_fields_in_document_using_client_bulkWrite([Values(true, false)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientBulkWrite).Serverless(false);
+
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>();
+            using var client = CreateMongoClient(eventCapturer);
+
+            var document = new BsonDocument("x", 1);
+            if (async)
+            {
+                await client.BulkWriteAsync([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
+            }
+            else
+            {
+                client.BulkWrite([new BulkWriteInsertOneModel<BsonDocument>("test.test", document)]);
+            }
+
+            var bulkEvents = eventCapturer.Events.OfType<CommandStartedEvent>().Where(e => e.CommandName == "bulkWrite").ToArray();
+            bulkEvents.Length.Should().Be(1);
+            bulkEvents[0].Command["ops"][0]["document"].AsBsonDocument.Names.First().Should().Be("_id");
+            document.Names.Should().Contain("_id");
+        }
+
         // private methods
         private FailPoint ConfigureFailPoint(string failpointCommand)
         {

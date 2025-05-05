@@ -192,7 +192,47 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.EnumAsNullableInt.Should().Be(2);
         }
 
+        [Fact]
+        public void Should_translate_from_base_interface_to_derived_class_on_method_call()
+        {
+            var collection = GetInterfaceCollection();
+            var queryable = collection.AsQueryable()
+                .Select(p => new DerivedClass
+                {
+                    Id = p.Id,
+                    A = ((DerivedClass)p).A.ToUpper()
+                });
 
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ '$project' : { _id : '$_id', A : { '$toUpper' : '$A' } } }");
+
+            var result = queryable.Single();
+            result.Id.Should().Be(1);
+            result.A.Should().Be("ABC");
+        }
+
+        [Fact]
+        public void Should_translate_from_base_interface_to_derived_class_on_projection()
+        {
+            var collection = GetInterfaceCollection();
+            var queryable = collection.AsQueryable()
+                .Select(p => new DerivedClass()
+                {
+                    Id = p.Id,
+                    A = ((DerivedClass)p).A
+                });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(
+                stages,
+                "{ '$project' : { _id : '$_id', A : '$A' } }");
+
+            var result = queryable.Single();
+            result.Id.Should().Be(1);
+            result.A.Should().Be("abc");
+        }
 
         private IMongoCollection<BaseClass> GetCollection()
         {
@@ -209,7 +249,31 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             return collection;
         }
 
-        private class BaseClass
+        private IMongoCollection<IBaseInterface> GetInterfaceCollection()
+        {
+            var collection = GetCollection<IBaseInterface>("test");
+            CreateCollection(collection, new DerivedClass()
+            {
+                Id = 1,
+                A = "abc",
+                Enum = Enum.Two,
+                NullableEnum = Enum.Two,
+                EnumAsInt = 2,
+                EnumAsNullableInt = 2
+            });
+            return collection;
+        }
+
+        private interface IBaseInterface
+        {
+            public int Id { get; set; }
+            public Enum Enum { get; set; }
+            public Enum? NullableEnum { get; set; }
+            public int EnumAsInt { get; set; }
+            public int? EnumAsNullableInt { get; set; }
+        }
+
+        private class BaseClass : IBaseInterface
         {
             public int Id { get; set; }
             public Enum Enum { get; set; }

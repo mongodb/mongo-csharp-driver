@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Search
@@ -52,6 +54,32 @@ namespace MongoDB.Driver.Search
         /// </returns>
         public static implicit operator SearchDefinition<TDocument>(string json) =>
             json != null ? new JsonSearchDefinition<TDocument>(json) : null;
+    }
+
+    /// <summary>
+    /// Extension methods for SearchDefinition.
+    /// </summary>
+    public static class SearchDefinitionExtensions
+    {
+        /// <summary>
+        /// Determines whether to use the configured serializers for the specified <see cref="SearchDefinition{TDocument}"/>.
+        /// When set to true (the default value), the configured serializers will be used to serialize the values of certain Atlas Search operators, such as "Equals", "In" and "Range".
+        /// If set to false, then a default conversion will be used.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="searchDefinition">The search definition instance.</param>
+        /// <param name="useConfiguredSerializers">Whether to use the configured serializers or not.</param>
+        /// <returns>The same <see cref="SearchDefinition{TDocument}"/> instance with default serialization enabled.</returns>
+        public static SearchDefinition<TDocument> UseConfiguredSerializers<TDocument>(this SearchDefinition<TDocument> searchDefinition, bool useConfiguredSerializers)
+        {
+            if (searchDefinition is not OperatorSearchDefinition<TDocument> operatorSearchDefinition)
+            {
+                throw new NotSupportedException($"{nameof(UseConfiguredSerializers)} cannot be used with SearchDefinition type: {searchDefinition.GetType()}.");
+            }
+
+            operatorSearchDefinition.SetUseConfiguredSerializers(useConfiguredSerializers);
+            return operatorSearchDefinition;
+        }
     }
 
     /// <summary>
@@ -123,9 +151,7 @@ namespace MongoDB.Driver.Search
             QueryString,
             Range,
             Regex,
-            Search,
             Span,
-            Term,
             Text,
             Wildcard
         }
@@ -134,6 +160,8 @@ namespace MongoDB.Driver.Search
         // _path and _score used by many but not all subclasses
         protected readonly SearchPathDefinition<TDocument> _path;
         protected readonly SearchScoreDefinition<TDocument> _score;
+
+        protected bool _useConfiguredSerializers = true;
 
         private protected OperatorSearchDefinition(OperatorType operatorType)
             : this(operatorType, null)
@@ -156,13 +184,53 @@ namespace MongoDB.Driver.Search
         /// <inheritdoc />
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var renderedArgs = RenderArguments(args);
-            renderedArgs.Add("path", () => _path.Render(args), _path != null);
-            renderedArgs.Add("score", () => _score.Render(args), _score != null);
+            BsonDocument renderedArgs;
 
+            if (_path is null)
+            {
+                renderedArgs = RenderArguments(args, null);
+            }
+            else
+            {
+                var renderedPath = _path.RenderAndGetFieldSerializer(args, out var fieldSerializer);
+                renderedArgs = RenderArguments(args, fieldSerializer);
+                renderedArgs.Add("path", renderedPath);
+            }
+
+            renderedArgs.Add("score", () => _score.Render(args), _score != null);
             return new(_operatorType.ToCamelCase(), renderedArgs);
         }
 
-        private protected virtual BsonDocument RenderArguments(RenderArgs<TDocument> args) => new();
+        private protected virtual BsonDocument RenderArguments(
+            RenderArgs<TDocument> args,
+            IBsonSerializer fieldSerializer) => new();
+
+        internal void SetUseConfiguredSerializers(bool useConfiguredSerializers)
+        {
+            _useConfiguredSerializers = useConfiguredSerializers;
+        }
+
+        protected static BsonValue ToBsonValue<T>(T value) =>
+            value switch
+            {
+                bool v => (BsonBoolean)v,
+                sbyte v => (BsonInt32)v,
+                byte v => (BsonInt32)v,
+                short v => (BsonInt32)v,
+                ushort v => (BsonInt32)v,
+                int v => (BsonInt32)v,
+                uint v => (BsonInt64)v,
+                long v => (BsonInt64)v,
+                float v => (BsonDouble)v,
+                double v => (BsonDouble)v,
+                decimal v => (BsonDecimal128)v,
+                DateTime v => (BsonDateTime)v,
+                DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
+                ObjectId v => (BsonObjectId)v,
+                Guid v => new BsonBinaryData(v, GuidRepresentation.Standard),
+                string v => (BsonString)v,
+                null => BsonNull.Value,
+                _ => throw new InvalidCastException()
+            };
     }
 }

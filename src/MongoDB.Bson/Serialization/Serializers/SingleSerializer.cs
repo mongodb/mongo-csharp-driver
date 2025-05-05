@@ -24,6 +24,15 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public sealed class SingleSerializer : StructSerializerBase<float>, IRepresentationConfigurable<SingleSerializer>, IRepresentationConverterConfigurable<SingleSerializer>
     {
+        #region static
+        private static readonly SingleSerializer __instance = new();
+
+        /// <summary>
+        /// Gets a cached instance of an SingleSerializer;
+        /// </summary>
+        public static SingleSerializer Instance => __instance;
+        #endregion
+
         // private fields
         private readonly BsonType _representation;
         private readonly RepresentationConverter _converter;
