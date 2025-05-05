@@ -25,17 +25,16 @@ namespace MongoDB.Driver.Tests.Encryption
 {
     public class CsfleSchemaBuilderTests
     {
+        private readonly CollectionNamespace _collectionNamespace = CollectionNamespace.FromFullName("medicalRecords.patients");
         private const string _keyIdString = "6f4af470-00d1-401f-ac39-f45902a0c0c8";
         private static Guid _keyId = Guid.Parse(_keyIdString);
 
         [Fact]
         public void CsfleSchemaBuilder_works_as_expected()
         {
-            const string collectionName = "medicalRecords.patients";
-
             var builder = CsfleSchemaBuilder.Create(schemaBuilder =>
             {
-                schemaBuilder.Encrypt<Patient>(collectionName, builder =>
+                schemaBuilder.Encrypt<Patient>(_collectionNamespace, builder =>
                 {
                     builder
                         .EncryptMetadata(keyId: _keyId)
@@ -67,7 +66,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
             var expected = new Dictionary<string, string>
             {
-                [collectionName] = """
+                [_collectionNamespace.FullName] = """
                                    {
                                      "bsonType": "object",
                                      "encryptMetadata": {
@@ -145,12 +144,11 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void CsfleSchemaBuilder_with_multiple_types_works_as_expected()
         {
-            const string patientCollectionName = "medicalRecords.patients";
-            const string testClassCollectionName = "test.class";
+            var testCollectionNamespace = CollectionNamespace.FromFullName("test.class");
 
             var builder = CsfleSchemaBuilder.Create(schemaBuilder =>
             {
-                schemaBuilder.Encrypt<Patient>(patientCollectionName, builder =>
+                schemaBuilder.Encrypt<Patient>(_collectionNamespace, builder =>
                 {
                     builder
                         .EncryptMetadata(keyId: _keyId)
@@ -158,7 +156,7 @@ namespace MongoDB.Driver.Tests.Encryption
                             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
                 });
 
-                schemaBuilder.Encrypt<TestClass>(testClassCollectionName, builder =>
+                schemaBuilder.Encrypt<TestClass>(_collectionNamespace, builder =>
                 {
                     builder.Property(t => t.TestString, BsonType.String);
                 });
@@ -166,34 +164,34 @@ namespace MongoDB.Driver.Tests.Encryption
 
             var expected = new Dictionary<string, string>
             {
-                [patientCollectionName] = """
-                                          {
-                                            "bsonType": "object",
-                                            "encryptMetadata": {
-                                              "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
-                                            },
-                                            "properties": {
-                                              "medicalRecords": {
-                                                "encrypt": {
-                                                  "bsonType": "array",
-                                                  "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-                                                }
-                                              },
-                                            },
-                                          }
-                                          """,
-                [testClassCollectionName] = """
-                                          {
-                                            "bsonType": "object",
-                                            "properties": {
-                                              "TestString": {
-                                                "encrypt": {
-                                                  "bsonType": "string",
-                                                }
-                                              },
+                [_collectionNamespace.FullName] = """
+                                   {
+                                     "bsonType": "object",
+                                     "encryptMetadata": {
+                                       "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                     },
+                                     "properties": {
+                                       "medicalRecords": {
+                                         "encrypt": {
+                                           "bsonType": "array",
+                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                         }
+                                       },
+                                     },
+                                   }
+                                   """,
+                [testCollectionNamespace.FullName] = """
+                                            {
+                                              "bsonType": "object",
+                                              "properties": {
+                                                "TestString": {
+                                                  "encrypt": {
+                                                    "bsonType": "string",
+                                                  }
+                                                },
+                                              }
                                             }
-                                          }
-                                          """
+                                            """
             };
 
             AssertOutcomeCsfleSchemaBuilder(builder, expected);
@@ -276,6 +274,8 @@ namespace MongoDB.Driver.Tests.Encryption
 
             AssertOutcomeCollectionBuilder(builder, expected);
         }
+
+        //TODO Remember about using the same algorithm...
 
         [Theory]
         [InlineData(null,
