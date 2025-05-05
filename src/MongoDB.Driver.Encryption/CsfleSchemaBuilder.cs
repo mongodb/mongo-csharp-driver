@@ -23,7 +23,7 @@ using MongoDB.Bson.Serialization;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// //TODO
+    /// A builder class for creating Client-Side Field Level Encryption (CSFLE) schemas.
     /// </summary>
     public class CsfleSchemaBuilder
     {
@@ -34,8 +34,9 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// //TODO
+        /// Creates a new instance of the <see cref="CsfleSchemaBuilder"/> and configures it using the provided action.
         /// </summary>
+        /// <param name="configure">An action to configure the schema builder.</param>
         public static CsfleSchemaBuilder Create(Action<CsfleSchemaBuilder> configure)
         {
             var builder = new CsfleSchemaBuilder();
@@ -44,8 +45,12 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// //TODO
+        /// Adds an encrypted collection schema for a specific collection namespace.
         /// </summary>
+        /// <typeparam name="T">The type of the document in the collection.</typeparam>
+        /// <param name="collectionNamespace">The namespace of the collection.</param>
+        /// <param name="configure">An action to configure the encrypted collection builder.</param>
+        /// <returns>The current <see cref="CsfleSchemaBuilder"/> instance.</returns>
         public CsfleSchemaBuilder Encrypt<T>(string collectionNamespace, Action<EncryptedCollectionBuilder<T>> configure)
         {
             var builder = new EncryptedCollectionBuilder<T>();
@@ -69,30 +74,31 @@ namespace MongoDB.Driver.Encryption
     }
 
     /// <summary>
-    /// //TODO
+    /// A builder class for creating encrypted collection schemas.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document in the collection.</typeparam>
     public class EncryptedCollectionBuilder<TDocument>
     {
         private readonly BsonDocument _schema = new("bsonType", "object");
         private readonly RenderArgs<TDocument> _args = new(BsonSerializer.LookupSerializer<TDocument>(), BsonSerializer.SerializerRegistry);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
         internal EncryptedCollectionBuilder()
         {
         }
 
         /// <summary>
-        /// //TODO
+        /// Configures encryption metadata for the collection.
         /// </summary>
+        /// <param name="keyId">The key ID to use for encryption.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> EncryptMetadata(Guid? keyId = null, EncryptionAlgorithm? algorithm = null)
         {
             if (keyId is null && algorithm is null)
             {
                 throw new ArgumentException("At least one of keyId or algorithm must be specified.");
             }
-            
+
             _schema["encryptMetadata"] = new BsonDocument
             {
                 { "keyId", () => new BsonArray { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }, keyId is not null },
@@ -102,8 +108,13 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// //TODO
+        /// Adds a pattern property to the schema with encryption settings.
         /// </summary>
+        /// <param name="pattern">The regex pattern for the property.</param>
+        /// <param name="bsonType">The BSON type of the property.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="keyId">The key ID to use for encryption.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> PatternProperty(
             string pattern,
             BsonType bsonType,
@@ -112,8 +123,13 @@ namespace MongoDB.Driver.Encryption
             => PatternProperty(pattern, [bsonType], algorithm, keyId);
 
         /// <summary>
-        /// //TODO
+        /// Adds a pattern property to the schema with encryption settings.
         /// </summary>
+        /// <param name="pattern">The regex pattern for the property.</param>
+        /// <param name="bsonTypes">The BSON types of the property.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="keyId">The key ID to use for encryption.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> PatternProperty(
             string pattern,
             IEnumerable<BsonType> bsonTypes = null,
@@ -125,16 +141,24 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// //TODO
+        /// Adds a nested pattern property to the schema.
         /// </summary>
+        /// <typeparam name="TField">The type of the nested field.</typeparam>
+        /// <param name="path">The field.</param>
+        /// <param name="configure">An action to configure the nested builder.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> PatternProperty<TField>(
             Expression<Func<TDocument, TField>> path,
             Action<EncryptedCollectionBuilder<TField>> configure)
             => PatternProperty(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
 
         /// <summary>
-        /// //TODO
+        /// Adds a nested pattern property to the schema.
         /// </summary>
+        /// <typeparam name="TField">The type of the nested field.</typeparam>
+        /// <param name="path">The field.</param>
+        /// <param name="configure">An action to configure the nested builder.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> PatternProperty<TField>(
             FieldDefinition<TDocument> path,
             Action<EncryptedCollectionBuilder<TField>> configure)
@@ -149,8 +173,14 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// //TODO
+        /// Adds a property to the schema with encryption settings.
         /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The field.</param>
+        /// <param name="bsonType">The BSON type of the property.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="keyId">The key ID to use for encryption.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
             BsonType bsonType,
@@ -159,8 +189,14 @@ namespace MongoDB.Driver.Encryption
             => Property(path, [bsonType], algorithm, keyId);
 
         /// <summary>
-        /// //TODO
+        /// Adds a property to the schema with encryption settings.
         /// </summary>
+        /// <typeparam name="TField">The type of the field.</typeparam>
+        /// <param name="path">The field.</param>
+        /// <param name="bsonTypes">The BSON types of the property.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="keyId">The key ID to use for encryption.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
             IEnumerable<BsonType> bsonTypes = null,
@@ -169,8 +205,13 @@ namespace MongoDB.Driver.Encryption
             => Property(new ExpressionFieldDefinition<TDocument, TField>(path), bsonTypes, algorithm, keyId);
 
         /// <summary>
-        /// //TODO
+        /// Adds a property to the schema with encryption settings.
         /// </summary>
+        /// <param name="path">The field.</param>
+        /// <param name="bsonType">The BSON type of the property.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="keyId">The key ID to use for encryption.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> Property(
             FieldDefinition<TDocument> path,
             BsonType bsonType,
@@ -179,8 +220,13 @@ namespace MongoDB.Driver.Encryption
             => Property(path, [bsonType], algorithm, keyId);
 
         /// <summary>
-        /// //TODO
+        /// Adds a property to the schema with encryption settings.
         /// </summary>
+        /// <param name="path">The field.</param>
+        /// <param name="bsonTypes">The BSON types of the property.</param>
+        /// <param name="algorithm">The encryption algorithm to use.</param>
+        /// <param name="keyId">The key ID to use for encryption.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> Property(
             FieldDefinition<TDocument> path,
             IEnumerable<BsonType> bsonTypes = null,
@@ -193,16 +239,25 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// //TODO
+        /// Adds a nested property to the schema.
         /// </summary>
+        /// <typeparam name="TField">The type of the nested field.</typeparam>
+        /// <param name="path">The field.</param>
+        /// <param name="configure">An action to configure the nested builder.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             Expression<Func<TDocument, TField>> path,
             Action<EncryptedCollectionBuilder<TField>> configure)
             => Property(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
 
+
         /// <summary>
-        /// //TODO
+        /// Adds a nested property to the schema.
         /// </summary>
+        /// <typeparam name="TField">The type of the nested field.</typeparam>
+        /// <param name="path">The field.</param>
+        /// <param name="configure">An action to configure the nested builder.</param>
+        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> Property<TField>(
             FieldDefinition<TDocument> path,
             Action<EncryptedCollectionBuilder<TField>> configure)
