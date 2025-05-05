@@ -275,8 +275,6 @@ namespace MongoDB.Driver.Tests.Encryption
             AssertOutcomeCollectionBuilder(builder, expected);
         }
 
-        //TODO Remember about using the same algorithm...
-
         [Theory]
         [InlineData(null,
             null,
