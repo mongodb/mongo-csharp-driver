@@ -199,6 +199,20 @@ namespace MongoDB.Driver.Tests.Encryption
             AssertOutcomeCsfleSchemaBuilder(builder, expected);
         }
 
+        [Fact]
+        public void CsfleSchemaBuilder_with_no_schemas_throws()
+        {
+            var builder = CsfleSchemaBuilder.Create(_ =>
+            {
+                // No schemas added
+            });
+
+            var exception = Record.Exception(() => builder.Build());
+
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
         [Theory]
         [InlineData(
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
@@ -264,6 +278,10 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Theory]
+        [InlineData(null,
+            null,
+            null,
+            "")]
         [InlineData(new[] {BsonType.Array, BsonType.String},
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
@@ -434,6 +452,10 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Theory]
+        [InlineData(null,
+            null,
+            null,
+            "")]
         [InlineData(new[] {BsonType.Array, BsonType.String},
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,

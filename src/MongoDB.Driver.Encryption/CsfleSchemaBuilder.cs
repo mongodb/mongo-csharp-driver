@@ -57,7 +57,15 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Builds and returns the resulting CSFLE schema.
         /// </summary>
-        public IDictionary<string, BsonDocument> Build() => _schemas;
+        public IDictionary<string, BsonDocument> Build()
+        {
+            if (!_schemas.Any())
+            {
+                throw new InvalidOperationException("No schemas were added. Use Encrypt<T> to add a schema.");
+            }
+
+            return _schemas;
+        }
     }
 
     /// <summary>
