@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Tests.Encryption
         private const string _keyIdString = "6f4af470-00d1-401f-ac39-f45902a0c0c8";
         private static Guid _keyId = Guid.Parse(_keyIdString);
 
-                [Fact]
-        public void BasicPropertyTest()
+        [Fact]
+        public void CsfleSchemaBuilder_works_as_expected()
         {
             const string collectionName = "medicalRecords.patients";
 
@@ -50,7 +50,18 @@ namespace MongoDB.Driver.Tests.Encryption
                             innerBuilder
                                 .Property(i => i.PolicyNumber, BsonType.Int32,
                                     CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+                        })
+                        .PatternProperty("_PIIString$", BsonType.String, CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                        .PatternProperty("_PIIArray$", BsonType.Array, CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
+                        .PatternProperty(p => p.Insurance, innerBuilder =>
+                        {
+                            innerBuilder
+                                .PatternProperty("_PIIString$", BsonType.String,
+                                    CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
+                                .PatternProperty("_PIINumber$", BsonType.Int32,
+                                    algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
                         });
+
                 } );
             });
 
@@ -93,13 +104,100 @@ namespace MongoDB.Driver.Tests.Encryption
                                          }
                                        }
                                      },
+                                     "patternProperties": {
+                                         "_PIIString$": {
+                                           "encrypt": {
+                                             "bsonType": "string",
+                                             "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                                           },
+                                         },
+                                         "_PIIArray$": {
+                                           "encrypt": {
+                                             "bsonType": "array",
+                                             "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
+                                           },
+                                         },
+                                         "insurance": {
+                                           "bsonType": "object",
+                                           "patternProperties": {
+                                             "_PIINumber$": {
+                                               "encrypt": {
+                                                 "bsonType": "int",
+                                                 "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                                               },
+                                             },
+                                             "_PIIString$": {
+                                               "encrypt": {
+                                                 "bsonType": "string",
+                                                 "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                                               },
+                                             },
+                                           },
+                                         },
+                                        },
                                    }
                                    """
             };
 
-            AssertOutcomeBuilder(builder, expected);
+            AssertOutcomeCsfleSchemaBuilder(builder, expected);
         }
 
+        [Fact]
+        public void CsfleSchemaBuilder_WithMultipleTypes_works_as_expected()
+        {
+            const string patientCollectionName = "medicalRecords.patients";
+            const string testClassCollectionName = "test.class";
+
+            var builder = CsfleSchemaBuilder.Create(schemaBuilder =>
+            {
+                schemaBuilder.Encrypt<Patient>(patientCollectionName, builder =>
+                {
+                    builder
+                        .EncryptMetadata(keyId: _keyId)
+                        .Property(p => p.MedicalRecords, BsonType.Array,
+                            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
+                });
+
+                schemaBuilder.Encrypt<TestClass>(testClassCollectionName, builder =>
+                {
+                    builder.Property(t => t.TestString, BsonType.String);
+                });
+            });
+
+            var expected = new Dictionary<string, string>
+            {
+                [patientCollectionName] = """
+                                          {
+                                            "bsonType": "object",
+                                            "encryptMetadata": {
+                                              "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
+                                            },
+                                            "properties": {
+                                              "medicalRecords": {
+                                                "encrypt": {
+                                                  "bsonType": "array",
+                                                  "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
+                                                }
+                                              },
+                                            },
+                                          }
+                                          """,
+                [testClassCollectionName] = """
+                                          {
+                                            "bsonType": "object",
+                                            "properties": {
+                                              "TestString": {
+                                                "encrypt": {
+                                                  "bsonType": "string",
+                                                }
+                                              },
+                                            }
+                                          }
+                                          """
+            };
+
+            AssertOutcomeCsfleSchemaBuilder(builder, expected);
+        }
 
         [Theory]
         [InlineData(
@@ -505,146 +603,37 @@ namespace MongoDB.Driver.Tests.Encryption
             AssertOutcomeCollectionBuilder(builder, expected);
         }
 
-
         [Fact]
-        public void BasicPropertyTest()
+        public void EncryptedCollection_Property_with_null_bson_types_throws()
         {
-            const string collectionName = "medicalRecords.patients";
+            var builder = new EncryptedCollectionBuilder<Patient>();
 
-            var builder = CsfleSchemaBuilder.Create(schemaBuilder =>
-            {
-                schemaBuilder.Encrypt<Patient>(collectionName, builder =>
-                {
-                    builder
-                        .EncryptMetadata(keyId: _keyId)
-                        .Property(p => p.MedicalRecords, BsonType.Array,
-                            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
-                        .Property("bloodType", BsonType.String,
-                            algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
-                        .Property(p => p.Ssn, BsonType.Int32,
-                            CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
-                        .Property(p => p.Insurance, innerBuilder =>
-                        {
-                            innerBuilder
-                                .Property(i => i.PolicyNumber, BsonType.Int32,
-                                    CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
-                        });
-                } );
-            });
-
-            var expected = new Dictionary<string, string>
-            {
-                [collectionName] = """
-                                   {
-                                     "bsonType": "object",
-                                     "encryptMetadata": {
-                                       "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
-                                     },
-                                     "properties": {
-                                       "insurance": {
-                                         "bsonType": "object",
-                                         "properties": {
-                                           "policyNumber": {
-                                             "encrypt": {
-                                               "bsonType": "int",
-                                               "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
-                                             }
-                                           }
-                                         }
-                                       },
-                                       "medicalRecords": {
-                                         "encrypt": {
-                                           "bsonType": "array",
-                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-                                         }
-                                       },
-                                       "bloodType": {
-                                         "encrypt": {
-                                           "bsonType": "string",
-                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-                                         }
-                                       },
-                                       "ssn": {
-                                         "encrypt": {
-                                           "bsonType": "int",
-                                           "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
-                                         }
-                                       }
-                                     },
-                                   }
-                                   """
-            };
-
-            AssertOutcomeBuilder(builder, expected);
+            var recordedException = Record.Exception(() => builder.Property("test", null));
+            recordedException.Should().NotBeNull();
+            recordedException.Should().BeOfType<ArgumentNullException>();
         }
 
         [Fact]
-        public void BasicPatternTest()
+        public void EncryptedCollection_Property_with_empty_bson_types_throws()
         {
-            const string collectionName = "medicalRecords.patients";
+            var builder = new EncryptedCollectionBuilder<Patient>();
 
-            var builder = CsfleSchemaBuilder.Create(schemaBuilder =>
-            {
-                schemaBuilder.Encrypt<Patient>(collectionName, builder =>
-                {
-                    builder
-                        .PatternProperty("_PIIString$", BsonType.String, CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
-                        .PatternProperty("_PIIArray$", BsonType.Array, CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
-                        .PatternProperty(p => p.Insurance, innerBuilder =>
-                        {
-                            innerBuilder
-                                .PatternProperty("_PIIString$", BsonType.String,
-                                    CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
-                                .PatternProperty("_PIINumber$", BsonType.Int32,
-                                    algorithm: CsfleEncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
-                        });
-                } );
-            });
-
-            var expected = new Dictionary<string, string>
-            {
-                [collectionName] = """
-                                   {
-                                   "bsonType": "object",
-                                   "patternProperties": {
-                                     "_PIIString$": {
-                                       "encrypt": {
-                                         "bsonType": "string",
-                                         "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
-                                       },
-                                     },
-                                     "_PIIArray$": {
-                                       "encrypt": {
-                                         "bsonType": "array",
-                                         "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
-                                       },
-                                     },
-                                     "insurance": {
-                                       "bsonType": "object",
-                                       "patternProperties": {
-                                         "_PIINumber$": {
-                                           "encrypt": {
-                                             "bsonType": "int",
-                                             "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
-                                           },
-                                         },
-                                         "_PIIString$": {
-                                           "encrypt": {
-                                             "bsonType": "string",
-                                             "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
-                                           },
-                                         },
-                                       },
-                                     },
-                                   },
-                                   }
-                                   """
-            };
-
-            AssertOutcomeBuilder(builder, expected);
+            var recordedException = Record.Exception(() => builder.Property("test", []));
+            recordedException.Should().NotBeNull();
+            recordedException.Should().BeOfType<ArgumentException>();
         }
 
-        private void AssertOutcomeBuilder(CsfleSchemaBuilder builder, Dictionary<string, string> expectedSchema)
+        [Fact]
+        public void EncryptedCollection_Metadata_with_empty_algorithm_and_key_throws()
+        {
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            var recordedException = Record.Exception(() => builder.EncryptMetadata(null, null));
+            recordedException.Should().NotBeNull();
+            recordedException.Should().BeOfType<ArgumentException>();
+        }
+
+        private void AssertOutcomeCsfleSchemaBuilder(CsfleSchemaBuilder builder, Dictionary<string, string> expectedSchema)
         {
             var builtSchema = builder.Build();
             expectedSchema.Should().HaveCount(builtSchema.Count);
@@ -655,7 +644,6 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        //TODO Give better name...
         private void AssertOutcomeCollectionBuilder<T>(EncryptedCollectionBuilder<T> builder, string expected)
         {
             var builtSchema = builder.Build();
@@ -663,29 +651,12 @@ namespace MongoDB.Driver.Tests.Encryption
             builtSchema.Should().BeEquivalentTo(expectedSchema);
         }
 
-        /** To test:
-         * - Metadata
-         * - *Property with expression
-         * - *Property with string
-         * - *Property with single bsonType
-         * - *Property with multiple bsonType
-         * - *Pattern property with string
-         * - *Pattern property with multiple bsonType
-         * - *Nested property with expression
-         * - *Nested property with string
-         * - *Nested pattern property with expression
-         * - *Nested pattern property with string
-         *
-         * - Multiple types in schema
-         * - Property and pattern property together
-         * - Do it with BsonDocument....?
-         *
-         * ERRORS
-         * - No empty properties and empty pattern properties?
-         * - No empty schema
-         * - Wrong string
-         * - Empty bson type array
-         */
+        internal class TestClass
+        {
+            public ObjectId Id { get; set; }
+
+            public string TestString { get; set; }
+        }
 
         internal class Patient
         {
