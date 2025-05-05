@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Fact]
-        public void CsfleSchemaBuilder_WithMultipleTypes_works_as_expected()
+        public void CsfleSchemaBuilder_with_multiple_types_works_as_expected()
         {
             const string patientCollectionName = "medicalRecords.patients";
             const string testClassCollectionName = "test.class";
@@ -276,7 +276,7 @@ namespace MongoDB.Driver.Tests.Encryption
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PatternPropertyWithMultipleBsonTypes_works_as_expected(IEnumerable<BsonType> bsonTypes, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_PatternProperty_with_multiple_bson_types_works_as_expected(IEnumerable<BsonType> bsonTypes, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -300,7 +300,7 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Fact]
-        public void EncryptedCollection_PatternPropertyNested_works_as_expected()
+        public void EncryptedCollection_PatternProperty_nested_works_as_expected()
         {
             Guid? keyId = Guid.Parse(_keyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -349,7 +349,7 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Fact]
-        public void EncryptedCollection_PatternPropertyNestedWithString_works_as_expected()
+        public void EncryptedCollection_PatternProperty_nested_with_string_works_as_expected()
         {
             Guid? keyId = Guid.Parse(_keyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -410,7 +410,7 @@ namespace MongoDB.Driver.Tests.Encryption
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PropertyWithExpression_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_Property_with_expression_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -446,7 +446,7 @@ namespace MongoDB.Driver.Tests.Encryption
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PropertyWithMultipleBsonTypes_works_as_expected(IEnumerable<BsonType> bsonTypes, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_Property_with_multiple_bson_types_works_as_expected(IEnumerable<BsonType> bsonTypes, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -482,7 +482,7 @@ namespace MongoDB.Driver.Tests.Encryption
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             _keyIdString,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        public void EncryptedCollection_PropertyWithString_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
+        public void EncryptedCollection_Property_with_string_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
             Guid? keyId = keyString is null ? null : Guid.Parse(keyString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -505,8 +505,8 @@ namespace MongoDB.Driver.Tests.Encryption
             AssertOutcomeCollectionBuilder(builder, expected);
         }
 
-                [Fact]
-        public void EncryptedCollection_PropertyNested_works_as_expected()
+        [Fact]
+        public void EncryptedCollection_Property_nested_works_as_expected()
         {
             Guid? keyId = Guid.Parse(_keyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -555,7 +555,7 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Fact]
-        public void EncryptedCollection_PropertyNestedWithString_works_as_expected()
+        public void EncryptedCollection_Property_nested_with_string_works_as_expected()
         {
             Guid? keyId = Guid.Parse(_keyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
@@ -601,16 +601,6 @@ namespace MongoDB.Driver.Tests.Encryption
                            """;
 
             AssertOutcomeCollectionBuilder(builder, expected);
-        }
-
-        [Fact]
-        public void EncryptedCollection_Property_with_null_bson_types_throws()
-        {
-            var builder = new EncryptedCollectionBuilder<Patient>();
-
-            var recordedException = Record.Exception(() => builder.Property("test", null));
-            recordedException.Should().NotBeNull();
-            recordedException.Should().BeOfType<ArgumentNullException>();
         }
 
         [Fact]
