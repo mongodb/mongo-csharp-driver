@@ -80,6 +80,11 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         public EncryptedCollectionBuilder<TDocument> EncryptMetadata(Guid? keyId = null, CsfleEncryptionAlgorithm? algorithm = null)
         {
+            if (keyId is null && algorithm is null)
+            {
+                throw new ArgumentException("At least one of keyId or algorithm must be specified.");
+            }
+            
             _schema["encryptMetadata"] = new BsonDocument
             {
                 { "keyId", () => new BsonArray { new BsonBinaryData(keyId!.Value, GuidRepresentation.Standard) }, keyId is not null },
@@ -209,7 +214,18 @@ namespace MongoDB.Driver.Encryption
             CsfleEncryptionAlgorithm? algorithm = null,
             Guid? keyId = null)
         {
+            if (bsonTypes == null)
+            {
+                throw new ArgumentNullException(nameof(bsonTypes));
+            }
+
             var convertedBsonTypes = bsonTypes.Select(MapBsonTypeToString).ToList();
+
+            if (convertedBsonTypes.Count == 0)
+            {
+                throw new ArgumentException("At least one BSON type must be specified.", nameof(bsonTypes));
+            }
+
             BsonValue bsonTypeVal = convertedBsonTypes.Count == 1
                 ? convertedBsonTypes[0]
                 : new BsonArray(convertedBsonTypes);
@@ -292,7 +308,7 @@ namespace MongoDB.Driver.Encryption
     }
 
     /// <summary>
-    /// The type of possible encryption algorithms.  //TODO Maybe we need a more generic name?
+    /// The type of possible encryption algorithms.  //TODO Maybe we need a more generic name but EncryptionAlgorithm is already taken (it's a superset of these values)
     /// </summary>
     public enum CsfleEncryptionAlgorithm
     {
