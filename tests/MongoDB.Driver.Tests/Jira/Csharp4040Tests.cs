@@ -1,0 +1,76 @@
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
+using Xunit;
+
+namespace MongoDB.Driver.Tests.Jira
+{
+    public class Csharp4040Tests
+    {
+        private class BaseDocument
+        {
+            [BsonId] public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
+
+            [BsonElement("_t")]
+            public string Field1 { get; set; }
+        }
+
+        private class DerivedDocument : BaseDocument {}
+
+        [Fact]
+        public void BsonClassMapSerializer_when_using_field_with_same_element_name_as_discriminator_shoult_throw()
+        {
+            var obj = new DerivedDocument { Field1 = "field1" };
+
+            var recordedException = Record.Exception(() => obj.ToJson(typeof(BaseDocument)));
+            recordedException.Should().NotBeNull();
+            recordedException.Should().BeOfType<BsonSerializationException>();
+            recordedException.Message.Should().Be("The property Field1 of type 'MongoDB.Driver.Tests.Jira.Csharp4040Tests+DerivedDocument' " +
+                                                  "cannot use element name '_t' because it is already being used by " +
+                                                  "the discriminator convention 'ScalarDiscriminatorConvention'.");
+        }
+
+        private class BaseDocument2
+        {
+            //[BsonId] public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
+
+            public string Field1 { get; set; }
+        }
+
+        private class DerivedDocument2 : BaseDocument2 {}
+
+        [Fact]
+        public void BsonClassMapSerializer_when_using_discriminator_with_same_element_name_as_id_should_throw()
+        {
+            var obj = new DerivedDocument2 { Field1 = "field1" };
+
+            BsonSerializer.RegisterDiscriminatorConvention(
+                typeof(BaseDocument2),
+                new ScalarDiscriminatorConvention("_id"));
+
+            var jsonFile = obj.ToJson(typeof(BaseDocument2));
+            var recordedException = Record.Exception(() => obj.ToJson(typeof(BaseDocument2)));
+            recordedException.Should().NotBeNull();
+            recordedException.Should().BeOfType<BsonSerializationException>();
+            recordedException.Message.Should().Be("The property 'Field1' of type 'MongoDB.Driver.Tests.Jira.Csharp4040Tests+BaseDocument2' cannot use element name '_id' because it is already being used by property 'Id'");
+        }
+
+    }
+}

@@ -1327,6 +1327,21 @@ namespace MongoDB.Bson.Serialization
                 discriminatorConvention = LookupDiscriminatorConvention();
                 _discriminatorConvention = discriminatorConvention;
             }
+
+            // if (discriminatorConvention != null)
+            // {
+            //     var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == discriminatorConvention.ElementName);
+            //
+            //     if (conflictingMemberMap != null)
+            //     {
+            //         var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
+            //
+            //         throw new BsonSerializationException(
+            //             $"The {fieldOrProperty} {conflictingMemberMap.MemberName} of type '{_classType.FullName}' cannot use element name '{discriminatorConvention.ElementName}' " +
+            //             $"because it is already being used by the discriminator convention '{discriminatorConvention.GetType().Name}'.");
+            //     }
+            // }
+
             return discriminatorConvention;
 
             IDiscriminatorConvention LookupDiscriminatorConvention()
