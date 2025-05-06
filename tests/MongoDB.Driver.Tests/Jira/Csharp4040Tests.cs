@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Jira
         private class DerivedDocument : BaseDocument {}
 
         [Fact]
-        public void BsonClassMapSerializer_when_using_field_with_same_element_name_as_discriminator_shoult_throw()
+        public void BsonClassMapSerializer_serialization_when_using_field_with_same_element_name_as_discriminator_should_throw()
         {
             var obj = new DerivedDocument { Field1 = "field1" };
 

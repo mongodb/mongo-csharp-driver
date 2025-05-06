@@ -1317,7 +1317,7 @@ namespace MongoDB.Bson.Serialization
         /// Gets the discriminator convention for the class.
         /// </summary>
         /// <returns>The discriminator convention for the class.</returns>
-        internal IDiscriminatorConvention GetDiscriminatorConvention()
+        internal IDiscriminatorConvention GetDiscriminatorConvention(bool checkConflicts = false)
         {
             // return a cached discriminator convention when possible
             var discriminatorConvention = _discriminatorConvention;
@@ -1328,7 +1328,7 @@ namespace MongoDB.Bson.Serialization
                 _discriminatorConvention = discriminatorConvention;
             }
 
-            if (discriminatorConvention != null) //TODO This will also influence deserialization... Is it ok?
+            if (checkConflicts && discriminatorConvention != null)
             {
                 var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == discriminatorConvention.ElementName);
 
