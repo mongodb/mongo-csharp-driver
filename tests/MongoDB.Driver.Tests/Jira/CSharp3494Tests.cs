@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         [Fact]
-        public void Test2()
+        public void Correct_type_should_be_instantiated_with_discriminator_for_generic_type()
         {
             //This test needs to use a different set of classes than the previous one, otherwise the discriminators could have been already
             //registered, depending on the order of the tests. We need BsonKnownTypes for this to work.
