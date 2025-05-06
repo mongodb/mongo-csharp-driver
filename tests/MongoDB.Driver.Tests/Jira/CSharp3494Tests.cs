@@ -15,6 +15,7 @@
 
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using Xunit;
@@ -23,8 +24,7 @@ namespace MongoDB.Driver.Tests.Jira
 {
     public class CSharp3494Tests : Linq3IntegrationTest
     {
-        //[BsonKnownTypes(typeof(DerivedDocument<int>), typeof(DerivedDocument<string>))]
-        abstract class BaseDocument {}
+        abstract class BaseDocument;
 
         class DerivedDocument<T> : BaseDocument
         {
@@ -35,25 +35,32 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         [Fact]
-        public void Test1()
+        public void Correct_discriminator_should_be_used_for_generic_type()
         {
-            var doc1 = new DerivedDocument<int> { Id = 1, Value = 42 };
-            var serialized1 = doc1.ToJson(typeof(BaseDocument));
+            var document = new DerivedDocument<int> { Id = 1, Value = 42 };
+            var serialized = document.ToJson(typeof(BaseDocument));
+            serialized.Should().Be("""{ "_t" : "DerivedDocument<Int32>", "_id" : 1, "Value" : 42 }""");
+        }
 
-            var baseCollection = GetCollection<BaseDocument>("AA","testBase");
-            var untypedCollection = GetCollection<BsonDocument>("AA","testBase");
+        [BsonKnownTypes(typeof(DerivedDocument2<int>))]
+        abstract class BaseDocument2 {}
 
-            baseCollection.DeleteMany(FilterDefinition<BaseDocument>.Empty);
-            baseCollection.InsertOne(new DerivedDocument<int> { Id = 1, Value = 42 });
-            baseCollection.InsertOne(new DerivedDocument<string> { Id = 2, Value = "42" });
+        class DerivedDocument2<T> : BaseDocument2
+        {
+            [BsonId]
+            public int Id { get; set; }
 
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", 1);
-            var filterInt = Builders<BaseDocument>.Filter.Eq("_id", 1);
+            public T Value { get; set; }
+        }
 
-            var untypedRetrievedDocument = untypedCollection.Find(filter).FirstOrDefault();
-            var retrievedDocument = baseCollection.Find(filterInt).FirstOrDefault();
-
-            retrievedDocument.Should().NotBeNull();
+        [Fact]
+        public void Test2()
+        {
+            //This test needs to use a different set of classes than the previous one, otherwise the discriminators could have been already
+            //registered, depending on the order of the tests. We need BsonKnownTypes for this to work.
+            var serialized = """{ "_t" : "DerivedDocument2<Int32>", "_id" : 1, "Value" : 42 }""";
+            var rehydrated = BsonSerializer.Deserialize<BaseDocument2>(serialized);
+            rehydrated.Should().BeOfType<DerivedDocument2<int>>();
         }
     }
 }
