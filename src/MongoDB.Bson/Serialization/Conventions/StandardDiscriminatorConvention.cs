@@ -39,14 +39,19 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="elementName">The element name.</param>
         protected StandardDiscriminatorConvention(string elementName)
         {
-            if (elementName == null)
+            if (string.IsNullOrEmpty(elementName))
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
             if (elementName.IndexOf('\0') != -1)
             {
-                throw new ArgumentException("Element names cannot contain nulls.", "elementName");
+                throw new ArgumentException("Element names cannot be null or empty.", nameof(elementName));
             }
+            if (elementName == "_id")
+            {
+                throw new ArgumentException("Element names cannot be '_id'.", nameof(elementName));
+            }
+
             _elementName = elementName;
         }
 

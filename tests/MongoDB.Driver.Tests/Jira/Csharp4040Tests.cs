@@ -46,31 +46,5 @@ namespace MongoDB.Driver.Tests.Jira
                                                   "cannot use element name '_t' because it is already being used by " +
                                                   "the discriminator convention 'ScalarDiscriminatorConvention'.");
         }
-
-        private class BaseDocument2
-        {
-            //[BsonId] public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
-
-            public string Field1 { get; set; }
-        }
-
-        private class DerivedDocument2 : BaseDocument2 {}
-
-        [Fact]
-        public void BsonClassMapSerializer_when_using_discriminator_with_same_element_name_as_id_should_throw()
-        {
-            var obj = new DerivedDocument2 { Field1 = "field1" };
-
-            BsonSerializer.RegisterDiscriminatorConvention(
-                typeof(BaseDocument2),
-                new ScalarDiscriminatorConvention("_id"));
-
-            var jsonFile = obj.ToJson(typeof(BaseDocument2));
-            var recordedException = Record.Exception(() => obj.ToJson(typeof(BaseDocument2)));
-            recordedException.Should().NotBeNull();
-            recordedException.Should().BeOfType<BsonSerializationException>();
-            recordedException.Message.Should().Be("The property 'Field1' of type 'MongoDB.Driver.Tests.Jira.Csharp4040Tests+BaseDocument2' cannot use element name '_id' because it is already being used by property 'Id'");
-        }
-
     }
 }

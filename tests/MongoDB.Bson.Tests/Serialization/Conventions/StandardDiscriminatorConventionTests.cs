@@ -29,6 +29,12 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         }
 
         [Fact]
+        public void TestConstructorThrowsWhenElementNameIsId()
+        {
+            Assert.Throws<ArgumentException>(() => new ScalarDiscriminatorConvention("_id"));
+        }
+
+        [Fact]
         public void TestConstructorThrowsWhenElementNameIsNull()
         {
             Assert.Throws<ArgumentNullException>(() => new ScalarDiscriminatorConvention(null));
