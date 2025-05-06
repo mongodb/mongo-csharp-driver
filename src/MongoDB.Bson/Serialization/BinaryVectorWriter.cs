@@ -48,15 +48,16 @@ namespace MongoDB.Bson.Serialization
             {
                 case BinaryVectorDataType.Float32:
                     int length = vectorData.Length * sizeof(float);
-                    resultBytes = new byte[2 + length];
-                    resultBytes[0] = (byte)binaryVectorDataType;
-                    resultBytes[1] = padding;
-                    var floatSpan = MemoryMarshal.Cast<TItem, float>(vectorData);
-                    Span<byte> floatOutput = resultBytes.AsSpan(2);
+                    resultBytes = new byte[2 + length]; 				          // Allocate output buffer:
+                    resultBytes[0] = (byte)binaryVectorDataType; 			      // - [0]: vector type
+                    resultBytes[1] = padding;						              // - [1]: padding
+                    var floatSpan = MemoryMarshal.Cast<TItem, float>(vectorData);	
+                    Span<byte> floatOutput = resultBytes.AsSpan(2);			      // - [2...]: actual float data , skipping header
                     foreach (var value in floatSpan)
                     {
+			            // Each float is 4 bytes - write in Big Endian format
                         BinaryPrimitives.WriteSingleBigEndian(floatOutput, value);
-                        floatOutput = floatOutput.Slice(4);
+                        floatOutput = floatOutput.Slice(4); // advance to next 4-byte block
                     }
                     return resultBytes;
 
@@ -75,3 +76,4 @@ namespace MongoDB.Bson.Serialization
         }
     }
 }
+

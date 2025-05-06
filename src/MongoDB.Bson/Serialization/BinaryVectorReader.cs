@@ -51,14 +51,15 @@ namespace MongoDB.Bson.Serialization
                         throw new NotSupportedException($"Expected float for Float32 vector type, but found {typeof(TItem)}.");
                     }
 
-                    int count = vectorDataBytes.Length / 4;
+                    int count = vectorDataBytes.Length / 4; // 4 bytes per float
                     float[] floatArray = new float[count];
 
                     for (int i = 0; i < count; i++)
                     {
+                        // Each float32 is 4 bytes. So to extract the i-th float, we slice 4 bytes from offset i * 4. Use little-endian or big-endian decoding based on platform.
                         floatArray[i] = BitConverter.IsLittleEndian
-                            ? MemoryMarshal.Read<float>(vectorDataBytes.Span.Slice(i * 4, 4))
-                            : BinaryPrimitives.ReadSingleBigEndian(vectorDataBytes.Span.Slice(i * 4, 4));
+                            ? MemoryMarshal.Read<float>(vectorDataBytes.Span.Slice(i * 4, 4))   // fast, unaligned read on little endian
+                            : BinaryPrimitives.ReadSingleBigEndian(vectorDataBytes.Span.Slice(i * 4, 4));   // correctly reassemble 4 bytes as big-endian float
                     }
 
                     items = (TItem[])(object)floatArray;
@@ -158,3 +159,4 @@ namespace MongoDB.Bson.Serialization
         }
     }
 }
+
