@@ -1373,7 +1373,7 @@ namespace MongoDB.Bson.IO
         {
             // if DateTime.TryParse succeeds we're done, otherwise assume it's an RFC 822 formatted DateTime string
             DateTime dateTime;
-            if (DateTime.TryParse(dateTimeString, out dateTime))
+            if (!dateTimeString.EndsWith("A") && DateTime.TryParse(dateTimeString, out dateTime))
             {
                 return dateTime;
             }
@@ -1479,30 +1479,30 @@ namespace MongoDB.Bson.IO
                         case "MDT": offset = TimeSpan.FromHours(-6); break;
                         case "PST": offset = TimeSpan.FromHours(-8); break;
                         case "PDT": offset = TimeSpan.FromHours(-7); break;
-                        case "A": offset = TimeSpan.FromHours(-1); break;
-                        case "B": offset = TimeSpan.FromHours(-2); break;
-                        case "C": offset = TimeSpan.FromHours(-3); break;
-                        case "D": offset = TimeSpan.FromHours(-4); break;
-                        case "E": offset = TimeSpan.FromHours(-5); break;
-                        case "F": offset = TimeSpan.FromHours(-6); break;
-                        case "G": offset = TimeSpan.FromHours(-7); break;
-                        case "H": offset = TimeSpan.FromHours(-8); break;
-                        case "I": offset = TimeSpan.FromHours(-9); break;
-                        case "K": offset = TimeSpan.FromHours(-10); break;
-                        case "L": offset = TimeSpan.FromHours(-11); break;
-                        case "M": offset = TimeSpan.FromHours(-12); break;
-                        case "N": offset = TimeSpan.FromHours(1); break;
-                        case "O": offset = TimeSpan.FromHours(2); break;
-                        case "P": offset = TimeSpan.FromHours(3); break;
-                        case "Q": offset = TimeSpan.FromHours(4); break;
-                        case "R": offset = TimeSpan.FromHours(5); break;
-                        case "S": offset = TimeSpan.FromHours(6); break;
-                        case "T": offset = TimeSpan.FromHours(7); break;
-                        case "U": offset = TimeSpan.FromHours(8); break;
-                        case "V": offset = TimeSpan.FromHours(9); break;
-                        case "W": offset = TimeSpan.FromHours(10); break;
-                        case "X": offset = TimeSpan.FromHours(11); break;
-                        case "Y": offset = TimeSpan.FromHours(12); break;
+                        case "A": offset = TimeSpan.FromHours(1); break;
+                        case "B": offset = TimeSpan.FromHours(2); break;
+                        case "C": offset = TimeSpan.FromHours(3); break;
+                        case "D": offset = TimeSpan.FromHours(4); break;
+                        case "E": offset = TimeSpan.FromHours(5); break;
+                        case "F": offset = TimeSpan.FromHours(6); break;
+                        case "G": offset = TimeSpan.FromHours(7); break;
+                        case "H": offset = TimeSpan.FromHours(8); break;
+                        case "I": offset = TimeSpan.FromHours(9); break;
+                        case "K": offset = TimeSpan.FromHours(10); break;
+                        case "L": offset = TimeSpan.FromHours(11); break;
+                        case "M": offset = TimeSpan.FromHours(12); break;
+                        case "N": offset = TimeSpan.FromHours(-1); break;
+                        case "O": offset = TimeSpan.FromHours(-2); break;
+                        case "P": offset = TimeSpan.FromHours(-3); break;
+                        case "Q": offset = TimeSpan.FromHours(-4); break;
+                        case "R": offset = TimeSpan.FromHours(-5); break;
+                        case "S": offset = TimeSpan.FromHours(-6); break;
+                        case "T": offset = TimeSpan.FromHours(-7); break;
+                        case "U": offset = TimeSpan.FromHours(-8); break;
+                        case "V": offset = TimeSpan.FromHours(-9); break;
+                        case "W": offset = TimeSpan.FromHours(-10); break;
+                        case "X": offset = TimeSpan.FromHours(-11); break;
+                        case "Y": offset = TimeSpan.FromHours(-12); break;
                         default:
                             var offsetSign = zone.Substring(0);
                             var offsetHours = zone.Substring(1, 2);
