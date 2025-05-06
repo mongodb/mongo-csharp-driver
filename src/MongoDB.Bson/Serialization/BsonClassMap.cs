@@ -1057,7 +1057,7 @@ namespace MongoDB.Bson.Serialization
             _creatorMaps.Clear();
             _creator = null;
             _declaredMemberMaps = new List<BsonMemberMap>();
-            _discriminator = ComputeDiscriminator();
+            _discriminator = BsonUtils.GetFriendlyTypeName(_classType);
             _discriminatorIsRequired = false;
             _extraElementsMemberMap = null;
             _idMemberMap = null;
@@ -1065,24 +1065,6 @@ namespace MongoDB.Bson.Serialization
             _ignoreExtraElementsIsInherited = false;
             _isRootClass = false;
             _knownTypes.Clear();
-        }
-
-        private string ComputeDiscriminator()
-        {
-            /*
-             * The discriminator is computed as follows:
-             * - if the class is non generic, that's just the name of the class
-             * - if the class is generic, then it's the AssemblyQualifiedName
-             */
-
-            if (_classType.IsGenericType)
-            {
-                return BsonUtils.GetFriendlyTypeName(_classType);  //TODO We could just remove this method, keeping it in case I need to do something
-            }
-            else
-            {
-                return _classType.Name;
-            }
         }
 
         /// <summary>
