@@ -54,9 +54,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     throw new ExpressionNotSupportedException(expression, because: "there is no current root symbol");
                 }
                 var documentSerializer = rootSymbol.Serializer;
-                if (documentSerializer.ValueType != filterDefinitionDocumentType)
+                if (filterDefinitionDocumentType != documentSerializer.ValueType)
                 {
-                    throw new ExpressionNotSupportedException(expression, because: $"root document serializer value type {documentSerializer.ValueType} does not match FilterDefinition TDOcument type: {filterDefinitionDocumentType}");
+                    throw new ExpressionNotSupportedException(expression, because: $"FilterDefinition TDocument type: {filterDefinitionDocumentType} does not match document type {documentSerializer.ValueType} ");
                 }
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
 
