@@ -1,7 +1,14 @@
 ﻿MongoDB C# Driver
 =================
 
-You can get the latest stable release from the [official Nuget.org feed](https://www.nuget.org/packages/MongoDB.Driver) or from our [github releases page](https://github.com/mongodb/mongo-csharp-driver/releases).
+[![MongoDB.Driver](https://img.shields.io/nuget/v/MongoDB.Driver.svg)](https://www.nuget.org/packages/MongoDB.Driver/)
+[![Documentation](https://img.shields.io/badge/docs-docfx-blue.svg)](https://mongodb.github.io/mongo-csharp-driver/3.4.0/api/index.html)
+[![Documentation](https://img.shields.io/badge/docs-mongo-green.svg)](https://www.mongodb.com/docs/drivers/csharp/current/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/mongodb/mongo-csharp-driver/blob/main/LICENSE.md)
+
+The official MongoDB .NET/C# driver.
+
+The MongoDB .NET/C# driver follows [semantic versioning](https://semver.org/) since v3.0.0 of its releases.
 
 Getting Started
 ---------------
@@ -62,7 +69,8 @@ foreach(var person in list)
 Documentation
 -------------
 * [MongoDB](https://www.mongodb.com/docs)
-* [Documentation](https://www.mongodb.com/docs/drivers/csharp/current/)
+* [.NET/C# Driver](https://www.mongodb.com/docs/drivers/csharp/current/)
+* [API Reference](https://mongodb.github.io/mongo-csharp-driver/3.4.0/api/index.html)
 
 Questions/Bug Reports
 ---------------------
