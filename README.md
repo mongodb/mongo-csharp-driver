@@ -8,7 +8,7 @@
 
 The official MongoDB .NET/C# driver.
 
-The MongoDB .NET/C# driver follows semantic versioning since v3.0.0 of its releases.
+The MongoDB .NET/C# driver follows [semantic versioning](https://semver.org/) since v3.0.0 of its releases.
 
 Getting Started
 ---------------
