@@ -8,6 +8,8 @@
 
 The official MongoDB .NET/C# driver.
 
+The MongoDB .NET/C# driver follows semantic versioning since v3.0.0 of its releases.
+
 Getting Started
 ---------------
 
@@ -83,5 +85,3 @@ Contributing
 Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 
 Thank you to [everyone](https://github.com/mongodb/mongo-csharp-driver/graphs/contributors) who has contributed to this project.
-
-The MongoDB .NET/C# driver follows semantic versioning since v3.0.0 of its releases.
