@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -44,12 +46,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var filterExpression = arguments[0];
                 var filterDefinition = filterExpression.GetConstantValue<object>(expression);
                 var filterDefinitionType = filterDefinition.GetType(); // we KNOW it's a FilterDefinition<TDocument> because of the Inject method signature
-                var documentType = filterDefinitionType.GetGenericArguments()[0];
+                var filterDefinitionDocumentType = filterDefinitionType.GetGenericArguments()[0];
 
+                var rootSymbol = context.SymbolTable.Symbols.SingleOrDefault(s => s.Ast.IsRootVar());
+                if (rootSymbol == null)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "there is no current root symbol");
+                }
+                var documentSerializer = rootSymbol.Serializer;
+                if (filterDefinitionDocumentType != documentSerializer.ValueType)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"FilterDefinition TDocument type: {filterDefinitionDocumentType} does not match document type {documentSerializer.ValueType} ");
+                }
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
-                var documentSerializer = serializerRegistry.GetSerializer(documentType); // TODO: is this the right serializer?
 
-                var renderFilterMethod = __renderFilterMethodInfo.MakeGenericMethod(documentType);
+                var renderFilterMethod = __renderFilterMethodInfo.MakeGenericMethod(filterDefinitionDocumentType);
                 var renderedFilter = (BsonDocument)renderFilterMethod.Invoke(null, new[] { filterDefinition, documentSerializer, serializerRegistry, context.TranslationOptions });
 
                 return AstFilter.Raw(renderedFilter);
