@@ -15,14 +15,12 @@
 
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Conventions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
-    public class Csharp4040Tests
+    public class CSharp4040Tests
     {
         private class BaseDocument
         {
