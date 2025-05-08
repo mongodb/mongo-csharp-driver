@@ -1317,7 +1317,7 @@ namespace MongoDB.Bson.Serialization
         /// Gets the discriminator convention for the class.
         /// </summary>
         /// <returns>The discriminator convention for the class.</returns>
-        internal IDiscriminatorConvention GetDiscriminatorConvention(bool checkConflicts = false)
+        internal IDiscriminatorConvention GetDiscriminatorConvention()
         {
             // return a cached discriminator convention when possible
             var discriminatorConvention = _discriminatorConvention;
@@ -1326,19 +1326,19 @@ namespace MongoDB.Bson.Serialization
                 // it's possible but harmless for multiple threads to do the discriminator convention lookup at the same time
                 discriminatorConvention = LookupDiscriminatorConvention();
                 _discriminatorConvention = discriminatorConvention;
-            }
 
-            if (checkConflicts && discriminatorConvention != null)
-            {
-                var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == discriminatorConvention.ElementName);
-
-                if (conflictingMemberMap != null)
+                if (discriminatorConvention != null)
                 {
-                    var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
+                    var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == discriminatorConvention.ElementName);
 
-                    throw new BsonSerializationException(
-                        $"The {fieldOrProperty} {conflictingMemberMap.MemberName} of type '{_classType.FullName}' cannot use element name '{discriminatorConvention.ElementName}' " +
-                        $"because it is already being used by the discriminator convention '{discriminatorConvention.GetType().Name}'.");
+                    if (conflictingMemberMap != null)
+                    {
+                        var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
+
+                        throw new BsonSerializationException(
+                            $"The discriminator element name cannot be {discriminatorConvention.ElementName} " +
+                            $"because it is already being used by the {fieldOrProperty} {conflictingMemberMap.MemberName} of type {_classType.FullName}");
+                    }
                 }
             }
 

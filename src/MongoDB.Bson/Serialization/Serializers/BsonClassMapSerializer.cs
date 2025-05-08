@@ -637,7 +637,7 @@ namespace MongoDB.Bson.Serialization
 
         private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj)
         {
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention(true);
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
             if (discriminatorConvention != null)
             {
                 var actualType = obj.GetType();

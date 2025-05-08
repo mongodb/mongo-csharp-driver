@@ -42,9 +42,8 @@ namespace MongoDB.Driver.Tests.Jira
             var recordedException = Record.Exception(() => obj.ToJson(typeof(BaseDocument)));
             recordedException.Should().NotBeNull();
             recordedException.Should().BeOfType<BsonSerializationException>();
-            recordedException.Message.Should().Be("The property Field1 of type 'MongoDB.Driver.Tests.Jira.Csharp4040Tests+DerivedDocument' " +
-                                                  "cannot use element name '_t' because it is already being used by " +
-                                                  "the discriminator convention 'ScalarDiscriminatorConvention'.");
+            recordedException.Message.Should().Be("The discriminator element name cannot be _t because it is already being used" +
+                                                  " by the property Field1 of type MongoDB.Driver.Tests.Jira.Csharp4040Tests+DerivedDocument");
         }
     }
 }
