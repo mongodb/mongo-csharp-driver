@@ -47,10 +47,6 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 throw new ArgumentException("Element names cannot contain nulls.", nameof(elementName));
             }
-            if (elementName == "_id")
-            {
-                throw new ArgumentException("Element names cannot be '_id'.", nameof(elementName));
-            }
 
             _elementName = elementName;
         }
