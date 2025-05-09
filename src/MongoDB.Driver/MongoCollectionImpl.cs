@@ -100,7 +100,8 @@ namespace MongoDB.Driver
         // public methods
         public override IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSession(session => Aggregate(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = OperationExecutor.StartImplicitSession(cancellationToken);
+            return Aggregate(session, pipeline, options, cancellationToken);
         }
 
         public override IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
@@ -124,9 +125,10 @@ namespace MongoDB.Driver
             }
         }
 
-        public override Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
+        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSessionAsync(session => AggregateAsync(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = await OperationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            return await AggregateAsync(session, pipeline, options, cancellationToken).ConfigureAwait(false);
         }
 
         public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
@@ -152,7 +154,8 @@ namespace MongoDB.Driver
 
         public override void AggregateToCollection<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            UsingImplicitSession(session => AggregateToCollection(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = OperationExecutor.StartImplicitSession(cancellationToken);
+            AggregateToCollection(session, pipeline, options, cancellationToken);
         }
 
         public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
@@ -172,9 +175,10 @@ namespace MongoDB.Driver
             OperationExecutor.ExecuteWriteOperation(aggregateOperation, _writeOperationOptions, session, cancellationToken);
         }
 
-        public override Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
+        public override async Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSessionAsync(session => AggregateToCollectionAsync(session, pipeline, options, cancellationToken), cancellationToken);
+            using var session = await OperationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            await AggregateToCollectionAsync(session, pipeline, options, cancellationToken).ConfigureAwait(false);
         }
 
         public override async Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
@@ -467,7 +471,8 @@ namespace MongoDB.Driver
         [Obsolete("Use Aggregation pipeline instead.")]
         public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSession(session => MapReduce(session, map, reduce, options, cancellationToken), cancellationToken);
+            using var session = OperationExecutor.StartImplicitSession(cancellationToken);
+            return MapReduce(session, map, reduce, options, cancellationToken);
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
@@ -496,9 +501,10 @@ namespace MongoDB.Driver
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
-        public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
+        public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
         {
-            return UsingImplicitSessionAsync(session => MapReduceAsync(session, map, reduce, options, cancellationToken), cancellationToken);
+            using var session = await OperationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            return await MapReduceAsync(session, map, reduce, options, cancellationToken).ConfigureAwait(false);
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
@@ -1264,38 +1270,6 @@ namespace MongoDB.Driver
             }
 
             return _settings.SerializerRegistry.GetSerializer<TResult>();
-        }
-
-        private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken = default)
-        {
-            using (var session = _operationExecutor.StartImplicitSession(cancellationToken))
-            {
-                func(session);
-            }
-        }
-
-        private TResult UsingImplicitSession<TResult>(Func<IClientSessionHandle, TResult> func, CancellationToken cancellationToken = default)
-        {
-            using (var session = _operationExecutor.StartImplicitSession(cancellationToken))
-            {
-                return func(session);
-            }
-        }
-
-        private async Task UsingImplicitSessionAsync(Func<IClientSessionHandle, Task> funcAsync, CancellationToken cancellationToken = default)
-        {
-            using (var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
-            {
-                await funcAsync(session).ConfigureAwait(false);
-            }
-        }
-
-        private async Task<TResult> UsingImplicitSessionAsync<TResult>(Func<IClientSessionHandle, Task<TResult>> funcAsync, CancellationToken cancellationToken = default)
-        {
-            using (var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
-            {
-                return await funcAsync(session).ConfigureAwait(false);
-            }
         }
 
         // nested types
