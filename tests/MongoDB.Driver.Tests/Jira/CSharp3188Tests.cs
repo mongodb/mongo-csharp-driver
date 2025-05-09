@@ -66,33 +66,12 @@ namespace MongoDB.Driver.Tests.Jira
                     .Limit(1)
                     .Project(projectionDefinition);
 
-                if (async)
-                {
-                    var exception = Record.Exception(() => collection.AggregateAsync(pipeline).GetAwaiter().GetResult());
+                var exception = Record.Exception(() => collection.AggregateAsync(pipeline).GetAwaiter().GetResult());
 
-                    var mongoConnectionException = exception.Should().BeOfType<MongoConnectionException>().Subject;
-#pragma warning disable CS0618 // Type or member is obsolete
-                    mongoConnectionException.ContainsSocketTimeoutException.Should().BeFalse();
-#pragma warning restore CS0618 // Type or member is obsolete
-                    mongoConnectionException.ContainsTimeoutException.Should().BeTrue();
-                    var baseException = GetBaseException(mongoConnectionException);
-                    baseException.Should().BeOfType<TimeoutException>().Which.InnerException.Should().BeNull();
-                }
-                else
-                {
-                    var exception = Record.Exception(() => collection.Aggregate(pipeline));
-
-                    var mongoConnectionException = exception.Should().BeOfType<MongoConnectionException>().Subject;
-#pragma warning disable CS0618 // Type or member is obsolete
-                    mongoConnectionException.ContainsSocketTimeoutException.Should().BeTrue();
-#pragma warning restore CS0618 // Type or member is obsolete
-                    mongoConnectionException.ContainsTimeoutException.Should().BeTrue();
-                    var baseException = GetBaseException(mongoConnectionException);
-                    var socketException = baseException.Should().BeOfType<IOException>()
-                        .Which.InnerException.Should().BeOfType<SocketException>().Subject;
-                    socketException.SocketErrorCode.Should().Be(SocketError.TimedOut);
-                    socketException.InnerException.Should().BeNull();
-                }
+                var mongoConnectionException = exception.Should().BeOfType<MongoConnectionException>().Subject;
+                mongoConnectionException.ContainsTimeoutException.Should().BeTrue();
+                var baseException = GetBaseException(mongoConnectionException);
+                baseException.Should().BeOfType<TimeoutException>().Which.InnerException.Should().BeNull();
             }
 
             Exception GetBaseException(MongoConnectionException mongoConnectionException)
