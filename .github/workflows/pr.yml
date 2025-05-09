@@ -19,12 +19,12 @@ jobs:
         run: |
           exit 1
 
-      - name: Title should mention Jira ticket.
+      - name: Title should start with with a Jira ticket.
         if: ${{ always() && !(startsWith(github.event.pull_request.title, 'CSHARP-')) }}
         run: |
           exit 1
 
-      - name: Title should not end with period or elipses
+      - name: Title should not end with period or ellipses.
         if: ${{ always() && (endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, '…')) }}
         run: |
           exit 1
