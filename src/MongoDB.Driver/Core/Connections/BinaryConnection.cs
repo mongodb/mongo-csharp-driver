@@ -333,14 +333,15 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var messageSizeBytes = new byte[4];
-                _stream.ReadBytes(messageSizeBytes, 0, 4, cancellationToken);
+                var readTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
+                _stream.ReadBytes(messageSizeBytes, 0, 4, readTimeout, cancellationToken);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                _stream.ReadBytes(buffer, 4, messageSize - 4, cancellationToken);
+                _stream.ReadBytes(buffer, 4, messageSize - 4, readTimeout, cancellationToken);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -535,7 +536,8 @@ namespace MongoDB.Driver.Core.Connections
 
                 try
                 {
-                    _stream.WriteBytes(buffer, 0, buffer.Length, cancellationToken);
+                    var writeTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.WriteTimeout) : Timeout.InfiniteTimeSpan;
+                    _stream.WriteBytes(buffer, 0, buffer.Length, writeTimeout, cancellationToken);
                     _lastUsedAtUtc = DateTime.UtcNow;
                 }
                 catch (Exception ex)
