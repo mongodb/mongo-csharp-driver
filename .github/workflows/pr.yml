@@ -1,0 +1,30 @@
+name: Pull Request validation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - edited
+      - labeled
+      - unlabeled
+
+jobs:
+  pull-request-validation:
+    name: Pull Request validation.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Request should have a label assigned.
+        if: ${{ always() && github.event.pull_request.labels[0] == null }}
+        run: |
+          exit 1
+
+      - name: Title should start with a Jira ticket.
+        if: ${{ always() && !(startsWith(github.event.pull_request.title, 'CSHARP-')) }}
+        run: |
+          exit 1
+
+      - name: Title should not end with period or ellipses.
+        if: ${{ always() && (endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, '…')) }}
+        run: |
+          exit 1

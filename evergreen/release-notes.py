@@ -37,7 +37,7 @@ def load_config(opts):
 
 
 def mapPullRequest(pullRequest, opts):
-    title = pullRequest["title"]
+    title = pullRequest["title"].encode('ascii', 'backslashreplace').decode().replace("<", "\<")
     for regex in opts.template["autoformat"]:
         title = re.sub(regex["match"], regex["replace"], title)
 
@@ -91,7 +91,9 @@ def load_pull_requests(opts):
                 github_api_base_url=opts.github_api_base_url,
                 repo=opts.repo,
                 commit_sha=commit["sha"])
-            pullrequests = requests.get(pullrequests_url, headers=opts.github_headers).json()
+            pullrequests_response = requests.get(pullrequests_url, headers=opts.github_headers)
+            pullrequests_response.raise_for_status()
+            pullrequests = pullrequests_response.json()
             for pullrequest in pullrequests:
                 mapped = mapPullRequest(pullrequest, opts)
                 if is_in_section(mapped, ignore_section):
@@ -140,7 +142,6 @@ def publish_release_notes(opts, title, content):
     print("Publishing release notes...")
     url = '{github_api_base_url}{repo}/releases/tags/{tag}'.format(github_api_base_url=opts.github_api_base_url, repo=opts.repo, tag=opts.version_tag)
     response = requests.get(url, headers=opts.github_headers)
-    response.raise_for_status()
     if response.status_code != 404:
         raise SystemExit("Release with the tag already exists")
 
