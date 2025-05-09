@@ -14,20 +14,17 @@ jobs:
     name: Pull Request validation.
     runs-on: ubuntu-latest
     steps:
-      - name: Validate label.
+      - name: Pull Request should have a label assigned.
         if: ${{ always() && github.event.pull_request.labels[0] == null }}
         run: |
-          echo "Pull Request should have label assigned."
           exit 1
 
-      - name: Title should contain Jira ticket.
-        if: ${{ always() && !(contains(github.event.pull_request.title, 'CSHARP-')) }}
+      - name: Title should mention Jira ticket.
+        if: ${{ always() && !(startsWith(github.event.pull_request.title, 'CSHARP-')) }}
         run: |
-          echo "Title should contain Jira ticket."
           exit 1
 
       - name: Title should not end with period or elipses
-        if: ${{ always() && (endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, '…')) }}
+        if: ${{ always() && (endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, 'ï¿½')) }}
         run: |
-          echo "Title should not end with a period or ellipses."
           exit 1
