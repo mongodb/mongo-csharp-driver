@@ -19,7 +19,7 @@ jobs:
         run: |
           exit 1
 
-      - name: Title should start with with a Jira ticket.
+      - name: Title should start with a Jira ticket.
         if: ${{ always() && !(startsWith(github.event.pull_request.title, 'CSHARP-')) }}
         run: |
           exit 1
