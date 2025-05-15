@@ -304,22 +304,22 @@ namespace MongoDB.Driver
 
         public override TProjection FindOneAndUpdate<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _wrappedCollection.FindOneAndUpdate(CombineFilters(filter), update, options, cancellationToken);
+            return _wrappedCollection.FindOneAndUpdate(CombineFilters(filter), AdjustUpdateDefinition(update, options.IsUpsert), options, cancellationToken);
         }
 
         public override TProjection FindOneAndUpdate<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _wrappedCollection.FindOneAndUpdate(session, CombineFilters(filter), update, options, cancellationToken);
+            return _wrappedCollection.FindOneAndUpdate(session, CombineFilters(filter), AdjustUpdateDefinition(update, options.IsUpsert), options, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _wrappedCollection.FindOneAndUpdateAsync(CombineFilters(filter), update, options, cancellationToken);
+            return _wrappedCollection.FindOneAndUpdateAsync(CombineFilters(filter), AdjustUpdateDefinition(update, options.IsUpsert), options, cancellationToken);
         }
 
         public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _wrappedCollection.FindOneAndUpdateAsync(session, CombineFilters(filter), update, options, cancellationToken);
+            return _wrappedCollection.FindOneAndUpdateAsync(session, CombineFilters(filter), AdjustUpdateDefinition(update, options.IsUpsert), options, cancellationToken);
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
