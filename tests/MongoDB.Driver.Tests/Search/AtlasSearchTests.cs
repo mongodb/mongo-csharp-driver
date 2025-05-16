@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void EqualsArrayField()
         {
-            var results = GetSynonymTestCollection().Aggregate()
+            var results = GetMoviesCollection<Movie>().Aggregate()
                 .Search(Builders<Movie>.Search.Equals(p => p.Genres, "family"))
                 .Limit(3)
                 .ToList();
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void EqualsStringField()
         {
-            var results = GetSynonymTestCollection().Aggregate()
+            var results = GetMoviesCollection<Movie>().Aggregate()
                 .Search(Builders<Movie>.Search.Equals(p => p.Title, "a corner in wheat"))
                 .ToList();
             
@@ -278,7 +278,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void In()
         {
-            var results = GetSynonymTestCollection()
+            var results = GetMoviesCollection<Movie>()
                 .Aggregate()
                 .Search(
                     Builders<Movie>.Search.In(x => x.Runtime, new[] { 31, 231 }),
@@ -424,7 +424,7 @@ namespace MongoDB.Driver.Tests.Search
         public void PhraseSynonym()
         {
             var result =
-                GetSynonymTestCollection().Aggregate()
+                GetMoviesCollection<Movie>().Aggregate()
                     .Search(
                         Builders<Movie>.Search.Phrase("plot", "automobile race", new SearchPhraseOptions<Movie> { Synonyms = "transportSynonyms" }),
                         indexName: "synonyms-tests")
@@ -473,7 +473,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void RangeString()
         {
-            var results = GetSynonymTestCollection().Aggregate()
+            var results = GetMoviesCollection<Movie>().Aggregate()
                 .Search(Builders<Movie>.Search.Range(p => p.Title, SearchRangeV2Builder.Gt("city").Lt("country")))
                 .Limit(5)
                 .Project<Movie>(Builders<Movie>.Projection.Include(p => p.Title))
@@ -540,7 +540,7 @@ namespace MongoDB.Driver.Tests.Search
                 .MetaSearchSequenceToken(x => x.PaginationToken);
 
             // Base search
-            var baseSearchResults = GetSynonymTestCollection()
+            var baseSearchResults = GetMoviesCollection<Movie>()
                 .Aggregate()
                 .Search(searchDefinition, searchOptions)
                 .Project<Movie>(projection)
@@ -557,7 +557,7 @@ namespace MongoDB.Driver.Tests.Search
             // Testing SearchAfter
             // We're searching after the 2nd result of the base search
             searchOptions.SearchAfter = baseSearchResults[1].PaginationToken;
-            var searchAfterResults = GetSynonymTestCollection()
+            var searchAfterResults = GetMoviesCollection<Movie>()
                 .Aggregate()
                 .Search(searchDefinition, searchOptions)
                 .Project<Movie>(projection)
@@ -573,7 +573,7 @@ namespace MongoDB.Driver.Tests.Search
             // We're searching before the 4th result of the base search
             searchOptions.SearchAfter = null;
             searchOptions.SearchBefore = baseSearchResults[3].PaginationToken;
-            var searchBeforeResults = GetSynonymTestCollection()
+            var searchBeforeResults = GetMoviesCollection<Movie>()
                 .Aggregate()
                 .Search(searchDefinition, searchOptions)
                 .Project<Movie>(projection)
@@ -672,7 +672,7 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Sort_MetaSearchScore()
         {
-            var results = GetSynonymTestCollection().Aggregate()
+            var results = GetMoviesCollection<Movie>().Aggregate()
                 .Search(
                     Builders<Movie>.Search.QueryString(x => x.Title, "dance"),
                     new() { Sort = Builders<Movie>.Sort.MetaSearchScoreAscending() })
@@ -719,7 +719,7 @@ namespace MongoDB.Driver.Tests.Search
         public void TextMatchCriteria()
         {
             var result =
-                GetSynonymTestCollection().Aggregate()
+                GetMoviesCollection<Movie>().Aggregate()
                     .Search(
                         Builders<Movie>.Search.Text("plot", "attire", new SearchTextOptions<Movie> { Synonyms = "attireSynonyms", MatchCriteria = MatchCriteria.Any}),
                         indexName: "synonyms-tests")
@@ -742,7 +742,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             var sortDefinition = Builders<Movie>.Sort.Ascending(x => x.Title);
             var result =
-                GetSynonymTestCollection().Aggregate()
+                GetMoviesCollection<Movie>().Aggregate()
                     .Search(Builders<Movie>.Search.Text(x => x.Title, query, synonym), indexName: "synonyms-tests")
                     .Sort(sortDefinition)
                     .Project<Movie>(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
@@ -807,7 +807,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         private List<BsonDocument> SearchMultipleSynonymMapping(params SearchDefinition<Movie>[] clauses) =>
-            GetSynonymTestCollection().Aggregate()
+            GetMoviesCollection<Movie>().Aggregate()
                 .Search(Builders<Movie>.Search.Compound().Should(clauses), indexName: "synonyms-tests")
                 .Project(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
                 .ToList();
@@ -824,9 +824,9 @@ namespace MongoDB.Driver.Tests.Search
             .GetDatabase("sample_mflix")
             .GetCollection<T>("embedded_movies");
 
-        private IMongoCollection<Movie> GetSynonymTestCollection() => _mongoClient
+        private IMongoCollection<T> GetMoviesCollection<T>() => _mongoClient
             .GetDatabase("sample_mflix")
-            .GetCollection<Movie>("movies");
+            .GetCollection<T>("movies");
 
         private IMongoCollection<AirbnbListing> GetGeoTestCollection() => _mongoClient
             .GetDatabase("sample_airbnb")
