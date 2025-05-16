@@ -13,15 +13,63 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     public class DowncastingSerializerTests
     {
+        [Fact]
+        public void Constructor_should_initialize_instance()
+        {
+            // Arrange
+            var mockDerivedSerializer = new Mock<IBsonSerializer<string>>();
+
+            // Act
+            var subject = new MongoDB.Bson.Serialization.Serializers.DowncastingSerializer<object, string>(mockDerivedSerializer.Object);
+
+            // Assert
+            subject.DerivedSerializer.Should().BeSameAs(mockDerivedSerializer.Object);
+            subject.BaseType.Should().Be(typeof(object));
+            subject.DerivedType.Should().Be(typeof(string));
+        }
+
+        [Fact]
+        public void Constructor_should_throw_when_derivedSerializer_is_null()
+        {
+            // Act
+            Action act = () => new MongoDB.Bson.Serialization.Serializers.DowncastingSerializer<object, string>(null);
+
+            // Assert
+            act.ShouldThrow<ArgumentNullException>()
+                .And.ParamName.Should().Be("derivedSerializer");
+        }
+        [Fact]
+        public void Create_should_create_instance_with_correct_types()
+        {
+            // Arrange
+            var baseType = typeof(object);
+            var derivedType = typeof(string);
+            var serializer = new StringSerializer();
+
+            // Act
+            var result = MongoDB.Bson.Serialization.Serializers.DowncastingSerializer.Create(
+                baseType, derivedType, serializer);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType(typeof(MongoDB.Bson.Serialization.Serializers.DowncastingSerializer<object, string>));
+            var downcastingSerializer = (MongoDB.Bson.Serialization.Serializers.IDowncastingSerializer)result;
+            downcastingSerializer.BaseType.Should().Be(baseType);
+            downcastingSerializer.DerivedType.Should().Be(derivedType);
+            downcastingSerializer.DerivedSerializer.Should().BeSameAs(serializer);
+        }
+
         [Fact]
         public void Equals_null_should_return_false()
         {

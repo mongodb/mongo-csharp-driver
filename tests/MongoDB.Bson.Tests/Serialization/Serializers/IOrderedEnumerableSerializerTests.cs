@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
@@ -23,6 +25,59 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     public class IOrderedEnumerableSerializerTests
     {
+        [Fact]
+        public void Create_should_create_serializer_with_correct_item_type()
+        {
+            // Arrange
+            var itemSerializer = new Int32Serializer();
+            string exceptionMessage = "ThenBy is not supported";
+
+            // Act
+            var result = IOrderedEnumerableSerializer.Create(itemSerializer, exceptionMessage);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeOfType(typeof(IOrderedEnumerableSerializer<int>));
+        }
+
+        [Fact]
+        public void Create_should_throw_when_itemSerializer_is_null()
+        {
+            // Arrange
+            IBsonSerializer itemSerializer = null;
+            string exceptionMessage = "ThenBy is not supported";
+
+            // Act
+            Action act = () => IOrderedEnumerableSerializer.Create(itemSerializer, exceptionMessage);
+
+            // Assert
+            act.ShouldThrow<ArgumentNullException>()
+                .And.ParamName.Should().Be("itemSerializer");
+        }
+        [Fact]
+        public void Deserialize_should_create_ordered_enumerable_list_wrapper()
+        {
+            // Arrange
+            var itemSerializer = new Int32Serializer();
+            var subject = new IOrderedEnumerableSerializer<int>(itemSerializer, "ThenBy is not supported");
+
+            var document = new BsonDocument("x", new BsonArray(new[] { 1, 2, 3 }));
+            using var reader = new BsonDocumentReader(document);
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            reader.ReadStartDocument();
+            reader.ReadName("x");
+
+            // Act
+            var result = subject.Deserialize(context);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().BeAssignableTo<IOrderedEnumerable<int>>();
+            result.Should().BeOfType<OrderedEnumerableListWrapper<int>>();
+            result.Count().Should().Be(3);
+            result.Should().Equal(new[] { 1, 2, 3 });
+        }
+
         [Fact]
         public void Equals_null_should_return_false()
         {
@@ -93,6 +148,45 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var result = x.GetHashCode();
 
             result.Should().Be(0);
+        }
+
+        [Fact]
+        public void Serialize_should_write_array_of_items()
+        {
+            // Arrange
+            var itemSerializer = new Int32Serializer();
+            var subject = new IOrderedEnumerableSerializer<int>(itemSerializer, "ThenBy is not supported");
+            var list = new OrderedEnumerableListWrapper<int>([1, 2, 3], "ThenBy is not supported");
+
+            var document = new BsonDocument();
+            using var writer = new BsonDocumentWriter(document);
+            var context = BsonSerializationContext.CreateRoot(writer);
+            writer.WriteStartDocument();
+            writer.WriteName("x");
+
+            // Act
+            subject.Serialize(context, list);
+            writer.WriteEndDocument();
+
+            // Assert
+            document["x"].Should().Be(new BsonArray(new[] { 1, 2, 3 }));
+        }
+
+        [Fact]
+        public void TryGetItemSerializationInfo_should_return_correct_info()
+        {
+            // Arrange
+            var itemSerializer = new Int32Serializer();
+            var subject = new IOrderedEnumerableSerializer<int>(itemSerializer, "ThenBy is not supported");
+
+            // Act
+            var success = subject.TryGetItemSerializationInfo(out BsonSerializationInfo info);
+
+            // Assert
+            success.Should().BeTrue();
+            info.Should().NotBeNull();
+            info.Serializer.Should().BeSameAs(itemSerializer);
+            info.NominalType.Should().Be(typeof(int));
         }
     }
 }
