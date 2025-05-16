@@ -56,6 +56,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
+        [Obsolete("Legacy serialization support APIs are obsolete: SYSLIB0051")]
         public BsonInternalException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

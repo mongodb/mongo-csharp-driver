@@ -20,16 +20,16 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
-namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
+namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     [BsonDiscriminator("DictionaryGenericSerializers.C")] // "C" is an ambiguous discriminator when nominalType is System.Object
     public class C
@@ -66,50 +66,182 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             });
         }
 
-        public class T
+        [Fact]
+        public void Constructor_with_dictionary_representation_and_serializers_should_initialize_instance()
         {
-            public Dictionary<object, object> D { get; set; }
-            public IDictionary<object, object> ID { get; set; }
-            public IReadOnlyDictionary<object, object> IROD { get; set; }
-            public ReadOnlyDictionary<object, object> ROD { get; set; }
-            public SortedDictionary<object, object> SD { get; set; }
-            public SortedList<object, object> SL { get; set; }
-        }
+            // Arrange
+            var dictionaryRepresentation = DictionaryRepresentation.ArrayOfDocuments;
+            var keySerializer = new StringSerializer();
+            var valueSerializer = new Int32Serializer();
 
-        public class RO<TKey, TValue> : ReadOnlyDictionary<TKey, TValue>
-        {
-            private RO(IDictionary<TKey, TValue> dictionary) : base(dictionary)
-            {
-            }
+            // Act
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                dictionaryRepresentation, keySerializer, valueSerializer);
 
-            public static RO<TKey, TValue> ConstructorReplacement(IDictionary<TKey, TValue> dictionary)
-            {
-                return new RO<TKey, TValue>(dictionary);
-            }
+            // Assert
+            subject.Should().NotBeNull();
+            subject.DictionaryRepresentation.Should().Be(dictionaryRepresentation);
+            subject.KeySerializer.Should().BeSameAs(keySerializer);
+            subject.ValueSerializer.Should().BeSameAs(valueSerializer);
         }
 
         [Fact]
-        public void TestNull()
+        public void Constructor_with_dictionary_representation_should_initialize_instance()
         {
-            var obj = new T { D = null, ID = null, IROD = null, ROD = null, SD = null, SL = null };
-            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var rep = "null";
+            // Arrange
+            var dictionaryRepresentation = DictionaryRepresentation.ArrayOfDocuments;
 
-            var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            // 'IROD' : #R, 'ROD' : #R,
+            // Act
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(dictionaryRepresentation);
 
-            Assert.Equal(expected, json);
+            // Assert
+            subject.Should().NotBeNull();
+            subject.DictionaryRepresentation.Should().Be(dictionaryRepresentation);
+            subject.KeySerializer.Should().NotBeNull();
+            subject.ValueSerializer.Should().NotBeNull();
+        }
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.Null(rehydrated.D);
-            Assert.Null(rehydrated.ID);
-            Assert.Null(rehydrated.IROD);
-            Assert.Null(rehydrated.ROD);
-            Assert.Null(rehydrated.SD);
-            Assert.Null(rehydrated.SL);
+        [Fact]
+        public void Constructor_with_no_arguments_should_initialize_instance()
+        {
+            // Act
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>();
 
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+            // Assert
+            subject.Should().NotBeNull();
+            subject.DictionaryRepresentation.Should().Be(DictionaryRepresentation.Document);
+            subject.KeySerializer.Should().NotBeNull();
+            subject.ValueSerializer.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void IChildSerializerConfigurable_ChildSerializer_should_return_ValueSerializer()
+        {
+            // Arrange
+            var valueSerializer = new Int32Serializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, new StringSerializer(), valueSerializer);
+            var configurable = (IChildSerializerConfigurable)subject;
+
+            // Act
+            var result = configurable.ChildSerializer;
+
+            // Assert
+            result.Should().BeSameAs(valueSerializer);
+        }
+
+        [Fact]
+        public void IChildSerializerConfigurable_WithChildSerializer_should_return_new_instance_with_value_serializer_set()
+        {
+            // Arrange
+            var keySerializer = new StringSerializer();
+            var valueSerializer1 = new Int32Serializer();
+            var valueSerializer2 = new Int32Serializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, keySerializer, valueSerializer1);
+            var configurable = (IChildSerializerConfigurable)subject;
+
+            // Act
+            var result = configurable.WithChildSerializer(valueSerializer2);
+
+            // Assert
+            result.Should().NotBeSameAs(subject);
+            result.Should().BeOfType<DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>>();
+            var typedResult = (DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>)result;
+            typedResult.DictionaryRepresentation.Should().Be(DictionaryRepresentation.Document);
+            typedResult.KeySerializer.Should().BeSameAs(keySerializer);
+            typedResult.ValueSerializer.Should().BeSameAs(valueSerializer2);
+        }
+
+        [Fact]
+        public void IDictionaryRepresentationConfigurable_WithDictionaryRepresentation_should_return_new_instance()
+        {
+            // Arrange
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document);
+            var configurable = (IDictionaryRepresentationConfigurable)subject;
+
+            // Act
+            var result = configurable.WithDictionaryRepresentation(DictionaryRepresentation.ArrayOfDocuments);
+
+            // Assert
+            result.Should().NotBeSameAs(subject);
+            result.Should().BeOfType<DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>>();
+            var typedResult = (DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>)result;
+            typedResult.DictionaryRepresentation.Should().Be(DictionaryRepresentation.ArrayOfDocuments);
+        }
+
+        [Fact]
+        public void IMultipleChildSerializersConfigurable_ChildSerializers_should_return_key_and_value_serializers()
+        {
+            // Arrange
+            var keySerializer = new StringSerializer();
+            var valueSerializer = new Int32Serializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, keySerializer, valueSerializer);
+            var configurable = (IMultipleChildSerializersConfigurable)subject;
+
+            // Act
+            var result = configurable.ChildSerializers;
+
+            // Assert
+            result.Should().HaveCount(2);
+            result[0].Should().BeSameAs(keySerializer);
+            result[1].Should().BeSameAs(valueSerializer);
+        }
+
+        [Fact]
+        public void IMultipleChildSerializersConfigurable_WithChildSerializers_should_return_new_instance()
+        {
+            // Arrange
+            var keySerializer1 = new StringSerializer();
+            var valueSerializer1 = new Int32Serializer();
+            var keySerializer2 = new StringSerializer();
+            var valueSerializer2 = new Int32Serializer(BsonType.String);
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, keySerializer1, valueSerializer1);
+            var configurable = (IMultipleChildSerializersConfigurable)subject;
+
+            // Act
+            var result = configurable.WithChildSerializers([keySerializer2, valueSerializer2]);
+
+            // Assert
+            result.Should().NotBeSameAs(subject);
+            result.Should().BeOfType<DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>>();
+            var typedResult = (DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>)result;
+            typedResult.KeySerializer.Should().BeSameAs(keySerializer2);
+            typedResult.ValueSerializer.Should().BeSameAs(valueSerializer2);
+        }
+
+        [Fact]
+        public void IMultipleChildSerializersConfigurable_WithChildSerializers_should_return_same_instance_when_serializers_are_equal()
+        {
+            // Arrange
+            var keySerializer = new StringSerializer();
+            var valueSerializer = new Int32Serializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, keySerializer, valueSerializer);
+            var configurable = (IMultipleChildSerializersConfigurable)subject;
+
+            // Act
+            var result = configurable.WithChildSerializers([keySerializer, valueSerializer]);
+
+            // Assert
+            result.Should().BeSameAs(subject);
+        }
+
+        [Fact]
+        public void IMultipleChildSerializersConfigurable_WithChildSerializers_should_throw_when_number_of_serializers_is_wrong()
+        {
+            // Arrange
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>();
+            var configurable = (IMultipleChildSerializersConfigurable)subject;
+
+            // Act
+            Action act = () => configurable.WithChildSerializers([new StringSerializer()]);
+
+            // Assert
+            act.ShouldThrow<Exception>().WithMessage("Wrong number of child serializers passed.");
         }
 
         [Fact]
@@ -134,6 +266,164 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.ROD);
             Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
             Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestImmutablePrivateConstructorDictionaryImplementation()
+        {
+            var d = new Dictionary<object, object> { { "A", new C { P = "x" } } };
+            var id = RO<object, object>.ConstructorReplacement(d);
+            var irod = new ReadOnlyDictionary<object, object>(d);
+            var rod = new ReadOnlyDictionary<object, object>(d);
+            var sd = CreateSortedDictionary(d);
+            var sl = CreateSortedList(d);
+            var obj = new T { D = d, ID = id, IROD = irod, ROD = rod, SD = sd, SL = sl };
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var rep = "{ 'A' : { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' } }";
+            var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.IROD);
+            Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.ROD);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestMixedPrimitiveTypes()
+        {
+            var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
+            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
+            var guid = Guid.Empty;
+            string expectedGuidJson = null;
+            var objectId = ObjectId.Empty;
+            var d = new Dictionary<object, object>
+            {
+                { "A", true },
+                { "B", dateTime },
+                { "C", 1.5 },
+                { "D", 1 },
+                { "E", 2L },
+                { "G", objectId },
+                { "H", "x" }
+            };
+            if (expectedGuidJson != null)
+            {
+                d.Add("F", guid);
+            }
+            var rod = new ReadOnlyDictionary<object, object>(d);
+            var sd = CreateSortedDictionary(d);
+            var sl = CreateSortedList(d);
+            var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var reps = new Dictionary<object, object>
+            {
+                { "A", "true" },
+                { "B", string.Format("ISODate('{0}')", isoDate) },
+                { "C", "1.5" },
+                { "D", "1" },
+                { "E", "NumberLong(2)" },
+                { "G", "ObjectId('000000000000000000000000')" },
+                { "H", "'x'" }
+            };
+            if (expectedGuidJson != null)
+            {
+                reps.Add("F", expectedGuidJson);
+            }
+            var htRep = GetDocumentRepresentationInKeyOrder(d, reps);
+            var sdRep = GetDocumentRepresentationInKeyOrder(sd, reps);
+            var slRep = GetDocumentRepresentationInKeyOrder(sl, reps);
+            var expected = "{ 'D' : #D, 'ID' : #D, 'IROD' : #D, 'ROD' : #D, 'SD' : #SD, 'SL' : #SL }"
+                .Replace("#D", htRep)
+                .Replace("#SD", sdRep)
+                .Replace("#SL", slRep)
+                .Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = obj.ToBson(writerSettings: new BsonBinaryWriterSettings());
+            var rehydrated = BsonSerializer.Deserialize<T>(new BsonBinaryReader(new MemoryStream(bson), new BsonBinaryReaderSettings()));
+            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
+            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
+            Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.IROD);
+            Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.ROD);
+            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
+            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson(writerSettings: new BsonBinaryWriterSettings())));
+        }
+
+        [Fact]
+        public void TestMixedPrimitiveTypesWithIntKeys()
+        {
+            var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
+            var guid = Guid.Empty;
+            var objectId = ObjectId.Empty;
+            var d = new Dictionary<object, object>
+            {
+                { 1, true },
+                { 2, dateTime },
+                { 3, 1.5 },
+                { 4, 1 },
+                { 5, 2L },
+                { 6, guid },
+                { 7, objectId },
+                { 8, "x" }
+            };
+            var rod = new ReadOnlyDictionary<object, object>(d);
+            var sd = CreateSortedDictionary(d);
+            var sl = CreateSortedList(d);
+            var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
+        }
+
+        [Fact]
+        public void TestMixedPrimitiveTypesWithMixedKeys()
+        {
+            // note: no SortedDictionary or SortedList in this test because you can't sort a set of keys that have mixed types
+            var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
+            var guid = Guid.Empty;
+            var objectId = ObjectId.Empty;
+            var d = new Dictionary<object, object>
+            {
+                { "A", true },
+                { "B", dateTime },
+                { "C", 1.5 },
+                { "D", 1 },
+                { 4, 2L },
+                { 5.0, guid },
+                { true, objectId },
+                { false, "x" }
+            };
+            var obj = new T { D = d, ID = d, SD = null, SL = null };
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
+        }
+
+        [Fact]
+        public void TestNull()
+        {
+            var obj = new T { D = null, ID = null, IROD = null, ROD = null, SD = null, SL = null };
+            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var rep = "null";
+
+            var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            // 'IROD' : #R, 'ROD' : #R,
+
+            Assert.Equal(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.Null(rehydrated.D);
+            Assert.Null(rehydrated.ID);
+            Assert.Null(rehydrated.IROD);
+            Assert.Null(rehydrated.ROD);
+            Assert.Null(rehydrated.SD);
+            Assert.Null(rehydrated.SL);
+
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -370,137 +660,135 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         }
 
         [Fact]
-        public void TestMixedPrimitiveTypes()
+        public void WithDictionaryRepresentation_with_different_representation_should_return_new_instance()
         {
-            var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ", CultureInfo.InvariantCulture);
-            var guid = Guid.Empty;
-            string expectedGuidJson = null;
-            var objectId = ObjectId.Empty;
-            var d = new Dictionary<object, object>
-            {
-                { "A", true },
-                { "B", dateTime },
-                { "C", 1.5 },
-                { "D", 1 },
-                { "E", 2L },
-                { "G", objectId },
-                { "H", "x" }
-            };
-            if (expectedGuidJson != null)
-            {
-                d.Add("F", guid);
-            }
-            var rod = new ReadOnlyDictionary<object, object>(d);
-            var sd = CreateSortedDictionary(d);
-            var sl = CreateSortedList(d);
-            var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var reps = new Dictionary<object, object>
-            {
-                { "A", "true" },
-                { "B", string.Format("ISODate('{0}')", isoDate) },
-                { "C", "1.5" },
-                { "D", "1" },
-                { "E", "NumberLong(2)" },
-                { "G", "ObjectId('000000000000000000000000')" },
-                { "H", "'x'" }
-            };
-            if (expectedGuidJson != null)
-            {
-                reps.Add("F", expectedGuidJson);
-            }
-            var htRep = GetDocumentRepresentationInKeyOrder(d, reps);
-            var sdRep = GetDocumentRepresentationInKeyOrder(sd, reps);
-            var slRep = GetDocumentRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'D' : #D, 'ID' : #D, 'IROD' : #D, 'ROD' : #D, 'SD' : #SD, 'SL' : #SL }"
-                .Replace("#D", htRep)
-                .Replace("#SD", sdRep)
-                .Replace("#SL", slRep)
-                .Replace("'", "\"");
-            Assert.Equal(expected, json);
+            // Arrange
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(DictionaryRepresentation.Document);
 
-            var bson = obj.ToBson(writerSettings: new BsonBinaryWriterSettings());
-            var rehydrated = BsonSerializer.Deserialize<T>(new BsonBinaryReader(new MemoryStream(bson), new BsonBinaryReaderSettings()));
-            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.IROD);
-            Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.ROD);
-            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson(writerSettings: new BsonBinaryWriterSettings())));
+            // Act
+            var result = subject.WithDictionaryRepresentation(DictionaryRepresentation.ArrayOfDocuments);
+
+            // Assert
+            result.Should().NotBeSameAs(subject);
+            result.DictionaryRepresentation.Should().Be(DictionaryRepresentation.ArrayOfDocuments);
+            result.KeySerializer.Should().BeSameAs(subject.KeySerializer);
+            result.ValueSerializer.Should().BeSameAs(subject.ValueSerializer);
         }
 
         [Fact]
-        public void TestMixedPrimitiveTypesWithIntKeys()
+        public void WithDictionaryRepresentation_with_same_representation_should_return_same_instance()
         {
-            var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var guid = Guid.Empty;
-            var objectId = ObjectId.Empty;
-            var d = new Dictionary<object, object>
-            {
-                { 1, true },
-                { 2, dateTime },
-                { 3, 1.5 },
-                { 4, 1 },
-                { 5, 2L },
-                { 6, guid },
-                { 7, objectId },
-                { 8, "x" }
-            };
-            var rod = new ReadOnlyDictionary<object, object>(d);
-            var sd = CreateSortedDictionary(d);
-            var sl = CreateSortedList(d);
-            var obj = new T { D = d, ID = d, IROD = rod, ROD = rod, SD = sd, SL = sl };
-            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
+            // Arrange
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(DictionaryRepresentation.Document);
+
+            // Act
+            var result = subject.WithDictionaryRepresentation(DictionaryRepresentation.Document);
+
+            // Assert
+            result.Should().BeSameAs(subject);
         }
 
         [Fact]
-        public void TestMixedPrimitiveTypesWithMixedKeys()
+        public void WithDictionaryRepresentation_with_serializers_and_different_representation_should_return_new_instance()
         {
-            // note: no SortedDictionary or SortedList in this test because you can't sort a set of keys that have mixed types
-            var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var guid = Guid.Empty;
-            var objectId = ObjectId.Empty;
-            var d = new Dictionary<object, object>
-            {
-                { "A", true },
-                { "B", dateTime },
-                { "C", 1.5 },
-                { "D", 1 },
-                { 4, 2L },
-                { 5.0, guid },
-                { true, objectId },
-                { false, "x" }
-            };
-            var obj = new T { D = d, ID = d, SD = null, SL = null };
-            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
+            // Arrange
+            var keySerializer = new StringSerializer();
+            var valueSerializer = new Int32Serializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, keySerializer, valueSerializer);
+
+            // Act
+            var result = subject.WithDictionaryRepresentation(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
+
+            // Assert
+            result.Should().NotBeSameAs(subject);
+            result.DictionaryRepresentation.Should().Be(DictionaryRepresentation.ArrayOfDocuments);
+            result.KeySerializer.Should().BeSameAs(keySerializer);
+            result.ValueSerializer.Should().BeSameAs(valueSerializer);
         }
 
         [Fact]
-        public void TestImmutablePrivateConstructorDictionaryImplementation()
+        public void WithDictionaryRepresentation_with_serializers_and_same_values_should_return_same_instance()
         {
-            var d = new Dictionary<object, object> { { "A", new C { P = "x" } } };
-            var id = RO<object, object>.ConstructorReplacement(d);
-            var irod = new ReadOnlyDictionary<object, object>(d);
-            var rod = new ReadOnlyDictionary<object, object>(d);
-            var sd = CreateSortedDictionary(d);
-            var sl = CreateSortedList(d);
-            var obj = new T { D = d, ID = id, IROD = irod, ROD = rod, SD = sd, SL = sl };
-            var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var rep = "{ 'A' : { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' } }";
-            var expected = "{ 'D' : #R, 'ID' : #R, 'IROD' : #R, 'ROD' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.Equal(expected, json);
+            // Arrange
+            var keySerializer = new StringSerializer();
+            var valueSerializer = new Int32Serializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, keySerializer, valueSerializer);
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsType<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsType<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.IROD);
-            Assert.IsType<ReadOnlyDictionary<object, object>>(rehydrated.ROD);
-            Assert.IsType<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsType<SortedList<object, object>>(rehydrated.SL);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+            // Act
+            var result = subject.WithDictionaryRepresentation(DictionaryRepresentation.Document, keySerializer, valueSerializer);
+
+            // Assert
+            result.Should().BeSameAs(subject);
+        }
+
+        [Fact]
+        public void WithKeySerializer_with_different_serializer_should_return_new_instance()
+        {
+            // Arrange
+            var keySerializer1 = new StringSerializer();
+            var keySerializer2 = new StringSerializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, keySerializer1, new Int32Serializer());
+
+            // Act
+            var result = subject.WithKeySerializer(keySerializer2);
+
+            // Assert
+            result.Should().NotBeSameAs(subject);
+            result.DictionaryRepresentation.Should().Be(DictionaryRepresentation.Document);
+            result.KeySerializer.Should().BeSameAs(keySerializer2);
+            result.ValueSerializer.Should().BeSameAs(subject.ValueSerializer);
+        }
+
+        [Fact]
+        public void WithKeySerializer_with_same_serializer_should_return_same_instance()
+        {
+            // Arrange
+            var keySerializer = new StringSerializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, keySerializer, new Int32Serializer());
+
+            // Act
+            var result = subject.WithKeySerializer(keySerializer);
+
+            // Assert
+            result.Should().BeSameAs(subject);
+        }
+
+        [Fact]
+        public void WithValueSerializer_with_different_serializer_should_return_new_instance()
+        {
+            // Arrange
+            var valueSerializer1 = new Int32Serializer();
+            var valueSerializer2 = new Int32Serializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, new StringSerializer(), valueSerializer1);
+
+            // Act
+            var result = subject.WithValueSerializer(valueSerializer2);
+
+            // Assert
+            result.Should().NotBeSameAs(subject);
+            result.DictionaryRepresentation.Should().Be(DictionaryRepresentation.Document);
+            result.KeySerializer.Should().BeSameAs(subject.KeySerializer);
+            result.ValueSerializer.Should().BeSameAs(valueSerializer2);
+        }
+
+        [Fact]
+        public void WithValueSerializer_with_same_serializer_should_return_same_instance()
+        {
+            // Arrange
+            var valueSerializer = new Int32Serializer();
+            var subject = new DictionaryInterfaceImplementerSerializer<Dictionary<string, int>>(
+                DictionaryRepresentation.Document, new StringSerializer(), valueSerializer);
+
+            // Act
+            var result = subject.WithValueSerializer(valueSerializer);
+
+            // Assert
+            result.Should().BeSameAs(subject);
         }
 
         private SortedDictionary<object, object> CreateSortedDictionary(Dictionary<object, object> d)
@@ -523,20 +811,6 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             return sl;
         }
 
-        private string GetArrayRepresentationInKeyOrder(
-            IDictionary<object, object> dictionary,
-            IDictionary<object, object> representations)
-        {
-            var sb = new StringBuilder();
-            foreach (var key in dictionary.Keys)
-            {
-                sb.Append((sb.Length == 0) ? "[" : ", ");
-                sb.Append(representations[key]);
-            }
-            sb.Append("]");
-            return sb.ToString();
-        }
-
         private string GetDocumentRepresentationInKeyOrder(
             IDictionary<object, object> dictionary,
             IDictionary<object, object> representations)
@@ -550,6 +824,28 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             sb.Append(" }");
             return sb.ToString();
         }
+
+        public class RO<TKey, TValue> : ReadOnlyDictionary<TKey, TValue>
+        {
+            private RO(IDictionary<TKey, TValue> dictionary) : base(dictionary)
+            {
+            }
+
+            public static RO<TKey, TValue> ConstructorReplacement(IDictionary<TKey, TValue> dictionary)
+            {
+                return new RO<TKey, TValue>(dictionary);
+            }
+        }
+
+        public class T
+        {
+            public Dictionary<object, object> D { get; set; }
+            public IDictionary<object, object> ID { get; set; }
+            public IReadOnlyDictionary<object, object> IROD { get; set; }
+            public ReadOnlyDictionary<object, object> ROD { get; set; }
+            public SortedDictionary<object, object> SD { get; set; }
+            public SortedList<object, object> SL { get; set; }
+        }
     }
 
     public class EnumDictionaryTests
@@ -559,6 +855,59 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             None,
             A,
             B
+        }
+
+        [Fact]
+        public void TestSerialize1()
+        {
+            C c = new() { Dictionary = new Dictionary<string, E> { { "a", E.A } } };
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var expected = ("{ 'Dictionary' : { \"a\" : \"A\" } }").Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestSerialize2()
+        {
+            D d = new() { Dictionary = new SortedList<string, E> { { "a", E.A }, { "b", E.B } } };
+            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var expected = ("{ 'Dictionary' : { \"a\" : \"A\", \"b\" : \"B\" } }").Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = d.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<D>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestSerializeEmpty()
+        {
+            Dictionary<string, E> value = [];
+            C c = new() { Dictionary = value };
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestSerializeNull()
+        {
+            C c = new() { Dictionary = null };
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         private class C
@@ -573,101 +922,18 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             [BsonRepresentation(BsonType.String)]
             public SortedList<string, E> Dictionary;
         }
-
-        [Fact]
-        public void TestSerializeNull()
-        {
-            C c = new C { Dictionary = null };
-            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
-            Assert.Equal(expected, json);
-
-            var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
-        }
-
-        [Fact]
-        public void TestSerializeEmpty()
-        {
-            C c = new C { Dictionary = new Dictionary<string, E>() };
-            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
-            Assert.Equal(expected, json);
-
-            var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
-        }
-
-        [Fact]
-        public void TestSerialize1()
-        {
-            C c = new C { Dictionary = new Dictionary<string, E> { { "a", E.A } } };
-            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var expected = ("{ 'Dictionary' : { \"a\" : \"A\" } }").Replace("'", "\"");
-            Assert.Equal(expected, json);
-
-            var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
-        }
-
-        [Fact]
-        public void TestSerialize2()
-        {
-            D d = new D { Dictionary = new SortedList<string, E> { { "a", E.A }, { "b", E.B } } };
-            var json = d.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var expected = ("{ 'Dictionary' : { \"a\" : \"A\", \"b\" : \"B\" } }").Replace("'", "\"");
-            Assert.Equal(expected, json);
-
-            var bson = d.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<D>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
-        }
     }
 
     public class StringToObjectIdDictionaryTests
     {
-        private class C
-        {
-            [BsonRepresentation(BsonType.ObjectId)]
-            public Dictionary<string, string> Dictionary;
-        }
+        private static readonly string id1 = "123456789012345678901234";
 
-        private static string id1 = "123456789012345678901234";
-        private static string id2 = "432109876543210987654321";
-
-        [Fact]
-        public void TestSerializeNull()
-        {
-            C c = new C { Dictionary = null };
-            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
-            Assert.Equal(expected, json);
-
-            var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
-        }
-
-        [Fact]
-        public void TestSerializeEmpty()
-        {
-            C c = new C { Dictionary = new Dictionary<string, string>() };
-            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
-            Assert.Equal(expected, json);
-
-            var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
-        }
+        private static readonly string id2 = "432109876543210987654321";
 
         [Fact]
         public void TestSerialize1()
         {
-            C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 } } };
+            C c = new() { Dictionary = new Dictionary<string, string> { { "a", id1 } } };
             var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -680,7 +946,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         [Fact]
         public void TestSerialize2()
         {
-            C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 }, { "b", id2 } } };
+            C c = new() { Dictionary = new Dictionary<string, string> { { "a", id1 }, { "b", id2 } } };
             var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected1 = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\"), \"b\" : ObjectId(\"432109876543210987654321\") } }").Replace("'", "\"");
             var expected2 = ("{ 'Dictionary' : { \"b\" : ObjectId(\"432109876543210987654321\"), \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
@@ -692,6 +958,38 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestSerializeEmpty()
+        {
+            C c = new() { Dictionary = [] };
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestSerializeNull()
+        {
+            C c = new() { Dictionary = null };
+            var json = c.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
+            var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        private class C
+        {
+            [BsonRepresentation(BsonType.ObjectId)]
+            public Dictionary<string, string> Dictionary;
         }
     }
 }
