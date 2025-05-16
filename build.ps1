@@ -89,17 +89,16 @@ if($FoundDotNetCliVersion -ne $DotNetVersion) {
         New-Item -Path $InstallPath -ItemType Directory -Force | Out-Null;
     }
 
-    # N.B. We explicitly install .NET Core 2.1 and 3.1 because .NET 5.0 SDK can build those TFMs
+    # N.B. We explicitly install .NET Core 3.1 because .NET 5.0 SDK can build those TFMs
     #      but will silently upgrade to a more recent runtime to execute tests if the desired runtime
     #      isn't available. For example, `dotnet run --framework netcoreapp3.0` will silently run
     #      on .NET 5.0 if .NET Core 3.0 and 3.1 aren't installed.
-    #      This solution is admittedly hacky as .NET Core 2.1 and 3.1 won't be installed if
+    #      This solution is admittedly hacky as .NET Core 3.1 won't be installed if
     #      $DOTNET_VERSION matches $DOTNET_INSTALLED_VERSION, but it minimizes the changes required
     #      to install required dependencies on Evergreen.
     if ($IsMacOS -or $IsLinux) {
         $ScriptPath = Join-Path $InstallPath 'dotnet-install.sh'
         (New-Object System.Net.WebClient).DownloadFile($DotNetUnixInstallerUri, $ScriptPath);
-        & bash $ScriptPath --install-dir "$InstallPath" --channel 2.1 --no-path
         & bash $ScriptPath --install-dir "$InstallPath" --channel 3.1 --no-path
         & bash $ScriptPath --install-dir "$InstallPath" --channel 5.0 --no-path
         & bash $ScriptPath --install-dir "$InstallPath" --channel 6.0 --no-path
@@ -111,7 +110,6 @@ if($FoundDotNetCliVersion -ne $DotNetVersion) {
     else {
         $ScriptPath = Join-Path $InstallPath 'dotnet-install.ps1'
         (New-Object System.Net.WebClient).DownloadFile($DotNetInstallerUri, $ScriptPath);
-        & $ScriptPath -Channel 2.1 -InstallDir $InstallPath;
         & $ScriptPath -Channel 3.1 -InstallDir $InstallPath;
         & $ScriptPath -Channel 5.0 -InstallDir $InstallPath;
         & $ScriptPath -Channel 6.0 -InstallDir $InstallPath;
