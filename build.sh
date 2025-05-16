@@ -33,18 +33,17 @@ if [ "$DOTNET_VERSION" != "$DOTNET_INSTALLED_VERSION" ]; then
       mkdir "$SCRIPT_DIR/.dotnet"
     fi
     curl -Lfo "$SCRIPT_DIR/.dotnet/dotnet-install.sh" https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.sh
-    # N.B. We explicitly install .NET Core 2.1 and 3.1 because .NET 6.0 SDK can build those TFMs
+    # N.B. We explicitly install .NET Core 3.1 because .NET 6.0 SDK can build those TFMs
     #      but will silently upgrade to a more recent runtime to execute tests if the desired runtime
     #      isn't available. For example, `dotnet run --framework netcoreapp3.0` will silently run
     #      on .NET 6.0 if .NET Core 3.0 and 3.1 aren't installed.
-    #      This solution is admittedly hacky as .NET Core 2.1 and 3.1 won't be installed if
+    #      This solution is admittedly hacky as .NET Core 3.1 won't be installed if
     #      $DOTNET_VERSION matches $DOTNET_INSTALLED_VERSION, but it minimizes the changes required
     #      to install required dependencies on Evergreen.
     #      Since ARM64 support was first added in .NET 6.0, the following commands will install:
     #      | CPU   | 2.1 | 3.1 | Latest |
     #      | x64   | x64 | x64 |    x64 |
     #      | arm64 | x64 | x64 |  arm64 |
-    bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 2.1 --architecture x64 --install-dir .dotnet --no-path
     bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 3.1 --architecture x64 --install-dir .dotnet --no-path
     bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 5.0 --architecture x64 --install-dir .dotnet --no-path
     bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 6.0 --install-dir .dotnet --no-path

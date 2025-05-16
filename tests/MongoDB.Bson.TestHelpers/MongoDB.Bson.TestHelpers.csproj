@@ -12,10 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj" />
     <ProjectReference Include="..\MongoDB.TestHelpers\MongoDB.TestHelpers.csproj" />
   </ItemGroup>

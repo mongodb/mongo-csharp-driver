@@ -117,12 +117,6 @@ Task("Test")
         items: GetFiles("./**/*.Tests.csproj").Where(name => !name.ToString().Contains("Atlas")),
         action: (BuildConfig buildConfig, Path testProject) =>
     {
-        if (Environment.GetEnvironmentVariable("MONGODB_API_VERSION") != null &&
-            testProject.ToString().Contains("Legacy"))
-        {
-            return; // Legacy tests are exempt from Version API testing
-        }
-
         var mongoX509ClientCertificatePath = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH");
         if (mongoX509ClientCertificatePath != null)
         {
