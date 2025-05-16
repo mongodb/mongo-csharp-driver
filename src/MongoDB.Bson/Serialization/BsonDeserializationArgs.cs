@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -23,27 +22,9 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public struct BsonDeserializationArgs
     {
-        // private fields
-        private Type _nominalType;
-
-        // constructors
-        private BsonDeserializationArgs(
-            Type nominalType)
-        {
-            _nominalType = nominalType;
-        }
-
-        // public properties
         /// <summary>
         /// Gets or sets the nominal type.
         /// </summary>
-        /// <value>
-        /// The nominal type.
-        /// </value>
-        public Type NominalType
-        {
-            get { return _nominalType; }
-            set { _nominalType = value; }
-        }
+        public Type NominalType { get; set; }
     }
 }
