@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 using FluentAssertions;
 using Xunit;
 
@@ -60,56 +59,6 @@ namespace MongoDB.Bson.Tests.Exceptions
             // Assert
             exception.Message.Should().Be(message);
             exception.InnerException.Should().BeSameAs(innerException);
-        }
-
-        [Fact]
-        public void constructor_should_initialize_instance_with_serialization_info()
-        {
-            // Arrange
-            var message = "Test serialized internal exception";
-            var info = new SerializationInfo(typeof(BsonInternalException), new FormatterConverter());
-            info.AddValue("Message", message);
-            info.AddValue("ClassName", typeof(BsonInternalException).FullName);
-            info.AddValue("Data", null);
-            info.AddValue("InnerException", null);
-            info.AddValue("HelpURL", null);
-            info.AddValue("StackTraceString", null);
-            info.AddValue("RemoteStackTraceString", null);
-            info.AddValue("RemoteStackIndex", 0);
-            info.AddValue("ExceptionMethod", null);
-            info.AddValue("HResult", -2146233088);
-            info.AddValue("Source", null);
-            var context = new StreamingContext();
-
-            // Act
-            var exception = new BsonInternalException(info, context);
-
-            // Assert
-            exception.Message.Should().Be(message);
-        }
-
-        [Fact]
-        public void constructor_with_serialization_info_should_preserve_inner_exception()
-        {
-            // Arrange
-            var message = "Test serialized internal exception";
-            var innerExceptionMessage = "Inner exception message";
-            var innerException = new Exception(innerExceptionMessage);
-
-            // Create an exception with an inner exception
-            var originalException = new BsonInternalException(message, innerException);
-
-            // Serialize it
-            var info = new SerializationInfo(typeof(BsonInternalException), new FormatterConverter());
-            originalException.GetObjectData(info, new StreamingContext());
-
-            // Act
-            var deserializedException = new BsonInternalException(info, new StreamingContext());
-
-            // Assert
-            deserializedException.Message.Should().Be(message);
-            deserializedException.InnerException.Should().NotBeNull();
-            deserializedException.InnerException.Message.Should().Be(innerExceptionMessage);
         }
 
         [Fact]

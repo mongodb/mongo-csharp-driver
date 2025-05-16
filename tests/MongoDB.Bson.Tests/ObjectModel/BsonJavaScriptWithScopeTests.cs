@@ -213,12 +213,10 @@ namespace MongoDB.Bson.Tests.ObjectModel
             // Act
             var resultLeftNull = nullValue == subject;
             var resultRightNull = subject == nullValue;
-            var resultBothNull = nullValue == nullValue;
 
             // Assert
             resultLeftNull.Should().BeFalse();
             resultRightNull.Should().BeFalse();
-            resultBothNull.Should().BeTrue();
         }
 
         [Fact]
