@@ -2259,7 +2259,6 @@ buildvariants:
   expansions:
     OS: "macos-14-arm64"
   tasks:
-    - name: unit-tests-netstandard21
     - name: unit-tests-net60
 
 - matrix_name: stable-api-tests
