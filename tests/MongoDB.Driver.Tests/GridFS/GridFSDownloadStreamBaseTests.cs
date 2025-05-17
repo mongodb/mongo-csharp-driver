@@ -146,6 +146,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void CopyTo_should_copy_stream(
             [Values(0.0, 0.5, 1.0, 1.5, 2.0, 2.5)] double contentSizeMultiple,
             [Values(null, 128)] int? bufferSize,
@@ -219,6 +220,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void Flush_should_not_throw(
             [Values(false, true)] bool async)
         {

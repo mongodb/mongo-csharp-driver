@@ -29,6 +29,7 @@ using MongoDB.Bson.TestHelpers;
 
 namespace MongoDB.Driver.Core.Connections
 {
+    [Trait("Category", "Integration")]
     public class TcpStreamFactoryTests
     {
         [Theory]

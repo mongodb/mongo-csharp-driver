@@ -21,6 +21,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
+    [Trait("Category", "Integration")]
     public class CSharp2308Tests
     {
         [Fact]

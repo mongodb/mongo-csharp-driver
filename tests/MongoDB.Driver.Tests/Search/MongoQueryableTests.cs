@@ -22,6 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Search
 {
+    [Trait("Category", "Integration")]
     public class MongoQueryableTests
     {
         [Fact]

@@ -380,6 +380,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void CreateCollection_should_execute_a_CreateCollectionOperation_when_options_is_generic(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool clustered,
@@ -881,6 +882,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void ListCollectionNames_should_return_expected_result(
             [Values(0, 1, 2, 10)] int numberOfCollections,
             [Values(null, false, true)] bool? usingAuthorizedCollections,

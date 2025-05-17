@@ -224,6 +224,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
+        [Trait("Category", "Integration")]
         public void StartTransaction_should_throw_when_write_concern_is_unacknowledged()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet).Supports(Feature.Transactions);

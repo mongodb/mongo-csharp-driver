@@ -23,6 +23,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class ListDatabasesTests
     {
         private string _databaseName = $"authorizedDatabases{Guid.NewGuid()}";

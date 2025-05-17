@@ -27,6 +27,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class PipelineStageDefinitionBuilderTests
     {
         // public methods
@@ -150,15 +151,15 @@ namespace MongoDB.Driver.Tests
 
             var stage = RenderStage(result);
             stage.Document.Should().Be("""
-                                       { 
-                                        "$geoNear" : { 
-                                                "near" : [34.0, 67.0], 
-                                                "distanceField" : "calculatedDistance", 
-                                                "maxDistance" : 3.0, 
-                                                "query" : { "testfield" : "testvalue" }, 
-                                                "includeLocs" : "usedLocation", 
-                                                "spherical" : true 
-                                            } 
+                                       {
+                                        "$geoNear" : {
+                                                "near" : [34.0, 67.0],
+                                                "distanceField" : "calculatedDistance",
+                                                "maxDistance" : 3.0,
+                                                "query" : { "testfield" : "testvalue" },
+                                                "includeLocs" : "usedLocation",
+                                                "spherical" : true
+                                            }
                                        }
                                        """);
         }
@@ -179,15 +180,15 @@ namespace MongoDB.Driver.Tests
 
             var stage = RenderStage(result);
             stage.Document.Should().Be("""
-                                       { 
-                                        "$geoNear" : { 
-                                                "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] }, 
-                                                "distanceField" : "calculatedDistance", 
-                                                "maxDistance" : 3.0, 
-                                                "query" : { "testfield" : "testvalue" }, 
-                                                "includeLocs" : "usedLocation", 
-                                                "spherical" : true 
-                                            } 
+                                       {
+                                        "$geoNear" : {
+                                                "near" : { "type" : "Point", "coordinates" : [34.0, 67.0] },
+                                                "distanceField" : "calculatedDistance",
+                                                "maxDistance" : 3.0,
+                                                "query" : { "testfield" : "testvalue" },
+                                                "includeLocs" : "usedLocation",
+                                                "spherical" : true
+                                            }
                                        }
                                        """);
         }
@@ -389,6 +390,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("database2", "collection2", "{ $merge : { into : { db : 'database2', coll : 'collection2' } } }")]
         public void Merge_with_default_options_should_return_the_expected_result(string outputDatabaseName, string outputCollectionName, string expectedStage)
         {
+            RequireServer.Check();
+
             var client = DriverTestConfiguration.Client;
             var outputDatabase = client.GetDatabase(outputDatabaseName);
             var outputCollection = outputDatabase.GetCollection<BsonDocument>(outputCollectionName);
@@ -406,6 +409,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("{ a : 1, b : 2 }", "{ $merge : { into : { db : 'database', coll : 'collection' }, let : { a : 1, b : 2 }, whenMatched : [{ $project : { _id : '$_id' } }] } }")]
         public void Merge_with_LetVariables_should_return_the_expected_result(string letVariables, string expectedStage)
         {
+            RequireServer.Check();
+
             var client = DriverTestConfiguration.Client;
             var outputDatabase = client.GetDatabase("database");
             var outputCollection = outputDatabase.GetCollection<BsonDocument>("collection");
@@ -427,6 +432,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("a,b", "{ $merge : { into : { db : 'database', coll : 'collection' }, on : ['a', 'b'] } }")]
         public void Merge_with_OnFieldNames_should_return_the_expected_result(string fieldNames, string expectedStage)
         {
+            RequireServer.Check();
+
             var client = DriverTestConfiguration.Client;
             var outputDatabase = client.GetDatabase("database");
             var outputCollection = outputDatabase.GetCollection<BsonDocument>("collection");
@@ -446,6 +453,8 @@ namespace MongoDB.Driver.Tests
         [InlineData(MergeStageWhenMatched.Replace, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenMatched : 'replace' } }")]
         public void Merge_with_WhenMatched_should_return_the_expected_result(MergeStageWhenMatched whenMatched, string expectedStage)
         {
+            RequireServer.Check();
+
             var client = DriverTestConfiguration.Client;
             var outputDatabase = client.GetDatabase("database");
             var outputCollection = outputDatabase.GetCollection<BsonDocument>("collection");
@@ -467,6 +476,8 @@ namespace MongoDB.Driver.Tests
         [InlineData(MergeStageWhenNotMatched.Insert, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenNotMatched : 'insert' } }")]
         public void Merge_with_WhenNotMatched_should_return_the_expected_result(MergeStageWhenNotMatched whenNotMatched, string expectedStage)
         {
+            RequireServer.Check();
+
             var client = DriverTestConfiguration.Client;
             var outputDatabase = client.GetDatabase("database");
             var outputCollection = outputDatabase.GetCollection<BsonDocument>("collection");

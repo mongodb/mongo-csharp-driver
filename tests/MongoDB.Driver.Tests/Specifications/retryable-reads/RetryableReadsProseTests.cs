@@ -33,6 +33,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 {
+    [Trait("Category", "Integration")]
     public class RetryableReadsProseTests
     {
         [Theory]

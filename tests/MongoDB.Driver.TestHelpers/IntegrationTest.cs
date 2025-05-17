@@ -20,7 +20,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    [IntegrationTest]
+    [Trait("Category", "Integration")]
     public abstract class IntegrationTest<TFixture> : IClassFixture<TFixture>
         where TFixture : MongoDatabaseFixture
     {

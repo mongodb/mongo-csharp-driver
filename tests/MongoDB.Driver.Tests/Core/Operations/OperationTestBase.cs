@@ -30,6 +30,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    [Trait("Category", "Integration")]
     public abstract class OperationTestBase : IDisposable
     {
         private protected IClusterInternal _cluster;

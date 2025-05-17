@@ -883,6 +883,7 @@ namespace MongoDB.Driver.Core.Servers
         }
     }
 
+    [Trait("Category", "Integration")]
     public class ServerChannelTests
     {
         [Theory]

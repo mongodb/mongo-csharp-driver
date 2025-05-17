@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
     public class WireVersionTests
     {
         [Fact]
+        [Trait("Category", "Integration")]
         public void Server_maxWireVersion_should_be_in_supported_range()
         {
             RequireServer.Check().StableServer(stable: true);

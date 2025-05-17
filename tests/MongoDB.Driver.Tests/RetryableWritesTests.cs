@@ -30,6 +30,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class RetryableWritesTests : LoggableTestClass
     {
         // public constructors

@@ -2,6 +2,7 @@
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
+    <IsTestProject>false</IsTestProject>
     <CodeAnalysisRuleSet>..\..\MongoDBLegacyTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 

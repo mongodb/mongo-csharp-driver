@@ -128,7 +128,7 @@ Task("Test")
             Console.WriteLine($"MONGO_X509_CLIENT_CERTIFICATE_PASSWORD={mongoX509ClientCertificatePassword}");
         }
 
-        RunTests(buildConfig, testProject);
+        RunTests(buildConfig, testProject, filter: "Category=\"Integration\"");
     })
     .DeferOnError();
 

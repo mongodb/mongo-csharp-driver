@@ -34,6 +34,7 @@ using Xunit.Abstractions;
 namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 {
     [Trait("Category", "Serverless")]
+    [Trait("Category", "Integration")]
     public class CrudProseTests : LoggableTestClass
     {
         // public constructors

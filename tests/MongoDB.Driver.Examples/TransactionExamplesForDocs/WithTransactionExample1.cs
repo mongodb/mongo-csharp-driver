@@ -23,6 +23,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
 {
+    [Trait("Category", "Integration")]
     public class WithTransactionExample1
     {
         [Fact]

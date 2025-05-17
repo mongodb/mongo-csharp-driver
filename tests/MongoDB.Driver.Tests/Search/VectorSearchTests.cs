@@ -28,6 +28,7 @@ using Xunit.Abstractions;
 namespace MongoDB.Driver.Tests.Search
 {
     [Trait("Category", "AtlasSearch")]
+    [Trait("Category", "Integration")]
     public class VectorSearchTests : LoggableTestClass
     {
         private readonly IMongoClient _mongoClient;

@@ -954,6 +954,7 @@ namespace MongoDB.Driver.Tests
         }
     }
 
+    [Trait("Category", "Integration")]
     public class OfTypeCollectionIntegrationTests : IDisposable
     {
         private readonly IMongoCollection<BsonDocument> _docsCollection;

@@ -31,6 +31,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class ClientDocumentHelperTests
     {
         private static readonly string __longAString = new string('a', 512);

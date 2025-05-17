@@ -22,6 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
 {
+    [Trait("Category", "Integration")]
     public class ImplicitEncodingTests
     {
         [Fact]

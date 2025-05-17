@@ -55,6 +55,7 @@ using OperatingSystemPlatform  = MongoDB.Driver.Core.Misc.OperatingSystemPlatfor
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
     [Trait("Category", "CSFLE")]
+    [Trait("Category", "Integration")]
     public class ClientEncryptionProseTests : LoggableTestClass
     {
         #region static
