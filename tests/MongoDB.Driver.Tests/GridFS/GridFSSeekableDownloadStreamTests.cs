@@ -94,6 +94,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
         [Theory]
         [ParameterAttributeData]
+        [Trait("Category", "Integration")]
         public void Read_should_return_expected_result(
             [Values(0.0, 0.5, 1.0, 1.5, 2.0, 2.5)] double fileLengthMultiple,
             [Values(0.0, 0.5)] double positionMultiple,

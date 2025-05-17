@@ -32,6 +32,7 @@ using Xunit.Sdk;
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
     [Trait("Category", "Serverless")]
+    [Trait("Category", "Integration")]
     public class CrudTestRunner : LoggableTestClass
     {
         #region static

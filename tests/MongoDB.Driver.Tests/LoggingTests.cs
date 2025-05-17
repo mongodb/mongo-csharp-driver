@@ -21,12 +21,12 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class LoggingTests : LoggableTestClass
     {
         public LoggingTests(ITestOutputHelper output) : base(output, includeAllCategories: true)
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests
                 : new LoggingSettings(LoggerFactory, maxDocumentSize.Value);
             using (var client = DriverTestConfiguration.CreateMongoClient(loggingSettings))
             {
-                
+
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
 
                 try

@@ -19,10 +19,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 {
+    [Trait("Category", "Integration")]
     public class MongoQueryableEnumComparedToEnumWithStringRepresentationTests
     {
         private static readonly IMongoClient __client;

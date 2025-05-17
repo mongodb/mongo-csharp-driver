@@ -32,6 +32,7 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications
 {
+    [Trait("Category", "Integration")]
     public class UnifiedTestSpecRunner : LoggableTestClass
     {
         public UnifiedTestSpecRunner(ITestOutputHelper testOutputHelper)

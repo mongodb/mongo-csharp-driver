@@ -18,9 +18,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 {
+    [Trait("Category", "Integration")]
     public abstract class IntegrationTestBase
     {
         protected static IMongoCollection<Root> __collection;

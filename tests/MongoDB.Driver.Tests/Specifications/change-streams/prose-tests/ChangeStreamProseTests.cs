@@ -25,6 +25,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.change_streams.prose_tests
 {
+    [Trait("Category", "Integration")]
     public class ChangeStreamProseTests : LoggableTestClass
     {
         public ChangeStreamProseTests(ITestOutputHelper testOutputHelper)

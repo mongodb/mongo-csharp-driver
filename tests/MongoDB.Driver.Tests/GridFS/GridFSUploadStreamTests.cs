@@ -27,6 +27,7 @@ using MongoDB.Driver.GridFS;
 
 namespace MongoDB.Driver.Tests.GridFS
 {
+    [Trait("Category", "Integration")]
     public class GridFSUploadStreamTests
     {
         // public methods

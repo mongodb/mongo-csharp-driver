@@ -32,13 +32,13 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
     [Trait("Category", "SDAM")]
+    [Trait("Category", "Integration")]
     public class ServerDiscoveryAndMonitoringProseTests
     {
         [Fact]

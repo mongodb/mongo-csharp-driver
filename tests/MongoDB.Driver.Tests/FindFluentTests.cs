@@ -303,8 +303,6 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_return_the_correct_string()
         {
-            RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-
             var subject = CreateSubject();
             subject.Filter = new BsonDocument("Age", 20);
             subject.Options.Collation = new Collation("en_US");
@@ -325,7 +323,7 @@ namespace MongoDB.Driver.Tests
 
             var str = find.ToString();
 
-            var expectedProjection = 
+            var expectedProjection =
                 "{ \"_v\" : { \"$concat\" : [\"$FirstName\", \" \", \"$LastName\"] }, \"_id\" : 0 }";
 
             str.Should().Be(

@@ -44,6 +44,7 @@ using Xunit;
 namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 {
     [Trait("Category", "Pool")]
+    [Trait("Category", "Integration")]
     public class ConnectionMonitoringAndPoolingTestRunner
     {
         #region static

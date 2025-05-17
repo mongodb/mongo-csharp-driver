@@ -37,6 +37,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class ClusterTests : LoggableTestClass
     {
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>

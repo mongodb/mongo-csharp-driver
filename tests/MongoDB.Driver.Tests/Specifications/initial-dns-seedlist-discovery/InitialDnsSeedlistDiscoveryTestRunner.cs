@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
 {
     [Trait("Category", "ConnectionString")]
     [Trait("Category", "SupportLoadBalancing")]
+    [Trait("Category", "Integration")]
     public class InitialDnsSeedlistDiscoveryTestRunner
     {
         [Theory]

@@ -1110,6 +1110,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        [Trait("Category", "Integration")]
         public void TestSocketConfigurator()
         {
             RequireServer.Check();

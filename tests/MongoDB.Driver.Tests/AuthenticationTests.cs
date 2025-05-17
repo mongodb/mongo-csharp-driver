@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Tests
     /// <summary>
     /// Authentication integration tests.
     /// </summary>
+    [Trait("Category", "Integration")]
     public class AuthenticationTests
     {
         [Theory]
