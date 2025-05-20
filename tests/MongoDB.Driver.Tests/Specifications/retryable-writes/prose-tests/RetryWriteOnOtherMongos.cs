@@ -29,7 +29,6 @@ using Xunit;
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 {
     [Trait("Category", "Integration")]
-
     public class RetryWriteOnOtherMongos
     {
         [Fact]
