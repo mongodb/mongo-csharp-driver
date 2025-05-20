@@ -20,24 +20,29 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 {
-    internal interface IEnumUnderlyingTypeSerializer
+    internal interface IEnumAsIntegralTypeSerializer
     {
         IBsonSerializer EnumSerializer { get; }
     }
 
-    internal class EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : StructSerializerBase<TEnumUnderlyingType>, IEnumUnderlyingTypeSerializer
+    internal class EnumAsIntegralTypeSerializer<TEnum, TEnumUnderlyingType, TIntegralType> : StructSerializerBase<TIntegralType>, IEnumAsIntegralTypeSerializer
         where TEnum : Enum
         where TEnumUnderlyingType : struct
+        where TIntegralType : struct
     {
         // private fields
         private readonly IBsonSerializer<TEnum> _enumSerializer;
 
         // constructors
-        public EnumUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
+        public EnumAsIntegralTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
         {
             if (typeof(TEnumUnderlyingType) != Enum.GetUnderlyingType(typeof(TEnum)))
             {
                 throw new ArgumentException($"{typeof(TEnumUnderlyingType).FullName} is not the underlying type of {typeof(TEnum).FullName}.");
+            }
+            if (typeof(TIntegralType) != typeof(int) && typeof(TIntegralType) != typeof(long) && typeof(TIntegralType) != typeof(uint) && typeof(TIntegralType) != typeof(ulong))
+            {
+                throw new ArgumentException($"{typeof(TIntegralType).FullName} is not an integral type");
             }
             _enumSerializer = Ensure.IsNotNull(enumSerializer, nameof(enumSerializer));
         }
@@ -46,13 +51,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         public IBsonSerializer<TEnum> EnumSerializer => _enumSerializer;
 
         // explicitly implemented properties
-        IBsonSerializer IEnumUnderlyingTypeSerializer.EnumSerializer => EnumSerializer;
+        IBsonSerializer IEnumAsIntegralTypeSerializer.EnumSerializer => EnumSerializer;
 
         // public methods
-        public override TEnumUnderlyingType Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        public override TIntegralType Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var enumValue = _enumSerializer.Deserialize(context);
-            return (TEnumUnderlyingType)(object)enumValue;
+            return (TIntegralType)(object)enumValue;
         }
 
         /// <inheritdoc/>
@@ -62,28 +67,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             if (object.ReferenceEquals(this, obj)) { return true; }
             return
                 base.Equals(obj) &&
-                obj is EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> other &&
+                obj is EnumAsIntegralTypeSerializer<TEnum, TEnumUnderlyingType, TIntegralType> other &&
                 object.Equals(_enumSerializer, other._enumSerializer);
         }
 
         /// <inheritdoc/>
         public override int GetHashCode() => _enumSerializer.GetHashCode();
 
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TEnumUnderlyingType value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TIntegralType value)
         {
-            var enumValue = (TEnum)(object)value;
+            var underlyingTypeValue = (TEnumUnderlyingType)Convert.ChangeType(value, typeof(TEnumUnderlyingType));
+            var enumValue = (TEnum)(object)underlyingTypeValue;
             _enumSerializer.Serialize(context, enumValue);
         }
     }
 
-    internal static class EnumUnderlyingTypeSerializer
+    internal static class EnumAsIntegralTypeSerializer
     {
-        public static IBsonSerializer Create(IBsonSerializer enumSerializer)
+        public static IBsonSerializer Create(IBsonSerializer enumSerializer, Type enumUnderlyingType, Type integralType)
         {
             var enumType = enumSerializer.ValueType;
-            var underlyingType = Enum.GetUnderlyingType(enumType);
-            var enumUnderlyingTypeSerializerType = typeof(EnumUnderlyingTypeSerializer<,>).MakeGenericType(enumType, underlyingType);
-            return (IBsonSerializer)Activator.CreateInstance(enumUnderlyingTypeSerializerType, enumSerializer);
+            var enumAsIntegralTypeSerializerType = typeof(EnumAsIntegralTypeSerializer<,,>).MakeGenericType(enumType, enumUnderlyingType, integralType);
+            return (IBsonSerializer)Activator.CreateInstance(enumAsIntegralTypeSerializerType, enumSerializer);
         }
     }
 }
