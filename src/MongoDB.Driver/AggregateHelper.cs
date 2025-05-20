@@ -27,7 +27,7 @@ namespace MongoDB.Driver
 
             var lastStage = renderedPipeline.Documents.LastOrDefault();
             var lastStageName = lastStage?.GetElement(0).Name;
-            isAggregateToCollection = lastStage != null && (lastStageName == "$out" || lastStageName == "$merge");
+            isAggregateToCollection = lastStageName == "$out" || lastStageName == "$merge";
 
             return renderedPipeline;
         }

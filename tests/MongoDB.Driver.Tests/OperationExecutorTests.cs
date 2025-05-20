@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests
     {
         [Theory]
         [ParameterAttributeData]
-        public async Task StartImplicitSessionTests([Values(true, false)]bool isAsync)
+        public async Task StartImplicitSession_should_call_cluster([Values(true, false)]bool isAsync)
         {
             var subject = CreateSubject(out var clusterMock, out _);
             if (isAsync)
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [MemberData(nameof(ImplicitSessionTestCases))]
-        public async Task ExecuteReadOperationShouldStartAndDisposeImplicitSessionIfNeeded(bool shouldCreateSession, bool isAsync, IClientSessionHandle session)
+        public async Task ExecuteReadOperation_should_start_and_dispose_implicit_session_if_needed(bool shouldCreateSession, bool isAsync, IClientSessionHandle session)
         {
             var subject = CreateSubject(out var clusterMock, out var implicitSessionMock);
             var readOperation = Mock.Of<IReadOperation<object>>();
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [MemberData(nameof(ImplicitSessionTestCases))]
-        public async Task ExecuteWriteOperationShouldStartAndDisposeImplicitSessionIfNeeded(bool shouldCreateSession, bool isAsync, IClientSessionHandle session)
+        public async Task ExecuteWriteOperation_should_start_and_dispose_implicit_session_if_needed(bool shouldCreateSession, bool isAsync, IClientSessionHandle session)
         {
             var subject = CreateSubject(out var clusterMock, out var implicitSessionMock);
             var writeOperation = Mock.Of<IWriteOperation<object>>();

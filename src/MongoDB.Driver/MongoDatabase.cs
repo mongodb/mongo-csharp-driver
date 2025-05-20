@@ -325,9 +325,11 @@ namespace MongoDB.Driver
 
         public IAsyncCursor<string> ListCollectionNames(ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default)
         {
-            var cursor = OperationExecutor.ExecuteReadOperation(CreateListCollectionNamesOperation(options),
+            var cursor = OperationExecutor.ExecuteReadOperation(
+                CreateListCollectionNamesOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
-                null, cancellationToken);
+                null,
+                cancellationToken);
             return new BatchTransformingAsyncCursor<BsonDocument, string>(cursor, ExtractCollectionNames);
         }
 

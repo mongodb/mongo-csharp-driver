@@ -67,8 +67,8 @@ namespace MongoDB.Driver
 
             _cluster = _settings.ClusterSource.Get(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor(this);
-            _readOperationOptions = new ReadOperationOptions(DefaultReadPreference: _settings.ReadPreference);
-            _writeOperationOptions = new WriteOperationOptions();
+            _readOperationOptions = new(DefaultReadPreference: _settings.ReadPreference);
+            _writeOperationOptions = new();
 
             if (settings.AutoEncryptionOptions != null)
             {
@@ -121,6 +121,7 @@ namespace MongoDB.Driver
         // internal methods
         internal void ConfigureAutoEncryptionMessageEncoderSettings(MessageEncoderSettings messageEncoderSettings)
         {
+            ThrowIfDisposed();
             var autoEncryptionOptions = _settings.AutoEncryptionOptions;
             if (autoEncryptionOptions != null)
             {

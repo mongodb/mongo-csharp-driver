@@ -37,7 +37,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken)
         {
-            bool isOwnSession = session == null;
+            var isOwnSession = session == null;
             session ??= StartImplicitSession(cancellationToken);
 
             try
@@ -61,7 +61,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken)
         {
-            bool isOwnSession = session == null;
+            var isOwnSession = session == null;
             session ??= await StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
 
             try
@@ -85,7 +85,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken)
         {
-            bool isOwnSession = session == null;
+            var isOwnSession = session == null;
             session ??= StartImplicitSession(cancellationToken);
 
             try
@@ -108,7 +108,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken)
         {
-            bool isOwnSession = session == null;
+            var isOwnSession = session == null;
             session ??= await StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
 
             try
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         private IClientSessionHandle StartImplicitSession()
         {
             var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
-            ICoreSessionHandle coreSession = _client.GetClusterInternal().StartSession(options.ToCore(isImplicit: true));
+            var coreSession = _client.GetClusterInternal().StartSession(options.ToCore(isImplicit: true));
             return new ClientSessionHandle(_client, options, coreSession);
         }
     }
