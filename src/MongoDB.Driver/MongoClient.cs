@@ -116,7 +116,6 @@ namespace MongoDB.Driver
 
         // internal properties
         internal IAutoEncryptionLibMongoCryptController LibMongoCryptController => ThrowIfDisposed(_libMongoCryptController);
-        internal IOperationExecutor OperationExecutor => ThrowIfDisposed(_operationExecutor);
 
         // internal methods
         internal void ConfigureAutoEncryptionMessageEncoderSettings(MessageEncoderSettings messageEncoderSettings)
@@ -136,14 +135,14 @@ namespace MongoDB.Driver
         // public methods
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperation<ClientBulkWriteResult>(
+            => _operationExecutor.ExecuteWriteOperation<ClientBulkWriteResult>(
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperation<ClientBulkWriteResult>(
+            => _operationExecutor.ExecuteWriteOperation<ClientBulkWriteResult>(
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -151,14 +150,14 @@ namespace MongoDB.Driver
 
         /// <inheritdoc/>
         public Task<ClientBulkWriteResult> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperationAsync<ClientBulkWriteResult>(
+            => _operationExecutor.ExecuteWriteOperationAsync<ClientBulkWriteResult>(
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
         public Task<ClientBulkWriteResult> BulkWriteAsync(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperationAsync<ClientBulkWriteResult>(
+            => _operationExecutor.ExecuteWriteOperationAsync<ClientBulkWriteResult>(
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -183,6 +182,7 @@ namespace MongoDB.Driver
                 {
                     _logger?.LogDebug(_cluster.ClusterId, "MongoClient disposing");
 
+                    _operationExecutor.Dispose();
                     _settings.ClusterSource.Return(_cluster);
                     _libMongoCryptController?.Dispose();
 
@@ -195,14 +195,14 @@ namespace MongoDB.Driver
 
         /// <inheritdoc/>
         public void DropDatabase(string name, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperation(
+            => _operationExecutor.ExecuteWriteOperation(
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
         public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperation(
+            => _operationExecutor.ExecuteWriteOperation(
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -210,14 +210,14 @@ namespace MongoDB.Driver
 
         /// <inheritdoc/>
         public Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperationAsync(
+            => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
         public Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperationAsync(
+            => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -301,7 +301,7 @@ namespace MongoDB.Driver
 
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
                 cancellationToken: cancellationToken);
@@ -310,7 +310,7 @@ namespace MongoDB.Driver
         public IAsyncCursor<BsonDocument> ListDatabases(
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
                 cancellationToken: cancellationToken);
@@ -319,7 +319,7 @@ namespace MongoDB.Driver
         public IAsyncCursor<BsonDocument> ListDatabases(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -330,7 +330,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -338,7 +338,7 @@ namespace MongoDB.Driver
 
         /// <inheritdoc/>
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
                 cancellationToken: cancellationToken);
@@ -347,7 +347,7 @@ namespace MongoDB.Driver
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
                 cancellationToken: cancellationToken);
@@ -356,7 +356,7 @@ namespace MongoDB.Driver
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -367,7 +367,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -394,7 +394,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 cancellationToken: cancellationToken);
@@ -405,7 +405,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -416,7 +416,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 cancellationToken: cancellationToken);
@@ -427,7 +427,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -442,7 +442,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.ReadConcern = readConcern;
-            return new MongoClient(_operationExecutor, newSettings);
+            return new MongoClient(newSettings);
         }
 
         /// <inheritdoc/>
@@ -454,7 +454,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.ReadPreference = readPreference;
-            return new MongoClient(_operationExecutor, newSettings);
+            return new MongoClient(newSettings);
         }
 
         /// <inheritdoc/>
@@ -466,7 +466,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.WriteConcern = writeConcern;
-            return new MongoClient(_operationExecutor, newSettings);
+            return new MongoClient(newSettings);
         }
 
         // private methods

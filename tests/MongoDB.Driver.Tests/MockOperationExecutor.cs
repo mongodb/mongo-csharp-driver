@@ -48,6 +48,10 @@ namespace MongoDB.Driver.Tests
             get { return _calls.Count; }
         }
 
+        public void Dispose()
+        {
+        }
+
         public void EnqueueResult<TResult>(TResult result)
         {
             _results.Enqueue(result);

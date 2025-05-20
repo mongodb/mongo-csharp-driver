@@ -13,13 +13,14 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
-    internal interface IOperationExecutor
+    internal interface IOperationExecutor : IDisposable
     {
         TResult ExecuteReadOperation<TResult>(
             IReadOperation<TResult> operation,

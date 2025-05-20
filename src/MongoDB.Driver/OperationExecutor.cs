@@ -25,10 +25,16 @@ namespace MongoDB.Driver
     internal sealed class OperationExecutor : IOperationExecutor
     {
         private readonly IMongoClient _client;
+        private bool _isDisposed;
 
         public OperationExecutor(IMongoClient client)
         {
             _client = client;
+        }
+
+        public void Dispose()
+        {
+            _isDisposed = true;
         }
 
         public TResult ExecuteReadOperation<TResult>(
@@ -37,6 +43,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken)
         {
+            ThrowIfDisposed();
             var isOwnSession = session == null;
             session ??= StartImplicitSession(cancellationToken);
 
@@ -61,6 +68,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken)
         {
+            ThrowIfDisposed();
             var isOwnSession = session == null;
             session ??= await StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
 
@@ -85,6 +93,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken)
         {
+            ThrowIfDisposed();
             var isOwnSession = session == null;
             session ??= StartImplicitSession(cancellationToken);
 
@@ -108,6 +117,7 @@ namespace MongoDB.Driver
             IClientSessionHandle session,
             CancellationToken cancellationToken)
         {
+            ThrowIfDisposed();
             var isOwnSession = session == null;
             session ??= await StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
 
@@ -126,10 +136,16 @@ namespace MongoDB.Driver
         }
 
         public IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
-            => StartImplicitSession();
+        {
+            ThrowIfDisposed();
+            return StartImplicitSession();
+        }
 
         public Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
-            => Task.FromResult(StartImplicitSession());
+        {
+            ThrowIfDisposed();
+            return Task.FromResult(StartImplicitSession());
+        }
 
         private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference)
         {
@@ -153,6 +169,14 @@ namespace MongoDB.Driver
             var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
             var coreSession = _client.GetClusterInternal().StartSession(options.ToCore(isImplicit: true));
             return new ClientSessionHandle(_client, options, coreSession);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(OperationExecutor));
+            }
         }
     }
 }

@@ -59,13 +59,12 @@ namespace MongoDB.Driver
         // public properties
         public IMongoClient Client => _client;
         public DatabaseNamespace DatabaseNamespace => _databaseNamespace;
-        private IOperationExecutor OperationExecutor => _operationExecutor;
         public MongoDatabaseSettings Settings => _settings;
 
         // public methods
         public IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            using var session = OperationExecutor.StartImplicitSession(cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession(cancellationToken);
             return Aggregate(session, pipeline, options, cancellationToken);
         }
 
@@ -80,19 +79,19 @@ namespace MongoDB.Driver
             if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-                OperationExecutor.ExecuteWriteOperation(aggregateOperation, _writeOperationOptions, session, cancellationToken);
+                _operationExecutor.ExecuteWriteOperation(aggregateOperation, _writeOperationOptions, session, cancellationToken);
                 return CreateAggregateToCollectionResultCursor(session, renderedPipeline, options);
             }
             else
             {
                 var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
-                return OperationExecutor.ExecuteReadOperation(aggregateOperation, _readOperationOptions, session, cancellationToken);
+                return _operationExecutor.ExecuteReadOperation(aggregateOperation, _readOperationOptions, session, cancellationToken);
             }
         }
 
         public async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            using var session = await OperationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            using var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
             return await AggregateAsync(session, pipeline, options, cancellationToken).ConfigureAwait(false);
         }
 
@@ -107,19 +106,19 @@ namespace MongoDB.Driver
             if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-                await OperationExecutor.ExecuteWriteOperationAsync(aggregateOperation, _writeOperationOptions, session, cancellationToken).ConfigureAwait(false);
+                await _operationExecutor.ExecuteWriteOperationAsync(aggregateOperation, _writeOperationOptions, session, cancellationToken).ConfigureAwait(false);
                 return CreateAggregateToCollectionResultCursor(session, renderedPipeline, options);
             }
             else
             {
                 var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
-                return await OperationExecutor.ExecuteReadOperationAsync(aggregateOperation, _readOperationOptions, session, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(aggregateOperation, _readOperationOptions, session, cancellationToken).ConfigureAwait(false);
             }
         }
 
         public void AggregateToCollection<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            using var session = OperationExecutor.StartImplicitSession(cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession(cancellationToken);
             AggregateToCollection(session, pipeline, options, cancellationToken);
         }
 
@@ -137,12 +136,12 @@ namespace MongoDB.Driver
             }
 
             var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-            OperationExecutor.ExecuteWriteOperation(aggregateOperation, _writeOperationOptions, session, cancellationToken);
+            _operationExecutor.ExecuteWriteOperation(aggregateOperation, _writeOperationOptions, session, cancellationToken);
         }
 
         public async Task AggregateToCollectionAsync<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
         {
-            using var session = await OperationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            using var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
             await AggregateToCollectionAsync(session, pipeline, options, cancellationToken).ConfigureAwait(false);
         }
 
@@ -160,12 +159,12 @@ namespace MongoDB.Driver
             }
 
             var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-            await OperationExecutor.ExecuteWriteOperationAsync(aggregateOperation, _writeOperationOptions, session, cancellationToken).ConfigureAwait(false);
+            await _operationExecutor.ExecuteWriteOperationAsync(aggregateOperation, _writeOperationOptions, session, cancellationToken).ConfigureAwait(false);
         }
 
         public void CreateCollection(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
-            using var session = OperationExecutor.StartImplicitSession(cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession(cancellationToken);
             CreateCollection(session, name, options, cancellationToken);
         }
 
@@ -202,7 +201,7 @@ namespace MongoDB.Driver
 
         public async Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
-            using var session = await OperationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            using var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
             await CreateCollectionAsync(session, name, options, cancellationToken).ConfigureAwait(false);
         }
 
@@ -238,26 +237,26 @@ namespace MongoDB.Driver
         }
 
         public void CreateView<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperation(
+            => _operationExecutor.ExecuteWriteOperation(
                 CreateCreateViewOperation(viewName, viewOn, pipeline, options),
                 _writeOperationOptions,
                 cancellationToken: cancellationToken);
 
         public void CreateView<TDocument, TResult>(IClientSessionHandle session, string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperation(
+            => _operationExecutor.ExecuteWriteOperation(
                 CreateCreateViewOperation(viewName, viewOn, pipeline, options),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
                 cancellationToken);
 
         public Task CreateViewAsync<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperationAsync(
+            => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateCreateViewOperation(viewName, viewOn, pipeline, options),
                 _writeOperationOptions,
                 cancellationToken: cancellationToken);
 
         public Task CreateViewAsync<TDocument, TResult>(IClientSessionHandle session, string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteWriteOperationAsync(
+            => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateCreateViewOperation(viewName, viewOn, pipeline, options),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -270,7 +269,7 @@ namespace MongoDB.Driver
 
         public void DropCollection(string name, DropCollectionOptions options, CancellationToken cancellationToken = default)
         {
-            using var session = OperationExecutor.StartImplicitSession(cancellationToken);
+            using var session = _operationExecutor.StartImplicitSession(cancellationToken);
             DropCollection(session, name, options, cancellationToken);
         }
 
@@ -283,7 +282,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             var operation = CreateDropCollectionOperation(name, options, session, cancellationToken);
-            OperationExecutor.ExecuteWriteOperation(operation, _writeOperationOptions, session, cancellationToken);
+            _operationExecutor.ExecuteWriteOperation(operation, _writeOperationOptions, session, cancellationToken);
         }
 
         public Task DropCollectionAsync(string name, CancellationToken cancellationToken)
@@ -293,7 +292,7 @@ namespace MongoDB.Driver
 
         public async Task DropCollectionAsync(string name, DropCollectionOptions options, CancellationToken cancellationToken)
         {
-            using var session = await OperationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
+            using var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false);
             await DropCollectionAsync(session, name, options, cancellationToken).ConfigureAwait(false);
         }
 
@@ -307,7 +306,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
 
             var operation = await CreateDropCollectionOperationAsync(name, options, session, cancellationToken).ConfigureAwait(false);
-            await OperationExecutor.ExecuteWriteOperationAsync(operation, _writeOperationOptions, session, cancellationToken).ConfigureAwait(false);
+            await _operationExecutor.ExecuteWriteOperationAsync(operation, _writeOperationOptions, session, cancellationToken).ConfigureAwait(false);
         }
 
         public IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
@@ -325,7 +324,7 @@ namespace MongoDB.Driver
 
         public IAsyncCursor<string> ListCollectionNames(ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default)
         {
-            var cursor = OperationExecutor.ExecuteReadOperation(
+            var cursor = _operationExecutor.ExecuteReadOperation(
                 CreateListCollectionNamesOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
                 null,
@@ -335,7 +334,7 @@ namespace MongoDB.Driver
 
         public IAsyncCursor<string> ListCollectionNames(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default)
         {
-            var cursor = OperationExecutor.ExecuteReadOperation(
+            var cursor = _operationExecutor.ExecuteReadOperation(
                 CreateListCollectionNamesOperation(options),
                     _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
                     Ensure.IsNotNull(session, nameof(session)),
@@ -345,7 +344,7 @@ namespace MongoDB.Driver
 
         public async Task<IAsyncCursor<string>> ListCollectionNamesAsync(ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default)
         {
-            var cursor = await OperationExecutor.ExecuteReadOperationAsync(
+            var cursor = await _operationExecutor.ExecuteReadOperationAsync(
                 CreateListCollectionNamesOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
                 cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -354,7 +353,7 @@ namespace MongoDB.Driver
 
         public async Task<IAsyncCursor<string>> ListCollectionNamesAsync(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default)
         {
-            var cursor = await OperationExecutor.ExecuteReadOperationAsync(
+            var cursor = await _operationExecutor.ExecuteReadOperationAsync(
                 CreateListCollectionNamesOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
                 Ensure.IsNotNull(session, nameof(session)),
@@ -363,78 +362,78 @@ namespace MongoDB.Driver
         }
 
         public IAsyncCursor<BsonDocument> ListCollections(ListCollectionsOptions options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateListCollectionsOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
                 cancellationToken: cancellationToken);
 
         public IAsyncCursor<BsonDocument> ListCollections(IClientSessionHandle session, ListCollectionsOptions options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateListCollectionsOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
                 Ensure.IsNotNull(session, nameof(session)),
                 cancellationToken);
 
         public Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListCollectionsOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
                 cancellationToken: cancellationToken);
 
         public Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(IClientSessionHandle session, ListCollectionsOptions options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListCollectionsOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
                 Ensure.IsNotNull(session, nameof(session)),
                 cancellationToken);
 
         public void RenameCollection(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteWriteOperation(
+            => _operationExecutor.ExecuteWriteOperation(
                 CreateRenameCollectionOperation(oldName, newName, options),
                 _writeOperationOptions,
                 cancellationToken: cancellationToken);
 
         public void RenameCollection(IClientSessionHandle session, string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteWriteOperation(
+            => _operationExecutor.ExecuteWriteOperation(
                 CreateRenameCollectionOperation(oldName, newName, options),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
                 cancellationToken);
 
         public Task RenameCollectionAsync(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteWriteOperationAsync(
+            => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateRenameCollectionOperation(oldName, newName, options),
                 _writeOperationOptions,
                 cancellationToken: cancellationToken);
 
         public Task RenameCollectionAsync(IClientSessionHandle session, string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteWriteOperationAsync(
+            => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateRenameCollectionOperation(oldName, newName, options),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
                 cancellationToken);
 
         public TResult RunCommand<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateRunCommandOperation(command),
                 _readOperationOptions with { ExplicitReadPreference = readPreference, DefaultReadPreference = ReadPreference.Primary},
                 cancellationToken: cancellationToken);
 
         public TResult RunCommand<TResult>(IClientSessionHandle session, Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateRunCommandOperation(command),
                 _readOperationOptions with { ExplicitReadPreference = readPreference, DefaultReadPreference = ReadPreference.Primary},
                 Ensure.IsNotNull(session, nameof(session)),
                 cancellationToken);
 
         public Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateRunCommandOperation(command),
                 _readOperationOptions with { ExplicitReadPreference = readPreference, DefaultReadPreference = ReadPreference.Primary},
                 cancellationToken: cancellationToken);
 
         public Task<TResult> RunCommandAsync<TResult>(IClientSessionHandle session, Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateRunCommandOperation(command),
                 _readOperationOptions with { ExplicitReadPreference = readPreference, DefaultReadPreference = ReadPreference.Primary},
                 Ensure.IsNotNull(session, nameof(session)),
@@ -444,7 +443,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 cancellationToken: cancellationToken);
@@ -454,7 +453,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperation(
+            => _operationExecutor.ExecuteReadOperation(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -464,7 +463,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 cancellationToken: cancellationToken);
@@ -474,7 +473,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => OperationExecutor.ExecuteReadOperationAsync(
+            => _operationExecutor.ExecuteReadOperationAsync(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
@@ -555,8 +554,8 @@ namespace MongoDB.Driver
             var readOperationOptions = _readOperationOptions with { ExplicitReadPreference = ReadPreference.Primary };
             var deferredCursor = new DeferredAsyncCursor<TResult>(
                 () => forkedSession.Dispose(),
-                ct => OperationExecutor.ExecuteReadOperation(findOperation, readOperationOptions, forkedSession, ct),
-                ct => OperationExecutor.ExecuteReadOperationAsync(findOperation, readOperationOptions, forkedSession, ct));
+                ct => _operationExecutor.ExecuteReadOperation(findOperation, readOperationOptions, forkedSession, ct),
+                ct => _operationExecutor.ExecuteReadOperationAsync(findOperation, readOperationOptions, forkedSession, ct));
             return deferredCursor;
         }
 
@@ -582,12 +581,12 @@ namespace MongoDB.Driver
         }
 
         private void CreateCollectionHelper<TDocument>(IClientSessionHandle session, string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteWriteOperation(CreateCreateCollectionOperation(name, options),
+            => _operationExecutor.ExecuteWriteOperation(CreateCreateCollectionOperation(name, options),
                 _writeOperationOptions,
                 session, cancellationToken);
 
         private Task CreateCollectionHelperAsync<TDocument>(IClientSessionHandle session, string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
-            => OperationExecutor.ExecuteWriteOperationAsync(CreateCreateCollectionOperation(name, options),
+            => _operationExecutor.ExecuteWriteOperationAsync(CreateCreateCollectionOperation(name, options),
                 _writeOperationOptions,
                 session, cancellationToken);
 
