@@ -281,7 +281,11 @@ namespace MongoDB.Driver
         public void DropCollection(IClientSessionHandle session, string name, DropCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateDropCollectionOperation(name, options, session, cancellationToken);
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
+
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
+            var encryptedFields = GetEncryptedFields(session, collectionNamespace, options, cancellationToken);
+            var operation = CreateDropCollectionOperation(collectionNamespace, encryptedFields);
             _operationExecutor.ExecuteWriteOperation(operation, _writeOperationOptions, session, cancellationToken);
         }
 
@@ -304,8 +308,11 @@ namespace MongoDB.Driver
         public async Task DropCollectionAsync(IClientSessionHandle session, string name, DropCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNullOrEmpty(name, nameof(name));
 
-            var operation = await CreateDropCollectionOperationAsync(name, options, session, cancellationToken).ConfigureAwait(false);
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
+            var encryptedFields = await GetEncryptedFieldsAsync(session, collectionNamespace, options, cancellationToken).ConfigureAwait(false);
+            var operation = CreateDropCollectionOperation(collectionNamespace, encryptedFields);
             await _operationExecutor.ExecuteWriteOperationAsync(operation, _writeOperationOptions, session, cancellationToken).ConfigureAwait(false);
         }
 
@@ -652,61 +659,8 @@ namespace MongoDB.Driver
             };
         }
 
-        private IWriteOperation<BsonDocument> CreateDropCollectionOperation(string name, DropCollectionOptions options, IClientSessionHandle session, CancellationToken cancellationToken)
+        private IWriteOperation<BsonDocument> CreateDropCollectionOperation(CollectionNamespace collectionNamespace, BsonDocument effectiveEncryptedFields)
         {
-            Ensure.IsNotNullOrEmpty(name, nameof(name));
-            var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
-            options ??= new DropCollectionOptions();
-
-            var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
-            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
-            {
-                if (encryptedFieldsMap != null)
-                {
-                    var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
-                    var currrentCollectionInfo = ListCollections(session, listCollectionOptions, cancellationToken).FirstOrDefault();
-                    effectiveEncryptedFields = currrentCollectionInfo
-                        ?.GetValue("options", defaultValue: null)
-                        ?.AsBsonDocument
-                        ?.GetValue("encryptedFields", defaultValue: null)
-                        ?.ToBsonDocument();
-                }
-            }
-
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            return DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(
-                collectionNamespace,
-                effectiveEncryptedFields,
-                messageEncoderSettings,
-                (dco) =>
-                {
-                    dco.WriteConcern = _settings.WriteConcern;
-                });
-        }
-
-        private async Task<IWriteOperation<BsonDocument>> CreateDropCollectionOperationAsync(string name, DropCollectionOptions options, IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNullOrEmpty(name, nameof(name));
-            var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
-
-            options = options ?? new DropCollectionOptions();
-
-            var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
-            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
-            {
-                if (encryptedFieldsMap != null)
-                {
-                    var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
-                    var currentCollectionsInfo = await ListCollectionsAsync(session, listCollectionOptions, cancellationToken).ConfigureAwait(false);
-                    var currentCollectionInfo = await currentCollectionsInfo.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
-                    effectiveEncryptedFields = currentCollectionInfo
-                        ?.GetValue("options", defaultValue: null)
-                        ?.AsBsonDocument
-                        ?.GetValue("encryptedFields", defaultValue: null)
-                        ?.ToBsonDocument();
-                }
-            }
-
             var messageEncoderSettings = GetMessageEncoderSettings();
             return DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(
                 collectionNamespace,
@@ -793,6 +747,48 @@ namespace MongoDB.Driver
         private IEnumerable<string> ExtractCollectionNames(IEnumerable<BsonDocument> collections)
         {
             return collections.Select(collection => collection["name"].AsString);
+        }
+
+
+        private BsonDocument GetEncryptedFields(IClientSessionHandle session, CollectionNamespace collectionNamespace, DropCollectionOptions options, CancellationToken cancellationToken)
+        {
+            var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options?.EncryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
+            {
+                if (encryptedFieldsMap != null)
+                {
+                    var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
+                    var currentCollectionInfo = ListCollections(session, listCollectionOptions, cancellationToken).FirstOrDefault();
+                    effectiveEncryptedFields = currentCollectionInfo
+                        ?.GetValue("options", defaultValue: null)
+                        ?.AsBsonDocument
+                        ?.GetValue("encryptedFields", defaultValue: null)
+                        ?.ToBsonDocument();
+                }
+            }
+
+            return effectiveEncryptedFields;
+        }
+
+        private async Task<BsonDocument> GetEncryptedFieldsAsync(IClientSessionHandle session, CollectionNamespace collectionNamespace, DropCollectionOptions options, CancellationToken cancellationToken)
+        {
+            var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options?.EncryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
+            {
+                if (encryptedFieldsMap != null)
+                {
+                    var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
+                    var currentCollectionsInfo = await ListCollectionsAsync(session, listCollectionOptions, cancellationToken).ConfigureAwait(false);
+                    var currentCollectionInfo = await currentCollectionsInfo.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+                    effectiveEncryptedFields = currentCollectionInfo
+                        ?.GetValue("options", defaultValue: null)
+                        ?.AsBsonDocument
+                        ?.GetValue("encryptedFields", defaultValue: null)
+                        ?.ToBsonDocument();
+                }
+            }
+
+            return effectiveEncryptedFields;
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()
