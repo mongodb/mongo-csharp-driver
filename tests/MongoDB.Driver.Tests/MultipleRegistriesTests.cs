@@ -47,7 +47,6 @@ namespace MongoDB.Driver.Tests
             }
 
             //The first section demonstrates that the class maps are also separated
-
             {
                 var customDomain = BsonSerializer.CreateSerializationDomain();
                 customDomain.RegisterSerializer(new CustomStringSerializer());

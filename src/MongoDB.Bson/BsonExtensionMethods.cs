@@ -68,7 +68,7 @@ namespace MongoDB.Bson
             BsonBinaryWriterSettings writerSettings = null,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs),
+            BsonSerializationArgs args = default,
             int estimatedBsonSize = 0) => ToBson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings,
             serializer, configurator, args, estimatedBsonSize);
 
@@ -163,7 +163,7 @@ namespace MongoDB.Bson
             Type nominalType,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs)) => ToBsonDocument(obj, nominalType,
+            BsonSerializationArgs args = default) => ToBsonDocument(obj, nominalType,
             BsonSerializer.DefaultSerializationDomain, serializer, configurator, args);
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace MongoDB.Bson
             IBsonSerializationDomain domain,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs))
+            BsonSerializationArgs args = default)
         {
             if (nominalType == null)
             {
@@ -211,7 +211,7 @@ namespace MongoDB.Bson
                     return convertibleToBsonDocument.ToBsonDocument(); // use the provided ToBsonDocument method
                 }
 
-                serializer = domain.LookupSerializer(nominalType);  //TODO ??
+                serializer = domain.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
@@ -272,7 +272,7 @@ namespace MongoDB.Bson
             JsonWriterSettings writerSettings = null,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs))
+            BsonSerializationArgs args = default)
             => ToJson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings, serializer, configurator, args);
 
         /// <summary>
