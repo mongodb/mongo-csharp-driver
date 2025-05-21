@@ -104,7 +104,7 @@ namespace MongoDB.Driver
         internal MongoClient(IOperationExecutor operationExecutor, MongoClientSettings settings)
             : this(settings)
         {
-            _operationExecutor = operationExecutor;
+            _operationExecutor = new OperationExecutorWrapper(operationExecutor);
         }
 
         // public properties
@@ -442,7 +442,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.ReadConcern = readConcern;
-            return new MongoClient(newSettings);
+            return new MongoClient(_operationExecutor, newSettings);
         }
 
         /// <inheritdoc/>
@@ -454,7 +454,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.ReadPreference = readPreference;
-            return new MongoClient(newSettings);
+            return new MongoClient(_operationExecutor, newSettings);
         }
 
         /// <inheritdoc/>
@@ -466,7 +466,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.WriteConcern = writeConcern;
-            return new MongoClient(newSettings);
+            return new MongoClient(_operationExecutor, newSettings);
         }
 
         // private methods
