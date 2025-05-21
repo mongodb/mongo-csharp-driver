@@ -55,12 +55,12 @@ namespace MongoDB.Driver.Linq
         internal static BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
             Expression<Func<TSource, TResult>> expression,
             IBsonSerializer<TSource> sourceSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions,
             TranslationContextData contextData = null)
         {
             expression = (Expression<Func<TSource, TResult>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(expression, translationOptions, contextData);
+            var context = TranslationContext.Create(expression, translationOptions, serializationDomain, contextData);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, sourceSerializer, asRoot: true);
             var simplifiedAst = AstSimplifier.Simplify(translation.Ast);
 
@@ -70,12 +70,12 @@ namespace MongoDB.Driver.Linq
         internal static RenderedFieldDefinition TranslateExpressionToField<TDocument>(
             LambdaExpression expression,
             IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             expression = (LambdaExpression)PartialEvaluator.EvaluatePartially(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(expression, translationOptions);
+            var context = TranslationContext.Create(expression, translationOptions, serializationDomain);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var body = RemovePossibleConvertToObject(expression.Body);
@@ -99,20 +99,20 @@ namespace MongoDB.Driver.Linq
         internal static RenderedFieldDefinition<TField> TranslateExpressionToField<TDocument, TField>(
             Expression<Func<TDocument, TField>> expression,
             IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions,
             bool allowScalarValueForArrayField)
         {
             expression = (Expression<Func<TDocument, TField>>)PartialEvaluator.EvaluatePartially(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(expression, translationOptions);
+            var context = TranslationContext.Create(expression, translationOptions, serializationDomain);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, expression.Body);
 
             var underlyingSerializer = fieldTranslation.Serializer;
             var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
-            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
+            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializationDomain.SerializerRegistry, typeof(TField), allowScalarValueForArrayField);
 
             return new RenderedFieldDefinition<TField>(fieldTranslation.Ast.Path, fieldSerializer, valueSerializer, underlyingSerializer);
         }
@@ -120,11 +120,11 @@ namespace MongoDB.Driver.Linq
         internal static BsonDocument TranslateExpressionToElemMatchFilter<TElement>(
             Expression<Func<TElement, bool>> expression,
             IBsonSerializer<TElement> elementSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             expression = (Expression<Func<TElement, bool>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(expression, translationOptions);
+            var context = TranslationContext.Create(expression, translationOptions, serializationDomain);
             var parameter = expression.Parameters.Single();
             var symbol = context.CreateSymbol(parameter, "@<elem>", elementSerializer);  // @<elem> represents the implied element
             context = context.WithSingleSymbol(symbol); // @<elem> is the only symbol visible inside an $elemMatch
@@ -137,11 +137,11 @@ namespace MongoDB.Driver.Linq
         internal static BsonDocument TranslateExpressionToFilter<TDocument>(
             Expression<Func<TDocument, bool>> expression,
             IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(expression, translationOptions);
+            var context = TranslationContext.Create(expression, translationOptions, serializationDomain);
             var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer, asRoot: true);
             filter = AstSimplifier.SimplifyAndConvert(filter);
 
@@ -151,23 +151,24 @@ namespace MongoDB.Driver.Linq
         internal static RenderedProjectionDefinition<TProjection> TranslateExpressionToFindProjection<TSource, TProjection>(
             Expression<Func<TSource, TProjection>> expression,
             IBsonSerializer<TSource> sourceSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
-            => TranslateExpressionToProjection(expression, sourceSerializer, ProjectionHelper.CreateFindProjection, translationOptions, new AstFindProjectionSimplifier());
+            => TranslateExpressionToProjection(expression, sourceSerializer, ProjectionHelper.CreateFindProjection, translationOptions, new AstFindProjectionSimplifier(), serializationDomain);
 
         internal static RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
             Expression<Func<TInput, TOutput>> expression,
             IBsonSerializer<TInput> inputSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
-            => TranslateExpressionToProjection(expression, inputSerializer, ProjectionHelper.CreateAggregationProjection, translationOptions, new AstSimplifier());
+            => TranslateExpressionToProjection(expression, inputSerializer, ProjectionHelper.CreateAggregationProjection, translationOptions, new AstSimplifier(), serializationDomain);
 
         private static RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
             Expression<Func<TInput, TOutput>> expression,
             IBsonSerializer<TInput> inputSerializer,
             Func<AggregationExpression, (IReadOnlyList<AstProjectStageSpecification>, IBsonSerializer)> projectionCreator,
             ExpressionTranslationOptions translationOptions,
-            AstSimplifier simplifier)
+            AstSimplifier simplifier,
+            IBsonSerializationDomain serializationDomain)
         {
             if (expression.Parameters.Count == 1 && expression.Body == expression.Parameters[0])
             {
@@ -176,7 +177,7 @@ namespace MongoDB.Driver.Linq
             }
 
             expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(expression, translationOptions);
+            var context = TranslationContext.Create(expression, translationOptions, serializationDomain);
 
             try
             {
@@ -197,10 +198,10 @@ namespace MongoDB.Driver.Linq
         internal static BsonDocument TranslateExpressionToSetStage<TDocument, TFields>(
             Expression<Func<TDocument, TFields>> expression,
             IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
-            var context = TranslationContext.Create(expression, translationOptions); // do not partially evaluate expression
+            var context = TranslationContext.Create(expression, translationOptions, serializationDomain); // do not partially evaluate expression
             var parameter = expression.Parameters.Single();
             var symbol = context.CreateSymbolWithVarName(parameter, varName: "ROOT", documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);

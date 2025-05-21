@@ -28,11 +28,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         public static TranslationContext Create(
             Expression expression,
             ExpressionTranslationOptions translationOptions,
+            IBsonSerializationDomain serializationDomain,
             TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
-            return new TranslationContext(symbolTable, nameGenerator, translationOptions, data); //TODO It'll be annoying to pass the serialization domain in the call here
+            return new TranslationContext(symbolTable, nameGenerator, translationOptions, data, serializationDomain); //TODO It'll be annoying to pass the serialization domain in the call here
         }
         #endregion
 
@@ -41,22 +42,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
         private readonly ExpressionTranslationOptions _translationOptions;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         private TranslationContext(
             SymbolTable symbolTable,
             NameGenerator nameGenerator,
             ExpressionTranslationOptions translationOptions,
-            TranslationContextData data = null)
+            TranslationContextData data,
+            IBsonSerializationDomain serializationDomain)
         {
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
             _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
             _data = data; // can be null
+            _serializationDomain = serializationDomain;
         }
 
         // public properties
         public TranslationContextData Data => _data;
         public NameGenerator NameGenerator => _nameGenerator;
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
         public SymbolTable SymbolTable => _symbolTable;
         public ExpressionTranslationOptions TranslationOptions => _translationOptions;
 
@@ -121,7 +126,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(symbolTable, _nameGenerator, _translationOptions, _data);
+            return new TranslationContext(symbolTable, _nameGenerator, _translationOptions, _data, _serializationDomain);
         }
     }
 }

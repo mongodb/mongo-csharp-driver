@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         var constructorArgumentExpression = constructorArguments[i];
                         var constructorArgumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, constructorArgumentExpression);
                         var constructorArgumentType = constructorArgumentExpression.Type;
-                        var constructorArgumentSerializer = constructorArgumentTranslation.Serializer ?? BsonSerializer.LookupSerializer(constructorArgumentType);
+                        var constructorArgumentSerializer = constructorArgumentTranslation.Serializer ?? context.SerializationDomain.LookupSerializer(constructorArgumentType);
                         var memberMap = EnsureMemberMap(expression, classMap, creatorMapParameter);
                         EnsureDefaultValue(memberMap);
                         var memberSerializer = CoerceSourceSerializerToMemberSerializer(memberMap, constructorArgumentSerializer);

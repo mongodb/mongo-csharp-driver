@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             var arrayType = expression.Type;
             var itemType = arrayType.GetElementType();
-            itemSerializer ??= BsonSerializer.LookupSerializer(itemType); // if the array is empty itemSerializer will be null
+            itemSerializer ??= context.SerializationDomain.LookupSerializer(itemType); // if the array is empty itemSerializer will be null
             var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(itemType);
             var arraySerializer = (IBsonSerializer)Activator.CreateInstance(arraySerializerType, itemSerializer);
 

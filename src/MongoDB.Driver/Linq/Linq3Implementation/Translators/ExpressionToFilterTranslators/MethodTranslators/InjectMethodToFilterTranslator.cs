@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var filterDefinitionType = filterDefinition.GetType(); // we KNOW it's a FilterDefinition<TDocument> because of the Inject method signature
                 var documentType = filterDefinitionType.GetGenericArguments()[0];
 
-                var serializerRegistry = BsonSerializer.SerializerRegistry;
+                var serializerRegistry = context.SerializationDomain.SerializerRegistry;
                 var documentSerializer = serializerRegistry.GetSerializer(documentType); // TODO: is this the right serializer?
 
                 var renderFilterMethod = __renderFilterMethodInfo.MakeGenericMethod(documentType);
