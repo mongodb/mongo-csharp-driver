@@ -38,33 +38,44 @@ namespace MongoDB.Driver.Core.Misc
 
         public static int Read(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            IAsyncResult readOperation;
             try
             {
-                var readOperation = stream.BeginRead(buffer, offset, count, null, null);
-                WaitHandle.WaitAny([readOperation.AsyncWaitHandle, cancellationToken.WaitHandle], timeout);
-
-                if (!readOperation.IsCompleted)
+                using var manualResetEvent = new ManualResetEventSlim();
+                readOperation = stream.BeginRead(buffer, offset, count, state =>
                 {
-                    try
-                    {
-                        stream.Dispose();
-                        stream.EndRead(readOperation);
-                    }
-                    catch
-                    {
-                        // ignore any exceptions
-                    }
+                    ((ManualResetEventSlim)state.AsyncState).Set();
+                }, manualResetEvent);
 
-                    cancellationToken.ThrowIfCancellationRequested();
-                    throw new TimeoutException();
+                try
+                {
+                    if (readOperation.IsCompleted || manualResetEvent.Wait(timeout, cancellationToken))
+                    {
+                        return stream.EndRead(readOperation);
+                    }
                 }
-
-                return stream.EndRead(readOperation);
+                catch (OperationCanceledException)
+                {
+                    // Have to suppress OperationCanceledException here, it will be thrown after the stream will be disposed.
+                }
             }
             catch (ObjectDisposedException ex)
             {
                 throw new EndOfStreamException("The connection was interrupted.", ex);
             }
+
+            try
+            {
+                stream.Dispose();
+                stream.EndRead(readOperation);
+            }
+            catch
+            {
+                // ignore any exceptions
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new TimeoutException();
         }
 
         public static async Task<int> ReadAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
@@ -79,6 +90,7 @@ namespace MongoDB.Driver.Core.Misc
                 try
                 {
                     stream.Dispose();
+                    // should await in the read task to avoid UnobservedTaskException
                     await readTask.ConfigureAwait(false);
                 }
                 catch
@@ -175,39 +187,51 @@ namespace MongoDB.Driver.Core.Misc
 
         public static void Write(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            IAsyncResult writeOperation;
             try
             {
-                var writeOperation = stream.BeginWrite(buffer, offset, count, null, null);
-                WaitHandle.WaitAny([writeOperation.AsyncWaitHandle, cancellationToken.WaitHandle], timeout);
-
-                if (!writeOperation.IsCompleted)
+                using var manualResetEvent = new ManualResetEventSlim();
+                writeOperation = stream.BeginWrite(buffer, offset, count, state =>
                 {
-                    try
+                    ((ManualResetEventSlim)state.AsyncState).Set();
+                }, manualResetEvent);
+
+                try
+                {
+                    if (writeOperation.IsCompleted || manualResetEvent.Wait(timeout, cancellationToken))
                     {
-                        stream.Dispose();
                         stream.EndWrite(writeOperation);
+                        return;
                     }
-                    catch
-                    {
-                        // ignore any exceptions
-                    }
-
-                    cancellationToken.ThrowIfCancellationRequested();
-                    throw new TimeoutException();
                 }
-
-                stream.EndWrite(writeOperation);
+                catch (OperationCanceledException)
+                {
+                    // Have to suppress OperationCanceledException here, it will be thrown after the stream will be disposed.
+                }
             }
             catch (ObjectDisposedException ex)
             {
                 throw new EndOfStreamException("The connection was interrupted.", ex);
             }
+
+            try
+            {
+                stream.Dispose();
+                stream.EndWrite(writeOperation);
+            }
+            catch
+            {
+                // ignore any exceptions
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new TimeoutException();
         }
 
         public static async Task WriteAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var timeoutTask = Task.Delay(timeout);
-            var writeTask = stream.WriteAsync(buffer, offset, count, cancellationToken);
+            var timeoutTask = Task.Delay(timeout, cancellationToken);
+            var writeTask = stream.WriteAsync(buffer, offset, count);
 
             await Task.WhenAny(writeTask, timeoutTask).ConfigureAwait(false);
 
