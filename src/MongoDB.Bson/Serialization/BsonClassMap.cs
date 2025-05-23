@@ -1323,10 +1323,25 @@ namespace MongoDB.Bson.Serialization
             var discriminatorConvention = _discriminatorConvention;
             if (discriminatorConvention == null)
             {
-                // it's possible but harmless for multiple threads to do the discriminator convention lookukp at the same time
+                // it's possible but harmless for multiple threads to do the discriminator convention lookup at the same time
                 discriminatorConvention = LookupDiscriminatorConvention();
                 _discriminatorConvention = discriminatorConvention;
+
+                if (discriminatorConvention != null)
+                {
+                    var conflictingMemberMap = _allMemberMaps.FirstOrDefault(memberMap => memberMap.ElementName == discriminatorConvention.ElementName);
+
+                    if (conflictingMemberMap != null)
+                    {
+                        var fieldOrProperty = conflictingMemberMap.MemberInfo is FieldInfo ? "field" : "property";
+
+                        throw new BsonSerializationException(
+                            $"The discriminator element name cannot be {discriminatorConvention.ElementName} " +
+                            $"because it is already being used by the {fieldOrProperty} {conflictingMemberMap.MemberName} of type {_classType.FullName}");
+                    }
+                }
             }
+
             return discriminatorConvention;
 
             IDiscriminatorConvention LookupDiscriminatorConvention()
