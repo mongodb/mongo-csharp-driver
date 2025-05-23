@@ -67,6 +67,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
         }
 
+        // BaseDocument, BasedDocument2 and derived classes are used for tests with generic types
         abstract class BaseDocument;
 
         class DerivedDocument<T> : BaseDocument
