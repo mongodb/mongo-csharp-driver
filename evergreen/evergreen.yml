@@ -98,9 +98,13 @@ functions:
   install-dotnet:
     - command: shell.exec
       params:
+        include_expansions_in_env:
+          - "OS"
+          - "DOTNET_SDK_VERSION"
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} DOTNET_SDK_VERSION=${DOTNET_SDK_VERSION} bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -352,6 +356,18 @@ functions:
           cd ${DRIVERS_TOOLS}/.evergreen
           DRIVERS_TOOLS=${DRIVERS_TOOLS} MONGODB_URI=${MONGODB_URI} bash ${DRIVERS_TOOLS}/.evergreen/run-load-balancer.sh stop
 
+  run-unit-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        shell: "bash"
+        include_expansions_in_env:
+          - "FRAMEWORK"
+        script: |
+          ${PREPARE_SHELL}
+          bash evergreen/run-unit-tests.sh
+
   run-tests:
     - command: shell.exec
       type: test
@@ -508,7 +524,7 @@ functions:
 
           echo "Response Body: $response_body"
           echo "HTTP Status: $http_status"
-          
+
   assume-ec2-role:
     - command: ec2.assume_role
       params:
@@ -1031,6 +1047,36 @@ post:
   - func: cleanup
 
 tasks:
+    - name: unit-tests-net472
+      commands:
+        - command: expansions.update
+          params:
+            updates:
+              - key: 'FRAMEWORK'
+                value: 'net472'
+        - func: install-dotnet
+        - func: run-unit-tests
+
+    - name: unit-tests-netstandard21
+      commands:
+        - command: expansions.update
+          params:
+            updates:
+              - key: 'FRAMEWORK'
+                value: 'netstandard2.1'
+        - func: install-dotnet
+        - func: run-unit-tests
+
+    - name: unit-tests-net60
+      commands:
+        - command: expansions.update
+          params:
+            updates:
+              - key: 'FRAMEWORK'
+                value: 'net6.0'
+        - func: install-dotnet
+        - func: run-unit-tests
+
     - name: test-net472
       commands:
         - func: setup-csfle-secrets
@@ -2179,6 +2225,42 @@ task_groups:
       - validate-apicompat
 
 buildvariants:
+- name: unit-tests-windows
+  display_name: Unit Tests on Windows
+  run_on: windows-64-vs2017-test
+  expansions:
+    OS: "windows-64"
+  tasks:
+    - name: unit-tests-net472
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+
+- name: unit-tests-ubuntu
+  display_name: Unit Tests on Ubuntu
+  run_on: ubuntu2004-small
+  expansions:
+    OS: "ubuntu-2004"
+  tasks:
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+
+- name: unit-tests-macos
+  display_name: Unit Tests on MacOs
+  run_on: macos-14
+  expansions:
+    OS: "macos-14"
+  tasks:
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+
+- name: unit-tests-macos-arm
+  display_name: Unit Tests on MacOs Arm
+  run_on: macos-14-arm64
+  expansions:
+    OS: "macos-14-arm64"
+  tasks:
+    - name: unit-tests-net60
+
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
   display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"

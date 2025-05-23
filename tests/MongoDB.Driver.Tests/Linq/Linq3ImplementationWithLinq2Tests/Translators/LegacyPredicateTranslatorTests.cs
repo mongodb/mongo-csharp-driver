@@ -22,7 +22,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
@@ -31,6 +30,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translators
 {
+    [Trait("Category", "Integration")]
     public class LegacyPredicateTranslatorTests
     {
         private static IMongoDatabase __database;

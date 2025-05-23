@@ -24,6 +24,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 {
+    [Trait("Category", "Integration")]
     public class MongoQueryableWithDotNotationTests
     {
         [Fact]

@@ -1140,6 +1140,7 @@ namespace MongoDB.Driver.Tests
         }
     }
 
+    [Trait("Category", "Integration")]
     public class FieldDefinitionBuilderUInt32Tests
     {
         #region static
@@ -1361,6 +1362,7 @@ namespace MongoDB.Driver.Tests
         }
     }
 
+    [Trait("Category", "Integration")]
     public class FieldDefinitionBuilderUInt64Tests
     {
         #region static

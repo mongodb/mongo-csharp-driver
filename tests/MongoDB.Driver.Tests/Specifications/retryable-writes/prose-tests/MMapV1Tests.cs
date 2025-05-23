@@ -25,6 +25,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 {
+    [Trait("Category", "Integration")]
     public class MMapV1Tests : LoggableTestClass
     {
         public MMapV1Tests(ITestOutputHelper output) : base(output)

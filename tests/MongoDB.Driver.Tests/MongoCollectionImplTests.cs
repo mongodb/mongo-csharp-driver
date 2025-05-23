@@ -3805,6 +3805,7 @@ namespace MongoDB.Driver
         }
 
         [Fact]
+        [Trait("Category", "Integration")]
         public void Watch_should_support_full_document_with_duplicate_elements()
         {
             RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);

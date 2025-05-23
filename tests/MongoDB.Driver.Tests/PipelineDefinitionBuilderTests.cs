@@ -181,6 +181,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        [Trait("Category", "Integration")]
         public void Merge_should_add_expected_stage()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
@@ -233,15 +234,15 @@ namespace MongoDB.Driver.Tests
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "p1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }] 
-                                               } 
+                                                 "p2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                               }
                                            },
                                            "combination" : { "weights" : { "p1" : 0.3, "p2" : 0.7 } }
-                                           "scoreDetails" : true 
+                                           "scoreDetails" : true
                                       }
                                   }
                                   """);
@@ -260,12 +261,12 @@ namespace MongoDB.Driver.Tests
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }] 
-                                               } 
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }]
+                                               }
                                            }
                                       }
                                   }
@@ -286,13 +287,13 @@ namespace MongoDB.Driver.Tests
             stages.Count.Should().Be(1);
             stages[0].Should().Be("""
                                   {
-                                      $rankFusion: { 
-                                          "input" : { 
-                                              "pipelines" : { 
+                                      $rankFusion: {
+                                          "input" : {
+                                              "pipelines" : {
                                                  "pipeline1" : [{ "$match" : { "x" : 1 } }, { "$sort" : { "y" : 1 } }],
-                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }], 
-                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }] 
-                                               } 
+                                                 "pipeline2" : [{ "$match" : { "x" : 2 } }, { "$sort" : { "y" : -1 } }],
+                                                 "pipeline3" : [{ "$match" : { "x" : 3 } }, { "$sort" : { "y" : 1 } }]
+                                               }
                                            },
                                            "combination" : { "weights" : { "pipeline1" : 0.3, "pipeline2" : 0.7 } }
                                       }

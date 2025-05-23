@@ -30,6 +30,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.prose_tests
 {
+    [Trait("Category", "Integration")]
     public class ServerDiscoveryProseTests : LoggableTestClass
     {
         // public constructors

@@ -26,12 +26,12 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class PinnedShardRouterTests : LoggableTestClass
     {
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>

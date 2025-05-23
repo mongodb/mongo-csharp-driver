@@ -23,6 +23,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Samples
 {
+    [Trait("Category", "Integration")]
     public class AggregationSample
     {
         private static IMongoCollection<ZipEntry> __collection;

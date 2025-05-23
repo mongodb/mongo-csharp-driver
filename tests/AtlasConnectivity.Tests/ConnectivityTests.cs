@@ -23,6 +23,7 @@ using Xunit.Abstractions;
 
 namespace AtlasConnectivity.Tests
 {
+    [Trait("Category", "Integration")]
     public class ConnectivityTests : LoggableTestClass
     {
         // public constructors

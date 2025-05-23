@@ -13,15 +13,14 @@
 * limitations under the License.
 */
 
-using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
+    [Trait("Category", "Integration")]
     public class CSharp2622Tests
     {
         // public methods

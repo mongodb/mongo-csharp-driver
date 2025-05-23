@@ -20,6 +20,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "Integration")]
     public class MongoCredentialTests
     {
         [Fact]

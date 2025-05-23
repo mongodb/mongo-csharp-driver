@@ -25,6 +25,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
+    [Trait("Category", "Integration")]
     public class ChangeStreamExamples
     {
         [Fact]

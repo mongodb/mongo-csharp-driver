@@ -17,11 +17,11 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
+    [Trait("Category", "Integration")]
     public class CSharp2723Tests
     {
         [Fact]
