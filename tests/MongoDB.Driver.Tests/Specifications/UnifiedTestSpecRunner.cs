@@ -263,9 +263,6 @@ namespace MongoDB.Driver.Tests.Specifications
             "legacy hello without speculativeAuthenticate is always observed",
 
             // transactions
-            // Skipped because CSharp Driver has an issue with handling read timeout for sync code-path. CSHARP-3662
-            "add RetryableWriteError and UnknownTransactionCommitResult labels to connection errors",
-
             // CSHARP Driver does not comply with the requirement to throw in case explicit writeConcern were used, see CSHARP-5468
             "client bulkWrite with writeConcern in a transaction causes a transaction error",
         ]);
