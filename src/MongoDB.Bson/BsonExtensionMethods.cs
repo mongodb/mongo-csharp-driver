@@ -77,7 +77,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="nominalType"></param>
-        /// <param name="domain"></param>
+        /// <param name="serializationDomain"></param>
         /// <param name="writerSettings"></param>
         /// <param name="serializer"></param>
         /// <param name="configurator"></param>
@@ -89,7 +89,7 @@ namespace MongoDB.Bson
         public static byte[] ToBson(
             this object obj,
             Type nominalType,
-            IBsonSerializationDomain domain,
+            IBsonSerializationDomain serializationDomain,
             BsonBinaryWriterSettings writerSettings = null,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
@@ -109,7 +109,7 @@ namespace MongoDB.Bson
 
             if (serializer == null)
             {
-                serializer = domain.LookupSerializer(nominalType);
+                serializer = serializationDomain.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
@@ -171,7 +171,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="nominalType"></param>
-        /// <param name="domain"></param>
+        /// <param name="serializationDomain"></param>
         /// <param name="serializer"></param>
         /// <param name="configurator"></param>
         /// <param name="args"></param>
@@ -181,7 +181,7 @@ namespace MongoDB.Bson
         public static BsonDocument ToBsonDocument(
             this object obj,
             Type nominalType,
-            IBsonSerializationDomain domain,
+            IBsonSerializationDomain serializationDomain,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default)
@@ -211,7 +211,7 @@ namespace MongoDB.Bson
                     return convertibleToBsonDocument.ToBsonDocument(); // use the provided ToBsonDocument method
                 }
 
-                serializer = domain.LookupSerializer(nominalType);
+                serializer = serializationDomain.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {

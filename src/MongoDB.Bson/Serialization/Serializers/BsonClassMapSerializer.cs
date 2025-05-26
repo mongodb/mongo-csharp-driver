@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization
 
         // public properties
         /// <inheritdoc/>
-        public IDiscriminatorConvention DiscriminatorConvention => _classMap.GetDiscriminatorConvention();
+        public IDiscriminatorConvention DiscriminatorConvention => _classMap.GetDiscriminatorConvention();  //TODO This should be removed, because we need to have the serialization domain.
 
         /// <summary>
         /// Gets a value indicating whether this serializer's discriminator is compatible with the object serializer.
@@ -88,7 +88,7 @@ namespace MongoDB.Bson.Serialization
                 return default(TClass);
             }
 
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain as IBsonSerializationDomainInternal);
 
             var actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
             if (actualType == typeof(TClass))
@@ -146,7 +146,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain as IBsonSerializationDomainInternal);
             var allMemberMaps = _classMap.AllMemberMaps;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
             var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
@@ -329,7 +329,7 @@ namespace MongoDB.Bson.Serialization
             => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id, out idNominalType, out idGenerator);
 
         /// <inheritdoc/>
-        public bool GetDocumentId(object document, IBsonSerializationDomain domain, out object id, out Type idNominalType,
+        public bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType,
             out IIdGenerator idGenerator)
         {
             var idMemberMap = _classMap.IdMemberMap;
@@ -642,11 +642,11 @@ namespace MongoDB.Bson.Serialization
 
         private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj)
         {
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain as IBsonSerializationDomainInternal);
             if (discriminatorConvention != null)
             {
                 var actualType = obj.GetType();
-                var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType, context.SerializationDomain);
                 if (discriminator != null)
                 {
                     context.Writer.WriteName(discriminatorConvention.ElementName);
