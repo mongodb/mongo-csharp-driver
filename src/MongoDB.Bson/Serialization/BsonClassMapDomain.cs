@@ -8,7 +8,7 @@ namespace MongoDB.Bson.Serialization;
 internal class BsonClassMapDomain : IBsonClassMapDomain
 {
     // private fields
-    private readonly IBsonSerializationDomain _serializationDomain;
+    private readonly IBsonSerializationDomainInternal _serializationDomain;
     private readonly Dictionary<Type, BsonClassMap> _classMaps = new();
 
     public BsonClassMapDomain(BsonSerializationDomain serializationDomain)
@@ -22,14 +22,14 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
     /// <returns>All registered class maps.</returns>
     public IEnumerable<BsonClassMap> GetRegisteredClassMaps()
     {
-        BsonSerializer.ConfigLock.EnterReadLock();  //TODO It would make sense to look at this after the PR by Robert is merged
+        _serializationDomain.ConfigLock.EnterReadLock();
         try
         {
             return _classMaps.Values.ToList(); // return a copy for thread safety
         }
         finally
         {
-            BsonSerializer.ConfigLock.ExitReadLock();
+            _serializationDomain.ConfigLock.ExitReadLock();
         }
     }
 
@@ -45,14 +45,14 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
             throw new ArgumentNullException("type");
         }
 
-        BsonSerializer.ConfigLock.EnterReadLock();
+        _serializationDomain.ConfigLock.EnterReadLock();
         try
         {
             return _classMaps.ContainsKey(type);
         }
         finally
         {
-            BsonSerializer.ConfigLock.ExitReadLock();
+            _serializationDomain.ConfigLock.ExitReadLock();
         }
     }
 
@@ -68,7 +68,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
             throw new ArgumentNullException("classType");
         }
 
-        BsonSerializer.ConfigLock.EnterReadLock();
+        _serializationDomain.ConfigLock.EnterReadLock(); //TODO Remove this lock from here...
         try
         {
             if (_classMaps.TryGetValue(classType, out var classMap))
@@ -81,7 +81,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         }
         finally
         {
-            BsonSerializer.ConfigLock.ExitReadLock();
+            _serializationDomain.ConfigLock.ExitReadLock();
         }
 
         // automatically create a new classMap for classType and register it (unless another thread does first)
@@ -91,7 +91,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         var newClassMap = (BsonClassMap)Activator.CreateInstance(classMapType);
         newClassMap.AutoMap(_serializationDomain);
 
-        BsonSerializer.ConfigLock.EnterWriteLock();
+        _serializationDomain.ConfigLock.EnterWriteLock();
         try
         {
             if (!_classMaps.TryGetValue(classType, out var classMap))
@@ -104,7 +104,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         }
         finally
         {
-            BsonSerializer.ConfigLock.ExitWriteLock();
+            _serializationDomain.ConfigLock.ExitWriteLock();
         }
     }
 
@@ -142,7 +142,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
             throw new ArgumentNullException("classMap");
         }
 
-        BsonSerializer.ConfigLock.EnterWriteLock();
+        _serializationDomain.ConfigLock.EnterWriteLock();
         try
         {
             // note: class maps can NOT be replaced (because derived classes refer to existing instance)
@@ -151,7 +151,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         }
         finally
         {
-            BsonSerializer.ConfigLock.ExitWriteLock();
+            _serializationDomain.ConfigLock.ExitWriteLock();
         }
     }
 
@@ -227,7 +227,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
             throw new ArgumentNullException(nameof(classMapFactory));
         }
 
-        BsonSerializer.ConfigLock.EnterReadLock();
+        _serializationDomain.ConfigLock.EnterReadLock();
         try
         {
             if (_classMaps.ContainsKey(typeof(TClass)))
@@ -237,10 +237,10 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         }
         finally
         {
-            BsonSerializer.ConfigLock.ExitReadLock();
+            _serializationDomain.ConfigLock.ExitReadLock();
         }
 
-        BsonSerializer.ConfigLock.EnterWriteLock();
+        _serializationDomain.ConfigLock.EnterWriteLock();
         try
         {
             if (_classMaps.ContainsKey(typeof(TClass)))
@@ -257,7 +257,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         }
         finally
         {
-            BsonSerializer.ConfigLock.ExitWriteLock();
+            _serializationDomain.ConfigLock.ExitWriteLock();
         }
     }
 }

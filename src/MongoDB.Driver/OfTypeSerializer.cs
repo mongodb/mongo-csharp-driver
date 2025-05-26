@@ -49,7 +49,7 @@ namespace MongoDB.Driver
             GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
                 => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id, out idNominalType, out idGenerator);
 
-        public bool GetDocumentId(object document, IBsonSerializationDomain domain, out object id, out Type idNominalType,
+        public bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType,
             out IIdGenerator idGenerator)
         {
             if (_derivedDocumentSerializer is IBsonIdProvider idProvider)
