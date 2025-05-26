@@ -142,6 +142,6 @@ namespace MongoDB.Driver
         /// A new RenderArgs{TNewDocument} instance.
         /// </returns>
         public readonly RenderArgs<TNewDocument> WithNewDocumentType<TNewDocument>(IBsonSerializer<TNewDocument> serializer) =>
-            new(serializer, _serializerRegistry, _pathRenderArgs, _renderDollarForm, _renderForFind, _renderForElemMatch, _translationOptions);
+            new(serializer, _serializerRegistry, _pathRenderArgs, _renderDollarForm, _renderForFind, _renderForElemMatch, _translationOptions, _serializationDomain);
     }
 }
