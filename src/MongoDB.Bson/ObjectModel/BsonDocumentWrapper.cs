@@ -91,9 +91,19 @@ namespace MongoDB.Bson
         /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
         /// <param name="value">The wrapped object.</param>
         /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Create<TNominalType>(TNominalType value)
+        public static BsonDocumentWrapper Create<TNominalType>(TNominalType value) =>
+            Create(value, BsonSerializer.DefaultSerializationDomain);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="domain"></param>
+        /// <typeparam name="TNominalType"></typeparam>
+        /// <returns></returns>
+        public static BsonDocumentWrapper Create<TNominalType>(TNominalType value, IBsonSerializationDomain domain)
         {
-            return Create(typeof(TNominalType), value);
+            return Create(typeof(TNominalType), value, domain);
         }
 
         /// <summary>
@@ -102,9 +112,19 @@ namespace MongoDB.Bson
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="value">The wrapped object.</param>
         /// <returns>A BsonDocumentWrapper.</returns>
-        public static BsonDocumentWrapper Create(Type nominalType, object value)
+        public static BsonDocumentWrapper Create(Type nominalType, object value) =>
+            Create(nominalType, value, BsonSerializer.DefaultSerializationDomain);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="nominalType"></param>
+        /// <param name="value"></param>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        public static BsonDocumentWrapper Create(Type nominalType, object value, IBsonSerializationDomain domain)
         {
-            var serializer = BsonSerializer.LookupSerializer(nominalType);
+            var serializer = domain.LookupSerializer(nominalType);  //TODO ??
             return new BsonDocumentWrapper(value, serializer);
         }
 
@@ -114,14 +134,25 @@ namespace MongoDB.Bson
         /// <typeparam name="TNominalType">The nominal type of the wrapped objects.</typeparam>
         /// <param name="values">A list of wrapped objects.</param>
         /// <returns>A list of BsonDocumentWrappers.</returns>
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values)
+        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values) =>
+            CreateMultiple(values, BsonSerializer.DefaultSerializationDomain);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="values"></param>
+        /// <param name="domain"></param>
+        /// <typeparam name="TNominalType"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values, IBsonSerializationDomain domain)
         {
             if (values == null)
             {
                 throw new ArgumentNullException("values");
             }
 
-            var serializer = BsonSerializer.LookupSerializer(typeof(TNominalType));
+            var serializer = domain.LookupSerializer(typeof(TNominalType));
             return values.Select(v => new BsonDocumentWrapper(v, serializer));
         }
 
@@ -131,7 +162,18 @@ namespace MongoDB.Bson
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="values">A list of wrapped objects.</param>
         /// <returns>A list of BsonDocumentWrappers.</returns>
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values)
+        public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values) =>
+            CreateMultiple(nominalType, values, BsonSerializer.DefaultSerializationDomain);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="nominalType"></param>
+        /// <param name="values"></param>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values, IBsonSerializationDomain domain)
         {
             if (nominalType == null)
             {
@@ -142,7 +184,7 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("values");
             }
 
-            var serializer = BsonSerializer.LookupSerializer(nominalType);
+            var serializer = domain.LookupSerializer(nominalType);
             return values.Cast<object>().Select(v => new BsonDocumentWrapper(v, serializer));
         }
 

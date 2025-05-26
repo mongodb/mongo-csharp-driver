@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonReader = context.Reader;
             var nominalType = args.NominalType;
             var actualType = _discriminatorConvention.GetActualType(bsonReader, nominalType);
-            var serializer = BsonSerializer.LookupSerializer(actualType);
+            var serializer = context.SerializationDomain.LookupSerializer(actualType);
 
             TValue value = default(TValue);
             _helper.DeserializeMembers(context, (elementName, flag) =>

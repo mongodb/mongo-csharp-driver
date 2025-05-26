@@ -87,7 +87,9 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
             }
 
-            public void Apply(BsonMemberMap memberMap)
+            public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+
+            public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
             {
                 var attributes = memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<IBsonMemberMapAttribute>();
                 var groupings = attributes.GroupBy(a => (a is BsonSerializerAttribute) ? 1 : 2);
@@ -100,7 +102,9 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
             }
 
-            public void PostProcess(BsonClassMap classMap)
+            public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
+
+            public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
             {
                 foreach (var attribute in classMap.ClassType.GetTypeInfo().GetCustomAttributes(inherit: false).OfType<IBsonPostProcessingAttribute>())
                 {

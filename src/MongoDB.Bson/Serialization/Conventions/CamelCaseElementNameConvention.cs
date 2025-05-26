@@ -24,11 +24,11 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class CamelCaseElementNameConvention : ConventionBase, IMemberMapConvention
     {
         // public methods
-        /// <summary>
-        /// Applies a modification to the member map.
-        /// </summary>
-        /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap)
+        /// <inheritdoc />
+        public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             string name = memberMap.MemberName;
             name = GetElementName(name);
