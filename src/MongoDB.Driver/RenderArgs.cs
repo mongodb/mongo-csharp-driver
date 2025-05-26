@@ -38,6 +38,7 @@ namespace MongoDB.Driver
         private readonly bool _renderForFind = false;
         private readonly IBsonSerializerRegistry _serializerRegistry = default;
         private readonly ExpressionTranslationOptions _translationOptions = default;
+        private readonly IBsonSerializationDomain _serializationDomain = default;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderArgs{TDocument}"/> record.
@@ -49,6 +50,7 @@ namespace MongoDB.Driver
         /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
         /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
         /// <param name="translationOptions">The translation options.</param>
+        /// <param name="serializationDomain">//TODO</param>
         public RenderArgs(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
@@ -56,7 +58,8 @@ namespace MongoDB.Driver
             bool renderDollarForm = default,
             bool renderForFind = false,
             bool renderForElemMatch = false,
-            ExpressionTranslationOptions translationOptions = null)
+            ExpressionTranslationOptions translationOptions = null,
+            IBsonSerializationDomain serializationDomain = null)
         {
             DocumentSerializer = documentSerializer;
             PathRenderArgs = pathRenderArgs;
@@ -65,6 +68,7 @@ namespace MongoDB.Driver
             _renderForFind = renderForFind;
             _renderForElemMatch = renderForElemMatch;
             _translationOptions = translationOptions; // can be null
+            _serializationDomain = serializationDomain;
         }
 
         /// <summary>
@@ -99,10 +103,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the serializer registry.
         /// </summary>
-        public readonly IBsonSerializerRegistry SerializerRegistry
+        public readonly IBsonSerializerRegistry SerializerRegistry  //TODO: we should probably remove this property
         {
             get => _serializerRegistry;
             init => _serializerRegistry = Ensure.IsNotNull(value, nameof(value));
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        public readonly IBsonSerializationDomain SerializationDomain
+        {
+            get => _serializationDomain;
+            init => _serializationDomain = Ensure.IsNotNull(value, nameof(value));
         }
 
         /// <summary>

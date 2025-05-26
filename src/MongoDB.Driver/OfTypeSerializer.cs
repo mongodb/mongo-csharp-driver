@@ -45,7 +45,12 @@ namespace MongoDB.Driver
                 object.Equals(_derivedDocumentSerializer, other._derivedDocumentSerializer);
         }
 
-        public bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        public bool
+            GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
+                => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id, out idNominalType, out idGenerator);
+
+        public bool GetDocumentId(object document, IBsonSerializationDomain domain, out object id, out Type idNominalType,
+            out IIdGenerator idGenerator)
         {
             if (_derivedDocumentSerializer is IBsonIdProvider idProvider)
             {

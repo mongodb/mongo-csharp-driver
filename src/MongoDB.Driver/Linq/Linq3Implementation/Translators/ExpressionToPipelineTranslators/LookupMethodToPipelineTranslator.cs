@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryableParameter = parameters[1];
             var body = pipelineLambda.Body;
 
-            context = TranslationContext.Create(context.TranslationOptions);
+            context = TranslationContext.Create(context.TranslationOptions, context.SerializationDomain);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);
@@ -332,7 +332,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var queryableParameter = parameters[1];
             var body = pipelineLambda.Body;
 
-            context = TranslationContext.Create(context.TranslationOptions);
+            context = TranslationContext.Create(context.TranslationOptions, context.SerializationDomain);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);
