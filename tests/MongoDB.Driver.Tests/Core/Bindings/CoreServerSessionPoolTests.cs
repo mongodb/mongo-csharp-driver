@@ -18,16 +18,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Encryption;
 using Moq;
 using Xunit;
 
@@ -205,28 +199,16 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
-        public void IsAboutToExpire_should_never_expire_in_load_balancing_mode()
-        {
-            var subject = CreateSubject();
-            var mockedCluster = new TestCluster(ClusterType.LoadBalanced);
-            var mockedServerSessionPool = new CoreServerSessionPool(mockedCluster);
-            var mockSession = new Mock<ICoreServerSession>();
-            var lastUsedAt = DateTime.UtcNow.AddSeconds(1741);
-            mockSession.SetupGet(m => m.LastUsedAt).Returns(lastUsedAt);
-
-            var result = mockedServerSessionPool.IsAboutToExpire(mockSession.Object);
-
-            result.Should().BeFalse();
-        }
-
         [Theory]
-        [InlineData(null, true)]
-        [InlineData(1741, true)]
-        [InlineData(1739, false)]
-        public void IsAboutToExpire_should_return_expected_result(int? lastUsedSecondsAgo, bool expectedResult)
+        [InlineData(ClusterType.Sharded, null, true)]
+        [InlineData(ClusterType.Sharded, 1741, true)]
+        [InlineData(ClusterType.Sharded, 1739, false)]
+        [InlineData(ClusterType.LoadBalanced, null, false)]
+        [InlineData(ClusterType.LoadBalanced, 1741, false)]
+        [InlineData(ClusterType.LoadBalanced, 1739, false)]
+        public void IsAboutToExpire_should_return_expected_result(ClusterType clusterType, int? lastUsedSecondsAgo, bool expectedResult)
         {
-            var subject = CreateSubject();
+            var subject = CreateSubject(clusterType);
             var mockSession = new Mock<ICoreServerSession>();
             var lastUsedAt = lastUsedSecondsAgo == null ? (DateTime?)null : DateTime.UtcNow.AddSeconds(-lastUsedSecondsAgo.Value);
             mockSession.SetupGet(m => m.LastUsedAt).Returns(lastUsedAt);
@@ -256,7 +238,7 @@ namespace MongoDB.Driver.Tests
             return recentlyUsed ? CreateMockRecentlyUsedSession() : CreateMockExpiredSession();
         }
 
-        private CoreServerSessionPool CreateSubject()
+        private CoreServerSessionPool CreateSubject(ClusterType clusterType = ClusterType.Sharded)
         {
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -270,35 +252,12 @@ namespace MongoDB.Driver.Tests
                 version: new SemanticVersion(3, 6, 0),
                 wireVersionRange: new Range<int>(6, 14));
 
-            var clusterDescription = new ClusterDescription(clusterId, false, null, ClusterType.Sharded, [serverDescription]);
+            var clusterDescription = new ClusterDescription(clusterId, false, null, clusterType, [serverDescription]);
 
             var mockCluster = new Mock<IClusterInternal>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
 
             return new CoreServerSessionPool(mockCluster.Object);
-        }
-
-        private class TestCluster : IClusterInternal
-        {
-            public TestCluster(ClusterType clusterType)
-            {
-                Description = new ClusterDescription(new ClusterId(), false, null, clusterType, Enumerable.Empty<ServerDescription>());
-            }
-
-            public ClusterId ClusterId => throw new NotImplementedException();
-
-            public ClusterDescription Description { get; }
-
-            public ClusterSettings Settings => throw new NotImplementedException();
-
-            public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
-
-            public ICoreServerSession AcquireServerSession() => throw new NotImplementedException();
-            public void Dispose() => throw new NotImplementedException();
-            public void Initialize() => DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(Description, Description));
-            public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken) => throw new NotImplementedException();
-            public Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken) => throw new NotImplementedException();
-            public ICoreSessionHandle StartSession(CoreSessionOptions options = null) => throw new NotImplementedException();
         }
     }
 
