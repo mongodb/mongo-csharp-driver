@@ -68,7 +68,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
             throw new ArgumentNullException("classType");
         }
 
-        _serializationDomain.ConfigLock.EnterReadLock(); //TODO Remove this lock from here...
+        _serializationDomain.ConfigLock.EnterReadLock();
         try
         {
             if (_classMaps.TryGetValue(classType, out var classMap))
