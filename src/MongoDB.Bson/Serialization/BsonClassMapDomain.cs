@@ -147,7 +147,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
         {
             // note: class maps can NOT be replaced (because derived classes refer to existing instance)
             _classMaps.Add(classMap.ClassType, classMap);
-            BsonSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
+            _serializationDomain.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
         }
         finally
         {

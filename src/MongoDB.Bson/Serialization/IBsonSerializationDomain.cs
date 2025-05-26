@@ -59,7 +59,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         IBsonSerializerRegistry SerializerRegistry { get; }
 
-                /// <summary>
+        /// <summary>
         /// Registers the discriminator for a type.
         /// </summary>
         /// <param name="type">The type.</param>
