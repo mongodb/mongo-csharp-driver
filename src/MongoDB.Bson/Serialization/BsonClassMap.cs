@@ -1161,7 +1161,7 @@ namespace MongoDB.Bson.Serialization
         /// Gets the discriminator convention for the class.
         /// </summary>
         /// <returns>The discriminator convention for the class.</returns>
-        internal IDiscriminatorConvention GetDiscriminatorConvention()
+        internal IDiscriminatorConvention GetDiscriminatorConvention(IBsonSerializationDomainInternal serializationDomain)
         {
             // return a cached discriminator convention when possible
             var discriminatorConvention = _discriminatorConvention;
@@ -1198,7 +1198,7 @@ namespace MongoDB.Bson.Serialization
                         return classMap._discriminatorConvention;
                     }
 
-                    if (BsonSerializer.IsDiscriminatorConventionRegisteredAtThisLevel(classMap._classType))
+                    if (serializationDomain.IsDiscriminatorConventionRegisteredAtThisLevel(classMap._classType))
                     {
                         // in this case LookupDiscriminatorConvention below will find it
                         break;
@@ -1207,16 +1207,23 @@ namespace MongoDB.Bson.Serialization
                     if (classMap._isRootClass)
                     {
                         // in this case auto-register a hierarchical convention for the root class and look it up as usual below
-                        BsonSerializer.GetOrRegisterDiscriminatorConvention(classMap._classType, StandardDiscriminatorConvention.Hierarchical);
+                        serializationDomain.GetOrRegisterDiscriminatorConvention(classMap._classType, StandardDiscriminatorConvention.Hierarchical);
                         break;
                     }
 
                     classMap = classMap._baseClassMap;
                 }
 
-                return BsonSerializer.LookupDiscriminatorConvention(_classType);
+                return serializationDomain.LookupDiscriminatorConvention(_classType);
             }
         }
+
+        /// <summary>
+        /// Gets the discriminator convention for the class.
+        /// </summary>
+        /// <returns>The discriminator convention for the class.</returns>
+        internal IDiscriminatorConvention GetDiscriminatorConvention()
+            => GetDiscriminatorConvention(BsonSerializer.DefaultSerializationDomain as IBsonSerializationDomainInternal);
 
         // private methods
         private void AutoMapClass(IBsonSerializationDomain serializationDomain)
