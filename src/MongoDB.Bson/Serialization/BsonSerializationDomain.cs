@@ -23,12 +23,10 @@ namespace MongoDB.Bson.Serialization
         private IConventionRegistryDomain _conventionRegistryDomain;
         private Dictionary<Type, IIdGenerator> _idGenerators = new();
         private Dictionary<Type, IDiscriminatorConvention> _discriminatorConventions = new();
-        private static Dictionary<BsonValue, HashSet<Type>> __discriminators = new Dictionary<BsonValue, HashSet<Type>>();
         private Dictionary<BsonValue, HashSet<Type>> _discriminators = new();
         private HashSet<Type> _discriminatedTypes = new();
         private BsonSerializerRegistry _serializerRegistry;
         private TypeMappingSerializationProvider _typeMappingSerializationProvider;
-
         // ConcurrentDictionary<Type, object> is being used as a concurrent set of Type. The values will always be null.
         private ConcurrentDictionary<Type, object> _typesWithRegisteredKnownTypes = new();
 
@@ -285,7 +283,7 @@ namespace MongoDB.Bson.Serialization
             _configLock.EnterReadLock();
             try
             {
-                foreach (var entry in __discriminators)
+                foreach (var entry in _discriminators)
                 {
                     var discriminator = entry.Key;
                     var actualTypes = entry.Value;
