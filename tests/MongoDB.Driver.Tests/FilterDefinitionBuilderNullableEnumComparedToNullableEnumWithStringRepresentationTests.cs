@@ -23,7 +23,10 @@ namespace MongoDB.Driver.Tests
 {
     public class FilterDefinitionBuilderNullableEnumComparedToNullableEnumWithStringRepresentationTests
     {
-        private static RenderArgs<C> __args = new(BsonSerializer.SerializerRegistry.GetSerializer<C>(), BsonSerializer.SerializerRegistry);
+        private static RenderArgs<C> __args = new(
+            BsonSerializer.DefaultSerializationDomain.SerializerRegistry.GetSerializer<C>(),
+            BsonSerializer.DefaultSerializationDomain.SerializerRegistry,
+            serializationDomain: BsonSerializer.DefaultSerializationDomain);
         private static FilterDefinitionBuilder<C> __subject = Builders<C>.Filter;
 
         public enum E { A, B }
