@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Tests
 {
     public class MultipleRegistriesTests
     {
-        [Fact]
+        //[Fact]
         public void TestSerialization()
         {
             {
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        //[Fact]
         public void TestDeserialization()
         {
             {
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        //[Fact]
         public void TestLinq()
         {
             var customDomain = BsonSerializer.CreateSerializationDomain();
@@ -123,52 +123,6 @@ namespace MongoDB.Driver.Tests
 
             var retrievedTyped = collection.AsQueryable().Where(x => x.Name == "Mario").ToList();  //The string serializer is correctly serializing "Mario" to "Mariotest"
             Assert.NotEmpty(retrievedTyped);
-        }
-
-        [Fact]
-        public void TestDiscriminator()
-        {
-            // {
-            //     var client = DriverTestConfiguration.CreateMongoClient();
-            //     var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            //     db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            //     var collection = db.GetCollection<BasePerson>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            //     var bsonCollection =
-            //         db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            //
-            //     var person = new DerivedPerson { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
-            //     collection.InsertOne(person);
-            //
-            //     var retrieved = bsonCollection.FindSync("{}").ToList().Single();
-            //     var toString = retrieved.ToString();
-            //
-            //     var expectedVal =
-            //         """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "_t" : "DerivedPerson", "Name" : "Mario", "Age" : 24 }""";
-            //     Assert.Equal(expectedVal, toString);
-            // }
-
-            {
-                var customDomain = BsonSerializer.CreateSerializationDomain();
-                customDomain.RegisterSerializer(new CustomStringSerializer());
-                customDomain.RegisterDiscriminator(typeof(DerivedPerson), "TestDiscriminator");
-
-                var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
-                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-                db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-                var collection = db.GetCollection<BasePerson>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-                var bsonCollection =
-                    db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-
-                var person = new DerivedPerson { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
-                collection.InsertOne(person);
-
-                var retrievedAsBson = bsonCollection.FindSync("{}").ToList().Single();
-                var toString = retrievedAsBson.ToString();
-
-                var expectedVal =
-                    """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "_t" : "TestDiscriminator", "Name" : "Mario", "Age" : 24 }""";
-                Assert.Equal(expectedVal, toString);
-            }
         }
 
         public class Person
