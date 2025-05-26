@@ -68,7 +68,7 @@ namespace MongoDB.Driver
             _renderForFind = renderForFind;
             _renderForElemMatch = renderForElemMatch;
             _translationOptions = translationOptions; // can be null
-            _serializationDomain = serializationDomain;
+            _serializationDomain = serializationDomain ?? BsonSerializer.DefaultSerializationDomain;  //TODO Should we do it like this?
         }
 
         /// <summary>
