@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             _translationOptions = translationOptions ?? new ExpressionTranslationOptions();
             _data = data; // can be null
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
+            _serializationDomain = serializationDomain;
             _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
         }
 
