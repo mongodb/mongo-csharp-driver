@@ -420,7 +420,7 @@ namespace MongoDB.Bson.Serialization
             return Freeze(freezeContext);
         }
 
-        private BsonClassMap Freeze(FreezeContext context)  //TODO This is not completely correct, because LookupClassMap calls freeze
+        private BsonClassMap Freeze(FreezeContext context)
         {
             var configLock = context.SerializationDomain!.ConfigLock;
             configLock.EnterReadLock();
@@ -451,7 +451,7 @@ namespace MongoDB.Bson.Serialization
                             {
                                 _baseClassMap = context.SerializationDomain.BsonClassMap.LookupClassMap(baseType);
                             }
-                            _baseClassMap.Freeze(context);  //TODO This is not necessary, because LookupClassMap will only return a frozen class map
+                            _baseClassMap.Freeze(context);
                             _discriminatorIsRequired |= _baseClassMap._discriminatorIsRequired;
                             _hasRootClass |= (_isRootClass || _baseClassMap.HasRootClass);
                             _allMemberMaps.AddRange(_baseClassMap.AllMemberMaps);
@@ -1214,7 +1214,7 @@ namespace MongoDB.Bson.Serialization
         private void AutoMapClass(IBsonSerializationDomain serializationDomain)
         {
             var conventionPack = serializationDomain.ConventionRegistry.Lookup(_classType);
-            new ConventionRunner(conventionPack).Apply(this);
+            new ConventionRunner(conventionPack).Apply(this, serializationDomain);
 
             foreach (var memberMap in _declaredMemberMaps)
             {

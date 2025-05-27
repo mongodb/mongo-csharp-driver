@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
             classMap.AutoMap();
             classMap.SetDiscriminatorConvention(serializationDomain.LookupDiscriminatorConvention(typeof(TInterface)));
-            classMap.Freeze();
+            classMap.Freeze(serializationDomain as IBsonSerializationDomainInternal);
             return new BsonClassMapSerializer<TInterface>(classMap);
         }
         #endregion
