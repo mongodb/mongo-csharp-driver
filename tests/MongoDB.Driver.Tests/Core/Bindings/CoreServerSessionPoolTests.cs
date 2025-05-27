@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Tests
         [InlineData(ClusterType.LoadBalanced, null, false)]
         [InlineData(ClusterType.LoadBalanced, 1741, false)]
         [InlineData(ClusterType.LoadBalanced, 1739, false)]
-        public void IsAboutToExpire_should_return_expected_result(ClusterType clusterType, int? lastUsedSecondsAgo, bool expectedResult)
+        public void IsAboutToExpire_should_return_expected_result(ClusterType clusterType, int? lastUsedSecondsAgo, bool isAboutToExpire)
         {
             var subject = CreateSubject(clusterType);
             var mockSession = new Mock<ICoreServerSession>();
@@ -215,7 +215,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.IsAboutToExpire(mockSession.Object);
 
-            result.Should().Be(expectedResult);
+            result.Should().Be(isAboutToExpire);
         }
 
         // private methods
