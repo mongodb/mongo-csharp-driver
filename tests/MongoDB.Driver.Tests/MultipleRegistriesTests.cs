@@ -17,16 +17,20 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
     public class MultipleRegistriesTests
     {
-        //[Fact]
+        [Fact]
         public void TestSerialization()
         {
+            RequireServer.Check();
+
             {
                 var client = DriverTestConfiguration.CreateMongoClient();
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
@@ -73,9 +77,11 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        //[Fact]
+        [Fact]
         public void TestDeserialization()
         {
+            RequireServer.Check();
+
             {
                 var client = DriverTestConfiguration.CreateMongoClient();
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
@@ -99,9 +105,11 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        //[Fact]
+        [Fact]
         public void TestLinq()
         {
+            RequireServer.Check();
+
             var customDomain = BsonSerializer.CreateSerializationDomain();
             customDomain.RegisterSerializer(new CustomStringSerializer());
 
@@ -123,6 +131,40 @@ namespace MongoDB.Driver.Tests
 
             var retrievedTyped = collection.AsQueryable().Where(x => x.Name == "Mario").ToList();  //The string serializer is correctly serializing "Mario" to "Mariotest"
             Assert.NotEmpty(retrievedTyped);
+        }
+
+        [Fact]
+        public void TestConventions()
+        {
+            RequireServer.Check();
+
+            var customDomain = BsonSerializer.CreateSerializationDomain();
+
+            // Register an id generator convention that uses a custom ObjectIdGenerator
+            customDomain.RegisterIdGenerator(typeof(ObjectId), new CustomObjectIdGenerator());
+
+            //Register a convention to use lowercase for all fields on the Person class
+            var pack = new ConventionPack();
+            pack.AddMemberMapConvention(
+                "LowerCaseElementName",
+                m => m.SetElementName(m.MemberName.ToLower()));
+            customDomain.ConventionRegistry.Register("myPack", pack, t => t == typeof(Person));
+
+            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var untypedCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+            var person = new Person { Name = "Mario", Age = 24 };  //Id is not set, so the custom ObjectIdGenerator should be used
+            collection.InsertOne(person);
+
+            var retrievedAsBson = untypedCollection.FindSync("{}").ToList().Single();
+            var toString = retrievedAsBson.ToString();
+
+            var expectedVal =
+                """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "name" : "Mario", "age" : 24 }""";
+            Assert.Equal(expectedVal, toString);
         }
 
         public class Person
@@ -172,6 +214,19 @@ namespace MongoDB.Driver.Tests
             {
                 var bsonWriter = context.Writer;
                 bsonWriter.WriteString(value + "test");
+            }
+        }
+
+        public class CustomObjectIdGenerator : IIdGenerator
+        {
+            public object GenerateId(object container, object document)
+            {
+                return ObjectId.Parse("6797b56bf5495bf53aa3078f");
+            }
+
+            public bool IsEmpty(object id)
+            {
+                return true;
             }
         }
     }

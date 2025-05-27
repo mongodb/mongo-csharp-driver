@@ -124,7 +124,7 @@ namespace MongoDB.Bson
         /// <returns></returns>
         public static BsonDocumentWrapper Create(Type nominalType, object value, IBsonSerializationDomain domain)
         {
-            var serializer = domain.LookupSerializer(nominalType);  //TODO ??
+            var serializer = domain.LookupSerializer(nominalType);
             return new BsonDocumentWrapper(value, serializer);
         }
 
