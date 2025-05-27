@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -89,17 +88,17 @@ namespace MongoDB.Driver.Core.Operations
             return new[] { payload };
         }
 
-        public new ClientBulkWriteResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public new ClientBulkWriteResult Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
         {
             using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationToken);
+                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationContext);
                 BsonDocument serverResponse = null;
                 try
                 {
-                    serverResponse = base.Execute(context, cancellationToken);
+                    serverResponse = base.Execute(context, cancellationContext);
                 }
                 catch (MongoWriteConcernException concernException)
                 {
@@ -124,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         try
                         {
-                            while (individualResults.MoveNext(cancellationToken))
+                            while (individualResults.MoveNext(cancellationContext.CancellationToken))
                             {
                                 PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
                             }
@@ -146,17 +145,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public new async Task<ClientBulkWriteResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public new async Task<ClientBulkWriteResult> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
         {
             using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationToken);
+                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationContext);
                 BsonDocument serverResponse = null;
                 try
                 {
-                    serverResponse = await base.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                    serverResponse = await base.ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
                 }
                 catch (MongoWriteConcernException concernException)
                 {
@@ -181,7 +180,7 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         try
                         {
-                            while (await individualResults.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                            while (await individualResults.MoveNextAsync(cancellationContext.CancellationToken).ConfigureAwait(false))
                             {
                                 PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
                             }

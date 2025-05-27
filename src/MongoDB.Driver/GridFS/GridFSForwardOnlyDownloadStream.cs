@@ -196,14 +196,18 @@ namespace MongoDB.Driver.GridFS
         private void GetFirstBatch(CancellationToken cancellationToken)
         {
             var operation = CreateFirstBatchOperation();
-            _cursor = operation.Execute(Binding, cancellationToken);
+            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            _cursor = operation.Execute(Binding, operationCancellationContext);
             GetNextBatch(cancellationToken);
         }
 
         private async Task GetFirstBatchAsync(CancellationToken cancellationToken)
         {
             var operation = CreateFirstBatchOperation();
-            _cursor = await operation.ExecuteAsync(Binding, cancellationToken).ConfigureAwait(false);
+            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            _cursor = await operation.ExecuteAsync(Binding, operationCancellationContext).ConfigureAwait(false);
             await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
         }
 

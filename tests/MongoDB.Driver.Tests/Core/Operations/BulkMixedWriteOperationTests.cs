@@ -1376,8 +1376,8 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
-            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
-            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationCancellationContext.NoTimeout))
+            using (var channel = channelSource.GetChannel(OperationCancellationContext.NoTimeout))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
@@ -1423,8 +1423,8 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
-            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
-            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationCancellationContext.NoTimeout))
+            using (var channel = channelSource.GetChannel(OperationCancellationContext.NoTimeout))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
@@ -1464,8 +1464,8 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
-            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
-            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationCancellationContext.NoTimeout))
+            using (var channel = channelSource.GetChannel(OperationCancellationContext.NoTimeout))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
@@ -1505,8 +1505,8 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
-            using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
-            using (var channel = channelSource.GetChannel(CancellationToken.None))
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationCancellationContext.NoTimeout))
+            using (var channel = channelSource.GetChannel(OperationCancellationContext.NoTimeout))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);

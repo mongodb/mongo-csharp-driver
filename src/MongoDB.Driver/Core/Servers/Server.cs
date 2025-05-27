@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Servers
         public void HandleExceptionOnOpen(Exception exception) =>
             HandleBeforeHandshakeCompletesException(exception);
 
-        public IChannelHandle GetChannel(CancellationToken cancellationToken)
+        public IChannelHandle GetChannel(OperationCancellationContext cancellationContext)
         {
             ThrowIfNotOpen();
 
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 Interlocked.Increment(ref _outstandingOperationsCount);
 
-                var connection = _connectionPool.AcquireConnection(cancellationToken);
+                var connection = _connectionPool.AcquireConnection(cancellationContext);
                 return new ServerChannel(this, connection);
             }
             catch
@@ -126,14 +126,14 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public async Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
+        public async Task<IChannelHandle> GetChannelAsync(OperationCancellationContext cancellationContext)
         {
             ThrowIfNotOpen();
 
             try
             {
                 Interlocked.Increment(ref _outstandingOperationsCount);
-                var connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
+                var connection = await _connectionPool.AcquireConnectionAsync(cancellationContext).ConfigureAwait(false);
                 return new ServerChannel(this, connection);
             }
             catch

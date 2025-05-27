@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
@@ -63,8 +64,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         }
 
         [Theory]
-        [ParameterAttributeData()]
-        public void Constructor_should_handle_directConnection_correctly([Values(null, false, true)]bool directConnection)
+        [ParameterAttributeData]
+        public void Constructor_should_handle_directConnection_correctly([Values(false, true)]bool directConnection)
         {
             _settings = _settings.With(directConnection: directConnection);
 
@@ -81,7 +82,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         }
 
         [Theory]
-        [ParameterAttributeData()]
+        [ParameterAttributeData]
         public void Constructor_should_handle_loadBalanced_correctly([Values(false, true)] bool loadBalanced)
         {
             _settings = _settings.With(loadBalanced: loadBalanced);
@@ -309,7 +310,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public void SelectServer_should_return_expected_server(
+        public async Task SelectServer_should_return_expected_server(
             [Values(ConnectionStringScheme.MongoDB, ConnectionStringScheme.MongoDBPlusSrv)] ConnectionStringScheme connectionStringScheme,
             [Values(false, true)] bool async)
         {
@@ -326,15 +327,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
                 PublishDescription(_endPoint);
 
-                IServer result;
-                if (async)
-                {
-                    result = subject.SelectServerAsync(Mock.Of<IServerSelector>(), CancellationToken.None).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    result = subject.SelectServer(Mock.Of<IServerSelector>(), CancellationToken.None);
-                }
+                var result = async ?
+                    await subject.SelectServerAsync(Mock.Of<IServerSelector>(), OperationCancellationContext.NoTimeout) :
+                    subject.SelectServer(Mock.Of<IServerSelector>(), OperationCancellationContext.NoTimeout);
 
                 result.EndPoint.Should().Be(_endPoint);
             }
@@ -342,7 +337,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public void SelectServer_should_throw_server_selection_timeout_if_server_has_not_been_created_in_time(
+        public async Task SelectServer_should_throw_server_selection_timeout_if_server_has_not_been_created_in_time(
             [Values(ConnectionStringScheme.MongoDB, ConnectionStringScheme.MongoDBPlusSrv)] ConnectionStringScheme connectionStringScheme,
             [Values(false, true)] bool async)
         {
@@ -356,19 +351,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 var dnsException = new Exception("Dns exception");
                 if (connectionStringScheme == ConnectionStringScheme.MongoDBPlusSrv)
                 {
-                    // it has affect only on srv mode
+                    // it has an effect only on srv mode
                     PublishDnsException(subject, dnsException);
                 }
 
-                Exception exception;
-                if (async)
-                {
-                    exception = Record.Exception(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), CancellationToken.None).GetAwaiter().GetResult());
-                }
-                else
-                {
-                    exception = Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), CancellationToken.None));
-                }
+                var exception = async ?
+                    await Record.ExceptionAsync(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), OperationCancellationContext.NoTimeout)) :
+                    Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), OperationCancellationContext.NoTimeout));
 
                 var ex = exception.Should().BeOfType<TimeoutException>().Subject;
                 ex.Message.Should().StartWith($"A timeout occurred after {serverSelectionTimeout.TotalMilliseconds}ms selecting a server. Client view of cluster state is ");
@@ -385,7 +374,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public void SelectServer_should_be_cancelled_by_cancellationToken(
+        public async Task SelectServer_should_be_cancelled_by_cancellationToken(
             [Values(ConnectionStringScheme.MongoDB, ConnectionStringScheme.MongoDBPlusSrv)] ConnectionStringScheme connectionStringScheme,
             [Values(false, true)] bool async)
         {
@@ -398,14 +387,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 Exception exception;
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100)))
                 {
-                    if (async)
-                    {
-                        exception = Record.Exception(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), cancellationTokenSource.Token).GetAwaiter().GetResult());
-                    }
-                    else
-                    {
-                        exception = Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), cancellationTokenSource.Token));
-                    }
+                    var cancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+                    exception = async ?
+                        await Record.ExceptionAsync(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), cancellationContext)) :
+                        Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), cancellationContext));
                 }
 
                 exception.Should().BeOfType<OperationCanceledException>();

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -43,54 +42,54 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        public TCommandResult Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public TCommandResult Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationContext))
             {
-                return Execute(context, cancellationToken);
+                return Execute(context, cancellationContext);
             }
         }
 
-        public TCommandResult Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        public TCommandResult Execute(RetryableReadContext context, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (EventContext.BeginOperation())
             {
-                return RetryableReadOperationExecutor.Execute(this, context, cancellationToken);
+                return RetryableReadOperationExecutor.Execute(this, context, cancellationContext);
             }
         }
 
-        public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationContext).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
             }
         }
 
-        public async Task<TCommandResult> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        public async Task<TCommandResult> ExecuteAsync(RetryableReadContext context, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (EventContext.BeginOperation())
             {
-                return await RetryableReadOperationExecutor.ExecuteAsync(this, context, cancellationToken).ConfigureAwait(false);
+                return await RetryableReadOperationExecutor.ExecuteAsync(this, context, cancellationContext).ConfigureAwait(false);
             }
         }
 
-        public TCommandResult ExecuteAttempt(RetryableReadContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
+        public TCommandResult ExecuteAttempt(RetryableReadContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext)
         {
-            return ExecuteProtocol(context.Channel, context.Binding.Session, context.Binding.ReadPreference, cancellationToken);
+            return ExecuteProtocol(context.Channel, context.Binding.Session, context.Binding.ReadPreference, cancellationContext.CancellationToken);
         }
 
-        public Task<TCommandResult> ExecuteAttemptAsync(RetryableReadContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
+        public Task<TCommandResult> ExecuteAttemptAsync(RetryableReadContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext)
         {
-            return ExecuteProtocolAsync(context.Channel, context.Binding.Session, context.Binding.ReadPreference, cancellationToken);
+            return ExecuteProtocolAsync(context.Channel, context.Binding.Session, context.Binding.ReadPreference, cancellationContext.CancellationToken);
         }
     }
 }

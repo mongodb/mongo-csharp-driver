@@ -58,8 +58,9 @@ namespace MongoDB.Driver
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
 
             _messageEncoderSettings = GetMessageEncoderSettings();
-            _readOperationOptions = new(DefaultReadPreference: _settings.ReadPreference);
-            _writeOperationOptions = new();
+            // TODO: CSOT populate the timeout from settings
+            _readOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan, DefaultReadPreference: _settings.ReadPreference);
+            _writeOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan);
         }
 
         // properties

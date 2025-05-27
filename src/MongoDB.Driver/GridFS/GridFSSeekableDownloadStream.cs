@@ -16,8 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -174,7 +172,9 @@ namespace MongoDB.Driver.GridFS
         private void GetChunk(long n, CancellationToken cancellationToken)
         {
             var operation = CreateGetChunkOperation(n);
-            using (var cursor = operation.Execute(Binding, cancellationToken))
+            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            using (var cursor = operation.Execute(Binding, operationCancellationContext))
             {
                 var documents = cursor.ToList();
                 _chunk = GetChunkHelper(n, documents);
@@ -185,7 +185,9 @@ namespace MongoDB.Driver.GridFS
         private async Task GetChunkAsync(long n, CancellationToken cancellationToken)
         {
             var operation = CreateGetChunkOperation(n);
-            using (var cursor = await operation.ExecuteAsync(Binding, cancellationToken).ConfigureAwait(false))
+            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            using (var cursor = await operation.ExecuteAsync(Binding, operationCancellationContext).ConfigureAwait(false))
             {
                 var documents = await cursor.ToListAsync().ConfigureAwait(false);
                 _chunk = GetChunkHelper(n, documents);

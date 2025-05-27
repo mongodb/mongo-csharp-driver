@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -88,19 +87,19 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public BsonValue Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public BsonValue Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = CreateOperation();
-            var result = operation.Execute(binding, cancellationToken);
+            var result = operation.Execute(binding, cancellationContext);
             return result["retval"];
         }
 
-        public async Task<BsonValue> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonValue> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = CreateOperation();
-            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            var result = await operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
             return result["retval"];
         }
 

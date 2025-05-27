@@ -82,8 +82,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
             for (int i = 0; i < testData.iterations; i++)
             {
                 var selectedServer = testData.async
-                    ? cluster.SelectServerAsync(readPreferenceSelector, default).GetAwaiter().GetResult()
-                    : cluster.SelectServer(readPreferenceSelector, default);
+                    ? cluster.SelectServerAsync(readPreferenceSelector, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult()
+                    : cluster.SelectServer(readPreferenceSelector, OperationCancellationContext.NoTimeout);
 
                 selectionHistogram[selectedServer.ServerId]++;
             }
@@ -125,7 +125,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
                         serverDescriptionDisconnected = serverDescriptionDisconnected.With(replicaSetConfig: replicaSetConfig);
                     }
                     var serverDescriptionConnected = serverDescriptionDisconnected.With(state: ServerState.Connected);
-                    
 
                     var operationsCount = operationsCounts.Single(o => endpoint.ToString().EndsWith(o.address));
 

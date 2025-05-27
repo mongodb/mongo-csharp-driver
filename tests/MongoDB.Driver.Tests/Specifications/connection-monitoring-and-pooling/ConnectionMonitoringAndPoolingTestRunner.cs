@@ -409,18 +409,9 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 
             void CheckOut(BsonDocument op, IConnectionPool cp, ConcurrentDictionary<string, IConnection> cm)
             {
-                IConnection conn;
-                if (async)
-                {
-                    conn = cp
-                        .AcquireConnectionAsync(CancellationToken.None)
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                else
-                {
-                    conn = cp.AcquireConnection(CancellationToken.None);
-                }
+                var conn = async ?
+                    cp.AcquireConnectionAsync(OperationCancellationContext.NoTimeout).GetAwaiter().GetResult() :
+                    cp.AcquireConnection(OperationCancellationContext.NoTimeout);
 
                 if (op.TryGetValue("label", out var label))
                 {
@@ -680,7 +671,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         connectionIdLocalValueProvider: connectionIdProvider))
                     .Subscribe(eventCapturer));
 
-                var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+                var server = cluster.SelectServer(WritableServerSelector.Instance, OperationCancellationContext.NoTimeout);
                 connectionPool = server._connectionPool();
 
                 if (test.TryGetValue(Schema.Intergration.failPoint, out var failPointDocument))
@@ -738,7 +729,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionPoolClearedEvent), TimeSpan.FromMilliseconds(500));
                     }
 
-                    var failPointServer = CoreTestConfiguration.Cluster.SelectServer(new EndPointServerSelector(server.EndPoint), default);
+                    var failPointServer = CoreTestConfiguration.Cluster.SelectServer(new EndPointServerSelector(server.EndPoint), OperationCancellationContext.NoTimeout);
                     failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointDocument.AsBsonDocument, withAsync: async);
 
                     if (resetPool)

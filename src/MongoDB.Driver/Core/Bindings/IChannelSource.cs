@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Servers;
 
@@ -26,8 +25,8 @@ namespace MongoDB.Driver.Core.Bindings
         ServerDescription ServerDescription { get; }
         ICoreSessionHandle Session { get; }
 
-        IChannelHandle GetChannel(CancellationToken cancellationToken);
-        Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken);
+        IChannelHandle GetChannel(OperationCancellationContext cancellationContext);
+        Task<IChannelHandle> GetChannelAsync(OperationCancellationContext cancellationContext);
     }
 
     internal interface IChannelSourceHandle : IChannelSource

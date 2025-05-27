@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -27,12 +26,12 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        public static RetryableWriteContext Create(IWriteBinding binding, bool retryRequested, CancellationToken cancellationToken)
+        public static RetryableWriteContext Create(IWriteBinding binding, bool retryRequested, OperationCancellationContext cancellationContext)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             try
             {
-                context.Initialize(cancellationToken);
+                context.Initialize(cancellationContext);
 
                 ChannelPinningHelper.PinChannellIfRequired(
                     context.ChannelSource,
@@ -48,12 +47,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<RetryableWriteContext> CreateAsync(IWriteBinding binding, bool retryRequested, CancellationToken cancellationToken)
+        public static async Task<RetryableWriteContext> CreateAsync(IWriteBinding binding, bool retryRequested, OperationCancellationContext cancellationContext)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             try
             {
-                await context.InitializeAsync(cancellationToken).ConfigureAwait(false);
+                await context.InitializeAsync(cancellationContext).ConfigureAwait(false);
 
                 ChannelPinningHelper.PinChannellIfRequired(
                     context.ChannelSource,
@@ -126,35 +125,35 @@ namespace MongoDB.Driver.Core.Operations
             _channel = null;
         }
 
-        private void Initialize(CancellationToken cancellationToken)
+        private void Initialize(OperationCancellationContext cancellationContext)
         {
-            _channelSource = _binding.GetWriteChannelSource(cancellationToken);
+            _channelSource = _binding.GetWriteChannelSource(cancellationContext);
             var serverDescription = _channelSource.ServerDescription;
 
             try
             {
-                _channel = _channelSource.GetChannel(cancellationToken);
+                _channel = _channelSource.GetChannel(cancellationContext);
             }
             catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription, ex))
             {
-                ReplaceChannelSource(_binding.GetWriteChannelSource(cancellationToken));
-                ReplaceChannel(_channelSource.GetChannel(cancellationToken));
+                ReplaceChannelSource(_binding.GetWriteChannelSource(cancellationContext));
+                ReplaceChannel(_channelSource.GetChannel(cancellationContext));
             }
         }
 
-        private async Task InitializeAsync(CancellationToken cancellationToken)
+        private async Task InitializeAsync(OperationCancellationContext cancellationContext)
         {
-            _channelSource = await _binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false);
+            _channelSource = await _binding.GetWriteChannelSourceAsync(cancellationContext).ConfigureAwait(false);
             var serverDescription = _channelSource.ServerDescription;
 
             try
             {
-                _channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false);
+                _channel = await _channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false);
             }
             catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription, ex))
             {
-                ReplaceChannelSource(await _binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false));
-                ReplaceChannel(await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false));
+                ReplaceChannelSource(await _binding.GetWriteChannelSourceAsync(cancellationContext).ConfigureAwait(false));
+                ReplaceChannel(await _channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false));
             }
         }
     }

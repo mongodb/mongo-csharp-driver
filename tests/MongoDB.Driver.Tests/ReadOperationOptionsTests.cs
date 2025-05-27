@@ -14,6 +14,7 @@
  */
 
 using System.Collections.Generic;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Driver.Core.Bindings;
 using Moq;
@@ -31,7 +32,7 @@ namespace MongoDB.Driver.Tests
             ReadPreference defaultReadPreference,
             IClientSessionHandle session)
         {
-            var readOperationOptions = new ReadOperationOptions(explicitReadPreference, defaultReadPreference);
+            var readOperationOptions = new ReadOperationOptions(Timeout.InfiniteTimeSpan, explicitReadPreference, defaultReadPreference);
             var result = readOperationOptions.GetEffectiveReadPreference(session);
 
             result.Should().Be(expectedReadPreference);

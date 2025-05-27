@@ -15,7 +15,7 @@
 
 using System;
 using System.Reflection;
-using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Servers;
@@ -140,25 +140,17 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_return_expected_result(
+        public async Task GetChannel_should_return_expected_result(
             [Values(false, true)] bool async)
         {
             var mockChannel = new Mock<IChannelHandle>();
             var subject = CreateSubject(channel: mockChannel.Object);
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
             var expectedResult = new Mock<IChannelHandle>().Object;
             mockChannel.Setup(m => m.Fork()).Returns(expectedResult);
 
-            IChannelHandle result;
-            if (async)
-            {
-                result = subject.GetChannelAsync(cancellationToken).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = subject.GetChannel(cancellationToken);
-            }
+            var result = async ?
+                await subject.GetChannelAsync(OperationCancellationContext.NoTimeout) :
+                subject.GetChannel(OperationCancellationContext.NoTimeout);
 
             result.Should().BeSameAs(expectedResult);
             mockChannel.Verify(m => m.Fork(), Times.Once);
@@ -166,24 +158,14 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_throw_when_disposed(
+        public async Task GetChannel_should_throw_when_disposed(
             [Values(false, true)] bool async)
         {
             var subject = CreateDisposedSubject();
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() =>
-            {
-                if (async)
-                {
-                    subject.GetChannelAsync(cancellationToken).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    subject.GetChannel(cancellationToken);
-                }
-            });
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationCancellationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetChannel(OperationCancellationContext.NoTimeout));
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);

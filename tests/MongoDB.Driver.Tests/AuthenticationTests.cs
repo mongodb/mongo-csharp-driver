@@ -337,10 +337,9 @@ namespace MongoDB.Driver.Tests
                 if (Feature.SpeculativeAuthentication.IsSupported(CoreTestConfiguration.MaxWireVersion) &&
                     speculativeAuthenticatationShouldSucceedIfPossible)
                 {
-                    var cancellationToken = CancellationToken.None;
                     var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
-                    var server = client.GetClusterInternal().SelectServer(serverSelector, cancellationToken);
-                    var channel = server.GetChannel(cancellationToken);
+                    var server = client.GetClusterInternal().SelectServer(serverSelector, OperationCancellationContext.NoTimeout);
+                    var channel = server.GetChannel(OperationCancellationContext.NoTimeout);
                     var helloResult = channel.ConnectionDescription.HelloResult;
                     helloResult.SpeculativeAuthenticate.Should().NotBeNull();
                 }

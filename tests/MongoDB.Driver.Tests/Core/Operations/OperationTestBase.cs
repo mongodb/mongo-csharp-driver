@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return operation.Execute(bindingHandle, CancellationToken.None);
+                return operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
             }
         }
 
@@ -163,14 +163,9 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadBinding(cluster))
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                if (async)
-                {
-                    return operation.Execute(bindingHandle, CancellationToken.None);
-                }
-                else
-                {
-                    return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
-                }
+                return async ?
+                    await operation.ExecuteAsync(bindingHandle, OperationCancellationContext.NoTimeout) :
+                    operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
             }
         }
 
@@ -178,11 +173,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (async)
             {
-                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(binding, CancellationToken.None);
+                return operation.Execute(binding, OperationCancellationContext.NoTimeout);
             }
         }
 
@@ -200,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return operation.Execute(bindingHandle, CancellationToken.None);
+                return operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
             }
         }
 
@@ -220,11 +215,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (async)
             {
-                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(binding, CancellationToken.None);
+                return operation.Execute(binding, OperationCancellationContext.NoTimeout);
             }
         }
 
@@ -239,7 +234,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, IReadBinding binding)
         {
-            return await operation.ExecuteAsync(binding, CancellationToken.None);
+            return await operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout);
         }
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
@@ -247,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
+                return await operation.ExecuteAsync(bindingHandle, OperationCancellationContext.NoTimeout);
             }
         }
 
@@ -258,18 +253,23 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (async)
                 {
-                    return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
+                    return await operation.ExecuteAsync(bindingHandle, OperationCancellationContext.NoTimeout);
                 }
                 else
                 {
-                    return operation.Execute(bindingHandle, CancellationToken.None);
+                    return operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
                 }
             }
         }
 
+        private protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding, bool async)
+            => async ?
+                operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult() :
+                operation.Execute(binding, OperationCancellationContext.NoTimeout);
+
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
         {
-            return await operation.ExecuteAsync(binding, CancellationToken.None);
+            return await operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout);
         }
 
         private protected void CreateIndexes(params CreateIndexRequest[] requests)
@@ -542,8 +542,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         private protected void VerifySessionIdSending<TResult>(
-            Func<WritableServerBinding, CancellationToken, Task<TResult>> executeAsync,
-            Func<WritableServerBinding, CancellationToken, TResult> execute,
+            Func<WritableServerBinding, OperationCancellationContext, Task<TResult>> executeAsync,
+            Func<WritableServerBinding, OperationCancellationContext, TResult> execute,
             Action<EventCapturer, ICoreSessionHandle, Exception> assertResults,
             string commandName,
             bool async,
@@ -555,16 +555,14 @@ namespace MongoDB.Driver.Core.Operations
                 using (var session = CreateSession(cluster, useImplicitSession))
                 using (var binding = new WritableServerBinding(cluster, session.Fork()))
                 {
-                    using var cancellationTokenSource = new CancellationTokenSource();
-                    var cancellationToken = cancellationTokenSource.Token;
                     Exception exception;
                     if (async)
                     {
-                        exception = Record.Exception(() => executeAsync(binding, cancellationToken).GetAwaiter().GetResult());
+                        exception = Record.Exception(() => executeAsync(binding, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult());
                     }
                     else
                     {
-                        exception = Record.Exception(() => execute(binding, cancellationToken));
+                        exception = Record.Exception(() => execute(binding, OperationCancellationContext.NoTimeout));
                     }
 
                     assertResults(eventCapturer, session, exception);

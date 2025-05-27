@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +32,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class ReadCommandOperationTests
+    public class ReadCommandOperationTests : OperationTestBase
     {
         // public methods
         [Fact]
@@ -91,14 +90,10 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
 
-            BsonDocument result;
+            ExecuteOperation(subject, binding, async);
             if (async)
             {
-                result = subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
-
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         binding.Session,
@@ -112,13 +107,11 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
-                        cancellationToken),
+                        It.IsAny<CancellationToken>()),
                     Times.Once);
             }
             else
             {
-                result = subject.Execute(binding, cancellationToken);
-
                 mockChannel.Verify(
                     c => c.Command(
                         binding.Session,
@@ -132,7 +125,7 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
-                        cancellationToken),
+                        It.IsAny<CancellationToken>()),
                 Times.Once);
             }
         }
@@ -150,15 +143,11 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
 
-            BsonDocument result;
+            ExecuteOperation(subject, binding, async);
             if (async)
             {
-                result = subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
-
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         binding.Session,
@@ -172,13 +161,11 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
-                        cancellationToken),
+                        It.IsAny<CancellationToken>()),
                     Times.Once);
             }
             else
             {
-                result = subject.Execute(binding, cancellationToken);
-
                 mockChannel.Verify(
                     c => c.Command(
                         binding.Session,
@@ -192,7 +179,7 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
-                        cancellationToken),
+                        It.IsAny<CancellationToken>()),
                     Times.Once);
             }
         }
@@ -209,15 +196,11 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
 
-            BsonDocument result;
+            ExecuteOperation(subject, binding, async);
             if (async)
             {
-                result = subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
-
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         binding.Session,
@@ -231,13 +214,11 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
-                        cancellationToken),
+                        It.IsAny<CancellationToken>()),
                     Times.Once);
             }
             else
             {
-                result = subject.Execute(binding, cancellationToken);
-
                 mockChannel.Verify(
                     c => c.Command(
                         binding.Session,
@@ -251,7 +232,7 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
-                        cancellationToken),
+                        It.IsAny<CancellationToken>()),
                     Times.Once);
             }
         }
@@ -269,15 +250,11 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
 
-            BsonDocument result;
+            ExecuteOperation(subject, binding, async);
             if (async)
             {
-                result = subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
-
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         binding.Session,
@@ -291,13 +268,11 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
-                        cancellationToken),
+                        It.IsAny<CancellationToken>()),
                     Times.Once);
             }
             else
             {
-                result = subject.Execute(binding, cancellationToken);
-
                 mockChannel.Verify(
                     c => c.Command(
                         binding.Session,
@@ -311,7 +286,7 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
-                        cancellationToken),
+                        It.IsAny<CancellationToken>()),
                     Times.Once);
             }
         }
@@ -326,18 +301,15 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var mockChannelSource = CreateMockChannelSource(serverDescription, mockChannel.Object);
             var binding = CreateMockReadBinding(readPreference, mockChannelSource.Object).Object;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
 
+            ExecuteOperation(subject, binding, async);
             if (async)
             {
-                subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
-                mockChannelSource.Verify(c => c.GetChannelAsync(cancellationToken), Times.Once);
+                mockChannelSource.Verify(c => c.GetChannelAsync(It.IsAny<OperationCancellationContext>()), Times.Once);
             }
             else
             {
-                subject.Execute(binding, cancellationToken);
-                mockChannelSource.Verify(c => c.GetChannel(cancellationToken), Times.Once);
+                mockChannelSource.Verify(c => c.GetChannel(It.IsAny<OperationCancellationContext>()), Times.Once);
             }
         }
 
@@ -348,8 +320,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.ReadPreference).Returns(readPreference);
             mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
-            mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<CancellationToken>())).Returns(channelSource);
-            mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(channelSource));
+            mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationCancellationContext>())).Returns(channelSource);
+            mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationCancellationContext>())).Returns(Task.FromResult(channelSource));
             return mockBinding;
         }
 
@@ -363,8 +335,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSourceHandle>();
             mockChannelSource.SetupGet(s => s.ServerDescription).Returns(serverDescription);
-            mockChannelSource.Setup(s => s.GetChannel(It.IsAny<CancellationToken>())).Returns(channel);
-            mockChannelSource.Setup(s => s.GetChannelAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(channel));
+            mockChannelSource.Setup(s => s.GetChannel(It.IsAny<OperationCancellationContext>())).Returns(channel);
+            mockChannelSource.Setup(s => s.GetChannelAsync(It.IsAny<OperationCancellationContext>())).Returns(Task.FromResult(channel));
             return mockChannelSource;
         }
 

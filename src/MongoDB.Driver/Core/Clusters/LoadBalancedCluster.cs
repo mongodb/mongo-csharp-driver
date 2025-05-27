@@ -170,9 +170,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken)
+        public IServer SelectServer(IServerSelector selector, OperationCancellationContext cancellationContext)
         {
+            Ensure.IsNotNull(selector, nameof(selector));
+            Ensure.IsNotNull(cancellationContext, nameof(cancellationContext));
             ThrowIfDisposed();
+
+            var serverSelectionCancellationContext = cancellationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -180,10 +184,12 @@ namespace MongoDB.Driver.Core.Clusters
                 null,
                 EventContext.OperationName));
 
-            var index = Task.WaitAny(new[] { _serverReadyTaskCompletionSource.Task }, (int)_settings.ServerSelectionTimeout.TotalMilliseconds, cancellationToken);
-            if (index != 0)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                serverSelectionCancellationContext.WaitTask(_serverReadyTaskCompletionSource.Task);
+            }
+            catch (TimeoutException)
+            {
                 throw CreateTimeoutException(_description); // _description will contain dnsException
             }
 
@@ -193,7 +199,7 @@ namespace MongoDB.Driver.Core.Clusters
                    _description,
                    selector,
                    _server.Description,
-                   TimeSpan.FromSeconds(1),
+                   serverSelectionCancellationContext.Elapsed,
                    null,
                    EventContext.OperationName));
             }
@@ -202,9 +208,13 @@ namespace MongoDB.Driver.Core.Clusters
                 throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
+        public async Task<IServer> SelectServerAsync(IServerSelector selector, OperationCancellationContext cancellationContext)
         {
+            Ensure.IsNotNull(selector, nameof(selector));
+            Ensure.IsNotNull(cancellationContext, nameof(cancellationContext));
             ThrowIfDisposed();
+
+            var serverSelectionCancellationContext = cancellationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -212,11 +222,12 @@ namespace MongoDB.Driver.Core.Clusters
                 null,
                 EventContext.OperationName));
 
-            var timeoutTask = Task.Delay(_settings.ServerSelectionTimeout, cancellationToken);
-            var triggeredTask = await Task.WhenAny(_serverReadyTaskCompletionSource.Task, timeoutTask).ConfigureAwait(false);
-            if (triggeredTask == timeoutTask)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                await serverSelectionCancellationContext.WaitTaskAsync(_serverReadyTaskCompletionSource.Task).ConfigureAwait(false);
+            }
+            catch (TimeoutException)
+            {
                 throw CreateTimeoutException(_description); // _description will contain dnsException
             }
 
@@ -226,7 +237,7 @@ namespace MongoDB.Driver.Core.Clusters
                    _description,
                    selector,
                    _server.Description,
-                   TimeSpan.FromSeconds(1),
+                   serverSelectionCancellationContext.Elapsed,
                    null,
                    EventContext.OperationName));
             }

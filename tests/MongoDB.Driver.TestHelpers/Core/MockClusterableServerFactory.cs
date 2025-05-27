@@ -93,11 +93,11 @@ namespace MongoDB.Driver.Core.TestHelpers
                     mockConnectionPool.Setup(p => p.Generation).Returns(valueFunction: () => poolGeneration);
                     Action acquireConnectionCallback = () => { connectionGeneration = poolGeneration; };
                     mockConnectionPool
-                        .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
+                        .Setup(p => p.AcquireConnection(It.IsAny<OperationCancellationContext>()))
                         .Callback(acquireConnectionCallback)
                         .Returns(mockConnection.Object);
                     mockConnectionPool
-                        .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                        .Setup(p => p.AcquireConnectionAsync(It.IsAny<OperationCancellationContext>()))
                         .Callback(acquireConnectionCallback)
                         .ReturnsAsync(mockConnection.Object);
                     mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>())).Callback(() => { ++poolGeneration; });
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                     var maxWireVersion = description.MaxWireVersion;
                     var server = (Server)result.Server;
                     var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() }, { "maxWireVersion", maxWireVersion } });
-                    var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(CancellationToken.None));
+                    var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(OperationCancellationContext.NoTimeout));
                     mockConnection.SetupGet(c => c.Description)
                         .Returns(new ConnectionDescription(new ConnectionId(description.ServerId, 0), helloResult));
                 }

@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -53,29 +54,23 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_throw_if_disposed(
+        public async Task GetChannel_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
             var subject = new ChannelSourceHandle(_mockChannelSource.Object);
             subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.GetChannel(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationCancellationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetChannel(OperationCancellationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_delegate_to_reference(
+        public async Task GetChannel_should_delegate_to_reference(
             [Values(false, true)]
             bool async)
         {
@@ -83,15 +78,15 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
+                await subject.GetChannelAsync(OperationCancellationContext.NoTimeout);
 
-                _mockChannelSource.Verify(s => s.GetChannelAsync(CancellationToken.None), Times.Once);
+                _mockChannelSource.Verify(s => s.GetChannelAsync(It.IsAny<OperationCancellationContext>()), Times.Once);
             }
             else
             {
-                subject.GetChannel(CancellationToken.None);
+                subject.GetChannel(OperationCancellationContext.NoTimeout);
 
-                _mockChannelSource.Verify(s => s.GetChannel(CancellationToken.None), Times.Once);
+                _mockChannelSource.Verify(s => s.GetChannel(It.IsAny<OperationCancellationContext>()), Times.Once);
             }
         }
 

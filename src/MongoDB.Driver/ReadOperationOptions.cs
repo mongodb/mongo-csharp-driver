@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
+using System;
+
 namespace MongoDB.Driver
 {
-    internal record ReadOperationOptions(ReadPreference ExplicitReadPreference = null, ReadPreference DefaultReadPreference = null);
+    internal record ReadOperationOptions(TimeSpan Timeout, ReadPreference ExplicitReadPreference = null, ReadPreference DefaultReadPreference = null)
+        : OperationOptionsBase(Timeout);
 
     internal static class ReadOperationOptionsExtensions
     {

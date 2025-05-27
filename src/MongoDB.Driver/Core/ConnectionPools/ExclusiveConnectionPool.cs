@@ -15,7 +15,6 @@
 
 using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
@@ -140,16 +139,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
         internal ListConnectionHolder ConnectionHolder => _connectionHolder;
 
         // public methods
-        public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
+        public IConnectionHandle AcquireConnection(OperationCancellationContext cancellationContext)
         {
+            cancellationContext = cancellationContext.WithTimeout(Settings.WaitQueueTimeout);
             using var helper = new AcquireConnectionHelper(this);
-            return helper.AcquireConnection(cancellationToken);
+            return helper.AcquireConnection(cancellationContext);
         }
 
-        public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
+        public async Task<IConnectionHandle> AcquireConnectionAsync(OperationCancellationContext cancellationContext)
         {
+            cancellationContext = cancellationContext.WithTimeout(Settings.WaitQueueTimeout);
             using var helper = new AcquireConnectionHelper(this);
-            return await helper.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return await helper.AcquireConnectionAsync(cancellationContext).ConfigureAwait(false);
         }
 
         public void Clear(bool closeInUseConnections = false)

@@ -17,6 +17,7 @@ using System;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Servers;
@@ -126,26 +127,17 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_return_expected_result(
+        public async Task GetReadChannelSource_should_return_expected_result(
             [Values(false, true)] bool async)
         {
             var mockSession = new Mock<ICoreSessionHandle>();
             var subject = CreateSubject(session: mockSession.Object);
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 
-            IChannelSourceHandle result;
-            if (async)
-            {
-                result = subject.GetReadChannelSourceAsync(cancellationToken).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = subject.GetReadChannelSource(cancellationToken);
-            }
+            var result = async ?
+                await subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout) :
+                subject.GetReadChannelSource(OperationCancellationContext.NoTimeout);
 
             var newHandle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
             var referenceCounted = newHandle._reference();
@@ -155,24 +147,14 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_throw_when_disposed(
+        public async Task GetReadChannelSource_should_throw_when_disposed(
             [Values(false, true)] bool async)
         {
             var subject = CreateDisposedSubject();
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() =>
-            {
-                if (async)
-                {
-                    subject.GetReadChannelSourceAsync(cancellationToken).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    subject.GetReadChannelSource(cancellationToken);
-                }
-            });
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationCancellationContext.NoTimeout));
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);

@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -110,28 +109,28 @@ namespace MongoDB.Driver.Core.Operations
             set { _skip = value; }
         }
 
-        public long Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public long Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var cursor = operation.Execute(binding, cancellationToken);
-                var result = cursor.ToList(cancellationToken);
+                var cursor = operation.Execute(binding, cancellationContext);
+                var result = cursor.ToList(cancellationContext.CancellationToken);
                 return ExtractCountFromResult(result);
             }
         }
 
-        public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<long> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-                var result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                var cursor = await operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
+                var result = await cursor.ToListAsync(cancellationContext.CancellationToken).ConfigureAwait(false);
                 return ExtractCountFromResult(result);
             }
         }

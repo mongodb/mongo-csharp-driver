@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -127,39 +126,39 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public long Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public long Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationContext))
             {
-                return Execute(context, cancellationToken);
+                return Execute(context, cancellationContext);
             }
         }
 
-        public long Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        public long Execute(RetryableReadContext context, OperationCancellationContext cancellationContext)
         {
             var operation = CreateOperation(context);
-            var document = operation.Execute(context, cancellationToken);
+            var document = operation.Execute(context, cancellationContext);
             return document["n"].ToInt64();
         }
 
-        public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<long> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationContext).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
             }
         }
 
-        public async Task<long> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        public async Task<long> ExecuteAsync(RetryableReadContext context, OperationCancellationContext cancellationContext)
         {
             var operation = CreateOperation(context);
-            var document = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+            var document = await operation.ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
             return document["n"].ToInt64();
         }
 

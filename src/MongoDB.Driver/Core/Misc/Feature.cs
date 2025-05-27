@@ -565,9 +565,11 @@ namespace MongoDB.Driver.Core.Misc
         public void ThrowIfNotSupported(IMongoClient client, CancellationToken cancellationToken = default)
         {
             var cluster = client.GetClusterInternal();
+            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelSource = binding.GetWriteChannelSource(operationCancellationContext))
+            using (var channel = channelSource.GetChannel(operationCancellationContext))
             {
                 // Use WireVersion from a connection since server level value may be null
                 ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
@@ -582,9 +584,11 @@ namespace MongoDB.Driver.Core.Misc
         public async Task ThrowIfNotSupportedAsync(IMongoClient client, CancellationToken cancellationToken = default)
         {
             var cluster = client.GetClusterInternal();
+            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationCancellationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationCancellationContext).ConfigureAwait(false))
             {
                 // Use WireVersion from a connection since server level value may be null
                 ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);

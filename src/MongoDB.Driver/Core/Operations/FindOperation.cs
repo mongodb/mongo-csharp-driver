@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -292,48 +291,48 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public IAsyncCursor<TDocument> Execute(IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
+        public IAsyncCursor<TDocument> Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationContext))
             {
-                return Execute(context, cancellationToken);
+                return Execute(context, cancellationContext);
             }
         }
 
-        public IAsyncCursor<TDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken = default(CancellationToken))
+        public IAsyncCursor<TDocument> Execute(RetryableReadContext context, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
                 var operation = CreateOperation(context);
-                var commandResult = operation.Execute(context, cancellationToken);
+                var commandResult = operation.Execute(context, cancellationContext);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
         }
 
-        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationContext).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
             }
         }
 
-        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(RetryableReadContext context, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
                 var operation = CreateOperation(context);
-                var commandResult = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                var commandResult = await operation.ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
         }

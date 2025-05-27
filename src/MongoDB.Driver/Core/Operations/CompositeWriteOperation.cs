@@ -14,7 +14,6 @@
 */
 
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -32,12 +31,12 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.That(operations.Count(o => o.IsMainOperation) == 1, message: $"{nameof(CompositeWriteOperation<TResult>)} must have a single main operation.");
         }
 
-        public TResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public TResult Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
         {
             TResult result = default;
             foreach (var operationInfo in _operations)
             {
-                var itemResult = operationInfo.Operation.Execute(binding, cancellationToken);
+                var itemResult = operationInfo.Operation.Execute(binding, cancellationContext);
                 if (operationInfo.IsMainOperation)
                 {
                     result = itemResult;
@@ -47,12 +46,12 @@ namespace MongoDB.Driver.Core.Operations
             return result;
         }
 
-        public async Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
         {
             TResult result = default;
             foreach (var operationInfo in _operations)
             {
-                var itemResult = await operationInfo.Operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var itemResult = await operationInfo.Operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
                 if (operationInfo.IsMainOperation)
                 {
                     result = itemResult;

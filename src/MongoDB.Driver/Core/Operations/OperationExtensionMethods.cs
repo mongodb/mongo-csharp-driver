@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -27,12 +26,12 @@ namespace MongoDB.Driver.Core.Operations
             IChannelSourceHandle channelSource,
             ReadPreference readPreference,
             ICoreSessionHandle session,
-            CancellationToken cancellationToken)
+            OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(operation, nameof(operation));
             using (var readBinding = new ChannelSourceReadWriteBinding(channelSource.Fork(), readPreference, session.Fork()))
             {
-                return operation.Execute(readBinding, cancellationToken);
+                return operation.Execute(readBinding, cancellationContext);
             }
         }
 
@@ -40,12 +39,12 @@ namespace MongoDB.Driver.Core.Operations
             this IWriteOperation<TResult> operation,
             IChannelSourceHandle channelSource,
             ICoreSessionHandle session,
-            CancellationToken cancellationToken)
+            OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(operation, nameof(operation));
             using (var writeBinding = new ChannelSourceReadWriteBinding(channelSource.Fork(), ReadPreference.Primary, session.Fork()))
             {
-                return operation.Execute(writeBinding, cancellationToken);
+                return operation.Execute(writeBinding, cancellationContext);
             }
         }
 
@@ -54,12 +53,12 @@ namespace MongoDB.Driver.Core.Operations
             IChannelSourceHandle channelSource,
             ReadPreference readPreference,
             ICoreSessionHandle session,
-            CancellationToken cancellationToken)
+            OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(operation, nameof(operation));
             using (var readBinding = new ChannelSourceReadWriteBinding(channelSource.Fork(), readPreference, session.Fork()))
             {
-                return await operation.ExecuteAsync(readBinding, cancellationToken).ConfigureAwait(false);
+                return await operation.ExecuteAsync(readBinding, cancellationContext).ConfigureAwait(false);
             }
         }
 
@@ -67,12 +66,12 @@ namespace MongoDB.Driver.Core.Operations
             this IWriteOperation<TResult> operation,
             IChannelSourceHandle channelSource,
             ICoreSessionHandle session,
-            CancellationToken cancellationToken)
+            OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(operation, nameof(operation));
             using (var writeBinding = new ChannelSourceReadWriteBinding(channelSource.Fork(), ReadPreference.Primary, session.Fork()))
             {
-                return await operation.ExecuteAsync(writeBinding, cancellationToken).ConfigureAwait(false);
+                return await operation.ExecuteAsync(writeBinding, cancellationContext).ConfigureAwait(false);
             }
         }
     }

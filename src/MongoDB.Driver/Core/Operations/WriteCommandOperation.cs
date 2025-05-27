@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -39,25 +38,25 @@ namespace MongoDB.Driver.Core.Operations
             set => _readPreference = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public TCommandResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public TCommandResult Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (EventContext.BeginOperation())
-            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channelSource = binding.GetWriteChannelSource(cancellationContext))
             {
-                return ExecuteProtocol(channelSource, binding.Session, _readPreference, cancellationToken);
+                return ExecuteProtocol(channelSource, binding.Session, _readPreference, cancellationContext);
             }
         }
 
-        public async Task<TCommandResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TCommandResult> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (EventContext.BeginOperation())
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationContext).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(channelSource, binding.Session, _readPreference, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channelSource, binding.Session, _readPreference, cancellationContext).ConfigureAwait(false);
             }
         }
     }

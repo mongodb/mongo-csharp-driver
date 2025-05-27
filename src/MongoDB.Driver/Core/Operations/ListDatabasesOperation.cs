@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -87,26 +86,26 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var reply = operation.Execute(binding, cancellationToken);
+                var reply = operation.Execute(binding, cancellationContext);
                 return CreateCursor(reply);
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var reply = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var reply = await operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
                 return CreateCursor(reply);
             }
         }

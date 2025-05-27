@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -70,8 +69,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var subject = new CompositeWriteOperation<BsonDocument>((healthyOperation1.Object, IsMainOperation: false), (faultyOperation2.Object, IsMainOperation: false), (healthyOperation3.Object, IsMainOperation: true));
 
             var resultedException = async
-                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(Mock.Of<IWriteBinding>(), CancellationToken.None))
-                : Record.Exception(() => subject.Execute(Mock.Of<IWriteBinding>(), CancellationToken.None));
+                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(Mock.Of<IWriteBinding>(), OperationCancellationContext.NoTimeout))
+                : Record.Exception(() => subject.Execute(Mock.Of<IWriteBinding>(), OperationCancellationContext.NoTimeout));
 
             resultedException.Should().Be(testException);
 
@@ -93,8 +92,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var subject = new CompositeWriteOperation<BsonDocument>((operation1.Object, IsMainOperation: false), (operation2.Object, IsMainOperation: true), (operation3.Object, IsMainOperation: false));
 
             var result = async
-                ? subject.ExecuteAsync(Mock.Of<IWriteBinding>(), CancellationToken.None).GetAwaiter().GetResult()
-                : subject.Execute(Mock.Of<IWriteBinding>(), CancellationToken.None);
+                ? subject.ExecuteAsync(Mock.Of<IWriteBinding>(), OperationCancellationContext.NoTimeout).GetAwaiter().GetResult()
+                : subject.Execute(Mock.Of<IWriteBinding>(), OperationCancellationContext.NoTimeout);
 
             result.Should().Be(operation2Result);
 
@@ -108,10 +107,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var mockedOperation = new Mock<IWriteOperation<BsonDocument>>();
             mockedOperation
-                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()))
                 .Throws(testException);
             mockedOperation
-                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()))
                 .Throws(testException);
             return mockedOperation;
         }
@@ -120,10 +119,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var mockedOperation = new Mock<IWriteOperation<BsonDocument>>();
             mockedOperation
-                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()))
                 .Returns(response);
             mockedOperation
-                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()))
                 .ReturnsAsync(response);
             return mockedOperation;
         }
@@ -132,11 +131,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             if (async)
             {
-                mockedOperation.Verify(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()), hasBeenCalled ? Times.Once : Times.Never);
+                mockedOperation.Verify(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()), hasBeenCalled ? Times.Once : Times.Never);
             }
             else
             {
-                mockedOperation.Verify(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()), hasBeenCalled ? Times.Once : Times.Never);
+                mockedOperation.Verify(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()), hasBeenCalled ? Times.Once : Times.Never);
             }
         }
     }

@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
@@ -51,29 +51,23 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_throw_if_disposed(
+        public async Task GetReadChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
             var subject = new ReadBindingHandle(_mockReadBinding.Object);
             subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.GetReadChannelSource(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationCancellationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_delegate_to_reference(
+        public async Task GetReadChannelSource_should_delegate_to_reference(
             [Values(false, true)]
             bool async)
         {
@@ -81,15 +75,15 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+                await subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout);
 
-                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(CancellationToken.None), Times.Once);
+                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout), Times.Once);
             }
             else
             {
-                subject.GetReadChannelSource(CancellationToken.None);
+                subject.GetReadChannelSource(OperationCancellationContext.NoTimeout);
 
-                _mockReadBinding.Verify(b => b.GetReadChannelSource(CancellationToken.None), Times.Once);
+                _mockReadBinding.Verify(b => b.GetReadChannelSource(OperationCancellationContext.NoTimeout), Times.Once);
             }
         }
 
