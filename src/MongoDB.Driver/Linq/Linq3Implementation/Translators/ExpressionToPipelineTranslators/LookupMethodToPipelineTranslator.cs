@@ -286,7 +286,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);
 
-            var provider = new MongoQueryProvider<TDocument>(documentSerializer, session: null, options: null);
+            var provider = new MongoQueryProvider<TDocument>(documentSerializer, session: null, options: null, serializationDomain: context.SerializationDomain);
             var queryable = new MongoQuery<TDocument, TDocument>(provider);
 
             body = ExpressionReplacer.Replace(body, queryableParameter, Expression.Constant(queryable));
