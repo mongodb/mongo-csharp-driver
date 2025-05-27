@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         {
             expression = PartialEvaluator.EvaluatePartially(expression);
 
-            var context = TranslationContext.Create(translationOptions, provider.Collection.Settings.SerializationDomain);
+            var context = TranslationContext.Create(translationOptions, provider.SerializationDomain);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, expression);
 
             return ExecutableQuery.Create(
