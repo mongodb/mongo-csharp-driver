@@ -355,7 +355,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     Expression.Property(x, typeof(C).GetProperty("Document")),
                     typeof(BsonDocument).GetProperty("Item", new[] { typeof(int) }).GetGetMethod(),
                     Expression.Constant(0)),
-                Expression.Constant(BsonValue.Create(1)));
+                Expression.Constant(BsonValue.Create(1), typeof(BsonValue)));
             var parameters = new ParameterExpression[] { x };
             var predicate = Expression.Lambda<Func<C, bool>>(body, parameters);
 
@@ -379,7 +379,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     Expression.Property(x, typeof(C).GetProperty("Document")),
                     typeof(BsonDocument).GetProperty("Item", new[] { typeof(int) }),
                     new Expression[] { Expression.Constant(0) }),
-                Expression.Constant(BsonValue.Create(1)));
+                Expression.Constant(BsonValue.Create(1), typeof(BsonValue)));
             var parameters = new ParameterExpression[] { x };
             var predicate = Expression.Lambda<Func<C, bool>>(body, parameters);
 
@@ -418,7 +418,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     Expression.Property(x, typeof(C).GetProperty("Document")),
                     typeof(BsonDocument).GetProperty("Item", new[] { typeof(string) }).GetGetMethod(),
                     Expression.Constant("a")),
-                Expression.Constant(BsonValue.Create(1)));
+                Expression.Constant(BsonValue.Create(1), typeof(BsonValue)));
             var parameters = new ParameterExpression[] { x };
             var predicate = Expression.Lambda<Func<C, bool>>(body, parameters);
 
@@ -442,7 +442,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     Expression.Property(x, typeof(C).GetProperty("Document")),
                     typeof(BsonDocument).GetProperty("Item", new[] { typeof(string) }),
                     new Expression[] { Expression.Constant("a") }),
-                Expression.Constant(BsonValue.Create(1)));
+                Expression.Constant(BsonValue.Create(1), typeof(BsonValue)));
             var parameters = new ParameterExpression[] { x };
             var predicate = Expression.Lambda<Func<C, bool>>(body, parameters);
 

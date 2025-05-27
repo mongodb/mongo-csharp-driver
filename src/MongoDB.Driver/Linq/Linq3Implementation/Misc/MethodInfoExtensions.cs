@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
@@ -32,6 +33,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 {
                     var methodDefinition = method.GetGenericMethodDefinition();
                     return methodDefinition == comparand;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsOneOf(this MethodInfo method, HashSet<MethodInfo> comparands)
+        {
+            if (comparands != null)
+            {
+                if (method.IsGenericMethod)
+                {
+                    var methodDefinition = method.GetGenericMethodDefinition();
+                    return comparands.Contains(methodDefinition);
+                }
+                else
+                {
+                    return comparands.Contains(method);
                 }
             }
 
