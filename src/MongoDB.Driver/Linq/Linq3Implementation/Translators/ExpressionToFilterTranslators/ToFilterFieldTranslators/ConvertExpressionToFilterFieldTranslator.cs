@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 enumSerializer = fieldSerializer;
             }
 
-            var targetSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
+            var targetSerializer = ToEnumUnderlyingTypeSerializer.Create(enumSerializer);
             if (targetType.IsNullable())
             {
                 targetSerializer = NullableSerializer.Create(targetSerializer);
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
 
             IBsonSerializer targetSerializer;
-            if (valueSerializer is IEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
+            if (valueSerializer is IToEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer)
             {
                 targetSerializer = enumUnderlyingTypeSerializer.EnumSerializer;
             }

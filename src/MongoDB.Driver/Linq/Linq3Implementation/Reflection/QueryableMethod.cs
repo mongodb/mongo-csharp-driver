@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __aggregateWithSeedAndFunc;
         private static readonly MethodInfo __aggregateWithSeedFuncAndResultSelector;
         private static readonly MethodInfo __all;
+        private static readonly MethodInfo __allWithPredicate;
         private static readonly MethodInfo __any;
         private static readonly MethodInfo __anyWithPredicate;
         private static readonly MethodInfo __append;
@@ -90,7 +91,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __prepend;
         private static readonly MethodInfo __reverse;
         private static readonly MethodInfo __select;
-        private static readonly MethodInfo __selectMany;
+        private static readonly MethodInfo __selectManyWithSelector;
         private static readonly MethodInfo __selectManyWithCollectionSelectorAndResultSelector;
         private static readonly MethodInfo __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
         private static readonly MethodInfo __selectManyWithSelectorTakingIndex;
@@ -138,6 +139,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IQueryable<object> source, object seed, Expression<Func<object, object, object>> func) => source.Aggregate(seed, func));
             __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IQueryable<object> source, object seed, Expression<Func<object, object, object>> func, Expression<Func<object, object>> selector) => source.Aggregate(seed, func, selector));
             __all = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.All(predicate));
+            __allWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.All(predicate));
             __any = ReflectionInfo.Method((IQueryable<object> source) => source.Any());
             __anyWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.Any(predicate));
             __append = ReflectionInfo.Method((IQueryable<object> source, object element) => source.Append(element));
@@ -200,7 +202,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __prepend = ReflectionInfo.Method((IQueryable<object> source, object element) => source.Prepend(element));
             __reverse = ReflectionInfo.Method((IQueryable<object> source) => source.Reverse());
             __select = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, object>> selector) => source.Select(selector));
-            __selectMany = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, IEnumerable<object>>> selector) => source.SelectMany(selector));
+            __selectManyWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, IEnumerable<object>>> selector) => source.SelectMany(selector));
             __selectManyWithCollectionSelectorAndResultSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, IEnumerable<object>>> collectionSelector, Expression<Func<object, object, object>> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
             __selectManyWithCollectionSelectorTakingIndexAndResultSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, IEnumerable<object>>> collectionSelector, Expression<Func<object, object, object>> resultSelector) => source.SelectMany(collectionSelector, resultSelector));
             __selectManyWithSelectorTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, IEnumerable<object>>> selector) => source.SelectMany(selector));
@@ -247,6 +249,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AggregateWithSeedAndFunc => __aggregateWithSeedAndFunc;
         public static MethodInfo AggregateWithSeedFuncAndResultSelector => __aggregateWithSeedFuncAndResultSelector;
         public static MethodInfo All => __all;
+        public static MethodInfo AllWithPredicate => __allWithPredicate;
         public static MethodInfo Any => __any;
         public static MethodInfo AnyWithPredicate => __anyWithPredicate;
         public static MethodInfo Append => __append;
@@ -291,7 +294,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo GroupByWithKeySelectorAndResultSelector => __groupByWithKeySelectorAndResultSelector;
         public static MethodInfo GroupByWithKeySelectorElementSelectorAndResultSelector => __groupByWithKeySelectorElementSelectorAndResultSelector;
         public static MethodInfo GroupJoin => __groupJoin;
-        public static MethodInfo Interset => __intersect;
+        public static MethodInfo Intersect => __intersect;
         public static MethodInfo Join => __join;
         public static MethodInfo Last => __last;
         public static MethodInfo LastOrDefault => __lastOrDefault;
@@ -309,7 +312,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo Prepend => __prepend;
         public static MethodInfo Reverse => __reverse;
         public static MethodInfo Select => __select;
-        public static MethodInfo SelectMany => __selectMany;
+        public static MethodInfo SelectManyWithSelector => __selectManyWithSelector;
         public static MethodInfo SelectManyWithCollectionSelectorAndResultSelector => __selectManyWithCollectionSelectorAndResultSelector;
         public static MethodInfo SelectManyWithCollectionSelectorTakingIndexAndResultSelector => __selectManyWithCollectionSelectorTakingIndexAndResultSelector;
         public static MethodInfo SelectManyWithSelectorTakingIndex => __selectManyWithSelectorTakingIndex;
