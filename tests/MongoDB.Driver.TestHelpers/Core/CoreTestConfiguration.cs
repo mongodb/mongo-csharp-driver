@@ -129,7 +129,17 @@ namespace MongoDB.Driver
         {
             builder = builder
                 .ConfigureWithConnectionString(__connectionString.Value, __serverApi.Value)
-                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value));
+                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value))
+                .ConfigureServer(s =>
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        s = s.With(
+                            heartbeatTimeout: TimeSpan.FromDays(1),
+                            serverMonitoringMode: ServerMonitoringMode.Poll);
+                    }
+                    return s;
+                });
 
             if (__connectionString.Value.Tls.HasValue &&
                 __connectionString.Value.Tls.Value &&
@@ -151,6 +161,7 @@ namespace MongoDB.Driver
                         {
                             cert = new X509Certificate2(certificateFilename, password);
                         }
+
                         return ssl.With(
                             clientCertificates: new[] { cert });
                     });
