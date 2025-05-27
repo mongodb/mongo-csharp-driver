@@ -100,7 +100,7 @@ internal class BsonClassMapDomain : IBsonClassMapDomain
                 classMap = newClassMap;
             }
 
-            return classMap.Freeze();
+            return classMap.Freeze(_serializationDomain);
         }
         finally
         {
