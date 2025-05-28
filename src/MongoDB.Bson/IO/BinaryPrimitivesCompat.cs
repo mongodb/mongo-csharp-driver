@@ -31,5 +31,35 @@ namespace MongoDB.Bson.IO
         {
             BinaryPrimitives.WriteInt64LittleEndian(destination, BitConverter.DoubleToInt64Bits(value));
         }
+        public static float ReadSingleLittleEndian(ReadOnlySpan<byte> source)
+        {
+            if (source.Length < 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(source), "Source span is too small to contain a float.");
+            }
+
+            int intValue =
+                source[0] |
+                (source[1] << 8) |
+                (source[2] << 16) |
+                (source[3] << 24);
+
+            return BitConverter.Int32BitsToSingle(intValue);
+        }
+
+        public static void WriteSingleLittleEndian(Span<byte> destination, float value)
+        {
+            if (destination.Length < 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(destination), "Destination span is too small to hold a float.");
+            }
+
+            int intValue = BitConverter.SingleToInt32Bits(value);
+            destination[0] = (byte)(intValue);
+            destination[1] = (byte)(intValue >> 8);
+            destination[2] = (byte)(intValue >> 16);
+            destination[3] = (byte)(intValue >> 24);
+        }
+
     }
 }
