@@ -365,10 +365,35 @@ namespace MongoDB.Bson.Tests.Serialization
         private static (T[], byte[] VectorBson) GetTestData<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
             where T : struct
         {
-            var elementsSpan = new ReadOnlySpan<T>(Enumerable.Range(0, elementsCount).Select(i => Convert.ChangeType(i, typeof(T)).As<T>()).ToArray());
-            byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. MemoryMarshal.Cast<T, byte>(elementsSpan)];
-
-            return (elementsSpan.ToArray(), vectorBsonData);
+            var elementsSpan = new ReadOnlySpan<T>(
+            Enumerable.Range(0, elementsCount)
+                .Select(i => Convert.ChangeType(i, typeof(T)).As<T>())
+                .ToArray());
+            if (typeof(T) == typeof(float) && dataType == BinaryVectorDataType.Float32)
+            {
+                var buffer = new byte[2 + elementsCount * 4]; // 4 bytes per float
+                buffer[0] = (byte)dataType;
+                buffer[1] = bitsPadding;
+                for (int i = 0; i < elementsCount; i++)
+                {
+                    var floatBytes = BitConverter.GetBytes((float)(object)elementsSpan[i]);
+                    if (!BitConverter.IsLittleEndian)
+                    {
+                        Array.Reverse(floatBytes);
+                    }
+                    Buffer.BlockCopy(floatBytes, 0, buffer, 2 + i * 4, 4);
+                }
+                return (elementsSpan.ToArray(), buffer);
+            }
+            else if ((typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte)) && (dataType == BinaryVectorDataType.Int8 || dataType == BinaryVectorDataType.PackedBit))
+            {
+                byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. MemoryMarshal.Cast<T, byte>(elementsSpan)];
+                return (elementsSpan.ToArray(), vectorBsonData);
+            }
+            else
+            {
+                throw new NotSupportedException($"Type {typeof(T)} is not supported for data type {dataType}.");
+            }      
         }
 
         private static (BinaryVector<T>, byte[] VectorBson) GetTestDataBinaryVector<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
