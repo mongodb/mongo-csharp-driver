@@ -14,10 +14,10 @@
 */
 
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization
             where TItem : struct
         {
             var (items, padding, vectorDataType) = ReadBinaryVectorAsArray<TItem>(vectorData);
+
             return CreateBinaryVector(items, padding, vectorDataType);
         }
 
@@ -41,39 +42,24 @@ namespace MongoDB.Bson.Serialization
             switch (vectorDataType)
             {
                 case BinaryVectorDataType.Float32:
+
                     if ((vectorDataBytes.Span.Length & 3) != 0)
                     {
                         throw new FormatException("Data length of binary vector of type Float32 must be a multiple of 4 bytes.");
                     }
 
-                    if (typeof(TItem) != typeof(float))
-                    {
-                        throw new NotSupportedException($"Expected float for Float32 vector type, but found {typeof(TItem)}.");
-                    }
-
-                    int count = vectorDataBytes.Length / 4; // 4 bytes per float
-                    float[] floatArray = new float[count];
-
-                    for (int i = 0; i < count; i++)
-                    {
-                        // Each float32 is 4 bytes. So to extract the i-th float, we slice 4 bytes from offset i * 4. Use little-endian or big-endian decoding based on platform.
-                        floatArray[i] = BitConverter.IsLittleEndian
-                            ? MemoryMarshal.Read<float>(vectorDataBytes.Span.Slice(i * 4, 4))   // fast, unaligned read on little endian
-                            : BinaryPrimitives.ReadSingleBigEndian(vectorDataBytes.Span.Slice(i * 4, 4));   // correctly reassemble 4 bytes as big-endian float
-                    }
-
+                    var floatArray = BitConverter.IsLittleEndian                                 // We need not to use this condition here, just doing to keep the little endian logic intact
+                        ? MemoryMarshal.Cast<byte, float>(vectorDataBytes.Span).ToArray()
+                        : ToFloatArrayBigEndian(vectorDataBytes.Span);
                     items = (TItem[])(object)floatArray;
                     break;
-
                 case BinaryVectorDataType.Int8:
                     var itemsSpan = MemoryMarshal.Cast<byte, TItem>(vectorDataBytes.Span);
-                    items = itemsSpan.ToArray();
+                    items = (TItem[])(object)itemsSpan.ToArray();
                     break;
-
                 case BinaryVectorDataType.PackedBit:
                     items = (TItem[])(object)vectorDataBytes.ToArray();
                     break;
-
                 default:
                     throw new NotSupportedException($"Binary vector data type {vectorDataType} is not supported.");
             }
@@ -157,6 +143,15 @@ namespace MongoDB.Bson.Serialization
                 throw new NotSupportedException($"Expected {typeof(TItemExpectedType)} for {typeof(TBinaryVectorType)}, but found {typeof(TItem)}.");
             }
         }
+        private static float[] ToFloatArrayBigEndian(ReadOnlySpan<byte> span)
+        {
+            var count = span.Length / 4;
+            var result = new float[count];
+            for (int i = 0; i < count; i++)
+            {
+                result[i] = BinaryPrimitivesCompat.ReadSingleLittleEndian(span.Slice(i * 4, 4));
+            }
+            return result;
+        }
     }
 }
-
