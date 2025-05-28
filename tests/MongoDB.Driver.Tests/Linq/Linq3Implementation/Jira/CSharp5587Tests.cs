@@ -47,12 +47,12 @@ public class CSharp5587Tests : LinqIntegrationTest<CSharp5587Tests.ClassFixture>
             new FindOneAndUpdateOptions<Lion> { IsUpsert = true });
 
         var result = collection.AsQueryable().As(BsonDocumentSerializer.Instance).Single();
-        result.Should().Be(
+        result.Should().BeEquivalentTo(
             """
             {
                 _id : 1,
-                Name : "Lion1",
-                _t : ["Animal", "Cat", "Lion"]
+                _t : ["Animal", "Cat", "Lion"],
+                Name : "Lion1"
             }
             """);
     }
@@ -72,12 +72,12 @@ public class CSharp5587Tests : LinqIntegrationTest<CSharp5587Tests.ClassFixture>
             new UpdateOptions<Lion> { IsUpsert = true });
 
         var result = collection.AsQueryable().As(BsonDocumentSerializer.Instance).Single();
-        result.Should().Be(
+        result.Should().BeEquivalentTo(
             """
             {
                 _id : 2,
-                Name : "Lion2",
-                _t : ["Animal", "Cat", "Lion"]
+                _t : ["Animal", "Cat", "Lion"],
+                Name : "Lion2"
             }
             """);
     }
