@@ -1373,7 +1373,9 @@ namespace MongoDB.Bson.IO
         {
             // if DateTime.TryParse succeeds we're done, otherwise assume it's an RFC 822 formatted DateTime string
             DateTime dateTime;
-            if (!dateTimeString.EndsWith("A") && DateTime.TryParse(dateTimeString, out dateTime))
+
+            // DateTime.Parse doesn't understand military time zones, so don't call it when a military time zone is present
+            if (!Regex.IsMatch(dateTimeString, " [A-Y]$") && DateTime.TryParse(dateTimeString, out dateTime))
             {
                 return dateTime;
             }
