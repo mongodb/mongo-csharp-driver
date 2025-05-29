@@ -365,35 +365,16 @@ namespace MongoDB.Bson.Tests.Serialization
         private static (T[], byte[] VectorBson) GetTestData<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
             where T : struct
         {
-            var elementsSpan = new ReadOnlySpan<T>(
-            Enumerable.Range(0, elementsCount)
-                .Select(i => Convert.ChangeType(i, typeof(T)).As<T>())
-                .ToArray());
-            if (typeof(T) == typeof(float) && dataType == BinaryVectorDataType.Float32)
-            {
-                var buffer = new byte[2 + elementsCount * 4]; // 4 bytes per float
-                buffer[0] = (byte)dataType;
-                buffer[1] = bitsPadding;
-                for (int i = 0; i < elementsCount; i++)
-                {
-                    var floatBytes = BitConverter.GetBytes((float)(object)elementsSpan[i]);
-                    if (!BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(floatBytes);
-                    }
-                    Buffer.BlockCopy(floatBytes, 0, buffer, 2 + i * 4, 4);
-                }
-                return (elementsSpan.ToArray(), buffer);
-            }
-            else if ((typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte)) && (dataType == BinaryVectorDataType.Int8 || dataType == BinaryVectorDataType.PackedBit))
-            {
-                byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. MemoryMarshal.Cast<T, byte>(elementsSpan)];
+                var elementsSpan = new ReadOnlySpan<T>(
+                    Enumerable.Range(0, elementsCount)
+                    .Select(i => Convert.ChangeType(i, typeof(T)).As<T>())
+                    .ToArray());
+                var elementsBytesLittleEndian = BitConverter.IsLittleEndian
+                    ? MemoryMarshal.Cast<T, byte>(elementsSpan)
+                    : ToLittleEndian(elementsSpan, dataType);
+                
+                byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. elementsBytesLittleEndian];
                 return (elementsSpan.ToArray(), vectorBsonData);
-            }
-            else
-            {
-                throw new NotSupportedException($"Type {typeof(T)} is not supported for data type {dataType}.");
-            }      
         }
 
         private static (BinaryVector<T>, byte[] VectorBson) GetTestDataBinaryVector<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
@@ -441,6 +422,24 @@ namespace MongoDB.Bson.Tests.Serialization
             public BinaryVectorPackedBit ValuesPackedBit { get; set; }
 
             public BinaryVectorFloat32 ValuesFloat { get; set; }
+        }
+
+        private static byte[] ToLittleEndian<T>(ReadOnlySpan<T> span, BinaryVectorDataType dataType) where T : struct
+        {
+            // Types that do NOT need conversion safe on BE
+            if (dataType == BinaryVectorDataType.Int8 || dataType == BinaryVectorDataType.PackedBit)
+            {
+                return MemoryMarshal.Cast<T, byte>(span).ToArray();
+            }
+            int elementSize = Marshal.SizeOf<T>();
+            byte[] result = new byte[span.Length * elementSize];
+            for (int i = 0; i < span.Length; i++)
+            {
+                byte[] bytes = BitConverter.GetBytes((dynamic)span[i]);
+                Array.Reverse(bytes); // Ensure LE order
+                Buffer.BlockCopy(bytes, 0, result, i * elementSize, elementSize);
+            }
+            return result;
         }
     }
 }

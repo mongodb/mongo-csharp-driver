@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Serialization
             switch (binaryVectorDataType)
             {
                 case BinaryVectorDataType.Float32:
-                    int length = vectorData.Length * sizeof(float);
+                    var length = vectorData.Length * sizeof(float);
                     resultBytes = new byte[2 + length];
                     resultBytes[0] = (byte)binaryVectorDataType;
                     resultBytes[1] = padding;
@@ -49,10 +49,16 @@ namespace MongoDB.Bson.Serialization
                     var floatSpan = MemoryMarshal.Cast<TItem, float>(vectorData);
                     Span<byte> floatOutput = resultBytes.AsSpan(2);
 
-                    for (int i = 0; i < floatSpan.Length; i++)
+                    if (BitConverter.IsLittleEndian)
                     {
-                        BinaryPrimitivesCompat.WriteSingleLittleEndian(floatOutput, floatSpan[i]);
-                        floatOutput = floatOutput.Slice(4);
+                        MemoryMarshal.Cast<float, byte>(floatSpan).CopyTo(floatOutput);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < floatSpan.Length; i++)
+                        {
+                            BinaryPrimitivesCompat.WriteSingleLittleEndian(floatOutput.Slice(i * 4, 4), floatSpan[i]);
+                        }
                     }
 
                     return resultBytes;

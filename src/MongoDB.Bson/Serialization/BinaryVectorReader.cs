@@ -48,9 +48,7 @@ namespace MongoDB.Bson.Serialization
                         throw new FormatException("Data length of binary vector of type Float32 must be a multiple of 4 bytes.");
                     }
 
-                    var floatArray = BitConverter.IsLittleEndian                                 // We need not to use this condition here, just doing to keep the little endian logic intact
-                        ? MemoryMarshal.Cast<byte, float>(vectorDataBytes.Span).ToArray()
-                        : ToFloatArrayBigEndian(vectorDataBytes.Span);
+                    var floatArray = ReadSinglesArrayLittleEndian(vectorDataBytes.Span);
                     items = (TItem[])(object)floatArray;
                     break;
                 case BinaryVectorDataType.Int8:
@@ -119,6 +117,28 @@ namespace MongoDB.Bson.Serialization
                 return result;
             }
         }
+        
+        private static float[] ReadSinglesArrayLittleEndian(ReadOnlySpan<byte> span)
+        {
+            if ((span.Length & 3) != 0)
+            {
+                throw new FormatException("Data length of binary vector of type Float32 must be a multiple of 4 bytes.");
+            }
+            int count = span.Length / 4;
+            float[] result = new float[count];
+            if (BitConverter.IsLittleEndian)
+            {
+                MemoryMarshal.Cast<byte, float>(span).CopyTo(result);
+            }
+            else
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    result[i] = BinaryPrimitivesCompat.ReadSingleLittleEndian(span.Slice(i * 4, 4));
+                }
+            }
+            return result;
+        }
 
         public static void ValidateItemType<TItem>(BinaryVectorDataType binaryVectorDataType)
         {
@@ -142,16 +162,6 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new NotSupportedException($"Expected {typeof(TItemExpectedType)} for {typeof(TBinaryVectorType)}, but found {typeof(TItem)}.");
             }
-        }
-        private static float[] ToFloatArrayBigEndian(ReadOnlySpan<byte> span)
-        {
-            var count = span.Length / 4;
-            var result = new float[count];
-            for (int i = 0; i < count; i++)
-            {
-                result[i] = BinaryPrimitivesCompat.ReadSingleLittleEndian(span.Slice(i * 4, 4));
-            }
-            return result;
         }
     }
 }
