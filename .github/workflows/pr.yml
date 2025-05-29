@@ -29,4 +29,3 @@ jobs:
         if: ${{ always() && (endsWith(github.event.pull_request.title, '.') || endsWith(github.event.pull_request.title, '…')) }}
         run: |
           exit 1
-
