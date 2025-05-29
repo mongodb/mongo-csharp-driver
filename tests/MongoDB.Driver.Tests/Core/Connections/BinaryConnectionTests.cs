@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -153,10 +152,10 @@ namespace MongoDB.Driver.Core.Connections
             var mockStreamFactory = new Mock<IStreamFactory>();
             using var stream = new IgnoreWritesMemoryStream(memoryStream.ToArray());
             mockStreamFactory
-                .Setup(s => s.CreateStream(It.IsAny<EndPoint>(), CancellationToken.None))
+                .Setup(s => s.CreateStream(It.IsAny<EndPoint>(), It.IsAny<CancellationToken>()))
                 .Returns(stream);
             mockStreamFactory
-                .Setup(s => s.CreateStreamAsync(It.IsAny<EndPoint>(), CancellationToken.None))
+                .Setup(s => s.CreateStreamAsync(It.IsAny<EndPoint>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(stream);
 
             var connectionInitializer = new ConnectionInitializer(
@@ -620,10 +619,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void ReceiveMessage_should_not_produce_unobserved_task_exceptions_on_fail(
-            [Values(false, true)] bool async)
+        [Fact]
+        public async Task ReceiveMessage_should_not_produce_unobserved_task_exceptions_on_fail()
         {
             var unobservedTaskExceptionRaised = false;
             var mockStream = new Mock<Stream>();
@@ -644,36 +641,66 @@ namespace MongoDB.Driver.Core.Connections
                     .Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
                     .Returns(mockStream.Object);
 
-                if (async)
-                {
-                    mockStream
-                        .Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                        .Throws(new SocketException());
-                }
-                else
-                {
-                    mockStream
-                        .Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
-                        .Throws(new SocketException());
-                }
+                var tcs = new TaskCompletionSource<int>();
+                tcs.SetException(new SocketException());
+                SetupStreamRead(mockStream, tcs);
 
                 _subject.Open(CancellationToken.None);
 
-                Exception exception;
-                if (async)
-                {
-                    exception = Record.Exception(() => _subject.ReceiveMessageAsync(1, encoderSelector, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult());
-                }
-                else
-                {
-                    exception = Record.Exception(() => _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None));
-                }
+                var exception = await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(1, encoderSelector, _messageEncoderSettings, CancellationToken.None));
                 exception.Should().BeOfType<MongoConnectionException>();
 
                 GC.Collect(); // Collects the unobserved tasks
                 GC.WaitForPendingFinalizers(); // Assures finilizers are executed
 
                 unobservedTaskExceptionRaised.Should().BeFalse();
+            }
+            finally
+            {
+                TaskScheduler.UnobservedTaskException -= eventHandler;
+                mockStream.Object?.Dispose();
+            }
+        }
+
+        [Fact]
+        public async Task ReceiveMessageAsync_should_not_produce_unobserved_task_exceptions_on_timeout()
+        {
+            GC.Collect(); // Collects the unobserved tasks
+            GC.WaitForPendingFinalizers(); // Assures finalizers are executed
+
+            Exception ex = null;
+            var mockStream = new Mock<Stream>();
+            EventHandler<UnobservedTaskExceptionEventArgs> eventHandler = (s, args) =>
+            {
+                ex = args.Exception;
+            };
+
+            try
+            {
+                TaskScheduler.UnobservedTaskException += eventHandler;
+                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+
+                _mockStreamFactory
+                    .Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                    .Returns(mockStream.Object);
+
+                var tcs = new TaskCompletionSource<int>();
+                SetupStreamRead(mockStream, tcs, 50);
+                _subject.Open(CancellationToken.None);
+
+                var exception = await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(1, encoderSelector, _messageEncoderSettings, CancellationToken.None));
+                exception.Should().BeOfType<MongoConnectionException>();
+                exception.InnerException.Should().BeOfType<TimeoutException>();
+
+                tcs = null;
+                mockStream.Reset();
+                GC.Collect(); // Collects the unobserved tasks
+                GC.WaitForPendingFinalizers(); // Assures finalizers are executed
+
+                if (ex != null)
+                {
+                    Assert.Fail($"{ex.Message} - {ex}");
+                }
             }
             finally
             {
@@ -698,10 +725,7 @@ namespace MongoDB.Driver.Core.Connections
                 _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
                   .Returns(mockStream.Object);
                 var readTcs = new TaskCompletionSource<int>();
-                mockStream.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
-                    .Returns(() => readTcs.Task.GetAwaiter().GetResult());
-                mockStream.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                    .Returns(readTcs.Task);
+                SetupStreamRead(mockStream, readTcs, readTimeoutMs: Timeout.Infinite);
                 _subject.Open(CancellationToken.None);
                 _capturedEvents.Clear();
 
@@ -763,10 +787,7 @@ namespace MongoDB.Driver.Core.Connections
                    .Returns(mockStream.Object);
                 var readTcs = new TaskCompletionSource<int>();
                 readTcs.SetException(new SocketException());
-                mockStream.Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
-                    .Returns(() => readTcs.Task.GetAwaiter().GetResult());
-                mockStream.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                    .Returns(readTcs.Task);
+                SetupStreamRead(mockStream, readTcs);
                 _subject.Open(CancellationToken.None);
                 _capturedEvents.Clear();
 
@@ -882,7 +903,7 @@ namespace MongoDB.Driver.Core.Connections
                 if (async)
                 {
                     _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
-                        .Returns(Task.FromResult<Stream>(stream));
+                        .ReturnsAsync(stream);
                     _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
                     _capturedEvents.Clear();
 
@@ -908,6 +929,32 @@ namespace MongoDB.Driver.Core.Connections
                 _capturedEvents.Next().Should().BeOfType<ConnectionSentMessagesEvent>();
                 _capturedEvents.Any().Should().BeFalse();
             }
+        }
+
+        private void SetupStreamRead(Mock<Stream> streamMock, TaskCompletionSource<int> tcs, int readTimeoutMs = 1000)
+        {
+            if (readTimeoutMs > 0)
+            {
+                streamMock.SetupGet(s => s.CanTimeout).Returns(true);
+                streamMock.SetupGet(s => s.ReadTimeout).Returns(readTimeoutMs);
+            }
+
+            streamMock.Setup(s => s.BeginRead(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AsyncCallback>(), It.IsAny<object>()))
+                .Returns((byte[] _, int __, int ___, AsyncCallback callback, object state) =>
+                {
+                    var innerTcs = new TaskCompletionSource<int>(state);
+                    tcs.Task.ContinueWith(t =>
+                    {
+                        innerTcs.TrySetException(t.Exception.InnerException);
+                        callback(innerTcs.Task);
+                    });
+                    return innerTcs.Task;
+                });
+            streamMock.Setup(s => s.EndRead(It.IsAny<IAsyncResult>()))
+                .Returns<IAsyncResult>(x => ((Task<int>)x).GetAwaiter().GetResult());
+            streamMock.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .Returns(tcs.Task);
+            streamMock.Setup(s => s.Close()).Callback(() => tcs.TrySetException(new ObjectDisposedException("stream")));
         }
 
         // nested type

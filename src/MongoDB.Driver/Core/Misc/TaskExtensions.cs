@@ -15,12 +15,84 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
     internal static class TaskExtensions
     {
+#if !NET6_0_OR_GREATER
+        public static Task WaitAsync(this Task task, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            EnsureTimeoutIsValid(timeout);
+            return WaitAsyncCore(task, timeout, cancellationToken);
+
+            static async Task WaitAsyncCore(Task task, TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                if (!task.IsCompleted)
+                {
+                    var timeoutTask = Task.Delay(timeout, cancellationToken);
+                    await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                }
+
+                if (task.IsCompleted)
+                {
+                    // will re-throw the exception if any
+                    await task.ConfigureAwait(false);
+                    return;
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+                throw new TimeoutException();
+            }
+        }
+
+        public static Task<TResult> WaitAsync<TResult>(this Task<TResult> task, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            EnsureTimeoutIsValid(timeout);
+            return WaitAsyncCore(task, timeout, cancellationToken);
+
+            static async Task<TResult> WaitAsyncCore(Task<TResult> task, TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                if (!task.IsCompleted)
+                {
+                    var timeoutTask = Task.Delay(timeout, cancellationToken);
+                    await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                }
+
+                if (task.IsCompleted)
+                {
+                    // will return the result or re-throw the exception if any
+                    return await task.ConfigureAwait(false);
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+
+                throw new TimeoutException();
+            }
+        }
+
+        private static void EnsureTimeoutIsValid(TimeSpan timeout)
+        {
+            if (timeout == Timeout.InfiniteTimeSpan)
+            {
+                return;
+            }
+
+            if (timeout < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout));
+            }
+        }
+#endif
+
         internal struct YieldNoContextAwaitable
         {
             public YieldNoContextAwaiter GetAwaiter() { return new YieldNoContextAwaiter(); }
