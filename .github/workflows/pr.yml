@@ -8,6 +8,7 @@ on:
       - edited
       - labeled
       - unlabeled
+      - synchronize
 
 jobs:
   pull-request-validation:
