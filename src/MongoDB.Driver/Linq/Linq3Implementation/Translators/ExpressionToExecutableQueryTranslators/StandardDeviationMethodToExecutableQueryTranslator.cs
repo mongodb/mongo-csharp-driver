@@ -284,7 +284,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     valueAst = AstExpression.GetField(AstExpression.RootVar, "_v");
                 }
                 var outputValueType = expression.GetResultType();
-                var outputValueSerializer = BsonSerializer.LookupSerializer(outputValueType);
+                var outputValueSerializer = context.SerializationDomain.LookupSerializer(outputValueType);
                 var outputWrappedValueSerializer = WrappedValueSerializer.Create("_v", outputValueSerializer);
 
                 pipeline = pipeline.AddStages(

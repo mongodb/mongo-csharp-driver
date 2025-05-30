@@ -35,8 +35,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ExpandoObjectSerializer"/> class.
         /// </summary>
         public ExpandoObjectSerializer()
+            :this(BsonSerializer.DefaultSerializationDomain.SerializerRegistry)
         {
-            _listSerializer = BsonSerializer.LookupSerializer<List<object>>();
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="serializerRegistry"></param>
+        public ExpandoObjectSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            _listSerializer = serializerRegistry.GetSerializer<List<object>>();
         }
 
         /// <summary>

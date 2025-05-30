@@ -294,14 +294,21 @@ namespace MongoDB.Bson.Serialization
         /// Gets the serializer.
         /// </summary>
         /// <returns>The serializer.</returns>
-        public IBsonSerializer GetSerializer()
+        public IBsonSerializer GetSerializer() => GetSerializer(BsonSerializer.DefaultSerializationDomain);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        public IBsonSerializer GetSerializer(IBsonSerializationDomain domain)
         {
             if (_serializer == null)
             {
                 // return special serializer for BsonValue members that handles the _csharpnull representation
                 if (_memberTypeIsBsonValue)
                 {
-                    var wrappedSerializer = BsonSerializer.LookupSerializer(_memberType);
+                    var wrappedSerializer = domain.LookupSerializer(_memberType);
                     var isBsonArraySerializer = wrappedSerializer is IBsonArraySerializer;
                     var isBsonDocumentSerializer = wrappedSerializer is IBsonDocumentSerializer;
 
@@ -329,7 +336,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    _serializer = BsonSerializer.LookupSerializer(_memberType);
+                    _serializer = domain.LookupSerializer(_memberType);
                 }
             }
             return _serializer;

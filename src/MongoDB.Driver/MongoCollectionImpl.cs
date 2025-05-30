@@ -1320,7 +1320,8 @@ namespace MongoDB.Driver
             var messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
-                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict },
+                { MessageEncoderSettingsName.SerializationDomain, _settings.SerializationDomain }
             };
 
             if (_database.Client is MongoClient mongoClient)

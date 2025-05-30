@@ -41,14 +41,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             // where TInterface is an interface
     {
         #region static
-        private static IBsonSerializer<TInterface> CreateInterfaceSerializer()
+        private static IBsonSerializer<TInterface> CreateInterfaceSerializer(IBsonSerializationDomain serializationDomain)
         {
             var classMapDefinition = typeof(BsonClassMap<>);
             var classMapType = classMapDefinition.MakeGenericType(typeof(TInterface));
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
             classMap.AutoMap();
-            classMap.SetDiscriminatorConvention(BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface)));
-            classMap.Freeze();
+            classMap.SetDiscriminatorConvention(serializationDomain.LookupDiscriminatorConvention(typeof(TInterface)));
+            classMap.Freeze(serializationDomain as IBsonSerializationDomainInternal);
             return new BsonClassMapSerializer<TInterface>(classMap);
         }
         #endregion
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention)
-            : this(discriminatorConvention, CreateInterfaceSerializer(), objectSerializer: null)
+            : this(discriminatorConvention, CreateInterfaceSerializer(BsonSerializer.DefaultSerializationDomain), objectSerializer: null)  //TODO Is this ok?
         {
         }
 
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             if (objectSerializer == null)
             {
-                objectSerializer = BsonSerializer.LookupSerializer<object>();
+                objectSerializer = BsonSerializer.LookupSerializer<object>();  //TODO What do we do here?
                 if (objectSerializer is ObjectSerializer standardObjectSerializer)
                 {
                     Func<Type, bool> allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);

@@ -41,10 +41,14 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
-        public override BsonValue GetDiscriminator(Type nominalType, Type actualType)
+        public override BsonValue GetDiscriminator(Type nominalType, Type actualType) =>
+            GetDiscriminator(nominalType, actualType, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        public override BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
         {
             // TODO: this isn't quite right, not all classes are serialized using  a class map serializer
-            var classMap = BsonClassMap.LookupClassMap(actualType);
+            var classMap = domain.BsonClassMap.LookupClassMap(actualType);
             if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass)
             {
                 if (classMap.HasRootClass && !classMap.IsRootClass)

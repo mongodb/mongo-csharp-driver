@@ -357,6 +357,7 @@ namespace MongoDB.Driver.Tests
             mockDatabase.SetupGet(d => d.Client).Returns(mockClient.Object);
 
             var collectionSettings = new MongoCollectionSettings();
+            collectionSettings.SerializationDomain = BsonSerializer.CreateSerializationDomain();
             _mockCollection = new Mock<IMongoCollection<Person>>();
             _mockCollection.SetupGet(c => c.Database).Returns(mockDatabase.Object);
             _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.SerializerRegistry.GetSerializer<Person>());
