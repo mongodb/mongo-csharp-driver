@@ -455,6 +455,10 @@ functions:
       params:
         shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas_connect
           . evergreen/run-atlas-connectivity-tests.sh
@@ -2185,6 +2189,10 @@ task_groups:
           binary: bash
           env:
             VAULT_NAME: ${VAULT_NAME}
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
       - command: expansions.update
