@@ -156,6 +156,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperationAsync<ClientBulkWriteResult>(
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
+                disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
