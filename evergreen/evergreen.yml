@@ -318,6 +318,10 @@ functions:
   bootstrap-mongohoused:
     - command: shell.exec
       params:
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           DRIVERS_TOOLS="${DRIVERS_TOOLS}" bash ${DRIVERS_TOOLS}/.evergreen/atlas_data_lake/pull-mongohouse-image.sh
     - command: shell.exec
@@ -1262,6 +1266,7 @@ tasks:
 
     - name: atlas-data-lake-test
       commands:
+        - func: assume-ec2-role
         - func: bootstrap-mongohoused
         - func: run-atlas-data-lake-test
 
@@ -2047,9 +2052,14 @@ task_groups:
     setup_group:
       - func: fetch-source
       - func: prepare-resources
+      - func: assume-ec2-role
       - command: subprocess.exec
         params:
           binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           env:
             LAMBDA_STACK_NAME: dbx-csharp-lambda
           args:
