@@ -371,7 +371,7 @@ namespace MongoDB.Bson.Tests.Serialization
                     .ToArray());
                 var elementsBytesLittleEndian = BitConverter.IsLittleEndian
                     ? MemoryMarshal.Cast<T, byte>(elementsSpan)
-                    : ToLittleEndian(elementsSpan, dataType);
+                    : BigEndianToLittleEndian(elementsSpan, dataType);
                 
                 byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. elementsBytesLittleEndian];
                 return (elementsSpan.ToArray(), vectorBsonData);
@@ -415,6 +415,27 @@ namespace MongoDB.Bson.Tests.Serialization
             return serializer;
         }
 
+        private static byte[] BigEndianToLittleEndian<T>(ReadOnlySpan<T> span, BinaryVectorDataType dataType) where T : struct
+        {
+            // Types that do NOT need conversion safe on BE
+            if (dataType == BinaryVectorDataType.Int8 || dataType == BinaryVectorDataType.PackedBit)
+            {
+                return MemoryMarshal.Cast<T, byte>(span).ToArray();
+            }
+
+            var elementSize = Marshal.SizeOf<T>();
+            byte[] result = new byte[span.Length * elementSize];
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                byte[] bytes = BitConverter.GetBytes((dynamic)span[i]);
+                Array.Reverse(bytes); // Ensure LE order
+                Buffer.BlockCopy(bytes, 0, result, i * elementSize, elementSize);
+            }
+
+            return result;
+        }
+
         public class BinaryVectorNoAttributeHolder
         {
             public BinaryVectorInt8 ValuesInt8 { get; set; }
@@ -422,24 +443,6 @@ namespace MongoDB.Bson.Tests.Serialization
             public BinaryVectorPackedBit ValuesPackedBit { get; set; }
 
             public BinaryVectorFloat32 ValuesFloat { get; set; }
-        }
-
-        private static byte[] ToLittleEndian<T>(ReadOnlySpan<T> span, BinaryVectorDataType dataType) where T : struct
-        {
-            // Types that do NOT need conversion safe on BE
-            if (dataType == BinaryVectorDataType.Int8 || dataType == BinaryVectorDataType.PackedBit)
-            {
-                return MemoryMarshal.Cast<T, byte>(span).ToArray();
-            }
-            int elementSize = Marshal.SizeOf<T>();
-            byte[] result = new byte[span.Length * elementSize];
-            for (int i = 0; i < span.Length; i++)
-            {
-                byte[] bytes = BitConverter.GetBytes((dynamic)span[i]);
-                Array.Reverse(bytes); // Ensure LE order
-                Buffer.BlockCopy(bytes, 0, result, i * elementSize, elementSize);
-            }
-            return result;
         }
     }
 }

@@ -43,29 +43,8 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException(nameof(source), "Source span is too small to contain a float.");
             }
 
-            // Manually construct a 32-bit integer from 4 bytes in Little Endian order.
-            // BSON mandates that all multibyte values-including float32-must be encoded
-            // using Little Endian byte order, regardless of the system architecture.
-            //
-            // This method ensures platform-agnostic behavior by explicitly assembling
-            // the bytes in the correct order, rather than relying on the system's native endianness.
-            //
-            // Given a byte sequence [a, b, c, d], representing a float encoded in Little Endian,
-            // the expression below constructs the 32-bit integer as:
-            //     intValue = a + (b << 8) + (c << 16) + (d << 24)
-            //
-            // This preserves the intended bit pattern when converting back to float using
-            // BitConverter.Int32BitsToSingle.
-            //
-            // Example:
-            //   A float value of 1.0f is represented in IEEE-754 binary32 format as:
-            //       [0x00, 0x00, 0x80, 0x3F]  (Little Endian)
-            //   On a Big Endian system, naive interpretation would yield an incorrect value,
-            //   but this method assembles the int as:
-            //       0x00 + (0x00 << 8) + (0x80 << 16) + (0x3F << 24) = 0x3F800000,
-            //   which correctly maps to 1.0f.
-            //
-            // This guarantees BSON-compliant serialization across all platforms.
+            // Constructs a 32-bit float from 4 Little Endian bytes in a platform-agnostic way.
+            // Ensures correct bit pattern regardless of system endianness.
             int intValue =
                 source[0] |
                 (source[1] << 8) |
@@ -97,9 +76,6 @@ namespace MongoDB.Bson.IO
 #endif
         }
 
-        // This layout trick allows safely reinterpreting float as int and vice versa.
-        // It ensures identical memory layout for both fields, used for low-level bit conversion
-        // in environments like net472 which lack BitConverter.SingleToInt32Bits and its inverse.
         [StructLayout(LayoutKind.Explicit)]
         private struct FloatIntUnion
         {

@@ -36,18 +36,17 @@ namespace MongoDB.Bson.Serialization
         public static byte[] WriteToBytes<TItem>(ReadOnlySpan<TItem> vectorData, BinaryVectorDataType binaryVectorDataType, byte padding)
             where TItem : struct
         {
-            byte[] resultBytes;
-
             switch (binaryVectorDataType)
             {
                 case BinaryVectorDataType.Float32:
-                    var length = vectorData.Length * sizeof(float);
-                    resultBytes = new byte[2 + length];
-                    resultBytes[0] = (byte)binaryVectorDataType;
-                    resultBytes[1] = padding;
+		     byte[] result;
+                    var length = vectorData.Length * 4; 
+                    result = new byte[2 + length];
+                    result[0] = (byte)binaryVectorDataType;
+                    result[1] = padding;
 
                     var floatSpan = MemoryMarshal.Cast<TItem, float>(vectorData);
-                    Span<byte> floatOutput = resultBytes.AsSpan(2);
+                    var floatOutput = result.AsSpan(2);
 
                     if (BitConverter.IsLittleEndian)
                     {
@@ -61,7 +60,7 @@ namespace MongoDB.Bson.Serialization
                         }
                     }
 
-                    return resultBytes;
+                    return result;
 
                 case BinaryVectorDataType.Int8:
                 case BinaryVectorDataType.PackedBit:

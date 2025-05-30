@@ -42,12 +42,6 @@ namespace MongoDB.Bson.Serialization
             switch (vectorDataType)
             {
                 case BinaryVectorDataType.Float32:
-
-                    if ((vectorDataBytes.Span.Length & 3) != 0)
-                    {
-                        throw new FormatException("Data length of binary vector of type Float32 must be a multiple of 4 bytes.");
-                    }
-
                     var floatArray = ReadSinglesArrayLittleEndian(vectorDataBytes.Span);
                     items = (TItem[])(object)floatArray;
                     break;
@@ -124,15 +118,17 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new FormatException("Data length of binary vector of type Float32 must be a multiple of 4 bytes.");
             }
-            int count = span.Length / 4;
-            float[] result = new float[count];
+
+            float[] result;
             if (BitConverter.IsLittleEndian)
             {
-                MemoryMarshal.Cast<byte, float>(span).CopyTo(result);
+                result = MemoryMarshal.Cast<byte, float>(span).ToArray();
             }
             else
             {
-                for (int i = 0; i < count; i++)
+                var count = span.Length / 4;
+		 result = new float[count];
+		 for (int i = 0; i < count; i++)
                 {
                     result[i] = BinaryPrimitivesCompat.ReadSingleLittleEndian(span.Slice(i * 4, 4));
                 }
