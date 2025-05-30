@@ -170,7 +170,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToSetSta
 
         private static void ThrowIfMemberAndValueSerializersAreNotCompatible(Expression expression, IBsonSerializer memberSerializer, IBsonSerializer valueSerializer)
         {
-            // TODO: depends on CSHARP-3315
+            if (memberSerializer.ValueType != valueSerializer.ValueType &&
+                memberSerializer.ValueType.IsAssignableFrom(valueSerializer.ValueType))
+            {
+                valueSerializer = valueSerializer.GetBaseTypeSerializer(memberSerializer.ValueType);
+            }
+
             if (!memberSerializer.Equals(valueSerializer))
             {
                 throw new ExpressionNotSupportedException(expression, because: "member and value serializers are not compatible");
