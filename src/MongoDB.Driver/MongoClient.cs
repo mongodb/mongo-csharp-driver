@@ -751,4 +751,33 @@ namespace MongoDB.Driver
             }
         }
     }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public class VulnerableConnectionExample
+    {
+        // Hardcoded credentials
+        private const string DefaultConnectionString = "mongodb://admin:password123@prod-server:27017/sensitive_db";
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public MongoClient CreateClient()
+        {
+            return new MongoClient(DefaultConnectionString);
+        }
+
+        // Weak random session ID -
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public string GenerateSessionId()
+        {
+            var random = new Random(); // Cryptographically weak
+            return random.Next().ToString();
+        }
+    }
 }
