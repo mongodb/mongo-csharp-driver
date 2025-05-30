@@ -127,8 +127,8 @@ namespace MongoDB.Bson.Serialization
             else
             {
                 var count = span.Length / 4;
-		 result = new float[count];
-		 for (int i = 0; i < count; i++)
+                result = new float[count];
+                for (int i = 0; i < count; i++)
                 {
                     result[i] = BinaryPrimitivesCompat.ReadSingleLittleEndian(span.Slice(i * 4, 4));
                 }

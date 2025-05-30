@@ -39,9 +39,8 @@ namespace MongoDB.Bson.Serialization
             switch (binaryVectorDataType)
             {
                 case BinaryVectorDataType.Float32:
-		     byte[] result;
                     var length = vectorData.Length * 4; 
-                    result = new byte[2 + length];
+                    var result = new byte[2 + length];
                     result[0] = (byte)binaryVectorDataType;
                     result[1] = padding;
 

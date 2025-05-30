@@ -37,8 +37,8 @@ namespace MongoDB.Bson.Tests.IO
             var exception = Record.Exception(() =>
                 BinaryPrimitivesCompat.ReadSingleLittleEndian(shortBuffer));
 
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.Message.Should().Contain("length");
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("length");
         }
 
         [Fact]
@@ -48,8 +48,8 @@ namespace MongoDB.Bson.Tests.IO
             var exception = Record.Exception(() =>
                 BinaryPrimitivesCompat.WriteSingleLittleEndian(shortBuffer, 1.23f));
 
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
-            exception.Message.Should().Contain("length");
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("length");
         }
 
         [Fact]
