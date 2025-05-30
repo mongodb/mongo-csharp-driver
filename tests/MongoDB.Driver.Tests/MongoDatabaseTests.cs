@@ -1097,8 +1097,8 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
-            binding.ReadPreference.Should().Be(ReadPreference.Primary);
+            call.Options.ExplicitReadPreference.Should().BeNull();
+            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
@@ -1144,8 +1144,8 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
-            binding.ReadPreference.Should().Be(readPreference);
+            call.Options.ExplicitReadPreference.Should().Be(readPreference);
+            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
@@ -1190,8 +1190,8 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
-            binding.ReadPreference.Should().Be(ReadPreference.Primary);
+            call.Options.ExplicitReadPreference.Should().BeNull();
+            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
@@ -1236,8 +1236,8 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
-            binding.ReadPreference.Should().Be(ReadPreference.Primary);
+            call.Options.ExplicitReadPreference.Should().BeNull();
+            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
@@ -1282,8 +1282,8 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
-            binding.ReadPreference.Should().Be(ReadPreference.Primary);
+            call.Options.ExplicitReadPreference.Should().BeNull();
+            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
