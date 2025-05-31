@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -35,15 +36,39 @@ namespace MongoDB.Bson.Serialization
         public static byte[] WriteToBytes<TItem>(ReadOnlySpan<TItem> vectorData, BinaryVectorDataType binaryVectorDataType, byte padding)
             where TItem : struct
         {
-            if (!BitConverter.IsLittleEndian)
+            switch (binaryVectorDataType)
             {
-                throw new NotSupportedException("Binary vector data is not supported on Big Endian architecture yet.");
+                case BinaryVectorDataType.Float32:
+                    var length = vectorData.Length * 4; 
+                    var result = new byte[2 + length];
+                    result[0] = (byte)binaryVectorDataType;
+                    result[1] = padding;
+
+                    var floatSpan = MemoryMarshal.Cast<TItem, float>(vectorData);
+                    var floatOutput = result.AsSpan(2);
+
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        MemoryMarshal.Cast<float, byte>(floatSpan).CopyTo(floatOutput);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < floatSpan.Length; i++)
+                        {
+                            BinaryPrimitivesCompat.WriteSingleLittleEndian(floatOutput.Slice(i * 4, 4), floatSpan[i]);
+                        }
+                    }
+
+                    return result;
+
+                case BinaryVectorDataType.Int8:
+                case BinaryVectorDataType.PackedBit:
+                    var vectorDataBytes = MemoryMarshal.Cast<TItem, byte>(vectorData);
+                    return [(byte)binaryVectorDataType, padding, .. vectorDataBytes];
+
+                default:
+                    throw new NotSupportedException($"Binary vector serialization is not supported for {binaryVectorDataType}.");
             }
-
-            var vectorDataBytes = MemoryMarshal.Cast<TItem, byte>(vectorData);
-            byte[] result = [(byte)binaryVectorDataType, padding, .. vectorDataBytes];
-
-            return result;
         }
     }
 }
