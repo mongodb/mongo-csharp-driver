@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests
         public TResult ExecuteReadOperation<TResult>(
             IReadOperation<TResult> operation,
             ReadOperationOptions readOperationOptions,
-            IClientSessionHandle session = null,
+            IClientSessionHandle session,
             bool disableChannelPinning = false,
             CancellationToken cancellationToken = default)
         {
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests
         public Task<TResult> ExecuteReadOperationAsync<TResult>(
             IReadOperation<TResult> operation,
             ReadOperationOptions readOperationOptions,
-            IClientSessionHandle session = null,
+            IClientSessionHandle session,
             bool disableChannelPinning = false,
             CancellationToken cancellationToken = default)
         {
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Tests
         public TResult ExecuteWriteOperation<TResult>(
             IWriteOperation<TResult> operation,
             WriteOperationOptions writeOperationOptions,
-            IClientSessionHandle session = null,
+            IClientSessionHandle session,
             bool disableChannelPinning = false,
             CancellationToken cancellationToken = default)
         {
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Tests
         public Task<TResult> ExecuteWriteOperationAsync<TResult>(
             IWriteOperation<TResult> operation,
             WriteOperationOptions writeOperationOptions,
-            IClientSessionHandle session = null,
+            IClientSessionHandle session,
             bool disableChannelPinning = false,
             CancellationToken cancellationToken = default)
         {

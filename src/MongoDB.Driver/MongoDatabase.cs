@@ -239,6 +239,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperation(
                 CreateCreateViewOperation(viewName, viewOn, pipeline, options),
                 _writeOperationOptions,
+                session: null,
                 cancellationToken: cancellationToken);
 
         public void CreateView<TDocument, TResult>(IClientSessionHandle session, string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default)
@@ -252,6 +253,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateCreateViewOperation(viewName, viewOn, pipeline, options),
                 _writeOperationOptions,
+                session: null,
                 cancellationToken: cancellationToken);
 
         public Task CreateViewAsync<TDocument, TResult>(IClientSessionHandle session, string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default)
@@ -353,6 +355,7 @@ namespace MongoDB.Driver
             var cursor = await _operationExecutor.ExecuteReadOperationAsync(
                 CreateListCollectionNamesOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
+                session: null,
                 cancellationToken: cancellationToken).ConfigureAwait(false);
             return new BatchTransformingAsyncCursor<BsonDocument, string>(cursor, ExtractCollectionNames);
         }
@@ -371,6 +374,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperation(
                 CreateListCollectionsOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
+                session: null,
                 cancellationToken: cancellationToken);
 
         public IAsyncCursor<BsonDocument> ListCollections(IClientSessionHandle session, ListCollectionsOptions options, CancellationToken cancellationToken)
@@ -384,6 +388,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListCollectionsOperation(options),
                 _readOperationOptions with { DefaultReadPreference = ReadPreference.Primary },
+                session: null,
                 cancellationToken: cancellationToken);
 
         public Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(IClientSessionHandle session, ListCollectionsOptions options, CancellationToken cancellationToken)
@@ -397,6 +402,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperation(
                 CreateRenameCollectionOperation(oldName, newName, options),
                 _writeOperationOptions,
+                session: null,
                 cancellationToken: cancellationToken);
 
         public void RenameCollection(IClientSessionHandle session, string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
@@ -410,6 +416,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateRenameCollectionOperation(oldName, newName, options),
                 _writeOperationOptions,
+                session: null,
                 cancellationToken: cancellationToken);
 
         public Task RenameCollectionAsync(IClientSessionHandle session, string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
@@ -423,6 +430,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperation(
                 CreateRunCommandOperation(command),
                 _readOperationOptions with { ExplicitReadPreference = readPreference, DefaultReadPreference = ReadPreference.Primary},
+                session: null,
                 cancellationToken: cancellationToken);
 
         public TResult RunCommand<TResult>(IClientSessionHandle session, Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default)
@@ -436,6 +444,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperationAsync(
                 CreateRunCommandOperation(command),
                 _readOperationOptions with { ExplicitReadPreference = readPreference, DefaultReadPreference = ReadPreference.Primary},
+                session: null,
                 cancellationToken: cancellationToken);
 
         public Task<TResult> RunCommandAsync<TResult>(IClientSessionHandle session, Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default)
@@ -452,6 +461,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperation(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
+                session: null,
                 cancellationToken: cancellationToken);
 
         public IChangeStreamCursor<TResult> Watch<TResult>(
@@ -472,6 +482,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperationAsync(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
+                session: null,
                 cancellationToken: cancellationToken);
 
         public Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(

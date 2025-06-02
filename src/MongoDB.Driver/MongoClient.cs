@@ -139,6 +139,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperation<ClientBulkWriteResult>(
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -156,6 +157,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperationAsync<ClientBulkWriteResult>(
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -203,6 +205,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperation(
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -220,6 +223,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteWriteOperationAsync(
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -313,6 +317,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperation(
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -323,6 +328,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperation(
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -354,6 +360,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -364,6 +371,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperationAsync(
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -414,6 +422,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperation(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
@@ -438,6 +447,7 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperationAsync(
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
+                session: null,
                 disableChannelPinning: true,
                 cancellationToken: cancellationToken);
 
