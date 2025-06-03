@@ -67,7 +67,11 @@ namespace MongoDB.Bson.Tests.Serialization
         {
         }
 
-        // BaseDocument, BasedDocument2 and derived classes are used for tests with generic types
+        // BaseDocument, BasedDocument and derived classes are used for tests with generic types
+        // It's necessary to specify the derived specific types with BsonKnownTypes for the deserialization to work.
+        [BsonKnownTypes(typeof(DerivedDocument<int>))]
+        [BsonKnownTypes(typeof(DerivedDocument<List<Dictionary<string, int>>>))]
+        [BsonKnownTypes(typeof(DerivedDocumentDouble<int, string>))]
         abstract class BaseDocument;
 
         class DerivedDocument<T> : BaseDocument
@@ -88,54 +92,28 @@ namespace MongoDB.Bson.Tests.Serialization
             public T2 Value2 { get; set; }
         }
 
-        //The deserialization tests for generic types needs to use a different set of classes than the serialization ones,
-        //otherwise the discriminators could have been already registered, depending on the order of the tests.
-        //It's necessary to specify the derived specific types with BsonKnownTypes for this to work.
-        [BsonKnownTypes(typeof(DerivedDocument2<int>))]
-        [BsonKnownTypes(typeof(DerivedDocument2<List<Dictionary<string, int>>>))]
-        [BsonKnownTypes(typeof(DerivedDocumentDouble2<int, string>))]
-        abstract class BaseDocument2 {}
-
-        class DerivedDocument2<T> : BaseDocument2
-        {
-            [BsonId]
-            public int Id { get; set; }
-
-            public T Value { get; set; }
-        }
-
-        class DerivedDocumentDouble2<T1, T2> : BaseDocument2
-        {
-            [BsonId]
-            public int Id { get; set; }
-
-            public T1 Value1 { get; set; }
-
-            public T2 Value2 { get; set; }
-        }
-
         [Fact]
         public void TestDeserializeGenericType()
         {
-            var serialized = """{ "_t" : "DerivedDocument2<Int32>", "_id" : 1, "Value" : 42 }""";
-            var rehydrated = BsonSerializer.Deserialize<BaseDocument2>(serialized);
-            rehydrated.Should().BeOfType<DerivedDocument2<int>>();
+            var serialized = """{ "_t" : "DerivedDocument<Int32>", "_id" : 1, "Value" : 42 }""";
+            var rehydrated = BsonSerializer.Deserialize<BaseDocument>(serialized);
+            rehydrated.Should().BeOfType<DerivedDocument<int>>();
         }
 
         [Fact]
         public void TestDeserializeGenericTypeWithNestedType()
         {
-            var serialized = """{ "_t" : "DerivedDocument2<List<Dictionary<String, Int32>>>", "_id" : 1, "Value" : [{ "key" : 1 }] }""";
-            var rehydrated = BsonSerializer.Deserialize<BaseDocument2>(serialized);
-            rehydrated.Should().BeOfType<DerivedDocument2<List<Dictionary<string, int>>>>();
+            var serialized = """{ "_t" : "DerivedDocument<List<Dictionary<String, Int32>>>", "_id" : 1, "Value" : [{ "key" : 1 }] }""";
+            var rehydrated = BsonSerializer.Deserialize<BaseDocument>(serialized);
+            rehydrated.Should().BeOfType<DerivedDocument<List<Dictionary<string, int>>>>();
         }
 
         [Fact]
         public void TestDeserializeGenericTypeWithTwoTypes()
         {
-            var serialized = """{ "_t" : "DerivedDocumentDouble2<Int32, String>", "_id" : 1, "Value1" : 42, "Value2" : "hello" }""";
-            var rehydrated = BsonSerializer.Deserialize<BaseDocument2>(serialized);
-            rehydrated.Should().BeOfType<DerivedDocumentDouble2<int,string>>();
+            var serialized = """{ "_t" : "DerivedDocumentDouble<Int32, String>", "_id" : 1, "Value1" : 42, "Value2" : "hello" }""";
+            var rehydrated = BsonSerializer.Deserialize<BaseDocument>(serialized);
+            rehydrated.Should().BeOfType<DerivedDocumentDouble<int,string>>();
         }
 
         [Fact]
