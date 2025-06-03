@@ -40,7 +40,7 @@ namespace MongoDB.Bson.IO
 #else
             if (source.Length < 4)
             {
-                throw new ArgumentOutOfRangeException(nameof(source), "Source span is too small to contain a float.");
+                throw new ArgumentOutOfRangeException("length", "Source span is too small to contain a float.");
             }
 
             // Constructs a 32-bit float from 4 Little Endian bytes in a platform-agnostic way.
@@ -63,7 +63,7 @@ namespace MongoDB.Bson.IO
 #else
             if (destination.Length < 4)
             {
-                throw new ArgumentOutOfRangeException(nameof(destination), "Destination span is too small to hold a float.");
+                throw new ArgumentOutOfRangeException("length", "Destination span is too small to hold a float.");
             }
 
             // This struct emulates BitConverter.SingleToInt32Bits for platforms like net472.
