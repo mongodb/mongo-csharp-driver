@@ -595,8 +595,8 @@ namespace MongoDB.Driver
             var readOperationOptions = _readOperationOptions with { ExplicitReadPreference = ReadPreference.Primary };
             var deferredCursor = new DeferredAsyncCursor<TResult>(
                 () => forkedSession.Dispose(),
-                ct => _operationExecutor.ExecuteReadOperation(findOperation, readOperationOptions, forkedSession, false, cancellationToken: ct),
-                ct => _operationExecutor.ExecuteReadOperationAsync(findOperation, readOperationOptions, forkedSession, false, cancellationToken: ct));
+                ct => _operationExecutor.ExecuteReadOperation(findOperation, readOperationOptions, forkedSession, true, cancellationToken: ct),
+                ct => _operationExecutor.ExecuteReadOperationAsync(findOperation, readOperationOptions, forkedSession, true, cancellationToken: ct));
             return deferredCursor;
         }
 

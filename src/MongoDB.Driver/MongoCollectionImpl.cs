@@ -378,7 +378,8 @@ namespace MongoDB.Driver
             => _operationExecutor.ExecuteReadOperation(
                 CreateEstimatedDocumentCountOperation(options),
                 _readOperationOptions,
-                session: null, allowChannelPinning: true,
+                session: null,
+                allowChannelPinning: true,
                 cancellationToken: cancellationToken);
 
         public override Task<long> EstimatedDocumentCountAsync(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default)
