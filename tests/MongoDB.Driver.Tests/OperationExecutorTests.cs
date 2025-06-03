@@ -53,8 +53,8 @@ namespace MongoDB.Driver.Tests
             var readOperationOptions = new ReadOperationOptions();
 
             _ = isAsync ?
-                await subject.ExecuteReadOperationAsync(readOperation, readOperationOptions, session, cancellationToken: CancellationToken.None) :
-                subject.ExecuteReadOperation(readOperation, readOperationOptions, session, cancellationToken: CancellationToken.None);
+                await subject.ExecuteReadOperationAsync(readOperation, readOperationOptions, session, false, cancellationToken: CancellationToken.None) :
+                subject.ExecuteReadOperation(readOperation, readOperationOptions, session, false, cancellationToken: CancellationToken.None);
 
             var times = shouldCreateSession ? Times.Once() : Times.Never();
             clusterMock.Verify(c => c.StartSession(It.Is<CoreSessionOptions>(v => v.IsImplicit && v.IsCausallyConsistent == false && v.IsSnapshot == false)), times);
@@ -70,8 +70,8 @@ namespace MongoDB.Driver.Tests
             var writeOperationOptions = new WriteOperationOptions();
 
             _ = isAsync ?
-                await subject.ExecuteWriteOperationAsync(writeOperation, writeOperationOptions, session, cancellationToken: CancellationToken.None) :
-                subject.ExecuteWriteOperation(writeOperation, writeOperationOptions, session, cancellationToken: CancellationToken.None);
+                await subject.ExecuteWriteOperationAsync(writeOperation, writeOperationOptions, session, false, cancellationToken: CancellationToken.None) :
+                subject.ExecuteWriteOperation(writeOperation, writeOperationOptions, session, false, cancellationToken: CancellationToken.None);
 
             var times = shouldCreateSession ? Times.Once() : Times.Never();
             clusterMock.Verify(c => c.StartSession(It.Is<CoreSessionOptions>(v => v.IsImplicit && v.IsCausallyConsistent == false && v.IsSnapshot == false)), times);

@@ -62,12 +62,11 @@ namespace MongoDB.Driver.Tests
             _results.Enqueue(exception);
         }
 
-        public TResult ExecuteReadOperation<TResult>(
-            IReadOperation<TResult> operation,
+        public TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation,
             ReadOperationOptions readOperationOptions,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default)
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
             _calls.Enqueue(new ReadCall<TResult>
             {
@@ -94,16 +93,15 @@ namespace MongoDB.Driver.Tests
             return default(TResult);
         }
 
-        public Task<TResult> ExecuteReadOperationAsync<TResult>(
-            IReadOperation<TResult> operation,
+        public Task<TResult> ExecuteReadOperationAsync<TResult>(IReadOperation<TResult> operation,
             ReadOperationOptions readOperationOptions,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default)
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
             try
             {
-                var result = ExecuteReadOperation(operation, readOperationOptions, session, disableChannelPinning, cancellationToken);
+                var result = ExecuteReadOperation(operation, readOperationOptions, session, allowChannelPinning, cancellationToken);
                 return Task.FromResult(result);
             }
             catch (Exception ex)
@@ -114,12 +112,11 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        public TResult ExecuteWriteOperation<TResult>(
-            IWriteOperation<TResult> operation,
+        public TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation,
             WriteOperationOptions writeOperationOptions,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default)
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
             _calls.Enqueue(new WriteCall<TResult>
             {
@@ -146,16 +143,15 @@ namespace MongoDB.Driver.Tests
             return default(TResult);
         }
 
-        public Task<TResult> ExecuteWriteOperationAsync<TResult>(
-            IWriteOperation<TResult> operation,
+        public Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteOperation<TResult> operation,
             WriteOperationOptions writeOperationOptions,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default)
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
             try
             {
-                var result = ExecuteWriteOperation(operation, writeOperationOptions, session, disableChannelPinning, cancellationToken);
+                var result = ExecuteWriteOperation(operation, writeOperationOptions, session, allowChannelPinning, cancellationToken);
                 return Task.FromResult(result);
             }
             catch (Exception ex)

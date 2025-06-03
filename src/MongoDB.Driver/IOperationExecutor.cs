@@ -22,33 +22,29 @@ namespace MongoDB.Driver
 {
     internal interface IOperationExecutor : IDisposable
     {
-        TResult ExecuteReadOperation<TResult>(
-            IReadOperation<TResult> operation,
+        TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation,
             ReadOperationOptions options,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default);
+            bool allowChannelPinning,
+            CancellationToken cancellationToken);
 
-        Task<TResult> ExecuteReadOperationAsync<TResult>(
-            IReadOperation<TResult> operation,
+        Task<TResult> ExecuteReadOperationAsync<TResult>(IReadOperation<TResult> operation,
             ReadOperationOptions options,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default);
+            bool allowChannelPinning,
+            CancellationToken cancellationToken);
 
-        TResult ExecuteWriteOperation<TResult>(
-            IWriteOperation<TResult> operation,
+        TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation,
             WriteOperationOptions options,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default);
+            bool allowChannelPinning,
+            CancellationToken cancellationToken);
 
-        Task<TResult> ExecuteWriteOperationAsync<TResult>(
-            IWriteOperation<TResult> operation,
+        Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteOperation<TResult> operation,
             WriteOperationOptions options,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default);
+            bool allowChannelPinning,
+            CancellationToken cancellationToken);
 
         IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken);
 

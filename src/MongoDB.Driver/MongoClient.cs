@@ -62,7 +62,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="settings">The settings.</param>
         public MongoClient(MongoClientSettings settings)
-            : this(client => new OperationExecutor(client), settings)
+            : this(settings, client => new OperationExecutor(client))
         {
 
         }
@@ -85,7 +85,7 @@ namespace MongoDB.Driver
         {
         }
 
-        internal MongoClient(Func<IMongoClient, IOperationExecutor> operationExecutorFactory, MongoClientSettings settings)
+        internal MongoClient(MongoClientSettings settings, Func<IMongoClient, IOperationExecutor> operationExecutorFactory)
         {
             _operationExecutorFactory = Ensure.IsNotNull(operationExecutorFactory, nameof(operationExecutorFactory));
             _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
@@ -140,7 +140,7 @@ namespace MongoDB.Driver
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -149,7 +149,7 @@ namespace MongoDB.Driver
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -158,7 +158,7 @@ namespace MongoDB.Driver
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -167,7 +167,7 @@ namespace MongoDB.Driver
                 CreateClientBulkWriteOperation(models, options),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -206,7 +206,7 @@ namespace MongoDB.Driver
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -215,7 +215,7 @@ namespace MongoDB.Driver
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -224,7 +224,7 @@ namespace MongoDB.Driver
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -233,7 +233,7 @@ namespace MongoDB.Driver
                 CreateDropDatabaseOperation(name),
                 _writeOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -318,7 +318,7 @@ namespace MongoDB.Driver
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -329,7 +329,7 @@ namespace MongoDB.Driver
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -340,7 +340,7 @@ namespace MongoDB.Driver
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -352,7 +352,7 @@ namespace MongoDB.Driver
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -361,7 +361,7 @@ namespace MongoDB.Driver
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -372,7 +372,7 @@ namespace MongoDB.Driver
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -383,7 +383,7 @@ namespace MongoDB.Driver
                 CreateListDatabaseOperation(null),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -395,7 +395,7 @@ namespace MongoDB.Driver
                 CreateListDatabaseOperation(options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -423,7 +423,7 @@ namespace MongoDB.Driver
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -436,7 +436,7 @@ namespace MongoDB.Driver
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -448,7 +448,7 @@ namespace MongoDB.Driver
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 session: null,
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -461,7 +461,7 @@ namespace MongoDB.Driver
                 CreateChangeStreamOperation(pipeline, options),
                 _readOperationOptions,
                 Ensure.IsNotNull(session, nameof(session)),
-                disableChannelPinning: true,
+                allowChannelPinning: false,
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
@@ -473,7 +473,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.ReadConcern = readConcern;
-            return new MongoClient(_operationExecutorFactory, newSettings);
+            return new MongoClient(newSettings, _operationExecutorFactory);
         }
 
         /// <inheritdoc/>
@@ -485,7 +485,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.ReadPreference = readPreference;
-            return new MongoClient(_operationExecutorFactory, newSettings);
+            return new MongoClient(newSettings, _operationExecutorFactory);
         }
 
         /// <inheritdoc/>
@@ -497,7 +497,7 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.WriteConcern = writeConcern;
-            return new MongoClient(_operationExecutorFactory, newSettings);
+            return new MongoClient(newSettings, _operationExecutorFactory);
         }
 
         // private methods

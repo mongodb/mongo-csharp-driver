@@ -37,12 +37,11 @@ namespace MongoDB.Driver
             _isDisposed = true;
         }
 
-        public TResult ExecuteReadOperation<TResult>(
-            IReadOperation<TResult> operation,
+        public TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation,
             ReadOperationOptions options,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default)
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             var isOwnSession = session == null;
@@ -51,7 +50,7 @@ namespace MongoDB.Driver
             try
             {
                 var readPreference = options.GetEffectiveReadPreference(session);
-                using var binding = CreateReadBinding(session, readPreference, disableChannelPinning);
+                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
                 return operation.Execute(binding, cancellationToken);
             }
             finally
@@ -63,12 +62,11 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<TResult> ExecuteReadOperationAsync<TResult>(
-            IReadOperation<TResult> operation,
+        public async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadOperation<TResult> operation,
             ReadOperationOptions options,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default)
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             var isOwnSession = session == null;
@@ -77,7 +75,7 @@ namespace MongoDB.Driver
             try
             {
                 var readPreference = options.GetEffectiveReadPreference(session);
-                using var binding = CreateReadBinding(session, readPreference, disableChannelPinning);
+                using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
                 return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             }
             finally
@@ -89,12 +87,11 @@ namespace MongoDB.Driver
             }
         }
 
-        public TResult ExecuteWriteOperation<TResult>(
-            IWriteOperation<TResult> operation,
+        public TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation,
             WriteOperationOptions options,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default)
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             var isOwnSession = session == null;
@@ -102,7 +99,7 @@ namespace MongoDB.Driver
 
             try
             {
-                using var binding = CreateReadWriteBinding(session, disableChannelPinning);
+                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
                 return operation.Execute(binding, cancellationToken);
             }
             finally
@@ -114,12 +111,11 @@ namespace MongoDB.Driver
             }
         }
 
-        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
-            IWriteOperation<TResult> operation,
+        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteOperation<TResult> operation,
             WriteOperationOptions options,
             IClientSessionHandle session,
-            bool disableChannelPinning = false,
-            CancellationToken cancellationToken = default)
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             var isOwnSession = session == null;
@@ -127,7 +123,7 @@ namespace MongoDB.Driver
 
             try
             {
-                using var binding = CreateReadWriteBinding(session, disableChannelPinning);
+                using var binding = CreateReadWriteBinding(session, allowChannelPinning);
                 return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             }
             finally
@@ -151,20 +147,20 @@ namespace MongoDB.Driver
             return Task.FromResult(StartImplicitSession());
         }
 
-        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference, bool disableChannelPinning)
+        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference, bool allowChannelPinning)
         {
             if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
             {
                 throw new InvalidOperationException("Read preference in a transaction must be primary.");
             }
 
-            if (disableChannelPinning)
+            if (allowChannelPinning)
             {
-                var binding = new ReadPreferenceBinding(_client.GetClusterInternal(), readPreference, session.WrappedCoreSession.Fork());
-                return new ReadBindingHandle(binding);
+                return ChannelPinningHelper.CreateReadBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork(), readPreference);
             }
 
-            return ChannelPinningHelper.CreateReadBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork(), readPreference);
+            var binding = new ReadPreferenceBinding(_client.GetClusterInternal(), readPreference, session.WrappedCoreSession.Fork());
+            return new ReadBindingHandle(binding);
         }
 
         private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, bool disableChannelPinning)
