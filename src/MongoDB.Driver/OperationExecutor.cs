@@ -39,9 +39,9 @@ namespace MongoDB.Driver
         }
 
         public TResult ExecuteReadOperation<TResult>(
+            IClientSessionHandle session,
             IReadOperation<TResult> operation,
             ReadOperationOptions options,
-            IClientSessionHandle session,
             bool allowChannelPinning,
             CancellationToken cancellationToken)
         {
@@ -56,9 +56,9 @@ namespace MongoDB.Driver
         }
 
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(
+            IClientSessionHandle session,
             IReadOperation<TResult> operation,
             ReadOperationOptions options,
-            IClientSessionHandle session,
             bool allowChannelPinning,
             CancellationToken cancellationToken)
         {
@@ -73,9 +73,9 @@ namespace MongoDB.Driver
         }
 
         public TResult ExecuteWriteOperation<TResult>(
+            IClientSessionHandle session,
             IWriteOperation<TResult> operation,
             WriteOperationOptions options,
-            IClientSessionHandle session,
             bool allowChannelPinning,
             CancellationToken cancellationToken)
         {
@@ -89,9 +89,9 @@ namespace MongoDB.Driver
         }
 
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            IClientSessionHandle session,
             IWriteOperation<TResult> operation,
             WriteOperationOptions options,
-            IClientSessionHandle session,
             bool allowChannelPinning,
             CancellationToken cancellationToken)
         {
@@ -128,15 +128,15 @@ namespace MongoDB.Driver
             return new ReadBindingHandle(binding);
         }
 
-        private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, bool disableChannelPinning)
+        private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, bool allowChannelPinning)
         {
-            if (disableChannelPinning)
+            if (allowChannelPinning)
             {
-                var binding = new WritableServerBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
-                return new ReadWriteBindingHandle(binding);
+                return ChannelPinningHelper.CreateReadWriteBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
             }
 
-            return ChannelPinningHelper.CreateReadWriteBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+            var binding = new WritableServerBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+            return new ReadWriteBindingHandle(binding);
         }
 
         private void ThrowIfDisposed()

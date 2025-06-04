@@ -47,8 +47,8 @@ namespace MongoDB.Driver.Tests
             var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync<object>(null, options, session, true, CancellationToken.None)) :
-                Record.Exception(() => subject.ExecuteReadOperation<object>(null, options, session, true, CancellationToken.None));
+                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync<object>(session, null, options, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteReadOperation<object>(session, null, options, true, CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("operation");
@@ -63,8 +63,8 @@ namespace MongoDB.Driver.Tests
             var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(operation, null, session, true, CancellationToken.None)) :
-                Record.Exception(() => subject.ExecuteReadOperation(operation, null, session, true, CancellationToken.None));
+                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(session, operation, null, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteReadOperation(session, operation, null, true, CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("options");
@@ -79,8 +79,8 @@ namespace MongoDB.Driver.Tests
             var options = new ReadOperationOptions();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(operation, options, null, true, CancellationToken.None)) :
-                Record.Exception(() => subject.ExecuteReadOperation(operation, options, null, true, CancellationToken.None));
+                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(null, operation, options, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteReadOperation(null, operation, options, true, CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("session");
@@ -95,8 +95,8 @@ namespace MongoDB.Driver.Tests
             var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync<object>(null, options, session, true, CancellationToken.None)) :
-                Record.Exception(() => subject.ExecuteWriteOperation<object>(null, options, session, true, CancellationToken.None));
+                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync<object>(session, null, options, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteWriteOperation<object>(session, null, options, true, CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("operation");
@@ -111,8 +111,8 @@ namespace MongoDB.Driver.Tests
             var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync(operation, null, session, true, CancellationToken.None)) :
-                Record.Exception(() => subject.ExecuteWriteOperation(operation, null, session, true, CancellationToken.None));
+                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync(session, operation, null, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteWriteOperation(session, operation, null, true, CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("options");
@@ -127,8 +127,8 @@ namespace MongoDB.Driver.Tests
             var options = new WriteOperationOptions();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync(operation, options, null, true, CancellationToken.None)) :
-                Record.Exception(() => subject.ExecuteWriteOperation(operation, options, null, true, CancellationToken.None));
+                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync(null, operation, options, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteWriteOperation(null, operation, options, true, CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("session");

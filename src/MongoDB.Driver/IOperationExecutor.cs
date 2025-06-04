@@ -22,27 +22,31 @@ namespace MongoDB.Driver
 {
     internal interface IOperationExecutor : IDisposable
     {
-        TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation,
+        TResult ExecuteReadOperation<TResult>(
+            IClientSessionHandle session,
+            IReadOperation<TResult> operation,
             ReadOperationOptions options,
-            IClientSessionHandle session,
             bool allowChannelPinning,
             CancellationToken cancellationToken);
 
-        Task<TResult> ExecuteReadOperationAsync<TResult>(IReadOperation<TResult> operation,
+        Task<TResult> ExecuteReadOperationAsync<TResult>(
+            IClientSessionHandle session,
+            IReadOperation<TResult> operation,
             ReadOperationOptions options,
-            IClientSessionHandle session,
             bool allowChannelPinning,
             CancellationToken cancellationToken);
 
-        TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation,
-            WriteOperationOptions options,
+        TResult ExecuteWriteOperation<TResult>(
             IClientSessionHandle session,
+            IWriteOperation<TResult> operation,
+            WriteOperationOptions options,
             bool allowChannelPinning,
             CancellationToken cancellationToken);
 
-        Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteOperation<TResult> operation,
-            WriteOperationOptions options,
+        Task<TResult> ExecuteWriteOperationAsync<TResult>(
             IClientSessionHandle session,
+            IWriteOperation<TResult> operation,
+            WriteOperationOptions options,
             bool allowChannelPinning,
             CancellationToken cancellationToken);
 
