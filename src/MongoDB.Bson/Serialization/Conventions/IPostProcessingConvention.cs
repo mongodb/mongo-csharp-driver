@@ -25,7 +25,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="classMap">The class map.</param>
         void PostProcess(BsonClassMap classMap);
+    }
 
+    internal interface IPostProcessingConventionInternal : IPostProcessingConvention
+    {
         /// <summary>
         /// //TODO
         /// </summary>
