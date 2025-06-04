@@ -15,6 +15,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -35,6 +36,17 @@ namespace MongoDB.Driver.Encryption
             {
                 var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(password));
                 return Convert.ToBase64String(hash);
+            }
+        }
+
+        private static string Hash(string str)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(str);
+            using (SHA256 algorithm = SHA256.Create())
+            {
+                var hash = algorithm.ComputeHash(bytes);
+
+                return BsonUtils.ToHexString(hash);
             }
         }
 
