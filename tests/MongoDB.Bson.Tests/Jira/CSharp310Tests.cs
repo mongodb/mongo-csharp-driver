@@ -45,10 +45,7 @@ namespace MongoDB.Bson.Tests.Jira
                 }
             }
 
-            public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
-            {
-                throw new NotImplementedException();
-            }
+            public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain) => Apply(memberMap);
         }
 
         private static void InitializeSerialization()
