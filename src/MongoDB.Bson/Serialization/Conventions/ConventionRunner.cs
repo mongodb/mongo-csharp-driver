@@ -60,7 +60,14 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 foreach (var memberMap in classMap.DeclaredMemberMaps)
                 {
-                    convention.Apply(memberMap, serializationDomain);
+                    if (convention is IMemberMapConventionInternal internalConvention)
+                    {
+                        internalConvention.Apply(memberMap, serializationDomain);
+                    }
+                    else
+                    {
+                        convention.Apply(memberMap);
+                    }
                 }
             }
 
@@ -74,7 +81,14 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             foreach (var convention in _conventions.OfType<IPostProcessingConvention>())
             {
-                convention.PostProcess(classMap, serializationDomain);
+                if (convention is IPostProcessingConventionInternal internalConvention)
+                {
+                    internalConvention.PostProcess(classMap, serializationDomain);
+                }
+                else
+                {
+                    convention.PostProcess(classMap);
+                }
             }
         }
     }
