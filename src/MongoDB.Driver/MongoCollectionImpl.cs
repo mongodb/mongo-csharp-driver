@@ -113,13 +113,13 @@ namespace MongoDB.Driver
             if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-                ExecuteWriteOperation(session, aggregateOperation, _writeOperationOptions, cancellationToken);
+                ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
                 return CreateAggregateToCollectionResultCursor(session, renderedPipeline, options);
             }
             else
             {
                 var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
-                return ExecuteReadOperation(session, aggregateOperation, _readOperationOptions, cancellationToken);
+                return ExecuteReadOperation(session, aggregateOperation, cancellationToken);
             }
         }
 
@@ -140,13 +140,13 @@ namespace MongoDB.Driver
             if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-                await ExecuteWriteOperationAsync(session, aggregateOperation, _writeOperationOptions, cancellationToken).ConfigureAwait(false);
+                await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
                 return CreateAggregateToCollectionResultCursor(session, renderedPipeline, options);
             }
             else
             {
                 var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
-                return await ExecuteReadOperationAsync(session, aggregateOperation, _readOperationOptions, cancellationToken).ConfigureAwait(false);
+                return await ExecuteReadOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -170,7 +170,7 @@ namespace MongoDB.Driver
             }
 
             var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-            ExecuteWriteOperation(session, aggregateOperation, _writeOperationOptions, cancellationToken);
+            ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
         }
 
         public override async Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default)
@@ -193,7 +193,7 @@ namespace MongoDB.Driver
             }
 
             var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-            return ExecuteWriteOperationAsync(session, aggregateOperation, _writeOperationOptions, cancellationToken);
+            return ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken);
         }
 
         public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
@@ -205,12 +205,17 @@ namespace MongoDB.Driver
         public override BulkWriteResult<TDocument> BulkWrite(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull((object)requests, nameof(requests));
             var requestsArray = requests.ToArray();
+            if (requestsArray.Length == 0)
+            {
+                throw new ArgumentException("Must contain at least 1 request.", nameof(requests));
+            }
 
             var operation = CreateBulkWriteOperation(session, requestsArray, options);
             try
             {
-                var result = ExecuteWriteOperation(session, operation, _writeOperationOptions, cancellationToken);
+                var result = ExecuteWriteOperation(session, operation, cancellationToken);
                 return BulkWriteResult<TDocument>.FromCore(result, requestsArray);
             }
             catch (MongoBulkWriteOperationException ex)
@@ -228,12 +233,17 @@ namespace MongoDB.Driver
         public override async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull((object)requests, nameof(requests));
             var requestsArray = requests.ToArray();
+            if (requestsArray.Length == 0)
+            {
+                throw new ArgumentException("Must contain at least 1 request.", nameof(requests));
+            }
 
             var operation = CreateBulkWriteOperation(session, requestsArray, options);
             try
             {
-                var result = await ExecuteWriteOperationAsync(session, operation, _writeOperationOptions, cancellationToken).ConfigureAwait(false);
+                var result = await ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
                 return BulkWriteResult<TDocument>.FromCore(result, requestsArray);
             }
             catch (MongoBulkWriteOperationException ex)
@@ -253,8 +263,10 @@ namespace MongoDB.Driver
         public override long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateCountOperation(filter, options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
@@ -268,8 +280,10 @@ namespace MongoDB.Driver
         public override Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateCountOperation(filter, options);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         public override long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
@@ -281,8 +295,10 @@ namespace MongoDB.Driver
         public override long CountDocuments(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateCountDocumentsOperation(filter, options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         public override async Task<long> CountDocumentsAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
@@ -294,8 +310,10 @@ namespace MongoDB.Driver
         public override Task<long> CountDocumentsAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateCountDocumentsOperation(filter, options);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         public override IAsyncCursor<TField> Distinct<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
@@ -307,8 +325,11 @@ namespace MongoDB.Driver
         public override IAsyncCursor<TField> Distinct<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateDistinctOperation(field, filter, options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         public override async Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
@@ -320,8 +341,11 @@ namespace MongoDB.Driver
         public override Task<IAsyncCursor<TField>> DistinctAsync<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateDistinctOperation(field, filter, options);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         public override IAsyncCursor<TItem> DistinctMany<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
@@ -333,8 +357,11 @@ namespace MongoDB.Driver
         public override IAsyncCursor<TItem> DistinctMany<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateDistinctManyOperation(field, filter, options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         public override async Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
@@ -346,22 +373,25 @@ namespace MongoDB.Driver
         public override Task<IAsyncCursor<TItem>> DistinctManyAsync<TItem>(IClientSessionHandle session, FieldDefinition<TDocument, IEnumerable<TItem>> field, FilterDefinition<TDocument> filter, DistinctOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateDistinctManyOperation(field, filter, options);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         public override long EstimatedDocumentCount(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default)
         {
             using var session = _operationExecutor.StartImplicitSession();
             var operation = CreateEstimatedDocumentCountOperation(options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         public override async Task<long> EstimatedDocumentCountAsync(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default)
         {
             using var session = _operationExecutor.StartImplicitSession();
             var operation = CreateEstimatedDocumentCountOperation(options);
-            return await ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken).ConfigureAwait(false);
+            return await ExecuteReadOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
         }
 
         public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
@@ -373,8 +403,10 @@ namespace MongoDB.Driver
         public override IAsyncCursor<TProjection> FindSync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateFindOperation(filter, options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         public override async Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
@@ -386,8 +418,10 @@ namespace MongoDB.Driver
         public override Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateFindOperation(filter, options);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         public override TProjection FindOneAndDelete<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
@@ -399,8 +433,10 @@ namespace MongoDB.Driver
         public override TProjection FindOneAndDelete<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateFindOneAndDeleteOperation(filter, options);
-            return ExecuteWriteOperation(session, operation, _writeOperationOptions, cancellationToken);
+            return ExecuteWriteOperation(session, operation, cancellationToken);
         }
 
         public override async Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
@@ -412,8 +448,10 @@ namespace MongoDB.Driver
         public override Task<TProjection> FindOneAndDeleteAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+
             var operation = CreateFindOneAndDeleteOperation(filter, options);
-            return ExecuteWriteOperationAsync(session, operation, _writeOperationOptions, cancellationToken);
+            return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
         public override TProjection FindOneAndReplace<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
@@ -425,8 +463,11 @@ namespace MongoDB.Driver
         public override TProjection FindOneAndReplace<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateFindOneAndReplaceOperation(filter, replacement, options);
-            return ExecuteWriteOperation(session, operation, _writeOperationOptions, cancellationToken);
+            Ensure.IsNotNull(filter, nameof(filter));
+            var replacementObject = Ensure.IsNotNull((object)replacement, nameof(replacement)); // only box once if it's a struct
+
+            var operation = CreateFindOneAndReplaceOperation(filter, replacementObject, options);
+            return ExecuteWriteOperation(session, operation, cancellationToken);
         }
 
         public override async Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
@@ -438,8 +479,11 @@ namespace MongoDB.Driver
         public override Task<TProjection> FindOneAndReplaceAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateFindOneAndReplaceOperation(filter, replacement, options);
-            return ExecuteWriteOperationAsync(session, operation, _writeOperationOptions, cancellationToken);
+            Ensure.IsNotNull(filter, nameof(filter));
+            var replacementObject = Ensure.IsNotNull((object)replacement, nameof(replacement)); // only box once if it's a struct
+
+            var operation = CreateFindOneAndReplaceOperation(filter, replacementObject, options);
+            return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
         public override TProjection FindOneAndUpdate<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
@@ -451,8 +495,11 @@ namespace MongoDB.Driver
         public override TProjection FindOneAndUpdate<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
+
             var operation = CreateFindOneAndUpdateOperation(filter, update, options);
-            return ExecuteWriteOperation(session, operation, _writeOperationOptions, cancellationToken);
+            return ExecuteWriteOperation(session, operation, cancellationToken);
         }
 
         public override async Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
@@ -464,8 +511,11 @@ namespace MongoDB.Driver
         public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(update, nameof(update));
+
             var operation = CreateFindOneAndUpdateOperation(filter, update, options);
-            return ExecuteWriteOperationAsync(session, operation, _writeOperationOptions, cancellationToken);
+            return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
@@ -490,12 +540,12 @@ namespace MongoDB.Driver
             if (outputOptions == MapReduceOutputOptions.Inline)
             {
                 var operation = CreateMapReduceOperation(map, reduce, options, resultSerializer, renderArgs);
-                return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+                return ExecuteReadOperation(session, operation, cancellationToken);
             }
             else
             {
                 var mapReduceOperation = CreateMapReduceOutputToCollectionOperation(map, reduce, options, outputOptions, renderArgs);
-                ExecuteWriteOperation(session, mapReduceOperation, _writeOperationOptions, cancellationToken);
+                ExecuteWriteOperation(session, mapReduceOperation, cancellationToken);
                 return CreateMapReduceOutputToCollectionResultCursor(session, options, mapReduceOperation.OutputCollectionNamespace, resultSerializer);
             }
         }
@@ -522,12 +572,12 @@ namespace MongoDB.Driver
             if (outputOptions == MapReduceOutputOptions.Inline)
             {
                 var operation = CreateMapReduceOperation(map, reduce, options, resultSerializer, renderArgs);
-                return await ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken).ConfigureAwait(false);
+                return await ExecuteReadOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var mapReduceOperation = CreateMapReduceOutputToCollectionOperation(map, reduce, options, outputOptions, renderArgs);
-                await ExecuteWriteOperationAsync(session, mapReduceOperation, _writeOperationOptions, cancellationToken).ConfigureAwait(false);
+                await ExecuteWriteOperationAsync(session, mapReduceOperation, cancellationToken).ConfigureAwait(false);
                 return CreateMapReduceOutputToCollectionResultCursor(session, options, mapReduceOperation.OutputCollectionNamespace, resultSerializer);
             }
         }
@@ -562,8 +612,10 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+
             var operation = CreateChangeStreamOperation(pipeline, options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         public override async Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
@@ -582,8 +634,10 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+
             var operation = CreateChangeStreamOperation(pipeline, options);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         public override IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
@@ -761,12 +815,6 @@ namespace MongoDB.Driver
             IReadOnlyList<WriteModel<TDocument>> requests,
             BulkWriteOptions options)
         {
-            Ensure.IsNotNull((object)requests, nameof(requests));
-            if (requests.Count == 0)
-            {
-                throw new ArgumentException("Must contain at least 1 request.", nameof(requests));
-            }
-
             options ??= new BulkWriteOptions();
             var renderArgs = GetRenderArgs();
             var effectiveWriteConcern = session.IsInTransaction ? WriteConcern.Acknowledged : _settings.WriteConcern;
@@ -795,7 +843,6 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options)
         {
-            Ensure.IsNotNull(pipeline, nameof(pipeline));
             var translationOptions = _database.Client.Settings.TranslationOptions;
 
             return ChangeStreamHelper.CreateChangeStreamOperation(
@@ -812,7 +859,6 @@ namespace MongoDB.Driver
             FilterDefinition<TDocument> filter,
             CountOptions options)
         {
-            Ensure.IsNotNull(filter, nameof(filter));
             options ??= new CountOptions();
             var renderArgs = GetRenderArgs();
 
@@ -834,7 +880,6 @@ namespace MongoDB.Driver
             FilterDefinition<TDocument> filter,
             CountOptions options)
         {
-            Ensure.IsNotNull(filter, nameof(filter));
             options ??= new CountOptions();
             var renderArgs = GetRenderArgs();
 
@@ -857,8 +902,6 @@ namespace MongoDB.Driver
             FilterDefinition<TDocument> filter,
             DistinctOptions options)
         {
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
             options ??= new DistinctOptions();
             var renderArgs = GetRenderArgs();
             var renderedField = field.Render(renderArgs);
@@ -884,8 +927,6 @@ namespace MongoDB.Driver
             FilterDefinition<TDocument> filter,
             DistinctOptions options)
         {
-            Ensure.IsNotNull(field, nameof(field));
-            Ensure.IsNotNull(filter, nameof(filter));
             options ??= new DistinctOptions();
             var renderArgs = GetRenderArgs();
             var renderedField = field.Render(renderArgs);
@@ -920,7 +961,6 @@ namespace MongoDB.Driver
             FilterDefinition<TDocument> filter,
             FindOneAndDeleteOptions<TDocument, TProjection> options)
         {
-            Ensure.IsNotNull(filter, nameof(filter));
             options ??= new FindOneAndDeleteOptions<TDocument, TProjection>();
             var renderArgs = GetRenderArgs();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
@@ -949,8 +989,6 @@ namespace MongoDB.Driver
             object replacement,
             FindOneAndReplaceOptions<TDocument, TProjection> options)
         {
-            Ensure.IsNotNull(filter, nameof(filter));
-            Ensure.IsNotNull(replacement, nameof(replacement));
             options ??= new FindOneAndReplaceOptions<TDocument, TProjection>();
 
             var renderArgs = GetRenderArgs();
@@ -984,8 +1022,6 @@ namespace MongoDB.Driver
             UpdateDefinition<TDocument> update,
             FindOneAndUpdateOptions<TDocument, TProjection> options)
         {
-            Ensure.IsNotNull(filter, nameof(filter));
-            Ensure.IsNotNull(update, nameof(update));
             options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
 
             if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
@@ -1024,7 +1060,6 @@ namespace MongoDB.Driver
             FilterDefinition<TDocument> filter,
             FindOptions<TDocument, TProjection> options)
         {
-            Ensure.IsNotNull(filter, nameof(filter));
             options ??= new FindOptions<TDocument, TProjection>();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
@@ -1166,17 +1201,23 @@ namespace MongoDB.Driver
             return deferredCursor;
         }
 
+        private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+            => _operationExecutor.ExecuteReadOperation(session, operation, _readOperationOptions, true, cancellationToken);
+
+        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+            => _operationExecutor.ExecuteReadOperationAsync(session, operation, _readOperationOptions, true, cancellationToken);
+
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadOperationOptions options, CancellationToken cancellationToken)
             => _operationExecutor.ExecuteReadOperation(session, operation, options, true, cancellationToken);
 
         private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadOperationOptions options, CancellationToken cancellationToken)
             => _operationExecutor.ExecuteReadOperationAsync(session, operation, options, true, cancellationToken);
 
-        private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, WriteOperationOptions options, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteWriteOperation(session, operation, options, true, cancellationToken);
+        private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+            => _operationExecutor.ExecuteWriteOperation(session, operation, _writeOperationOptions, true, cancellationToken);
 
-        private Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, WriteOperationOptions options, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteWriteOperationAsync(session, operation, options, true, cancellationToken);
+        private Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+            => _operationExecutor.ExecuteWriteOperationAsync(session, operation, _writeOperationOptions, true, cancellationToken);
 
 
         private MessageEncoderSettings GetMessageEncoderSettings()
@@ -1336,9 +1377,10 @@ namespace MongoDB.Driver
                 CancellationToken cancellationToken = default)
             {
                 Ensure.IsNotNull(session, nameof(session));
+                Ensure.IsNotNull((object)models, nameof(models));
 
                 var operation = CreateCreateIndexesOperation(models, options);
-                _collection.ExecuteWriteOperation(session, operation, _collection._writeOperationOptions, cancellationToken);
+                _collection.ExecuteWriteOperation(session, operation, cancellationToken);
                 return operation.Requests.Select(x => x.GetIndexName());
             }
 
@@ -1364,9 +1406,10 @@ namespace MongoDB.Driver
                 CancellationToken cancellationToken = default)
             {
                 Ensure.IsNotNull(session, nameof(session));
+                Ensure.IsNotNull((object)models, nameof(models));
 
                 var operation = CreateCreateIndexesOperation(models, options);
-                await _collection.ExecuteWriteOperationAsync(session, operation, _collection._writeOperationOptions, cancellationToken).ConfigureAwait(false);
+                await _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
                 return operation.Requests.Select(x => x.GetIndexName());
             }
 
@@ -1386,7 +1429,7 @@ namespace MongoDB.Driver
             {
                 Ensure.IsNotNull(session, nameof(session));
                 var operation = CreateDropAllOperation(options);
-                _collection.ExecuteWriteOperation(session, operation, _collection._writeOperationOptions, cancellationToken);
+                _collection.ExecuteWriteOperation(session, operation, cancellationToken);
             }
 
             public override Task DropAllAsync(CancellationToken cancellationToken)
@@ -1405,7 +1448,7 @@ namespace MongoDB.Driver
             {
                 Ensure.IsNotNull(session, nameof(session));
                 var operation = CreateDropAllOperation(options);
-                return _collection.ExecuteWriteOperationAsync(session, operation, _collection._writeOperationOptions, cancellationToken);
+                return _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken);
             }
 
             public override void DropOne(string name, CancellationToken cancellationToken = default)
@@ -1423,8 +1466,14 @@ namespace MongoDB.Driver
             public override void DropOne(IClientSessionHandle session, string name, DropIndexOptions options, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(session, nameof(session));
+                Ensure.IsNotNullOrEmpty(name, nameof(name));
+                if (name == "*")
+                {
+                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAll and DropAllAsync to drop all indexes.", "name");
+                }
+
                 var operation = CreateDropOneOperation(name, options);
-                _collection.ExecuteWriteOperation(session, operation, _collection._writeOperationOptions, cancellationToken);
+                _collection.ExecuteWriteOperation(session, operation, cancellationToken);
             }
 
             public override Task DropOneAsync(string name, CancellationToken cancellationToken = default)
@@ -1442,8 +1491,14 @@ namespace MongoDB.Driver
             public override Task DropOneAsync(IClientSessionHandle session, string name, DropIndexOptions options, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(session, nameof(session));
+                Ensure.IsNotNullOrEmpty(name, nameof(name));
+                if (name == "*")
+                {
+                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAll and DropAllAsync to drop all indexes.", "name");
+                }
+
                 var operation = CreateDropOneOperation(name, options);
-                return _collection.ExecuteWriteOperationAsync(session, operation, _collection._writeOperationOptions, cancellationToken);
+                return _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken);
             }
 
             public override IAsyncCursor<BsonDocument> List(CancellationToken cancellationToken = default)
@@ -1462,7 +1517,7 @@ namespace MongoDB.Driver
             {
                 Ensure.IsNotNull(session, nameof(session));
                 var operation = CreateListIndexesOperation(options);
-                return _collection.ExecuteReadOperation(session, operation, _collection._readOperationOptions, cancellationToken);
+                return _collection.ExecuteReadOperation(session, operation, cancellationToken);
             }
 
             public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default)
@@ -1481,13 +1536,12 @@ namespace MongoDB.Driver
             {
                 Ensure.IsNotNull(session, nameof(session));
                 var operation = CreateListIndexesOperation(options);
-                return _collection.ExecuteReadOperationAsync(session, operation, _collection._readOperationOptions, cancellationToken);
+                return _collection.ExecuteReadOperationAsync(session, operation, cancellationToken);
             }
 
             // private methods
             private CreateIndexesOperation CreateCreateIndexesOperation(IEnumerable<CreateIndexModel<TDocument>> models, CreateManyIndexesOptions options)
             {
-                Ensure.IsNotNull((object)models, nameof(models));
                 var requests = CreateCreateIndexRequests(models);
 
                 return new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings)
@@ -1549,12 +1603,6 @@ namespace MongoDB.Driver
 
             private DropIndexOperation CreateDropOneOperation(string name, DropIndexOptions options)
             {
-                Ensure.IsNotNullOrEmpty(name, nameof(name));
-                if (name == "*")
-                {
-                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAll and DropAllAsync to drop all indexes.", "name");
-                }
-
                 return new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings)
                 {
                     Comment = options?.Comment,
@@ -1589,7 +1637,7 @@ namespace MongoDB.Driver
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
                 var operation = CreateCreateIndexesOperation(models);
-                var result = _collection.ExecuteWriteOperation(session, operation, _collection._writeOperationOptions, cancellationToken);
+                var result = _collection.ExecuteWriteOperation(session, operation, cancellationToken);
                 return GetIndexNames(result);
             }
 
@@ -1597,7 +1645,7 @@ namespace MongoDB.Driver
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
                 var operation = CreateCreateIndexesOperation(models);
-                var result = await _collection.ExecuteWriteOperationAsync(session, operation, _collection._writeOperationOptions, cancellationToken).ConfigureAwait(false);
+                var result = await _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
                 return GetIndexNames(result);
             }
 
@@ -1623,14 +1671,14 @@ namespace MongoDB.Driver
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
                 var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings);
-                _collection.ExecuteWriteOperation(session, operation, _collection._writeOperationOptions, cancellationToken);
+                _collection.ExecuteWriteOperation(session, operation, cancellationToken);
             }
 
             public async Task DropOneAsync(string indexName, CancellationToken cancellationToken = default)
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
                 var operation = new DropSearchIndexOperation(_collection.CollectionNamespace, indexName, _collection._messageEncoderSettings);
-                await _collection.ExecuteWriteOperationAsync(session, operation, _collection._writeOperationOptions, cancellationToken).ConfigureAwait(false);
+                await _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
             }
 
             public IAsyncCursor<BsonDocument> List(string indexName, AggregateOptions aggregateOptions = null, CancellationToken cancellationToken = default)
@@ -1647,14 +1695,14 @@ namespace MongoDB.Driver
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
                 var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
-                _collection.ExecuteWriteOperation(session, operation, _collection._writeOperationOptions, cancellationToken);
+                _collection.ExecuteWriteOperation(session, operation, cancellationToken);
             }
 
             public async Task UpdateAsync(string indexName, BsonDocument definition, CancellationToken cancellationToken = default)
             {
                 using var session = _collection._operationExecutor.StartImplicitSession();
                 var operation = new UpdateSearchIndexOperation(_collection.CollectionNamespace, indexName, definition, _collection._messageEncoderSettings);
-                await _collection.ExecuteWriteOperationAsync(session, operation, _collection._writeOperationOptions, cancellationToken).ConfigureAwait(false);
+                await _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
             }
 
             // private methods

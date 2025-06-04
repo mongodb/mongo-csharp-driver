@@ -417,6 +417,7 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
             ThrowIfDisposed();
             var operation = CreateChangeStreamOperation(pipeline, options);
             return ExecuteReadOperation(session, operation, cancellationToken);
@@ -441,6 +442,7 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
             ThrowIfDisposed();
             var operation = CreateChangeStreamOperation(pipeline, options);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
@@ -555,7 +557,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options)
             => ChangeStreamHelper.CreateChangeStreamOperation(
-                Ensure.IsNotNull(pipeline, nameof(pipeline)),
+                pipeline,
                 options,
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
