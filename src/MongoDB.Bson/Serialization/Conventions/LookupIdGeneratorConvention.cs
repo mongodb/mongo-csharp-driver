@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that looks up an id generator for the id member.
     /// </summary>
-    public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConvention
+    public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConventionInternal
     {
         /// <inheritdoc/>
         public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);

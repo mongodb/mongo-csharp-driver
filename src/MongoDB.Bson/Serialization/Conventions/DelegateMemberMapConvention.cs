@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A member map convention that wraps a delegate.
     /// </summary>
-    public class DelegateMemberMapConvention : ConventionBase, IMemberMapConvention
+    public class DelegateMemberMapConvention : ConventionBase, IMemberMapConventionInternal
     {
         // private fields
         private readonly Action<BsonMemberMap> _action;

@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets the default value for members of a given type.
     /// </summary>
-    public class MemberDefaultValueConvention : ConventionBase, IMemberMapConvention
+    public class MemberDefaultValueConvention : ConventionBase, IMemberMapConventionInternal
     {
         // private fields
         private readonly Type _type;

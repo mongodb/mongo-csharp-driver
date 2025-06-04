@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets whether to ignore nulls during serialization.
     /// </summary>
-    public class IgnoreIfNullConvention : ConventionBase, IMemberMapConvention
+    public class IgnoreIfNullConvention : ConventionBase, IMemberMapConventionInternal
     {
         // private fields
         private bool _ignoreIfNull;

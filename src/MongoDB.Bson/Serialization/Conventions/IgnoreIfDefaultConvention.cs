@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets whether to ignore default values during serialization.
     /// </summary>
-    public class IgnoreIfDefaultConvention : ConventionBase, IMemberMapConvention
+    public class IgnoreIfDefaultConvention : ConventionBase, IMemberMapConventionInternal
     {
         // private fields
         private bool _ignoreIfDefault;

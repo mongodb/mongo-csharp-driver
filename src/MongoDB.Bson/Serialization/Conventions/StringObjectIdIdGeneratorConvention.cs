@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets the id generator for a string member with a BSON representation of ObjectId.
     /// </summary>
-    public class StringObjectIdIdGeneratorConvention : ConventionBase, IPostProcessingConvention
+    public class StringObjectIdIdGeneratorConvention : ConventionBase, IPostProcessingConventionInternal
     {
         // public methods
         /// <summary>

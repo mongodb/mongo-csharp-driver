@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets a class's IdMember to null.
     /// </summary>
-    public class NoIdMemberConvention : ConventionBase, IPostProcessingConvention
+    public class NoIdMemberConvention : ConventionBase, IPostProcessingConventionInternal
     {
         // public methods
         /// <summary>
