@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A post processing convention that wraps a delegate.
     /// </summary>
-    public class DelegatePostProcessingConvention : ConventionBase, IPostProcessingConvention
+    public class DelegatePostProcessingConvention : ConventionBase, IPostProcessingConventionInternal
     {
         // private fields
         private readonly Action<BsonClassMap> _action;

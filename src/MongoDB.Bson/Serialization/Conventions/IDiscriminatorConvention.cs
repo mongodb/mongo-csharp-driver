@@ -61,6 +61,5 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="domain"></param>
         /// <returns></returns>
         BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain);
-
     }
 }

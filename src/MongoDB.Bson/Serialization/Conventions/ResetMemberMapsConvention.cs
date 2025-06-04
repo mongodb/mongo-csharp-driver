@@ -18,7 +18,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that resets class members (resetting any changes that earlier conventions may have applied).
     /// </summary>
-    public class ResetMemberMapsConvention : ConventionBase, IMemberMapConvention
+    public class ResetMemberMapsConvention : ConventionBase, IMemberMapConventionInternal
     {
         // public methods
         /// <summary>
