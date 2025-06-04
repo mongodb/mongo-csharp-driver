@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Tests
             return writeCall;
         }
 
-        public IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
+        public IClientSessionHandle StartImplicitSession()
         {
             var cluster = Mock.Of<IClusterInternal>();
             var options = new ClientSessionOptions();
@@ -204,11 +204,6 @@ namespace MongoDB.Driver.Tests
             var coreSession = new CoreSession(cluster, coreServerSession, options.ToCore(isImplicit: true));
             var coreSessionHandle = new CoreSessionHandle(coreSession);
             return new ClientSessionHandle(_client, options, coreSessionHandle);
-        }
-
-        public Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(StartImplicitSession(cancellationToken));
         }
 
         public class ReadCall<TResult>

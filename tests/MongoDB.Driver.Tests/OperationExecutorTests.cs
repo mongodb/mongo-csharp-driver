@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
-using System.Collections.Generic;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
@@ -27,72 +28,110 @@ namespace MongoDB.Driver.Tests
 {
     public class OperationExecutorTests
     {
-        [Theory]
-        [ParameterAttributeData]
-        public async Task StartImplicitSession_should_call_cluster_StartSession([Values(true, false)]bool isAsync)
+        [Fact]
+        public void StartImplicitSession_should_call_cluster_StartSession()
         {
             var subject = CreateSubject(out var clusterMock, out _);
-            if (isAsync)
-            {
-                await subject.StartImplicitSessionAsync(CancellationToken.None);
-            }
-            else
-            {
-                subject.StartImplicitSession(CancellationToken.None);
-            }
+
+            subject.StartImplicitSession();
 
             clusterMock.Verify(c => c.StartSession(It.Is<CoreSessionOptions>(v => v.IsImplicit && v.IsCausallyConsistent == false && v.IsSnapshot == false)));
         }
 
         [Theory]
-        [MemberData(nameof(ImplicitSessionTestCases))]
-        public async Task ExecuteReadOperation_should_start_and_dispose_implicit_session_if_needed(bool shouldCreateSession, bool isAsync, IClientSessionHandle session)
+        [ParameterAttributeData]
+        public async Task ExecuteReadOperation_throws_on_null_operation([Values(true, false)] bool async)
         {
-            var subject = CreateSubject(out var clusterMock, out var implicitSessionMock);
-            var readOperation = Mock.Of<IReadOperation<object>>();
-            var readOperationOptions = new ReadOperationOptions();
+            var subject = CreateSubject(out _, out _);
+            var options = new ReadOperationOptions();
+            var session = Mock.Of<IClientSessionHandle>();
 
-            _ = isAsync ?
-                await subject.ExecuteReadOperationAsync(readOperation, readOperationOptions, session, false, cancellationToken: CancellationToken.None) :
-                subject.ExecuteReadOperation(readOperation, readOperationOptions, session, false, cancellationToken: CancellationToken.None);
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync<object>(null, options, session, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteReadOperation<object>(null, options, session, true, CancellationToken.None));
 
-            var times = shouldCreateSession ? Times.Once() : Times.Never();
-            clusterMock.Verify(c => c.StartSession(It.Is<CoreSessionOptions>(v => v.IsImplicit && v.IsCausallyConsistent == false && v.IsSnapshot == false)), times);
-            implicitSessionMock.Verify(s => s.Dispose(), times);
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("operation");
         }
 
         [Theory]
-        [MemberData(nameof(ImplicitSessionTestCases))]
-        public async Task ExecuteWriteOperation_should_start_and_dispose_implicit_session_if_needed(bool shouldCreateSession, bool isAsync, IClientSessionHandle session)
+        [ParameterAttributeData]
+        public async Task ExecuteReadOperation_throws_on_null_options([Values(true, false)] bool async)
         {
-            var subject = CreateSubject(out var clusterMock, out var implicitSessionMock);
-            var writeOperation = Mock.Of<IWriteOperation<object>>();
-            var writeOperationOptions = new WriteOperationOptions();
+            var subject = CreateSubject(out _, out _);
+            var operation = Mock.Of<IReadOperation<object>>();
+            var session = Mock.Of<IClientSessionHandle>();
 
-            _ = isAsync ?
-                await subject.ExecuteWriteOperationAsync(writeOperation, writeOperationOptions, session, false, cancellationToken: CancellationToken.None) :
-                subject.ExecuteWriteOperation(writeOperation, writeOperationOptions, session, false, cancellationToken: CancellationToken.None);
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(operation, null, session, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteReadOperation(operation, null, session, true, CancellationToken.None));
 
-            var times = shouldCreateSession ? Times.Once() : Times.Never();
-            clusterMock.Verify(c => c.StartSession(It.Is<CoreSessionOptions>(v => v.IsImplicit && v.IsCausallyConsistent == false && v.IsSnapshot == false)), times);
-            implicitSessionMock.Verify(s => s.Dispose(), times);
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("options");
         }
 
-        private static IEnumerable<object[]> ImplicitSessionTestCases()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ExecuteReadOperation_throws_on_null_session([Values(true, false)] bool async)
         {
-            yield return [ true, false, null ];
-            yield return [ true, true, null ];
+            var subject = CreateSubject(out _, out _);
+            var operation = Mock.Of<IReadOperation<object>>();
+            var options = new ReadOperationOptions();
 
-            var implicitSession = new Mock<IClientSessionHandle>();
-            implicitSession.SetupGet(s => s.IsImplicit).Returns(true);
-            implicitSession.SetupGet(s => s.WrappedCoreSession).Returns(CreateCoreSessionMock(true).Object);
-            yield return [ false, false, implicitSession.Object ];
-            yield return [ false, true, implicitSession.Object ];
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(operation, options, null, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteReadOperation(operation, options, null, true, CancellationToken.None));
 
-            var regularSession = new Mock<IClientSessionHandle>();
-            regularSession.SetupGet(s => s.WrappedCoreSession).Returns(CreateCoreSessionMock(false).Object);
-            yield return [ false, false, regularSession.Object ];
-            yield return [ false, true, regularSession.Object ];
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("session");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ExecuteWriteOperation_throws_on_null_operation([Values(true, false)] bool async)
+        {
+            var subject = CreateSubject(out _, out _);
+            var options = new WriteOperationOptions();
+            var session = Mock.Of<IClientSessionHandle>();
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync<object>(null, options, session, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteWriteOperation<object>(null, options, session, true, CancellationToken.None));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("operation");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ExecuteWriteOperation_throws_on_null_options([Values(true, false)] bool async)
+        {
+            var subject = CreateSubject(out _, out _);
+            var operation = Mock.Of<IWriteOperation<object>>();
+            var session = Mock.Of<IClientSessionHandle>();
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync(operation, null, session, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteWriteOperation(operation, null, session, true, CancellationToken.None));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("options");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ExecuteWriteOperation_throws_on_null_session([Values(true, false)] bool async)
+        {
+            var subject = CreateSubject(out _, out _);
+            var operation = Mock.Of<IWriteOperation<object>>();
+            var options = new WriteOperationOptions();
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync(operation, options, null, true, CancellationToken.None)) :
+                Record.Exception(() => subject.ExecuteWriteOperation(operation, options, null, true, CancellationToken.None));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("session");
         }
 
         private OperationExecutor CreateSubject(out Mock<IClusterInternal> clusterMock, out Mock<ICoreSessionHandle> implicitSessionMock)

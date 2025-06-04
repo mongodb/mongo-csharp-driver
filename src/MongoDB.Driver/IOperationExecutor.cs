@@ -46,8 +46,6 @@ namespace MongoDB.Driver
             bool allowChannelPinning,
             CancellationToken cancellationToken);
 
-        IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken);
-
-        Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken);
+        IClientSessionHandle StartImplicitSession();
     }
 }

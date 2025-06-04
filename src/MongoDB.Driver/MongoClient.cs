@@ -136,12 +136,10 @@ namespace MongoDB.Driver
         // public methods
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteWriteOperation<ClientBulkWriteResult>(
-                CreateClientBulkWriteOperation(models, options),
-                _writeOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return BulkWrite(session, models, options, cancellationToken);
+        }
 
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
@@ -153,13 +151,11 @@ namespace MongoDB.Driver
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
-        public Task<ClientBulkWriteResult> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteWriteOperationAsync<ClientBulkWriteResult>(
-                CreateClientBulkWriteOperation(models, options),
-                _writeOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        public async Task<ClientBulkWriteResult> BulkWriteAsync(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return await BulkWriteAsync(session, models, options, cancellationToken).ConfigureAwait(false);
+        }
 
         /// <inheritdoc/>
         public Task<ClientBulkWriteResult> BulkWriteAsync(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
@@ -202,12 +198,10 @@ namespace MongoDB.Driver
 
         /// <inheritdoc/>
         public void DropDatabase(string name, CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteWriteOperation(
-                CreateDropDatabaseOperation(name),
-                _writeOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            DropDatabase(session, name, cancellationToken);
+        }
 
         /// <inheritdoc/>
         public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
@@ -219,13 +213,11 @@ namespace MongoDB.Driver
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
-        public Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteWriteOperationAsync(
-                CreateDropDatabaseOperation(name),
-                _writeOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        public async Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default)
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            await DropDatabaseAsync(session, name, cancellationToken).ConfigureAwait(false);
+        }
 
         /// <inheritdoc/>
         public Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
@@ -314,23 +306,19 @@ namespace MongoDB.Driver
 
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteReadOperation(
-                CreateListDatabaseOperation(null),
-                _readOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return ListDatabases(session, cancellationToken);
+        }
 
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> ListDatabases(
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteReadOperation(
-                CreateListDatabaseOperation(options),
-                _readOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return ListDatabases(session, options, cancellationToken);
+        }
 
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> ListDatabases(
@@ -356,24 +344,20 @@ namespace MongoDB.Driver
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
-        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteReadOperationAsync(
-                CreateListDatabaseOperation(null),
-                _readOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        public async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default)
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return await ListDatabasesAsync(session, cancellationToken).ConfigureAwait(false);
+        }
 
         /// <inheritdoc/>
-        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
+        public async Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteReadOperationAsync(
-                CreateListDatabaseOperation(options),
-                _readOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return await ListDatabasesAsync(session, options, cancellationToken).ConfigureAwait(false);
+        }
 
         /// <inheritdoc/>
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
@@ -419,12 +403,10 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteReadOperation(
-                CreateChangeStreamOperation(pipeline, options),
-                _readOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return Watch(session, pipeline, options, cancellationToken);
+        }
 
         /// <inheritdoc/>
         public IChangeStreamCursor<TResult> Watch<TResult>(
@@ -440,16 +422,14 @@ namespace MongoDB.Driver
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc/>
-        public Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
+        public async Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
-            => _operationExecutor.ExecuteReadOperationAsync(
-                CreateChangeStreamOperation(pipeline, options),
-                _readOperationOptions,
-                session: null,
-                allowChannelPinning: false,
-                cancellationToken: cancellationToken);
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return await WatchAsync(session, pipeline, options, cancellationToken).ConfigureAwait(false);
+        }
 
         /// <inheritdoc/>
         public Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
