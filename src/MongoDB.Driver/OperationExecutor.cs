@@ -45,10 +45,10 @@ namespace MongoDB.Driver
             bool allowChannelPinning,
             CancellationToken cancellationToken)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(operation, nameof(operation));
             Ensure.IsNotNull(options, nameof(options));
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
 
             var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
@@ -62,10 +62,10 @@ namespace MongoDB.Driver
             bool allowChannelPinning,
             CancellationToken cancellationToken)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(operation, nameof(operation));
             Ensure.IsNotNull(options, nameof(options));
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
 
             var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
@@ -79,10 +79,10 @@ namespace MongoDB.Driver
             bool allowChannelPinning,
             CancellationToken cancellationToken)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(operation, nameof(operation));
             Ensure.IsNotNull(options, nameof(options));
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
 
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return operation.Execute(binding, cancellationToken);
@@ -95,10 +95,10 @@ namespace MongoDB.Driver
             bool allowChannelPinning,
             CancellationToken cancellationToken)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(operation, nameof(operation));
             Ensure.IsNotNull(options, nameof(options));
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
 
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);

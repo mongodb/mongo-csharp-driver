@@ -145,10 +145,10 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
             var operation = CreateClientBulkWriteOperation(models, options);
-            return ExecuteWriteOperation<ClientBulkWriteResult>(session, operation, _writeOperationOptions, cancellationToken);
+            return ExecuteWriteOperation<ClientBulkWriteResult>(session, operation, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -162,10 +162,10 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public Task<ClientBulkWriteResult> BulkWriteAsync(IClientSessionHandle session, IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
             var operation = CreateClientBulkWriteOperation(models, options);
-            return ExecuteWriteOperationAsync<ClientBulkWriteResult>(session, operation, _writeOperationOptions, cancellationToken);
+            return ExecuteWriteOperationAsync<ClientBulkWriteResult>(session, operation, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -209,10 +209,10 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
             var operation = CreateDropDatabaseOperation(name);
-            ExecuteWriteOperation(session, operation, _writeOperationOptions, cancellationToken);
+            ExecuteWriteOperation(session, operation, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -226,10 +226,10 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
             var opertion = CreateDropDatabaseOperation(name);
-            return ExecuteWriteOperationAsync(session, opertion, _writeOperationOptions, cancellationToken);
+            return ExecuteWriteOperationAsync(session, opertion, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -256,9 +256,8 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            var listDatabasesOptions = CreateListDatabasesOptionsFromListDatabaseNamesOptions(options);
-            var databases = ListDatabases(listDatabasesOptions, cancellationToken);
-            return CreateDatabaseNamesCursor(databases);
+            using var session = _operationExecutor.StartImplicitSession();
+            return ListDatabaseNames(session, options, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -289,9 +288,8 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
-            var listDatabasesOptions = CreateListDatabasesOptionsFromListDatabaseNamesOptions(options);
-            var databases = await ListDatabasesAsync(listDatabasesOptions, cancellationToken).ConfigureAwait(false);
-            return CreateDatabaseNamesCursor(databases);
+            using var session = _operationExecutor.StartImplicitSession();
+            return await ListDatabaseNamesAsync(session, options, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -334,12 +332,7 @@ namespace MongoDB.Driver
         public IAsyncCursor<BsonDocument> ListDatabases(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default)
-        {
-            ThrowIfDisposed();
-            Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateListDatabaseOperation(null);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
-        }
+            => ListDatabases(session, null, cancellationToken);
 
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> ListDatabases(
@@ -350,7 +343,7 @@ namespace MongoDB.Driver
             ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
             var operation = CreateListDatabaseOperation(options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -375,12 +368,7 @@ namespace MongoDB.Driver
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default)
-        {
-            ThrowIfDisposed();
-            Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateListDatabaseOperation(null);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
-        }
+            => ListDatabasesAsync(session, null, cancellationToken);
 
         /// <inheritdoc/>
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
@@ -388,10 +376,10 @@ namespace MongoDB.Driver
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
             var operation = CreateListDatabaseOperation(options);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -428,10 +416,10 @@ namespace MongoDB.Driver
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
             var operation = CreateChangeStreamOperation(pipeline, options);
-            return ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -452,17 +440,16 @@ namespace MongoDB.Driver
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default)
         {
-            ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
             var operation = CreateChangeStreamOperation(pipeline, options);
-            return ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         /// <inheritdoc/>
         public IMongoClient WithReadConcern(ReadConcern readConcern)
         {
             Ensure.IsNotNull(readConcern, nameof(readConcern));
-
             ThrowIfDisposed();
 
             var newSettings = Settings.Clone();
@@ -474,7 +461,6 @@ namespace MongoDB.Driver
         public IMongoClient WithReadPreference(ReadPreference readPreference)
         {
             Ensure.IsNotNull(readPreference, nameof(readPreference));
-
             ThrowIfDisposed();
 
             var newSettings = Settings.Clone();
@@ -486,7 +472,6 @@ namespace MongoDB.Driver
         public IMongoClient WithWriteConcern(WriteConcern writeConcern)
         {
             Ensure.IsNotNull(writeConcern, nameof(writeConcern));
-
             ThrowIfDisposed();
 
             var newSettings = Settings.Clone();
@@ -577,17 +562,17 @@ namespace MongoDB.Driver
                 _settings.RetryReads,
                 _settings.TranslationOptions);
 
-        private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadOperationOptions options, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteReadOperation(session, operation, options, false, cancellationToken);
+        private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+            => _operationExecutor.ExecuteReadOperation(session, operation, _readOperationOptions, false, cancellationToken);
 
-        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadOperationOptions options, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteReadOperationAsync(session, operation, options, false, cancellationToken);
+        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+            => _operationExecutor.ExecuteReadOperationAsync(session, operation, _readOperationOptions, false, cancellationToken);
 
-        private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, WriteOperationOptions options, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteWriteOperation(session, operation, options, false, cancellationToken);
+        private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+            => _operationExecutor.ExecuteWriteOperation(session, operation, _writeOperationOptions, false, cancellationToken);
 
-        private Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, WriteOperationOptions options, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteWriteOperationAsync(session, operation, options, false, cancellationToken);
+        private Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+            => _operationExecutor.ExecuteWriteOperationAsync(session, operation, _writeOperationOptions, false, cancellationToken);
 
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
