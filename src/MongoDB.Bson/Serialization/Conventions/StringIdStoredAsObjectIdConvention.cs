@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// This convention is only responsible for setting the serializer and idGenerator. It is assumed that this convention runs after
     /// other conventions that identify which member is the _id and that the _id has already been added to the class map.
     /// </summary>
-    public class StringIdStoredAsObjectIdConvention : ConventionBase, IMemberMapConvention
+    public class StringIdStoredAsObjectIdConvention : ConventionBase, IMemberMapConventionInternal
     {
         /// <inheritdoc/>
         public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);

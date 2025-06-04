@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets the element name the same as the member name.
     /// </summary>
-    public class MemberNameElementNameConvention : ConventionBase, IMemberMapConvention
+    public class MemberNameElementNameConvention : ConventionBase, IMemberMapConventionInternal
     {
         // public methods
         /// <summary>

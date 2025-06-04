@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that allows you to set the Enum serialization representation
     /// </summary>
-    public class EnumRepresentationConvention : ConventionBase, IMemberMapConvention
+    public class EnumRepresentationConvention : ConventionBase, IMemberMapConventionInternal
     {
         // private fields
         private readonly BsonType _representation;
