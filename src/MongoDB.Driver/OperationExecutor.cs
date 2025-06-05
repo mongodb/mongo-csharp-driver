@@ -13,50 +13,138 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
     internal sealed class OperationExecutor : IOperationExecutor
     {
-        private readonly MongoClient _client;
+        private readonly IMongoClient _client;
+        private bool _isDisposed;
 
-        public OperationExecutor(MongoClient client)
+        public OperationExecutor(IMongoClient client)
         {
             _client = client;
         }
 
-        public TResult ExecuteReadOperation<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        public void Dispose()
         {
+            _isDisposed = true;
+        }
+
+        public TResult ExecuteReadOperation<TResult>(
+            IClientSessionHandle session,
+            IReadOperation<TResult> operation,
+            ReadOperationOptions options,
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(options, nameof(options));
+            Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
+
+            var readPreference = options.GetEffectiveReadPreference(session);
+            using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
             return operation.Execute(binding, cancellationToken);
         }
 
-        public async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadBinding binding, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteReadOperationAsync<TResult>(
+            IClientSessionHandle session,
+            IReadOperation<TResult> operation,
+            ReadOperationOptions options,
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(options, nameof(options));
+            Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
+
+            var readPreference = options.GetEffectiveReadPreference(session);
+            using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
             return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
-        public TResult ExecuteWriteOperation<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+        public TResult ExecuteWriteOperation<TResult>(
+            IClientSessionHandle session,
+            IWriteOperation<TResult> operation,
+            WriteOperationOptions options,
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(options, nameof(options));
+            Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
+
+            using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return operation.Execute(binding, cancellationToken);
         }
 
-        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation, CancellationToken cancellationToken)
+        public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            IClientSessionHandle session,
+            IWriteOperation<TResult> operation,
+            WriteOperationOptions options,
+            bool allowChannelPinning,
+            CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(options, nameof(options));
+            Ensure.IsNotNull(session, nameof(session));
+            ThrowIfDisposed();
+
+            using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
         }
 
-        public IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
+        public IClientSessionHandle StartImplicitSession()
         {
-            return _client.StartImplicitSession(cancellationToken);
+            ThrowIfDisposed();
+            var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
+            var coreSession = _client.GetClusterInternal().StartSession(options.ToCore(isImplicit: true));
+            return new ClientSessionHandle(_client, options, coreSession);
         }
 
-        public Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
+        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference, bool allowChannelPinning)
         {
-            return _client.StartImplicitSessionAsync(cancellationToken);
+            if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
+            {
+                throw new InvalidOperationException("Read preference in a transaction must be primary.");
+            }
+
+            if (allowChannelPinning)
+            {
+                return ChannelPinningHelper.CreateReadBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork(), readPreference);
+            }
+
+            var binding = new ReadPreferenceBinding(_client.GetClusterInternal(), readPreference, session.WrappedCoreSession.Fork());
+            return new ReadBindingHandle(binding);
+        }
+
+        private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, bool allowChannelPinning)
+        {
+            if (allowChannelPinning)
+            {
+                return ChannelPinningHelper.CreateReadWriteBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+            }
+
+            var binding = new WritableServerBinding(_client.GetClusterInternal(), session.WrappedCoreSession.Fork());
+            return new ReadWriteBindingHandle(binding);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(OperationExecutor));
+            }
         }
     }
 }
