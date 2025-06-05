@@ -35,14 +35,14 @@ namespace MongoDB.Bson.IO
 
         public static float ReadSingleLittleEndian(ReadOnlySpan<byte> source)
         {
+            if (source.Length < 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(source.Length), "Source span is too small to contain a float.");
+            }
+
 #if NET6_0_OR_GREATER
             return BinaryPrimitives.ReadSingleLittleEndian(source);
 #else
-            if (source.Length < 4)
-            {
-                throw new ArgumentOutOfRangeException("length", "Source span is too small to contain a float.");
-            }
-
             // Constructs a 32-bit float from 4 Little Endian bytes in a platform-agnostic way.
             // Ensures correct bit pattern regardless of system endianness.
             int intValue =
@@ -58,14 +58,14 @@ namespace MongoDB.Bson.IO
 
         public static void WriteSingleLittleEndian(Span<byte> destination, float value)
         {
+            if (destination.Length < 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(destination.Length), "Destination span is too small to hold a float.");
+            }
+
 #if NET6_0_OR_GREATER
             BinaryPrimitives.WriteSingleLittleEndian(destination, value);
 #else
-            if (destination.Length < 4)
-            {
-                throw new ArgumentOutOfRangeException("length", "Destination span is too small to hold a float.");
-            }
-
             // This struct emulates BitConverter.SingleToInt32Bits for platforms like net472.
             int intValue = new FloatIntUnion { FloatValue = value }.IntValue;
 
