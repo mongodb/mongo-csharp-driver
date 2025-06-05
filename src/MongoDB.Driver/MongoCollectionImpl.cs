@@ -1473,7 +1473,7 @@ namespace MongoDB.Driver
                 Ensure.IsNotNullOrEmpty(name, nameof(name));
                 if (name == "*")
                 {
-                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAll and DropAllAsync to drop all indexes.", "name");
+                    throw new ArgumentException($"Cannot specify '*' for the index name. Use {nameof(DropAll)} to drop all indexes.", nameof(name));
                 }
 
                 var operation = CreateDropOneOperation(name, options);
@@ -1498,7 +1498,7 @@ namespace MongoDB.Driver
                 Ensure.IsNotNullOrEmpty(name, nameof(name));
                 if (name == "*")
                 {
-                    throw new ArgumentException("Cannot specify '*' for the index name. Use DropAll and DropAllAsync to drop all indexes.", "name");
+                    throw new ArgumentException($"Cannot specify '*' for the index name. Use {nameof(DropAllAsync)} to drop all indexes.", nameof(name));
                 }
 
                 var operation = CreateDropOneOperation(name, options);
