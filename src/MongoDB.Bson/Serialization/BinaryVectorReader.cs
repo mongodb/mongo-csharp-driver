@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -41,21 +42,8 @@ namespace MongoDB.Bson.Serialization
             switch (vectorDataType)
             {
                 case BinaryVectorDataType.Float32:
-
-                    if ((vectorDataBytes.Span.Length & 3) != 0)
-                    {
-                        throw new FormatException("Data length of binary vector of type Float32 must be a multiple of 4 bytes.");
-                    }
-
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        var singles = MemoryMarshal.Cast<byte, float>(vectorDataBytes.Span);
-                        items = (TItem[])(object)singles.ToArray();
-                    }
-                    else
-                    {
-                        throw new NotSupportedException("Binary vector data is not supported on Big Endian architecture yet.");
-                    }
+                    var floatArray = ReadSinglesArrayLittleEndian(vectorDataBytes.Span);
+                    items = (TItem[])(object)floatArray;
                     break;
                 case BinaryVectorDataType.Int8:
                     var itemsSpan = MemoryMarshal.Cast<byte, TItem>(vectorDataBytes.Span);
@@ -122,6 +110,30 @@ namespace MongoDB.Bson.Serialization
 
                 return result;
             }
+        }
+        
+        private static float[] ReadSinglesArrayLittleEndian(ReadOnlySpan<byte> span)
+        {
+            if ((span.Length & 3) != 0)
+            {
+                throw new FormatException("Data length of binary vector of type Float32 must be a multiple of 4 bytes.");
+            }
+
+            float[] result;
+            if (BitConverter.IsLittleEndian)
+            {
+                result = MemoryMarshal.Cast<byte, float>(span).ToArray();
+            }
+            else
+            {
+                var count = span.Length / 4;
+                result = new float[count];
+                for (int i = 0; i < count; i++)
+                {
+                    result[i] = BinaryPrimitivesCompat.ReadSingleLittleEndian(span.Slice(i * 4, 4));
+                }
+            }
+            return result;
         }
 
         public static void ValidateItemType<TItem>(BinaryVectorDataType binaryVectorDataType)

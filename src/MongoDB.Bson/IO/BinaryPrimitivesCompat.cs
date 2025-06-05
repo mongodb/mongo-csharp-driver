@@ -15,6 +15,7 @@
 
 using System;
 using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 
 namespace MongoDB.Bson.IO
 {
@@ -30,6 +31,56 @@ namespace MongoDB.Bson.IO
         public static void WriteDoubleLittleEndian(Span<byte> destination, double value)
         {
             BinaryPrimitives.WriteInt64LittleEndian(destination, BitConverter.DoubleToInt64Bits(value));
+        }
+
+        public static float ReadSingleLittleEndian(ReadOnlySpan<byte> source)
+        {
+            if (source.Length < 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(source.Length), "Source span is too small to contain a float.");
+            }
+
+#if NET6_0_OR_GREATER
+            return BinaryPrimitives.ReadSingleLittleEndian(source);
+#else
+            // Constructs a 32-bit float from 4 Little Endian bytes in a platform-agnostic way.
+            // Ensures correct bit pattern regardless of system endianness.
+            int intValue =
+                source[0] |
+                (source[1] << 8) |
+                (source[2] << 16) |
+                (source[3] << 24);
+
+            // This struct emulates BitConverter.Int32BitsToSingle for platforms like net472.
+            return new FloatIntUnion { IntValue = intValue }.FloatValue;
+#endif
+        }
+
+        public static void WriteSingleLittleEndian(Span<byte> destination, float value)
+        {
+            if (destination.Length < 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(destination.Length), "Destination span is too small to hold a float.");
+            }
+
+#if NET6_0_OR_GREATER
+            BinaryPrimitives.WriteSingleLittleEndian(destination, value);
+#else
+            // This struct emulates BitConverter.SingleToInt32Bits for platforms like net472.
+            int intValue = new FloatIntUnion { FloatValue = value }.IntValue;
+
+            destination[0] = (byte)(intValue);
+            destination[1] = (byte)(intValue >> 8);
+            destination[2] = (byte)(intValue >> 16);
+            destination[3] = (byte)(intValue >> 24);
+#endif
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct FloatIntUnion
+        {
+            [FieldOffset(0)] public float FloatValue;
+            [FieldOffset(0)] public int IntValue;
         }
     }
 }

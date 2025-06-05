@@ -365,10 +365,16 @@ namespace MongoDB.Bson.Tests.Serialization
         private static (T[], byte[] VectorBson) GetTestData<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
             where T : struct
         {
-            var elementsSpan = new ReadOnlySpan<T>(Enumerable.Range(0, elementsCount).Select(i => Convert.ChangeType(i, typeof(T)).As<T>()).ToArray());
-            byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. MemoryMarshal.Cast<T, byte>(elementsSpan)];
-
-            return (elementsSpan.ToArray(), vectorBsonData);
+                var elementsSpan = new ReadOnlySpan<T>(
+                    Enumerable.Range(0, elementsCount)
+                    .Select(i => Convert.ChangeType(i, typeof(T)).As<T>())
+                    .ToArray());
+                var elementsBytesLittleEndian = BitConverter.IsLittleEndian
+                    ? MemoryMarshal.Cast<T, byte>(elementsSpan)
+                    : BigEndianToLittleEndian(elementsSpan, dataType);
+                
+                byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. elementsBytesLittleEndian];
+                return (elementsSpan.ToArray(), vectorBsonData);
         }
 
         private static (BinaryVector<T>, byte[] VectorBson) GetTestDataBinaryVector<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
@@ -407,6 +413,27 @@ namespace MongoDB.Bson.Tests.Serialization
             };
 
             return serializer;
+        }
+
+        private static byte[] BigEndianToLittleEndian<T>(ReadOnlySpan<T> span, BinaryVectorDataType dataType) where T : struct
+        {
+            // Types that do NOT need conversion safe on BE
+            if (dataType == BinaryVectorDataType.Int8 || dataType == BinaryVectorDataType.PackedBit)
+            {
+                return MemoryMarshal.Cast<T, byte>(span).ToArray();
+            }
+
+            var elementSize = Marshal.SizeOf<T>();
+            byte[] result = new byte[span.Length * elementSize];
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                byte[] bytes = BitConverter.GetBytes((dynamic)span[i]);
+                Array.Reverse(bytes); // Ensure LE order
+                Buffer.BlockCopy(bytes, 0, result, i * elementSize, elementSize);
+            }
+
+            return result;
         }
 
         public class BinaryVectorNoAttributeHolder
