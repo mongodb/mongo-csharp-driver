@@ -497,6 +497,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
+
+            options ??= new FindOneAndUpdateOptions<TDocument, TProjection>();
             if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
             {
                 throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
@@ -517,6 +519,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
+            options ??= new FindOneAndUpdateOptions<TDocument, TProjection>();
             if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
             {
                 throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
@@ -1030,7 +1033,6 @@ namespace MongoDB.Driver
             UpdateDefinition<TDocument> update,
             FindOneAndUpdateOptions<TDocument, TProjection> options)
         {
-            options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
             var renderArgs = GetRenderArgs();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(renderArgs with { RenderForFind = true });
