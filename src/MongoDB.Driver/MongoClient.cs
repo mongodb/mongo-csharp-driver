@@ -342,7 +342,7 @@ namespace MongoDB.Driver
         {
             ThrowIfDisposed();
             Ensure.IsNotNull(session, nameof(session));
-            var operation = CreateListDatabaseOperation(options);
+            var operation = CreateListDatabasesOperation(options);
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
@@ -378,7 +378,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
-            var operation = CreateListDatabaseOperation(options);
+            var operation = CreateListDatabasesOperation(options);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
@@ -524,7 +524,7 @@ namespace MongoDB.Driver
                 WriteConcern = _settings.WriteConcern
             };
 
-        private ListDatabasesOperation CreateListDatabaseOperation(ListDatabasesOptions options)
+        private ListDatabasesOperation CreateListDatabasesOperation(ListDatabasesOptions options)
         {
             options ??= new ListDatabasesOptions();
             var messageEncoderSettings = GetMessageEncoderSettings();

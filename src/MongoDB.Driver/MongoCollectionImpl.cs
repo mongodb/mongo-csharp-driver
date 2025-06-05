@@ -109,7 +109,7 @@ namespace MongoDB.Driver
             options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out var isAggregateToCollection);
             if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
@@ -136,7 +136,7 @@ namespace MongoDB.Driver
             options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out var isAggregateToCollection);
             if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
@@ -163,7 +163,7 @@ namespace MongoDB.Driver
             options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out var isAggregateToCollection);
             if (renderedPipeline.Documents.Count == 0 || !isAggregateToCollection)
             {
                 throw new InvalidOperationException("AggregateToCollection requires that the last stage be $out or $merge.");
@@ -186,7 +186,7 @@ namespace MongoDB.Driver
             options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(options.TranslationOptions);
-            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out var isAggregateToCollection);
             if (renderedPipeline.Documents.Count == 0 || !isAggregateToCollection)
             {
                 throw new InvalidOperationException("AggregateToCollectionAsync requires that the last stage be $out or $merge.");
@@ -205,7 +205,7 @@ namespace MongoDB.Driver
         public override BulkWriteResult<TDocument> BulkWrite(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull((object)requests, nameof(requests));
+            Ensure.IsNotNull(requests, nameof(requests));
             var requestsArray = requests.ToArray();
             if (requestsArray.Length == 0)
             {
@@ -233,7 +233,7 @@ namespace MongoDB.Driver
         public override async Task<BulkWriteResult<TDocument>> BulkWriteAsync(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default)
         {
             Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull((object)requests, nameof(requests));
+            Ensure.IsNotNull(requests, nameof(requests));
             var requestsArray = requests.ToArray();
             if (requestsArray.Length == 0)
             {
@@ -497,6 +497,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
+            if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
+            {
+                throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
+            }
 
             var operation = CreateFindOneAndUpdateOperation(filter, update, options);
             return ExecuteWriteOperation(session, operation, cancellationToken);
@@ -513,6 +517,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
+            if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
+            {
+                throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
+            }
 
             var operation = CreateFindOneAndUpdateOperation(filter, update, options);
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);
@@ -1023,12 +1031,6 @@ namespace MongoDB.Driver
             FindOneAndUpdateOptions<TDocument, TProjection> options)
         {
             options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
-
-            if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
-            {
-                throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
-            }
-
             var renderArgs = GetRenderArgs();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
             var renderedProjection = projection.Render(renderArgs with { RenderForFind = true });
@@ -1202,13 +1204,13 @@ namespace MongoDB.Driver
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteReadOperation(session, operation, _readOperationOptions, true, cancellationToken);
-
-        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteReadOperationAsync(session, operation, _readOperationOptions, true, cancellationToken);
+            => ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadOperationOptions options, CancellationToken cancellationToken)
             => _operationExecutor.ExecuteReadOperation(session, operation, options, true, cancellationToken);
+
+        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+            => ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
 
         private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadOperationOptions options, CancellationToken cancellationToken)
             => _operationExecutor.ExecuteReadOperationAsync(session, operation, options, true, cancellationToken);
@@ -1377,7 +1379,7 @@ namespace MongoDB.Driver
                 CancellationToken cancellationToken = default)
             {
                 Ensure.IsNotNull(session, nameof(session));
-                Ensure.IsNotNull((object)models, nameof(models));
+                Ensure.IsNotNull(models, nameof(models));
 
                 var operation = CreateCreateIndexesOperation(models, options);
                 _collection.ExecuteWriteOperation(session, operation, cancellationToken);
@@ -1406,7 +1408,7 @@ namespace MongoDB.Driver
                 CancellationToken cancellationToken = default)
             {
                 Ensure.IsNotNull(session, nameof(session));
-                Ensure.IsNotNull((object)models, nameof(models));
+                Ensure.IsNotNull(models, nameof(models));
 
                 var operation = CreateCreateIndexesOperation(models, options);
                 await _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);

@@ -74,7 +74,7 @@ namespace MongoDB.Driver
             options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(NoPipelineInputSerializer.Instance, options.TranslationOptions);
-            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out var isAggregateToCollection);
             if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
@@ -101,7 +101,7 @@ namespace MongoDB.Driver
             options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(NoPipelineInputSerializer.Instance, options.TranslationOptions);
-            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out var isAggregateToCollection);
             if (isAggregateToCollection)
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
             options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(NoPipelineInputSerializer.Instance, options.TranslationOptions);
-            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out var isAggregateToCollection);
             if (!isAggregateToCollection)
             {
                 throw new InvalidOperationException("AggregateToCollection requires that the last stage be $out or $merge.");
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
             options ??= new AggregateOptions();
 
             var renderArgs = GetRenderArgs(NoPipelineInputSerializer.Instance, options.TranslationOptions);
-            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out bool isAggregateToCollection);
+            var renderedPipeline = AggregateHelper.RenderAggregatePipeline(pipeline, renderArgs, out var isAggregateToCollection);
             if (!isAggregateToCollection)
             {
                 throw new InvalidOperationException("AggregateToCollectionAsync requires that the last stage be $out or $merge.");
@@ -291,7 +291,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNullOrEmpty(name, nameof(name));
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
-            var encryptedFields = GetEncryptedFields(session, collectionNamespace, options, cancellationToken);
+            var encryptedFields = GetEffectiveEncryptedFields(session, collectionNamespace, options, cancellationToken);
             var operation = CreateDropCollectionOperation(collectionNamespace, encryptedFields);
             ExecuteWriteOperation(session, operation, cancellationToken);
         }
@@ -314,7 +314,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNullOrEmpty(name, nameof(name));
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
-            var encryptedFields = await GetEncryptedFieldsAsync(session, collectionNamespace, options, cancellationToken).ConfigureAwait(false);
+            var encryptedFields = await GetEffectiveEncryptedFieldsAsync(session, collectionNamespace, options, cancellationToken).ConfigureAwait(false);
             var operation = CreateDropCollectionOperation(collectionNamespace, encryptedFields);
             await ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
         }
@@ -746,13 +746,13 @@ namespace MongoDB.Driver
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteReadOperation(session, operation, _readOperationOptions, true, cancellationToken);
-
-        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteReadOperationAsync(session, operation, _readOperationOptions, true, cancellationToken);
+            => ExecuteReadOperation(session, operation, _readOperationOptions, cancellationToken);
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadOperationOptions options, CancellationToken cancellationToken)
             => _operationExecutor.ExecuteReadOperation(session, operation, options, true, cancellationToken);
+
+        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
+            => ExecuteReadOperationAsync(session, operation, _readOperationOptions, cancellationToken);
 
         private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadOperationOptions options, CancellationToken cancellationToken)
             => _operationExecutor.ExecuteReadOperationAsync(session, operation, options, true, cancellationToken);
@@ -768,7 +768,7 @@ namespace MongoDB.Driver
             return collections.Select(collection => collection["name"].AsString);
         }
 
-        private BsonDocument GetEncryptedFields(IClientSessionHandle session, CollectionNamespace collectionNamespace, DropCollectionOptions options, CancellationToken cancellationToken)
+        private BsonDocument GetEffectiveEncryptedFields(IClientSessionHandle session, CollectionNamespace collectionNamespace, DropCollectionOptions options, CancellationToken cancellationToken)
         {
             var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
             if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options?.EncryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
@@ -788,7 +788,7 @@ namespace MongoDB.Driver
             return effectiveEncryptedFields;
         }
 
-        private async Task<BsonDocument> GetEncryptedFieldsAsync(IClientSessionHandle session, CollectionNamespace collectionNamespace, DropCollectionOptions options, CancellationToken cancellationToken)
+        private async Task<BsonDocument> GetEffectiveEncryptedFieldsAsync(IClientSessionHandle session, CollectionNamespace collectionNamespace, DropCollectionOptions options, CancellationToken cancellationToken)
         {
             var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
             if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options?.EncryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
