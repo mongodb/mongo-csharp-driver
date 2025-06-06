@@ -62,13 +62,13 @@ namespace MongoDB.Benchmarks.MultiDoc
         {
             _collection.InsertMany(_smallDocuments, new());
         }
-        
+
         [Benchmark]
         public void SmallDocCollectionBulkWriteInsertBenchmark()
         {
             _collection.BulkWrite(_collectionBulkWriteInsertModels, new());
         }
-        
+
         [Benchmark]
         public void SmallDocClientBulkWriteInsertBenchmark()
         {

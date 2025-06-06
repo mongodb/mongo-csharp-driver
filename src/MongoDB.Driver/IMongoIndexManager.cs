@@ -166,7 +166,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an index.
         /// </summary>
-        /// <param name="keys">The keys.</param>       
+        /// <param name="keys">The keys.</param>
         /// <param name="options">The create index request options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>

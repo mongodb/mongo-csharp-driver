@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var subject = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(_collectionNamespace, encryptedFields, _messageEncoderSettings, null);
             var session = OperationTestHelper.CreateSession();
-            
+
             var operations = ((CompositeWriteOperation<BsonDocument>)subject)._operations<BsonDocument>();
 
             // esc

@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Authentication
 
         /// <summary>
         /// Return true if the given <paramref name="ch"/> is an ASCII control character as defined by
-        /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.2.1">RFC 3454, Appendix C.2.1</a>. 
+        /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.2.1">RFC 3454, Appendix C.2.1</a>.
         /// </summary>
         /// <param name="ch">The character.</param>
         /// <returns>Whether the given character is an ASCII control character.</returns>
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Authentication
 
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is inappropriate for canonical representation
-        /// characters as defined by <a href="https://tools.ietf.org/html/rfc3454#appendix-C.7">RFC 3454, Appendix C.7</a>. 
+        /// characters as defined by <a href="https://tools.ietf.org/html/rfc3454#appendix-C.7">RFC 3454, Appendix C.7</a>.
         /// </summary>
         /// <param name="codepoint">The Unicode character's codepoint.</param>
         /// <returns>True if the codepoint is inappropriate for canonical.</returns>
@@ -647,7 +647,7 @@ namespace MongoDB.Driver.Authentication
 
         /// <summary>
         ///  Return true if the given <paramref name="ch"/> is a "commonly mapped to nothing" character as defined by
-        ///  <a href="https://tools.ietf.org/html/rfc3454#appendix-B.1">RFC 3454, Appendix B.1</a>. 
+        ///  <a href="https://tools.ietf.org/html/rfc3454#appendix-B.1">RFC 3454, Appendix B.1</a>.
         /// </summary>
         /// <param name="ch">The character.</param>
         /// <returns>Whether the given character is a "commonly mapped to nothing" character.</returns>
@@ -669,7 +669,7 @@ namespace MongoDB.Driver.Authentication
 
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is a non-ASCII control character as defined by
-        /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.2.2">RFC 3454, Appendix C.2.2</a>. 
+        /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.2.2">RFC 3454, Appendix C.2.2</a>.
         /// </summary>
         /// <param name="codepoint">The Unicode character's codepoint.</param>
         /// <returns>Whether the given character is a non-ASCII control character.</returns>
@@ -695,7 +695,7 @@ namespace MongoDB.Driver.Authentication
 
         /// <summary>
         /// Return true if the given <paramref name="ch"/> is a non-ASCII space character as defined by
-        /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.1.2">RFC 3454, Appendix C.1.2</a>. 
+        /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.1.2">RFC 3454, Appendix C.1.2</a>.
         /// </summary>
         /// <param name="ch">The character.</param>
         /// <returns>Whether the given character is a non-ASCII space character.</returns>
@@ -752,7 +752,7 @@ namespace MongoDB.Driver.Authentication
 
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is a prohibited character as defined by
-        ///<a href="https://tools.ietf.org/html/rfc4013#section-2.3">RFC 4013, Section 2.3</a>. 
+        ///<a href="https://tools.ietf.org/html/rfc4013#section-2.3">RFC 4013, Section 2.3</a>.
         /// </summary>
         /// <param name="codepoint">The Unicode character's codepoint.</param>
         /// <returns>Whether the codepoint is a prohibited character.</returns>

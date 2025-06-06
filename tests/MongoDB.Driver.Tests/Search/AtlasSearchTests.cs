@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Tests.Search
 
             result.Name.Should().Be("testNull");
         }
-        
+
         [Fact]
         public void EqualsArrayField()
         {
@@ -163,25 +163,25 @@ namespace MongoDB.Driver.Tests.Search
                 .Search(Builders<Movie>.Search.Equals(p => p.Genres, "family"))
                 .Limit(3)
                 .ToList();
-            
+
             results.Should().HaveCount(3);
             foreach (var result in results)
             {
                 result.Genres.Should().Contain("Family");
             }
-            
+
             results[0].Title.Should().Be("The Poor Little Rich Girl");
             results[1].Title.Should().Be("Robin Hood");
             results[2].Title.Should().Be("Peter Pan");
         }
-        
+
         [Fact]
         public void EqualsStringField()
         {
             var results = GetMoviesCollection<Movie>().Aggregate()
                 .Search(Builders<Movie>.Search.Equals(p => p.Title, "a corner in wheat"))
                 .ToList();
-            
+
             results.Should().ContainSingle().Which.Title.Should().Be("A Corner in Wheat");
         }
 
@@ -469,7 +469,7 @@ namespace MongoDB.Driver.Tests.Search
 
             results.Should().ContainSingle().Which.Name.Should().Be("House close to station & direct to opera house....");
         }
-        
+
         [Fact]
         public void RangeString()
         {
@@ -478,7 +478,7 @@ namespace MongoDB.Driver.Tests.Search
                 .Limit(5)
                 .Project<Movie>(Builders<Movie>.Projection.Include(p => p.Title))
                 .ToList();
-            
+
             results[0].Title.Should().Be("Civilization");
             results[1].Title.Should().Be("Clash of the Wolves");
             results[2].Title.Should().Be("City Lights");
@@ -848,7 +848,7 @@ namespace MongoDB.Driver.Tests.Search
         {
             [BsonElement("genres")]
             public string[] Genres { get; set; }
-            
+
             [BsonElement("title")]
             public string Title { get; set; }
 

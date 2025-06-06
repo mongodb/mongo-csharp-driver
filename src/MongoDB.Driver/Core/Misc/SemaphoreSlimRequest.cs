@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Misc
         /// </value>
         public Task Task => _task;
 
-        // public methods        
+        // public methods
         /// <inheritdoc/>
         public void Dispose()
         {

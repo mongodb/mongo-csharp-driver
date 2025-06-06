@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Tests.Authentication
     {
         [Fact]
         public void SaslPrepQuery_accepts_undefined_codepoint()
-        {     
+        {
             var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(_unassignedCodePoint.Value)}";
-            
+
             SaslPrepHelper.SaslPrepQuery(strWithUnassignedCodepoint).Should().Be(strWithUnassignedCodepoint);
         }
 
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests.Authentication
         public void SaslPrep_throws_argument_exception_when_passed_Rfc4013_examples(string expectedError, string input)
         {
             var exception = Record.Exception(()=>SaslPrepHelper.SaslPrepStored(input));
-            
+
             exception.Should().BeOfType<ArgumentException>().Subject.Message.Should().Be(expectedError);
         }
 
@@ -100,18 +100,18 @@ namespace MongoDB.Driver.Tests.Authentication
         public void SaslPrepStored_throws_argument_exception_with_RandALCat_and_LCat_characters()
         {
             var exception = Record.Exception(() => SaslPrepHelper.SaslPrepStored("\u0627\u0041\u0627"));
-            
+
             exception.Should().BeOfType<ArgumentException>();
             exception.Message.Should().Be("Contains both RandALCat characters and LCat characters");
         }
-        
+
         [Fact]
         public void SaslPrepStored_throws_exception_when_passed_an_undefined_codepoint()
-        { 
+        {
             var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(_unassignedCodePoint.Value)}";
-            
+
             var exception = Record.Exception(()=>SaslPrepHelper.SaslPrepStored(strWithUnassignedCodepoint));
-            
+
             exception.Should().BeOfType<ArgumentException>();
             exception.Message.Should().Be("Character at position 3 is unassigned");
         }

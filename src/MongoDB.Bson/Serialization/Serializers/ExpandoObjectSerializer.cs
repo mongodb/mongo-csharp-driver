@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Serializer for <see cref="ExpandoObject"/>.
     /// </summary>
     /// <remarks>
-    /// The use of <see cref="ExpandoObject"/> will serialize any <see cref="List{Object}"/> without type information. 
+    /// The use of <see cref="ExpandoObject"/> will serialize any <see cref="List{Object}"/> without type information.
     /// To get the best experience out of using an <see cref="ExpandoObject"/>, any member wanting to be used
     /// as an array should use <see cref="List{Object}"/>.
     /// </remarks>

@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Configuration
             };
             var kmsProviders1 = new Dictionary<string, IReadOnlyDictionary<string, object>>()
             {
-                { "schemaMapKey", new Dictionary<string, object>() { { "kmsKey", "kmsValue" } } } 
+                { "schemaMapKey", new Dictionary<string, object>() { { "kmsKey", "kmsValue" } } }
             };
             var kmsProviders2 = new Dictionary<string, IReadOnlyDictionary<string, object>>()
             {

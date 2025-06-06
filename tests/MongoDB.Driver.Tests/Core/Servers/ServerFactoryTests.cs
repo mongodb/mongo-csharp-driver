@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var subject = new ServerFactory(_directConnection, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber, _serverApi, null);
             var clusterClock = new Mock<IClusterClock>().Object;
-            
+
 
             var result = subject.CreateServer(clusterType, _clusterId, clusterClock, _endPoint);
 

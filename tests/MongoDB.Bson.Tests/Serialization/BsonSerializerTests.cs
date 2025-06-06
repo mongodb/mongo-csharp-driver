@@ -135,7 +135,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        public class InventoryItem 
+        public class InventoryItem
             : ISupportInitialize
         {
             public int Price { get; set; }

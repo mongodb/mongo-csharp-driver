@@ -185,7 +185,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        // Tests where nominal type is a class that implements IReadOnlyDictionary 
+        // Tests where nominal type is a class that implements IReadOnlyDictionary
 
         [Fact]
         public void TestNominalTypeCustomIReadOnlyDictionaryActualTypeCustomIReadOnlyDictionary()

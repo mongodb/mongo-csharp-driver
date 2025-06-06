@@ -26,7 +26,7 @@ namespace MongoDB.Benchmarks
         public const string ReadBench = "ReadBench";
         public const string SingleBench = "SingleBench";
         public const string WriteBench = "WriteBench";
-        
+
         // not included in AllCategories as it's not part of the benchmarking spec
         public const string BulkWriteBench = "BulkWriteBench";
 
