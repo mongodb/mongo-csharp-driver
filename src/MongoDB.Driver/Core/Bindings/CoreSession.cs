@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Core.Bindings
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationCancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Core.Bindings
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationCancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Core.Bindings
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationCancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Core.Bindings
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationCancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -545,21 +545,21 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        private TResult ExecuteEndTransactionOnPrimary<TResult>(IReadOperation<TResult> operation, OperationCancellationContext operationCancellationContext)
+        private TResult ExecuteEndTransactionOnPrimary<TResult>(IReadOperation<TResult> operation, OperationContext operationContext)
         {
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
             {
-                return operation.Execute(binding, operationCancellationContext);
+                return operation.Execute(binding, operationContext);
             }
         }
 
-        private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(IReadOperation<TResult> operation, OperationCancellationContext operationCancellationContext)
+        private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(IReadOperation<TResult> operation, OperationContext operationContext)
         {
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
             {
-                return await operation.ExecuteAsync(binding, operationCancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(binding, operationContext).ConfigureAwait(false);
             }
         }
 

@@ -123,8 +123,8 @@ namespace MongoDB.Driver.GridFS
 
             var operation = CreateAbortOperation();
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
-            operation.Execute(_binding, operationCancellationContext);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            operation.Execute(_binding, operationContext);
         }
 
         public override async Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -138,8 +138,8 @@ namespace MongoDB.Driver.GridFS
 
             var operation = CreateAbortOperation();
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
-            await operation.ExecuteAsync(_binding, operationCancellationContext).ConfigureAwait(false);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            await operation.ExecuteAsync(_binding, operationContext).ConfigureAwait(false);
         }
 
         public override void Close(CancellationToken cancellationToken)

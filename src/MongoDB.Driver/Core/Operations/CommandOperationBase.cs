@@ -108,11 +108,11 @@ namespace MongoDB.Driver.Core.Operations
             IChannelSource channelSource,
             ICoreSessionHandle session,
             ReadPreference readPreference,
-            OperationCancellationContext cancellationContext)
+            OperationContext operationContext)
         {
-            using (var channel = channelSource.GetChannel(cancellationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             {
-                return ExecuteProtocol(channel, session, readPreference, cancellationContext.CancellationToken);
+                return ExecuteProtocol(channel, session, readPreference, operationContext.CancellationToken);
             }
         }
 
@@ -139,11 +139,11 @@ namespace MongoDB.Driver.Core.Operations
             IChannelSource channelSource,
             ICoreSessionHandle session,
             ReadPreference readPreference,
-            OperationCancellationContext cancellationContext)
+            OperationContext operationContext)
         {
-            using (var channel = await channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(channel, session, readPreference, cancellationContext.CancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channel, session, readPreference, operationContext.CancellationToken).ConfigureAwait(false);
             }
         }
 

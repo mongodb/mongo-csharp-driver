@@ -29,8 +29,8 @@ namespace MongoDB.Driver.Core.Servers
         EndPoint EndPoint { get; }
         ServerId ServerId { get; }
 
-        IChannelHandle GetChannel(OperationCancellationContext cancellationContext);
-        Task<IChannelHandle> GetChannelAsync(OperationCancellationContext cancellationContext);
+        IChannelHandle GetChannel(OperationContext operationContext);
+        Task<IChannelHandle> GetChannelAsync(OperationContext operationContext);
     }
 
     internal interface IClusterableServer : IServer, IDisposable

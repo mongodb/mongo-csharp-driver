@@ -15,7 +15,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -87,29 +86,29 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        public BsonDocument Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = binding.GetWriteChannelSource(cancellationContext))
-            using (var channel = channelSource.GetChannel(cancellationContext))
+            using (var channelSource = binding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
-                return operation.Execute(channelBinding, cancellationContext);
+                return operation.Execute(channelBinding, operationContext);
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
-                return await operation.ExecuteAsync(channelBinding, cancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
             }
         }
 

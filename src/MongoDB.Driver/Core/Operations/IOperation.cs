@@ -20,13 +20,13 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal interface IReadOperation<TResult>
     {
-        TResult Execute(IReadBinding binding, OperationCancellationContext cancellationContext);
-        Task<TResult> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext);
+        TResult Execute(IReadBinding binding, OperationContext operationContext);
+        Task<TResult> ExecuteAsync(IReadBinding binding, OperationContext operationContext);
     }
 
     internal interface IWriteOperation<TResult>
     {
-        TResult Execute(IWriteBinding binding, OperationCancellationContext cancellationContext);
-        Task<TResult> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext);
+        TResult Execute(IWriteBinding binding, OperationContext operationContext);
+        Task<TResult> ExecuteAsync(IWriteBinding binding, OperationContext operationContext);
     }
 }

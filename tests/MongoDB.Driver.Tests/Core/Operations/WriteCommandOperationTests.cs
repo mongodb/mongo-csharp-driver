@@ -214,8 +214,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockBinding = new Mock<IWriteBinding>();
             var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
-            mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationCancellationContext>())).Returns(channelSource);
-            mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationCancellationContext>())).Returns(Task.FromResult(channelSource));
+            mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>())).Returns(channelSource);
+            mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channelSource));
             return mockBinding;
         }
 
@@ -229,8 +229,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSourceHandle>();
             mockChannelSource.SetupGet(s => s.ServerDescription).Returns(serverDescription);
-            mockChannelSource.Setup(s => s.GetChannel(It.IsAny<OperationCancellationContext>())).Returns(channel);
-            mockChannelSource.Setup(s => s.GetChannelAsync(It.IsAny<OperationCancellationContext>())).Returns(Task.FromResult(channel));
+            mockChannelSource.Setup(s => s.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
+            mockChannelSource.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channel));
             return mockChannelSource;
         }
 

@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var session = CreateSession(hasSessionId, isInTransaction);
             var channelSource = CreateChannelSource(areRetryableWritesSupported);
             mockBinding.SetupGet(m => m.Session).Returns(session);
-            mockBinding.Setup(m => m.GetWriteChannelSource(It.IsAny<OperationCancellationContext>())).Returns(channelSource);
+            mockBinding.Setup(m => m.GetWriteChannelSource(It.IsAny<OperationContext>())).Returns(channelSource);
             return mockBinding.Object;
         }
 
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSourceHandle>();
             var channel = CreateChannel(areRetryableWritesSupported);
-            mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationCancellationContext>())).Returns(channel);
+            mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
             return mockChannelSource.Object;
         }
 
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         private RetryableWriteContext CreateContext(bool retryRequested, bool areRetryableWritesSupported, bool hasSessionId, bool isInTransaction)
         {
             var binding = CreateBinding(areRetryableWritesSupported, hasSessionId, isInTransaction);
-            return RetryableWriteContext.Create(binding, retryRequested, OperationCancellationContext.NoTimeout);
+            return RetryableWriteContext.Create(binding, retryRequested, OperationContext.NoTimeout);
         }
 
         private IRetryableWriteOperation<BsonDocument> CreateOperation(bool withWriteConcern, bool isAcknowledged)

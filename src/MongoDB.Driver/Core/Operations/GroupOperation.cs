@@ -138,27 +138,27 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
-        public IEnumerable<TResult> Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public IEnumerable<TResult> Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            using (var channelSource = binding.GetReadChannelSource(cancellationContext))
-            using (var channel = channelSource.GetChannel(cancellationContext))
+            using (var channelSource = binding.GetReadChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return operation.Execute(channelBinding, cancellationContext);
+                return operation.Execute(channelBinding, operationContext);
             }
         }
 
-        public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(channelBinding, cancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
             }
         }
 

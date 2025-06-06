@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                .Capture<ConnectionPoolCheckingOutConnectionFailedEvent>()
                .CaptureCommandEvents("find");
 
-            var failpointServer = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(failPointSelector, OperationCancellationContext.NoTimeout);
+            var failpointServer = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(failPointSelector, OperationContext.NoTimeout);
             using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
 
             using var client = CreateClient(settings, eventCapturer, heartbeatInterval);
@@ -146,8 +146,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 },
                 useMultipleShardRouters: true);
 
-            var failPointServer1 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), OperationCancellationContext.NoTimeout);
-            var failPointServer2 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), OperationCancellationContext.NoTimeout);
+            var failPointServer1 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), OperationContext.NoTimeout);
+            var failPointServer2 = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[1].EndPoint), OperationContext.NoTimeout);
 
             using var failPoint1 = FailPoint.Configure(failPointServer1, NoCoreSession.NewHandle(), failPointCommand);
             using var failPoint2 = FailPoint.Configure(failPointServer2, NoCoreSession.NewHandle(), failPointCommand);
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 },
                 useMultipleShardRouters: false);
 
-            var failPointServer = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), OperationCancellationContext.NoTimeout);
+            var failPointServer = client.GetClusterInternal().SelectServer(new EndPointServerSelector(client.Cluster.Description.Servers[0].EndPoint), OperationContext.NoTimeout);
 
             using var failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointCommand);
 

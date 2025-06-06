@@ -305,11 +305,11 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(subject, binding, async);
             if (async)
             {
-                mockChannelSource.Verify(c => c.GetChannelAsync(It.IsAny<OperationCancellationContext>()), Times.Once);
+                mockChannelSource.Verify(c => c.GetChannelAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                mockChannelSource.Verify(c => c.GetChannel(It.IsAny<OperationCancellationContext>()), Times.Once);
+                mockChannelSource.Verify(c => c.GetChannel(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 
@@ -320,8 +320,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.ReadPreference).Returns(readPreference);
             mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
-            mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationCancellationContext>())).Returns(channelSource);
-            mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationCancellationContext>())).Returns(Task.FromResult(channelSource));
+            mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>())).Returns(channelSource);
+            mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channelSource));
             return mockBinding;
         }
 
@@ -335,8 +335,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSourceHandle>();
             mockChannelSource.SetupGet(s => s.ServerDescription).Returns(serverDescription);
-            mockChannelSource.Setup(s => s.GetChannel(It.IsAny<OperationCancellationContext>())).Returns(channel);
-            mockChannelSource.Setup(s => s.GetChannelAsync(It.IsAny<OperationCancellationContext>())).Returns(Task.FromResult(channel));
+            mockChannelSource.Setup(s => s.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
+            mockChannelSource.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channel));
             return mockChannelSource;
         }
 

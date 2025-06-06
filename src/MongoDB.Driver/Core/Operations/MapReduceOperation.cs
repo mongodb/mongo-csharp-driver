@@ -87,31 +87,31 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public IAsyncCursor<TResult> Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public IAsyncCursor<TResult> Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = binding.GetReadChannelSource(cancellationContext))
-            using (var channel = channelSource.GetChannel(cancellationContext))
+            using (var channelSource = binding.GetReadChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
-                var result = operation.Execute(channelBinding, cancellationContext);
+                var result = operation.Execute(channelBinding, operationContext);
                 return new SingleBatchAsyncCursor<TResult>(result);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
-                var result = await operation.ExecuteAsync(channelBinding, cancellationContext).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
                 return new SingleBatchAsyncCursor<TResult>(result);
             }
         }

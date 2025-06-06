@@ -67,27 +67,27 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationContext))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
             {
                 var operation = CreateOperation();
-                return operation.Execute(context, cancellationContext);
+                return operation.Execute(context, operationContext);
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationContext).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(context, operationContext).ConfigureAwait(false);
             }
         }
 

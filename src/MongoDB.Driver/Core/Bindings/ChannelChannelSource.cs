@@ -63,13 +63,13 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        public IChannelHandle GetChannel(OperationCancellationContext cancellationContext)
+        public IChannelHandle GetChannel(OperationContext operationContext)
         {
             ThrowIfDisposed();
             return GetChannelHelper();
         }
 
-        public Task<IChannelHandle> GetChannelAsync(OperationCancellationContext cancellationContext)
+        public Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
             return Task.FromResult(GetChannelHelper());

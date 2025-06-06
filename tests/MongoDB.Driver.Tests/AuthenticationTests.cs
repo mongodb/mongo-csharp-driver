@@ -338,8 +338,8 @@ namespace MongoDB.Driver.Tests
                     speculativeAuthenticatationShouldSucceedIfPossible)
                 {
                     var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
-                    var server = client.GetClusterInternal().SelectServer(serverSelector, OperationCancellationContext.NoTimeout);
-                    var channel = server.GetChannel(OperationCancellationContext.NoTimeout);
+                    var server = client.GetClusterInternal().SelectServer(serverSelector, OperationContext.NoTimeout);
+                    var channel = server.GetChannel(OperationContext.NoTimeout);
                     var helloResult = channel.ConnectionDescription.HelloResult;
                     helloResult.SpeculativeAuthenticate.Should().NotBeNull();
                 }

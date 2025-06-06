@@ -20,7 +20,7 @@ namespace MongoDB.Driver
 {
     internal abstract record OperationOptionsBase(TimeSpan Timeout)
     {
-        public OperationCancellationContext CreateCancellationContext(CancellationToken cancellationToken)
+        public OperationContext CreateCancellationContext(CancellationToken cancellationToken)
             => new (Timeout, cancellationToken);
     }
 }

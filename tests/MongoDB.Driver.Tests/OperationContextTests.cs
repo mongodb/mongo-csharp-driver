@@ -22,7 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    public class OperationCancellationContextTests
+    public class OperationContextTests
     {
         [Fact]
         public void Constructor_should_initialize_properties()
@@ -31,10 +31,10 @@ namespace MongoDB.Driver.Tests
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var cancellationContext = new OperationCancellationContext(timeout, cancellationToken);
+            var operationContext = new OperationContext(timeout, cancellationToken);
 
-            cancellationContext.Timeout.Should().Be(timeout);
-            cancellationContext.CancellationToken.Should().Be(cancellationToken);
+            operationContext.Timeout.Should().Be(timeout);
+            operationContext.CancellationToken.Should().Be(cancellationToken);
         }
 
         [Fact]
@@ -44,9 +44,9 @@ namespace MongoDB.Driver.Tests
             Thread.Sleep(10);
             stopwatch.Stop();
 
-            var cancellationContext = new OperationCancellationContext(stopwatch, TimeSpan.Zero, CancellationToken.None);
+            var operationContext = new OperationContext(stopwatch, TimeSpan.Zero, CancellationToken.None);
 
-            cancellationContext.Elapsed.Should().Be(stopwatch.Elapsed);
+            operationContext.Elapsed.Should().Be(stopwatch.Elapsed);
         }
 
         [Fact]
@@ -57,9 +57,9 @@ namespace MongoDB.Driver.Tests
             Thread.Sleep(10);
             stopwatch.Stop();
 
-            var cancellationContext = new OperationCancellationContext(stopwatch, timeout, CancellationToken.None);
+            var operationContext = new OperationContext(stopwatch, timeout, CancellationToken.None);
 
-            cancellationContext.RemainingTimeout.Should().Be(timeout - stopwatch.Elapsed);
+            operationContext.RemainingTimeout.Should().Be(timeout - stopwatch.Elapsed);
         }
 
         [Fact]
@@ -69,9 +69,9 @@ namespace MongoDB.Driver.Tests
             Thread.Sleep(10);
             stopwatch.Stop();
 
-            var cancellationContext = new OperationCancellationContext(stopwatch, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var operationContext = new OperationContext(stopwatch, Timeout.InfiniteTimeSpan, CancellationToken.None);
 
-            cancellationContext.RemainingTimeout.Should().Be(Timeout.InfiniteTimeSpan);
+            operationContext.RemainingTimeout.Should().Be(Timeout.InfiniteTimeSpan);
         }
 
         [Fact]
@@ -82,9 +82,9 @@ namespace MongoDB.Driver.Tests
             Thread.Sleep(10);
             stopwatch.Stop();
 
-            var cancellationContext = new OperationCancellationContext(stopwatch, timeout, CancellationToken.None);
+            var operationContext = new OperationContext(stopwatch, timeout, CancellationToken.None);
 
-            cancellationContext.RemainingTimeout.Should().Be(timeout - stopwatch.Elapsed);
+            operationContext.RemainingTimeout.Should().Be(timeout - stopwatch.Elapsed);
         }
 
         [Theory]
@@ -95,8 +95,8 @@ namespace MongoDB.Driver.Tests
             Thread.Sleep(waitTime);
             stopwatch.Stop();
 
-            var cancellationContext = new OperationCancellationContext(stopwatch, timeout, CancellationToken.None);
-            var result = cancellationContext.IsTimedOut();
+            var operationContext = new OperationContext(stopwatch, timeout, CancellationToken.None);
+            var result = operationContext.IsTimedOut();
 
             result.Should().Be(expected);
         }
@@ -112,8 +112,8 @@ namespace MongoDB.Driver.Tests
         [MemberData(nameof(WithTimeout_test_cases))]
         public void WithTimeout_should_calculate_proper_timeout(TimeSpan expected, TimeSpan originalTimeout, TimeSpan newTimeout)
         {
-            var cancellationContext = new OperationCancellationContext(new Stopwatch(), originalTimeout, CancellationToken.None);
-            var resultContext = cancellationContext.WithTimeout(newTimeout);
+            var operationContext = new OperationContext(new Stopwatch(), originalTimeout, CancellationToken.None);
+            var resultContext = operationContext.WithTimeout(newTimeout);
 
             resultContext.Timeout.Should().Be(expected);
         }

@@ -328,8 +328,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 PublishDescription(_endPoint);
 
                 var result = async ?
-                    await subject.SelectServerAsync(Mock.Of<IServerSelector>(), OperationCancellationContext.NoTimeout) :
-                    subject.SelectServer(Mock.Of<IServerSelector>(), OperationCancellationContext.NoTimeout);
+                    await subject.SelectServerAsync(Mock.Of<IServerSelector>(), OperationContext.NoTimeout) :
+                    subject.SelectServer(Mock.Of<IServerSelector>(), OperationContext.NoTimeout);
 
                 result.EndPoint.Should().Be(_endPoint);
             }
@@ -356,8 +356,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 }
 
                 var exception = async ?
-                    await Record.ExceptionAsync(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), OperationCancellationContext.NoTimeout)) :
-                    Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), OperationCancellationContext.NoTimeout));
+                    await Record.ExceptionAsync(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), OperationContext.NoTimeout)) :
+                    Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), OperationContext.NoTimeout));
 
                 var ex = exception.Should().BeOfType<TimeoutException>().Subject;
                 ex.Message.Should().StartWith($"A timeout occurred after {serverSelectionTimeout.TotalMilliseconds}ms selecting a server. Client view of cluster state is ");
@@ -387,7 +387,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 Exception exception;
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100)))
                 {
-                    var cancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+                    var cancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
                     exception = async ?
                         await Record.ExceptionAsync(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), cancellationContext)) :
                         Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), cancellationContext));

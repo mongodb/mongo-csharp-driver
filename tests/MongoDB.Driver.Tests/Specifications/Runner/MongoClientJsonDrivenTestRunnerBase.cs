@@ -456,11 +456,11 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     var serverAddress = EndPointHelper.Parse(settings.Server.ToString());
 
                     var selector = new EndPointServerSelector(serverAddress);
-                    _failPointServer = cluster.SelectServer(selector, OperationCancellationContext.NoTimeout);
+                    _failPointServer = cluster.SelectServer(selector, OperationContext.NoTimeout);
                 }
                 else
                 {
-                    _failPointServer = cluster.SelectServer(WritableServerSelector.Instance, OperationCancellationContext.NoTimeout);
+                    _failPointServer = cluster.SelectServer(WritableServerSelector.Instance, OperationContext.NoTimeout);
                 }
 
                 var session = NoCoreSession.NewHandle();

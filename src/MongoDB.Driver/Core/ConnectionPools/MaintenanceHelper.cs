@@ -117,8 +117,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 using (var poolAwaiter = _connectionPool.CreateMaxConnectionsAwaiter())
                 {
-                    var cancellationContext = new OperationCancellationContext(TimeSpan.FromMilliseconds(20), cancellationToken);
-                    var entered = poolAwaiter.WaitSignaled(cancellationContext.RemainingTimeout, cancellationContext.CancellationToken);
+                    var operationContext = new OperationContext(TimeSpan.FromMilliseconds(20), cancellationToken);
+                    var entered = poolAwaiter.WaitSignaled(operationContext.RemainingTimeout, operationContext.CancellationToken);
                     if (!entered)
                     {
                         return;
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     using (var connectionCreator = new ConnectionCreator(_connectionPool))
                     {
-                        var connection = connectionCreator.CreateOpened(cancellationContext);
+                        var connection = connectionCreator.CreateOpened(operationContext);
                         _connectionPool.ConnectionHolder.Return(connection);
                     }
                 }

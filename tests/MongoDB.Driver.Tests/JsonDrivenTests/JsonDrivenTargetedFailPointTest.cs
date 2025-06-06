@@ -33,14 +33,14 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
             var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);
-            return TestRunner.FailPointCluster.SelectServer(pinnedServerSelector, OperationCancellationContext.NoTimeout);
+            return TestRunner.FailPointCluster.SelectServer(pinnedServerSelector, OperationContext.NoTimeout);
         }
 
         protected async override Task<IServer> GetFailPointServerAsync()
         {
             var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
             var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);
-            return await TestRunner.FailPointCluster.SelectServerAsync(pinnedServerSelector, OperationCancellationContext.NoTimeout).ConfigureAwait(false);
+            return await TestRunner.FailPointCluster.SelectServerAsync(pinnedServerSelector, OperationContext.NoTimeout).ConfigureAwait(false);
         }
 
         // private methods

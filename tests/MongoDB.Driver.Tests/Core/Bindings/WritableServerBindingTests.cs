@@ -84,8 +84,8 @@ namespace MongoDB.Driver.Core.Bindings
             subject.Dispose();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationCancellationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -115,19 +115,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout)).Returns(Task.FromResult(selectedServer));
 
-                await subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout);
+                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout)).Returns(selectedServer);
 
-                subject.GetReadChannelSource(OperationCancellationContext.NoTimeout);
+                subject.GetReadChannelSource(OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout), Times.Once);
             }
         }
 
@@ -141,8 +141,8 @@ namespace MongoDB.Driver.Core.Bindings
             subject.Dispose();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetWriteChannelSourceAsync(OperationCancellationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetWriteChannelSource(OperationCancellationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetWriteChannelSource(OperationContext.NoTimeout));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -171,19 +171,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout)).Returns(Task.FromResult(selectedServer));
 
-                await subject.GetWriteChannelSourceAsync(OperationCancellationContext.NoTimeout);
+                await subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout)).Returns(selectedServer);
 
-                subject.GetWriteChannelSource(OperationCancellationContext.NoTimeout);
+                subject.GetWriteChannelSource(OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout), Times.Once);
             }
         }
 
@@ -212,19 +212,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")), OperationCancellationContext.NoTimeout)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")), OperationContext.NoTimeout)).Returns(Task.FromResult(selectedServer));
 
-                await subject.GetWriteChannelSourceAsync(deprioritizedServers, OperationCancellationContext.NoTimeout);
+                await subject.GetWriteChannelSourceAsync(deprioritizedServers, OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")), OperationCancellationContext.NoTimeout), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")), OperationContext.NoTimeout), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")), OperationCancellationContext.NoTimeout)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.Is<CompositeServerSelector>(cp => cp.ToString().Contains("PriorityServerSelector")), OperationContext.NoTimeout)).Returns(selectedServer);
 
-                subject.GetWriteChannelSource(deprioritizedServers, OperationCancellationContext.NoTimeout);
+                subject.GetWriteChannelSource(deprioritizedServers, OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServer(It.Is<CompositeServerSelector>(c => c.ToString().Contains("PriorityServerSelector")), OperationCancellationContext.NoTimeout), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.Is<CompositeServerSelector>(c => c.ToString().Contains("PriorityServerSelector")), OperationContext.NoTimeout), Times.Once);
             }
         }
 
@@ -256,19 +256,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout)).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout)).Returns(Task.FromResult(selectedServer));
 
-                await subject.GetWriteChannelSourceAsync(mayUseSecondary, OperationCancellationContext.NoTimeout);
+                await subject.GetWriteChannelSourceAsync(mayUseSecondary, OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), OperationCancellationContext.NoTimeout), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), OperationContext.NoTimeout), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationCancellationContext.NoTimeout)).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), OperationContext.NoTimeout)).Returns(selectedServer);
 
-                subject.GetWriteChannelSource(mayUseSecondary, OperationCancellationContext.NoTimeout);
+                subject.GetWriteChannelSource(mayUseSecondary, OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServer(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), OperationCancellationContext.NoTimeout), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), OperationContext.NoTimeout), Times.Once);
             }
         }
 

@@ -410,8 +410,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             void CheckOut(BsonDocument op, IConnectionPool cp, ConcurrentDictionary<string, IConnection> cm)
             {
                 var conn = async ?
-                    cp.AcquireConnectionAsync(OperationCancellationContext.NoTimeout).GetAwaiter().GetResult() :
-                    cp.AcquireConnection(OperationCancellationContext.NoTimeout);
+                    cp.AcquireConnectionAsync(OperationContext.NoTimeout).GetAwaiter().GetResult() :
+                    cp.AcquireConnection(OperationContext.NoTimeout);
 
                 if (op.TryGetValue("label", out var label))
                 {
@@ -671,7 +671,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         connectionIdLocalValueProvider: connectionIdProvider))
                     .Subscribe(eventCapturer));
 
-                var server = cluster.SelectServer(WritableServerSelector.Instance, OperationCancellationContext.NoTimeout);
+                var server = cluster.SelectServer(WritableServerSelector.Instance, OperationContext.NoTimeout);
                 connectionPool = server._connectionPool();
 
                 if (test.TryGetValue(Schema.Intergration.failPoint, out var failPointDocument))
@@ -729,7 +729,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionPoolClearedEvent), TimeSpan.FromMilliseconds(500));
                     }
 
-                    var failPointServer = CoreTestConfiguration.Cluster.SelectServer(new EndPointServerSelector(server.EndPoint), OperationCancellationContext.NoTimeout);
+                    var failPointServer = CoreTestConfiguration.Cluster.SelectServer(new EndPointServerSelector(server.EndPoint), OperationContext.NoTimeout);
                     failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointDocument.AsBsonDocument, withAsync: async);
 
                     if (resetPool)

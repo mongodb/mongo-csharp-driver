@@ -160,8 +160,8 @@ namespace MongoDB.Driver.Core.Bindings
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 
             var result = async ?
-                await subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout) :
-                subject.GetReadChannelSource(OperationCancellationContext.NoTimeout);
+                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout) :
+                subject.GetReadChannelSource(OperationContext.NoTimeout);
 
             var newHandle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
             var referenceCounted = newHandle._reference();
@@ -177,8 +177,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = CreateDisposedSubject();
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationCancellationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);

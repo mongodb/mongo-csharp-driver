@@ -62,20 +62,20 @@ namespace MongoDB.Driver.Core.Operations
             new(_collectionNamespace.DatabaseNamespace, CreateCommand(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
         /// <inheritdoc/>
-        public BsonDocument Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (EventContext.BeginOperation("dropSearchIndex"))
-            using (var channelSource = binding.GetWriteChannelSource(cancellationContext))
-            using (var channel = channelSource.GetChannel(cancellationContext))
+            using (var channelSource = binding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
 
                 try
                 {
-                    return operation.Execute(channelBinding, cancellationContext);
+                    return operation.Execute(channelBinding, operationContext);
                 }
                 catch (MongoCommandException ex) when (ShouldIgnoreException(ex))
                 {
@@ -85,20 +85,20 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (EventContext.BeginOperation("dropSearchIndex"))
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
 
                 try
                 {
-                    return await operation.ExecuteAsync(channelBinding, cancellationContext).ConfigureAwait(false);
+                    return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
                 }
                 catch (MongoCommandException ex) when (ShouldIgnoreException(ex))
                 {

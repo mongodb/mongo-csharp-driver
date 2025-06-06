@@ -450,25 +450,25 @@ namespace MongoDB.Driver.Core.Operations
             if (async)
             {
                 mockCursor.Setup(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(CreateFaultedTask<bool>(resumableException));
-                mockOperation.Setup(o => o.ResumeAsync(mockBinding.Object, It.IsAny<OperationCancellationContext>())).Returns(Task.FromResult(mockResumedCursor.Object));
+                mockOperation.Setup(o => o.ResumeAsync(mockBinding.Object, It.IsAny<OperationContext>())).Returns(Task.FromResult(mockResumedCursor.Object));
                 mockResumedCursor.Setup(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(expectedResult));
 
                 result = subject.MoveNextAsync(It.IsAny<CancellationToken>()).GetAwaiter().GetResult();
 
                 mockCursor.Verify(c => c.MoveNextAsync(It.IsAny<CancellationToken>()), Times.Once);
-                mockOperation.Verify(o => o.ResumeAsync(mockBinding.Object, It.IsAny<OperationCancellationContext>()), Times.Once);
+                mockOperation.Verify(o => o.ResumeAsync(mockBinding.Object, It.IsAny<OperationContext>()), Times.Once);
                 mockResumedCursor.Verify(c => c.MoveNextAsync(It.IsAny<CancellationToken>()), Times.Once);
             }
             else
             {
                 mockCursor.Setup(c => c.MoveNext(It.IsAny<CancellationToken>())).Throws(resumableException);
-                mockOperation.Setup(o => o.Resume(mockBinding.Object, It.IsAny<OperationCancellationContext>())).Returns(mockResumedCursor.Object);
+                mockOperation.Setup(o => o.Resume(mockBinding.Object, It.IsAny<OperationContext>())).Returns(mockResumedCursor.Object);
                 mockResumedCursor.Setup(c => c.MoveNext(It.IsAny<CancellationToken>())).Returns(expectedResult);
 
                 result = subject.MoveNext(It.IsAny<CancellationToken>());
 
                 mockCursor.Verify(c => c.MoveNext(It.IsAny<CancellationToken>()), Times.Exactly(2));
-                mockOperation.Verify(o => o.Resume(mockBinding.Object, It.IsAny<OperationCancellationContext>()), Times.Once);
+                mockOperation.Verify(o => o.Resume(mockBinding.Object, It.IsAny<OperationContext>()), Times.Once);
                 mockResumedCursor.Verify(c => c.MoveNext(It.IsAny<CancellationToken>()), Times.Once);
             }
 

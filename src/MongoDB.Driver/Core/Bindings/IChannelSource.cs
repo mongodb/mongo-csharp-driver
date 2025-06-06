@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Core.Bindings
         ServerDescription ServerDescription { get; }
         ICoreSessionHandle Session { get; }
 
-        IChannelHandle GetChannel(OperationCancellationContext cancellationContext);
-        Task<IChannelHandle> GetChannelAsync(OperationCancellationContext cancellationContext);
+        IChannelHandle GetChannel(OperationContext operationContext);
+        Task<IChannelHandle> GetChannelAsync(OperationContext operationContext);
     }
 
     internal interface IChannelSourceHandle : IChannelSource

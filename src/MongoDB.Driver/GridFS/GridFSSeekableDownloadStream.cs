@@ -173,8 +173,8 @@ namespace MongoDB.Driver.GridFS
         {
             var operation = CreateGetChunkOperation(n);
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
-            using (var cursor = operation.Execute(Binding, operationCancellationContext))
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            using (var cursor = operation.Execute(Binding, operationContext))
             {
                 var documents = cursor.ToList();
                 _chunk = GetChunkHelper(n, documents);
@@ -186,8 +186,8 @@ namespace MongoDB.Driver.GridFS
         {
             var operation = CreateGetChunkOperation(n);
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
-            using (var cursor = await operation.ExecuteAsync(Binding, operationCancellationContext).ConfigureAwait(false))
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            using (var cursor = await operation.ExecuteAsync(Binding, operationContext).ConfigureAwait(false))
             {
                 var documents = await cursor.ToListAsync().ConfigureAwait(false);
                 _chunk = GetChunkHelper(n, documents);

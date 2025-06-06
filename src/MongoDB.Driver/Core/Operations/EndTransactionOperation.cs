@@ -50,29 +50,29 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract string CommandName { get; }
 
-        public virtual BsonDocument Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public virtual BsonDocument Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = binding.GetReadChannelSource(cancellationContext))
-            using (var channel = channelSource.GetChannel(cancellationContext))
+            using (var channelSource = binding.GetReadChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return operation.Execute(channelBinding, cancellationContext);
+                return operation.Execute(channelBinding, operationContext);
             }
         }
 
-        public virtual async Task<BsonDocument> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public virtual async Task<BsonDocument> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false))
+            using (var channelSource = await binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(channelBinding, cancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
             }
         }
 
@@ -133,11 +133,11 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override string CommandName => "commitTransaction";
 
-        public override BsonDocument Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public override BsonDocument Execute(IReadBinding binding, OperationContext operationContext)
         {
             try
             {
-                return base.Execute(binding, cancellationContext);
+                return base.Execute(binding, operationContext);
             }
             catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
             {
@@ -146,11 +146,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public override async Task<BsonDocument> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public override async Task<BsonDocument> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             try
             {
-                return await base.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
+                return await base.ExecuteAsync(binding, operationContext).ConfigureAwait(false);
             }
             catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
             {

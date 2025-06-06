@@ -82,8 +82,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
             for (int i = 0; i < testData.iterations; i++)
             {
                 var selectedServer = testData.async
-                    ? cluster.SelectServerAsync(readPreferenceSelector, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult()
-                    : cluster.SelectServer(readPreferenceSelector, OperationCancellationContext.NoTimeout);
+                    ? cluster.SelectServerAsync(readPreferenceSelector, OperationContext.NoTimeout).GetAwaiter().GetResult()
+                    : cluster.SelectServer(readPreferenceSelector, OperationContext.NoTimeout);
 
                 selectionHistogram[selectedServer.ServerId]++;
             }

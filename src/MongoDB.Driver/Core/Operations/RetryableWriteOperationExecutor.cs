@@ -24,26 +24,26 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableWriteOperationExecutor
     {
         // public static methods
-        public static TResult Execute<TResult>(IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, OperationCancellationContext cancellationContext)
+        public static TResult Execute<TResult>(IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, OperationContext operationContext)
         {
-            using (var context = RetryableWriteContext.Create(binding, retryRequested, cancellationContext))
+            using (var context = RetryableWriteContext.Create(binding, retryRequested, operationContext))
             {
-                return Execute(operation, context, cancellationContext);
+                return Execute(operation, context, operationContext);
             }
         }
 
-        public static TResult Execute<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, OperationCancellationContext cancellationContext)
+        public static TResult Execute<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, OperationContext operationContext)
         {
             if (!AreRetriesAllowed(operation, context))
             {
-                return operation.ExecuteAttempt(context, 1, null, cancellationContext);
+                return operation.ExecuteAttempt(context, 1, null, operationContext);
             }
 
             var transactionNumber = context.Binding.Session.AdvanceTransactionNumber();
             Exception originalException;
             try
             {
-                return operation.ExecuteAttempt(context, 1, transactionNumber, cancellationContext);
+                return operation.ExecuteAttempt(context, 1, transactionNumber, operationContext);
             }
             catch (Exception ex) when (RetryabilityHelper.IsRetryableWriteException(ex))
             {
@@ -52,8 +52,8 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(context.Binding.GetWriteChannelSource(new[] { context.ChannelSource.ServerDescription }, cancellationContext));
-                context.ReplaceChannel(context.ChannelSource.GetChannel(cancellationContext));
+                context.ReplaceChannelSource(context.Binding.GetWriteChannelSource(new[] { context.ChannelSource.ServerDescription }, operationContext));
+                context.ReplaceChannel(context.ChannelSource.GetChannel(operationContext));
             }
             catch
             {
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                return operation.ExecuteAttempt(context, 2, transactionNumber, cancellationContext);
+                return operation.ExecuteAttempt(context, 2, transactionNumber, operationContext);
             }
             catch (Exception ex) when (ShouldThrowOriginalException(ex))
             {
@@ -75,26 +75,26 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async static Task<TResult> ExecuteAsync<TResult>(IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, OperationCancellationContext cancellationContext)
+        public async static Task<TResult> ExecuteAsync<TResult>(IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, OperationContext operationContext)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(binding, retryRequested, cancellationContext).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(binding, retryRequested, operationContext).ConfigureAwait(false))
             {
-                return await ExecuteAsync(operation, context, cancellationContext).ConfigureAwait(false);
+                return await ExecuteAsync(operation, context, operationContext).ConfigureAwait(false);
             }
         }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, OperationCancellationContext cancellationContext)
+        public static async Task<TResult> ExecuteAsync<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, OperationContext operationContext)
         {
             if (!AreRetriesAllowed(operation, context))
             {
-                return await operation.ExecuteAttemptAsync(context, 1, null, cancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(context, 1, null, operationContext).ConfigureAwait(false);
             }
 
             var transactionNumber = context.Binding.Session.AdvanceTransactionNumber();
             Exception originalException;
             try
             {
-                return await operation.ExecuteAttemptAsync(context, 1, transactionNumber, cancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(context, 1, transactionNumber, operationContext).ConfigureAwait(false);
             }
             catch (Exception ex) when (RetryabilityHelper.IsRetryableWriteException(ex))
             {
@@ -103,8 +103,8 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(await context.Binding.GetWriteChannelSourceAsync(new[] { context.ChannelSource.ServerDescription }, cancellationContext).ConfigureAwait(false));
-                context.ReplaceChannel(await context.ChannelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false));
+                context.ReplaceChannelSource(await context.Binding.GetWriteChannelSourceAsync(new[] { context.ChannelSource.ServerDescription }, operationContext).ConfigureAwait(false));
+                context.ReplaceChannel(await context.ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
             }
             catch
             {
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                return await operation.ExecuteAttemptAsync(context, 2, transactionNumber, cancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(context, 2, transactionNumber, operationContext).ConfigureAwait(false);
             }
             catch (Exception ex) when (ShouldThrowOriginalException(ex))
             {

@@ -139,18 +139,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
         internal ListConnectionHolder ConnectionHolder => _connectionHolder;
 
         // public methods
-        public IConnectionHandle AcquireConnection(OperationCancellationContext cancellationContext)
+        public IConnectionHandle AcquireConnection(OperationContext operationContext)
         {
-            cancellationContext = cancellationContext.WithTimeout(Settings.WaitQueueTimeout);
+            operationContext = operationContext.WithTimeout(Settings.WaitQueueTimeout);
             using var helper = new AcquireConnectionHelper(this);
-            return helper.AcquireConnection(cancellationContext);
+            return helper.AcquireConnection(operationContext);
         }
 
-        public async Task<IConnectionHandle> AcquireConnectionAsync(OperationCancellationContext cancellationContext)
+        public async Task<IConnectionHandle> AcquireConnectionAsync(OperationContext operationContext)
         {
-            cancellationContext = cancellationContext.WithTimeout(Settings.WaitQueueTimeout);
+            operationContext = operationContext.WithTimeout(Settings.WaitQueueTimeout);
             using var helper = new AcquireConnectionHelper(this);
-            return await helper.AcquireConnectionAsync(cancellationContext).ConfigureAwait(false);
+            return await helper.AcquireConnectionAsync(operationContext).ConfigureAwait(false);
         }
 
         public void Clear(bool closeInUseConnections = false)

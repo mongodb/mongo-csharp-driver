@@ -149,8 +149,8 @@ namespace MongoDB.Driver.Core.Bindings
             mockChannel.Setup(m => m.Fork()).Returns(expectedResult);
 
             var result = async ?
-                await subject.GetChannelAsync(OperationCancellationContext.NoTimeout) :
-                subject.GetChannel(OperationCancellationContext.NoTimeout);
+                await subject.GetChannelAsync(OperationContext.NoTimeout) :
+                subject.GetChannel(OperationContext.NoTimeout);
 
             result.Should().BeSameAs(expectedResult);
             mockChannel.Verify(m => m.Fork(), Times.Once);
@@ -164,8 +164,8 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = CreateDisposedSubject();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationCancellationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetChannel(OperationCancellationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetChannel(OperationContext.NoTimeout));
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);

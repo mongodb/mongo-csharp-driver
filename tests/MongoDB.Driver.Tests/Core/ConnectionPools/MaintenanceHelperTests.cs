@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 IConnection acquiredConnection = null;
                 if (checkOutConnection)
                 {
-                    acquiredConnection = pool.AcquireConnection(OperationCancellationContext.NoTimeout);
+                    acquiredConnection = pool.AcquireConnection(OperationContext.NoTimeout);
                     acquiredConnection.ConnectionId.LongLocalValue.Should().Be(1);
                 }
 

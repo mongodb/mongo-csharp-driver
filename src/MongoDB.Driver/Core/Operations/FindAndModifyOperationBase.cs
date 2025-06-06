@@ -84,39 +84,39 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public TResult Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public TResult Execute(IWriteBinding binding, OperationContext operationContext)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(this, binding, _retryRequested, cancellationContext);
+                return RetryableWriteOperationExecutor.Execute(this, binding, _retryRequested, operationContext);
             }
         }
 
-        public TResult Execute(RetryableWriteContext context, OperationCancellationContext cancellationContext)
+        public TResult Execute(RetryableWriteContext context, OperationContext operationContext)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.Execute(this, context, cancellationContext);
+                return RetryableWriteOperationExecutor.Execute(this, context, operationContext);
             }
         }
 
-        public Task<TResult> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public Task<TResult> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(this, binding, _retryRequested, cancellationContext);
+                return RetryableWriteOperationExecutor.ExecuteAsync(this, binding, _retryRequested, operationContext);
             }
         }
 
-        public Task<TResult> ExecuteAsync(RetryableWriteContext context, OperationCancellationContext cancellationContext)
+        public Task<TResult> ExecuteAsync(RetryableWriteContext context, OperationContext operationContext)
         {
             using (BeginOperation())
             {
-                return RetryableWriteOperationExecutor.ExecuteAsync(this, context, cancellationContext);
+                return RetryableWriteOperationExecutor.ExecuteAsync(this, context, operationContext);
             }
         }
 
-        public TResult ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext)
+        public TResult ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, OperationContext operationContext)
         {
             var binding = context.Binding;
             var channelSource = context.ChannelSource;
@@ -125,14 +125,14 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = operation.Execute(channelBinding, cancellationContext))
+                using (var rawBsonDocument = operation.Execute(channelBinding, operationContext))
                 {
                     return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
                 }
             }
         }
 
-        public async Task<TResult> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext)
+        public async Task<TResult> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, OperationContext operationContext)
         {
             var binding = context.Binding;
             var channelSource = context.ChannelSource;
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = await operation.ExecuteAsync(channelBinding, cancellationContext).ConfigureAwait(false))
+                using (var rawBsonDocument = await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false))
                 {
                     return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
                 }

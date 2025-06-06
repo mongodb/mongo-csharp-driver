@@ -88,17 +88,17 @@ namespace MongoDB.Driver.Core.Operations
             return new[] { payload };
         }
 
-        public new ClientBulkWriteResult Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public new ClientBulkWriteResult Execute(IWriteBinding binding, OperationContext operationContext)
         {
             using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationContext);
+                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), operationContext);
                 BsonDocument serverResponse = null;
                 try
                 {
-                    serverResponse = base.Execute(context, cancellationContext);
+                    serverResponse = base.Execute(context, operationContext);
                 }
                 catch (MongoWriteConcernException concernException)
                 {
@@ -123,7 +123,8 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         try
                         {
-                            while (individualResults.MoveNext(cancellationContext.CancellationToken))
+                            // TODO: CSOT implement a way to support timeout in cursor methods
+                            while (individualResults.MoveNext(operationContext.CancellationToken))
                             {
                                 PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
                             }
@@ -145,17 +146,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public new async Task<ClientBulkWriteResult> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public new async Task<ClientBulkWriteResult> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
         {
             using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), cancellationContext);
+                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), operationContext);
                 BsonDocument serverResponse = null;
                 try
                 {
-                    serverResponse = await base.ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
+                    serverResponse = await base.ExecuteAsync(context, operationContext).ConfigureAwait(false);
                 }
                 catch (MongoWriteConcernException concernException)
                 {
@@ -180,7 +181,8 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         try
                         {
-                            while (await individualResults.MoveNextAsync(cancellationContext.CancellationToken).ConfigureAwait(false))
+                            // TODO: CSOT implement a way to support timeout in cursor methods
+                            while (await individualResults.MoveNextAsync(operationContext.CancellationToken).ConfigureAwait(false))
                             {
                                 PopulateIndividualResponses(individualResults.Current, bulkWriteResults);
                             }

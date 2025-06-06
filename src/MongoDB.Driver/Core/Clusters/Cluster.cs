@@ -216,13 +216,13 @@ namespace MongoDB.Driver.Core.Clusters
             DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(oldDescription, newDescription));
         }
 
-        public IServer SelectServer(IServerSelector selector, OperationCancellationContext cancellationContext)
+        public IServer SelectServer(IServerSelector selector, OperationContext operationContext)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));
-            Ensure.IsNotNull(cancellationContext, nameof(cancellationContext));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
 
-            var serverSelectionCancellationContext = cancellationContext.WithTimeout(Settings.ServerSelectionTimeout);
+            var serverSelectionCancellationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
 
             using (var helper = new SelectServerHelper(this, selector))
             {
@@ -255,13 +255,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, OperationCancellationContext cancellationContext)
+        public async Task<IServer> SelectServerAsync(IServerSelector selector, OperationContext operationContext)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));
-            Ensure.IsNotNull(cancellationContext, nameof(cancellationContext));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
 
-            var serverSelectionCancellationContext = cancellationContext.WithTimeout(Settings.ServerSelectionTimeout);
+            var serverSelectionCancellationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
 
             using (var helper = new SelectServerHelper(this, selector))
             {
@@ -413,7 +413,7 @@ namespace MongoDB.Driver.Core.Clusters
                     EventContext.OperationName));
             }
 
-            public IServer SelectServer(OperationCancellationContext cancellationContext)
+            public IServer SelectServer(OperationContext operationContext)
             {
                 var clusterDescription = _cluster._descriptionWithChangedTaskCompletionSource;
                 _descriptionChangedTask = clusterDescription.Changed;
@@ -465,7 +465,7 @@ namespace MongoDB.Driver.Core.Clusters
                         _description,
                         _selector,
                         selectedServer.Description,
-                        cancellationContext.Elapsed,
+                        operationContext.Elapsed,
                         EventContext.OperationId,
                         EventContext.OperationName));
                 }
@@ -473,26 +473,26 @@ namespace MongoDB.Driver.Core.Clusters
                 return selectedServer;
             }
 
-            public void WaitForDescriptionChanged(OperationCancellationContext cancellationContext)
+            public void WaitForDescriptionChanged(OperationContext operationContext)
             {
-                EnsureEnteredServerSelectionQueue(cancellationContext);
-                cancellationContext.WaitTask(DescriptionChangedTask);
+                EnsureEnteredServerSelectionQueue(operationContext);
+                operationContext.WaitTask(DescriptionChangedTask);
             }
 
-            public Task WaitForDescriptionChangedAsync(OperationCancellationContext cancellationContext)
+            public Task WaitForDescriptionChangedAsync(OperationContext operationContext)
             {
-                EnsureEnteredServerSelectionQueue(cancellationContext);
-                return cancellationContext.WaitTaskAsync(DescriptionChangedTask);
+                EnsureEnteredServerSelectionQueue(operationContext);
+                return operationContext.WaitTaskAsync(DescriptionChangedTask);
             }
 
-            private void EnsureEnteredServerSelectionQueue(OperationCancellationContext cancellationContext)
+            private void EnsureEnteredServerSelectionQueue(OperationContext operationContext)
             {
                 if (_serverSelectionWaitQueueEntered)
                 {
                     return;
                 }
 
-                _cluster.EnterServerSelectionWaitQueue(_selector, _description, EventContext.OperationId, cancellationContext.RemainingTimeout);
+                _cluster.EnterServerSelectionWaitQueue(_selector, _description, EventContext.OperationId, operationContext.RemainingTimeout);
                 _serverSelectionWaitQueueEntered = true;
             }
 

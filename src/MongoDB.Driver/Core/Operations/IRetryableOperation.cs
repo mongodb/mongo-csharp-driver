@@ -19,27 +19,27 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal interface IExecutableInRetryableReadContext<TResult>
     {
-        TResult Execute(RetryableReadContext context, OperationCancellationContext cancellationContext);
-        Task<TResult> ExecuteAsync(RetryableReadContext context, OperationCancellationContext cancellationContext);
+        TResult Execute(RetryableReadContext context, OperationContext operationContext);
+        Task<TResult> ExecuteAsync(RetryableReadContext context, OperationContext operationContext);
     }
 
     internal interface IExecutableInRetryableWriteContext<TResult>
     {
-        TResult Execute(RetryableWriteContext context, OperationCancellationContext cancellationContext);
-        Task<TResult> ExecuteAsync(RetryableWriteContext context, OperationCancellationContext cancellationContext);
+        TResult Execute(RetryableWriteContext context, OperationContext operationContext);
+        Task<TResult> ExecuteAsync(RetryableWriteContext context, OperationContext operationContext);
     }
 
     internal interface IRetryableReadOperation<TResult> : IExecutableInRetryableReadContext<TResult>
     {
-        TResult ExecuteAttempt(RetryableReadContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext);
-        Task<TResult> ExecuteAttemptAsync(RetryableReadContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext);
+        TResult ExecuteAttempt(RetryableReadContext context, int attempt, long? transactionNumber, OperationContext operationContext);
+        Task<TResult> ExecuteAttemptAsync(RetryableReadContext context, int attempt, long? transactionNumber, OperationContext operationContext);
     }
 
     internal interface IRetryableWriteOperation<TResult> : IExecutableInRetryableWriteContext<TResult>
     {
         WriteConcern WriteConcern { get; }
 
-        TResult ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext);
-        Task<TResult> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext);
+        TResult ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, OperationContext operationContext);
+        Task<TResult> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, OperationContext operationContext);
     }
 }

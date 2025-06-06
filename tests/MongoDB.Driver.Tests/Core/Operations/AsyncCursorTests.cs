@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSource>();
             mockChannelSource
-                .Setup(c => c.GetChannel(It.IsAny<OperationCancellationContext>()))
+                .Setup(c => c.GetChannel(It.IsAny<OperationContext>()))
                 .Throws<Exception>();
 
             var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSource>();
             mockChannelSource
-                .Setup(c => c.GetChannel(It.IsAny<OperationCancellationContext>()))
+                .Setup(c => c.GetChannel(It.IsAny<OperationContext>()))
                 .Throws<Exception>();
 
             var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
@@ -385,7 +385,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var mockChannelSource = new Mock<IChannelSource>();
             mockChannelSource
-                .Setup(c => c.GetChannel(It.IsAny<OperationCancellationContext>()))
+                .Setup(c => c.GetChannel(It.IsAny<OperationContext>()))
                 .Returns(mockChannelHandle.Object);
 
             var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
@@ -429,7 +429,7 @@ namespace MongoDB.Driver.Core.Operations
             var sameSessionWasUsed = false;
             if (async)
             {
-                mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationCancellationContext>())).Returns(Task.FromResult(channel));
+                mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channel));
                 mockChannel
                     .Setup(m => m.CommandAsync(
                         session,
@@ -451,7 +451,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationCancellationContext>())).Returns(channel);
+                mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
                 mockChannel
                     .Setup(m => m.Command(
                         session,
@@ -537,7 +537,7 @@ namespace MongoDB.Driver.Core.Operations
             if (async)
             {
                 mockChannelSource
-                    .Setup(c => c.GetChannelAsync(It.IsAny<OperationCancellationContext>()))
+                    .Setup(c => c.GetChannelAsync(It.IsAny<OperationContext>()))
                     .ReturnsAsync(mockChannelHandle.Object);
 
                 mockChannelHandle
@@ -564,7 +564,7 @@ namespace MongoDB.Driver.Core.Operations
             else
             {
                 mockChannelSource
-                    .Setup(c => c.GetChannel(It.IsAny<OperationCancellationContext>()))
+                    .Setup(c => c.GetChannel(It.IsAny<OperationContext>()))
                     .Returns(mockChannelHandle.Object);
 
                 mockChannelHandle
@@ -651,8 +651,8 @@ namespace MongoDB.Driver.Core.Operations
 
             _session.ReferenceCount().Should().Be(1);
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.Primary, _session.Fork()))
-            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(OperationCancellationContext.NoTimeout))
-            using (var channel = channelSource.GetChannel(OperationCancellationContext.NoTimeout))
+            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(OperationContext.NoTimeout))
+            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
             {
                 var query = new BsonDocument();
                 long cursorId;

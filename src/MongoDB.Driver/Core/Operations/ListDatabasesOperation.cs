@@ -86,26 +86,26 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var reply = operation.Execute(binding, cancellationContext);
+                var reply = operation.Execute(binding, operationContext);
                 return CreateCursor(reply);
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var reply = await operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
+                var reply = await operation.ExecuteAsync(binding, operationContext).ConfigureAwait(false);
                 return CreateCursor(reply);
             }
         }

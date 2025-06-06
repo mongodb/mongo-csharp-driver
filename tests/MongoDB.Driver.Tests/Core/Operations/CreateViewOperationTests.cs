@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Filter = new BsonDocument("name", viewName)
             };
-            return listCollectionsOperation.Execute(binding, OperationCancellationContext.NoTimeout).Single();
+            return listCollectionsOperation.Execute(binding, OperationContext.NoTimeout).Single();
         }
     }
 }

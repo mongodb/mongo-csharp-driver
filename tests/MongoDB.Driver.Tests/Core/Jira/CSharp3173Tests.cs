@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 // The next hello or legacy hello response will be delayed because the waiting in the mock.Callbacks
                 cluster.Initialize();
 
-                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), OperationCancellationContext.NoTimeout);
+                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), OperationContext.NoTimeout);
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
@@ -86,11 +86,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 Exception exception;
                 if (async)
                 {
-                    exception = Record.Exception(() => selectedServer.GetChannelAsync(OperationCancellationContext.NoTimeout).GetAwaiter().GetResult());
+                    exception = Record.Exception(() => selectedServer.GetChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult());
                 }
                 else
                 {
-                    exception = Record.Exception(() => selectedServer.GetChannel(OperationCancellationContext.NoTimeout));
+                    exception = Record.Exception(() => selectedServer.GetChannel(OperationContext.NoTimeout));
                 }
 
                 var e = exception.Should().BeOfType<MongoConnectionException>().Subject;
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 }
 
                 // ensure that a new server can be selected
-                selectedServer = cluster.SelectServer(WritableServerSelector.Instance, OperationCancellationContext.NoTimeout);
+                selectedServer = cluster.SelectServer(WritableServerSelector.Instance, OperationContext.NoTimeout);
 
                 // ensure that the selected server is not the same as the initial
                 selectedServer.EndPoint.Should().Be(__endPoint2);
@@ -187,11 +187,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
             {
                 var dnsException = CreateDnsException(connection.ConnectionId, from: "pool");
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnection(It.IsAny<OperationCancellationContext>()))
+                    .Setup(c => c.AcquireConnection(It.IsAny<OperationContext>()))
                     .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
                     .Throws(dnsException); // throw command dns exception
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<OperationCancellationContext>()))
+                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                     .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
                     .Throws(dnsException); // throw command dns exception
             }

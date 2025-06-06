@@ -54,28 +54,28 @@ namespace MongoDB.Driver.Core.Operations
 
         // public methods
         /// <inheritdoc/>
-        public BsonDocument Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
         {
             using (EventContext.BeginOperation("createSearchIndexes"))
-            using (var channelSource = binding.GetWriteChannelSource(cancellationContext))
-            using (var channel = channelSource.GetChannel(cancellationContext))
+            using (var channelSource = binding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return operation.Execute(channelBinding, cancellationContext);
+                return operation.Execute(channelBinding, operationContext);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
         {
             using (EventContext.BeginOperation("createSearchIndexes"))
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(channelBinding, cancellationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
             }
         }
 

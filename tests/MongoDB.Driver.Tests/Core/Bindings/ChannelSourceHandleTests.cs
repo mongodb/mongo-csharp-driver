@@ -62,8 +62,8 @@ namespace MongoDB.Driver.Core.Bindings
             subject.Dispose();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationCancellationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetChannel(OperationCancellationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetChannel(OperationContext.NoTimeout));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -78,15 +78,15 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                await subject.GetChannelAsync(OperationCancellationContext.NoTimeout);
+                await subject.GetChannelAsync(OperationContext.NoTimeout);
 
-                _mockChannelSource.Verify(s => s.GetChannelAsync(It.IsAny<OperationCancellationContext>()), Times.Once);
+                _mockChannelSource.Verify(s => s.GetChannelAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                subject.GetChannel(OperationCancellationContext.NoTimeout);
+                subject.GetChannel(OperationContext.NoTimeout);
 
-                _mockChannelSource.Verify(s => s.GetChannel(It.IsAny<OperationCancellationContext>()), Times.Once);
+                _mockChannelSource.Verify(s => s.GetChannel(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 

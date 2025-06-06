@@ -170,13 +170,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public IServer SelectServer(IServerSelector selector, OperationCancellationContext cancellationContext)
+        public IServer SelectServer(IServerSelector selector, OperationContext operationContext)
         {
             Ensure.IsNotNull(selector, nameof(selector));
-            Ensure.IsNotNull(cancellationContext, nameof(cancellationContext));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
 
-            var serverSelectionCancellationContext = cancellationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            var serverSelectionCancellationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -208,13 +208,13 @@ namespace MongoDB.Driver.Core.Clusters
                 throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, OperationCancellationContext cancellationContext)
+        public async Task<IServer> SelectServerAsync(IServerSelector selector, OperationContext operationContext)
         {
             Ensure.IsNotNull(selector, nameof(selector));
-            Ensure.IsNotNull(cancellationContext, nameof(cancellationContext));
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
 
-            var serverSelectionCancellationContext = cancellationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            var serverSelectionCancellationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,

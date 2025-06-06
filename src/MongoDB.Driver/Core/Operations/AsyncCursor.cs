@@ -410,9 +410,9 @@ namespace MongoDB.Driver.Core.Operations
         private CursorBatch<TDocument> GetNextBatch(CancellationToken cancellationToken)
         {
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var cancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
-            using (var channel = _channelSource.GetChannel(cancellationContext))
+            using (var channel = _channelSource.GetChannel(operationContext))
             {
                 return ExecuteGetMoreCommand(channel, cancellationToken);
             }
@@ -421,9 +421,9 @@ namespace MongoDB.Driver.Core.Operations
         private async Task<CursorBatch<TDocument>> GetNextBatchAsync(CancellationToken cancellationToken)
         {
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var cancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
-            using (var channel = await _channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false))
+            using (var channel = await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
                 return await ExecuteGetMoreCommandAsync(channel, cancellationToken).ConfigureAwait(false);
             }
@@ -437,10 +437,10 @@ namespace MongoDB.Driver.Core.Operations
         private void KillCursors(CancellationToken cancellationToken)
         {
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var cancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var channel = _channelSource.GetChannel(cancellationContext.WithTimeout(TimeSpan.FromSeconds(10))))
+            using (var channel = _channelSource.GetChannel(operationContext.WithTimeout(TimeSpan.FromSeconds(10))))
             {
                 if (!channel.Connection.IsExpired)
                 {
@@ -452,10 +452,10 @@ namespace MongoDB.Driver.Core.Operations
         private async Task KillCursorsAsync(CancellationToken cancellationToken)
         {
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var cancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var channel = await _channelSource.GetChannelAsync(cancellationContext.WithTimeout(TimeSpan.FromSeconds(10))).ConfigureAwait(false))
+            using (var channel = await _channelSource.GetChannelAsync(operationContext.WithTimeout(TimeSpan.FromSeconds(10))).ConfigureAwait(false))
             {
                 if (!channel.Connection.IsExpired)
                 {

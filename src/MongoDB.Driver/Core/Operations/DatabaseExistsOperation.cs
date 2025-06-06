@@ -49,23 +49,23 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public bool Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public bool Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = CreateOperation();
-            var result = operation.Execute(binding, cancellationContext);
+            var result = operation.Execute(binding, operationContext);
             // TODO: CSOT find a way to apply CSOT timeout to ToList as well.
-            var list = result.ToList(cancellationContext.CancellationToken);
+            var list = result.ToList(operationContext.CancellationToken);
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
         }
 
-        public async Task<bool> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<bool> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = CreateOperation();
-            var result = await operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
+            var result = await operation.ExecuteAsync(binding, operationContext).ConfigureAwait(false);
             // TODO: CSOT find a way to apply CSOT timeout to ToList as well.
-            var list = await result.ToListAsync(cancellationContext.CancellationToken).ConfigureAwait(false);
+            var list = await result.ToListAsync(operationContext.CancellationToken).ConfigureAwait(false);
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
         }
 

@@ -26,12 +26,12 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        public static RetryableWriteContext Create(IWriteBinding binding, bool retryRequested, OperationCancellationContext cancellationContext)
+        public static RetryableWriteContext Create(IWriteBinding binding, bool retryRequested, OperationContext operationContext)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             try
             {
-                context.Initialize(cancellationContext);
+                context.Initialize(operationContext);
 
                 ChannelPinningHelper.PinChannellIfRequired(
                     context.ChannelSource,
@@ -47,12 +47,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<RetryableWriteContext> CreateAsync(IWriteBinding binding, bool retryRequested, OperationCancellationContext cancellationContext)
+        public static async Task<RetryableWriteContext> CreateAsync(IWriteBinding binding, bool retryRequested, OperationContext operationContext)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             try
             {
-                await context.InitializeAsync(cancellationContext).ConfigureAwait(false);
+                await context.InitializeAsync(operationContext).ConfigureAwait(false);
 
                 ChannelPinningHelper.PinChannellIfRequired(
                     context.ChannelSource,
@@ -125,35 +125,35 @@ namespace MongoDB.Driver.Core.Operations
             _channel = null;
         }
 
-        private void Initialize(OperationCancellationContext cancellationContext)
+        private void Initialize(OperationContext operationContext)
         {
-            _channelSource = _binding.GetWriteChannelSource(cancellationContext);
+            _channelSource = _binding.GetWriteChannelSource(operationContext);
             var serverDescription = _channelSource.ServerDescription;
 
             try
             {
-                _channel = _channelSource.GetChannel(cancellationContext);
+                _channel = _channelSource.GetChannel(operationContext);
             }
             catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription, ex))
             {
-                ReplaceChannelSource(_binding.GetWriteChannelSource(cancellationContext));
-                ReplaceChannel(_channelSource.GetChannel(cancellationContext));
+                ReplaceChannelSource(_binding.GetWriteChannelSource(operationContext));
+                ReplaceChannel(_channelSource.GetChannel(operationContext));
             }
         }
 
-        private async Task InitializeAsync(OperationCancellationContext cancellationContext)
+        private async Task InitializeAsync(OperationContext operationContext)
         {
-            _channelSource = await _binding.GetWriteChannelSourceAsync(cancellationContext).ConfigureAwait(false);
+            _channelSource = await _binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false);
             var serverDescription = _channelSource.ServerDescription;
 
             try
             {
-                _channel = await _channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false);
+                _channel = await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false);
             }
             catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription, ex))
             {
-                ReplaceChannelSource(await _binding.GetWriteChannelSourceAsync(cancellationContext).ConfigureAwait(false));
-                ReplaceChannel(await _channelSource.GetChannelAsync(cancellationContext).ConfigureAwait(false));
+                ReplaceChannelSource(await _binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false));
+                ReplaceChannel(await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
             }
         }
     }

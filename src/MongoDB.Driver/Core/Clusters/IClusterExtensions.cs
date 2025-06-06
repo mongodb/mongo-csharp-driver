@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Clusters
             ICoreSessionHandle session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            OperationCancellationContext cancellationContext)
+            OperationContext operationContext)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
             if (pinnedServer != null)
@@ -40,9 +40,9 @@ namespace MongoDB.Driver.Core.Clusters
                 ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
                 : selector;
 
-            // Server selection also updates the cluster type, allowing us to to determine if the server
+            // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = cluster.SelectServer(selector, cancellationContext);
+            var server = cluster.SelectServer(selector, operationContext);
             PinServerIfNeeded(cluster, session, server);
             return server;
         }
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Clusters
             ICoreSessionHandle session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            OperationCancellationContext cancellationContext)
+            OperationContext operationContext)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
             if (pinnedServer != null)
@@ -64,9 +64,9 @@ namespace MongoDB.Driver.Core.Clusters
                 ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
                 : selector;
 
-            // Server selection also updates the cluster type, allowing us to to determine if the server
+            // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = await cluster.SelectServerAsync(selector, cancellationContext).ConfigureAwait(false);
+            var server = await cluster.SelectServerAsync(selector, operationContext).ConfigureAwait(false);
             PinServerIfNeeded(cluster, session, server);
 
             return server;

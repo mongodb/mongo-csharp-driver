@@ -21,19 +21,19 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    internal sealed class OperationCancellationContext
+    internal sealed class OperationContext
     {
         // TODO: this static field is temporary here and will be removed in a future PRs in scope of CSOT.
-        public static readonly OperationCancellationContext NoTimeout = new(System.Threading.Timeout.InfiniteTimeSpan, CancellationToken.None);
+        public static readonly OperationContext NoTimeout = new(System.Threading.Timeout.InfiniteTimeSpan, CancellationToken.None);
 
         private readonly Stopwatch _stopwatch;
 
-        public OperationCancellationContext(TimeSpan timeout, CancellationToken cancellationToken)
+        public OperationContext(TimeSpan timeout, CancellationToken cancellationToken)
             : this(Stopwatch.StartNew(), timeout, cancellationToken)
         {
         }
 
-        internal OperationCancellationContext(Stopwatch stopwatch, TimeSpan timeout, CancellationToken cancellationToken)
+        internal OperationContext(Stopwatch stopwatch, TimeSpan timeout, CancellationToken cancellationToken)
         {
             _stopwatch = stopwatch;
             Timeout = timeout;
@@ -70,7 +70,7 @@ namespace MongoDB.Driver
             return remainingTimeout < TimeSpan.Zero;
         }
 
-        public OperationCancellationContext WithTimeout(TimeSpan timeout)
+        public OperationContext WithTimeout(TimeSpan timeout)
         {
             var remainingTimeout = RemainingTimeout;
             if (timeout == System.Threading.Timeout.InfiniteTimeSpan)
@@ -82,7 +82,7 @@ namespace MongoDB.Driver
                 timeout = remainingTimeout;
             }
 
-            return new OperationCancellationContext(timeout, CancellationToken);
+            return new OperationContext(timeout, CancellationToken);
         }
 
         public void WaitTask(Task task)

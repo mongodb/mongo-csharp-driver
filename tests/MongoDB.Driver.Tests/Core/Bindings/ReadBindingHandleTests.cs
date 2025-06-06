@@ -59,8 +59,8 @@ namespace MongoDB.Driver.Core.Bindings
             subject.Dispose();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationCancellationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -75,15 +75,15 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                await subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout);
+                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout);
 
-                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout), Times.Once);
+                _mockReadBinding.Verify(b => b.GetReadChannelSourceAsync(OperationContext.NoTimeout), Times.Once);
             }
             else
             {
-                subject.GetReadChannelSource(OperationCancellationContext.NoTimeout);
+                subject.GetReadChannelSource(OperationContext.NoTimeout);
 
-                _mockReadBinding.Verify(b => b.GetReadChannelSource(OperationCancellationContext.NoTimeout), Times.Once);
+                _mockReadBinding.Verify(b => b.GetReadChannelSource(OperationContext.NoTimeout), Times.Once);
             }
         }
 

@@ -86,33 +86,33 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        public virtual BsonDocument Execute(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public virtual BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
         {
-            using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationContext))
+            using (var context = RetryableWriteContext.Create(binding, _retryRequested, operationContext))
             {
-                return Execute(context, cancellationContext);
+                return Execute(context, operationContext);
             }
         }
 
-        public virtual BsonDocument Execute(RetryableWriteContext context, OperationCancellationContext cancellationContext)
+        public virtual BsonDocument Execute(RetryableWriteContext context, OperationContext operationContext)
         {
-            return RetryableWriteOperationExecutor.Execute(this, context, cancellationContext);
+            return RetryableWriteOperationExecutor.Execute(this, context, operationContext);
         }
 
-        public virtual async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationCancellationContext cancellationContext)
+        public virtual async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationContext).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
+                return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
             }
         }
 
-        public virtual Task<BsonDocument> ExecuteAsync(RetryableWriteContext context, OperationCancellationContext cancellationContext)
+        public virtual Task<BsonDocument> ExecuteAsync(RetryableWriteContext context, OperationContext operationContext)
         {
-            return RetryableWriteOperationExecutor.ExecuteAsync(this, context, cancellationContext);
+            return RetryableWriteOperationExecutor.ExecuteAsync(this, context, operationContext);
         }
 
-        public BsonDocument ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext)
+        public BsonDocument ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, OperationContext operationContext)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
             // TODO: CSOT implement timeout in Command Execution
@@ -128,10 +128,10 @@ namespace MongoDB.Driver.Core.Operations
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
                 args.MessageEncoderSettings,
-                cancellationContext.CancellationToken);
+                operationContext.CancellationToken);
         }
 
-        public Task<BsonDocument> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, OperationCancellationContext cancellationContext)
+        public Task<BsonDocument> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, OperationContext operationContext)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
             // TODO: CSOT implement timeout in Command Execution
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
                 args.MessageEncoderSettings,
-                cancellationContext.CancellationToken);
+                operationContext.CancellationToken);
         }
 
         protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber);

@@ -46,28 +46,28 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _reference.Instance.Session; }
         }
 
-        public IChannelSourceHandle GetReadChannelSource(OperationCancellationContext cancellationContext)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSource(cancellationContext);
+            return _reference.Instance.GetReadChannelSource(operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationCancellationContext cancellationContext)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSourceAsync(cancellationContext);
+            return _reference.Instance.GetReadChannelSourceAsync(operationContext);
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationCancellationContext cancellationContext)
+        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSource(deprioritizedServers, cancellationContext);
+            return _reference.Instance.GetReadChannelSource(deprioritizedServers, operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationCancellationContext cancellationContext)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSourceAsync(deprioritizedServers, cancellationContext);
+            return _reference.Instance.GetReadChannelSourceAsync(deprioritizedServers, operationContext);
         }
 
         public void Dispose()

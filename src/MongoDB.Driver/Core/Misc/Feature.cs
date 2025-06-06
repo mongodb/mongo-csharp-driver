@@ -566,10 +566,10 @@ namespace MongoDB.Driver.Core.Misc
         {
             var cluster = client.GetClusterInternal();
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-            using (var channelSource = binding.GetWriteChannelSource(operationCancellationContext))
-            using (var channel = channelSource.GetChannel(operationCancellationContext))
+            using (var channelSource = binding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             {
                 // Use WireVersion from a connection since server level value may be null
                 ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
@@ -585,10 +585,10 @@ namespace MongoDB.Driver.Core.Misc
         {
             var cluster = client.GetClusterInternal();
             // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationCancellationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationCancellationContext).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(operationCancellationContext).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
                 // Use WireVersion from a connection since server level value may be null
                 ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);

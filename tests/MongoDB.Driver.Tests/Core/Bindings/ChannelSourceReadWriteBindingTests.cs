@@ -84,8 +84,8 @@ namespace MongoDB.Driver.Core.Bindings
             subject.Dispose();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationCancellationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -98,8 +98,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
             var result = async ?
-                await subject.GetReadChannelSourceAsync(OperationCancellationContext.NoTimeout) :
-                subject.GetReadChannelSource(OperationCancellationContext.NoTimeout);
+                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout) :
+                subject.GetReadChannelSource(OperationContext.NoTimeout);
 
             _mockChannelSource.Verify(f => f.Fork(), Times.Once);
         }
@@ -114,8 +114,8 @@ namespace MongoDB.Driver.Core.Bindings
             subject.Dispose();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetWriteChannelSourceAsync(OperationCancellationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetWriteChannelSource(OperationCancellationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetWriteChannelSource(OperationContext.NoTimeout));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -128,8 +128,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
             var result = async ?
-                await subject.GetWriteChannelSourceAsync(OperationCancellationContext.NoTimeout) :
-                subject.GetWriteChannelSource(OperationCancellationContext.NoTimeout);
+                await subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout) :
+                subject.GetWriteChannelSource(OperationContext.NoTimeout);
 
             _mockChannelSource.Verify(f => f.Fork(), Times.Once);
         }

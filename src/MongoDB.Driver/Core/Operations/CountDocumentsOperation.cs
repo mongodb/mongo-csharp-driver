@@ -109,28 +109,28 @@ namespace MongoDB.Driver.Core.Operations
             set { _skip = value; }
         }
 
-        public long Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public long Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var cursor = operation.Execute(binding, cancellationContext);
-                var result = cursor.ToList(cancellationContext.CancellationToken);
+                var cursor = operation.Execute(binding, operationContext);
+                var result = cursor.ToList(operationContext.CancellationToken);
                 return ExtractCountFromResult(result);
             }
         }
 
-        public async Task<long> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<long> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var cursor = await operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
-                var result = await cursor.ToListAsync(cancellationContext.CancellationToken).ConfigureAwait(false);
+                var cursor = await operation.ExecuteAsync(binding, operationContext).ConfigureAwait(false);
+                var result = await cursor.ToListAsync(operationContext.CancellationToken).ConfigureAwait(false);
                 return ExtractCountFromResult(result);
             }
         }

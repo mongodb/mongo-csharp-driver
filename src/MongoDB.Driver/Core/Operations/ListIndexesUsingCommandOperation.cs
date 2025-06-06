@@ -69,17 +69,17 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationContext))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
             {
-                return Execute(context, cancellationContext);
+                return Execute(context, operationContext);
             }
         }
 
-        public IAsyncCursor<BsonDocument> Execute(RetryableReadContext context, OperationCancellationContext cancellationContext)
+        public IAsyncCursor<BsonDocument> Execute(RetryableReadContext context, OperationContext operationContext)
         {
             Ensure.IsNotNull(context, nameof(context));
 
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation();
                 try
                 {
-                    var result = operation.Execute(context, cancellationContext);
+                    var result = operation.Execute(context, operationContext);
                     return CreateCursor(context.ChannelSource, context.Channel, result);
                 }
                 catch (MongoCommandException ex) when (IsCollectionNotFoundException(ex))
@@ -98,17 +98,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationContext).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
+                return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(RetryableReadContext context, OperationCancellationContext cancellationContext)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(RetryableReadContext context, OperationContext operationContext)
         {
             Ensure.IsNotNull(context, nameof(context));
 
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation();
                 try
                 {
-                    var result = await operation.ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
+                    var result = await operation.ExecuteAsync(context, operationContext).ConfigureAwait(false);
                     return CreateCursor(context.ChannelSource, context.Channel, result);
                 }
                 catch (MongoCommandException ex) when (IsCollectionNotFoundException(ex))

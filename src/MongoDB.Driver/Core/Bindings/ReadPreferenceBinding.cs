@@ -51,27 +51,27 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _session; }
         }
 
-        public IChannelSourceHandle GetReadChannelSource(OperationCancellationContext cancellationContext)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
-            return GetReadChannelSource(null, cancellationContext);
+            return GetReadChannelSource(null, operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationCancellationContext cancellationContext)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
         {
-            return GetReadChannelSourceAsync(null, cancellationContext);
+            return GetReadChannelSourceAsync(null, operationContext);
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationCancellationContext cancellationContext)
+        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, deprioritizedServers, cancellationContext);
+            var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, deprioritizedServers, operationContext);
             return GetChannelSourceHelper(server);
         }
 
-        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationCancellationContext cancellationContext)
+        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, deprioritizedServers, cancellationContext).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, deprioritizedServers, operationContext).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 

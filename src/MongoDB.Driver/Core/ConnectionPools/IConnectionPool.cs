@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         int Generation { get; }
         ServerId ServerId { get; }
 
-        IConnectionHandle AcquireConnection(OperationCancellationContext cancellationContext);
-        Task<IConnectionHandle> AcquireConnectionAsync(OperationCancellationContext cancellationContext);
+        IConnectionHandle AcquireConnection(OperationContext operationContext);
+        Task<IConnectionHandle> AcquireConnectionAsync(OperationContext operationContext);
         void Clear(bool closeInUseConnections = false);
         void Clear(ObjectId serviceId);
         int GetGeneration(ObjectId? serviceId);

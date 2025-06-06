@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
+                return operation.Execute(bindingHandle, OperationContext.NoTimeout);
             }
         }
 
@@ -164,8 +164,8 @@ namespace MongoDB.Driver.Core.Operations
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return async ?
-                    await operation.ExecuteAsync(bindingHandle, OperationCancellationContext.NoTimeout) :
-                    operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
+                    await operation.ExecuteAsync(bindingHandle, OperationContext.NoTimeout) :
+                    operation.Execute(bindingHandle, OperationContext.NoTimeout);
             }
         }
 
@@ -173,11 +173,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (async)
             {
-                return operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(binding, OperationCancellationContext.NoTimeout);
+                return operation.Execute(binding, OperationContext.NoTimeout);
             }
         }
 
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
+                return operation.Execute(bindingHandle, OperationContext.NoTimeout);
             }
         }
 
@@ -215,11 +215,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (async)
             {
-                return operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(binding, OperationCancellationContext.NoTimeout);
+                return operation.Execute(binding, OperationContext.NoTimeout);
             }
         }
 
@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, IReadBinding binding)
         {
-            return await operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout);
+            return await operation.ExecuteAsync(binding, OperationContext.NoTimeout);
         }
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return await operation.ExecuteAsync(bindingHandle, OperationCancellationContext.NoTimeout);
+                return await operation.ExecuteAsync(bindingHandle, OperationContext.NoTimeout);
             }
         }
 
@@ -253,23 +253,23 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (async)
                 {
-                    return await operation.ExecuteAsync(bindingHandle, OperationCancellationContext.NoTimeout);
+                    return await operation.ExecuteAsync(bindingHandle, OperationContext.NoTimeout);
                 }
                 else
                 {
-                    return operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
+                    return operation.Execute(bindingHandle, OperationContext.NoTimeout);
                 }
             }
         }
 
         private protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding, bool async)
             => async ?
-                operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult() :
-                operation.Execute(binding, OperationCancellationContext.NoTimeout);
+                operation.ExecuteAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult() :
+                operation.Execute(binding, OperationContext.NoTimeout);
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
         {
-            return await operation.ExecuteAsync(binding, OperationCancellationContext.NoTimeout);
+            return await operation.ExecuteAsync(binding, OperationContext.NoTimeout);
         }
 
         private protected void CreateIndexes(params CreateIndexRequest[] requests)
@@ -542,8 +542,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         private protected void VerifySessionIdSending<TResult>(
-            Func<WritableServerBinding, OperationCancellationContext, Task<TResult>> executeAsync,
-            Func<WritableServerBinding, OperationCancellationContext, TResult> execute,
+            Func<WritableServerBinding, OperationContext, Task<TResult>> executeAsync,
+            Func<WritableServerBinding, OperationContext, TResult> execute,
             Action<EventCapturer, ICoreSessionHandle, Exception> assertResults,
             string commandName,
             bool async,
@@ -558,11 +558,11 @@ namespace MongoDB.Driver.Core.Operations
                     Exception exception;
                     if (async)
                     {
-                        exception = Record.Exception(() => executeAsync(binding, OperationCancellationContext.NoTimeout).GetAwaiter().GetResult());
+                        exception = Record.Exception(() => executeAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult());
                     }
                     else
                     {
-                        exception = Record.Exception(() => execute(binding, OperationCancellationContext.NoTimeout));
+                        exception = Record.Exception(() => execute(binding, OperationContext.NoTimeout));
                     }
 
                     assertResults(eventCapturer, session, exception);

@@ -3245,7 +3245,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var binding = new WritableServerBinding(_cluster, session.Fork()))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                operation.Execute(bindingHandle, OperationCancellationContext.NoTimeout);
+                operation.Execute(bindingHandle, OperationContext.NoTimeout);
             }
         }
 

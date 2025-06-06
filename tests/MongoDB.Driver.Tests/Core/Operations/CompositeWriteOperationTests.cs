@@ -69,8 +69,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var subject = new CompositeWriteOperation<BsonDocument>((healthyOperation1.Object, IsMainOperation: false), (faultyOperation2.Object, IsMainOperation: false), (healthyOperation3.Object, IsMainOperation: true));
 
             var resultedException = async
-                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(Mock.Of<IWriteBinding>(), OperationCancellationContext.NoTimeout))
-                : Record.Exception(() => subject.Execute(Mock.Of<IWriteBinding>(), OperationCancellationContext.NoTimeout));
+                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(Mock.Of<IWriteBinding>(), OperationContext.NoTimeout))
+                : Record.Exception(() => subject.Execute(Mock.Of<IWriteBinding>(), OperationContext.NoTimeout));
 
             resultedException.Should().Be(testException);
 
@@ -92,8 +92,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var subject = new CompositeWriteOperation<BsonDocument>((operation1.Object, IsMainOperation: false), (operation2.Object, IsMainOperation: true), (operation3.Object, IsMainOperation: false));
 
             var result = async
-                ? subject.ExecuteAsync(Mock.Of<IWriteBinding>(), OperationCancellationContext.NoTimeout).GetAwaiter().GetResult()
-                : subject.Execute(Mock.Of<IWriteBinding>(), OperationCancellationContext.NoTimeout);
+                ? subject.ExecuteAsync(Mock.Of<IWriteBinding>(), OperationContext.NoTimeout).GetAwaiter().GetResult()
+                : subject.Execute(Mock.Of<IWriteBinding>(), OperationContext.NoTimeout);
 
             result.Should().Be(operation2Result);
 
@@ -107,10 +107,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var mockedOperation = new Mock<IWriteOperation<BsonDocument>>();
             mockedOperation
-                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()))
+                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationContext>()))
                 .Throws(testException);
             mockedOperation
-                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()))
+                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationContext>()))
                 .Throws(testException);
             return mockedOperation;
         }
@@ -119,10 +119,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var mockedOperation = new Mock<IWriteOperation<BsonDocument>>();
             mockedOperation
-                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()))
+                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationContext>()))
                 .Returns(response);
             mockedOperation
-                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()))
+                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationContext>()))
                 .ReturnsAsync(response);
             return mockedOperation;
         }
@@ -131,11 +131,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             if (async)
             {
-                mockedOperation.Verify(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()), hasBeenCalled ? Times.Once : Times.Never);
+                mockedOperation.Verify(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<OperationContext>()), hasBeenCalled ? Times.Once : Times.Never);
             }
             else
             {
-                mockedOperation.Verify(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationCancellationContext>()), hasBeenCalled ? Times.Once : Times.Never);
+                mockedOperation.Verify(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<OperationContext>()), hasBeenCalled ? Times.Once : Times.Never);
             }
         }
     }

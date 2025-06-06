@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 cluster.Initialize();
 
                 // Trigger Cluster._rapidHeartbeatTimer
-                _ = cluster.SelectServerAsync(CreateWritableServerAndEndPointSelector(__endPoint1), OperationCancellationContext.NoTimeout);
+                _ = cluster.SelectServerAsync(CreateWritableServerAndEndPointSelector(__endPoint1), OperationContext.NoTimeout);
 
                 // Wait for all heartbeats to complete
                 await Task.WhenAny(allHeartbeatsReceived.Task, Task.Delay(1000));
@@ -142,13 +142,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     server.DescriptionChanged += ProcessServerDescriptionChanged;
                 }
 
-                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), OperationCancellationContext.NoTimeout);
+                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), OperationContext.NoTimeout);
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
                 // Change primary
                 currentPrimaries.Add(__serverId2);
-                selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint2), OperationCancellationContext.NoTimeout);
+                selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint2), OperationContext.NoTimeout);
                 selectedServer.EndPoint.Should().Be(__endPoint2);
 
                 // Ensure stalling happened
@@ -198,10 +198,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
             void SetupConnectionPool(Mock<IConnectionPool> mockConnectionPool, IConnectionHandle connection)
             {
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnection(It.IsAny<OperationCancellationContext>()))
+                    .Setup(c => c.AcquireConnection(It.IsAny<OperationContext>()))
                     .Returns(connection);
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<OperationCancellationContext>()))
+                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                     .Returns(Task.FromResult(connection));
             }
 

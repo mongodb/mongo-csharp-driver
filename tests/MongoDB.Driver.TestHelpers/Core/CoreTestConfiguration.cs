@@ -314,7 +314,7 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("hello", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(binding, OperationCancellationContext.NoTimeout);
+                var response = operation.Execute(binding, OperationContext.NoTimeout);
                 return response["maxWireVersion"].AsInt32;
             }
         }
@@ -326,7 +326,7 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(binding, OperationCancellationContext.NoTimeout);
+                var response = operation.Execute(binding, OperationContext.NoTimeout);
                 return SemanticVersion.Parse(response["version"].AsString);
             }
         }
@@ -338,7 +338,7 @@ namespace MongoDB.Driver
             {
                 var command = new BsonDocument("getParameter", new BsonString("*"));
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var serverParameters = operation.Execute(binding, OperationCancellationContext.NoTimeout);
+                var serverParameters = operation.Execute(binding, OperationContext.NoTimeout);
 
                 return serverParameters;
             }
@@ -404,7 +404,7 @@ namespace MongoDB.Driver
             using (var session = StartSession())
             using (var binding = CreateReadWriteBinding(session))
             {
-                operation.Execute(binding, OperationCancellationContext.NoTimeout);
+                operation.Execute(binding, OperationContext.NoTimeout);
             }
         }
 
@@ -415,7 +415,7 @@ namespace MongoDB.Driver
             {
                 var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
-                return operation.Execute(binding, OperationCancellationContext.NoTimeout).ToList();
+                return operation.Execute(binding, OperationContext.NoTimeout).ToList();
             }
         }
 
@@ -495,7 +495,7 @@ namespace MongoDB.Driver
                 {
                     var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
 
-                    var response = operation.Execute(binding, OperationCancellationContext.NoTimeout);
+                    var response = operation.Execute(binding, OperationContext.NoTimeout);
                     if (response.TryGetValue("storageEngine", out var storageEngine) && storageEngine.AsBsonDocument.TryGetValue("name", out var name))
                     {
                         return name.AsString;

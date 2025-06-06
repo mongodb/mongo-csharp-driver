@@ -104,15 +104,15 @@ namespace MongoDB.Driver.Core.Operations
             get { return _valueSerializer; }
         }
 
-        public IAsyncCursor<TValue> Execute(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public IAsyncCursor<TValue> Execute(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationContext))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
             {
                 var operation = CreateOperation(context);
-                var result = operation.Execute(context, cancellationContext);
+                var result = operation.Execute(context, operationContext);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
@@ -120,15 +120,15 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, OperationCancellationContext cancellationContext)
+        public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationContext).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
             {
                 var operation = CreateOperation(context);
-                var result = await operation.ExecuteAsync(context, cancellationContext).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(context, operationContext).ConfigureAwait(false);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
