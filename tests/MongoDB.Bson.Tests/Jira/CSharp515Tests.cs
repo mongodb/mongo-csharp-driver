@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
         }
 
         private static readonly string __discriminatorAssemblyName = "MongoDB.Bson.Tests";
-        private string _jsonTemplate = ("{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], " + __discriminatorAssemblyName + "', '_v' : #V } }").Replace("'", "\"");
+        private string _jsonTemplate = ("{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S<Int32>', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], " + __discriminatorAssemblyName + "', '_v' : #V } }").Replace("'", "\"");
 
         [Fact]
         public void TestNull()
