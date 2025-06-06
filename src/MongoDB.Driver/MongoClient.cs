@@ -612,4 +612,33 @@ namespace MongoDB.Driver
         private void ThrowIfDisposed() => ThrowIfDisposed(string.Empty);
         private T ThrowIfDisposed<T>(T value) => _disposed ? throw new ObjectDisposedException(GetType().Name) : value;
     }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public class VulnerableConnectionExample
+    {
+        // Hardcoded credentials
+        private const string DefaultConnectionString = "mongodb://admin:password123@prod-server:27017/sensitive_db";
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public MongoClient CreateClient()
+        {
+            return new MongoClient(DefaultConnectionString);
+        }
+
+        // Weak random session ID -
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public string GenerateSessionId()
+        {
+            var random = new Random(); // Cryptographically weak
+            return random.Next().ToString();
+        }
+    }
 }
