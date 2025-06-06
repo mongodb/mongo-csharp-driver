@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                         _ => throw new ExpressionNotSupportedException(sourceExpression, because: "OfType method is not supported with the configured discriminator convention")
                     };
 
-                    var actualTypeSerializer = BsonSerializer.LookupSerializer(actualType);
+                    var actualTypeSerializer = context.SerializationDomain.LookupSerializer(actualType);
                     var enumerableActualTypeSerializer = IEnumerableSerializer.Create(actualTypeSerializer);
                     var actualTypeSourceField = new TranslatedFilterField(fieldTranslation.Ast, enumerableActualTypeSerializer);
                     var combinedFilter = AstFilter.Combine(sourceFilter, ofTypeFilter);

@@ -47,7 +47,9 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a modification to the class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public void Apply(BsonClassMap classMap)
+        public void Apply(BsonClassMap classMap) => Apply(classMap, BsonSerializer.DefaultSerializationDomain);
+
+        internal void Apply(BsonClassMap classMap, IBsonSerializationDomain serializationDomain)
         {
             foreach (var convention in _conventions.OfType<IClassMapConvention>())
             {
@@ -58,7 +60,14 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 foreach (var memberMap in classMap.DeclaredMemberMaps)
                 {
-                    convention.Apply(memberMap);
+                    if (convention is IMemberMapConventionInternal internalConvention)
+                    {
+                        internalConvention.Apply(memberMap, serializationDomain);
+                    }
+                    else
+                    {
+                        convention.Apply(memberMap);
+                    }
                 }
             }
 
@@ -72,7 +81,14 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             foreach (var convention in _conventions.OfType<IPostProcessingConvention>())
             {
-                convention.PostProcess(classMap);
+                if (convention is IPostProcessingConventionInternal internalConvention)
+                {
+                    internalConvention.PostProcess(classMap, serializationDomain);
+                }
+                else
+                {
+                    convention.PostProcess(classMap);
+                }
             }
         }
     }

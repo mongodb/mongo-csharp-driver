@@ -62,7 +62,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Pops the settings.
         /// </summary>
-        void PopSettings();
+        void PopSettings();  //TODO Why do we have push and pop methods? They are not used. We should remove them.
 
         /// <summary>
         /// Pushes new settings for the reader.
@@ -245,6 +245,14 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="bookmark">The bookmark.</param>
         void ReturnToBookmark(BsonReaderBookmark bookmark);
+
+        //TODO I'm not sure why this was not already present, there is already an equivalent in IBsonWriter.
+        //We can also avoid adding this to the interface and casting all the occurrences of IBsonReader to BsonReader (the base class for all readers in our codebase).
+        //Of course this would be a problem if someone implements IBsonReader in a different way.
+        /// <summary>
+        /// Gets the settings of the reader.
+        /// </summary>
+        BsonReaderSettings Settings { get; }
 
         /// <summary>
         /// Skips the name (reader must be positioned on a name).

@@ -23,14 +23,17 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets a class's IdMember to null.
     /// </summary>
-    public class NoIdMemberConvention : ConventionBase, IPostProcessingConvention
+    public class NoIdMemberConvention : ConventionBase, IPostProcessingConventionInternal
     {
         // public methods
         /// <summary>
         /// Applies a post processing modification to the class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public void PostProcess(BsonClassMap classMap)
+        public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
         {
             classMap.SetIdMember(null);
         }
