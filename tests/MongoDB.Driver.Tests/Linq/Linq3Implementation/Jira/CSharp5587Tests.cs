@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.TestHelpers;
@@ -111,8 +110,5 @@ public class CSharp5587Tests : LinqIntegrationTest<CSharp5587Tests.ClassFixture>
         public override bool InitializeDataBeforeEachTestCase => true;
 
         protected override IEnumerable<Animal> InitialData => null;
-        // [
-        //     new Animal { }
-        // ];
-    }
+     }
 }
