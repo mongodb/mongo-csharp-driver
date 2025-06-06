@@ -116,8 +116,8 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Removes the conventions specified by the given name.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <remarks>Removing a convention allows the removal of the special __defaults__ conventions 
-        /// and the __attributes__ conventions for those who want to completely customize the 
+        /// <remarks>Removing a convention allows the removal of the special __defaults__ conventions
+        /// and the __attributes__ conventions for those who want to completely customize the
         /// experience.</remarks>
         public static void Remove(string name)
         {

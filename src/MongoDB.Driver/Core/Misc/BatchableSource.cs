@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Initializes a new instance of the <see cref="BatchableSource{T}"/> class.
         /// </summary>
         /// <remarks>
-        /// Use this overload when you know the batch is small and won't have to be broken up into sub-batches. 
+        /// Use this overload when you know the batch is small and won't have to be broken up into sub-batches.
         /// In that case using this overload is simpler than using an enumerator and using the other constructor.
         /// </remarks>
         /// <param name="batch">The single batch.</param>

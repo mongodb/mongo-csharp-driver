@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Serialization
                 return result;
             }
         }
-        
+
         private static float[] ReadSinglesArrayLittleEndian(ReadOnlySpan<byte> span)
         {
             if ((span.Length & 3) != 0)

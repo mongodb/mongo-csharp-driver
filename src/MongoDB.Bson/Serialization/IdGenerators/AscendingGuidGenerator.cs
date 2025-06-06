@@ -20,7 +20,7 @@ using System.Buffers.Binary;
 namespace MongoDB.Bson.Serialization.IdGenerators
 {
     /// <summary>
-    /// A GUID generator that generates GUIDs in ascending order. To enable 
+    /// A GUID generator that generates GUIDs in ascending order. To enable
     /// an index to make use of the ascending nature make sure to use
     /// <see cref="GuidRepresentation.Standard">GuidRepresentation.Standard</see>
     /// as the storage representation.
@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
         /// Generates an ascending Guid for a document. Consecutive invocations
         /// should generate Guids that are ascending from a MongoDB perspective
         /// </summary>
-        /// <param name="container">The container of the document (will be a 
+        /// <param name="container">The container of the document (will be a
         /// MongoCollection when called from the driver). </param>
         /// <param name="document">The document it was generated for.</param>
         /// <returns>A Guid.</returns>

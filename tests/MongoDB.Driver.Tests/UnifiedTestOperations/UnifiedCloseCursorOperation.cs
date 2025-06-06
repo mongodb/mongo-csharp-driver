@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     }
 
     internal static class ChangeStreamCursorReflector
-    { 
+    {
         public static IAsyncCursor<RawBsonDocument> _cursor(this ChangeStreamCursor<ChangeStreamDocument<BsonDocument>> cursor)
         {
             return (IAsyncCursor<RawBsonDocument>)Reflector.GetFieldValue(cursor, nameof(_cursor));

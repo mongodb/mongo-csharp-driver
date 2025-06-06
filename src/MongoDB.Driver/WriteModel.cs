@@ -32,7 +32,7 @@ namespace MongoDB.Driver
         // API, so there is type safety in how they got allowed
         // into the system, meaning that even though
         // some things below seem unsafe, they are in a roundabout
-        // way. In addition, we know that there will always 
+        // way. In addition, we know that there will always
         // be one level of BsonDocumentWrapper for everything, even
         // when the type is already a BsonDocument :(.
 

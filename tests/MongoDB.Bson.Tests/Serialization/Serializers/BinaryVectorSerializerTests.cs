@@ -372,7 +372,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 var elementsBytesLittleEndian = BitConverter.IsLittleEndian
                     ? MemoryMarshal.Cast<T, byte>(elementsSpan)
                     : BigEndianToLittleEndian(elementsSpan, dataType);
-                
+
                 byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. elementsBytesLittleEndian];
                 return (elementsSpan.ToArray(), vectorBsonData);
         }
@@ -439,7 +439,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public class BinaryVectorNoAttributeHolder
         {
             public BinaryVectorInt8 ValuesInt8 { get; set; }
-        
+
             public BinaryVectorPackedBit ValuesPackedBit { get; set; }
 
             public BinaryVectorFloat32 ValuesFloat { get; set; }

@@ -572,7 +572,7 @@ namespace MongoDB.Bson.IO
             {
                 // Compare to 128 to preserve original behavior
                 const int maxLengthToUseCStringUtf8EncodingWith = 128;
-          
+
                 if (maxLength <= maxLengthToUseCStringUtf8EncodingWith)
                 {
                     using var rentedBuffer = ThreadStaticBuffer.RentBuffer(maxLengthToUseCStringUtf8EncodingWith);

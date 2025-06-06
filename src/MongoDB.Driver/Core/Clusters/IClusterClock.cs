@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Core.Clusters
     internal interface IClusterClock
     {
         BsonDocument ClusterTime { get; }
- 
+
         void AdvanceClusterTime(BsonDocument newClusterTime);
     }
 }

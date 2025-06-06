@@ -21,7 +21,7 @@ namespace MongoDB.Shared
 {
     internal class Hasher
     {
-        #region static 
+        #region static
 
         // public static methods
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
