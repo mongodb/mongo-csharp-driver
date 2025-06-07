@@ -459,7 +459,7 @@ namespace MongoDB.Bson
         {
             if (destination.Length < 12)
             {
-                throw new ArgumentException("Not enough room in destination span.", "offset");
+                throw new ArgumentException("Not enough room in destination span.", "destination");
             }
 
             destination[0] = (byte)(_a >> 24);
@@ -485,35 +485,35 @@ namespace MongoDB.Bson
         {
             if (destination.Length < 24)
             {
-                throw new ArgumentException("Not enough room in destination span.", "offset");
+                throw new ArgumentException("Not enough room in destination span.", "destination");
             }
 
             Span<byte> span = stackalloc byte[12];
             ToByteSpan(span);
-            destination[0] = BsonUtils.ToHexChar(span[3] >> 4);
-            destination[1] = BsonUtils.ToHexChar(span[3] & 0xF);
-            destination[2] = BsonUtils.ToHexChar(span[2] >> 4);
-            destination[3] = BsonUtils.ToHexChar(span[2] & 0xF);
-            destination[4] = BsonUtils.ToHexChar(span[1] >> 4);
-            destination[5] = BsonUtils.ToHexChar(span[1] & 0xF);
-            destination[6] = BsonUtils.ToHexChar(span[0] >> 4);
-            destination[7] = BsonUtils.ToHexChar(span[0] & 0xF);
-            destination[8] = BsonUtils.ToHexChar(span[7] >> 4);
-            destination[9] = BsonUtils.ToHexChar(span[7] & 0xF);
-            destination[10] = BsonUtils.ToHexChar(span[6] >> 4);
-            destination[11] = BsonUtils.ToHexChar(span[6] & 0xF);
-            destination[12] = BsonUtils.ToHexChar(span[5] >> 4);
-            destination[13] = BsonUtils.ToHexChar(span[5] & 0xF);
-            destination[14] = BsonUtils.ToHexChar(span[4] >> 4);
-            destination[15] = BsonUtils.ToHexChar(span[4] & 0xF);
-            destination[16] = BsonUtils.ToHexChar(span[11] >> 4);
-            destination[17] = BsonUtils.ToHexChar(span[11] & 0xF);
-            destination[18] = BsonUtils.ToHexChar(span[10] >> 4);
-            destination[19] = BsonUtils.ToHexChar(span[10] & 0xF);
-            destination[20] = BsonUtils.ToHexChar(span[9] >> 4);
-            destination[21] = BsonUtils.ToHexChar(span[9] & 0xF);
-            destination[22] = BsonUtils.ToHexChar(span[8] >> 4);
-            destination[23] = BsonUtils.ToHexChar(span[8] & 0xF);
+            destination[0] = BsonUtils.ToHexChar(span[0] >> 4);
+            destination[1] = BsonUtils.ToHexChar(span[0] & 0xF);
+            destination[2] = BsonUtils.ToHexChar(span[1] >> 4);
+            destination[3] = BsonUtils.ToHexChar(span[1] & 0xF);
+            destination[4] = BsonUtils.ToHexChar(span[2] >> 4);
+            destination[5] = BsonUtils.ToHexChar(span[2] & 0xF);
+            destination[6] = BsonUtils.ToHexChar(span[3] >> 4);
+            destination[7] = BsonUtils.ToHexChar(span[3] & 0xF);
+            destination[8] = BsonUtils.ToHexChar(span[4] >> 4);
+            destination[9] = BsonUtils.ToHexChar(span[4] & 0xF);
+            destination[10] = BsonUtils.ToHexChar(span[5] >> 4);
+            destination[11] = BsonUtils.ToHexChar(span[5] & 0xF);
+            destination[12] = BsonUtils.ToHexChar(span[6] >> 4);
+            destination[13] = BsonUtils.ToHexChar(span[6] & 0xF);
+            destination[14] = BsonUtils.ToHexChar(span[7] >> 4);
+            destination[15] = BsonUtils.ToHexChar(span[7] & 0xF);
+            destination[16] = BsonUtils.ToHexChar(span[8] >> 4);
+            destination[17] = BsonUtils.ToHexChar(span[8] & 0xF);
+            destination[18] = BsonUtils.ToHexChar(span[9] >> 4);
+            destination[19] = BsonUtils.ToHexChar(span[9] & 0xF);
+            destination[20] = BsonUtils.ToHexChar(span[10] >> 4);
+            destination[21] = BsonUtils.ToHexChar(span[10] & 0xF);
+            destination[22] = BsonUtils.ToHexChar(span[11] >> 4);
+            destination[23] = BsonUtils.ToHexChar(span[11] & 0xF);
         }
 #endif
 
