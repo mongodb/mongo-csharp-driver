@@ -17,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -137,7 +139,106 @@ namespace MongoDB.Driver.Tests
             resultContext.ParentContext.Should().Be(operationContext);
         }
 
-        // TODO: Add tests for WaitTask and WaitTaskAsync.
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_throw_if_context_is_timedout([Values(true, false)] bool async)
+        {
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(10), CancellationToken.None);
+            Thread.Sleep(20);
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => operationContext.WaitTaskAsync(taskCompletionSource.Task)) :
+                Record.Exception(() => operationContext.WaitTask(taskCompletionSource.Task));
+
+            exception.Should().BeOfType<TimeoutException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_throw_if_context_is_cancelled([Values(true, false)] bool async)
+        {
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+            var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => operationContext.WaitTaskAsync(taskCompletionSource.Task)) :
+                Record.Exception(() => operationContext.WaitTask(taskCompletionSource.Task));
+
+            exception.Should().BeOfType<OperationCanceledException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_rethrow_on_failed_task([Values(true, false)] bool async)
+        {
+            var ex = new InvalidOperationException();
+            var task = Task.FromException(ex);
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => operationContext.WaitTaskAsync(task)) :
+                Record.Exception(() => operationContext.WaitTask(task));
+
+            exception.Should().Be(ex);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_rethrow_on_failed_promise_task([Values(true, false)] bool async)
+        {
+            var ex = new InvalidOperationException("Ups!");
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var task = Task.Run(async () =>
+            {
+                if (async)
+                {
+                    await operationContext.WaitTaskAsync(taskCompletionSource.Task);
+                }
+                else
+                {
+                    operationContext.WaitTask(taskCompletionSource.Task);
+                }
+            });
+            Thread.Sleep(20);
+            taskCompletionSource.SetException(ex);
+
+            var exception = await Record.ExceptionAsync(() => task);
+            exception.Should().Be(ex);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_throw_on_timeout([Values(true, false)] bool async)
+        {
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(20), CancellationToken.None);
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => operationContext.WaitTaskAsync(taskCompletionSource.Task)) :
+                Record.Exception(() => operationContext.WaitTask(taskCompletionSource.Task));
+
+            exception.Should().BeOfType<TimeoutException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_not_throw_on_resolved_task_with_timedout_context([Values(true, false)] bool async)
+        {
+            var task = Task.FromResult(42);
+            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(10), CancellationToken.None);
+            Thread.Sleep(20);
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => operationContext.WaitTaskAsync(task)) :
+                Record.Exception(() => operationContext.WaitTask(task));
+
+            exception.Should().BeNull();
+        }
     }
 }
 

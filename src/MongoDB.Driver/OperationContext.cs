@@ -17,6 +17,9 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+#if !NET6_0_OR_GREATER
+using MongoDB.Driver.Core.Misc;
+#endif
 
 namespace MongoDB.Driver
 {
@@ -91,22 +94,47 @@ namespace MongoDB.Driver
 
         public void WaitTask(Task task)
         {
+            if (task.IsCompleted)
+            {
+                task.GetAwaiter().GetResult(); // re-throws exception if any
+                return;
+            }
+
             var timeout = RemainingTimeout;
-            if (timeout < TimeSpan.Zero)
+            if (timeout != System.Threading.Timeout.InfiniteTimeSpan && timeout < TimeSpan.Zero)
             {
                 throw new TimeoutException();
             }
 
-            if (!task.Wait((int)timeout.TotalMilliseconds, CancellationToken))
+            try
             {
-                throw new TimeoutException();
+                if (!task.Wait((int)timeout.TotalMilliseconds, CancellationToken))
+                {
+                    CancellationToken.ThrowIfCancellationRequested();
+                    throw new TimeoutException();
+                }
+            }
+            catch (AggregateException e)
+            {
+                if (e.InnerExceptions.Count == 1)
+                {
+                    throw e.InnerExceptions[0];
+                }
+
+                throw;
             }
         }
 
         public async Task WaitTaskAsync(Task task)
         {
+            if (task.IsCompleted)
+            {
+                await task.ConfigureAwait(false); // re-throws exception if any
+                return;
+            }
+
             var timeout = RemainingTimeout;
-            if (timeout < TimeSpan.Zero)
+            if (timeout != System.Threading.Timeout.InfiniteTimeSpan && timeout < TimeSpan.Zero)
             {
                 throw new TimeoutException();
             }
