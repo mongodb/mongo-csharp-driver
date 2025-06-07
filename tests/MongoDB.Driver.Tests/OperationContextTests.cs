@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Tests
 
             operationContext.Timeout.Should().Be(timeout);
             operationContext.CancellationToken.Should().Be(cancellationToken);
+            operationContext.ParentContext.Should().BeNull();
         }
 
         [Fact]
@@ -126,6 +127,15 @@ namespace MongoDB.Driver.Tests
             [TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10)],
             [TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(5)],
         ];
+
+        [Fact]
+        public void WithTimeout_should_set_ParentContext()
+        {
+            var operationContext = new OperationContext(new Stopwatch(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var resultContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10));
+
+            resultContext.ParentContext.Should().Be(operationContext);
+        }
 
         // TODO: Add tests for WaitTask and WaitTaskAsync.
     }

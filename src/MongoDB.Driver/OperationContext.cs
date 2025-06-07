@@ -17,7 +17,6 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -26,8 +25,6 @@ namespace MongoDB.Driver
         // TODO: this static field is temporary here and will be removed in a future PRs in scope of CSOT.
         public static readonly OperationContext NoTimeout = new(System.Threading.Timeout.InfiniteTimeSpan, CancellationToken.None);
 
-        private readonly Stopwatch _stopwatch;
-
         public OperationContext(TimeSpan timeout, CancellationToken cancellationToken)
             : this(Stopwatch.StartNew(), timeout, cancellationToken)
         {
@@ -35,16 +32,18 @@ namespace MongoDB.Driver
 
         internal OperationContext(Stopwatch stopwatch, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            _stopwatch = stopwatch;
+            Stopwatch = stopwatch;
             Timeout = timeout;
             CancellationToken = cancellationToken;
         }
 
         public CancellationToken CancellationToken { get; }
 
-        public TimeSpan Elapsed => _stopwatch.Elapsed;
+        public TimeSpan Elapsed => Stopwatch.Elapsed;
 
         public TimeSpan Timeout { get; }
+
+        public OperationContext ParentContext { get; private init; }
 
         public TimeSpan RemainingTimeout
         {
@@ -55,9 +54,11 @@ namespace MongoDB.Driver
                     return System.Threading.Timeout.InfiniteTimeSpan;
                 }
 
-                return Timeout - _stopwatch.Elapsed;
+                return Timeout - Elapsed;
             }
         }
+
+        private Stopwatch Stopwatch { get; }
 
         public bool IsTimedOut()
         {
@@ -82,7 +83,10 @@ namespace MongoDB.Driver
                 timeout = remainingTimeout;
             }
 
-            return new OperationContext(timeout, CancellationToken);
+            return new OperationContext(timeout, CancellationToken)
+            {
+                ParentContext = this
+            };
         }
 
         public void WaitTask(Task task)
