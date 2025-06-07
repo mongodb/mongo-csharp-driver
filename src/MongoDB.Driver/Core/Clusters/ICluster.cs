@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -62,8 +61,8 @@ namespace MongoDB.Driver.Core.Clusters
 
         void Initialize();
 
-        IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken);
-        Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken);
+        IServer SelectServer(IServerSelector selector, OperationContext operationContext);
+        Task<IServer> SelectServerAsync(IServerSelector selector, OperationContext operationContext);
 
         ICoreSessionHandle StartSession(CoreSessionOptions options = null);
     }

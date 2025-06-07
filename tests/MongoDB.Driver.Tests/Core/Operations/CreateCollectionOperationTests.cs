@@ -1031,11 +1031,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (async)
             {
-                return subject.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                return subject.ExecuteAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult();
             }
             else
             {
-                return subject.Execute(binding, CancellationToken.None);
+                return subject.Execute(binding, OperationContext.NoTimeout);
             }
         }
 
@@ -1045,7 +1045,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Filter = new BsonDocument("name", _collectionNamespace.CollectionName)
             };
-            return listCollectionsOperation.Execute(binding, CancellationToken.None).Single();
+            return listCollectionsOperation.Execute(binding, OperationContext.NoTimeout).Single();
         }
     }
 }

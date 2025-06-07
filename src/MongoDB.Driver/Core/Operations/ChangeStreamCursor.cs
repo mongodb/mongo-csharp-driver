@@ -261,13 +261,17 @@ namespace MongoDB.Driver.Core.Operations
         private IAsyncCursor<RawBsonDocument> Resume(CancellationToken cancellationToken)
         {
             ReconfigureOperationResumeValues();
-            return _changeStreamOperation.Resume(_binding, cancellationToken);
+            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            return _changeStreamOperation.Resume(_binding, operationContext);
         }
 
         private async Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(CancellationToken cancellationToken)
         {
             ReconfigureOperationResumeValues();
-            return await _changeStreamOperation.ResumeAsync(_binding, cancellationToken).ConfigureAwait(false);
+            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            return await _changeStreamOperation.ResumeAsync(_binding, operationContext).ConfigureAwait(false);
         }
 
         internal struct ResumeValues

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 
@@ -21,13 +20,13 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal interface IReadOperation<TResult>
     {
-        TResult Execute(IReadBinding binding, CancellationToken cancellationToken);
-        Task<TResult> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken);
+        TResult Execute(IReadBinding binding, OperationContext operationContext);
+        Task<TResult> ExecuteAsync(IReadBinding binding, OperationContext operationContext);
     }
 
     internal interface IWriteOperation<TResult>
     {
-        TResult Execute(IWriteBinding binding, CancellationToken cancellationToken);
-        Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken);
+        TResult Execute(IWriteBinding binding, OperationContext operationContext);
+        Task<TResult> ExecuteAsync(IWriteBinding binding, OperationContext operationContext);
     }
 }

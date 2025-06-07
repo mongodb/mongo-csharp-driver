@@ -14,7 +14,6 @@
 */
 
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -29,7 +28,7 @@ namespace MongoDB.Driver.Core.Clusters
             ICoreSessionHandle session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            CancellationToken cancellationToken)
+            OperationContext operationContext)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
             if (pinnedServer != null)
@@ -41,9 +40,9 @@ namespace MongoDB.Driver.Core.Clusters
                 ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
                 : selector;
 
-            // Server selection also updates the cluster type, allowing us to to determine if the server
+            // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = cluster.SelectServer(selector, cancellationToken);
+            var server = cluster.SelectServer(selector, operationContext);
             PinServerIfNeeded(cluster, session, server);
             return server;
         }
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Core.Clusters
             ICoreSessionHandle session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            CancellationToken cancellationToken)
+            OperationContext operationContext)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
             if (pinnedServer != null)
@@ -65,9 +64,9 @@ namespace MongoDB.Driver.Core.Clusters
                 ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
                 : selector;
 
-            // Server selection also updates the cluster type, allowing us to to determine if the server
+            // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = await cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
+            var server = await cluster.SelectServerAsync(selector, operationContext).ConfigureAwait(false);
             PinServerIfNeeded(cluster, session, server);
 
             return server;

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void StartImplicitSession_should_call_cluster_StartSession()
         {
-            var subject = CreateSubject(out var clusterMock, out _);
+            var subject = CreateSubject(out var clusterMock);
 
             subject.StartImplicitSession();
 
@@ -42,8 +42,8 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task ExecuteReadOperation_throws_on_null_operation([Values(true, false)] bool async)
         {
-            var subject = CreateSubject(out _, out _);
-            var options = new ReadOperationOptions();
+            var subject = CreateSubject(out _);
+            var options = new ReadOperationOptions(Timeout.InfiniteTimeSpan);
             var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task ExecuteReadOperation_throws_on_null_options([Values(true, false)] bool async)
         {
-            var subject = CreateSubject(out _, out _);
+            var subject = CreateSubject(out _);
             var operation = Mock.Of<IReadOperation<object>>();
             var session = Mock.Of<IClientSessionHandle>();
 
@@ -74,9 +74,9 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task ExecuteReadOperation_throws_on_null_session([Values(true, false)] bool async)
         {
-            var subject = CreateSubject(out _, out _);
+            var subject = CreateSubject(out _);
             var operation = Mock.Of<IReadOperation<object>>();
-            var options = new ReadOperationOptions();
+            var options = new ReadOperationOptions(Timeout.InfiniteTimeSpan);
 
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.ExecuteReadOperationAsync(null, operation, options, true, CancellationToken.None)) :
@@ -90,8 +90,8 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task ExecuteWriteOperation_throws_on_null_operation([Values(true, false)] bool async)
         {
-            var subject = CreateSubject(out _, out _);
-            var options = new WriteOperationOptions();
+            var subject = CreateSubject(out _);
+            var options = new WriteOperationOptions(Timeout.InfiniteTimeSpan);
             var session = Mock.Of<IClientSessionHandle>();
 
             var exception = async ?
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task ExecuteWriteOperation_throws_on_null_options([Values(true, false)] bool async)
         {
-            var subject = CreateSubject(out _, out _);
+            var subject = CreateSubject(out _);
             var operation = Mock.Of<IWriteOperation<object>>();
             var session = Mock.Of<IClientSessionHandle>();
 
@@ -122,9 +122,9 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async Task ExecuteWriteOperation_throws_on_null_session([Values(true, false)] bool async)
         {
-            var subject = CreateSubject(out _, out _);
+            var subject = CreateSubject(out _);
             var operation = Mock.Of<IWriteOperation<object>>();
-            var options = new WriteOperationOptions();
+            var options = new WriteOperationOptions(Timeout.InfiniteTimeSpan);
 
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.ExecuteWriteOperationAsync(null, operation, options, true, CancellationToken.None)) :
@@ -134,22 +134,12 @@ namespace MongoDB.Driver.Tests
                 .Subject.ParamName.Should().Be("session");
         }
 
-        private OperationExecutor CreateSubject(out Mock<IClusterInternal> clusterMock, out Mock<ICoreSessionHandle> implicitSessionMock)
+        private OperationExecutor CreateSubject(out Mock<IClusterInternal> clusterMock)
         {
-            implicitSessionMock = CreateCoreSessionMock(true);
             clusterMock = new Mock<IClusterInternal>();
-            clusterMock.Setup(c => c.StartSession(It.IsAny<CoreSessionOptions>())).Returns(implicitSessionMock.Object);
             var clientMock = new Mock<IMongoClient>();
             clientMock.SetupGet(c => c.Cluster).Returns(clusterMock.Object);
             return new OperationExecutor(clientMock.Object);
-        }
-
-        private static Mock<ICoreSessionHandle> CreateCoreSessionMock(bool isImplicit)
-        {
-            var sessionMock = new Mock<ICoreSessionHandle>();
-            sessionMock.SetupGet(s => s.IsImplicit).Returns(isImplicit);
-            sessionMock.Setup(s => s.Fork()).Returns(() => CreateCoreSessionMock(isImplicit).Object);
-            return sessionMock;
         }
     }
 }

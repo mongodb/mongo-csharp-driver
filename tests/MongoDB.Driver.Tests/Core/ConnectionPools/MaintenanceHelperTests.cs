@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 IConnection acquiredConnection = null;
                 if (checkOutConnection)
                 {
-                    acquiredConnection = pool.AcquireConnection(CancellationToken.None);
+                    acquiredConnection = pool.AcquireConnection(OperationContext.NoTimeout);
                     acquiredConnection.ConnectionId.LongLocalValue.Should().Be(1);
                 }
 
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 var requestInPlayTimeout = TimeSpan.FromMilliseconds(100);
                 if (!closeInUseConnection && checkOutConnection)
                 {
-                    // connection in progress should be not touched 
+                    // connection in progress should be not touched
                     Thread.Sleep(requestInPlayTimeout);
                 }
                 else

@@ -100,8 +100,8 @@ namespace MongoDB.Driver.Tests
                 var channels = new ConcurrentBag<IChannelHandle>();
                 ThreadingUtilities.ExecuteOnNewThreads(threadsCount, i =>
                 {
-                    channels.Add(slowServer.GetChannel(default));
-                    channels.Add(fastServer.GetChannel(default));
+                    channels.Add(slowServer.GetChannel(OperationContext.NoTimeout));
+                    channels.Add(fastServer.GetChannel(OperationContext.NoTimeout));
                 });
 
                 foreach (var channel in channels)

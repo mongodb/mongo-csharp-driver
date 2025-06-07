@@ -592,16 +592,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
-            Exception exception;
-            if (async)
-            {
-                exception = Record.Exception(() => subject.ExecuteAsync(binding: null, cancellationToken: CancellationToken.None).GetAwaiter().GetResult());
-            }
-            else
-            {
-                exception = Record.Exception(() => subject.Execute(binding: null, cancellationToken: CancellationToken.None));
-            }
-
+            var exception = Record.Exception(() => ExecuteOperation(subject, binding: null, async: async));
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("binding");
         }
