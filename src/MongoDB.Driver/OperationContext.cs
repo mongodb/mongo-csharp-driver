@@ -63,8 +63,9 @@ namespace MongoDB.Driver
 
         private Stopwatch Stopwatch { get; }
 
-        public bool IsTimedOut()
+        public bool IsTimedOut(out TimeSpan elapsed)
         {
+            elapsed = Elapsed;
             var remainingTimeout = RemainingTimeout;
             if (remainingTimeout == System.Threading.Timeout.InfiniteTimeSpan)
             {

@@ -99,9 +99,10 @@ namespace MongoDB.Driver.Tests
             stopwatch.Stop();
 
             var operationContext = new OperationContext(stopwatch, timeout, CancellationToken.None);
-            var result = operationContext.IsTimedOut();
+            var result = operationContext.IsTimedOut(out var elapsed);
 
             result.Should().Be(expected);
+            elapsed.Should().Be(stopwatch.Elapsed);
         }
 
         public static IEnumerable<object[]> IsTimedOut_test_cases =

@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
 
-            var serverSelectionCancellationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             try
             {
-                serverSelectionCancellationContext.WaitTask(_serverReadyTaskCompletionSource.Task);
+                serverSelectionOperationContext.WaitTask(_serverReadyTaskCompletionSource.Task);
             }
             catch (TimeoutException)
             {
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.Clusters
                    _description,
                    selector,
                    _server.Description,
-                   serverSelectionCancellationContext.Elapsed,
+                   serverSelectionOperationContext.Elapsed,
                    null,
                    EventContext.OperationName));
             }
@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
 
-            var serverSelectionCancellationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             try
             {
-                await serverSelectionCancellationContext.WaitTaskAsync(_serverReadyTaskCompletionSource.Task).ConfigureAwait(false);
+                await serverSelectionOperationContext.WaitTaskAsync(_serverReadyTaskCompletionSource.Task).ConfigureAwait(false);
             }
             catch (TimeoutException)
             {
@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Core.Clusters
                    _description,
                    selector,
                    _server.Description,
-                   serverSelectionCancellationContext.Elapsed,
+                   serverSelectionOperationContext.Elapsed,
                    null,
                    EventContext.OperationName));
             }

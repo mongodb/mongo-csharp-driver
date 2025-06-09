@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(selector, nameof(selector));
             Ensure.IsNotNull(operationContext, nameof(operationContext));
 
-            var serverSelectionCancellationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
+            var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
 
             using (var helper = new SelectServerHelper(this, selector))
             {
@@ -230,13 +230,13 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     while (true)
                     {
-                        var server = helper.SelectServer(serverSelectionCancellationContext);
+                        var server = helper.SelectServer(serverSelectionOperationContext);
                         if (server != null)
                         {
                             return server;
                         }
 
-                        helper.WaitForDescriptionChanged(serverSelectionCancellationContext);
+                        helper.WaitForDescriptionChanged(serverSelectionOperationContext);
                     }
                 }
                 catch (TimeoutException)
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(selector, nameof(selector));
             Ensure.IsNotNull(operationContext, nameof(operationContext));
 
-            var serverSelectionCancellationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
+            var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
 
             using (var helper = new SelectServerHelper(this, selector))
             {
@@ -269,13 +269,13 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     while (true)
                     {
-                        var server = helper.SelectServer(serverSelectionCancellationContext);
+                        var server = helper.SelectServer(serverSelectionOperationContext);
                         if (server != null)
                         {
                             return server;
                         }
 
-                        await helper.WaitForDescriptionChangedAsync(serverSelectionCancellationContext).ConfigureAwait(false);
+                        await helper.WaitForDescriptionChangedAsync(serverSelectionOperationContext).ConfigureAwait(false);
                     }
                 }
                 catch (TimeoutException)
