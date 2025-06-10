@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Search
             new MultiSearchPathDefinition<TDocument>(fields);
 
         /// <summary>
-        /// Performs an implicit conversion from an array of field names to 
+        /// Performs an implicit conversion from an array of field names to
         /// <see cref="SearchPathDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="fieldNames">The array of field names.</param>
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Search
             new MultiSearchPathDefinition<TDocument>(fieldNames.Select(fieldName => new StringFieldDefinition<TDocument>(fieldName)));
 
         /// <summary>
-        /// Performs an implicit conversion from an array of field names to 
+        /// Performs an implicit conversion from an array of field names to
         /// <see cref="SearchPathDefinition{TDocument}"/>.
         /// </summary>
         /// <param name="fieldNames">The list of field names.</param>

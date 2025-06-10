@@ -48,11 +48,11 @@ namespace MongoDB.Benchmarks.MultiDoc
             for (var i = 0; i < 10000; i++)
             {
                 var collectionName = __collectionNamespaces[i % __collectionNamespaces.Length];
-                
+
                 _clientBulkWriteMixedOpsModels.Add(new BulkWriteInsertOneModel<BsonDocument>(collectionName, smallDocument.DeepClone().AsBsonDocument));
                 _clientBulkWriteMixedOpsModels.Add(new BulkWriteReplaceOneModel<BsonDocument>(collectionName, FilterDefinition<BsonDocument>.Empty, smallDocument.DeepClone().AsBsonDocument));
                 _clientBulkWriteMixedOpsModels.Add(new BulkWriteDeleteOneModel<BsonDocument>(collectionName, FilterDefinition<BsonDocument>.Empty));
-                
+
                 _collectionBulkWriteMixedOpsModels.Add(new InsertOneModel<BsonDocument>(smallDocument.DeepClone().AsBsonDocument));
                 _collectionBulkWriteMixedOpsModels.Add(new ReplaceOneModel<BsonDocument>(FilterDefinition<BsonDocument>.Empty, smallDocument.DeepClone().AsBsonDocument));
                 _collectionBulkWriteMixedOpsModels.Add(new DeleteOneModel<BsonDocument>(FilterDefinition<BsonDocument>.Empty));
@@ -63,13 +63,13 @@ namespace MongoDB.Benchmarks.MultiDoc
         public void BeforeTask()
         {
             _client.DropDatabase(MongoConfiguration.PerfTestDatabaseName);
-            
+
             _database = _client.GetDatabase(MongoConfiguration.PerfTestDatabaseName);
             foreach (var collectionName in __collectionNamespaces)
             {
                 _database.CreateCollection(collectionName.Split('.')[1]);
             }
-            
+
             _collection = _database.GetCollection<BsonDocument>(MongoConfiguration.PerfTestCollectionName);
         }
 
@@ -78,7 +78,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         {
             _collection.BulkWrite(_collectionBulkWriteMixedOpsModels, new());
         }
-        
+
         [Benchmark]
         public void SmallDocClientBulkWriteMixedOpsBenchmark()
         {

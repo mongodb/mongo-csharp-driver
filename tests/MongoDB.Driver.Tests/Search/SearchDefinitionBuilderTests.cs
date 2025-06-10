@@ -266,12 +266,12 @@ namespace MongoDB.Driver.Tests.Search
                 subjectFamily.EmbeddedDocument(p => p.Children, subjectPerson.QueryString(p => p.LastName, "berg")),
                 "{ embeddedDocument: { path : 'Children', operator : { 'queryString' : { defaultPath : 'Children.ln', query : 'berg' } } } }");
         }
-        
+
         [Fact]
         public void Equals_with_array_should_render_supported_type()
         {
             var subjectTyped = CreateSubject<Person>();
-            
+
             AssertRendered(
                 subjectTyped.Equals(p => p.Hobbies, "soccer"),
                 "{ equals: { path: 'hobbies', value: 'soccer' } }");
@@ -1547,13 +1547,13 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("ret")]
             public bool Retired { get; set; }
-            
+
             [BsonElement("hobbies")]
             public string[] Hobbies { get; set; }
 
             [BsonElement("salaries")]
             public int[] SalaryHistory { get; set; }
-            
+
             public object Object { get; set; }
 
             public string Name { get; set; }

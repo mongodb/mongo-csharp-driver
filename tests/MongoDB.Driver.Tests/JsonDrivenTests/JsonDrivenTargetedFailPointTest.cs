@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             return await TestRunner.FailPointCluster.SelectServerAsync(pinnedServerSelector, CancellationToken.None).ConfigureAwait(false);
         }
 
-        // private methods 
+        // private methods
         private IServerSelector CreateServerSelector(EndPoint endpoint)
         {
             return new CompositeServerSelector(new IServerSelector[]

@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Search
             TField value,
             SearchScoreDefinition<TDocument> score = null) =>
                 Equals(new ExpressionFieldDefinition<TDocument, TField>(path), value, score);
-        
+
         /// <summary>
         /// Creates a search definition that queries for documents where at least one element in an indexed array field is equal
         /// to the specified value.
@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Search
             IEnumerable<TField> values,
             SearchScoreDefinition<TDocument> score = null) =>
                 In(new ExpressionFieldDefinition<TDocument>(path), values, score);
-        
+
         /// <summary>
         /// Creates a search definition that queries for documents where the value of the field equals to any of specified values.
         /// </summary>
@@ -639,7 +639,7 @@ namespace MongoDB.Driver.Search
             SearchScoreDefinition<TDocument> score = null)
             where TField : struct, IComparable<TField> =>
                 Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
-        
+
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
@@ -672,9 +672,9 @@ namespace MongoDB.Driver.Search
                 path,
                 new SearchRangeV2<TField>(
                     range.Min.HasValue ? new(range.Min.Value, range.IsMinInclusive) : null,
-                    range.Max.HasValue ? new(range.Max.Value, range.IsMaxInclusive) : null), 
+                    range.Max.HasValue ? new(range.Max.Value, range.IsMaxInclusive) : null),
                 score);
-        
+
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
@@ -688,7 +688,7 @@ namespace MongoDB.Driver.Search
             SearchRangeV2<TField> range,
             SearchScoreDefinition<TDocument> score = null) =>
             Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
-        
+
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>
@@ -702,7 +702,7 @@ namespace MongoDB.Driver.Search
             SearchRangeV2<TField> range,
             SearchScoreDefinition<TDocument> score = null) =>
             Range(new ExpressionFieldDefinition<TDocument>(path), range, score);
-        
+
         /// <summary>
         /// Creates a search definition that queries for documents where a field is in the specified range.
         /// </summary>

@@ -41,7 +41,7 @@ namespace MongoDB.Benchmarks
                 Name = Categories.Contains(DriverBenchmarkCategory.BulkWriteBench)
                     ? benchmarkReport.BenchmarkCase.Descriptor.WorkloadMethod.Name
                     : benchmarkReport.BenchmarkCase.Descriptor.Type.Name;
-                
+
                 dataSetSize = (int)benchmarkReport.BenchmarkCase.Parameters["BenchmarkDataSetSize"];
             }
 

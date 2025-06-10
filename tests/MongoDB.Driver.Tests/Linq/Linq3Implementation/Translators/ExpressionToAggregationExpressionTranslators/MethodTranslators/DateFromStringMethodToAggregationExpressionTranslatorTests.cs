@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 .Where(x => x.Id == id)
                 .Select(x => Mql.DateFromString(x.S, x.F, x.TZ, x.OnError, x.OnNull));
 
-            var expectedStages = 
+            var expectedStages =
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",

@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         public class A
         {
-            public A(int x, int y) { X = x; Y = y; } 
+            public A(int x, int y) { X = x; Y = y; }
             public int X { get; set; }
             public int Y { get; set; }
         }

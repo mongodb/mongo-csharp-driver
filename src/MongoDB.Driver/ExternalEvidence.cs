@@ -21,7 +21,7 @@ using System.Text;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Evidence of a MongoIdentity via an external mechanism.  For example, on windows this may 
+    /// Evidence of a MongoIdentity via an external mechanism.  For example, on windows this may
     /// be the current process' user or, on linux, via kinit.
     /// </summary>
     public sealed class ExternalEvidence : MongoIdentityEvidence
@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
         /// </returns>
         public override int GetHashCode()
         {

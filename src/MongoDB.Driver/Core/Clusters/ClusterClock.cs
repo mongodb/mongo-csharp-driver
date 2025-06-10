@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Clusters
             _clusterTime = GreaterClusterTime(_clusterTime, newClusterTime);
         }
     }
-   
+
     internal sealed class NoClusterClock : IClusterClock
     {
         public BsonDocument ClusterTime => null;

@@ -404,7 +404,7 @@ namespace MongoDB.Driver.Core.Bindings
                 throw new InvalidOperationException("Transactions do not support unacknowledged write concerns.");
             }
 
-            _currentTransaction?.UnpinAll(); // unpin data if any when a new transaction is started 
+            _currentTransaction?.UnpinAll(); // unpin data if any when a new transaction is started
             _currentTransaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions);
         }
 

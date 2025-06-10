@@ -517,7 +517,7 @@ namespace MongoDB.Driver.Core.Clusters
         public static IDnsMonitoringCluster _cluster(this DnsMonitor obj) => (IDnsMonitoringCluster)Reflector.GetFieldValue(obj, nameof(_cluster));
         public static IDnsResolver _dnsResolver(this DnsMonitor obj) => (IDnsResolver)Reflector.GetFieldValue(obj, nameof(_dnsResolver));
         public static string _lookupDomainName(this DnsMonitor obj) => (string)Reflector.GetFieldValue(obj, nameof(_lookupDomainName));
-        public static bool _processDnsResultHasEverBeenCalled(this DnsMonitor obj) => (bool)Reflector.GetFieldValue(obj, nameof(_processDnsResultHasEverBeenCalled));        
+        public static bool _processDnsResultHasEverBeenCalled(this DnsMonitor obj) => (bool)Reflector.GetFieldValue(obj, nameof(_processDnsResultHasEverBeenCalled));
         public static string _service(this DnsMonitor obj) => (string)Reflector.GetFieldValue(obj, nameof(_service));
         public static Exception _unhandledException(this DnsMonitor obj) => (Exception)Reflector.GetFieldValue(obj, nameof(_unhandledException));
 

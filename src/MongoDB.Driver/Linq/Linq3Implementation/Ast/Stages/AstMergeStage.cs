@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 
         private BsonValue RenderInto()
         {
-            return 
+            return
                 _intoDatabase == null ?
                     _intoCollection :
                     new BsonDocument { { "db", _intoDatabase }, { "coll", _intoCollection } };
