@@ -60,12 +60,12 @@ namespace MongoDB.Driver.Core.Bindings
             return Task.FromResult(GetChannelSourceHelper());
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             return GetReadChannelSource(operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             return GetReadChannelSourceAsync(operationContext);
         }

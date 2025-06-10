@@ -53,25 +53,25 @@ namespace MongoDB.Driver.Core.Bindings
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
-            return GetReadChannelSource(null, operationContext);
+            return GetReadChannelSource(operationContext, null);
         }
 
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
         {
-            return GetReadChannelSourceAsync(null, operationContext);
+            return GetReadChannelSourceAsync(operationContext, null);
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, deprioritizedServers, operationContext);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, _session, _serverSelector, deprioritizedServers);
             return GetChannelSourceHelper(server);
         }
 
-        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, deprioritizedServers, operationContext).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, _session, _serverSelector, deprioritizedServers).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 

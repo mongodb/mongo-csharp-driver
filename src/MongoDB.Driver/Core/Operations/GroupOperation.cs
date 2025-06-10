@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
            };
         }
 
-        public IEnumerable<TResult> Execute(IReadBinding binding, OperationContext operationContext)
+        public IEnumerable<TResult> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             using (var channelSource = binding.GetReadChannelSource(operationContext))
@@ -146,11 +146,11 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return operation.Execute(channelBinding, operationContext);
+                return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public async Task<IEnumerable<TResult>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public async Task<IEnumerable<TResult>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             using (var channelSource = await binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false))
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 

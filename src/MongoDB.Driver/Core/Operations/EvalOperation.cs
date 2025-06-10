@@ -87,19 +87,19 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public BsonValue Execute(IWriteBinding binding, OperationContext operationContext)
+        public BsonValue Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = CreateOperation();
-            var result = operation.Execute(binding, operationContext);
+            var result = operation.Execute(operationContext, binding);
             return result["retval"];
         }
 
-        public async Task<BsonValue> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public async Task<BsonValue> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = CreateOperation();
-            var result = await operation.ExecuteAsync(binding, operationContext).ConfigureAwait(false);
+            var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
             return result["retval"];
         }
 

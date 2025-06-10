@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
-        public BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
+        public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (EventContext.BeginOperation("updateSearchIndex"))
             using (var channelSource = binding.GetWriteChannelSource(operationContext))
@@ -51,11 +51,11 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return operation.Execute(channelBinding, operationContext);
+                return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (EventContext.BeginOperation("updateSearchIndex"))
             using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 

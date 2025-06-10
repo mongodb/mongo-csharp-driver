@@ -49,46 +49,46 @@ namespace MongoDB.Driver.Core.Bindings
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
-            return GetReadChannelSource(null, operationContext);
+            return GetReadChannelSource(operationContext, null);
         }
 
         public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext)
         {
-            return GetReadChannelSourceAsync(null, operationContext);
+            return GetReadChannelSourceAsync(operationContext, null);
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, deprioritizedServers, operationContext);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, _session, WritableServerSelector.Instance, deprioritizedServers);
             return CreateServerChannelSource(server);
         }
 
-        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, deprioritizedServers, operationContext).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, _session, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext)
         {
-            return GetWriteChannelSource(deprioritizedServers: null, operationContext);
+            return GetWriteChannelSource(operationContext, deprioritizedServers: null);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, deprioritizedServers, operationContext);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, _session, WritableServerSelector.Instance, deprioritizedServers);
             return CreateServerChannelSource(server);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
         {
-            return GetWriteChannelSource(null, mayUseSecondary, operationContext);
+            return GetWriteChannelSource(operationContext, null, mayUseSecondary);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
             if (IsSessionPinnedToServer())
             {
@@ -101,28 +101,28 @@ namespace MongoDB.Driver.Core.Bindings
                 ? (IServerSelector)new CompositeServerSelector(new IServerSelector[] { new PriorityServerSelector(deprioritizedServers), writableServerSelector })
                 : writableServerSelector;
 
-            var server = _cluster.SelectServer(selector, operationContext);
+            var server = _cluster.SelectServer(operationContext, selector);
             return CreateServerChannelSource(server);
         }
 
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext)
         {
-            return GetWriteChannelSourceAsync(deprioritizedServers: null, operationContext);
+            return GetWriteChannelSourceAsync(operationContext, deprioritizedServers: null);
         }
 
-        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, deprioritizedServers, operationContext).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, _session, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
         {
-            return GetWriteChannelSourceAsync(null, mayUseSecondary, operationContext);
+            return GetWriteChannelSourceAsync(operationContext, null, mayUseSecondary);
         }
 
-        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
             if (IsSessionPinnedToServer())
             {
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Bindings
                 ? new CompositeServerSelector(new IServerSelector[] { new PriorityServerSelector(deprioritizedServers), writableServerSelector })
                 : writableServerSelector;
 
-            var server = await _cluster.SelectServerAsync(selector, operationContext).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 

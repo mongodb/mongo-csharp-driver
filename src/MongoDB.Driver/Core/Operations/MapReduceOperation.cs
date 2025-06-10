@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public IAsyncCursor<TResult> Execute(IReadBinding binding, OperationContext operationContext)
+        public IAsyncCursor<TResult> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -96,13 +96,13 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
-                var result = operation.Execute(channelBinding, operationContext);
+                var result = operation.Execute(operationContext, channelBinding);
                 return new SingleBatchAsyncCursor<TResult>(result);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
-                var result = await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
                 return new SingleBatchAsyncCursor<TResult>(result);
             }
         }

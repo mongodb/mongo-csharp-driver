@@ -105,10 +105,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         protected TCommandResult ExecuteProtocol(
+            OperationContext operationContext,
             IChannelSource channelSource,
             ICoreSessionHandle session,
-            ReadPreference readPreference,
-            OperationContext operationContext)
+            ReadPreference readPreference)
         {
             using (var channel = channelSource.GetChannel(operationContext))
             {
@@ -136,10 +136,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         protected async Task<TCommandResult> ExecuteProtocolAsync(
+            OperationContext operationContext,
             IChannelSource channelSource,
             ICoreSessionHandle session,
-            ReadPreference readPreference,
-            OperationContext operationContext)
+            ReadPreference readPreference)
         {
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {

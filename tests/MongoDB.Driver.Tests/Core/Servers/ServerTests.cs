@@ -853,7 +853,7 @@ namespace MongoDB.Driver.Core.Servers
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
             using (var session = cluster.StartSession())
             {
-                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, OperationContext.NoTimeout);
+                var server = (Server)cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
                 using (var channel = server.GetChannel(OperationContext.NoTimeout))
                 {
                     session.AdvanceClusterTime(sessionClusterTime);
@@ -900,7 +900,7 @@ namespace MongoDB.Driver.Core.Servers
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
             using (var session = cluster.StartSession())
             {
-                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, OperationContext.NoTimeout);
+                var server = (Server)cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
                 using (var channel = server.GetChannel(OperationContext.NoTimeout))
                 {
                     var command = BsonDocument.Parse("{ ping : 1 }");
@@ -943,7 +943,7 @@ namespace MongoDB.Driver.Core.Servers
             using (var cluster = CoreTestConfiguration.CreateCluster(builder))
             using (var session = cluster.StartSession())
             {
-                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, OperationContext.NoTimeout);
+                var server = (Server)cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
                 using (var channel = server.GetChannel(OperationContext.NoTimeout))
                 {
                     var command = BsonDocument.Parse("{ ping : 1 }");

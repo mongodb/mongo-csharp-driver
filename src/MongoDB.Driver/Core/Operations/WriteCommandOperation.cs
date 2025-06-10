@@ -38,25 +38,25 @@ namespace MongoDB.Driver.Core.Operations
             set => _readPreference = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public TCommandResult Execute(IWriteBinding binding, OperationContext operationContext)
+        public TCommandResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (EventContext.BeginOperation())
             using (var channelSource = binding.GetWriteChannelSource(operationContext))
             {
-                return ExecuteProtocol(channelSource, binding.Session, _readPreference, operationContext);
+                return ExecuteProtocol(operationContext, channelSource, binding.Session, _readPreference);
             }
         }
 
-        public async Task<TCommandResult> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public async Task<TCommandResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(channelSource, binding.Session, _readPreference, operationContext).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(operationContext, channelSource, binding.Session, _readPreference).ConfigureAwait(false);
             }
         }
     }

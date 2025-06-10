@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap.RegisterForDispose(client);
 
             var cluster = client.GetClusterInternal();
-            var server = cluster.SelectServer(new EndPointServerSelector(pinnedServer), OperationContext.NoTimeout);
+            var server = cluster.SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(pinnedServer));
 
             var session = NoCoreSession.NewHandle();
 

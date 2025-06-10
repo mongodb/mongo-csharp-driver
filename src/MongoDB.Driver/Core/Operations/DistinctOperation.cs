@@ -104,15 +104,15 @@ namespace MongoDB.Driver.Core.Operations
             get { return _valueSerializer; }
         }
 
-        public IAsyncCursor<TValue> Execute(IReadBinding binding, OperationContext operationContext)
+        public IAsyncCursor<TValue> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
                 var operation = CreateOperation(context);
-                var result = operation.Execute(context, operationContext);
+                var result = operation.Execute(operationContext, context);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
@@ -120,15 +120,15 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<IAsyncCursor<TValue>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public async Task<IAsyncCursor<TValue>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
                 var operation = CreateOperation(context);
-                var result = await operation.ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 

@@ -23,55 +23,55 @@ namespace MongoDB.Driver.Core.Operations
     {
         public static TResult Execute<TResult>(
             this IReadOperation<TResult> operation,
+            OperationContext operationContext,
             IChannelSourceHandle channelSource,
             ReadPreference readPreference,
-            ICoreSessionHandle session,
-            OperationContext operationContext)
+            ICoreSessionHandle session)
         {
             Ensure.IsNotNull(operation, nameof(operation));
             using (var readBinding = new ChannelSourceReadWriteBinding(channelSource.Fork(), readPreference, session.Fork()))
             {
-                return operation.Execute(readBinding, operationContext);
+                return operation.Execute(operationContext, readBinding);
             }
         }
 
         public static TResult Execute<TResult>(
             this IWriteOperation<TResult> operation,
+            OperationContext operationContext,
             IChannelSourceHandle channelSource,
-            ICoreSessionHandle session,
-            OperationContext operationContext)
+            ICoreSessionHandle session)
         {
             Ensure.IsNotNull(operation, nameof(operation));
             using (var writeBinding = new ChannelSourceReadWriteBinding(channelSource.Fork(), ReadPreference.Primary, session.Fork()))
             {
-                return operation.Execute(writeBinding, operationContext);
+                return operation.Execute(operationContext, writeBinding);
             }
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IReadOperation<TResult> operation,
+            OperationContext operationContext,
             IChannelSourceHandle channelSource,
             ReadPreference readPreference,
-            ICoreSessionHandle session,
-            OperationContext operationContext)
+            ICoreSessionHandle session)
         {
             Ensure.IsNotNull(operation, nameof(operation));
             using (var readBinding = new ChannelSourceReadWriteBinding(channelSource.Fork(), readPreference, session.Fork()))
             {
-                return await operation.ExecuteAsync(readBinding, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, readBinding).ConfigureAwait(false);
             }
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(
             this IWriteOperation<TResult> operation,
+            OperationContext operationContext,
             IChannelSourceHandle channelSource,
-            ICoreSessionHandle session,
-            OperationContext operationContext)
+            ICoreSessionHandle session)
         {
             Ensure.IsNotNull(operation, nameof(operation));
             using (var writeBinding = new ChannelSourceReadWriteBinding(channelSource.Fork(), ReadPreference.Primary, session.Fork()))
             {
-                return await operation.ExecuteAsync(writeBinding, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, writeBinding).ConfigureAwait(false);
             }
         }
     }

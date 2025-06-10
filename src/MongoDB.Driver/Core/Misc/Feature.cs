@@ -565,7 +565,7 @@ namespace MongoDB.Driver.Core.Misc
         public void ThrowIfNotSupported(IMongoClient client, CancellationToken cancellationToken = default)
         {
             var cluster = client.GetClusterInternal();
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            // TODO: CSOT implement proper way to obtain the operationContext
             var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
             using (var channelSource = binding.GetWriteChannelSource(operationContext))
@@ -584,7 +584,7 @@ namespace MongoDB.Driver.Core.Misc
         public async Task ThrowIfNotSupportedAsync(IMongoClient client, CancellationToken cancellationToken = default)
         {
             var cluster = client.GetClusterInternal();
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            // TODO: CSOT implement proper way to obtain the operationContext
             var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
             using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))

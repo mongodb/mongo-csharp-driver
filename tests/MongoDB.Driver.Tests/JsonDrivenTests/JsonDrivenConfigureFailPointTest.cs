@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             }
 
             var cluster = TestRunner.FailPointCluster;
-            return cluster.SelectServer(WritableServerSelector.Instance, OperationContext.NoTimeout);
+            return cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
         }
 
         protected async virtual Task<IServer> GetFailPointServerAsync()
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             }
 
             var cluster = TestRunner.FailPointCluster;
-            return await cluster.SelectServerAsync(WritableServerSelector.Instance, OperationContext.NoTimeout).ConfigureAwait(false);
+            return await cluster.SelectServerAsync(OperationContext.NoTimeout, WritableServerSelector.Instance).ConfigureAwait(false);
         }
 
         protected override void SetArgument(string name, BsonValue value)

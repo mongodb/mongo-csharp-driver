@@ -90,52 +90,52 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, OperationContext operationContext)
+        public IAsyncCursor<BsonDocument> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
-                using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
+                using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
                 {
-                    return Execute(context, operationContext);
+                    return Execute(operationContext, context);
                 }
             }
         }
 
-        public IAsyncCursor<BsonDocument> Execute(RetryableReadContext context, OperationContext operationContext)
+        public IAsyncCursor<BsonDocument> Execute(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var result = operation.Execute(context, operationContext);
+                var result = operation.Execute(operationContext, context);
                 return CreateCursor(context.ChannelSource, context.Channel, result);
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
             {
-                using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
+                using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
                 {
-                    return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                    return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 }
             }
         }
 
-        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(RetryableReadContext context, OperationContext operationContext)
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (BeginOperation())
             {
                 var operation = CreateOperation();
-                var result = await operation.ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, context.Channel, result);
             }
         }

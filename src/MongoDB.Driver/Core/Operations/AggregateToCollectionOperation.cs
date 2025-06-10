@@ -147,33 +147,33 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        public BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
+        public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             var mayUseSecondary = new MayUseSecondary(_readPreference);
             using (BeginOperation())
-            using (var channelSource = binding.GetWriteChannelSource(mayUseSecondary, operationContext))
+            using (var channelSource = binding.GetWriteChannelSource(operationContext, mayUseSecondary))
             using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference);
-                return operation.Execute(channelBinding, operationContext);
+                return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             var mayUseSecondary = new MayUseSecondary(_readPreference);
             using (BeginOperation())
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(mayUseSecondary, operationContext).ConfigureAwait(false))
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext, mayUseSecondary).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, mayUseSecondary.EffectiveReadPreference);
-                return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 

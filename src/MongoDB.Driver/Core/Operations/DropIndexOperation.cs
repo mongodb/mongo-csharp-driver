@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
+        public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument result;
                 try
                 {
-                    result = operation.Execute(channelBinding, operationContext);
+                    result = operation.Execute(operationContext, channelBinding);
                 }
                 catch (MongoCommandException ex)
                 {
@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument result;
                 try
                 {
-                    result = await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
+                    result = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
                 }
                 catch (MongoCommandException ex)
                 {

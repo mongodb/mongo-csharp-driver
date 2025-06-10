@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract string CommandName { get; }
 
-        public virtual BsonDocument Execute(IReadBinding binding, OperationContext operationContext)
+        public virtual BsonDocument Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -59,11 +59,11 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return operation.Execute(channelBinding, operationContext);
+                return operation.Execute(operationContext, channelBinding);
             }
         }
 
-        public virtual async Task<BsonDocument> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
-                return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
@@ -133,11 +133,11 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override string CommandName => "commitTransaction";
 
-        public override BsonDocument Execute(IReadBinding binding, OperationContext operationContext)
+        public override BsonDocument Execute(OperationContext operationContext, IReadBinding binding)
         {
             try
             {
-                return base.Execute(binding, operationContext);
+                return base.Execute(operationContext, binding);
             }
             catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
             {
@@ -146,11 +146,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public override async Task<BsonDocument> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public override async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             try
             {
-                return await base.ExecuteAsync(binding, operationContext).ConfigureAwait(false);
+                return await base.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
             }
             catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
             {

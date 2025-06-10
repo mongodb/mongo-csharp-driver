@@ -61,8 +61,8 @@ namespace MongoDB.Driver.Core.Clusters
 
         void Initialize();
 
-        IServer SelectServer(IServerSelector selector, OperationContext operationContext);
-        Task<IServer> SelectServerAsync(IServerSelector selector, OperationContext operationContext);
+        IServer SelectServer(OperationContext operationContext, IServerSelector selector);
+        Task<IServer> SelectServerAsync(OperationContext operationContext, IServerSelector selector);
 
         ICoreSessionHandle StartSession(CoreSessionOptions options = null);
     }

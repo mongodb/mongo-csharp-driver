@@ -126,39 +126,39 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public long Execute(IReadBinding binding, OperationContext operationContext)
+        public long Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, operationContext);
+                return Execute(operationContext, context);
             }
         }
 
-        public long Execute(RetryableReadContext context, OperationContext operationContext)
+        public long Execute(OperationContext operationContext, RetryableReadContext context)
         {
             var operation = CreateOperation(context);
-            var document = operation.Execute(context, operationContext);
+            var document = operation.Execute(operationContext, context);
             return document["n"].ToInt64();
         }
 
-        public async Task<long> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public async Task<long> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
-        public async Task<long> ExecuteAsync(RetryableReadContext context, OperationContext operationContext)
+        public async Task<long> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
             var operation = CreateOperation(context);
-            var document = await operation.ExecuteAsync(context, operationContext).ConfigureAwait(false);
+            var document = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
             return document["n"].ToInt64();
         }
 

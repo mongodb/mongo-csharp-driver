@@ -58,16 +58,16 @@ namespace MongoDB.Driver.Core.Bindings
             return _reference.Instance.GetReadChannelSourceAsync(operationContext);
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSource(deprioritizedServers, operationContext);
+            return _reference.Instance.GetReadChannelSource(operationContext, deprioritizedServers);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSourceAsync(deprioritizedServers, operationContext);
+            return _reference.Instance.GetReadChannelSourceAsync(operationContext, deprioritizedServers);
         }
 
         public void Dispose()

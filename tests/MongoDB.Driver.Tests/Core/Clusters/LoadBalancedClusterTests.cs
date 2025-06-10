@@ -328,8 +328,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 PublishDescription(_endPoint);
 
                 var result = async ?
-                    await subject.SelectServerAsync(Mock.Of<IServerSelector>(), OperationContext.NoTimeout) :
-                    subject.SelectServer(Mock.Of<IServerSelector>(), OperationContext.NoTimeout);
+                    await subject.SelectServerAsync(OperationContext.NoTimeout, Mock.Of<IServerSelector>()) :
+                    subject.SelectServer(OperationContext.NoTimeout, Mock.Of<IServerSelector>());
 
                 result.EndPoint.Should().Be(_endPoint);
             }
@@ -356,8 +356,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 }
 
                 var exception = async ?
-                    await Record.ExceptionAsync(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), OperationContext.NoTimeout)) :
-                    Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), OperationContext.NoTimeout));
+                    await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, Mock.Of<IServerSelector>())) :
+                    Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, Mock.Of<IServerSelector>()));
 
                 var ex = exception.Should().BeOfType<TimeoutException>().Subject;
                 ex.Message.Should().StartWith($"A timeout occurred after {serverSelectionTimeout.TotalMilliseconds}ms selecting a server. Client view of cluster state is ");
@@ -389,8 +389,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 {
                     var cancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
                     exception = async ?
-                        await Record.ExceptionAsync(() => subject.SelectServerAsync(Mock.Of<IServerSelector>(), cancellationContext)) :
-                        Record.Exception(() => subject.SelectServer(Mock.Of<IServerSelector>(), cancellationContext));
+                        await Record.ExceptionAsync(() => subject.SelectServerAsync(cancellationContext, Mock.Of<IServerSelector>())) :
+                        Record.Exception(() => subject.SelectServer(cancellationContext, Mock.Of<IServerSelector>()));
                 }
 
                 exception.Should().BeOfType<OperationCanceledException>();

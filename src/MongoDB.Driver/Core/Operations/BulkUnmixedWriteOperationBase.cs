@@ -119,37 +119,37 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public BulkWriteOperationResult Execute(RetryableWriteContext context, OperationContext operationContext)
+        public BulkWriteOperationResult Execute(OperationContext operationContext, RetryableWriteContext context)
         {
             EnsureHintIsSupportedIfAnyRequestHasHint();
 
-            return ExecuteBatches(context, operationContext);
+            return ExecuteBatches(operationContext, context);
         }
 
-        public BulkWriteOperationResult Execute(IWriteBinding binding, OperationContext operationContext)
+        public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(binding, _retryRequested, operationContext))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
             {
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
-                return Execute(context, operationContext);
+                return Execute(operationContext, context);
             }
         }
 
-        public Task<BulkWriteOperationResult> ExecuteAsync(RetryableWriteContext context, OperationContext operationContext)
+        public Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
         {
             EnsureHintIsSupportedIfAnyRequestHasHint();
 
-            return ExecuteBatchesAsync(context, operationContext);
+            return ExecuteBatchesAsync(operationContext, context);
         }
 
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
-                return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
@@ -189,14 +189,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BulkWriteBatchResult ExecuteBatch(RetryableWriteContext context, Batch batch, OperationContext operationContext)
+        private BulkWriteBatchResult ExecuteBatch(OperationContext operationContext, RetryableWriteContext context, Batch batch)
         {
             var operation = CreateBatchOperation(batch);
             BsonDocument operationResult;
             MongoWriteConcernException writeConcernException = null;
             try
             {
-                operationResult = RetryableWriteOperationExecutor.Execute(operation, context, operationContext);
+                operationResult = RetryableWriteOperationExecutor.Execute(operationContext, operation, context);
             }
             catch (MongoWriteConcernException exception) when (exception.IsWriteConcernErrorOnly())
             {
@@ -207,14 +207,14 @@ namespace MongoDB.Driver.Core.Operations
             return CreateBatchResult(batch, operationResult, writeConcernException);
         }
 
-        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(RetryableWriteContext context, Batch batch, OperationContext operationContext)
+        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(OperationContext operationContext, RetryableWriteContext context, Batch batch)
         {
             var operation = CreateBatchOperation(batch);
             BsonDocument operationResult;
             MongoWriteConcernException writeConcernException = null;
             try
             {
-                operationResult = await RetryableWriteOperationExecutor.ExecuteAsync(operation, context, operationContext).ConfigureAwait(false);
+                operationResult = await RetryableWriteOperationExecutor.ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
             }
             catch (MongoWriteConcernException exception) when (exception.IsWriteConcernErrorOnly())
             {
@@ -225,22 +225,22 @@ namespace MongoDB.Driver.Core.Operations
             return CreateBatchResult(batch, operationResult, writeConcernException);
         }
 
-        private BulkWriteOperationResult ExecuteBatches(RetryableWriteContext context, OperationContext operationContext)
+        private BulkWriteOperationResult ExecuteBatches(OperationContext operationContext, RetryableWriteContext context)
         {
             var helper = new BatchHelper(_requests, _writeConcern, _isOrdered);
             foreach (var batch in helper.GetBatches())
             {
-                batch.Result = ExecuteBatch(context, batch, operationContext);
+                batch.Result = ExecuteBatch(operationContext, context, batch);
             }
             return helper.CreateFinalResultOrThrow(context.Channel);
         }
 
-        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(RetryableWriteContext context, OperationContext operationContext)
+        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(OperationContext operationContext, RetryableWriteContext context)
         {
             var helper = new BatchHelper(_requests, _writeConcern, _isOrdered);
             foreach (var batch in helper.GetBatches())
             {
-                batch.Result = await ExecuteBatchAsync(context, batch, operationContext).ConfigureAwait(false);
+                batch.Result = await ExecuteBatchAsync(operationContext, context, batch).ConfigureAwait(false);
             }
             return helper.CreateFinalResultOrThrow(context.Channel);
         }

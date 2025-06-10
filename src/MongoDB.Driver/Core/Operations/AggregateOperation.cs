@@ -269,19 +269,19 @@ namespace MongoDB.Driver.Core.Operations
 
         // methods
         /// <inheritdoc/>
-        public IAsyncCursor<TResult> Execute(IReadBinding binding, OperationContext operationContext)
+        public IAsyncCursor<TResult> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, operationContext);
+                return Execute(operationContext, context);
             }
         }
 
         /// <inheritdoc/>
-        public IAsyncCursor<TResult> Execute(RetryableReadContext context, OperationContext operationContext)
+        public IAsyncCursor<TResult> Execute(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
             EnsureIsReadOnlyPipeline();
@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             {
                 var operation = CreateOperation(context);
-                var result = operation.Execute(context, operationContext);
+                var result = operation.Execute(operationContext, context);
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
@@ -298,19 +298,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TResult>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TResult>> ExecuteAsync(RetryableReadContext context, OperationContext operationContext)
+        public async Task<IAsyncCursor<TResult>> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
             EnsureIsReadOnlyPipeline();
@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             {
                 var operation = CreateOperation(context);
-                var result = await operation.ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        public static RetryableWriteContext Create(IWriteBinding binding, bool retryRequested, OperationContext operationContext)
+        public static RetryableWriteContext Create(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             try
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<RetryableWriteContext> CreateAsync(IWriteBinding binding, bool retryRequested, OperationContext operationContext)
+        public static async Task<RetryableWriteContext> CreateAsync(OperationContext operationContext, IWriteBinding binding, bool retryRequested)
         {
             var context = new RetryableWriteContext(binding, retryRequested);
             try

@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return operation.Execute(bindingHandle, OperationContext.NoTimeout);
+                return operation.Execute(OperationContext.NoTimeout, bindingHandle);
             }
         }
 
@@ -164,8 +164,8 @@ namespace MongoDB.Driver.Core.Operations
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return async ?
-                    await operation.ExecuteAsync(bindingHandle, OperationContext.NoTimeout) :
-                    operation.Execute(bindingHandle, OperationContext.NoTimeout);
+                    await operation.ExecuteAsync(OperationContext.NoTimeout, bindingHandle) :
+                    operation.Execute(OperationContext.NoTimeout, bindingHandle);
             }
         }
 
@@ -173,11 +173,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (async)
             {
-                return operation.ExecuteAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(OperationContext.NoTimeout, binding).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(binding, OperationContext.NoTimeout);
+                return operation.Execute(OperationContext.NoTimeout, binding);
             }
         }
 
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return operation.Execute(bindingHandle, OperationContext.NoTimeout);
+                return operation.Execute(OperationContext.NoTimeout, bindingHandle);
             }
         }
 
@@ -215,11 +215,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (async)
             {
-                return operation.ExecuteAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(OperationContext.NoTimeout, binding).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(binding, OperationContext.NoTimeout);
+                return operation.Execute(OperationContext.NoTimeout, binding);
             }
         }
 
@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, IReadBinding binding)
         {
-            return await operation.ExecuteAsync(binding, OperationContext.NoTimeout);
+            return await operation.ExecuteAsync(OperationContext.NoTimeout, binding);
         }
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return await operation.ExecuteAsync(bindingHandle, OperationContext.NoTimeout);
+                return await operation.ExecuteAsync(OperationContext.NoTimeout, bindingHandle);
             }
         }
 
@@ -253,23 +253,23 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (async)
                 {
-                    return await operation.ExecuteAsync(bindingHandle, OperationContext.NoTimeout);
+                    return await operation.ExecuteAsync(OperationContext.NoTimeout, bindingHandle);
                 }
                 else
                 {
-                    return operation.Execute(bindingHandle, OperationContext.NoTimeout);
+                    return operation.Execute(OperationContext.NoTimeout, bindingHandle);
                 }
             }
         }
 
         private protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding, bool async)
             => async ?
-                operation.ExecuteAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult() :
-                operation.Execute(binding, OperationContext.NoTimeout);
+                operation.ExecuteAsync(OperationContext.NoTimeout, binding).GetAwaiter().GetResult() :
+                operation.Execute(OperationContext.NoTimeout, binding);
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
         {
-            return await operation.ExecuteAsync(binding, OperationContext.NoTimeout);
+            return await operation.ExecuteAsync(OperationContext.NoTimeout, binding);
         }
 
         private protected void CreateIndexes(params CreateIndexRequest[] requests)
@@ -513,8 +513,8 @@ namespace MongoDB.Driver.Core.Operations
             bool useImplicitSession)
         {
             VerifySessionIdSending(
-                (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
-                (binding, cancellationToken) => operation.Execute(binding, cancellationToken),
+                (binding, cancellationToken) => operation.ExecuteAsync(cancellationToken, binding),
+                (binding, cancellationToken) => operation.Execute(cancellationToken, binding),
                 AssertSessionIdWasNotSentIfUnacknowledgedWrite,
                 commandName,
                 async,
@@ -524,8 +524,8 @@ namespace MongoDB.Driver.Core.Operations
         private protected void VerifySessionIdWasSentWhenSupported<TResult>(IReadOperation<TResult> operation, string commandName, bool async)
         {
             VerifySessionIdSending(
-                (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
-                (binding, cancellationToken) => operation.Execute(binding, cancellationToken),
+                (binding, cancellationToken) => operation.ExecuteAsync(cancellationToken, binding),
+                (binding, cancellationToken) => operation.Execute(cancellationToken, binding),
                 AssertSessionIdWasSentWhenSupported,
                 commandName,
                 async);
@@ -534,8 +534,8 @@ namespace MongoDB.Driver.Core.Operations
         private protected void VerifySessionIdWasSentWhenSupported<TResult>(IWriteOperation<TResult> operation, string commandName, bool async)
         {
             VerifySessionIdSending(
-                (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
-                (binding, cancellationToken) => operation.Execute(binding, cancellationToken),
+                (binding, cancellationToken) => operation.ExecuteAsync(cancellationToken, binding),
+                (binding, cancellationToken) => operation.Execute(cancellationToken, binding),
                 AssertSessionIdWasSentWhenSupported,
                 commandName,
                 async);

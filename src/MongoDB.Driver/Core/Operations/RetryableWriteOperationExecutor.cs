@@ -24,26 +24,26 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableWriteOperationExecutor
     {
         // public static methods
-        public static TResult Execute<TResult>(IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, OperationContext operationContext)
+        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = RetryableWriteContext.Create(binding, retryRequested, operationContext))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, retryRequested))
             {
-                return Execute(operation, context, operationContext);
+                return Execute(operationContext, operation, context);
             }
         }
 
-        public static TResult Execute<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, OperationContext operationContext)
+        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             if (!AreRetriesAllowed(operation, context))
             {
-                return operation.ExecuteAttempt(context, 1, null, operationContext);
+                return operation.ExecuteAttempt(operationContext, context, 1, null);
             }
 
             var transactionNumber = context.Binding.Session.AdvanceTransactionNumber();
             Exception originalException;
             try
             {
-                return operation.ExecuteAttempt(context, 1, transactionNumber, operationContext);
+                return operation.ExecuteAttempt(operationContext, context, 1, transactionNumber);
             }
             catch (Exception ex) when (RetryabilityHelper.IsRetryableWriteException(ex))
             {
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(context.Binding.GetWriteChannelSource(new[] { context.ChannelSource.ServerDescription }, operationContext));
+                context.ReplaceChannelSource(context.Binding.GetWriteChannelSource(operationContext, new[] { context.ChannelSource.ServerDescription }));
                 context.ReplaceChannel(context.ChannelSource.GetChannel(operationContext));
             }
             catch
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                return operation.ExecuteAttempt(context, 2, transactionNumber, operationContext);
+                return operation.ExecuteAttempt(operationContext, context, 2, transactionNumber);
             }
             catch (Exception ex) when (ShouldThrowOriginalException(ex))
             {
@@ -75,26 +75,26 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public async static Task<TResult> ExecuteAsync<TResult>(IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested, OperationContext operationContext)
+        public async static Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, IWriteBinding binding, bool retryRequested)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(binding, retryRequested, operationContext).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(operation, context, operationContext).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
             }
         }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, OperationContext operationContext)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             if (!AreRetriesAllowed(operation, context))
             {
-                return await operation.ExecuteAttemptAsync(context, 1, null, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(operationContext, context, 1, null).ConfigureAwait(false);
             }
 
             var transactionNumber = context.Binding.Session.AdvanceTransactionNumber();
             Exception originalException;
             try
             {
-                return await operation.ExecuteAttemptAsync(context, 1, transactionNumber, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(operationContext, context, 1, transactionNumber).ConfigureAwait(false);
             }
             catch (Exception ex) when (RetryabilityHelper.IsRetryableWriteException(ex))
             {
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(await context.Binding.GetWriteChannelSourceAsync(new[] { context.ChannelSource.ServerDescription }, operationContext).ConfigureAwait(false));
+                context.ReplaceChannelSource(await context.Binding.GetWriteChannelSourceAsync(operationContext, new[] { context.ChannelSource.ServerDescription }).ConfigureAwait(false));
                 context.ReplaceChannel(await context.ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
             }
             catch
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                return await operation.ExecuteAttemptAsync(context, 2, transactionNumber, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(operationContext, context, 2, transactionNumber).ConfigureAwait(false);
             }
             catch (Exception ex) when (ShouldThrowOriginalException(ex))
             {

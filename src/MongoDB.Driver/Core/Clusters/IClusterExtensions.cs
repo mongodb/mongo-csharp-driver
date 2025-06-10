@@ -25,10 +25,10 @@ namespace MongoDB.Driver.Core.Clusters
     {
         public static IServer SelectServerAndPinIfNeeded(
             this IClusterInternal cluster,
+            OperationContext operationContext,
             ICoreSessionHandle session,
             IServerSelector selector,
-            IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            OperationContext operationContext)
+            IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
             if (pinnedServer != null)
@@ -42,17 +42,17 @@ namespace MongoDB.Driver.Core.Clusters
 
             // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = cluster.SelectServer(selector, operationContext);
+            var server = cluster.SelectServer(operationContext, selector);
             PinServerIfNeeded(cluster, session, server);
             return server;
         }
 
         public static async Task<IServer> SelectServerAndPinIfNeededAsync(
             this IClusterInternal cluster,
+            OperationContext operationContext,
             ICoreSessionHandle session,
             IServerSelector selector,
-            IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            OperationContext operationContext)
+            IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
             if (pinnedServer != null)
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = await cluster.SelectServerAsync(selector, operationContext).ConfigureAwait(false);
+            var server = await cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
             PinServerIfNeeded(cluster, session, server);
 
             return server;

@@ -409,7 +409,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private CursorBatch<TDocument> GetNextBatch(CancellationToken cancellationToken)
         {
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            // TODO: CSOT implement proper way to obtain the operationContext
             var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (var channel = _channelSource.GetChannel(operationContext))
@@ -420,7 +420,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<CursorBatch<TDocument>> GetNextBatchAsync(CancellationToken cancellationToken)
         {
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            // TODO: CSOT implement proper way to obtain the operationContext
             var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (var channel = await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
@@ -436,7 +436,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private void KillCursors(CancellationToken cancellationToken)
         {
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            // TODO: CSOT implement proper way to obtain the operationContext
             var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
@@ -451,7 +451,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task KillCursorsAsync(CancellationToken cancellationToken)
         {
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
+            // TODO: CSOT implement proper way to obtain the operationContext
             var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))

@@ -141,10 +141,10 @@ namespace MongoDB.Driver.Tests.Encryption
             mockServer.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channel);
 
             mockCluster
-                .Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<OperationContext>()))
+                .Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
                 .Returns(mockServer.Object);
             mockCluster
-                .Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<OperationContext>()))
+                .Setup(m => m.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
                 .ReturnsAsync(mockServer.Object);
 
             var database = Mock.Of<IMongoDatabase>(d =>
@@ -230,10 +230,10 @@ namespace MongoDB.Driver.Tests.Encryption
             mockServer.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channel);
 
             mockCluster
-                .Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<OperationContext>()))
+                .Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
                 .Returns(mockServer.Object);
             mockCluster
-                .Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<OperationContext>()))
+                .Setup(m => m.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
                 .ReturnsAsync(mockServer.Object);
 
             var database = Mock.Of<IMongoDatabase>(d =>

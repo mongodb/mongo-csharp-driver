@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 // The next hello or legacy hello response will be delayed because the waiting in the mock.Callbacks
                 cluster.Initialize();
 
-                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), OperationContext.NoTimeout);
+                var selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 }
 
                 // ensure that a new server can be selected
-                selectedServer = cluster.SelectServer(WritableServerSelector.Instance, OperationContext.NoTimeout);
+                selectedServer = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
 
                 // ensure that the selected server is not the same as the initial
                 selectedServer.EndPoint.Should().Be(__endPoint2);

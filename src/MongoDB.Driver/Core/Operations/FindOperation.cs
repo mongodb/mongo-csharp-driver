@@ -291,48 +291,48 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        public IAsyncCursor<TDocument> Execute(IReadBinding binding, OperationContext operationContext)
+        public IAsyncCursor<TDocument> Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, operationContext);
+                return Execute(operationContext, context);
             }
         }
 
-        public IAsyncCursor<TDocument> Execute(RetryableReadContext context, OperationContext operationContext)
+        public IAsyncCursor<TDocument> Execute(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
                 var operation = CreateOperation(context);
-                var commandResult = operation.Execute(context, operationContext);
+                var commandResult = operation.Execute(operationContext, context);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
         }
 
-        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
-        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(RetryableReadContext context, OperationContext operationContext)
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
                 var operation = CreateOperation(context);
-                var commandResult = await operation.ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
         }

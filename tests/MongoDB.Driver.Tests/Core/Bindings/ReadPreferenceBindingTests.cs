@@ -111,19 +111,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), It.IsAny<OperationContext>())).Returns(Task.FromResult(selectedServer));
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<ReadPreferenceServerSelector>())).Returns(Task.FromResult(selectedServer));
 
                 await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<ReadPreferenceServerSelector>(), It.IsAny<OperationContext>()), Times.Once);
+                _mockCluster.Verify(c => c.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<ReadPreferenceServerSelector>()), Times.Once);
             }
             else
             {
-                _mockCluster.Setup(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), It.IsAny<OperationContext>())).Returns(selectedServer);
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<OperationContext>(), It.IsAny<ReadPreferenceServerSelector>())).Returns(selectedServer);
 
                 subject.GetReadChannelSource(OperationContext.NoTimeout);
 
-                _mockCluster.Verify(c => c.SelectServer(It.IsAny<ReadPreferenceServerSelector>(), It.IsAny<OperationContext>()), Times.Once);
+                _mockCluster.Verify(c => c.SelectServer(It.IsAny<OperationContext>(), It.IsAny<ReadPreferenceServerSelector>()), Times.Once);
             }
         }
 
@@ -135,8 +135,8 @@ namespace MongoDB.Driver.Core.Bindings
             var mockSession = new Mock<ICoreSessionHandle>();
             var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, mockSession.Object);
             var selectedServer = new Mock<IServer>().Object;
-            _mockCluster.Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), It.IsAny<OperationContext>())).Returns(selectedServer);
-            _mockCluster.Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), It.IsAny<OperationContext>())).Returns(Task.FromResult(selectedServer));
+            _mockCluster.Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>())).Returns(selectedServer);
+            _mockCluster.Setup(m => m.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>())).Returns(Task.FromResult(selectedServer));
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 

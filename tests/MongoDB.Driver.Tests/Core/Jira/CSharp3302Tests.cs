@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 cluster.Initialize();
 
                 // Trigger Cluster._rapidHeartbeatTimer
-                _ = cluster.SelectServerAsync(CreateWritableServerAndEndPointSelector(__endPoint1), OperationContext.NoTimeout);
+                _ = cluster.SelectServerAsync(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
 
                 // Wait for all heartbeats to complete
                 await Task.WhenAny(allHeartbeatsReceived.Task, Task.Delay(1000));
@@ -142,13 +142,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     server.DescriptionChanged += ProcessServerDescriptionChanged;
                 }
 
-                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), OperationContext.NoTimeout);
+                var selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
                 // Change primary
                 currentPrimaries.Add(__serverId2);
-                selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint2), OperationContext.NoTimeout);
+                selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint2));
                 selectedServer.EndPoint.Should().Be(__endPoint2);
 
                 // Ensure stalling happened

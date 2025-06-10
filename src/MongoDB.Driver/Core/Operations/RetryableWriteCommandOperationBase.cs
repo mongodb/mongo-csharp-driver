@@ -86,33 +86,33 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        public virtual BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
+        public virtual BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = RetryableWriteContext.Create(binding, _retryRequested, operationContext))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, operationContext);
+                return Execute(operationContext, context);
             }
         }
 
-        public virtual BsonDocument Execute(RetryableWriteContext context, OperationContext operationContext)
+        public virtual BsonDocument Execute(OperationContext operationContext, RetryableWriteContext context)
         {
-            return RetryableWriteOperationExecutor.Execute(this, context, operationContext);
+            return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
         }
 
-        public virtual async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
-        public virtual Task<BsonDocument> ExecuteAsync(RetryableWriteContext context, OperationContext operationContext)
+        public virtual Task<BsonDocument> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
         {
-            return RetryableWriteOperationExecutor.ExecuteAsync(this, context, operationContext);
+            return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
         }
 
-        public BsonDocument ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, OperationContext operationContext)
+        public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
             // TODO: CSOT implement timeout in Command Execution
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.CancellationToken);
         }
 
-        public Task<BsonDocument> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, OperationContext operationContext)
+        public Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
             // TODO: CSOT implement timeout in Command Execution

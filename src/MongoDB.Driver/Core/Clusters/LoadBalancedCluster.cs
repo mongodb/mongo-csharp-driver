@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public IServer SelectServer(IServerSelector selector, OperationContext operationContext)
+        public IServer SelectServer(OperationContext operationContext, IServerSelector selector)
         {
             Ensure.IsNotNull(selector, nameof(selector));
             Ensure.IsNotNull(operationContext, nameof(operationContext));
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Clusters
                 throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, OperationContext operationContext)
+        public async Task<IServer> SelectServerAsync(OperationContext operationContext, IServerSelector selector)
         {
             Ensure.IsNotNull(selector, nameof(selector));
             Ensure.IsNotNull(operationContext, nameof(operationContext));

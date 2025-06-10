@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        public static RetryableReadContext Create(IReadBinding binding, bool retryRequested, OperationContext operationContext)
+        public static RetryableReadContext Create(OperationContext operationContext, IReadBinding binding, bool retryRequested)
         {
             var context = new RetryableReadContext(binding, retryRequested);
             try
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<RetryableReadContext> CreateAsync(IReadBinding binding, bool retryRequested, OperationContext operationContext)
+        public static async Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
         {
             var context = new RetryableReadContext(binding, retryRequested);
             try

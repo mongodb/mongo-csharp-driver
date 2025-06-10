@@ -53,7 +53,7 @@ namespace MongoDB.Driver
             var cancellationContext = options.CreateCancellationContext(cancellationToken);
             var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
-            return operation.Execute(binding, cancellationContext);
+            return operation.Execute(cancellationContext, binding);
         }
 
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(
@@ -71,7 +71,7 @@ namespace MongoDB.Driver
             var cancellationContext = options.CreateCancellationContext(cancellationToken);
             var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
-            return await operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
+            return await operation.ExecuteAsync(cancellationContext, binding).ConfigureAwait(false);
         }
 
         public TResult ExecuteWriteOperation<TResult>(
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
 
             var cancellationContext = options.CreateCancellationContext(cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
-            return operation.Execute(binding, cancellationContext);
+            return operation.Execute(cancellationContext, binding);
         }
 
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
 
             var cancellationContext = options.CreateCancellationContext(cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
-            return await operation.ExecuteAsync(binding, cancellationContext).ConfigureAwait(false);
+            return await operation.ExecuteAsync(cancellationContext, binding).ConfigureAwait(false);
         }
 
         public IClientSessionHandle StartImplicitSession()

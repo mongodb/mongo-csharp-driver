@@ -88,17 +88,17 @@ namespace MongoDB.Driver.Core.Operations
             return new[] { payload };
         }
 
-        public new ClientBulkWriteResult Execute(IWriteBinding binding, OperationContext operationContext)
+        public new ClientBulkWriteResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), operationContext);
+                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
-                    serverResponse = base.Execute(context, operationContext);
+                    serverResponse = base.Execute(operationContext, context);
                 }
                 catch (MongoWriteConcernException concernException)
                 {
@@ -146,17 +146,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public new async Task<ClientBulkWriteResult> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public new async Task<ClientBulkWriteResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using var operation = BeginOperation();
             var bulkWriteResults = new BulkWriteRawResult();
             while (true)
             {
-                using var context = RetryableWriteContext.Create(binding, GetEffectiveRetryRequested(), operationContext);
+                using var context = RetryableWriteContext.Create(operationContext, binding, GetEffectiveRetryRequested());
                 BsonDocument serverResponse = null;
                 try
                 {
-                    serverResponse = await base.ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                    serverResponse = await base.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 }
                 catch (MongoWriteConcernException concernException)
                 {

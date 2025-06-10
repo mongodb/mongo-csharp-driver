@@ -145,8 +145,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.Bindings
                 try
                 {
                     var firstAttempt = CreateAbortTransactionOperation();
-                    ExecuteEndTransactionOnPrimary(firstAttempt, operationCancellationContext);
+                    ExecuteEndTransactionOnPrimary(operationContext, firstAttempt);
                     return;
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Bindings
                 try
                 {
                     var secondAttempt = CreateAbortTransactionOperation();
-                    ExecuteEndTransactionOnPrimary(secondAttempt, operationCancellationContext);
+                    ExecuteEndTransactionOnPrimary(operationContext, secondAttempt);
                 }
                 catch
                 {
@@ -196,8 +196,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Bindings
                 try
                 {
                     var firstAttempt = CreateAbortTransactionOperation();
-                    await ExecuteEndTransactionOnPrimaryAsync(firstAttempt, operationCancellationContext).ConfigureAwait(false);
+                    await ExecuteEndTransactionOnPrimaryAsync(operationContext, firstAttempt).ConfigureAwait(false);
                     return;
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Core.Bindings
                 try
                 {
                     var secondAttempt = CreateAbortTransactionOperation();
-                    await ExecuteEndTransactionOnPrimaryAsync(secondAttempt, operationCancellationContext).ConfigureAwait(false);
+                    await ExecuteEndTransactionOnPrimaryAsync(operationContext, secondAttempt).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -296,8 +296,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -309,7 +309,7 @@ namespace MongoDB.Driver.Core.Bindings
                 try
                 {
                     var firstAttempt = CreateCommitTransactionOperation(IsFirstCommitAttemptRetry());
-                    ExecuteEndTransactionOnPrimary(firstAttempt, operationCancellationContext);
+                    ExecuteEndTransactionOnPrimary(operationContext, firstAttempt);
                     return;
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Core.Bindings
                 }
 
                 var secondAttempt = CreateCommitTransactionOperation(isCommitRetry: true);
-                ExecuteEndTransactionOnPrimary(secondAttempt, operationCancellationContext);
+                ExecuteEndTransactionOnPrimary(operationContext, secondAttempt);
             }
             finally
             {
@@ -333,8 +333,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
-            // TODO: CSOT implement proper way to obtain the operationCancellationContext
-            var operationCancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -346,7 +346,7 @@ namespace MongoDB.Driver.Core.Bindings
                 try
                 {
                     var firstAttempt = CreateCommitTransactionOperation(IsFirstCommitAttemptRetry());
-                    await ExecuteEndTransactionOnPrimaryAsync(firstAttempt, operationCancellationContext).ConfigureAwait(false);
+                    await ExecuteEndTransactionOnPrimaryAsync(operationContext, firstAttempt).ConfigureAwait(false);
                     return;
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
@@ -356,7 +356,7 @@ namespace MongoDB.Driver.Core.Bindings
                 }
 
                 var secondAttempt = CreateCommitTransactionOperation(isCommitRetry: true);
-                await ExecuteEndTransactionOnPrimaryAsync(secondAttempt, operationCancellationContext).ConfigureAwait(false);
+                await ExecuteEndTransactionOnPrimaryAsync(operationContext, secondAttempt).ConfigureAwait(false);
             }
             finally
             {
@@ -545,21 +545,21 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        private TResult ExecuteEndTransactionOnPrimary<TResult>(IReadOperation<TResult> operation, OperationContext operationContext)
+        private TResult ExecuteEndTransactionOnPrimary<TResult>(OperationContext operationContext, IReadOperation<TResult> operation)
         {
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
             {
-                return operation.Execute(binding, operationContext);
+                return operation.Execute(operationContext, binding);
             }
         }
 
-        private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(IReadOperation<TResult> operation, OperationContext operationContext)
+        private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(OperationContext operationContext, IReadOperation<TResult> operation)
         {
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
             using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
             {
-                return await operation.ExecuteAsync(binding, operationContext).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
             }
         }
 

@@ -87,8 +87,8 @@ namespace MongoDB.Driver.Tests
             var eventCapturer = CreateEventCapturer();
             using (var client = CreateMongoClient(eventCapturer, applicationName))
             {
-                var slowServer = client.GetClusterInternal().SelectServer(WritableServerSelector.Instance, default);
-                var fastServer = client.GetClusterInternal().SelectServer(new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)), default);
+                var slowServer = client.GetClusterInternal().SelectServer(default, WritableServerSelector.Instance);
+                var fastServer = client.GetClusterInternal().SelectServer(default, new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)));
 
                 using var failPoint = FailPoint.Configure(slowServer, NoCoreSession.NewHandle(), failCommand, async);
 

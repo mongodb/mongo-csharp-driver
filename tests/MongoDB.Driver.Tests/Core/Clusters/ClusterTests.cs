@@ -128,8 +128,8 @@ namespace MongoDB.Driver.Core.Clusters
             var subject = CreateSubject();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.SelectServerAsync(selector, OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.SelectServer(selector, OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, selector)) :
+                Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, selector));
 
             exception.Should().BeOfType<InvalidOperationException>();
         }
@@ -145,8 +145,8 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Dispose();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.SelectServerAsync(selector, OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.SelectServer(selector, OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, selector)) :
+                Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, selector));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -161,8 +161,8 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Initialize();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.SelectServerAsync(null, OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.SelectServer(null, OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, null)) :
+                Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, null));
 
             exception.Should().BeOfType<ArgumentNullException>();
         }
@@ -183,8 +183,8 @@ namespace MongoDB.Driver.Core.Clusters
             var selector = new DelegateServerSelector((c, s) => s);
 
             var result = async ?
-                await subject.SelectServerAsync(selector, OperationContext.NoTimeout) :
-                subject.SelectServer(selector, OperationContext.NoTimeout);
+                await subject.SelectServerAsync(OperationContext.NoTimeout, selector) :
+                subject.SelectServer(OperationContext.NoTimeout, selector);
 
             result.Should().NotBeNull();
 
@@ -213,8 +213,8 @@ namespace MongoDB.Driver.Core.Clusters
             var selector = new DelegateServerSelector((c, s) => s);
 
             var result = async ?
-                await subject.SelectServerAsync(selector, OperationContext.NoTimeout) :
-                subject.SelectServer(selector, OperationContext.NoTimeout);
+                await subject.SelectServerAsync(OperationContext.NoTimeout, selector) :
+                subject.SelectServer(OperationContext.NoTimeout, selector);
 
 
             result.Should().NotBeNull();
@@ -241,8 +241,8 @@ namespace MongoDB.Driver.Core.Clusters
             var selector = new DelegateServerSelector((c, s) => Enumerable.Empty<ServerDescription>());
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.SelectServerAsync(selector, OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.SelectServer(selector, OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, selector)) :
+                Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, selector));
 
             exception.Should().BeOfType<TimeoutException>();
 
@@ -269,8 +269,8 @@ namespace MongoDB.Driver.Core.Clusters
             var selector = new DelegateServerSelector((c, s) => s);
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.SelectServerAsync(selector, OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.SelectServer(selector, OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, selector)) :
+                Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, selector));
 
             exception.Should().BeOfType<TimeoutException>();
 
@@ -297,8 +297,8 @@ namespace MongoDB.Driver.Core.Clusters
             var selector = new DelegateServerSelector((c, s) => s);
 
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.SelectServerAsync(selector, OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.SelectServer(selector, OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, selector)) :
+                Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, selector));
 
             exception.Should().BeOfType<MongoIncompatibleDriverException>();
 
@@ -338,8 +338,8 @@ namespace MongoDB.Driver.Core.Clusters
             var selector = new DelegateServerSelector((c, s) => s);
 
             var result = async ?
-                await subject.SelectServerAsync(selector, OperationContext.NoTimeout) :
-                subject.SelectServer(selector, OperationContext.NoTimeout);
+                await subject.SelectServerAsync(OperationContext.NoTimeout, selector) :
+                subject.SelectServer(OperationContext.NoTimeout, selector);
 
             result.Should().NotBeNull();
 
@@ -377,8 +377,8 @@ namespace MongoDB.Driver.Core.Clusters
                 _capturedEvents.Clear();
 
                 var result = async ?
-                    await subject.SelectServerAsync(selector, OperationContext.NoTimeout) :
-                    subject.SelectServer(selector, OperationContext.NoTimeout);
+                    await subject.SelectServerAsync(OperationContext.NoTimeout, selector) :
+                    subject.SelectServer(OperationContext.NoTimeout, selector);
 
                 result.Should().NotBeNull();
 
@@ -411,8 +411,8 @@ namespace MongoDB.Driver.Core.Clusters
 
             _capturedEvents.Clear();
             var result = async ?
-                await subject.SelectServerAsync(selector, OperationContext.NoTimeout) :
-                subject.SelectServer(selector, OperationContext.NoTimeout);
+                await subject.SelectServerAsync(OperationContext.NoTimeout, selector) :
+                subject.SelectServer(OperationContext.NoTimeout, selector);
 
             result.Should().NotBeNull();
 
@@ -492,8 +492,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Clear();
 
             var result = async ?
-                await subject.SelectServerAsync(middleSelector, OperationContext.NoTimeout) :
-                subject.SelectServer(middleSelector, OperationContext.NoTimeout);
+                await subject.SelectServerAsync(OperationContext.NoTimeout, middleSelector) :
+                subject.SelectServer(OperationContext.NoTimeout, middleSelector);
 
             ((DnsEndPoint)result.EndPoint).Port.Should().Be(27020);
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
@@ -527,8 +527,8 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 var selector = new DelegateServerSelector((c, s) => s);
                 var selectedServer = async ?
-                    await subject.SelectServerAsync(selector, OperationContext.NoTimeout):
-                    subject.SelectServer(selector, OperationContext.NoTimeout);
+                    await subject.SelectServerAsync(OperationContext.NoTimeout, selector):
+                    subject.SelectServer(OperationContext.NoTimeout, selector);
 
                 var selectedServerPort = ((DnsEndPoint)selectedServer.EndPoint).Port;
                 selectedServerPort.Should().Be(27020);
@@ -539,8 +539,8 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 var selector = new DelegateServerSelector((c, s) => new ServerDescription[0]);
                 var exception = async ?
-                    await Record.ExceptionAsync(() => subject.SelectServerAsync(selector, OperationContext.NoTimeout)) :
-                    Record.Exception(() => subject.SelectServer(selector, OperationContext.NoTimeout));
+                    await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, selector)) :
+                    Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, selector));
 
                 exception.Should().BeOfType<TimeoutException>();
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();

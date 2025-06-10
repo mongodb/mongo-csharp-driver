@@ -57,12 +57,12 @@ namespace MongoDB.Driver.Core.Bindings
             return Task.FromResult(GetChannelSourceHelper());
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             return GetReadChannelSource(operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             return GetReadChannelSourceAsync(operationContext);
         }
@@ -73,19 +73,19 @@ namespace MongoDB.Driver.Core.Bindings
             return GetChannelSourceHelper();
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             return GetWriteChannelSource(operationContext);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
         {
             return GetWriteChannelSource(operationContext); // ignore mayUseSecondary
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
-            return GetWriteChannelSource(mayUseSecondary, operationContext);
+            return GetWriteChannelSource(operationContext, mayUseSecondary);
         }
 
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext)
@@ -94,19 +94,19 @@ namespace MongoDB.Driver.Core.Bindings
             return Task.FromResult(GetChannelSourceHelper());
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             return GetWriteChannelSourceAsync(operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
         {
             return GetWriteChannelSourceAsync(operationContext); // ignore mayUseSecondary
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
-            return GetWriteChannelSourceAsync(mayUseSecondary, operationContext);
+            return GetWriteChannelSourceAsync(operationContext, mayUseSecondary);
         }
 
         public void Dispose()

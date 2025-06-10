@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             new(_collectionNamespace.DatabaseNamespace, CreateCommand(), BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
         /// <inheritdoc/>
-        public BsonDocument Execute(IWriteBinding binding, OperationContext operationContext)
+        public BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 try
                 {
-                    return operation.Execute(channelBinding, operationContext);
+                    return operation.Execute(operationContext, channelBinding);
                 }
                 catch (MongoCommandException ex) when (ShouldIgnoreException(ex))
                 {
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, OperationContext operationContext)
+        public async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 try
                 {
-                    return await operation.ExecuteAsync(channelBinding, operationContext).ConfigureAwait(false);
+                    return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
                 }
                 catch (MongoCommandException ex) when (ShouldIgnoreException(ex))
                 {

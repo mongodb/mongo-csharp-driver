@@ -58,16 +58,16 @@ namespace MongoDB.Driver.Core.Bindings
             return _reference.Instance.GetReadChannelSourceAsync(operationContext);
         }
 
-        public IChannelSourceHandle GetReadChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSource(deprioritizedServers, operationContext);
+            return _reference.Instance.GetReadChannelSource(operationContext, deprioritizedServers);
         }
 
-        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetReadChannelSourceAsync(deprioritizedServers, operationContext);
+            return _reference.Instance.GetReadChannelSourceAsync(operationContext, deprioritizedServers);
         }
 
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext)
@@ -76,22 +76,22 @@ namespace MongoDB.Driver.Core.Bindings
             return _reference.Instance.GetWriteChannelSource(operationContext);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSource(deprioritizedServers, operationContext);
+            return _reference.Instance.GetWriteChannelSource(operationContext, deprioritizedServers);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSource(mayUseSecondary, operationContext);
+            return _reference.Instance.GetWriteChannelSource(operationContext, mayUseSecondary);
         }
 
-        public IChannelSourceHandle GetWriteChannelSource(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSource(deprioritizedServers, mayUseSecondary, operationContext);
+            return _reference.Instance.GetWriteChannelSource(operationContext, deprioritizedServers, mayUseSecondary);
         }
 
         public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext)
@@ -100,22 +100,22 @@ namespace MongoDB.Driver.Core.Bindings
             return _reference.Instance.GetWriteChannelSourceAsync(operationContext);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSourceAsync(deprioritizedServers, operationContext);
+            return _reference.Instance.GetWriteChannelSourceAsync(operationContext, deprioritizedServers);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IMayUseSecondaryCriteria mayUseSecondary)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSourceAsync(mayUseSecondary, operationContext);
+            return _reference.Instance.GetWriteChannelSourceAsync(operationContext, mayUseSecondary);
         }
 
-        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary, OperationContext operationContext)
+        public Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
             ThrowIfDisposed();
-            return _reference.Instance.GetWriteChannelSourceAsync(deprioritizedServers, mayUseSecondary, operationContext);
+            return _reference.Instance.GetWriteChannelSourceAsync(operationContext, deprioritizedServers, mayUseSecondary);
         }
 
         public void Dispose()

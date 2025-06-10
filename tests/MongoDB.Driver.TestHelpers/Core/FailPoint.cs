@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         private static IServer GetWriteableServer(IClusterInternal cluster)
         {
             var selector = WritableServerSelector.Instance;
-            return cluster.SelectServer(selector, OperationContext.NoTimeout);
+            return cluster.SelectServer(OperationContext.NoTimeout, selector);
         }
 
         private static void MakeFailPointApplicationNameTestableIfConfigured(BsonDocument command, bool async)
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings());
 
-            operation.Execute(_binding, OperationContext.NoTimeout);
+            operation.Execute(OperationContext.NoTimeout, _binding);
         }
     }
 }

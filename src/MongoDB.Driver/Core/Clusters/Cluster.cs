@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Core.Clusters
             DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(oldDescription, newDescription));
         }
 
-        public IServer SelectServer(IServerSelector selector, OperationContext operationContext)
+        public IServer SelectServer(OperationContext operationContext, IServerSelector selector)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));
@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, OperationContext operationContext)
+        public async Task<IServer> SelectServerAsync(OperationContext operationContext, IServerSelector selector)
         {
             ThrowIfDisposedOrNotOpen();
             Ensure.IsNotNull(selector, nameof(selector));

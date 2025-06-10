@@ -42,52 +42,52 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        public TCommandResult Execute(IReadBinding binding, OperationContext operationContext)
+        public TCommandResult Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, operationContext))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, operationContext);
+                return Execute(operationContext, context);
             }
         }
 
-        public TCommandResult Execute(RetryableReadContext context, OperationContext operationContext)
+        public TCommandResult Execute(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (EventContext.BeginOperation())
             {
-                return RetryableReadOperationExecutor.Execute(this, context, operationContext);
+                return RetryableReadOperationExecutor.Execute(operationContext, this, context);
             }
         }
 
-        public async Task<TCommandResult> ExecuteAsync(IReadBinding binding, OperationContext operationContext)
+        public async Task<TCommandResult> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, operationContext).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, operationContext).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
-        public async Task<TCommandResult> ExecuteAsync(RetryableReadContext context, OperationContext operationContext)
+        public async Task<TCommandResult> ExecuteAsync(OperationContext operationContext, RetryableReadContext context)
         {
             Ensure.IsNotNull(context, nameof(context));
 
             using (EventContext.BeginOperation())
             {
-                return await RetryableReadOperationExecutor.ExecuteAsync(this, context, operationContext).ConfigureAwait(false);
+                return await RetryableReadOperationExecutor.ExecuteAsync(operationContext, this, context).ConfigureAwait(false);
             }
         }
 
-        public TCommandResult ExecuteAttempt(RetryableReadContext context, int attempt, long? transactionNumber, OperationContext operationContext)
+        public TCommandResult ExecuteAttempt(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
             return ExecuteProtocol(context.Channel, context.Binding.Session, context.Binding.ReadPreference, operationContext.CancellationToken);
         }
 
-        public Task<TCommandResult> ExecuteAttemptAsync(RetryableReadContext context, int attempt, long? transactionNumber, OperationContext operationContext)
+        public Task<TCommandResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableReadContext context, int attempt, long? transactionNumber)
         {
             return ExecuteProtocolAsync(context.Channel, context.Binding.Session, context.Binding.ReadPreference, operationContext.CancellationToken);
         }

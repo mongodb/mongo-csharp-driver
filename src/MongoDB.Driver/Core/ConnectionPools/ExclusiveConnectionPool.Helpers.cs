@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                             pooledConnection = connectionCreator.CreateOpenedOrReuse(operationContext);
                         }
 
-                        return EndCheckingOut(pooledConnection, operationContext);
+                        return EndCheckingOut(operationContext, pooledConnection);
                     }
 
                     throw CreateException(operationContext);
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                             pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(operationContext).ConfigureAwait(false);
                         }
 
-                        return EndCheckingOut(pooledConnection, operationContext);
+                        return EndCheckingOut(operationContext, pooledConnection);
                     }
 
                     throw CreateException(operationContext);
@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 AcquireWaitQueueSlot();
             }
 
-            private IConnectionHandle EndCheckingOut(PooledConnection pooledConnection, OperationContext operationContext)
+            private IConnectionHandle EndCheckingOut(OperationContext operationContext, PooledConnection pooledConnection)
             {
                 var reference = new ReferenceCounted<PooledConnection>(pooledConnection, _pool.ReleaseConnection);
                 var connectionHandle = new AcquiredConnection(_pool, reference);
@@ -965,7 +965,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 // TODO: CSOT add support of CSOT timeout in connection open code too.
                 _connection.Open(operationContext.CancellationToken);
 
-                FinishCreating(_connection.Description, operationContext);
+                FinishCreating(operationContext, _connection.Description);
 
                 return _connection;
             }
@@ -977,7 +977,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 // TODO: CSOT add support of CSOT timeout in connection open code too.
                 await _connection.OpenAsync(operationContext.CancellationToken).ConfigureAwait(false);
 
-                FinishCreating(_connection.Description, operationContext);
+                FinishCreating(operationContext, _connection.Description);
 
                 return _connection;
             }
@@ -995,7 +995,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _connection = _pool.CreateNewConnection();
             }
 
-            private void FinishCreating(ConnectionDescription description, OperationContext operationContext)
+            private void FinishCreating(OperationContext operationContext, ConnectionDescription description)
             {
                 _pool._eventLogger.LogAndPublish(new ConnectionPoolAddedConnectionEvent(_connection.ConnectionId, operationContext.Elapsed, EventContext.OperationId));
 
