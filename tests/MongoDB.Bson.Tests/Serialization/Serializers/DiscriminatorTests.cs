@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
         }
 
-        // BaseDocument, BasedDocument and derived classes are used for tests with generic types
+        // BaseDocument and derived classes are used for tests with generic types
         // It's necessary to specify the derived specific types with BsonKnownTypes for the deserialization to work.
         [BsonKnownTypes(typeof(DerivedDocument<int>))]
         [BsonKnownTypes(typeof(DerivedDocument<List<Dictionary<string, int>>>))]
