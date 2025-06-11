@@ -387,10 +387,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 Exception exception;
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100)))
                 {
-                    var cancellationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+                    var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
                     exception = async ?
-                        await Record.ExceptionAsync(() => subject.SelectServerAsync(cancellationContext, Mock.Of<IServerSelector>())) :
-                        Record.Exception(() => subject.SelectServer(cancellationContext, Mock.Of<IServerSelector>()));
+                        await Record.ExceptionAsync(() => subject.SelectServerAsync(operationContext, Mock.Of<IServerSelector>())) :
+                        Record.Exception(() => subject.SelectServer(operationContext, Mock.Of<IServerSelector>()));
                 }
 
                 exception.Should().BeOfType<OperationCanceledException>();
