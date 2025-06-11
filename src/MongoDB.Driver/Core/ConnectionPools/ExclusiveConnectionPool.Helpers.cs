@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         if (operationContext.IsTimedOut())
                         {
                             stopwatch.Stop();
-                            throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for a connection after {stopwatch.Elapsed.TotalMilliseconds}ms.");
+                            throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for a connection after {stopwatch.ElapsedMilliseconds}ms.");
                         }
 
                         using (var connectionCreator = new ConnectionCreator(_pool))
