@@ -59,7 +59,7 @@ namespace MongoDB.Driver
 
         private Stopwatch Stopwatch { get; }
 
-        private TimeSpan Timeout { get; }
+        public TimeSpan Timeout { get; }
 
         public bool IsTimedOut()
         {
@@ -70,6 +70,15 @@ namespace MongoDB.Driver
             }
 
             return remainingTimeout < TimeSpan.Zero;
+        }
+
+        public void ThrowIfTimedOutOrCanceled()
+        {
+            CancellationToken.ThrowIfCancellationRequested();
+            if (IsTimedOut())
+            {
+                throw new TimeoutException();
+            }
         }
 
         public void WaitTask(Task task)

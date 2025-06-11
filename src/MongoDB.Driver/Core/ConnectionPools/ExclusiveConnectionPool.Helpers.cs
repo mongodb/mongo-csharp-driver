@@ -187,18 +187,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                     {
                         PooledConnection pooledConnection;
-                        if (operationContext.IsTimedOut())
-                        {
-                            stopwatch.Stop();
-                            throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for a connection after {stopwatch.ElapsedMilliseconds}ms.");
-                        }
+                        EnsureTimeout(operationContext, stopwatch);
 
                         using (var connectionCreator = new ConnectionCreator(_pool))
                         {
                             pooledConnection = connectionCreator.CreateOpenedOrReuse(operationContext);
                         }
 
-                        return EndCheckingOut(stopwatch, pooledConnection);
+                        return EndCheckingOut(pooledConnection, stopwatch);
                     }
 
                     stopwatch.Stop();
@@ -223,18 +219,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                     {
                         PooledConnection pooledConnection;
-                        if (operationContext.IsTimedOut())
-                        {
-                            stopwatch.Stop();
-                            throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for a connection after {stopwatch.Elapsed.TotalMilliseconds}ms.");
-                        }
+                        EnsureTimeout(operationContext, stopwatch);
 
                         using (var connectionCreator = new ConnectionCreator(_pool))
                         {
                             pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(operationContext).ConfigureAwait(false);
                         }
 
-                        return EndCheckingOut(stopwatch, pooledConnection);
+                        return EndCheckingOut(pooledConnection, stopwatch);
                     }
 
                     stopwatch.Stop();
@@ -287,6 +279,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _enteredWaitQueue = true;
             }
 
+            private void EnsureTimeout(OperationContext operationContext, Stopwatch stopwatch)
+            {
+                if (operationContext.IsTimedOut())
+                {
+                    stopwatch.Stop();
+                    throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for a connection after {stopwatch.ElapsedMilliseconds}ms.");
+                }
+            }
+
             private void StartCheckingOut(Stopwatch stopwatch)
             {
                 _pool._eventLogger.LogAndPublish(new ConnectionPoolCheckingOutConnectionEvent(_pool._serverId, EventContext.OperationId));
@@ -296,7 +297,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 AcquireWaitQueueSlot();
             }
 
-            private IConnectionHandle EndCheckingOut(Stopwatch stopwatch, PooledConnection pooledConnection)
+            private IConnectionHandle EndCheckingOut(PooledConnection pooledConnection, Stopwatch stopwatch)
             {
                 var reference = new ReferenceCounted<PooledConnection>(pooledConnection, _pool.ReleaseConnection);
                 var connectionHandle = new AcquiredConnection(_pool, reference);
@@ -997,11 +998,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 _pool._eventLogger.LogAndPublish(new ConnectionPoolAddingConnectionEvent(_pool._serverId, EventContext.OperationId));
 
-                operationContext.CancellationToken.ThrowIfCancellationRequested();
-                if (operationContext.IsTimedOut())
-                {
-                    throw new TimeoutException();
-                }
+                operationContext.ThrowIfTimedOutOrCanceled();
 
                 var stopwatch = Stopwatch.StartNew();
                 _connection = _pool.CreateNewConnection();

@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.Tests
 
             var operationContext = new OperationContext(stopwatch, timeout, cancellationToken);
 
-            operationContext._timeout().Should().Be(timeout);
+            operationContext.Timeout.Should().Be(timeout);
             operationContext.RemainingTimeout.Should().Be(timeout);
             operationContext.CancellationToken.Should().Be(cancellationToken);
             operationContext.ParentContext.Should().BeNull();
@@ -102,6 +101,39 @@ namespace MongoDB.Driver.Tests
             [true, TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10)],
         ];
 
+        [Fact]
+        public void ThrowIfTimedOutOrCanceled_succeed_if_no_timeout_and_no_cancellation()
+        {
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var exception = Record.Exception(() => operationContext.ThrowIfTimedOutOrCanceled());
+
+            exception.Should().BeNull();
+        }
+
+        [Fact]
+        public void ThrowIfTimedOutOrCanceled_throws_on_timeout()
+        {
+            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(10), CancellationToken.None);
+            Thread.Sleep(20);
+
+            var exception = Record.Exception(() => operationContext.ThrowIfTimedOutOrCanceled());
+
+            exception.Should().BeOfType<TimeoutException>();
+        }
+
+        [Fact]
+        public void ThrowIfTimedOutOrCanceled_throws_on_cancellation()
+        {
+            using var cancellationSource = new CancellationTokenSource();
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationSource.Token);
+            cancellationSource.Cancel();
+
+            var exception = Record.Exception(() => operationContext.ThrowIfTimedOutOrCanceled());
+
+            exception.Should().BeOfType<OperationCanceledException>();
+        }
+
         [Theory]
         [MemberData(nameof(WithTimeout_test_cases))]
         public void WithTimeout_should_calculate_proper_timeout(TimeSpan expected, TimeSpan originalTimeout, TimeSpan newTimeout)
@@ -109,7 +141,7 @@ namespace MongoDB.Driver.Tests
             var operationContext = new OperationContext(new Stopwatch(), originalTimeout, CancellationToken.None);
             var resultContext = operationContext.WithTimeout(newTimeout);
 
-            resultContext._timeout().Should().Be(expected);
+            resultContext.Timeout.Should().Be(expected);
         }
 
         public static IEnumerable<object[]> WithTimeout_test_cases =
@@ -229,16 +261,6 @@ namespace MongoDB.Driver.Tests
                 Record.Exception(() => operationContext.WaitTask(task));
 
             exception.Should().BeNull();
-        }
-    }
-
-    internal static class OperationContextReflector
-    {
-        private static readonly PropertyInfo __timeoutMemberInfo = typeof(OperationContext).GetProperty("Timeout", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        public static TimeSpan _timeout(this OperationContext context)
-        {
-            return (TimeSpan)__timeoutMemberInfo.GetValue(context);
         }
     }
 }
