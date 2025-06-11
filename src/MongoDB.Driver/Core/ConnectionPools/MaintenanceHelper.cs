@@ -113,12 +113,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private void EnsureMinSize(CancellationToken cancellationToken)
         {
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var minTimeout = TimeSpan.FromMilliseconds(20);
+
             while (_connectionPool.CreatedCount < _connectionPool.Settings.MinConnections && !cancellationToken.IsCancellationRequested)
             {
                 using (var poolAwaiter = _connectionPool.CreateMaxConnectionsAwaiter())
                 {
-                    var entered = poolAwaiter.WaitSignaled(TimeSpan.FromMilliseconds(20), operationContext.CancellationToken);
+                    var entered = poolAwaiter.WaitSignaled(minTimeout, cancellationToken);
                     if (!entered)
                     {
                         return;
@@ -126,7 +127,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     using (var connectionCreator = new ConnectionCreator(_connectionPool))
                     {
-                        var connection = connectionCreator.CreateOpened(operationContext);
+                        var connection = connectionCreator.CreateOpened(minTimeout, cancellationToken);
                         _connectionPool.ConnectionHolder.Return(connection);
                     }
                 }

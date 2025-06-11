@@ -852,12 +852,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _disposeConnection = true;
             }
 
-            public PooledConnection CreateOpened(OperationContext operationContext)
+            public PooledConnection CreateOpened(TimeSpan maxConnectingQueueTimeout, CancellationToken cancellationToken)
             {
                 try
                 {
                     var stopwatch = Stopwatch.StartNew();
-                    _connectingWaitStatus = _pool._maxConnectingQueue.Wait(operationContext.RemainingTimeout, operationContext.CancellationToken);
+                    _connectingWaitStatus = _pool._maxConnectingQueue.Wait(maxConnectingQueueTimeout, cancellationToken);
                     stopwatch.Stop();
                     _pool._poolState.ThrowIfNotReady();
 
@@ -866,6 +866,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
+                    var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
                     return CreateOpenedInternal(operationContext);
                 }
                 catch (Exception ex)
