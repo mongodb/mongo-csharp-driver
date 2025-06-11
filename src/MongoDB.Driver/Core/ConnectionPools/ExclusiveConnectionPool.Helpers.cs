@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                     {
                         PooledConnection pooledConnection;
-                        EnsureTimeout(operationContext, stopwatch);
+                        ThrowIfTimedOut(operationContext, stopwatch);
 
                         using (var connectionCreator = new ConnectionCreator(_pool))
                         {
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                     {
                         PooledConnection pooledConnection;
-                        EnsureTimeout(operationContext, stopwatch);
+                        ThrowIfTimedOut(operationContext, stopwatch);
 
                         using (var connectionCreator = new ConnectionCreator(_pool))
                         {
@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _enteredWaitQueue = true;
             }
 
-            private void EnsureTimeout(OperationContext operationContext, Stopwatch stopwatch)
+            private void ThrowIfTimedOut(OperationContext operationContext, Stopwatch stopwatch)
             {
                 if (operationContext.IsTimedOut())
                 {

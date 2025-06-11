@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests
         ];
 
         [Fact]
-        public void ThrowIfTimedOutOrCanceled_succeed_if_no_timeout_and_no_cancellation()
+        public void ThrowIfTimedOutOrCanceled_should_not_throw_if_no_timeout_and_no_cancellation()
         {
             var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
 
@@ -134,32 +134,17 @@ namespace MongoDB.Driver.Tests
             exception.Should().BeOfType<OperationCanceledException>();
         }
 
-        [Theory]
-        [MemberData(nameof(WithTimeout_test_cases))]
-        public void WithTimeout_should_calculate_proper_timeout(TimeSpan expected, TimeSpan originalTimeout, TimeSpan newTimeout)
-        {
-            var operationContext = new OperationContext(new Stopwatch(), originalTimeout, CancellationToken.None);
-            var resultContext = operationContext.WithTimeout(newTimeout);
-
-            resultContext.Timeout.Should().Be(expected);
-        }
-
-        public static IEnumerable<object[]> WithTimeout_test_cases =
-        [
-            [Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan],
-            [TimeSpan.FromMilliseconds(5), Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(5)],
-            [TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5), Timeout.InfiniteTimeSpan],
-            [TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10)],
-            [TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(5)],
-        ];
-
         [Fact]
-        public void WithTimeout_should_set_ParentContext()
+        public void ThrowIfTimedOutOrCanceled_throws_CancelledException_when_timedout_and_cancelled()
         {
-            var operationContext = new OperationContext(new Stopwatch(), Timeout.InfiniteTimeSpan, CancellationToken.None);
-            var resultContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10));
+            using var cancellationSource = new CancellationTokenSource();
+            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(10), cancellationSource.Token);
+            Thread.Sleep(20);
+            cancellationSource.Cancel();
 
-            resultContext.ParentContext.Should().Be(operationContext);
+            var exception = Record.Exception(() => operationContext.ThrowIfTimedOutOrCanceled());
+
+            exception.Should().BeOfType<OperationCanceledException>();
         }
 
         [Theory]
@@ -261,6 +246,35 @@ namespace MongoDB.Driver.Tests
                 Record.Exception(() => operationContext.WaitTask(task));
 
             exception.Should().BeNull();
+        }
+
+
+        [Theory]
+        [MemberData(nameof(WithTimeout_test_cases))]
+        public void WithTimeout_should_calculate_proper_timeout(TimeSpan expected, TimeSpan originalTimeout, TimeSpan newTimeout)
+        {
+            var operationContext = new OperationContext(new Stopwatch(), originalTimeout, CancellationToken.None);
+            var resultContext = operationContext.WithTimeout(newTimeout);
+
+            resultContext.Timeout.Should().Be(expected);
+        }
+
+        public static IEnumerable<object[]> WithTimeout_test_cases =
+        [
+            [Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan],
+            [TimeSpan.FromMilliseconds(5), Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(5)],
+            [TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5), Timeout.InfiniteTimeSpan],
+            [TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10)],
+            [TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(5)],
+        ];
+
+        [Fact]
+        public void WithTimeout_should_set_ParentContext()
+        {
+            var operationContext = new OperationContext(new Stopwatch(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var resultContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10));
+
+            resultContext.ParentContext.Should().Be(operationContext);
         }
     }
 }
