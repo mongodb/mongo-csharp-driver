@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -30,26 +31,16 @@ namespace MongoDB.Driver.Tests
         public void Constructor_should_initialize_properties()
         {
             var timeout = TimeSpan.FromSeconds(42);
+            var stopwatch = new Stopwatch();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var operationContext = new OperationContext(timeout, cancellationToken);
+            var operationContext = new OperationContext(stopwatch, timeout, cancellationToken);
 
-            operationContext.Timeout.Should().Be(timeout);
+            operationContext._timeout().Should().Be(timeout);
+            operationContext.RemainingTimeout.Should().Be(timeout);
             operationContext.CancellationToken.Should().Be(cancellationToken);
             operationContext.ParentContext.Should().BeNull();
-        }
-
-        [Fact]
-        public void Elapsed_should_return_elapsed_time()
-        {
-            var stopwatch = Stopwatch.StartNew();
-            Thread.Sleep(10);
-            stopwatch.Stop();
-
-            var operationContext = new OperationContext(stopwatch, TimeSpan.Zero, CancellationToken.None);
-
-            operationContext.Elapsed.Should().Be(stopwatch.Elapsed);
         }
 
         [Fact]
@@ -78,7 +69,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void RenainingTimeout_could_be_negative()
+        public void RemainingTimeout_could_be_negative()
         {
             var timeout = TimeSpan.FromMilliseconds(5);
             var stopwatch = Stopwatch.StartNew();
@@ -99,10 +90,9 @@ namespace MongoDB.Driver.Tests
             stopwatch.Stop();
 
             var operationContext = new OperationContext(stopwatch, timeout, CancellationToken.None);
-            var result = operationContext.IsTimedOut(out var elapsed);
+            var result = operationContext.IsTimedOut();
 
             result.Should().Be(expected);
-            elapsed.Should().Be(stopwatch.Elapsed);
         }
 
         public static IEnumerable<object[]> IsTimedOut_test_cases =
@@ -119,7 +109,7 @@ namespace MongoDB.Driver.Tests
             var operationContext = new OperationContext(new Stopwatch(), originalTimeout, CancellationToken.None);
             var resultContext = operationContext.WithTimeout(newTimeout);
 
-            resultContext.Timeout.Should().Be(expected);
+            resultContext._timeout().Should().Be(expected);
         }
 
         public static IEnumerable<object[]> WithTimeout_test_cases =
@@ -239,6 +229,16 @@ namespace MongoDB.Driver.Tests
                 Record.Exception(() => operationContext.WaitTask(task));
 
             exception.Should().BeNull();
+        }
+    }
+
+    internal static class OperationContextReflector
+    {
+        private static readonly PropertyInfo __timeoutMemberInfo = typeof(OperationContext).GetProperty("Timeout", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        public static TimeSpan _timeout(this OperationContext context)
+        {
+            return (TimeSpan)__timeoutMemberInfo.GetValue(context);
         }
     }
 }

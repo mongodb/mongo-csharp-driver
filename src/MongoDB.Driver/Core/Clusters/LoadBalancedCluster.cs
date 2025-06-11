@@ -184,6 +184,7 @@ namespace MongoDB.Driver.Core.Clusters
                 null,
                 EventContext.OperationName));
 
+            var stopwatch = Stopwatch.StartNew();
             try
             {
                 serverSelectionOperationContext.WaitTask(_serverReadyTaskCompletionSource.Task);
@@ -195,11 +196,13 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (_server != null)
             {
+                stopwatch.Stop();
+
                 _serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                    _description,
                    selector,
                    _server.Description,
-                   serverSelectionOperationContext.Elapsed,
+                   stopwatch.Elapsed,
                    null,
                    EventContext.OperationName));
             }
@@ -222,6 +225,7 @@ namespace MongoDB.Driver.Core.Clusters
                 null,
                 EventContext.OperationName));
 
+            var stopwatch = Stopwatch.StartNew();
             try
             {
                 await serverSelectionOperationContext.WaitTaskAsync(_serverReadyTaskCompletionSource.Task).ConfigureAwait(false);
@@ -233,11 +237,12 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (_server != null)
             {
+                stopwatch.Stop();
                 _serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                    _description,
                    selector,
                    _server.Description,
-                   serverSelectionOperationContext.Elapsed,
+                   stopwatch.Elapsed,
                    null,
                    EventContext.OperationName));
             }

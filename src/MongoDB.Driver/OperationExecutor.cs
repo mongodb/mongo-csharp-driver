@@ -50,7 +50,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
 
-            var cancellationContext = options.CreateCancellationContext(cancellationToken);
+            var cancellationContext = options.ToOperationContext(cancellationToken);
             var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
             return operation.Execute(cancellationContext, binding);
@@ -68,7 +68,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
 
-            var cancellationContext = options.CreateCancellationContext(cancellationToken);
+            var cancellationContext = options.ToOperationContext(cancellationToken);
             var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
             return await operation.ExecuteAsync(cancellationContext, binding).ConfigureAwait(false);
@@ -86,7 +86,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
 
-            var cancellationContext = options.CreateCancellationContext(cancellationToken);
+            var cancellationContext = options.ToOperationContext(cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return operation.Execute(cancellationContext, binding);
         }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
 
-            var cancellationContext = options.CreateCancellationContext(cancellationToken);
+            var cancellationContext = options.ToOperationContext(cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return await operation.ExecuteAsync(cancellationContext, binding).ConfigureAwait(false);
         }

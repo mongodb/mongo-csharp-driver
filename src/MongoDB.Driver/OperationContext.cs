@@ -42,10 +42,6 @@ namespace MongoDB.Driver
 
         public CancellationToken CancellationToken { get; }
 
-        public TimeSpan Elapsed => Stopwatch.Elapsed;
-
-        public TimeSpan Timeout { get; }
-
         public OperationContext ParentContext { get; private init; }
 
         public TimeSpan RemainingTimeout
@@ -57,15 +53,16 @@ namespace MongoDB.Driver
                     return System.Threading.Timeout.InfiniteTimeSpan;
                 }
 
-                return Timeout - Elapsed;
+                return Timeout - Stopwatch.Elapsed;
             }
         }
 
         private Stopwatch Stopwatch { get; }
 
-        public bool IsTimedOut(out TimeSpan elapsed)
+        private TimeSpan Timeout { get; }
+
+        public bool IsTimedOut()
         {
-            elapsed = Elapsed;
             var remainingTimeout = RemainingTimeout;
             if (remainingTimeout == System.Threading.Timeout.InfiniteTimeSpan)
             {
@@ -73,24 +70,6 @@ namespace MongoDB.Driver
             }
 
             return remainingTimeout < TimeSpan.Zero;
-        }
-
-        public OperationContext WithTimeout(TimeSpan timeout)
-        {
-            var remainingTimeout = RemainingTimeout;
-            if (timeout == System.Threading.Timeout.InfiniteTimeSpan)
-            {
-                timeout = remainingTimeout;
-            }
-            else if (remainingTimeout != System.Threading.Timeout.InfiniteTimeSpan && remainingTimeout < timeout)
-            {
-                timeout = remainingTimeout;
-            }
-
-            return new OperationContext(timeout, CancellationToken)
-            {
-                ParentContext = this
-            };
         }
 
         public void WaitTask(Task task)
@@ -149,6 +128,24 @@ namespace MongoDB.Driver
                 CancellationToken.ThrowIfCancellationRequested();
                 throw;
             }
+        }
+
+        public OperationContext WithTimeout(TimeSpan timeout)
+        {
+            var remainingTimeout = RemainingTimeout;
+            if (timeout == System.Threading.Timeout.InfiniteTimeSpan)
+            {
+                timeout = remainingTimeout;
+            }
+            else if (remainingTimeout != System.Threading.Timeout.InfiniteTimeSpan && remainingTimeout < timeout)
+            {
+                timeout = remainingTimeout;
+            }
+
+            return new OperationContext(timeout, CancellationToken)
+            {
+                ParentContext = this
+            };
         }
     }
 }

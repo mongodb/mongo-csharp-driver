@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -369,6 +370,7 @@ namespace MongoDB.Driver.Core.Clusters
             private bool _serverSelectionWaitQueueEntered;
             private readonly IServerSelector _selector;
             private readonly OperationsCountServerSelector _operationCountServerSelector;
+            private readonly Stopwatch _stopwatch;
 
             public SelectServerHelper(Cluster cluster, IServerSelector selector)
             {
@@ -377,6 +379,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _connectedServerDescriptions = new List<ServerDescription>(_connectedServers.Count);
                 _operationCountServerSelector = new OperationsCountServerSelector(_connectedServers);
 
+                _stopwatch = Stopwatch.StartNew();
                 _selector = DecorateSelector(selector);
             }
 
@@ -461,11 +464,13 @@ namespace MongoDB.Driver.Core.Clusters
 
                 if (selectedServer != null)
                 {
+                    _stopwatch.Stop();
+
                     _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                         _description,
                         _selector,
                         selectedServer.Description,
-                        operationContext.Elapsed,
+                        _stopwatch.Elapsed,
                         EventContext.OperationId,
                         EventContext.OperationName));
                 }
