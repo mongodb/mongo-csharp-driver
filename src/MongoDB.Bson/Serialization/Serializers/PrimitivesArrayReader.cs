@@ -74,20 +74,20 @@ namespace MongoDB.Bson.Serialization.Serializers
             using var buffer = ThreadStaticBuffer.RentBuffer(array.Length);
 
             var bytes = buffer.Bytes;
-            array.GetBytes(0, bytes, 0, array.Length);
+	        array.GetBytes(0, bytes, 0, array.Length);
+            var span = bytes.AsSpan();
 
             var result = new List<T>();
-
-		
+	
             var index = 4; // 4 first bytes are array object size in bytes
             var maxIndex = array.Length - 1;
 
             while (index < maxIndex)
             {
-                ValidateBsonType(bsonDataType);
+                ValidateBsonType(bsonDataType, span);
 
                 // Skip name
-                while (bytes[index] != 0) { index++; }
+                while (span[index] != 0) { index++; }
                 index++; // Skip string terminating 0
 
                 T value = default;
@@ -97,81 +97,81 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     case ConversionType.DoubleToSingle:
                         {
-                            var v = (float)BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(bytes.AsSpan(index)));
+                            var v = (float)BinaryPrimitivesCompat.ReadDoubleLittleEndian(span.Slice(index));
                             value = Unsafe.As<float, T>(ref v);
                             break;
                         }
                     case ConversionType.DoubleToDouble:
                         {
-                            var v = BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(bytes.AsSpan(index)));
+                            var v = BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(span.Slice(index)));
                             value = Unsafe.As<double, T>(ref v);
                             break;
                         }
                     case ConversionType.Decimal128ToDecimal128:
                         {
-                            var lowBits = BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(index));
-                            var highBits = BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(index + 8));
+                            var lowBits = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(index));
+                            var highBits = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(index +  8));
                             var v = Decimal128.ToDecimal(Decimal128.FromIEEEBits(highBits, lowBits));
                             value = Unsafe.As<decimal, T>(ref v);
                             break;
                         }
                     case ConversionType.BoolToBool:
                         {
-                            var v = bytes[index] != 0;
+                            var v = span[index] != 0;
                             value = Unsafe.As<bool, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToInt8:
                         {
-                            var v = (sbyte)BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(index));
+                            var v = (sbyte)BinaryPrimitives.ReadInt32LittleEndian(span.Slice(index));
                             value = Unsafe.As<sbyte, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToUInt8:
                         {
-                            var v = (byte)BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(index));
+                            var v = (byte)BinaryPrimitives.ReadInt32LittleEndian(span.Slice(index));
                             value = Unsafe.As<byte, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToInt16:
                         {
-                            var v = (short)BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(index));
+                            var v = (short)BinaryPrimitives.ReadInt32LittleEndian(span.Slice(index));
                             value = Unsafe.As<short, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToUInt16:
                         {
-                            var v = (ushort)BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(index));
+                            var v = (ushort)BinaryPrimitives.ReadInt32LittleEndian(span.Slice(index));
                             value = Unsafe.As<ushort, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToChar:
                         {
-                            var v = (char)(ushort)BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(index));
+                            var v = (char)(ushort)BinaryPrimitives.ReadInt32LittleEndian(span.Slice(index));
                             value = Unsafe.As<char, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToInt32:
                         {
-                            var v = BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(index));
+                            var v = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(index));
                             value = Unsafe.As<int, T>(ref v);
                             break;
                         }
                     case ConversionType.Int32ToUInt32:
                         {
-                            var v = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(index));
+                            var v = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(index));
                             value = Unsafe.As<uint, T>(ref v);
                             break;
                         }
                     case ConversionType.Int64ToInt64:
                         {
-                            var v = BinaryPrimitives.ReadInt64LittleEndian(bytes.AsSpan(index));
+                            var v = BinaryPrimitives.ReadInt64LittleEndian(span.Slice(index));
                             value = Unsafe.As<long, T>(ref v);
                             break;
                         }
                     case ConversionType.Int64ToUInt64:
                         {
-                            var v = BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(index));
+                            var v = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(index));
                             value = Unsafe.As<ulong, T>(ref v);
                             break;
                         }
@@ -183,12 +183,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                 index += bsonDataSize;
             }
 
-            ValidateBsonType(BsonType.EndOfDocument);
+            ValidateBsonType(BsonType.EndOfDocument, span);
             return result.ToArray();
 
-            void ValidateBsonType(BsonType bsonType)
+            void ValidateBsonType(BsonType bsonType, Span<byte> span)
             {
-                if ((BsonType)bytes[index] != bsonType)
+                if ((BsonType)span[index] != bsonType)
                 {
                     throw new InvalidOperationException();
                 }
