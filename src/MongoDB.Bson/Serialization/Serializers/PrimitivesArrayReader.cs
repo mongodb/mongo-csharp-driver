@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var span = bytes.AsSpan();
 
             var result = new List<T>();
-	
+
             var index = 4; // 4 first bytes are array object size in bytes
             var maxIndex = array.Length - 1;
 
@@ -98,12 +98,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                     case ConversionType.DoubleToSingle:
                         {
                             var v = (float)BinaryPrimitivesCompat.ReadDoubleLittleEndian(span.Slice(index));
+
                             value = Unsafe.As<float, T>(ref v);
                             break;
                         }
                     case ConversionType.DoubleToDouble:
                         {
-                            var v = BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64LittleEndian(span.Slice(index)));
+                            var v = BinaryPrimitivesCompat.ReadDoubleLittleEndian(span.Slice(index));
+
                             value = Unsafe.As<double, T>(ref v);
                             break;
                         }
@@ -112,12 +114,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                             var lowBits = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(index));
                             var highBits = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(index +  8));
                             var v = Decimal128.ToDecimal(Decimal128.FromIEEEBits(highBits, lowBits));
+
                             value = Unsafe.As<decimal, T>(ref v);
                             break;
                         }
                     case ConversionType.BoolToBool:
                         {
                             var v = span[index] != 0;
+
                             value = Unsafe.As<bool, T>(ref v);
                             break;
                         }
@@ -125,6 +129,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             var v = (sbyte)BinaryPrimitives.ReadInt32LittleEndian(span.Slice(index));
                             value = Unsafe.As<sbyte, T>(ref v);
+
                             break;
                         }
                     case ConversionType.Int32ToUInt8:
@@ -180,10 +185,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
 
                 result.Add(value);
+
                 index += bsonDataSize;
             }
 
             ValidateBsonType(BsonType.EndOfDocument, span);
+
             return result.ToArray();
 
             void ValidateBsonType(BsonType bsonType, Span<byte> span)
