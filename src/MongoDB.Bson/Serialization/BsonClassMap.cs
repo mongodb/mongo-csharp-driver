@@ -118,6 +118,14 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Gets the conventions used for auto mapping.
+        /// </summary>
+        public IConventionPack ConventionPack
+        {
+            get { return BsonSerializer.DefaultSerializationDomain.ConventionRegistry.Lookup(_classType); }  //TODO This is not completely correct, this should be eliminated.
+        }
+
+        /// <summary>
         /// Gets the declared member maps (only for members declared in this class).
         /// </summary>
         public IEnumerable<BsonMemberMap> DeclaredMemberMaps

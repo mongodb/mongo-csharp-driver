@@ -364,7 +364,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonReader = context.Reader;
 
-            var actualType = _discriminatorConvention.GetActualType(bsonReader, typeof(object));
+            Type actualType;
+
+            if (_discriminatorConvention is IDiscriminatorConventionInternal discriminatorConventionInternal)
+            {
+                actualType = discriminatorConventionInternal.GetActualType(bsonReader, args.NominalType, context.SerializationDomain);  //TODO I think these type of things could become an internal extension methods
+            }
+            else
+            {
+                actualType = _discriminatorConvention.GetActualType(bsonReader, args.NominalType);
+            }
+
             if (!_allowedDeserializationTypes(actualType))
             {
                 throw new BsonSerializationException($"Type {actualType.FullName} is not configured as a type that is allowed to be deserialized for this instance of ObjectSerializer.");

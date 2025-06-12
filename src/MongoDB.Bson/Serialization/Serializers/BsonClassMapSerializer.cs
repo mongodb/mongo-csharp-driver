@@ -90,7 +90,17 @@ namespace MongoDB.Bson.Serialization
 
             var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain as IBsonSerializationDomainInternal);
 
-            var actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
+            Type actualType;
+
+            if (discriminatorConvention is IDiscriminatorConventionInternal discriminatorConventionInternal)
+            {
+                actualType = discriminatorConventionInternal.GetActualType(bsonReader, args.NominalType, context.SerializationDomain);
+            }
+            else
+            {
+                actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
+            }
+
             if (actualType == typeof(TClass))
             {
                 return DeserializeClass(context);
@@ -646,7 +656,17 @@ namespace MongoDB.Bson.Serialization
             if (discriminatorConvention != null)
             {
                 var actualType = obj.GetType();
-                var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType, context.SerializationDomain);
+
+                BsonValue discriminator;
+                if (discriminatorConvention is IDiscriminatorConventionInternal discriminatorConventionInternal)
+                {
+                    discriminator = discriminatorConventionInternal.GetDiscriminator(nominalType, actualType, context.SerializationDomain);
+                }
+                else
+                {
+                    discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+                }
+
                 if (discriminator != null)
                 {
                     context.Writer.WriteName(discriminatorConvention.ElementName);

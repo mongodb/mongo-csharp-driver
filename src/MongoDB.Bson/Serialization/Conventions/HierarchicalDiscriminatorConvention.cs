@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a discriminator convention where the discriminator is an array of all the discriminators provided by the class maps of the root class down to the actual type.
     /// </summary>
-    public class HierarchicalDiscriminatorConvention : StandardDiscriminatorConvention, IHierarchicalDiscriminatorConvention
+    public class HierarchicalDiscriminatorConvention : StandardDiscriminatorConvention, IHierarchicalDiscriminatorConvention, IDiscriminatorConventionInternal
     {
         // constructors
         /// <summary>
@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             GetDiscriminator(nominalType, actualType, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
-        public override BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
+        public BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
         {
             // TODO: this isn't quite right, not all classes are serialized using  a class map serializer
             var classMap = domain.BsonClassMap.LookupClassMap(actualType);
