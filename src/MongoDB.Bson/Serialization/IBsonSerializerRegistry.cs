@@ -23,11 +23,6 @@ namespace MongoDB.Bson.Serialization
     public interface IBsonSerializerRegistry
     {
         /// <summary>
-        /// //TODO
-        /// </summary>
-        public IBsonSerializationDomain SerializationDomain { get; }
-
-        /// <summary>
         /// Gets the serializer for the specified <paramref name="type"/>.
         /// </summary>
         /// <param name="type">The type.</param>
@@ -40,5 +35,10 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="T">The value type of the serializer.</typeparam>
         /// <returns>The serializer.</returns>
         IBsonSerializer<T> GetSerializer<T>();
+    }
+
+    internal interface IBsonSerializerRegistryInternal : IBsonSerializerRegistry
+    {
+        IBsonSerializationDomain SerializationDomain { get; }
     }
 }

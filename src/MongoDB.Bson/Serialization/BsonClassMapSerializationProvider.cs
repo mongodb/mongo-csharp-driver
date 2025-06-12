@@ -41,7 +41,18 @@ namespace MongoDB.Bson.Serialization
                 !typeof(Array).GetTypeInfo().IsAssignableFrom(type) &&
                 !typeof(Enum).GetTypeInfo().IsAssignableFrom(type))
             {
-                var classMap = serializerRegistry.SerializationDomain.BsonClassMap.LookupClassMap(type);
+                IBsonSerializationDomain domain;
+
+                if (serializerRegistry is IBsonSerializerRegistryInternal serializerRegistryInternal)
+                {
+                    domain = serializerRegistryInternal.SerializationDomain;
+                }
+                else
+                {
+                    domain = BsonSerializer.DefaultSerializationDomain;
+                }
+                
+                var classMap = domain.BsonClassMap.LookupClassMap(type);
                 var classMapSerializerDefinition = typeof(BsonClassMapSerializer<>);
                 var classMapSerializerType = classMapSerializerDefinition.MakeGenericType(type);
                 return (IBsonSerializer)Activator.CreateInstance(classMapSerializerType, classMap);

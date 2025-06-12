@@ -25,7 +25,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents a BSON reader for some external format (see subclasses).
     /// </summary>
-    public abstract class BsonReader : IBsonReader
+    public abstract class BsonReader : IBsonReaderInternal
     {
         // private fields
         private bool _disposed = false;
