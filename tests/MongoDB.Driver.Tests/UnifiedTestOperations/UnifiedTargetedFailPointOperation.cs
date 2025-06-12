@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -53,7 +52,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap.RegisterForDispose(client);
 
             var cluster = client.GetClusterInternal();
-            var server = cluster.SelectServer(new EndPointServerSelector(pinnedServer), CancellationToken.None);
+            var server = cluster.SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(pinnedServer));
 
             var session = NoCoreSession.NewHandle();
 

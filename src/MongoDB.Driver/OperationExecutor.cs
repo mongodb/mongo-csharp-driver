@@ -50,9 +50,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
 
+            var operationContext = options.ToOperationContext(cancellationToken);
             var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
-            return operation.Execute(binding, cancellationToken);
+            return operation.Execute(operationContext, binding);
         }
 
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(
@@ -67,9 +68,10 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
 
+            var operationContext = options.ToOperationContext(cancellationToken);
             var readPreference = options.GetEffectiveReadPreference(session);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
         }
 
         public TResult ExecuteWriteOperation<TResult>(
@@ -84,8 +86,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
 
+            var operationContext = options.ToOperationContext(cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
-            return operation.Execute(binding, cancellationToken);
+            return operation.Execute(operationContext, binding);
         }
 
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
@@ -100,8 +103,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             ThrowIfDisposed();
 
+            var operationContext = options.ToOperationContext(cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
         }
 
         public IClientSessionHandle StartImplicitSession()

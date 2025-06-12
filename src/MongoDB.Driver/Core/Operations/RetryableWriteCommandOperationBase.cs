@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -87,36 +86,36 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        public virtual BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
+        public virtual BsonDocument Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
             {
-                return Execute(context, cancellationToken);
+                return Execute(operationContext, context);
             }
         }
 
-        public virtual BsonDocument Execute(RetryableWriteContext context, CancellationToken cancellationToken)
+        public virtual BsonDocument Execute(OperationContext operationContext, RetryableWriteContext context)
         {
-            return RetryableWriteOperationExecutor.Execute(this, context, cancellationToken);
+            return RetryableWriteOperationExecutor.Execute(operationContext, this, context);
         }
 
-        public virtual async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public virtual async Task<BsonDocument> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
-        public virtual Task<BsonDocument> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
+        public virtual Task<BsonDocument> ExecuteAsync(OperationContext operationContext, RetryableWriteContext context)
         {
-            return RetryableWriteOperationExecutor.ExecuteAsync(this, context, cancellationToken);
+            return RetryableWriteOperationExecutor.ExecuteAsync(operationContext, this, context);
         }
 
-        public BsonDocument ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
+        public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
-
+            // TODO: CSOT implement timeout in Command Execution
             return context.Channel.Command<BsonDocument>(
                 context.ChannelSource.Session,
                 ReadPreference.Primary,
@@ -129,13 +128,13 @@ namespace MongoDB.Driver.Core.Operations
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
                 args.MessageEncoderSettings,
-                cancellationToken);
+                operationContext.CancellationToken);
         }
 
-        public Task<BsonDocument> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
+        public Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
-
+            // TODO: CSOT implement timeout in Command Execution
             return context.Channel.CommandAsync<BsonDocument>(
                 context.ChannelSource.Session,
                 ReadPreference.Primary,
@@ -148,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
                 args.MessageEncoderSettings,
-                cancellationToken);
+                operationContext.CancellationToken);
         }
 
         protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber);

@@ -197,8 +197,8 @@ namespace MongoDB.Driver.Tests
         {
             var cluster = Client.GetClusterInternal();
             using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-            using (var channelSource = binding.GetWriteChannelSource(default))
-            using (var channel = channelSource.GetChannel(default))
+            using (var channelSource = binding.GetWriteChannelSource(OperationContext.NoTimeout))
+            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
             {
                 return channel.ConnectionDescription;
             }

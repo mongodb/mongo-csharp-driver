@@ -125,9 +125,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         return;
                     }
 
-                    using (var connectionCreator = new ConnectionCreator(_connectionPool, minTimeout))
+                    using (var connectionCreator = new ConnectionCreator(_connectionPool))
                     {
-                        var connection = connectionCreator.CreateOpened(cancellationToken);
+                        var connection = connectionCreator.CreateOpened(minTimeout, cancellationToken);
                         _connectionPool.ConnectionHolder.Return(connection);
                     }
                 }

@@ -14,7 +14,6 @@
 */
 
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -26,10 +25,10 @@ namespace MongoDB.Driver.Core.Clusters
     {
         public static IServer SelectServerAndPinIfNeeded(
             this IClusterInternal cluster,
+            OperationContext operationContext,
             ICoreSessionHandle session,
             IServerSelector selector,
-            IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            CancellationToken cancellationToken)
+            IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
             if (pinnedServer != null)
@@ -41,19 +40,19 @@ namespace MongoDB.Driver.Core.Clusters
                 ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
                 : selector;
 
-            // Server selection also updates the cluster type, allowing us to to determine if the server
+            // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = cluster.SelectServer(selector, cancellationToken);
+            var server = cluster.SelectServer(operationContext, selector);
             PinServerIfNeeded(cluster, session, server);
             return server;
         }
 
         public static async Task<IServer> SelectServerAndPinIfNeededAsync(
             this IClusterInternal cluster,
+            OperationContext operationContext,
             ICoreSessionHandle session,
             IServerSelector selector,
-            IReadOnlyCollection<ServerDescription> deprioritizedServers,
-            CancellationToken cancellationToken)
+            IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
             if (pinnedServer != null)
@@ -65,9 +64,9 @@ namespace MongoDB.Driver.Core.Clusters
                 ? new CompositeServerSelector(new[] { new PriorityServerSelector(deprioritizedServers), selector })
                 : selector;
 
-            // Server selection also updates the cluster type, allowing us to to determine if the server
+            // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = await cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
+            var server = await cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
             PinServerIfNeeded(cluster, session, server);
 
             return server;

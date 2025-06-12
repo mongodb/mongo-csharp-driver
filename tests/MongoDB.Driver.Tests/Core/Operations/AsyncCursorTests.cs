@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSource>();
             mockChannelSource
-                .Setup(c => c.GetChannel(It.IsAny<CancellationToken>()))
+                .Setup(c => c.GetChannel(It.IsAny<OperationContext>()))
                 .Throws<Exception>();
 
             var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockChannelSource = new Mock<IChannelSource>();
             mockChannelSource
-                .Setup(c => c.GetChannel(It.IsAny<CancellationToken>()))
+                .Setup(c => c.GetChannel(It.IsAny<OperationContext>()))
                 .Throws<Exception>();
 
             var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
@@ -385,7 +385,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var mockChannelSource = new Mock<IChannelSource>();
             mockChannelSource
-                .Setup(c => c.GetChannel(It.IsAny<CancellationToken>()))
+                .Setup(c => c.GetChannel(It.IsAny<OperationContext>()))
                 .Returns(mockChannelHandle.Object);
 
             var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
@@ -409,8 +409,6 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "collection");
             var cursorId = 1;
             var subject = CreateSubject(collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
             var connectionDescription = CreateConnectionDescriptionSupportingSession();
 
             mockChannelSource.SetupGet(m => m.Session).Returns(session);
@@ -427,11 +425,11 @@ namespace MongoDB.Driver.Core.Operations
                 }
             };
 
-            subject.MoveNext(cancellationToken); // skip empty first batch
+            subject.MoveNext(CancellationToken.None); // skip empty first batch
             var sameSessionWasUsed = false;
             if (async)
             {
-                mockChannelSource.Setup(m => m.GetChannelAsync(cancellationToken)).Returns(Task.FromResult(channel));
+                mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channel));
                 mockChannel
                     .Setup(m => m.CommandAsync(
                         session,
@@ -445,15 +443,15 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
                         It.IsAny<MessageEncoderSettings>(),
-                        cancellationToken))
+                        It.IsAny<CancellationToken>()))
                     .Callback(() => sameSessionWasUsed = true)
                     .Returns(Task.FromResult(secondBatch));
 
-                subject.MoveNextAsync(cancellationToken).GetAwaiter().GetResult();
+                subject.MoveNextAsync(CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                mockChannelSource.Setup(m => m.GetChannel(cancellationToken)).Returns(channel);
+                mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
                 mockChannel
                     .Setup(m => m.Command(
                         session,
@@ -467,29 +465,17 @@ namespace MongoDB.Driver.Core.Operations
                         CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
                         It.IsAny<MessageEncoderSettings>(),
-                        cancellationToken))
+                        It.IsAny<CancellationToken>()))
                     .Callback(() => sameSessionWasUsed = true)
                     .Returns(secondBatch);
 
-                subject.MoveNext(cancellationToken);
+                subject.MoveNext(CancellationToken.None);
             }
 
             sameSessionWasUsed.Should().BeTrue();
         }
 
         // private methods
-        private void Close(AsyncCursor<BsonDocument> asyncCursor, bool async, CancellationToken cancellationToken)
-        {
-            if (async)
-            {
-                asyncCursor.CloseAsync(cancellationToken).GetAwaiter().GetResult();
-            }
-            else
-            {
-                asyncCursor.Close(cancellationToken);
-            }
-        }
-
         private ConnectionDescription CreateConnectionDescriptionSupportingSession(int maxWireVersion = WireVersion.Server36)
         {
             var clusterId = new ClusterId(1);
@@ -529,18 +515,6 @@ namespace MongoDB.Driver.Core.Operations
                 maxTime.WithDefault(null));
         }
 
-        private bool MoveNext(IAsyncCursor<BsonDocument> asyncCursor, bool async, CancellationToken cancellationToken)
-        {
-            if (async)
-            {
-                return asyncCursor.MoveNextAsync(cancellationToken).GetAwaiter().GetResult();
-            }
-            else
-            {
-                return asyncCursor.MoveNext(cancellationToken);
-            }
-        }
-
         private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, string commandResult, int maxWireVersion = WireVersion.Server36, bool isChannelExpired = false)
         {
             SetupChannelMocks(mockChannelSource, mockChannelHandle, async, BsonDocument.Parse(commandResult), maxWireVersion, isChannelExpired);
@@ -563,7 +537,7 @@ namespace MongoDB.Driver.Core.Operations
             if (async)
             {
                 mockChannelSource
-                    .Setup(c => c.GetChannelAsync(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.GetChannelAsync(It.IsAny<OperationContext>()))
                     .ReturnsAsync(mockChannelHandle.Object);
 
                 mockChannelHandle
@@ -590,7 +564,7 @@ namespace MongoDB.Driver.Core.Operations
             else
             {
                 mockChannelSource
-                    .Setup(c => c.GetChannel(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.GetChannel(It.IsAny<OperationContext>()))
                     .Returns(mockChannelHandle.Object);
 
                 mockChannelHandle
@@ -676,19 +650,18 @@ namespace MongoDB.Driver.Core.Operations
             Insert(documents);
 
             _session.ReferenceCount().Should().Be(1);
-            var cancellationToken = CancellationToken.None;
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.Primary, _session.Fork()))
-            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(OperationContext.NoTimeout))
+            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
             {
                 var query = new BsonDocument();
                 long cursorId;
-                var firstBatch = GetFirstBatch(channel, query, batchSize, cancellationToken, out cursorId);
+                var firstBatch = GetFirstBatch(channel, query, batchSize, CancellationToken.None, out cursorId);
 
                 using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings()))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
-                    while (cursor.MoveNext(cancellationToken))
+                    while (cursor.MoveNext(CancellationToken.None))
                     {
                         AssertExpectedSessionReferenceCount(_session, cursor);
                     }
@@ -737,31 +710,6 @@ namespace MongoDB.Driver.Core.Operations
             var firstBatch = cursor["firstBatch"].AsBsonArray.Select(i => i.AsBsonDocument).ToList();
             cursorId = cursor["id"].ToInt64();
             return firstBatch;
-        }
-
-        private IReadOnlyList<BsonDocument> GetFirstBatchUsingQueryMessage(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
-        {
-#pragma warning disable 618
-            var result = channel.Query(
-                _collectionNamespace,
-                query,
-                null, // fields
-                NoOpElementNameValidator.Instance,
-                0, // skip
-                batchSize,
-                false, // secondaryOk
-                false, // partialOk
-                false, // noCursorTimeout
-                false, // oplogReplay
-                false, // tailableCursor
-                false, // awaitData
-                BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
-                cancellationToken);
-#pragma warning restore 618
-
-            cursorId = result.CursorId;
-            return result.Documents;
         }
     }
 

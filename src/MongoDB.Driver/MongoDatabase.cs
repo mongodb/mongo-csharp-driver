@@ -50,9 +50,9 @@ namespace MongoDB.Driver
             _settings = Ensure.IsNotNull(settings, nameof(settings)).Freeze();
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
-
-            _readOperationOptions = new(DefaultReadPreference: _settings.ReadPreference);
-            _writeOperationOptions = new();
+            // TODO: CSOT populate the timeout from settings
+            _readOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan, DefaultReadPreference: _settings.ReadPreference);
+            _writeOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan);
         }
 
         // public properties

@@ -14,7 +14,6 @@
 */
 
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -50,21 +49,23 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
-        public bool Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public bool Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = CreateOperation();
-            var result = operation.Execute(binding, cancellationToken);
-            var list = result.ToList(cancellationToken);
+            var result = operation.Execute(operationContext, binding);
+            // TODO: CSOT find a way to apply CSOT timeout to ToList as well.
+            var list = result.ToList(operationContext.CancellationToken);
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
         }
 
-        public async Task<bool> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<bool> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
             var operation = CreateOperation();
-            var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            var list = await result.ToListAsync(cancellationToken).ConfigureAwait(false);
+            var result = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+            // TODO: CSOT find a way to apply CSOT timeout to ToList as well.
+            var list = await result.ToListAsync(operationContext.CancellationToken).ConfigureAwait(false);
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
         }
 

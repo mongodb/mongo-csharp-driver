@@ -14,10 +14,14 @@
  */
 
 using System;
+using System.Threading;
 
 namespace MongoDB.Driver
 {
-    internal record WriteOperationOptions(TimeSpan Timeout)
-        : OperationOptionsBase(Timeout);
+    internal abstract record OperationOptionsBase(TimeSpan Timeout)
+    {
+        public OperationContext ToOperationContext(CancellationToken cancellationToken)
+            => new (Timeout, cancellationToken);
+    }
 }
 

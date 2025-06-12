@@ -92,8 +92,9 @@ namespace MongoDB.Driver
             _logger = _settings.LoggingSettings?.CreateLogger<LogCategories.Client>();
             _cluster = _settings.ClusterSource.Get(_settings.ToClusterKey());
             _operationExecutor = _operationExecutorFactory(this);
-            _readOperationOptions = new(DefaultReadPreference: _settings.ReadPreference);
-            _writeOperationOptions = new();
+            // TODO: CSOT populate the timeout from settings
+            _readOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan, DefaultReadPreference: _settings.ReadPreference);
+            _writeOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan);
 
             if (settings.AutoEncryptionOptions != null)
             {

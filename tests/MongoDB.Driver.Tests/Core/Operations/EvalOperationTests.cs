@@ -304,11 +304,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (async)
             {
-                return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(OperationContext.NoTimeout, binding).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(binding, CancellationToken.None);
+                return operation.Execute(OperationContext.NoTimeout, binding);
             }
         }
     }

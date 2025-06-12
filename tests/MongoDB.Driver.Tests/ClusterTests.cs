@@ -87,8 +87,8 @@ namespace MongoDB.Driver.Tests
             var eventCapturer = CreateEventCapturer();
             using (var client = CreateMongoClient(eventCapturer, applicationName))
             {
-                var slowServer = client.GetClusterInternal().SelectServer(WritableServerSelector.Instance, default);
-                var fastServer = client.GetClusterInternal().SelectServer(new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)), default);
+                var slowServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                var fastServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)));
 
                 using var failPoint = FailPoint.Configure(slowServer, NoCoreSession.NewHandle(), failCommand, async);
 
@@ -100,8 +100,8 @@ namespace MongoDB.Driver.Tests
                 var channels = new ConcurrentBag<IChannelHandle>();
                 ThreadingUtilities.ExecuteOnNewThreads(threadsCount, i =>
                 {
-                    channels.Add(slowServer.GetChannel(default));
-                    channels.Add(fastServer.GetChannel(default));
+                    channels.Add(slowServer.GetChannel(OperationContext.NoTimeout));
+                    channels.Add(fastServer.GetChannel(OperationContext.NoTimeout));
                 });
 
                 foreach (var channel in channels)

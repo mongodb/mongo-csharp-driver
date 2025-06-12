@@ -14,11 +14,9 @@
 */
 
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using Moq;
 using Xunit;
 
@@ -78,84 +76,60 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSourceAsync_should_throw_if_disposed(
+        public async Task GetReadChannelSourceAsync_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
             var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
             subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.GetReadChannelSource(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_fork_the_channelSource(
+        public async Task GetReadChannelSource_should_fork_the_channelSource(
             [Values(false, true)]
             bool async)
         {
             var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
-
-            if (async)
-            {
-                subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                subject.GetReadChannelSource(CancellationToken.None);
-            }
+            var result = async ?
+                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout) :
+                subject.GetReadChannelSource(OperationContext.NoTimeout);
 
             _mockChannelSource.Verify(f => f.Fork(), Times.Once);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetWriteChannelSource_should_throw_if_disposed(
+        public async Task GetWriteChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
             var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
             subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.GetWriteChannelSource(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetWriteChannelSource(OperationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetWriteChannelSource_should_fork_the_channelSource(
+        public async Task GetWriteChannelSource_should_fork_the_channelSource(
             [Values(false, true)]
             bool async)
         {
             var subject = new ChannelSourceReadWriteBinding(_mockChannelSource.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
-
-            if (async)
-            {
-                subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                subject.GetWriteChannelSource(CancellationToken.None);
-            }
+            var result = async ?
+                await subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout) :
+                subject.GetWriteChannelSource(OperationContext.NoTimeout);
 
             _mockChannelSource.Verify(f => f.Fork(), Times.Once);
         }

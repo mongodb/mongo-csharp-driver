@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -25,12 +24,12 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
 
-        public static RetryableReadContext Create(IReadBinding binding, bool retryRequested, CancellationToken cancellationToken)
+        public static RetryableReadContext Create(OperationContext operationContext, IReadBinding binding, bool retryRequested)
         {
             var context = new RetryableReadContext(binding, retryRequested);
             try
             {
-                context.Initialize(cancellationToken);
+                context.Initialize(operationContext);
 
                 ChannelPinningHelper.PinChannellIfRequired(
                     context.ChannelSource,
@@ -46,12 +45,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<RetryableReadContext> CreateAsync(IReadBinding binding, bool retryRequested, CancellationToken cancellationToken)
+        public static async Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
         {
             var context = new RetryableReadContext(binding, retryRequested);
             try
             {
-                await context.InitializeAsync(cancellationToken).ConfigureAwait(false);
+                await context.InitializeAsync(operationContext).ConfigureAwait(false);
 
                 ChannelPinningHelper.PinChannellIfRequired(
                     context.ChannelSource,
@@ -113,33 +112,33 @@ namespace MongoDB.Driver.Core.Operations
             _channel = null;
         }
 
-        private void Initialize(CancellationToken cancellationToken)
+        private void Initialize(OperationContext operationContext)
         {
-            _channelSource = _binding.GetReadChannelSource(cancellationToken);
+            _channelSource = _binding.GetReadChannelSource(operationContext);
 
             try
             {
-                _channel = _channelSource.GetChannel(cancellationToken);
+                _channel = _channelSource.GetChannel(operationContext);
             }
             catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(this, ex))
             {
-                ReplaceChannelSource(_binding.GetReadChannelSource(cancellationToken));
-                ReplaceChannel(_channelSource.GetChannel(cancellationToken));
+                ReplaceChannelSource(_binding.GetReadChannelSource(operationContext));
+                ReplaceChannel(_channelSource.GetChannel(operationContext));
             }
         }
 
-        private async Task InitializeAsync(CancellationToken cancellationToken)
+        private async Task InitializeAsync(OperationContext operationContext)
         {
-            _channelSource = await _binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false);
+            _channelSource = await _binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false);
 
             try
             {
-                _channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false);
+                _channel = await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false);
             }
             catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(this, ex))
             {
-                ReplaceChannelSource(await _binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false));
-                ReplaceChannel(await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false));
+                ReplaceChannelSource(await _binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false));
+                ReplaceChannel(await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
             }
         }
     }

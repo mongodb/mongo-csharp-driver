@@ -14,13 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
@@ -43,17 +38,19 @@ namespace MongoDB.Driver.Core.Bindings
         public void Constructor_should_throw_when_server_is_null()
         {
             var session = new Mock<ICoreSessionHandle>().Object;
-            Action act = () => new ServerChannelSource(null, session);
+            var exception = Record.Exception(() => new ServerChannelSource(null, session));
 
-            act.ShouldThrow<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("server");
         }
 
         [Fact]
         public void Constructor_should_throw_when_session_is_null()
         {
-            Action act = () => new ServerChannelSource(_mockServer.Object, null);
+            var exception = Record.Exception(() => new ServerChannelSource(_mockServer.Object, null));
 
-            act.ShouldThrow<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("session");
         }
 
         [Fact]
@@ -84,7 +81,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_throw_if_disposed(
+        public async Task GetChannel_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
@@ -92,22 +89,16 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new ServerChannelSource(_mockServer.Object, session);
             subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.GetChannel(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetChannel(OperationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetChannel_should_get_connection_from_server(
+        public async Task GetChannel_should_get_connection_from_server(
             [Values(false, true)]
             bool async)
         {
@@ -116,15 +107,15 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult();
+                await subject.GetChannelAsync(OperationContext.NoTimeout);
 
-                _mockServer.Verify(s => s.GetChannelAsync(CancellationToken.None), Times.Once);
+                _mockServer.Verify(s => s.GetChannelAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                subject.GetChannel(CancellationToken.None);
+                subject.GetChannel(OperationContext.NoTimeout);
 
-                _mockServer.Verify(s => s.GetChannel(CancellationToken.None), Times.Once);
+                _mockServer.Verify(s => s.GetChannel(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 

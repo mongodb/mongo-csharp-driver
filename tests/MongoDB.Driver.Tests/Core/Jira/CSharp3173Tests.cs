@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 // The next hello or legacy hello response will be delayed because the waiting in the mock.Callbacks
                 cluster.Initialize();
 
-                var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
+                var selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
@@ -86,11 +86,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 Exception exception;
                 if (async)
                 {
-                    exception = Record.Exception(() => selectedServer.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult());
+                    exception = Record.Exception(() => selectedServer.GetChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult());
                 }
                 else
                 {
-                    exception = Record.Exception(() => selectedServer.GetChannel(CancellationToken.None));
+                    exception = Record.Exception(() => selectedServer.GetChannel(OperationContext.NoTimeout));
                 }
 
                 var e = exception.Should().BeOfType<MongoConnectionException>().Subject;
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 }
 
                 // ensure that a new server can be selected
-                selectedServer = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+                selectedServer = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
 
                 // ensure that the selected server is not the same as the initial
                 selectedServer.EndPoint.Should().Be(__endPoint2);
@@ -187,11 +187,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
             {
                 var dnsException = CreateDnsException(connection.ConnectionId, from: "pool");
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnection(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.AcquireConnection(It.IsAny<OperationContext>()))
                     .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
                     .Throws(dnsException); // throw command dns exception
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<OperationContext>()))
                     .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
                     .Throws(dnsException); // throw command dns exception
             }

@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 
@@ -23,25 +22,25 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryableReadOperationExecutor
     {
         // public static methods
-        public static TResult Execute<TResult>(IRetryableReadOperation<TResult> operation, IReadBinding binding, bool retryRequested, CancellationToken cancellationToken)
+        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, IReadBinding binding, bool retryRequested)
         {
-            using (var context = RetryableReadContext.Create(binding, retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(operationContext, binding, retryRequested))
             {
-                return Execute(operation, context, cancellationToken);
+                return Execute(operationContext, operation, context);
             }
         }
 
-        public static TResult Execute<TResult>(IRetryableReadOperation<TResult> operation, RetryableReadContext context, CancellationToken cancellationToken)
+        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             if (!ShouldReadBeRetried(context))
             {
-                return operation.ExecuteAttempt(context, attempt: 1, transactionNumber: null, cancellationToken);
+                return operation.ExecuteAttempt(operationContext, context, attempt: 1, transactionNumber: null);
             }
 
             Exception originalException;
             try
             {
-                return operation.ExecuteAttempt(context, attempt: 1, transactionNumber: null, cancellationToken);
+                return operation.ExecuteAttempt(operationContext, context, attempt: 1, transactionNumber: null);
 
             }
             catch (Exception ex) when (RetryabilityHelper.IsRetryableReadException(ex))
@@ -51,8 +50,8 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(new[] { context.ChannelSource.ServerDescription }, cancellationToken));
-                context.ReplaceChannel(context.ChannelSource.GetChannel(cancellationToken));
+                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(operationContext, new[] { context.ChannelSource.ServerDescription }));
+                context.ReplaceChannel(context.ChannelSource.GetChannel(operationContext));
             }
             catch
             {
@@ -61,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                return operation.ExecuteAttempt(context, attempt: 2, transactionNumber: null, cancellationToken);
+                return operation.ExecuteAttempt(operationContext, context, attempt: 2, transactionNumber: null);
             }
             catch (Exception ex) when (ShouldThrowOriginalException(ex))
             {
@@ -69,25 +68,25 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(IRetryableReadOperation<TResult> operation, IReadBinding binding, bool retryRequested, CancellationToken cancellationToken)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, IReadBinding binding, bool retryRequested)
         {
-            using (var context = await RetryableReadContext.CreateAsync(binding, retryRequested, cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false))
             {
-                return await ExecuteAsync(operation, context, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
             }
         }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(IRetryableReadOperation<TResult> operation, RetryableReadContext context, CancellationToken cancellationToken)
+        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
             if (!ShouldReadBeRetried(context))
             {
-                return await operation.ExecuteAttemptAsync(context, attempt: 1, transactionNumber: null, cancellationToken).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(operationContext, context, attempt: 1, transactionNumber: null).ConfigureAwait(false);
             }
 
             Exception originalException;
             try
             {
-                return await operation.ExecuteAttemptAsync(context, attempt: 1, transactionNumber: null, cancellationToken).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(operationContext, context, attempt: 1, transactionNumber: null).ConfigureAwait(false);
             }
             catch (Exception ex) when (RetryabilityHelper.IsRetryableReadException(ex))
             {
@@ -96,8 +95,8 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(new[] { context.ChannelSource.ServerDescription }, cancellationToken));
-                context.ReplaceChannel(context.ChannelSource.GetChannel(cancellationToken));
+                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(operationContext, new[] { context.ChannelSource.ServerDescription }));
+                context.ReplaceChannel(context.ChannelSource.GetChannel(operationContext));
             }
             catch
             {
@@ -106,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
 
             try
             {
-                return await operation.ExecuteAttemptAsync(context, attempt: 2, transactionNumber: null, cancellationToken).ConfigureAwait(false);
+                return await operation.ExecuteAttemptAsync(operationContext, context, attempt: 2, transactionNumber: null).ConfigureAwait(false);
             }
             catch (Exception ex) when (ShouldThrowOriginalException(ex))
             {

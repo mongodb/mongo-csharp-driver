@@ -14,10 +14,9 @@
 */
 
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using Moq;
 using Xunit;
 
@@ -52,29 +51,23 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_throw_if_disposed(
+        public async Task GetReadChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
             var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
             subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.GetReadChannelSource(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetReadChannelSource_should_delegate_to_reference(
+        public async Task GetReadChannelSource_should_delegate_to_reference(
             [Values(false, true)]
             bool async)
         {
@@ -82,43 +75,37 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                subject.GetReadChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout);
 
-                _mockReadWriteBinding.Verify(b => b.GetReadChannelSourceAsync(CancellationToken.None), Times.Once);
+                _mockReadWriteBinding.Verify(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                subject.GetReadChannelSource(CancellationToken.None);
+                subject.GetReadChannelSource(OperationContext.NoTimeout);
 
-                _mockReadWriteBinding.Verify(b => b.GetReadChannelSource(CancellationToken.None), Times.Once);
+                _mockReadWriteBinding.Verify(b => b.GetReadChannelSource(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetWriteChannelSource_should_throw_if_disposed(
+        public async Task GetWriteChannelSource_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
             var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
             subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.GetWriteChannelSource(CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout)) :
+                Record.Exception(() => subject.GetWriteChannelSource(OperationContext.NoTimeout));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetWriteChannelSource_should_delegate_to_reference(
+        public async Task GetWriteChannelSource_should_delegate_to_reference(
             [Values(false, true)]
             bool async)
         {
@@ -126,15 +113,15 @@ namespace MongoDB.Driver.Core.Bindings
 
             if (async)
             {
-                subject.GetWriteChannelSourceAsync(CancellationToken.None).GetAwaiter().GetResult();
+                await subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout);
 
-                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSourceAsync(CancellationToken.None), Times.Once);
+                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                subject.GetWriteChannelSource(CancellationToken.None);
+                subject.GetWriteChannelSource(OperationContext.NoTimeout);
 
-                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSource(CancellationToken.None), Times.Once);
+                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSource(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 

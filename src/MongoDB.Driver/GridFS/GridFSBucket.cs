@@ -83,13 +83,15 @@ namespace MongoDB.Driver.GridFS
         public void Delete(TFileId id, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull((object)id, nameof(id));
-            using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            using (var binding = GetSingleServerReadWriteBinding(operationContext))
             {
                 var filesCollectionDeleteOperation = CreateDeleteFileOperation(id);
-                var filesCollectionDeleteResult = filesCollectionDeleteOperation.Execute(binding, cancellationToken);
+                var filesCollectionDeleteResult = filesCollectionDeleteOperation.Execute(operationContext, binding);
 
                 var chunksDeleteOperation = CreateDeleteChunksOperation(id);
-                chunksDeleteOperation.Execute(binding, cancellationToken);
+                chunksDeleteOperation.Execute(operationContext, binding);
 
                 if (filesCollectionDeleteResult.DeletedCount == 0)
                 {
@@ -102,13 +104,15 @@ namespace MongoDB.Driver.GridFS
         public async Task DeleteAsync(TFileId id, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull((object)id, nameof(id));
-            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            using (var binding = await GetSingleServerReadWriteBindingAsync(operationContext).ConfigureAwait(false))
             {
                 var filesCollectionDeleteOperation = CreateDeleteFileOperation(id);
-                var filesCollectionDeleteResult = await filesCollectionDeleteOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var filesCollectionDeleteResult = await filesCollectionDeleteOperation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
 
                 var chunksDeleteOperation = CreateDeleteChunksOperation(id);
-                await chunksDeleteOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                await chunksDeleteOperation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
 
                 if (filesCollectionDeleteResult.DeletedCount == 0)
                 {
@@ -121,10 +125,12 @@ namespace MongoDB.Driver.GridFS
         public byte[] DownloadAsBytes(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull((object)id, nameof(id));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            using (var binding = GetSingleServerReadBinding(operationContext))
             {
-                var fileInfo = GetFileInfo(binding, id, cancellationToken);
+                var fileInfo = GetFileInfo(operationContext, binding, id);
                 return DownloadAsBytesHelper(binding, fileInfo, options, cancellationToken);
             }
         }
@@ -133,10 +139,12 @@ namespace MongoDB.Driver.GridFS
         public async Task<byte[]> DownloadAsBytesAsync(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull((object)id, nameof(id));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
-                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoAsync(operationContext, binding, id).ConfigureAwait(false);
                 return await DownloadAsBytesHelperAsync(binding, fileInfo, options, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -145,11 +153,13 @@ namespace MongoDB.Driver.GridFS
         public byte[] DownloadAsBytesByName(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filename, nameof(filename));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            using (var binding = GetSingleServerReadBinding(operationContext))
             {
-                var fileInfo = GetFileInfoByName(binding, filename, options.Revision, cancellationToken);
+                var fileInfo = GetFileInfoByName(operationContext, binding, filename, options.Revision);
                 return DownloadAsBytesHelper(binding, fileInfo, options, cancellationToken);
             }
         }
@@ -158,11 +168,13 @@ namespace MongoDB.Driver.GridFS
         public async Task<byte[]> DownloadAsBytesByNameAsync(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filename, nameof(filename));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
-                var fileInfo = await GetFileInfoByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoByNameAsync(operationContext, binding, filename, options.Revision).ConfigureAwait(false);
                 return await DownloadAsBytesHelperAsync(binding, fileInfo, options, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -172,10 +184,12 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(destination, nameof(destination));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            using (var binding = GetSingleServerReadBinding(operationContext))
             {
-                var fileInfo = GetFileInfo(binding, id, cancellationToken);
+                var fileInfo = GetFileInfo(operationContext, binding, id);
                 DownloadToStreamHelper(binding, fileInfo, destination, options, cancellationToken);
             }
         }
@@ -185,10 +199,12 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(destination, nameof(destination));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
-                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoAsync(operationContext, binding, id).ConfigureAwait(false);
                 await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -198,11 +214,13 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(destination, nameof(destination));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            using (var binding = GetSingleServerReadBinding(operationContext))
             {
-                var fileInfo = GetFileInfoByName(binding, filename, options.Revision, cancellationToken);
+                var fileInfo = GetFileInfoByName(operationContext, binding, filename, options.Revision);
                 DownloadToStreamHelper(binding, fileInfo, destination, options, cancellationToken);
             }
         }
@@ -212,11 +230,13 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(destination, nameof(destination));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
-                var fileInfo = await GetFileInfoByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoByNameAsync(operationContext, binding, filename, options.Revision).ConfigureAwait(false);
                 await DownloadToStreamHelperAsync(binding, fileInfo, destination, options, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -224,34 +244,38 @@ namespace MongoDB.Driver.GridFS
         /// <inheritdoc />
         public void Drop(CancellationToken cancellationToken = default(CancellationToken))
         {
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var chunksCollectionNamespace = this.GetChunksCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
 
-            using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
+            using (var binding = GetSingleServerReadWriteBinding(operationContext))
             {
                 var filesCollectionDropOperation = CreateDropCollectionOperation(filesCollectionNamespace, messageEncoderSettings);
-                filesCollectionDropOperation.Execute(binding, cancellationToken);
+                filesCollectionDropOperation.Execute(operationContext, binding);
 
                 var chunksCollectionDropOperation = CreateDropCollectionOperation(chunksCollectionNamespace, messageEncoderSettings);
-                chunksCollectionDropOperation.Execute(binding, cancellationToken);
+                chunksCollectionDropOperation.Execute(operationContext, binding);
             }
         }
 
         /// <inheritdoc />
         public async Task DropAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var chunksCollectionNamespace = this.GetChunksCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
 
-            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadWriteBindingAsync(operationContext).ConfigureAwait(false))
             {
                 var filesCollectionDropOperation = CreateDropCollectionOperation(filesCollectionNamespace, messageEncoderSettings);
-                await filesCollectionDropOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                await filesCollectionDropOperation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
 
                 var chunksCollectionDropOperation = CreateDropCollectionOperation(chunksCollectionNamespace, messageEncoderSettings);
-                await chunksCollectionDropOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                await chunksCollectionDropOperation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
             }
         }
 
@@ -259,13 +283,15 @@ namespace MongoDB.Driver.GridFS
         public IAsyncCursor<GridFSFileInfo<TFileId>> Find(FilterDefinition<GridFSFileInfo<TFileId>> filter, GridFSFindOptions<TFileId> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSFindOptions<TFileId>();
 
             var translationOptions = _database.Client.Settings.TranslationOptions;
             var operation = CreateFindOperation(filter, options, translationOptions);
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            using (var binding = GetSingleServerReadBinding(operationContext))
             {
-                return operation.Execute(binding, cancellationToken);
+                return operation.Execute(operationContext, binding);
             }
         }
 
@@ -273,13 +299,15 @@ namespace MongoDB.Driver.GridFS
         public async Task<IAsyncCursor<GridFSFileInfo<TFileId>>> FindAsync(FilterDefinition<GridFSFileInfo<TFileId>> filter, GridFSFindOptions<TFileId> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filter, nameof(filter));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSFindOptions<TFileId>();
 
             var translationOptions = _database.Client.Settings.TranslationOptions;
             var operation = CreateFindOperation(filter, options, translationOptions);
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
-                return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
             }
         }
 
@@ -287,10 +315,12 @@ namespace MongoDB.Driver.GridFS
         public GridFSDownloadStream<TFileId> OpenDownloadStream(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull((object)id, nameof(id));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            using (var binding = GetSingleServerReadBinding(operationContext))
             {
-                var fileInfo = GetFileInfo(binding, id, cancellationToken);
+                var fileInfo = GetFileInfo(operationContext, binding, id);
                 return CreateDownloadStream(binding.Fork(), fileInfo, options, cancellationToken);
             }
         }
@@ -299,10 +329,12 @@ namespace MongoDB.Driver.GridFS
         public async Task<GridFSDownloadStream<TFileId>> OpenDownloadStreamAsync(TFileId id, GridFSDownloadOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull((object)id, nameof(id));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
-                var fileInfo = await GetFileInfoAsync(binding, id, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoAsync(operationContext, binding, id).ConfigureAwait(false);
                 return CreateDownloadStream(binding.Fork(), fileInfo, options, cancellationToken);
             }
         }
@@ -311,11 +343,13 @@ namespace MongoDB.Driver.GridFS
         public GridFSDownloadStream<TFileId> OpenDownloadStreamByName(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filename, nameof(filename));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
-            using (var binding = GetSingleServerReadBinding(cancellationToken))
+            using (var binding = GetSingleServerReadBinding(operationContext))
             {
-                var fileInfo = GetFileInfoByName(binding, filename, options.Revision, cancellationToken);
+                var fileInfo = GetFileInfoByName(operationContext, binding, filename, options.Revision);
                 return CreateDownloadStream(binding.Fork(), fileInfo, options);
             }
         }
@@ -324,11 +358,13 @@ namespace MongoDB.Driver.GridFS
         public async Task<GridFSDownloadStream<TFileId>> OpenDownloadStreamByNameAsync(string filename, GridFSDownloadByNameOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(filename, nameof(filename));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
-            using (var binding = await GetSingleServerReadBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
-                var fileInfo = await GetFileInfoByNameAsync(binding, filename, options.Revision, cancellationToken).ConfigureAwait(false);
+                var fileInfo = await GetFileInfoByNameAsync(operationContext, binding, filename, options.Revision).ConfigureAwait(false);
                 return CreateDownloadStream(binding.Fork(), fileInfo, options);
             }
         }
@@ -338,11 +374,13 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSUploadOptions();
 
-            using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
+            using (var binding = GetSingleServerReadWriteBinding(operationContext))
             {
-                EnsureIndexes(binding, cancellationToken);
+                EnsureIndexes(operationContext, binding);
                 return CreateUploadStream(binding, id, filename, options);
             }
         }
@@ -352,11 +390,13 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSUploadOptions();
 
-            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadWriteBindingAsync(operationContext).ConfigureAwait(false))
             {
-                await EnsureIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                await EnsureIndexesAsync(operationContext, binding).ConfigureAwait(false);
                 return CreateUploadStream(binding, id, filename, options);
             }
         }
@@ -366,10 +406,12 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(newFilename, nameof(newFilename));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             var renameOperation = CreateRenameOperation(id, newFilename);
-            using (var binding = GetSingleServerReadWriteBinding(cancellationToken))
+            using (var binding = GetSingleServerReadWriteBinding(operationContext))
             {
-                var result = renameOperation.Execute(binding, cancellationToken);
+                var result = renameOperation.Execute(operationContext, binding);
 
                 if (result.IsModifiedCountAvailable && result.ModifiedCount == 0)
                 {
@@ -383,10 +425,12 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(newFilename, nameof(newFilename));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             var renameOperation = CreateRenameOperation(id, newFilename);
-            using (var binding = await GetSingleServerReadWriteBindingAsync(cancellationToken).ConfigureAwait(false))
+            using (var binding = await GetSingleServerReadWriteBindingAsync(operationContext).ConfigureAwait(false))
             {
-                var result = await renameOperation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                var result = await renameOperation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
 
                 if (result.IsModifiedCountAvailable && result.ModifiedCount == 0)
                 {
@@ -401,6 +445,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(source, nameof(source));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSUploadOptions();
 
             using (var sourceStream = new MemoryStream(source))
@@ -415,6 +461,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(source, nameof(source));
+            // TODO: CSOT implement proper way to obtain the operationContext
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             options = options ?? new GridFSUploadOptions();
 
             using (var sourceStream = new MemoryStream(source))
@@ -522,28 +570,28 @@ namespace MongoDB.Driver.GridFS
             return IndexExists(indexes, key);
         }
 
-        private bool ChunksCollectionIndexesExist(IReadBindingHandle binding, CancellationToken cancellationToken)
+        private bool ChunksCollectionIndexesExist(OperationContext operationContext, IReadBindingHandle binding)
         {
-            var indexes = ListIndexes(binding, this.GetChunksCollectionNamespace(), cancellationToken);
+            var indexes = ListIndexes(operationContext, binding, this.GetChunksCollectionNamespace());
             return ChunksCollectionIndexesExist(indexes);
         }
 
-        private async Task<bool> ChunksCollectionIndexesExistAsync(IReadBindingHandle binding, CancellationToken cancellationToken)
+        private async Task<bool> ChunksCollectionIndexesExistAsync(OperationContext operationContext, IReadBindingHandle binding)
         {
-            var indexes = await ListIndexesAsync(binding, this.GetChunksCollectionNamespace(), cancellationToken).ConfigureAwait(false);
+            var indexes = await ListIndexesAsync(operationContext, binding, this.GetChunksCollectionNamespace()).ConfigureAwait(false);
             return ChunksCollectionIndexesExist(indexes);
         }
 
-        private void CreateChunksCollectionIndexes(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
+        private void CreateChunksCollectionIndexes(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
             var operation = CreateCreateChunksCollectionIndexesOperation();
-            operation.Execute(binding, cancellationToken);
+            operation.Execute(operationContext, binding);
         }
 
-        private async Task CreateChunksCollectionIndexesAsync(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
+        private async Task CreateChunksCollectionIndexesAsync(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
             var operation = CreateCreateChunksCollectionIndexesOperation();
-            await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
         }
 
         internal CreateIndexesOperation CreateCreateChunksCollectionIndexesOperation()
@@ -608,16 +656,16 @@ namespace MongoDB.Driver.GridFS
                 this.GetMessageEncoderSettings());
         }
 
-        private void CreateFilesCollectionIndexes(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
+        private void CreateFilesCollectionIndexes(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
             var operation = CreateCreateFilesCollectionIndexesOperation();
-            operation.Execute(binding, cancellationToken);
+            operation.Execute(operationContext, binding);
         }
 
-        private async Task CreateFilesCollectionIndexesAsync(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
+        private async Task CreateFilesCollectionIndexesAsync(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
             var operation = CreateCreateFilesCollectionIndexesOperation();
-            await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
         }
 
         private FindOperation<GridFSFileInfo<TFileId>> CreateFindOperation(
@@ -810,23 +858,23 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private void EnsureIndexes(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
+        private void EnsureIndexes(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
-            _ensureIndexesSemaphore.Wait(cancellationToken);
+            _ensureIndexesSemaphore.Wait(operationContext.RemainingTimeout, operationContext.CancellationToken);
             try
             {
                 if (!_ensureIndexesDone)
                 {
-                    var isFilesCollectionEmpty = IsFilesCollectionEmpty(binding, cancellationToken);
+                    var isFilesCollectionEmpty = IsFilesCollectionEmpty(operationContext, binding);
                     if (isFilesCollectionEmpty)
                     {
-                        if (!FilesCollectionIndexesExist(binding, cancellationToken))
+                        if (!FilesCollectionIndexesExist(operationContext, binding))
                         {
-                            CreateFilesCollectionIndexes(binding, cancellationToken);
+                            CreateFilesCollectionIndexes(operationContext, binding);
                         }
-                        if (!ChunksCollectionIndexesExist(binding, cancellationToken))
+                        if (!ChunksCollectionIndexesExist(operationContext, binding))
                         {
-                            CreateChunksCollectionIndexes(binding, cancellationToken);
+                            CreateChunksCollectionIndexes(operationContext, binding);
                         }
                     }
 
@@ -839,23 +887,23 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task EnsureIndexesAsync(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
+        private async Task EnsureIndexesAsync(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
-            await _ensureIndexesSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await _ensureIndexesSemaphore.WaitAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
             try
             {
                 if (!_ensureIndexesDone)
                 {
-                    var isFilesCollectionEmpty = await IsFilesCollectionEmptyAsync(binding, cancellationToken).ConfigureAwait(false);
+                    var isFilesCollectionEmpty = await IsFilesCollectionEmptyAsync(operationContext, binding).ConfigureAwait(false);
                     if (isFilesCollectionEmpty)
                     {
-                        if (!(await FilesCollectionIndexesExistAsync(binding, cancellationToken).ConfigureAwait(false)))
+                        if (!(await FilesCollectionIndexesExistAsync(operationContext, binding).ConfigureAwait(false)))
                         {
-                            await CreateFilesCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                            await CreateFilesCollectionIndexesAsync(operationContext, binding).ConfigureAwait(false);
                         }
-                        if (!(await ChunksCollectionIndexesExistAsync(binding, cancellationToken).ConfigureAwait(false)))
+                        if (!(await ChunksCollectionIndexesExistAsync(operationContext, binding).ConfigureAwait(false)))
                         {
-                            await CreateChunksCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                            await CreateChunksCollectionIndexesAsync(operationContext, binding).ConfigureAwait(false);
                         }
                     }
 
@@ -874,24 +922,25 @@ namespace MongoDB.Driver.GridFS
             return IndexExists(indexes, key);
         }
 
-        private bool FilesCollectionIndexesExist(IReadBindingHandle binding, CancellationToken cancellationToken)
+        private bool FilesCollectionIndexesExist(OperationContext operationContext, IReadBindingHandle binding)
         {
-            var indexes = ListIndexes(binding, this.GetFilesCollectionNamespace(), cancellationToken);
+            var indexes = ListIndexes(operationContext, binding, this.GetFilesCollectionNamespace());
             return FilesCollectionIndexesExist(indexes);
         }
 
-        private async Task<bool> FilesCollectionIndexesExistAsync(IReadBindingHandle binding, CancellationToken cancellationToken)
+        private async Task<bool> FilesCollectionIndexesExistAsync(OperationContext operationContext, IReadBindingHandle binding)
         {
-            var indexes = await ListIndexesAsync(binding, this.GetFilesCollectionNamespace(), cancellationToken).ConfigureAwait(false);
+            var indexes = await ListIndexesAsync(operationContext, binding, this.GetFilesCollectionNamespace()).ConfigureAwait(false);
             return FilesCollectionIndexesExist(indexes);
         }
 
-        private GridFSFileInfo<TFileId> GetFileInfo(IReadBindingHandle binding, TFileId id, CancellationToken cancellationToken)
+        private GridFSFileInfo<TFileId> GetFileInfo(OperationContext operationContext, IReadBindingHandle binding, TFileId id)
         {
             var operation = CreateGetFileInfoOperation(id);
-            using (var cursor = operation.Execute(binding, cancellationToken))
+            using (var cursor = operation.Execute(operationContext, binding))
             {
-                var fileInfo = cursor.FirstOrDefault(cancellationToken);
+                // TODO: CSOT add a way to propagate cancellationContext into cursor methods.
+                var fileInfo = cursor.FirstOrDefault(operationContext.CancellationToken);
                 if (fileInfo == null)
                 {
                     throw new GridFSFileNotFoundException(_idSerializationInfo.SerializeValue(id));
@@ -900,12 +949,13 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task<GridFSFileInfo<TFileId>> GetFileInfoAsync(IReadBindingHandle binding, TFileId id, CancellationToken cancellationToken)
+        private async Task<GridFSFileInfo<TFileId>> GetFileInfoAsync(OperationContext operationContext, IReadBindingHandle binding, TFileId id)
         {
             var operation = CreateGetFileInfoOperation(id);
-            using (var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
+            using (var cursor = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false))
             {
-                var fileInfo = await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+                // TODO: CSOT add a way to propagate cancellationContext into cursor methods.
+                var fileInfo = await cursor.FirstOrDefaultAsync(operationContext.CancellationToken).ConfigureAwait(false);
                 if (fileInfo == null)
                 {
                     throw new GridFSFileNotFoundException(_idSerializationInfo.SerializeValue(id));
@@ -914,12 +964,13 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private GridFSFileInfo<TFileId> GetFileInfoByName(IReadBindingHandle binding, string filename, int revision, CancellationToken cancellationToken)
+        private GridFSFileInfo<TFileId> GetFileInfoByName(OperationContext operationContext, IReadBindingHandle binding, string filename, int revision)
         {
             var operation = CreateGetFileInfoByNameOperation(filename, revision);
-            using (var cursor = operation.Execute(binding, cancellationToken))
+            using (var cursor = operation.Execute(operationContext, binding))
             {
-                var fileInfo = cursor.FirstOrDefault(cancellationToken);
+                // TODO: CSOT add a way to propagate cancellationContext into cursor methods.
+                var fileInfo = cursor.FirstOrDefault(operationContext.CancellationToken);
                 if (fileInfo == null)
                 {
                     throw new GridFSFileNotFoundException(filename, revision);
@@ -928,12 +979,13 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private async Task<GridFSFileInfo<TFileId>> GetFileInfoByNameAsync(IReadBindingHandle binding, string filename, int revision, CancellationToken cancellationToken)
+        private async Task<GridFSFileInfo<TFileId>> GetFileInfoByNameAsync(OperationContext operationContext, IReadBindingHandle binding, string filename, int revision)
         {
             var operation = CreateGetFileInfoByNameOperation(filename, revision);
-            using (var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
+            using (var cursor = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false))
             {
-                var fileInfo = await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+                // TODO: CSOT add a way to propagate cancellationContext into cursor methods.
+                var fileInfo = await cursor.FirstOrDefaultAsync(operationContext.CancellationToken).ConfigureAwait(false);
                 if (fileInfo == null)
                 {
                     throw new GridFSFileNotFoundException(filename, revision);
@@ -947,36 +999,36 @@ namespace MongoDB.Driver.GridFS
             return _options.ReadConcern ?? _database.Settings.ReadConcern;
         }
 
-        private IReadBindingHandle GetSingleServerReadBinding(CancellationToken cancellationToken)
+        private IReadBindingHandle GetSingleServerReadBinding(OperationContext operationContext)
         {
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
-            var server = _cluster.SelectServer(selector, cancellationToken);
+            var server = _cluster.SelectServer(operationContext, selector);
             var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
-        private async Task<IReadBindingHandle> GetSingleServerReadBindingAsync(CancellationToken cancellationToken)
+        private async Task<IReadBindingHandle> GetSingleServerReadBindingAsync(OperationContext operationContext)
         {
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
-            var server = await _cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
             var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
-        private IReadWriteBindingHandle GetSingleServerReadWriteBinding(CancellationToken cancellationToken)
+        private IReadWriteBindingHandle GetSingleServerReadWriteBinding(OperationContext operationContext)
         {
             var selector = WritableServerSelector.Instance;
-            var server = _cluster.SelectServer(selector, cancellationToken);
+            var server = _cluster.SelectServer(operationContext, selector);
             var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
             return new ReadWriteBindingHandle(binding);
         }
 
-        private async Task<IReadWriteBindingHandle> GetSingleServerReadWriteBindingAsync(CancellationToken cancellationToken)
+        private async Task<IReadWriteBindingHandle> GetSingleServerReadWriteBindingAsync(OperationContext operationContext)
         {
             var selector = WritableServerSelector.Instance;
-            var server = await _cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
             var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
             return new ReadWriteBindingHandle(binding);
         }
@@ -993,37 +1045,39 @@ namespace MongoDB.Driver.GridFS
             return false;
         }
 
-        private bool IsFilesCollectionEmpty(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
+        private bool IsFilesCollectionEmpty(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
             var operation = CreateIsFilesCollectionEmptyOperation();
-            using (var cursor = operation.Execute(binding, cancellationToken))
+            using (var cursor = operation.Execute(operationContext, binding))
             {
-                var firstOrDefault = cursor.FirstOrDefault(cancellationToken);
+                // TODO: CSOT add a way to propagate cancellationContext into cursor methods.
+                var firstOrDefault = cursor.FirstOrDefault(operationContext.CancellationToken);
                 return firstOrDefault == null;
             }
         }
 
-        private async Task<bool> IsFilesCollectionEmptyAsync(IReadWriteBindingHandle binding, CancellationToken cancellationToken)
+        private async Task<bool> IsFilesCollectionEmptyAsync(OperationContext operationContext, IReadWriteBindingHandle binding)
         {
             var operation = CreateIsFilesCollectionEmptyOperation();
-            using (var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false))
+            using (var cursor = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false))
             {
-                var firstOrDefault = await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+                // TODO: CSOT add a way to propagate cancellationContext into cursor methods.
+                var firstOrDefault = await cursor.FirstOrDefaultAsync(operationContext.CancellationToken).ConfigureAwait(false);
                 return firstOrDefault == null;
             }
         }
 
-        private List<BsonDocument> ListIndexes(IReadBinding binding, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
+        private List<BsonDocument> ListIndexes(OperationContext operationContext, IReadBinding binding, CollectionNamespace collectionNamespace)
         {
             var operation = CreateListIndexesOperation(collectionNamespace);
-            return operation.Execute(binding, cancellationToken).ToList();
+            return operation.Execute(operationContext, binding).ToList();
         }
 
-        private async Task<List<BsonDocument>> ListIndexesAsync(IReadBinding binding, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
+        private async Task<List<BsonDocument>> ListIndexesAsync(OperationContext operationContext, IReadBinding binding, CollectionNamespace collectionNamespace)
         {
             var operation = CreateListIndexesOperation(collectionNamespace);
-            var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
-            return await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+            var cursor = await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
+            return await cursor.ToListAsync(operationContext.CancellationToken).ConfigureAwait(false);
         }
     }
 }

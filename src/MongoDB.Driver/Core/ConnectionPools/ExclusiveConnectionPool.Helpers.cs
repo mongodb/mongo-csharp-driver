@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
     internal sealed partial class ExclusiveConnectionPool
     {
         // private methods
-        private Exception CreateTimeoutException(Stopwatch stopwatch, string message)
+        private Exception CreateTimeoutException(TimeSpan elapsed, string message)
         {
             var checkOutsForCursorCount = _checkOutReasonCounter.GetCheckOutsCount(CheckOutReason.Cursor);
             var checkOutsForTransactionCount = _checkOutReasonCounter.GetCheckOutsCount(CheckOutReason.Transaction);
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 var checkOutsForOtherCount = checkOutsCount - checkOutsForCursorCount - checkOutsForTransactionCount;
 
                 message =
-                    $"Timed out after {stopwatch.ElapsedMilliseconds}ms waiting for a connection from the connection pool. " +
+                    $"Timed out after {elapsed.TotalMilliseconds}ms waiting for a connection from the connection pool. " +
                     $"maxPoolSize: {maxPoolSize}, " +
                     $"connections in use by cursors: {checkOutsForCursorCount}, " +
                     $"connections in use by transactions: {checkOutsForTransactionCount}, " +
@@ -166,7 +166,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             // private fields
             private readonly ExclusiveConnectionPool _pool;
-            private readonly TimeSpan _timeout;
 
             private bool _enteredWaitQueue;
             private SemaphoreSlimSignalable.SemaphoreWaitResult _poolQueueWaitResult;
@@ -175,32 +174,31 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public AcquireConnectionHelper(ExclusiveConnectionPool pool)
             {
                 _pool = pool;
-                _timeout = pool._settings.WaitQueueTimeout;
             }
 
-            public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
+            public IConnectionHandle AcquireConnection(OperationContext operationContext)
             {
                 var stopwatch = new Stopwatch();
                 try
                 {
                     StartCheckingOut(stopwatch);
-                    _poolQueueWaitResult = _pool._maxConnectionsQueue.WaitSignaled(_timeout, cancellationToken);
+                    _poolQueueWaitResult = _pool._maxConnectionsQueue.WaitSignaled(operationContext.RemainingTimeout, operationContext.CancellationToken);
 
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                     {
                         PooledConnection pooledConnection;
-                        var timeout = EnsureTimeout(stopwatch);
+                        ThrowIfTimedOut(operationContext, stopwatch);
 
-                        using (var connectionCreator = new ConnectionCreator(_pool, timeout))
+                        using (var connectionCreator = new ConnectionCreator(_pool))
                         {
-                            pooledConnection = connectionCreator.CreateOpenedOrReuse(cancellationToken);
+                            pooledConnection = connectionCreator.CreateOpenedOrReuse(operationContext);
                         }
 
                         return EndCheckingOut(pooledConnection, stopwatch);
                     }
 
                     stopwatch.Stop();
-                    throw CreateException(stopwatch);
+                    throw CreateException(stopwatch.Elapsed);
                 }
                 catch (Exception ex)
                 {
@@ -210,29 +208,29 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
+            public async Task<IConnectionHandle> AcquireConnectionAsync(OperationContext operationContext)
             {
                 var stopwatch = new Stopwatch();
                 try
                 {
                     StartCheckingOut(stopwatch);
-                    _poolQueueWaitResult = await _pool._maxConnectionsQueue.WaitSignaledAsync(_timeout, cancellationToken).ConfigureAwait(false);
+                    _poolQueueWaitResult = await _pool._maxConnectionsQueue.WaitSignaledAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
 
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                     {
                         PooledConnection pooledConnection;
-                        var timeout = EnsureTimeout(stopwatch);
+                        ThrowIfTimedOut(operationContext, stopwatch);
 
-                        using (var connectionCreator = new ConnectionCreator(_pool, timeout))
+                        using (var connectionCreator = new ConnectionCreator(_pool))
                         {
-                            pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(cancellationToken).ConfigureAwait(false);
+                            pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(operationContext).ConfigureAwait(false);
                         }
 
                         return EndCheckingOut(pooledConnection, stopwatch);
                     }
 
                     stopwatch.Stop();
-                    throw CreateException(stopwatch);
+                    throw CreateException(stopwatch.Elapsed);
                 }
                 catch (Exception ex)
                 {
@@ -281,13 +279,21 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _enteredWaitQueue = true;
             }
 
+            private void ThrowIfTimedOut(OperationContext operationContext, Stopwatch stopwatch)
+            {
+                if (operationContext.IsTimedOut())
+                {
+                    stopwatch.Stop();
+                    throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for a connection after {stopwatch.ElapsedMilliseconds}ms.");
+                }
+            }
+
             private void StartCheckingOut(Stopwatch stopwatch)
             {
                 _pool._eventLogger.LogAndPublish(new ConnectionPoolCheckingOutConnectionEvent(_pool._serverId, EventContext.OperationId));
-
                 stopwatch.Start();
-                _pool._poolState.ThrowIfNotReady();
 
+                _pool._poolState.ThrowIfNotReady();
                 AcquireWaitQueueSlot();
             }
 
@@ -296,7 +302,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 var reference = new ReferenceCounted<PooledConnection>(pooledConnection, _pool.ReleaseConnection);
                 var connectionHandle = new AcquiredConnection(_pool, reference);
 
-                stopwatch.Stop();
                 _pool._eventLogger.LogAndPublish(new ConnectionPoolCheckedOutConnectionEvent(connectionHandle.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
 
                 // no need to release the semaphore
@@ -305,26 +310,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return connectionHandle;
             }
 
-            private TimeSpan EnsureTimeout(Stopwatch stopwatch)
-            {
-                var timeSpentInWaitQueue = stopwatch.Elapsed;
-                var timeout = _timeout - timeSpentInWaitQueue;
-
-                if (timeout < TimeSpan.Zero)
-                {
-                    throw _pool.CreateTimeoutException(stopwatch, $"Timed out waiting for a connection after {timeSpentInWaitQueue.TotalMilliseconds}ms.");
-                }
-
-                return timeout;
-            }
-
-            private Exception CreateException(Stopwatch stopwatch) =>
+            private Exception CreateException(TimeSpan elapsed) =>
                 _poolQueueWaitResult switch
                 {
                     SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled =>
                         MongoConnectionPoolPausedException.ForConnectionPool(_pool._endPoint),
                     SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut =>
-                        _pool.CreateTimeoutException(stopwatch, $"Timed out waiting for a connection after {stopwatch.ElapsedMilliseconds}ms."),
+                        _pool.CreateTimeoutException(elapsed, $"Timed out waiting for a connection after {elapsed.TotalMilliseconds}ms."),
                     // should not be reached
                     _ => new InvalidOperationException($"Invalid {_poolQueueWaitResult}.")
                 };
@@ -846,41 +838,35 @@ namespace MongoDB.Driver.Core.ConnectionPools
         internal sealed class ConnectionCreator : IDisposable
         {
             private readonly ExclusiveConnectionPool _pool;
-            private readonly TimeSpan _connectingTimeout;
 
             private PooledConnection _connection;
             private bool _disposeConnection;
 
             private SemaphoreSlimSignalable.SemaphoreWaitResult _connectingWaitStatus;
 
-            private Stopwatch _stopwatch;
-
-            public ConnectionCreator(ExclusiveConnectionPool pool, TimeSpan connectingTimeout)
+            public ConnectionCreator(ExclusiveConnectionPool pool)
             {
                 _pool = pool;
-                _connectingTimeout = connectingTimeout;
                 _connectingWaitStatus = SemaphoreSlimSignalable.SemaphoreWaitResult.None;
                 _connection = null;
                 _disposeConnection = true;
-                _stopwatch = null;
             }
 
-            public PooledConnection CreateOpened(CancellationToken cancellationToken)
+            public PooledConnection CreateOpened(TimeSpan maxConnectingQueueTimeout, CancellationToken cancellationToken)
             {
                 try
                 {
                     var stopwatch = Stopwatch.StartNew();
-                    _connectingWaitStatus = _pool._maxConnectingQueue.Wait(_connectingTimeout, cancellationToken);
+                    _connectingWaitStatus = _pool._maxConnectingQueue.Wait(maxConnectingQueueTimeout, cancellationToken);
                     stopwatch.Stop();
-
                     _pool._poolState.ThrowIfNotReady();
 
                     if (_connectingWaitStatus == SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut)
                     {
-                        _pool.CreateTimeoutException(stopwatch, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
+                        _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
-                    return CreateOpenedInternal(cancellationToken);
+                    return CreateOpenedInternal(new(Timeout.InfiniteTimeSpan, cancellationToken));
                 }
                 catch (Exception ex)
                 {
@@ -889,12 +875,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public PooledConnection CreateOpenedOrReuse(CancellationToken cancellationToken)
+            public PooledConnection CreateOpenedOrReuse(OperationContext operationContext)
             {
                 try
                 {
                     var connection = _pool._connectionHolder.Acquire();
-                    var waitTimeout = _connectingTimeout;
                     var stopwatch = Stopwatch.StartNew();
 
                     while (connection == null)
@@ -905,21 +890,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         // Entered: The request was successfully fulfilled, and a connection establishment can start
                         // Signaled: The request was interrupted because Connection was return to pool and can be reused
                         // Timeout: The request was timed out after WaitQueueTimeout period.
-                        _connectingWaitStatus = _pool._maxConnectingQueue.WaitSignaled(waitTimeout, cancellationToken);
+                        _connectingWaitStatus = _pool._maxConnectingQueue.WaitSignaled(operationContext.RemainingTimeout, operationContext.CancellationToken);
 
                         connection = _connectingWaitStatus switch
                         {
                             SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled => _pool._connectionHolder.Acquire(),
-                            SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => CreateOpenedInternal(cancellationToken),
-                            SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw CreateTimeoutException(stopwatch),
+                            SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => CreateOpenedInternal(operationContext),
+                            SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw CreateTimeoutException(stopwatch.Elapsed),
                             _ => throw new InvalidOperationException($"Invalid wait result {_connectingWaitStatus}")
                         };
 
-                        waitTimeout = _connectingTimeout - stopwatch.Elapsed;
-
-                        if (connection == null && waitTimeout <= TimeSpan.Zero)
+                        if (connection == null && operationContext.IsTimedOut())
                         {
-                            throw CreateTimeoutException(stopwatch);
+                            throw CreateTimeoutException(stopwatch.Elapsed);
                         }
                     }
 
@@ -932,13 +915,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task<PooledConnection> CreateOpenedOrReuseAsync(CancellationToken cancellationToken)
+            public async Task<PooledConnection> CreateOpenedOrReuseAsync(OperationContext operationContext)
             {
                 try
                 {
                     var connection = _pool._connectionHolder.Acquire();
-
-                    var waitTimeout = _connectingTimeout;
                     var stopwatch = Stopwatch.StartNew();
 
                     while (connection == null)
@@ -949,21 +930,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         // Entered: The request was successfully fulfilled, and a connection establishment can start
                         // Signaled: The request was interrupted because Connection was return to pool and can be reused
                         // Timeout: The request was timed out after WaitQueueTimeout period.
-                        _connectingWaitStatus = await _pool._maxConnectingQueue.WaitSignaledAsync(waitTimeout, cancellationToken).ConfigureAwait(false);
+                        _connectingWaitStatus = await _pool._maxConnectingQueue.WaitSignaledAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
 
                         connection = _connectingWaitStatus switch
                         {
                             SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled => _pool._connectionHolder.Acquire(),
-                            SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => await CreateOpenedInternalAsync(cancellationToken).ConfigureAwait(false),
-                            SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw CreateTimeoutException(stopwatch),
+                            SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => await CreateOpenedInternalAsync(operationContext).ConfigureAwait(false),
+                            SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw CreateTimeoutException(stopwatch.Elapsed),
                             _ => throw new InvalidOperationException($"Invalid wait result {_connectingWaitStatus}")
                         };
 
-                        waitTimeout = _connectingTimeout - stopwatch.Elapsed;
-
-                        if (connection == null && waitTimeout <= TimeSpan.Zero)
+                        if (connection == null && operationContext.IsTimedOut())
                         {
-                            throw CreateTimeoutException(stopwatch);
+                            throw CreateTimeoutException(stopwatch.Elapsed);
                         }
                     }
 
@@ -991,54 +970,55 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             // private methods
-            private PooledConnection CreateOpenedInternal(CancellationToken cancellationToken)
+            private PooledConnection CreateOpenedInternal(OperationContext operationContext)
             {
-                StartCreating(cancellationToken);
+                var stopwatch = StartCreating(operationContext);
 
-                _connection.Open(cancellationToken);
+                // TODO: CSOT add support of CSOT timeout in connection open code too.
+                _connection.Open(operationContext.CancellationToken);
 
-                FinishCreating(_connection.Description);
+                FinishCreating(_connection.Description, stopwatch);
 
                 return _connection;
             }
 
-            private async Task<PooledConnection> CreateOpenedInternalAsync(CancellationToken cancellationToken)
+            private async Task<PooledConnection> CreateOpenedInternalAsync(OperationContext operationContext)
             {
-                StartCreating(cancellationToken);
+                var stopwatch = StartCreating(operationContext);
 
-                await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                // TODO: CSOT add support of CSOT timeout in connection open code too.
+                await _connection.OpenAsync(operationContext.CancellationToken).ConfigureAwait(false);
 
-                FinishCreating(_connection.Description);
+                FinishCreating(_connection.Description, stopwatch);
 
                 return _connection;
             }
 
-            private void StartCreating(CancellationToken cancellationToken)
+            private Stopwatch StartCreating(OperationContext operationContext)
             {
                 _pool._eventLogger.LogAndPublish(new ConnectionPoolAddingConnectionEvent(_pool._serverId, EventContext.OperationId));
 
-                cancellationToken.ThrowIfCancellationRequested();
+                operationContext.ThrowIfTimedOutOrCanceled();
 
-                _stopwatch = Stopwatch.StartNew();
-
+                var stopwatch = Stopwatch.StartNew();
                 _connection = _pool.CreateNewConnection();
+                return stopwatch;
             }
 
-            private void FinishCreating(ConnectionDescription description)
+            private void FinishCreating(ConnectionDescription description, Stopwatch stopwatch)
             {
-                _stopwatch.Stop();
-
-                _pool._eventLogger.LogAndPublish(new ConnectionPoolAddedConnectionEvent(_connection.ConnectionId, _stopwatch.Elapsed, EventContext.OperationId));
+                stopwatch.Stop();
+                _pool._eventLogger.LogAndPublish(new ConnectionPoolAddedConnectionEvent(_connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
 
                 // Only if reached this stage, connection should not be disposed
                 _disposeConnection = false;
                 _pool._serviceStates.IncrementConnectionCount(description?.ServiceId);
             }
 
-            private Exception CreateTimeoutException(Stopwatch stopwatch)
+            private Exception CreateTimeoutException(TimeSpan elapsed)
             {
-                var message = $"Timed out waiting in connecting queue after {stopwatch.ElapsedMilliseconds}ms.";
-                return _pool.CreateTimeoutException(stopwatch, message);
+                var message = $"Timed out waiting in connecting queue after {elapsed.TotalMilliseconds}ms.";
+                return _pool.CreateTimeoutException(elapsed, message);
             }
         }
     }

@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
@@ -67,29 +66,29 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        public long Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public long Execute(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
                 var operation = CreateCountOperation();
 
-                return operation.Execute(context, cancellationToken);
+                return operation.Execute(operationContext, context);
             }
         }
 
-        public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<long> ExecuteAsync(OperationContext operationContext, IReadBinding binding)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (BeginOperation())
-            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            using (var context = RetryableReadContext.Create(operationContext, binding, _retryRequested))
             {
                 var operation = CreateCountOperation();
 
-                return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
 
