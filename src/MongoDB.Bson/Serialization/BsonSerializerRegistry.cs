@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Default, global implementation of an <see cref="IBsonSerializerRegistry"/>.
     /// </summary>
-    public sealed class BsonSerializerRegistry : IBsonSerializerRegistry
+    public sealed class BsonSerializerRegistry : IBsonSerializerRegistryInternal
     {
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
