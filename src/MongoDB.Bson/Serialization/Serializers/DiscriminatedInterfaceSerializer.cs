@@ -158,7 +158,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var actualType = _discriminatorConvention.GetActualType(bsonReader, typeof(TInterface));
+                var actualType = _discriminatorConvention.GetActualTypeInternal(bsonReader, typeof(TInterface), context.SerializationDomain);
                 if (actualType == _interfaceType)
                 {
                     var message = string.Format("Unable to determine actual type of object to deserialize for interface type {0}.", _interfaceType.FullName);

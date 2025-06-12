@@ -25,7 +25,6 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="memberMap">The member map.</param>
         void Apply(BsonMemberMap memberMap);
-
     }
 
     internal interface IMemberMapConventionInternal : IMemberMapConvention

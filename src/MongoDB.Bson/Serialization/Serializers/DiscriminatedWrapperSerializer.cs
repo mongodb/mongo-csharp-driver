@@ -73,7 +73,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonReader = context.Reader;
             var nominalType = args.NominalType;
-            var actualType = _discriminatorConvention.GetActualType(bsonReader, nominalType);
+            var actualType = _discriminatorConvention.GetActualTypeInternal(bsonReader, nominalType, context.SerializationDomain);
             var serializer = context.SerializationDomain.LookupSerializer(actualType);
 
             TValue value = default(TValue);

@@ -33,6 +33,16 @@ namespace MongoDB.Bson.Serialization
         bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator);
 
         /// <summary>
+        /// Sets the document Id.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <param name="id">The Id.</param>
+        void SetDocumentId(object document, object id);
+    }
+
+    internal interface IBsonIdProviderInternal : IBsonIdProvider
+    {
+        /// <summary>
         /// //TODO
         /// </summary>
         /// <param name="document"></param>
@@ -42,12 +52,5 @@ namespace MongoDB.Bson.Serialization
         /// <param name="idGenerator"></param>
         /// <returns></returns>
         bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType, out IIdGenerator idGenerator);
-
-        /// <summary>
-        /// Sets the document Id.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="id">The Id.</param>
-        void SetDocumentId(object document, object id);
     }
 }
