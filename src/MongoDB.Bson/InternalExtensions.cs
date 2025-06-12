@@ -20,6 +20,7 @@ using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson
 {
+    //TODO This could be moved somewhere else
     internal static class InternalExtensions
     {
         public static Type GetActualTypeInternal(this IDiscriminatorConvention discriminatorConvention, IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain serializationDomain)
