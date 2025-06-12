@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -199,6 +200,37 @@ namespace MongoDB.Driver
             }
 
             action.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void ToAsyncEnumerable_result_should_only_be_enumerable_one_time()
+        {
+            var cursor = CreateCursor(2);
+            var enumerable = cursor.ToAsyncEnumerable();
+            enumerable.GetAsyncEnumerator();
+
+            Action action = () => enumerable.GetAsyncEnumerator();
+
+            action.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task ToAsyncEnumerable_should_return_expected_result()
+        {
+            var cursor = CreateCursor(2);
+            var expectedDocuments = new[]
+            {
+                new BsonDocument("_id", 0),
+                new BsonDocument("_id", 1)
+            };
+
+            var result = new List<BsonDocument>();
+            await foreach (var doc in cursor.ToAsyncEnumerable())
+            {
+                result.Add(doc);
+            }
+
+            result.Should().Equal(expectedDocuments);
         }
 
         [Fact]

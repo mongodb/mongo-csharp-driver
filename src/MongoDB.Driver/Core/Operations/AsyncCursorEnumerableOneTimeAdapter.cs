@@ -21,16 +21,31 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal sealed class AsyncCursorEnumerableOneTimeAdapter<TDocument> : IEnumerable<TDocument>
+    internal sealed class AsyncCursorEnumerableOneTimeAdapter<TDocument> : IEnumerable<TDocument>, IAsyncEnumerable<TDocument>
     {
         private readonly CancellationToken _cancellationToken;
         private readonly IAsyncCursor<TDocument> _cursor;
         private bool _hasBeenEnumerated;
 
+        public AsyncCursorEnumerableOneTimeAdapter(IAsyncCursor<TDocument> cursor)
+        {
+            _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
+        }
+
         public AsyncCursorEnumerableOneTimeAdapter(IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken)
         {
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
             _cancellationToken = cancellationToken;
+        }
+
+        public IAsyncEnumerator<TDocument> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            if (_hasBeenEnumerated)
+            {
+                throw new InvalidOperationException("An IAsyncCursor can only be enumerated once.");
+            }
+            _hasBeenEnumerated = true;
+            return new AsyncCursorEnumerator<TDocument>(_cursor, cancellationToken);
         }
 
         public IEnumerator<TDocument> GetEnumerator()

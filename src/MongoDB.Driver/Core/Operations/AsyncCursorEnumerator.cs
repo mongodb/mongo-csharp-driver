@@ -17,11 +17,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class AsyncCursorEnumerator<TDocument> : IEnumerator<TDocument>
+    internal class AsyncCursorEnumerator<TDocument> : IEnumerator<TDocument>, IAsyncEnumerator<TDocument>
     {
         // private fields
         private IEnumerator<TDocument> _batchEnumerator;
@@ -72,6 +73,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+            return new ValueTask(Task.CompletedTask);
+        }
+
         public bool MoveNext()
         {
             ThrowIfDisposed();
@@ -100,6 +107,28 @@ namespace MongoDB.Driver.Core.Operations
                     return false;
                 }
             }
+        }
+
+        public async ValueTask<bool> MoveNextAsync()
+        {
+            ThrowIfDisposed();
+            _started = true;
+
+            if (_batchEnumerator != null && _batchEnumerator.MoveNext())
+            {
+                return true;
+            }
+
+            while (await _cursor.MoveNextAsync(_cancellationToken).ConfigureAwait(false))
+            {
+                _batchEnumerator?.Dispose();
+                _batchEnumerator = _cursor.Current.GetEnumerator();
+                return _batchEnumerator.MoveNext();
+            }
+
+            _batchEnumerator = null;
+            _finished = true;
+            return false;
         }
 
         public void Reset()
