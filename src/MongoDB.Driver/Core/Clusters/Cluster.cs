@@ -222,23 +222,21 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            selector = DecorateSelector(selector);
+            selector = DecorateSelector(selector, out var operationCountSelector);
             operationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
-            var stopwatch = Stopwatch.StartNew();
 
             var clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
-            BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
+            var stopwatch = BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
             var serverSelectionWaitQueueEntered = false;
 
             try
             {
                 while (true)
                 {
-                    var result = SelectServer(clusterDescriptionChangeSource, selector);
+                    var result = SelectServer(clusterDescriptionChangeSource, selector, operationCountSelector);
                     if (result != default)
                     {
-                        stopwatch.Stop();
-                        EndServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector, result.ServerDescription, stopwatch.Elapsed);
+                        EndServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector, result.ServerDescription, stopwatch);
                         return result.Server;
                     }
 
@@ -281,23 +279,21 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            selector = DecorateSelector(selector);
+            selector = DecorateSelector(selector, out var operationCountSelector);
             operationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
-            var stopwatch = Stopwatch.StartNew();
 
             var clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
-            BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
+            var stopwatch = BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
             var serverSelectionWaitQueueEntered = false;
 
             try
             {
                 while (true)
                 {
-                    var result = SelectServer(clusterDescriptionChangeSource, selector);
+                    var result = SelectServer(clusterDescriptionChangeSource, selector, operationCountSelector);
                     if (result != default)
                     {
-                        stopwatch.Stop();
-                        EndServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector, result.ServerDescription, stopwatch.Elapsed);
+                        EndServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector, result.ServerDescription, stopwatch);
                         return result.Server;
                     }
 
@@ -362,27 +358,29 @@ namespace MongoDB.Driver.Core.Clusters
                 clusterDescription.ToString());
         }
 
-        private void BeginServerSelection(ClusterDescription clusterDescription, IServerSelector selector)
+        private Stopwatch BeginServerSelection(ClusterDescription clusterDescription, IServerSelector selector)
         {
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 clusterDescription,
                 selector,
                 EventContext.OperationId,
                 EventContext.OperationName));
+            return Stopwatch.StartNew();
         }
 
-        private void EndServerSelection(ClusterDescription clusterDescription, IServerSelector selector, ServerDescription selectedServerDescription, TimeSpan elapsed)
+        private void EndServerSelection(ClusterDescription clusterDescription, IServerSelector selector, ServerDescription selectedServerDescription, Stopwatch stopwatch)
         {
+            stopwatch.Stop();
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                 clusterDescription,
                 selector,
                 selectedServerDescription,
-                elapsed,
+                stopwatch.Elapsed,
                 EventContext.OperationId,
                 EventContext.OperationName));
         }
 
-        private IServerSelector DecorateSelector(IServerSelector selector)
+        private IServerSelector DecorateSelector(IServerSelector selector, out OperationsCountServerSelector operationCountSelector)
         {
             var settings = Settings;
             var allSelectors = new List<IServerSelector>();
@@ -400,6 +398,8 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             allSelectors.Add(_latencyLimitingServerSelector);
+            operationCountSelector = new OperationsCountServerSelector(Array.Empty<IClusterableServer>());
+            allSelectors.Add(operationCountSelector);
 
             return new CompositeServerSelector(allSelectors);
         }
@@ -414,23 +414,15 @@ namespace MongoDB.Driver.Core.Clusters
                 EventContext.OperationName));
         }
 
-        private (IClusterableServer Server, ServerDescription ServerDescription) SelectServer(ClusterDescriptionChangeSource clusterDescriptionChangeSource, IServerSelector selector)
+        private (IClusterableServer Server, ServerDescription ServerDescription) SelectServer(ClusterDescriptionChangeSource clusterDescriptionChangeSource, IServerSelector selector, OperationsCountServerSelector operationCountSelector)
         {
             MongoIncompatibleDriverException.ThrowIfNotSupported(clusterDescriptionChangeSource.ClusterDescription);
 
-            var selectedServersDescriptions = selector
+            operationCountSelector.PopulateServers(clusterDescriptionChangeSource.ConnectedServers);
+            var selectedServerDescription = selector
                 .SelectServers(clusterDescriptionChangeSource.ClusterDescription, clusterDescriptionChangeSource.ConnectedServerDescriptions)
-                .ToList();
+                .SingleOrDefault();
 
-            if (selectedServersDescriptions.Count > 1)
-            {
-                var operationCountSelector = new OperationsCountServerSelector(clusterDescriptionChangeSource.ConnectedServers);
-                selectedServersDescriptions = operationCountSelector
-                    .SelectServers(clusterDescriptionChangeSource.ClusterDescription, selectedServersDescriptions)
-                    .ToList();
-            }
-
-            var selectedServerDescription = selectedServersDescriptions.SingleOrDefault();
             if (selectedServerDescription != null)
             {
                 var selectedServer = clusterDescriptionChangeSource.ConnectedServers.FirstOrDefault(s => EndPointHelper.Equals(s.EndPoint, selectedServerDescription.EndPoint));
