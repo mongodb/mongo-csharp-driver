@@ -364,16 +364,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonReader = context.Reader;
 
-            Type actualType;
-
-            if (_discriminatorConvention is IDiscriminatorConventionInternal discriminatorConventionInternal)
-            {
-                actualType = discriminatorConventionInternal.GetActualType(bsonReader, args.NominalType, context.SerializationDomain);  //TODO I think these type of things could become an internal extension methods
-            }
-            else
-            {
-                actualType = _discriminatorConvention.GetActualType(bsonReader, args.NominalType);
-            }
+            var actualType = _discriminatorConvention.GetActualTypeInternal(bsonReader, args.NominalType, context.SerializationDomain);
 
             if (!_allowedDeserializationTypes(actualType))
             {
