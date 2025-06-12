@@ -117,10 +117,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             }
 
             public override BsonValue GetDiscriminator(Type nominalType, Type actualType) => throw new NotImplementedException();
-            public override BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
-            {
-                throw new NotImplementedException();
-            }
         }
 
         public class DerivedFromConcreteStandardDiscriminatorConvention : ConcreteStandardDiscriminatorConvention
