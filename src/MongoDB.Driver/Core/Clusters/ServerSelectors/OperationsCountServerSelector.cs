@@ -22,9 +22,9 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
     internal sealed class OperationsCountServerSelector : IServerSelector
     {
-        private readonly IEnumerable<IClusterableServer> _clusterableServers;
+        private readonly IReadOnlyList<IClusterableServer> _clusterableServers;
 
-        public OperationsCountServerSelector(IEnumerable<IClusterableServer> clusterableServers)
+        public OperationsCountServerSelector(IReadOnlyList<IClusterableServer> clusterableServers)
         {
             _clusterableServers = clusterableServers;
         }
