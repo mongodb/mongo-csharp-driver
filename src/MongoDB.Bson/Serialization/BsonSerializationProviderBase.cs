@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization
         /// <inheritdoc/>
         public virtual IBsonSerializer GetSerializer(Type type)
         {
-            return GetSerializer(type, BsonSerializer.SerializerRegistry);
+            return GetSerializer(type, BsonSerializer.DefaultSerializationDomain.SerializerRegistry);   //TODO We can keep this as is? I think in the long run we should remove this overload.
         }
 
         /// <inheritdoc/>
@@ -40,7 +40,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateGenericSerializer(Type serializerTypeDefinition, params Type[] typeArguments)
         {
-            return CreateGenericSerializer(serializerTypeDefinition, typeArguments, BsonSerializer.SerializerRegistry);
+            return CreateGenericSerializer(serializerTypeDefinition, typeArguments, BsonSerializer.DefaultSerializationDomain.SerializerRegistry);   //TODO We can keep this as is? I think in the long run we should remove this overload.
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer.</returns>
         protected virtual IBsonSerializer CreateSerializer(Type serializerType)
         {
-            return CreateSerializer(serializerType, BsonSerializer.SerializerRegistry);
+            return CreateSerializer(serializerType, BsonSerializer.SerializerRegistry);   //TODO We can keep this as is? I think in the long run we should remove this overload.
         }
 
         /// <summary>

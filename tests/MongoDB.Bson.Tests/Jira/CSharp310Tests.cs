@@ -44,6 +44,8 @@ namespace MongoDB.Bson.Tests.Jira
                     memberMap.SetDefaultValue(Guid.Empty);
                 }
             }
+
+            public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain) => Apply(memberMap);
         }
 
         private static void InitializeSerialization()

@@ -36,4 +36,9 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The serializer.</returns>
         IBsonSerializer<T> GetSerializer<T>();
     }
+
+    internal interface IBsonSerializerRegistryInternal : IBsonSerializerRegistry
+    {
+        IBsonSerializationDomain SerializationDomain { get; }
+    }
 }

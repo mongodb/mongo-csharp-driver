@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var serializer = BsonSerializer.LookupSerializer(actualType);
+                    var serializer = context.SerializationDomain.LookupSerializer(actualType);
                     return (TValue)serializer.Deserialize(context, args);
                 }
             }
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var serializer = BsonSerializer.LookupSerializer(actualType);
+                    var serializer = context.SerializationDomain.LookupSerializer(actualType);
                     serializer.Serialize(context, value);
                 }
             }
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected virtual Type GetActualType(BsonDeserializationContext context)
         {
             var discriminatorConvention = this.GetDiscriminatorConvention();
-            return discriminatorConvention.GetActualType(context.Reader, typeof(TValue));
+            return discriminatorConvention.GetActualTypeInternal(context.Reader, typeof(TValue), context.SerializationDomain);
         }
 
         /// <summary>
