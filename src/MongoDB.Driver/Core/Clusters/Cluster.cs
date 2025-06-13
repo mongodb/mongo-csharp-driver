@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
-        private ClusterDescriptionChangeSource _descriptionWithChangedTaskCompletionSource;
+        private ExpirableClusterDescription _expirableClusterDescription;
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
         protected readonly EventLogger<LogCategories.SDAM> _clusterEventLogger;
         protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
             _clusterId = new ClusterId();
-            _descriptionWithChangedTaskCompletionSource = new (this, ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
+            _expirableClusterDescription = new (this, ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
             _serverSelectionWaitQueue = new ServerSelectionWaitQueue(this);
             _serverSessionPool = new CoreServerSessionPool(this);
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             get
             {
-                return _descriptionWithChangedTaskCompletionSource.ClusterDescription;
+                return _expirableClusterDescription.ClusterDescription;
             }
         }
 
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 var newClusterDescription = new ClusterDescription(
                     _clusterId,
-                    _descriptionWithChangedTaskCompletionSource.ClusterDescription.DirectConnection,
+                    _expirableClusterDescription.ClusterDescription.DirectConnection,
                     dnsMonitorException: null,
                     ClusterType.Unknown,
                     Enumerable.Empty<ServerDescription>());
@@ -160,30 +160,30 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposedOrNotOpen();
 
             operationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
-            var clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
-            (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
+            var expirableClusterDescription = _expirableClusterDescription;
             IDisposable serverSelectionWaitQueueDisposer = null;
+            (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
 
             try
             {
                 while (true)
                 {
-                    var result = SelectServer(clusterDescriptionChangeSource, selector, operationCountSelector);
+                    var result = SelectServer(expirableClusterDescription, selector, operationCountSelector);
                     if (result != default)
                     {
-                        EndServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector, result.ServerDescription, stopwatch);
+                        EndServerSelection(expirableClusterDescription.ClusterDescription, selector, result.ServerDescription, stopwatch);
                         return result.Server;
                     }
 
-                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(operationContext, selector, clusterDescriptionChangeSource.ClusterDescription, EventContext.OperationId);
+                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(operationContext, selector, expirableClusterDescription.ClusterDescription, EventContext.OperationId);
 
-                    operationContext.WaitTask(clusterDescriptionChangeSource.Changed);
-                    clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
+                    operationContext.WaitTask(expirableClusterDescription.Expired);
+                    expirableClusterDescription = _expirableClusterDescription;
                 }
             }
             catch (Exception ex)
             {
-                throw HandleServerSelectionException(clusterDescriptionChangeSource.ClusterDescription, selector, ex, stopwatch);
+                throw HandleServerSelectionException(expirableClusterDescription.ClusterDescription, selector, ex, stopwatch);
             }
             finally
             {
@@ -198,30 +198,30 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposedOrNotOpen();
 
             operationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
-            var clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
-            (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
+            var expirableClusterDescription = _expirableClusterDescription;
             IDisposable serverSelectionWaitQueueDisposer = null;
+            (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
 
             try
             {
                 while (true)
                 {
-                    var result = SelectServer(clusterDescriptionChangeSource, selector, operationCountSelector);
+                    var result = SelectServer(expirableClusterDescription, selector, operationCountSelector);
                     if (result != default)
                     {
-                        EndServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector, result.ServerDescription, stopwatch);
+                        EndServerSelection(expirableClusterDescription.ClusterDescription, selector, result.ServerDescription, stopwatch);
                         return result.Server;
                     }
 
-                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(operationContext, selector, clusterDescriptionChangeSource.ClusterDescription, EventContext.OperationId);
+                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(operationContext, selector, expirableClusterDescription.ClusterDescription, EventContext.OperationId);
 
-                    await operationContext.WaitTaskAsync(clusterDescriptionChangeSource.Changed).ConfigureAwait(false);
-                    clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
+                    await operationContext.WaitTaskAsync(expirableClusterDescription.Expired).ConfigureAwait(false);
+                    expirableClusterDescription = _expirableClusterDescription;
                 }
             }
             catch (Exception ex)
             {
-                throw HandleServerSelectionException(clusterDescriptionChangeSource.ClusterDescription, selector, ex, stopwatch);
+                throw HandleServerSelectionException(expirableClusterDescription.ClusterDescription, selector, ex, stopwatch);
             }
             finally
             {
@@ -240,11 +240,11 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected void UpdateClusterDescription(ClusterDescription newClusterDescription, bool shouldClusterDescriptionChangedEventBePublished = true)
         {
-            var oldClusterDescription = Interlocked.Exchange(ref _descriptionWithChangedTaskCompletionSource, new(this, newClusterDescription));
+            var expiredClusterDescription = Interlocked.Exchange(ref _expirableClusterDescription, new(this, newClusterDescription));
 
-            OnDescriptionChanged(oldClusterDescription.ClusterDescription, newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
+            OnDescriptionChanged(expiredClusterDescription.ClusterDescription, newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
 
-            oldClusterDescription.TrySetChanged();
+            expiredClusterDescription.TrySetExpired();
         }
 
         private (IServerSelector Selector, OperationsCountServerSelector OperationCountSelector, Stopwatch Stopwatch) BeginServerSelection(ClusterDescription clusterDescription, IServerSelector selector)
@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Core.Clusters
                 EventContext.OperationId,
                 EventContext.OperationName));
 
-            var allSelectors = new List<IServerSelector>();
+            var allSelectors = new List<IServerSelector>(5);
             if (Settings.PreServerSelector != null)
             {
                 allSelectors.Add(Settings.PreServerSelector);
@@ -306,7 +306,7 @@ namespace MongoDB.Driver.Core.Clusters
             return exception;
         }
 
-        private (IClusterableServer Server, ServerDescription ServerDescription) SelectServer(ClusterDescriptionChangeSource clusterDescriptionChangeSource, IServerSelector selector, OperationsCountServerSelector operationCountSelector)
+        private (IClusterableServer Server, ServerDescription ServerDescription) SelectServer(ExpirableClusterDescription clusterDescriptionChangeSource, IServerSelector selector, OperationsCountServerSelector operationCountSelector)
         {
             MongoIncompatibleDriverException.ThrowIfNotSupported(clusterDescriptionChangeSource.ClusterDescription);
 
@@ -345,25 +345,25 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // nested classes
-        internal sealed class ClusterDescriptionChangeSource
+        internal sealed class ExpirableClusterDescription
         {
             private readonly Cluster _cluster;
-            private readonly TaskCompletionSource<bool> _changedTaskCompletionSource;
+            private readonly TaskCompletionSource<bool> _expireCompletionSource;
             private readonly ClusterDescription _clusterDescription;
-            private readonly object _connectedServersLock = new object();
+            private readonly object _connectedServersLock = new();
             private IReadOnlyList<IClusterableServer> _connectedServers;
             private IReadOnlyList<ServerDescription> _connectedServerDescriptions;
 
-            public ClusterDescriptionChangeSource(Cluster cluster, ClusterDescription clusterDescription)
+            public ExpirableClusterDescription(Cluster cluster, ClusterDescription clusterDescription)
             {
                 _cluster = cluster;
                 _clusterDescription = clusterDescription;
-                _changedTaskCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _expireCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             }
 
             public ClusterDescription ClusterDescription => _clusterDescription;
 
-            public Task Changed => _changedTaskCompletionSource.Task;
+            public Task Expired => _expireCompletionSource.Task;
 
             public IReadOnlyList<IClusterableServer> ConnectedServers
             {
@@ -383,8 +383,8 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
 
-            public bool TrySetChanged()
-                => _changedTaskCompletionSource.TrySetResult(true);
+            public bool TrySetExpired()
+                => _expireCompletionSource.TrySetResult(true);
 
             private void EnsureConnectedServersInitialized()
             {
@@ -438,7 +438,7 @@ namespace MongoDB.Driver.Core.Clusters
         private sealed class ServerSelectionWaitQueue : IDisposable
         {
             private readonly Cluster _cluster;
-            private readonly object _serverSelectionWaitQueueLock = new object();
+            private readonly object _serverSelectionWaitQueueLock = new();
             private readonly Timer _rapidHeartbeatTimer;
             private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
