@@ -1,0 +1,10 @@
+# Provide the set of commits to always ignore when using `git blame` on the cmd line.
+# git config --global blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Additional useful options to set on your local git config:
+
+# Mark with a `?` any lines that have had a commit ignored.
+# git config --global blame.markIgnoredLines true
+
+# Mark with a `*` any lines that were added in an ignored commit and can not be blamed.
+# git config --global blame.markUnblamableLines true
