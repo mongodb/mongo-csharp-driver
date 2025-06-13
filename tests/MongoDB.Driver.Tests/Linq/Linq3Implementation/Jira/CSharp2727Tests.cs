@@ -14,24 +14,30 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp2727Tests : Linq3IntegrationTest
+    public class CSharp2727Tests : LinqIntegrationTest<CSharp2727Tests.ClassFixture>
     {
+        public CSharp2727Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_with_predicate_on_Body_should_work()
         {
             RequireServer.Check().Supports(Feature.AggregateToString);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var filter = new ExpressionFilterDefinition<Entity>(x => new[] { "Test1", "Test2" }.Contains((string)x.Body["name"]));
 
             var serializerRegistry = BsonSerializer.SerializerRegistry;
@@ -49,7 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_with_predicate_on_Caption_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var filter = new ExpressionFilterDefinition<Entity>(x => new[] { "Test1", "Test2" }.Contains(x.Caption));
 
             var serializerRegistry = BsonSerializer.SerializerRegistry;
@@ -68,7 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Where_with_predicate_on_Body_should_work()
         {
             RequireServer.Check().Supports(Feature.AggregateToString);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -84,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_predicate_on_Caption_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -97,24 +103,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2);
         }
 
-        private IMongoCollection<Entity> CreateCollection()
-        {
-            var collection = GetCollection<Entity>("C");
-
-            CreateCollection(
-                collection,
-                new Entity { Id = 1, Body = BsonDocument.Parse("{ name : 'Test1' }"), Caption = "Test1" },
-                new Entity { Id = 2, Body = BsonDocument.Parse("{ name : 'Test2' }"), Caption = "Test2" },
-                new Entity { Id = 3, Body = BsonDocument.Parse("{ name : 'Test3' }"), Caption = "Test3" });
-
-            return collection;
-        }
-
-        private class Entity
+        public class Entity
         {
             public int Id { get; set; }
             public BsonDocument Body { get; set; }
             public string Caption { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Entity>
+        {
+            protected override IEnumerable<Entity> InitialData =>
+            [
+                new Entity { Id = 1, Body = BsonDocument.Parse("{ name : 'Test1' }"), Caption = "Test1" },
+                new Entity { Id = 2, Body = BsonDocument.Parse("{ name : 'Test2' }"), Caption = "Test2" },
+                new Entity { Id = 3, Body = BsonDocument.Parse("{ name : 'Test3' }"), Caption = "Test3" }
+            ];
         }
     }
 }

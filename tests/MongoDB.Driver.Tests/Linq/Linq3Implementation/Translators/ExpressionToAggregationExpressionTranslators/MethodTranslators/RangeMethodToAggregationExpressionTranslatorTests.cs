@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class RangeMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class RangeMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<RangeMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public RangeMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Range_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable().Select(x => Enumerable.Range(x.Start, x.Count));
 
@@ -38,21 +44,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results[1].Should().Equal(3, 4, 5, 6);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, Start = 1, Count = 2 },
-                new C { Id = 2, Start = 3, Count = 4 });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int Start { get; set; }
             public int Count { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, Start = 1, Count = 2 },
+                new C { Id = 2, Start = 3, Count = 4 }
+            ];
         }
     }
 }

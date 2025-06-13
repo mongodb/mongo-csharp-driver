@@ -13,22 +13,28 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class FirstOrLastMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class FirstOrLastMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<FirstOrLastMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public FirstOrLastMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void First_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().First()) :
@@ -46,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void First_with_predicate_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().First(x => x > 1)) :
@@ -64,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void FirstOrDefault_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().FirstOrDefault()) :
@@ -82,7 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void FirstOrDefault_with_predicate_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().FirstOrDefault(x => x > 1)) :
@@ -100,7 +106,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Last_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Last()) :
@@ -118,7 +124,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Last_with_predicate_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Last(x => x > 1)) :
@@ -136,7 +142,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void LastOrDefault_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().LastOrDefault()) :
@@ -154,7 +160,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void LastOrDefault_with_predicate_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().LastOrDefault(x => x > 1)) :
@@ -167,22 +173,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().Equal(0, 0, 2, 3);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 0, A = new int[0] },
-                new C { Id = 1, A = new int[] { 1 } },
-                new C { Id = 2, A = new int[] { 1, 2 } },
-                new C { Id = 3, A = new int[] { 1, 2, 3 } });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] A { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 0, A = new int[0] },
+                new C { Id = 1, A = new int[] { 1 } },
+                new C { Id = 2, A = new int[] { 1, 2 } },
+                new C { Id = 3, A = new int[] { 1, 2, 3 } }
+            ];
         }
     }
 }

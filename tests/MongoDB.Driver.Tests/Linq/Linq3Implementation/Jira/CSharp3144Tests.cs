@@ -16,17 +16,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3144Tests : Linq3IntegrationTest
+    public class CSharp3144Tests : LinqIntegrationTest<CSharp3144Tests.ClassFixture>
     {
+        public CSharp3144Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_with_Contains_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -42,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Suggested_workaround_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -55,12 +60,28 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.Id).Should().Equal(1);
         }
 
-        private IMongoCollection<Order> CreateCollection()
+        public class Order
         {
-            var collection = GetCollection<Order>();
+            public virtual int Id { get; set; }
+            public virtual List<OrderItem> Items { get; set; }
 
-            CreateCollection(
-                collection,
+            public Order()
+            {
+                Items = new List<OrderItem>();
+            }
+        }
+
+        public class OrderItem
+        {
+            public virtual int Id { get; set; }
+            public virtual int GoodId { get; set; }
+            public virtual int Amount { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Order>
+        {
+            protected override IEnumerable<Order> InitialData =>
+            [
                 new Order
                 {
                     Id = 1,
@@ -77,34 +98,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                 {
                     Id = 2,
                     Items = new List<OrderItem>
-                        {
-                            new OrderItem { GoodId = 6, Amount = 1 },
-                            new OrderItem { GoodId = 7, Amount = 10 },
-                            new OrderItem { GoodId = 8, Amount = 20 },
-                            new OrderItem { GoodId = 9, Amount = 30 },
-                            new OrderItem { GoodId = 10, Amount = 40 }
-                        }
-                });
-
-            return collection;
-        }
-
-        class Order
-        {
-            public virtual int Id { get; set; }
-            public virtual List<OrderItem> Items { get; set; }
-
-            public Order()
-            {
-                Items = new List<OrderItem>();
-            }
-        }
-
-        class OrderItem
-        {
-            public virtual int Id { get; set; }
-            public virtual int GoodId { get; set; }
-            public virtual int Amount { get; set; }
+                    {
+                        new OrderItem { GoodId = 6, Amount = 1 },
+                        new OrderItem { GoodId = 7, Amount = 10 },
+                        new OrderItem { GoodId = 8, Amount = 20 },
+                        new OrderItem { GoodId = 9, Amount = 30 },
+                        new OrderItem { GoodId = 10, Amount = 40 }
+                    }
+                }
+            ];
         }
     }
 }

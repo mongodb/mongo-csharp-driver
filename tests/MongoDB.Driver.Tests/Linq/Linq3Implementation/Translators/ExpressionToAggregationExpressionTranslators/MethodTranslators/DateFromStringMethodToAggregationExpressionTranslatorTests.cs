@@ -21,13 +21,18 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class DateFromStringMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class DateFromStringMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<DateFromStringMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public DateFromStringMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [InlineData(1, "2023-12-26T12:34:56Z")]
         [InlineData(2, "throws:FormatException")]
@@ -35,7 +40,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(4, "throws:MongoCommandException")]
         public void DateTime_Parse_should_work(int id, string expectedResult)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             // technically this Parse method is not an Mql method but this test is to confirm that Parse and DateFromString behave the same
             var queryable = collection.AsQueryable()
@@ -59,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(4, "throws:MongoCommandException")]
         public void MongoDBFunctions_DateFromString_should_work(int id, string expectedResult)
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
@@ -83,7 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void MongoDBFunctions_DateFromString_with_format_should_work(int id, string expectedResult)
         {
             RequireServer.Check().Supports(Feature.DateFromStringFormatArgument);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
@@ -107,7 +112,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void MongoDBFunctions_DateFromString_with_format_and_timezone_should_work(int id, string expectedResult)
         {
             RequireServer.Check().Supports(Feature.DateFromStringFormatArgument);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
@@ -134,13 +139,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void MongoDBFunctions_DateFromString_with_format_and_timezone_and_onError_and_onNull_should_work(int id, string expectedResult)
         {
             RequireServer.Check().Supports(Feature.DateFromStringFormatArgument);
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Id == id)
                 .Select(x => Mql.DateFromString(x.S, x.F, x.TZ, x.OnError, x.OnNull));
 
-            var expectedStages = 
+            var expectedStages =
                 new[]
                 {
                     $"{{ $match : {{ _id : {id} }} }}",
@@ -206,22 +211,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.Should().Be(expectedResult == "default" ? (DateTime?)default : DateTime.Parse(expectedResult, null, DateTimeStyles.AdjustToUniversal));
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection.Database.GetCollection<BsonDocument>("test"),
-                BsonDocument.Parse("{ _id : 1, S : '2023-12-26T12:34:56', F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : { $date : '0001-01-01T00:00:00' } }"),
-                BsonDocument.Parse("{ _id : 2, F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : { $date : '0001-01-01T00:00:00' } }"),
-                BsonDocument.Parse("{ _id : 3, S : null, F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : { $date : '0001-01-01T00:00:00' } }"),
-                BsonDocument.Parse("{ _id : 4, S : 'error', F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '1111-11-11T11:11:11' }, OnNull : { $date : '0001-01-01T00:00:00' } }"),
-                BsonDocument.Parse("{ _id : 5, F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : null }"),
-                BsonDocument.Parse("{ _id : 6, S : null, F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : null }"),
-                BsonDocument.Parse("{ _id : 7, S : 'error', F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '1111-11-11T11:11:11' }, OnNull : null }"));
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public string S { get; set; }
@@ -229,6 +219,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public string TZ { get; set; }
             public DateTime? OnError { get; set; }
             public DateTime? OnNull { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C, BsonDocument>
+        {
+            protected override IEnumerable<BsonDocument> InitialData =>
+            [
+                BsonDocument.Parse("{ _id : 1, S : '2023-12-26T12:34:56', F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : { $date : '0001-01-01T00:00:00' } }"),
+                BsonDocument.Parse("{ _id : 2, F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : { $date : '0001-01-01T00:00:00' } }"),
+                BsonDocument.Parse("{ _id : 3, S : null, F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : { $date : '0001-01-01T00:00:00' } }"),
+                BsonDocument.Parse("{ _id : 4, S : 'error', F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '1111-11-11T11:11:11' }, OnNull : { $date : '0001-01-01T00:00:00' } }"),
+                BsonDocument.Parse("{ _id : 5, F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : null }"),
+                BsonDocument.Parse("{ _id : 6, S : null, F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '0001-01-01T00:00:00' }, OnNull : null }"),
+                BsonDocument.Parse("{ _id : 7, S : 'error', F : '%Y-%m-%dT%H:%M:%S', TZ : 'UTC', OnError : { $date : '1111-11-11T11:11:11' }, OnNull : null }")
+            ];
         }
     }
 }

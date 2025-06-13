@@ -16,17 +16,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3236Tests : Linq3IntegrationTest
+    public class CSharp3236Tests : LinqIntegrationTest<CSharp3236Tests.ClassFixture>
     {
+        public CSharp3236Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -46,27 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Comments.Select(c => c.Id).Should().Equal(1, 3);
         }
 
-        private IMongoCollection<Post> CreateCollection()
-        {
-            var collection = GetCollection<Post>("C");
-
-            CreateCollection(
-                collection,
-                new Post
-                {
-                    Id = 1,
-                    Comments = new List<Comment>
-                    {
-                        new Comment { Id = 1, Text = "this is a test comment" },
-                        new Comment { Id = 2, Text = "this is not" },
-                        new Comment { Id = 3, Text = "and this is another test comment" }
-                    }
-                });
-
-            return collection;
-        }
-
-        private class Post
+        public class Post
         {
             public int Id { get; set; }
             public List<Comment> Comments { get; set; }
@@ -77,6 +62,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public int Id { get; set; }
             public string Text { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Post>
+        {
+            protected override IEnumerable<Post> InitialData =>
+            [
+                new Post
+                {
+                    Id = 1,
+                    Comments = new List<Comment>
+                    {
+                        new Comment { Id = 1, Text = "this is a test comment" },
+                        new Comment { Id = 2, Text = "this is not" },
+                        new Comment { Id = 3, Text = "and this is another test comment" }
+                    }
+                }
+            ];
         }
     }
 }

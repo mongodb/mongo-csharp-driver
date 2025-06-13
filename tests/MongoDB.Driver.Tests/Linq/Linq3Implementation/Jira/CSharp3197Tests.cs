@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3197Tests : Linq3IntegrationTest
+    public class CSharp3197Tests : LinqIntegrationTest<CSharp3197Tests.ClassFixture>
     {
+        public CSharp3197Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_select_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -42,21 +48,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(new { B = 42 });
         }
 
-        private IMongoCollection<Person> CreateCollection()
-        {
-            var collection = GetCollection<Person>("C");
-
-            CreateCollection(
-                collection,
-                new Person { Id = 1, Age = 42 });
-
-            return collection;
-        }
-
-        private class Person
+        public class Person
         {
             public int Id { get; set; }
             public int Age { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Person>
+        {
+            protected override IEnumerable<Person> InitialData =>
+            [
+                new Person { Id = 1, Age = 42 }
+            ];
         }
     }
 }

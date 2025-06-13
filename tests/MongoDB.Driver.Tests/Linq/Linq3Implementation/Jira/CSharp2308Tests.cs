@@ -17,42 +17,33 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
     [Trait("Category", "Integration")]
-    public class CSharp2308Tests
+    public class CSharp2308Tests : LinqIntegrationTest<CSharp2308Tests.ClassFixture>
     {
+        public CSharp2308Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Nested_Select_should_work()
         {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase("FooBar");
-            var collection = database.GetCollection<FooNest>("Foos");
-
-            database.DropCollection("Foos");
-
-            collection.InsertOne(
-                new FooNest
-                {
-                    Name = "Parent",
-                    NestedCollection = new[] {
-                        new FooNest {
-                            Name = "Child"
-                        }
-                    }
-                });
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(top => top.NestedCollection.Select(child => new { ParentName = top.Name, child.Name }));
 
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
                 "{ $project : { _v : { $map : { input : '$NestedCollection', as : 'child', in : { ParentName : '$Name', Name : '$$child.Name' } } }, _id : 0 } }"
             };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
+            AssertStages(stages, expectedStages);
 
             var pipelineDefinition = new BsonDocumentStagePipelineDefinition<FooNest, BsonDocument>(stages);
             var resultAsDocument = collection.Aggregate(pipelineDefinition).ToList().Single();
@@ -68,6 +59,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public string Name;
             public IEnumerable<FooNest> NestedCollection;
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<FooNest>
+        {
+            protected override IEnumerable<FooNest> InitialData =>
+            [
+                new FooNest
+                {
+                    Name = "Parent",
+                    NestedCollection = new[] {
+                        new FooNest {
+                            Name = "Child"
+                        }
+                    }
+                }
+            ];
         }
     }
 }
