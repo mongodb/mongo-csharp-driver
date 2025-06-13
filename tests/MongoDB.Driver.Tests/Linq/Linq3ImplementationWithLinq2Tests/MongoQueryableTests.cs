@@ -79,6 +79,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         }
 
         [Fact]
+        public async Task ToAsyncEnumerable()
+        {
+            var expected = new [] { "Awesome", "Amazing" };
+            var count = 0;
+            var results = CreateQuery().Select(x => x.A);
+            await foreach (var word in results.ToAsyncEnumerable().ConfigureAwait(false))
+            {
+                expected.Should().Contain(word);
+                count++;
+            }
+            count.Should().Be(2);
+        }
+
+        [Fact]
         public void Average()
         {
             var result = CreateQuery().Select(x => x.C.E.F + 1).Average();
