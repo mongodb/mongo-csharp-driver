@@ -78,7 +78,7 @@ namespace MongoDB.Driver
         /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
         /// <param name="translationOptions">The translation options.</param>
         /// <param name="serializationDomain">//TODO</param>
-        public RenderArgs(
+        internal RenderArgs(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializationDomain serializationDomain,
             PathRenderArgs pathRenderArgs = default,
