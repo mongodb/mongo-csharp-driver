@@ -14,18 +14,25 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3614Tests : Linq3IntegrationTest
+    public class CSharp3614Tests : LinqIntegrationTest<CSharp3614Tests.ClassFixture>
     {
+        public CSharp3614Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Test()
         {
-            var collection = CreateBooksCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => new BookDto
@@ -57,20 +64,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].Author.ShouldBeEquivalentTo(new AuthorDto { Id = 2, Name = "Two" });
         }
 
-        private IMongoCollection<Book> CreateBooksCollection()
-        {
-            var collection = GetCollection<Book>();
-
-            var documents = new[]
-            {
-                new Book { Id = 1, PageCount = 1, Author = null },
-                new Book { Id = 2, PageCount = 2, Author = new Author { Id = 2, Name = "Two" } }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
         private class BookDto
         {
             public int Id { get; set; }
@@ -84,18 +77,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public string Name { get; set; }
         }
 
-        private class Author : IEquatable<Author>
+        public class Author : IEquatable<Author>
         {
             public int Id { get; set; }
             public string Name { get; set; }
             public bool Equals(Author other) => Id == other.Id && Name == other.Name;
         }
 
-        private class Book
+        public class Book
         {
             public int Id { get; set; }
             public int PageCount { get; set; }
             public Author Author { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Book>
+        {
+            protected override IEnumerable<Book> InitialData =>
+            [
+                new Book { Id = 1, PageCount = 1, Author = null },
+                new Book { Id = 2, PageCount = 2, Author = new Author { Id = 2, Name = "Two" } }
+            ];
         }
     }
 }

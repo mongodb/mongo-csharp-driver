@@ -13,21 +13,27 @@
 * limitations under the License.
 */
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp1906Tests : Linq3IntegrationTest
+    public class CSharp1906Tests : LinqIntegrationTest<CSharp1906Tests.ClassFixture>
     {
+        public CSharp1906Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Using_ToLower_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var lowerCaseValues = new[] { "abc", "def" }; // ensure all are lower case at compile time
             var queryable = collection.AsQueryable()
                 .Where(c => lowerCaseValues.Contains(c.S.ToLower()));
@@ -42,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Using_regular_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var regularExpresssion = new StringOrRegularExpression[] { new Regex("ABC", RegexOptions.IgnoreCase), new Regex("DEF", RegexOptions.IgnoreCase) };
             var queryable = collection.AsQueryable()
                 .Where(c => c.S.StringIn(regularExpresssion));
@@ -54,25 +60,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(1, 2);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            var documents = new[]
-            {
-                new C { Id = 1, S = "aBc" },
-                new C { Id = 2, S = "dEf" },
-                new C { Id = 3, S = "gHi" }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
         public class C
         {
             public int Id { get; set; }
             public string S { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, S = "aBc" },
+                new C { Id = 2, S = "dEf" },
+                new C { Id = 3, S = "gHi" }
+            ];
         }
     }
 }

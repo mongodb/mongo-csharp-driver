@@ -14,18 +14,25 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp2003Tests : Linq3IntegrationTest
+    public class CSharp2003Tests : LinqIntegrationTest<CSharp2003Tests.ClassFixture>
     {
+        public CSharp2003Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Find_BitsAllClear_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var mask = E.E2 | E.E4;
             var find = collection.Find(x => (x.E & mask) == 0);
 
@@ -39,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_BitsAllSet_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var mask = E.E2 | E.E4;
             var find = collection.Find(x => (x.E & mask) == mask);
 
@@ -53,7 +60,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_BitsAnyClear_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var mask = E.E2 | E.E4;
             var find = collection.Find(x => (x.E & mask) != mask);
 
@@ -67,7 +74,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Find_BitsAnySet_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var mask = E.E2 | E.E4;
             var find = collection.Find(x => (x.E & mask) != 0);
 
@@ -81,7 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_BitsAllClear_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var mask = E.E2 | E.E4;
             var queryable = collection.AsQueryable().Where(x => (x.E & mask) == 0);
 
@@ -95,7 +102,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_BitsAllSet_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var mask = E.E2 | E.E4;
             var queryable = collection.AsQueryable().Where(x => (x.E & mask) == mask);
 
@@ -109,7 +116,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_BitsAnyClear_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var mask = E.E2 | E.E4;
             var queryable = collection.AsQueryable().Where(x => (x.E & mask) != mask);
 
@@ -123,7 +130,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_BitsAnySet_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var mask = E.E2 | E.E4;
             var queryable = collection.AsQueryable().Where(x => (x.E & mask) != 0);
 
@@ -134,25 +141,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2, 4, 6);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            var documents = new[]
-            {
-                new C { Id = 1, E = E.E1 },
-                new C { Id = 2, E = E.E2 },
-                new C { Id = 4, E = E.E4 },
-                new C { Id = 6, E = E.E2 | E.E4 },
-                new C { Id = 8, E = E.E8 }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
         [Flags]
-        private enum E
+        public enum E
         {
             E1 = 1,
             E2 = 2,
@@ -160,10 +150,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             E8 = 8
         }
 
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public E E;
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, E = E.E1 },
+                new C { Id = 2, E = E.E2 },
+                new C { Id = 4, E = E.E4 },
+                new C { Id = 6, E = E.E2 | E.E4 },
+                new C { Id = 8, E = E.E8 }
+            ];
         }
     }
 }

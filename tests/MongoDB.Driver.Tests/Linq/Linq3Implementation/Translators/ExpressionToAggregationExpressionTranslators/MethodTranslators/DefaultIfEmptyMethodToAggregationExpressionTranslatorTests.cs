@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class DefaultIfEmptyMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class DefaultIfEmptyMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<DefaultIfEmptyMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public DefaultIfEmptyMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Enumerable_DefaultIfEmpty_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.A.DefaultIfEmpty());
@@ -44,7 +50,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Queryable_DefaultIfEmpty_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.A.AsQueryable().DefaultIfEmpty());
@@ -59,22 +65,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results[2].Should().Equal(1, 2);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 0, A = new int[0] },
-                new C { Id = 1, A = new int[] { 1 } },
-                new C { Id = 2, A = new int[] { 1, 2 } },
-                new C { Id = 3, A = new int[] { 1, 2, 3 } });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] A { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 0, A = new int[0] },
+                new C { Id = 1, A = new int[] { 1 } },
+                new C { Id = 2, A = new int[] { 1, 2 } },
+                new C { Id = 3, A = new int[] { 1, 2, 3 } }
+            ];
         }
     }
 }

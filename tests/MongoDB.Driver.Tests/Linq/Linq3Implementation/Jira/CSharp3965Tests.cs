@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3965Tests : Linq3IntegrationTest
+    public class CSharp3965Tests : LinqIntegrationTest<CSharp3965Tests.ClassFixture>
     {
+        public CSharp3965Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void OrderBy_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -45,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_expression_and_ThenBy_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -66,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_expression_and_ThenBy_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -87,7 +93,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_expression_and_ThenByDescending_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -108,7 +114,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_expression_and_ThenByDescending_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -129,7 +135,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -147,7 +153,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_field_and_ThenBy_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -168,7 +174,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_field_and_ThenBy_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -187,7 +193,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_field_and_ThenByDescending_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -208,7 +214,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderBy_with_field_and_ThenByDescending_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -227,7 +233,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -247,7 +253,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_expression_and_ThenBy_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -268,7 +274,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_expression_and_ThenBy_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -289,7 +295,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_expression_and_ThenByDescending_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -310,7 +316,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_expression_and_ThenByDescending_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -331,7 +337,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -349,7 +355,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_field_and_ThenBy_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -370,7 +376,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_field_and_ThenBy_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -389,7 +395,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_field_and_ThenByDescending_with_expression_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -410,7 +416,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void OrderByDescending_with_field_and_ThenByDescending_with_field_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -426,36 +432,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(x => x.Id).Should().Equal(2, 1);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            var documents = new C[]
-            {
-                new C
-                {
-                    Id = 1,
-                    X = 1,
-                    Y = 1,
-                },
-                new C
-                {
-                    Id = 2,
-                    X = 1,
-                    Y = 2
-                }
-
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 1, Y = 1 },
+                new C { Id = 2, X = 1, Y = 2 }
+            ];
         }
     }
 }

@@ -13,29 +13,24 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    [Trait("Category", "Integration")]
-    public class CSharp3910Tests
+    public class CSharp3910Tests : LinqIntegrationTest<CSharp3910Tests.ClassFixture>
     {
+        public CSharp3910Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Filter_expression_needing_partial_evaluation_should_work()
         {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            var collection = database.GetCollection<Entity>("csharp3910");
-
-            database.DropCollection("csharp3910");
-            collection.InsertMany(new[]
-            {
-                new Entity { Id = 1, Description = "Alpha" },
-                new Entity { Id = 2, Description = "Alpha2" },
-                new Entity { Id = 3, Description = "Bravo" },
-                new Entity { Id = 4, Description = "Charlie" }
-            });
+            var collection = Fixture.Collection;
 
             var param = "A";
             var result = collection.DeleteMany(mvi => mvi.Description.StartsWith(string.Format("{0}", param)));
@@ -47,6 +42,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public int Id { get; set; }
             public string Description { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Entity>
+        {
+            protected override IEnumerable<Entity> InitialData =>
+            [
+                new Entity { Id = 1, Description = "Alpha" },
+                new Entity { Id = 2, Description = "Alpha2" },
+                new Entity { Id = 3, Description = "Bravo" },
+                new Entity { Id = 4, Description = "Charlie" }
+            ];
         }
     }
 }

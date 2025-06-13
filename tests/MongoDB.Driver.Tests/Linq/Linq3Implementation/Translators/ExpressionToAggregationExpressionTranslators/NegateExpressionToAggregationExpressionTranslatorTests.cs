@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -21,17 +21,23 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public class NegateExpressionToAggregationExpressionTranslatorTests: Linq3IntegrationTest
+    public class NegateExpressionToAggregationExpressionTranslatorTests: LinqIntegrationTest<NegateExpressionToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public NegateExpressionToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Negate_int_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = Queryable.Select(collection.AsQueryable(), i => -i.Int);
 
             var stages = Translate(collection, queryable);
@@ -46,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Negate_long_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = Queryable.Select(collection.AsQueryable(), i => -i.Long);
 
             var stages = Translate(collection, queryable);
@@ -61,7 +67,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Negate_single_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = Queryable.Select(collection.AsQueryable(), i => -i.Single);
 
             var stages = Translate(collection, queryable);
@@ -76,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Negate_double_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = Queryable.Select(collection.AsQueryable(), i => -i.Double);
 
             var stages = Translate(collection, queryable);
@@ -91,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Negate_decimal128_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = Queryable.Select(collection.AsQueryable(), i => -i.DecimalAsDecimal128);
 
             var stages = Translate(collection, queryable);
@@ -109,7 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.FindProjectionExpressions);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = Queryable.Select(collection.AsQueryable(translationOptions), i => -i.DecimalAsString);
@@ -130,20 +136,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             }
         }
 
-        private IMongoCollection<Data> CreateCollection()
-        {
-            var collection = GetCollection<Data>("test");
-            CreateCollection(
-                collection,
-                new Data { Id = 1, Int = -10, Double = -10, Single = -10, Long = -10, DecimalAsString = -10, DecimalAsDecimal128 = -10},
-                new Data { Id = 2, Int = 5, Double = 5, Single = 5, Long = 5, DecimalAsString = 5, DecimalAsDecimal128 = 5},
-                new Data { Id = 3, Int = 0, Double = 0, Single = 0, Long = 0, DecimalAsString = 0, DecimalAsDecimal128 = 0},
-                new Data { Id = 4, Int = -int.MaxValue, Double = -double.MaxValue, Single = -float.MaxValue, Long = -long.MaxValue, DecimalAsString = -decimal.MaxValue, DecimalAsDecimal128 = -decimal.MaxValue},
-                new Data { Id = 5, Int = int.MaxValue, Double = double.MaxValue, Single = float.MaxValue, Long = long.MaxValue, DecimalAsString = decimal.MaxValue, DecimalAsDecimal128 = decimal.MaxValue});
-            return collection;
-        }
-
-        private class Data
+        public class Data
         {
             public int Id { get; set; }
             public int Int { get; set; }
@@ -154,6 +147,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public decimal DecimalAsString { get; set; }
             [BsonRepresentation(BsonType.Decimal128)]
             public decimal DecimalAsDecimal128 { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Data>
+        {
+            protected override IEnumerable<Data> InitialData =>
+            [
+                new Data { Id = 1, Int = -10, Double = -10, Single = -10, Long = -10, DecimalAsString = -10, DecimalAsDecimal128 = -10},
+                new Data { Id = 2, Int = 5, Double = 5, Single = 5, Long = 5, DecimalAsString = 5, DecimalAsDecimal128 = 5},
+                new Data { Id = 3, Int = 0, Double = 0, Single = 0, Long = 0, DecimalAsString = 0, DecimalAsDecimal128 = 0},
+                new Data { Id = 4, Int = -int.MaxValue, Double = -double.MaxValue, Single = -float.MaxValue, Long = -long.MaxValue, DecimalAsString = -decimal.MaxValue, DecimalAsDecimal128 = -decimal.MaxValue},
+                new Data { Id = 5, Int = int.MaxValue, Double = double.MaxValue, Single = float.MaxValue, Long = long.MaxValue, DecimalAsString = decimal.MaxValue, DecimalAsDecimal128 = decimal.MaxValue}
+            ];
         }
     }
 }

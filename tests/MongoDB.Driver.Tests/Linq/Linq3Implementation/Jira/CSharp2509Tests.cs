@@ -13,22 +13,28 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp2509Tests : Linq3IntegrationTest
+    public class CSharp2509Tests : LinqIntegrationTest<CSharp2509Tests.ClassFixture>
     {
+        public CSharp2509Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_ContainsValue_should_work_when_representation_is_Dictionary()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.D1.ContainsValue(1));
@@ -43,7 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_ContainsValue_should_work_when_representation_is_ArrayOfArrays()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.D2.ContainsValue(1));
@@ -58,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_ContainsValue_should_work_when_representation_is_ArrayOfDocuments()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.D3.ContainsValue(1));
@@ -73,7 +79,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_ContainsValue_should_work_when_representation_is_Dictionary()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.D1.ContainsValue(1));
@@ -88,7 +94,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_ContainsValue_should_work_when_representation_is_ArrayOfArrays()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.D2.ContainsValue(1));
@@ -103,7 +109,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Select_ContainsValue_should_work_when_representation_is_ArrayOfDocuments()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => x.D3.ContainsValue(1));
@@ -115,11 +121,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Should().Equal(true, true, false);
         }
 
-        private IMongoCollection<User> GetCollection()
+        public class User
         {
-            var collection = GetCollection<User>("test");
-            CreateCollection(
-                collection,
+            public int Id { get; set; }
+            [BsonDictionaryOptions(DictionaryRepresentation.Document)]
+            public Dictionary<string, int> D1 { get; set; }
+            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
+            public Dictionary<string, int> D2 { get; set; }
+            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+            public Dictionary<string, int> D3 { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<User>
+        {
+            protected override IEnumerable<User> InitialData =>
+            [
                 new User
                 {
                     Id = 1,
@@ -140,19 +156,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     D1 = new() { { "A", 2 }, { "B", 3 } },
                     D2 = new() { { "A", 2 }, { "B", 3 } },
                     D3 = new() { { "A", 2 }, { "B", 3 } }
-                });
-            return collection;
-        }
-
-        private class User
-        {
-            public int Id { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.Document)]
-            public Dictionary<string, int> D1 { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
-            public Dictionary<string, int> D2 { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
-            public Dictionary<string, int> D3 { get; set; }
+                }
+            ];
         }
     }
 }

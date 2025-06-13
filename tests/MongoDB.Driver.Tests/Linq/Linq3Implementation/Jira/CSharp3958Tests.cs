@@ -14,24 +14,31 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3958Tests : Linq3IntegrationTest
+    public class CSharp3958Tests : LinqIntegrationTest<CSharp3958Tests.ClassFixture>
     {
+        public CSharp3958Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Sort_on_a_field_example_should_work()
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new { Result = x.Team.OrderBy(m => m.Name) });
@@ -48,7 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Sort_on_a_subfield_example_should_work()
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new { Result = x.Team.OrderByDescending(m => m.Address.City) });
@@ -65,7 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Sort_on_multiple_fields_example_should_work()
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new { Result = x.Team.OrderByDescending(m => m.Age).ThenBy(m => m.Name) });
@@ -82,7 +89,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Sort_an_array_of_integers_example_should_work()
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new { Result = new[] { 1, 4, 1, 6, 12, 5 }.OrderBy(v => v) });
@@ -99,7 +106,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Sort_on_mixed_type_fields_example_should_work()
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var queryable = collection
                 .AsQueryable()
                 .Select(
@@ -146,7 +153,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -177,7 +184,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -208,7 +215,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -238,7 +245,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             [Values(false, true)] bool enableClientSideProjections)
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
 
             var queryable = collection
@@ -266,7 +273,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Client_side_ThenBy_should_throw()
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new { Result = x.Team.OrderBy(m => m.Name) });
@@ -283,7 +290,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void Client_side_ThenByDescending_should_throw()
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new { Result = x.Team.OrderBy(m => m.Name) });
@@ -300,7 +307,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public void IOrderedEnumerableSerializer_Serialize_should_work()
         {
             RequireServer.Check().Supports(Feature.SortArrayOperator);
-            var collection = CreateEngineersCollection();
+            var collection = Fixture.Collection;
             var queryable = collection
                 .AsQueryable()
                 .Select(x => new { Result = x.Team.OrderBy(m => m.Name) });
@@ -311,12 +318,31 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             json.Should().Be("{ \"Result\" : [{ \"Name\" : \"Charlie\", \"Age\" : 30, \"Address\" : { \"Street\" : \"12 French St\", \"City\" : \"New Brunswick\" } }, { \"Name\" : \"Dallas\", \"Age\" : 30, \"Address\" : { \"Street\" : \"12 Cowper St\", \"City\" : \"Palo Alto\" } }, { \"Name\" : \"Pat\", \"Age\" : 42, \"Address\" : { \"Street\" : \"12 Baker St\", \"City\" : \"London\" } }] }");
         }
 
-        private IMongoCollection<Engineers> CreateEngineersCollection()
+        public class Engineers
         {
-            var collection = GetCollection<Engineers>();
+            public int Id { get; set; }
+            public TeamMember[] Team { get; set; }
+        }
 
-            CreateCollection(
-                collection,
+        public class TeamMember : IComparable<TeamMember>
+        {
+            public string Name { get; set; }
+            public int Age { get; set; }
+            public Address Address { get; set; }
+
+            public int CompareTo(TeamMember other) => Age.CompareTo(other.Age);
+        }
+
+        public class Address
+        {
+            public string Street { get; set; }
+            public string City { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Engineers>
+        {
+            protected override IEnumerable<Engineers> InitialData =>
+            [
                 new Engineers
                 {
                     Id = 1,
@@ -326,30 +352,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                         new TeamMember { Name = "Dallas", Age = 30, Address = new Address { Street = "12 Cowper St", City = "Palo Alto"}},
                         new TeamMember { Name = "Charlie", Age = 30, Address = new Address { Street = "12 French St", City = "New Brunswick"}}
                     }
-                });
-
-            return collection;
-        }
-
-        private class Engineers
-        {
-            public int Id { get; set; }
-            public TeamMember[] Team { get; set; }
-        }
-
-        private class TeamMember : IComparable<TeamMember>
-        {
-            public string Name { get; set; }
-            public int Age { get; set; }
-            public Address Address { get; set; }
-
-            public int CompareTo(TeamMember other) => Age.CompareTo(other.Age);
-        }
-
-        private class Address
-        {
-            public string Street { get; set; }
-            public string City { get; set; }
+                }
+            ];
         }
     }
 }
