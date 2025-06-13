@@ -50,7 +50,6 @@ namespace MongoDB.Driver
         /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
         /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
         /// <param name="translationOptions">The translation options.</param>
-        /// <param name="serializationDomain">//TODO</param>
         public RenderArgs(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
@@ -58,8 +57,7 @@ namespace MongoDB.Driver
             bool renderDollarForm = default,
             bool renderForFind = false,
             bool renderForElemMatch = false,
-            ExpressionTranslationOptions translationOptions = null,
-            IBsonSerializationDomain serializationDomain = null)
+            ExpressionTranslationOptions translationOptions = null)
         {
             DocumentSerializer = documentSerializer;
             PathRenderArgs = pathRenderArgs;
@@ -68,7 +66,35 @@ namespace MongoDB.Driver
             _renderForFind = renderForFind;
             _renderForElemMatch = renderForElemMatch;
             _translationOptions = translationOptions; // can be null
-            _serializationDomain = serializationDomain ?? BsonSerializer.DefaultSerializationDomain;  //TODO Should we do it like this?
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderArgs{TDocument}"/> record.
+        /// </summary>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="pathRenderArgs">The path render arguments.</param>
+        /// <param name="renderDollarForm">Value that specifies whether full dollar for should be rendered.</param>
+        /// <param name="renderForFind">Value that specifies whether rendering a find operation.</param>
+        /// <param name="renderForElemMatch">Value that specifies whether rendering an $elemMatch.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <param name="serializationDomain">//TODO</param>
+        public RenderArgs(
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializationDomain serializationDomain,
+            PathRenderArgs pathRenderArgs = default,
+            bool renderDollarForm = default,
+            bool renderForFind = false,
+            bool renderForElemMatch = false,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            DocumentSerializer = documentSerializer;
+            PathRenderArgs = pathRenderArgs;
+            RenderDollarForm = renderDollarForm;
+            _serializationDomain = serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
+            _renderForFind = renderForFind;
+            _renderForElemMatch = renderForElemMatch;
+            _translationOptions = translationOptions; // can be null
+            SerializerRegistry = _serializationDomain.SerializerRegistry;
         }
 
         /// <summary>
@@ -142,6 +168,6 @@ namespace MongoDB.Driver
         /// A new RenderArgs{TNewDocument} instance.
         /// </returns>
         public readonly RenderArgs<TNewDocument> WithNewDocumentType<TNewDocument>(IBsonSerializer<TNewDocument> serializer) =>
-            new(serializer, _serializerRegistry, _pathRenderArgs, _renderDollarForm, _renderForFind, _renderForElemMatch, _translationOptions, _serializationDomain);
+            new(serializer, _serializationDomain, _pathRenderArgs, _renderDollarForm, _renderForFind, _renderForElemMatch, _translationOptions);
     }
 }
