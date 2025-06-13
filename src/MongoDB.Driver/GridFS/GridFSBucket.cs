@@ -675,7 +675,7 @@ namespace MongoDB.Driver.GridFS
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            var args = new RenderArgs<GridFSFileInfo<TFileId>>(_fileInfoSerializer, _options.SerializerRegistry, translationOptions: translationOptions);
+            var args = new RenderArgs<GridFSFileInfo<TFileId>>(_fileInfoSerializer, _database.Settings.SerializationDomain, translationOptions: translationOptions);
             var renderedFilter = filter.Render(args);
             var renderedSort = options.Sort == null ? null : options.Sort.Render(args);
 
