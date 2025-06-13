@@ -58,12 +58,13 @@ namespace MongoDB.Bson.Tests.Serialization
             // Arrange
             var mockSerializer = new Mock<IBsonDocumentSerializer>();
 
-            // Act
+            // Act  
             Action action = () => new TestBsonDocumentBackedClass(null, mockSerializer.Object);
+            var exception = Record.Exception(action);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("backingDocument");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("backingDocument");
         }
 
         [Fact]
@@ -74,10 +75,11 @@ namespace MongoDB.Bson.Tests.Serialization
 
             // Act
             Action action = () => new TestBsonDocumentBackedClass(document, null);
+            var exception = Record.Exception(action);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("serializer");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("serializer");
         }
 
         [Fact]
@@ -110,10 +112,11 @@ namespace MongoDB.Bson.Tests.Serialization
 
             // Act
             Action action = () => testClass.GetValue<int>(memberName);
+            var exception = Record.Exception(action);
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .And.ParamName.Should().Be("memberName");
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.ParamName.Should().Be("memberName");
         }
 
         [Fact]
@@ -136,10 +139,11 @@ namespace MongoDB.Bson.Tests.Serialization
 
             // Act
             Action action = () => testClass.GetValue<int>(memberName);
+            var exception = Record.Exception(action);
 
             // Assert
-            action.ShouldThrow<KeyNotFoundException>()
-                .WithMessage($"The backing document does not contain an element named '{elementName}'.");
+            exception.Should().BeOfType<KeyNotFoundException>()
+                .Which.Message.Should().Be($"The backing document does not contain an element named '{elementName}'.");
         }
 
         [Fact]
@@ -184,10 +188,11 @@ namespace MongoDB.Bson.Tests.Serialization
 
             // Act
             Action action = () => testClass.GetValue<int>(memberName, defaultValue);
+            var exception = Record.Exception(action);
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .And.ParamName.Should().Be("memberName");
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.ParamName.Should().Be("memberName");
         }
 
         [Fact]
@@ -206,10 +211,11 @@ namespace MongoDB.Bson.Tests.Serialization
 
             // Act
             Action action = () => testClass.SetValue(memberName, value);
+            var exception = Record.Exception(action);
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .And.ParamName.Should().Be("memberName");
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.ParamName.Should().Be("memberName");
         }
 
         private class TestBsonDocumentBackedClass : BsonDocumentBackedClass

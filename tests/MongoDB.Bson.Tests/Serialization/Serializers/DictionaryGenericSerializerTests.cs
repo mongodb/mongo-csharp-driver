@@ -239,9 +239,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => configurable.WithChildSerializers([new StringSerializer()]);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<Exception>().WithMessage("Wrong number of child serializers passed.");
+            exception.Should().BeOfType<Exception>()
+                .Which.Message.Should().Be("Wrong number of child serializers passed.");
         }
 
         [Fact]

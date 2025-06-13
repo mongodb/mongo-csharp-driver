@@ -166,8 +166,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             Action act = () => new BsonJavaScript(null);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("code");
+            var exception = Record.Exception(act).Should().BeOfType<ArgumentNullException>().Subject;
+            exception.ParamName.Should().Be("code");
         }
 
         [Fact]
@@ -191,8 +191,8 @@ namespace MongoDB.Bson.Tests.ObjectModel
             Action act = () => BsonJavaScript.Create(null);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("value");
+            var exception = Record.Exception(act).Should().BeOfType<ArgumentNullException>().Subject;
+            exception.ParamName.Should().Be("value");
         }
 
         [Fact]

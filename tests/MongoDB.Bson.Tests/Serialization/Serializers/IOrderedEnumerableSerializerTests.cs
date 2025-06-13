@@ -49,10 +49,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => new IOrderedEnumerableSerializer<string>(itemSerializer, thenByExceptionMessage);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("itemSerializer");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("itemSerializer");
         }
 
         [Fact]
@@ -64,10 +65,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => new IOrderedEnumerableSerializer<string>(itemSerializer, thenByExceptionMessage);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("thenByExceptionMessage");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("thenByExceptionMessage");
         }
 
         [Fact]
@@ -94,10 +96,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => IOrderedEnumerableSerializer.Create(itemSerializer, exceptionMessage);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("itemSerializer");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("itemSerializer");
         }
 
         [Fact]
@@ -149,7 +152,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Verify ThenBy throws with the expected message
             Action act = () => result.ThenBy(x => x.Length);
-            act.ShouldThrow<InvalidOperationException>().WithMessage(thenByExceptionMessage);
+            var exception = Record.Exception(act);
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Be(thenByExceptionMessage);
 
             reader.ReadEndDocument();
         }

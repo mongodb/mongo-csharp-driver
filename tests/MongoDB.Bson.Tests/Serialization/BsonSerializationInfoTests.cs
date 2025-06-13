@@ -77,8 +77,10 @@ namespace MongoDB.Bson.Tests.Serialization
 
             // Accessing ElementName should throw
             Action act = () => { var name = info.ElementName; };
-            act.ShouldThrow<InvalidOperationException>()
-                .WithMessage("When ElementPath is not null you must use it instead.");
+            var exception = Record.Exception(act);
+            
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Be("When ElementPath is not null you must use it instead.");
         }
 
         [Fact]
@@ -108,10 +110,11 @@ namespace MongoDB.Bson.Tests.Serialization
 
             // Act
             Action act = () => { var name = info.ElementName; };
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<InvalidOperationException>()
-                .WithMessage("When ElementPath is not null you must use it instead.");
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Be("When ElementPath is not null you must use it instead.");
         }
 
         [Fact]

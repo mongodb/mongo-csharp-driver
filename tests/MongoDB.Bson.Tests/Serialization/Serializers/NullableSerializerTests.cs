@@ -67,9 +67,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => NullableSerializer.Create(valueSerializer);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>();
         }
         [Fact]
         public void Equals_null_should_return_false()

@@ -229,10 +229,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => BsonValueSerializer.Instance.Serialize(context, args, mockBsonValue.Object);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<BsonInternalException>()
-                .WithMessage("Invalid BsonType.");
+            exception.Should().BeOfType<BsonInternalException>()
+                .Which.Message.Should().Be("Invalid BsonType.");
         }
 
         [Fact]

@@ -42,10 +42,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => new ImpliedImplementationInterfaceSerializer<ITestInterface, TestImplementation>(implementationSerializer);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("implementationSerializer");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("implementationSerializer");
         }
 
         [Fact]
@@ -53,11 +54,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             // Act
             Action act = () => new ImpliedImplementationInterfaceSerializer<TestImplementation, TestImplementation>();
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentException>()
-                .WithMessage($"{typeof(TestImplementation).FullName} is not an interface.*")
-                .And.ParamName.Should().Be("<TInterface>");
+            var subject = exception.Should().BeOfType<ArgumentException>().Subject;
+
+            subject.Message.Should().StartWith($"{typeof(TestImplementation).FullName} is not an interface.");
+            subject.ParamName.Should().Be("<TInterface>");
         }
 
         [Fact]
@@ -100,10 +103,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => new ImpliedImplementationInterfaceSerializer<ITestInterface, TestImplementation>(serializerRegistry);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("serializerRegistry");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("serializerRegistry");
         }
         [Fact]
         public void Deserialize_should_delegate_to_implementation_serializer()
@@ -187,10 +191,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => { var _ = subject.DictionaryRepresentation; };
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<NotSupportedException>()
-                .WithMessage($"{BsonUtils.GetFriendlyTypeName(implementationSerializer.GetType())} does not have a DictionaryRepresentation.*");
+            exception.Should().BeOfType<NotSupportedException>()
+                .Which.Message.Should().StartWith($"{BsonUtils.GetFriendlyTypeName(implementationSerializer.GetType())} does not have a DictionaryRepresentation.");
         }
 
         [Fact]
@@ -408,10 +413,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => { var _ = subject.KeySerializer; };
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<NotSupportedException>()
-                .WithMessage($"{BsonUtils.GetFriendlyTypeName(implementationSerializer.GetType())} does not have a KeySerializer.*");
+            exception.Should().BeOfType<NotSupportedException>()
+                .Which.Message.Should().StartWith($"{BsonUtils.GetFriendlyTypeName(implementationSerializer.GetType())} does not have a KeySerializer.");
         }
 
         [Fact]
@@ -611,10 +617,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => { var _ = subject.ValueSerializer; };
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<NotSupportedException>()
-                .WithMessage($"{BsonUtils.GetFriendlyTypeName(implementationSerializer.GetType())} does not have a ValueSerializer.*");
+            exception.Should().BeOfType<NotSupportedException>()
+                .Which.Message.Should().StartWith($"{BsonUtils.GetFriendlyTypeName(implementationSerializer.GetType())} does not have a ValueSerializer.");
         }
         [Fact]
         public void WithImplementationSerializer_should_return_new_instance_when_serializer_is_different()

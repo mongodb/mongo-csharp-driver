@@ -123,10 +123,11 @@ namespace MongoDB.Bson.Tests.Serialization.IdGenerators
 
             // Act
             Action act = () => BsonBinaryDataGuidGenerator.GetInstance(invalidRepresentation);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentOutOfRangeException>()
-                .And.ParamName.Should().Be("guidRepresentation");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>()
+                .Which.ParamName.Should().Be("guidRepresentation");
         }
 
         [Fact]
@@ -220,10 +221,11 @@ namespace MongoDB.Bson.Tests.Serialization.IdGenerators
 
             // Act
             Action act = () => generator.IsEmpty(invalidId);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentOutOfRangeException>()
-                .And.ParamName.Should().Be("id");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>()
+                .Which.ParamName.Should().Be("id");
         }
 
         [Fact]

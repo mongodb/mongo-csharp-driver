@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System;   
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,9 +90,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => subject.CreateOrderedEnumerable(x => x, Comparer<int>.Default, false);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<InvalidOperationException>().WithMessage(exceptionMessage);
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Be(exceptionMessage);
         }
         
         [Fact]

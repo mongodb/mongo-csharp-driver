@@ -59,10 +59,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             // Act
             Action act = () => new MongoDB.Bson.Serialization.Serializers.DowncastingSerializer<object, string>(null);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("derivedSerializer");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("derivedSerializer");
         }
 
         [Fact]
@@ -266,10 +267,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => subject.TryGetItemSerializationInfo(out _);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<InvalidOperationException>()
-                .WithMessage($"The class {mockSerializer.Object.GetType().FullName} does not implement IBsonArraySerializer.");
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Be($"The class {mockSerializer.Object.GetType().FullName} does not implement IBsonArraySerializer.");
         }
 
         [Fact]
@@ -310,10 +312,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => subject.TryGetMemberSerializationInfo(memberName, out _);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<InvalidOperationException>()
-                .WithMessage($"The class {mockSerializer.Object.GetType().FullName} does not implement IBsonDocumentSerializer.");
+            exception.Should().BeOfType<InvalidOperationException>()
+                .Which.Message.Should().Be($"The class {mockSerializer.Object.GetType().FullName} does not implement IBsonDocumentSerializer.");
         }
     }
 }

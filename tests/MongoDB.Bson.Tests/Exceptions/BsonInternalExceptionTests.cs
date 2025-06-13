@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Tests.Exceptions
     public class BsonInternalExceptionTests
     {
         [Fact]
-        public void constructor_should_initialize_empty_instance()
+        public void Constructor_should_initialize_empty_instance()
         {
             // Act
             var exception = new BsonInternalException();
@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Tests.Exceptions
         }
 
         [Fact]
-        public void constructor_should_initialize_instance_with_message()
+        public void Constructor_should_initialize_instance_with_message()
         {
             // Arrange
             var message = "Test internal exception message";
@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Tests.Exceptions
         }
 
         [Fact]
-        public void constructor_should_initialize_instance_with_message_and_inner_exception()
+        public void Constructor_should_initialize_instance_with_message_and_inner_exception()
         {
             // Arrange
             var message = "Test internal exception message";
@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Tests.Exceptions
         }
 
         [Fact]
-        public void should_inherit_from_bson_exception()
+        public void Should_inherit_from_bson_exception()
         {
             // Act
             var exception = new BsonInternalException();

@@ -51,9 +51,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => TupleSerializer.Create(serializers);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<Exception>().WithMessage("Invalid number of Tuple items : *");
+            exception.Should().BeOfType<Exception>()
+                .Which.Message.Should().StartWith("Invalid number of Tuple items : ");
         }
 
         [Theory]
@@ -81,10 +83,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             // Act
             Action act = () => new TupleSerializer<int>((IBsonSerializer<int>)null);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>()
-                .And.ParamName.Should().Be("item1Serializer");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("item1Serializer");
         }
 
         [Fact]
@@ -121,10 +124,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => serializer.GetItemSerializer(itemNumber);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<IndexOutOfRangeException>()
-                .And.Message.Should().Be("itemNumber");
+            exception.Should().BeOfType<IndexOutOfRangeException>()
+                .Which.Message.Should().Be("itemNumber");
         }
     }
 }

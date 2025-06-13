@@ -42,9 +42,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             // Act
             Action act = () => new EnumerableInterfaceImplementerSerializer<TestEnumerable>((IBsonSerializer)null);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("itemSerializer");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("itemSerializer");
         }
 
         [Fact]
@@ -52,9 +54,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             // Act
             Action act = () => new EnumerableInterfaceImplementerSerializer<TestEnumerable>((IBsonSerializerRegistry)null);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("serializerRegistry");
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("serializerRegistry");
         }
 
         [Fact]

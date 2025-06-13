@@ -36,10 +36,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             // Act
             Action act = () => new RegexSerializer(representation);
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<ArgumentException>()
-                .WithMessage($"{representation} is not a valid representation for an RegexSerializer.");
+            exception.Should().BeOfType<ArgumentException>()
+                .Which.Message.Should().Be($"{representation} is not a valid representation for an RegexSerializer.");
         }
 
         [Theory]
@@ -73,10 +74,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             // Act
             Action act = () => subject.Deserialize(context, new());
+            var exception = Record.Exception(act);
 
             // Assert
-            act.ShouldThrow<FormatException>()
-                .WithMessage("Cannot deserialize a 'Regex' from BsonType 'Int32'.");
+            exception.Should().BeOfType<FormatException>()
+                .Which.Message.Should().Be("Cannot deserialize a 'Regex' from BsonType 'Int32'.");
         }
 
         [Fact]

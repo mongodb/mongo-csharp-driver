@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Tests.Exceptions
     public class BsonExceptionTests
     {
         [Fact]
-        public void constructor_with_format_and_args_should_format_message_correctly()
+        public void Constructor_with_format_and_args_should_format_message_correctly()
         {
             // Act
             var exception = new BsonException("Error code: {0}, message: {1}", 123, "Test error");
@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Tests.Exceptions
         }
 
         [Fact]
-        public void constructor_with_format_and_args_should_handle_empty_args()
+        public void Constructor_with_format_and_args_should_handle_empty_args()
         {
             // Act
             var exception = new BsonException("Simple message");
@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Tests.Exceptions
         }
 
         [Fact]
-        public void constructor_with_format_and_args_should_handle_null_args()
+        public void Constructor_with_format_and_args_should_handle_null_args()
         {
             // Act
             var exception = new BsonException("Message with {0}", (object)null);
