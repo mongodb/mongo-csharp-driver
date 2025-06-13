@@ -40,6 +40,7 @@ namespace MongoDB.Driver
         private readonly ExpressionTranslationOptions _translationOptions = default;
         private readonly IBsonSerializationDomain _serializationDomain = default;
 
+        //TODO We need to stop using this constructor internally, and use the one with the serialization domain instead.
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderArgs{TDocument}"/> record.
         /// </summary>
@@ -66,6 +67,7 @@ namespace MongoDB.Driver
             _renderForFind = renderForFind;
             _renderForElemMatch = renderForElemMatch;
             _translationOptions = translationOptions; // can be null
+            _serializationDomain = BsonSerializer.DefaultSerializationDomain;
         }
 
         /// <summary>
