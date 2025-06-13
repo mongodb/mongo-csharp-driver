@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private void ForceClusterId(MultiServerCluster cluster, ClusterId clusterId)
         {
             Reflector.SetFieldValue(cluster, "_clusterId", clusterId);
-            Reflector.SetFieldValue(cluster, "_descriptionWithChangedTaskCompletionSource", new Cluster.ClusterDescriptionChangeSource(cluster, ClusterDescription.CreateInitial(clusterId, __directConnection)));
+            Reflector.SetFieldValue(cluster, "_expirableClusterDescription", new Cluster.ExpirableClusterDescription(cluster, ClusterDescription.CreateInitial(clusterId, __directConnection)));
         }
 
         private void SetupServerMonitorConnection(
