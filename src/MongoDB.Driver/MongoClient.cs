@@ -593,7 +593,7 @@ namespace MongoDB.Driver
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
                 Comment = options.Comment,
-                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions)),
+                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, _settings.SerializationDomain, translationOptions: translationOptions)),
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
             };
@@ -693,7 +693,7 @@ namespace MongoDB.Driver
         {
             var translationOptions = Settings.TranslationOptions;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, serializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private IClientSessionHandle StartImplicitSession()

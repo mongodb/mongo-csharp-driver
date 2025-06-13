@@ -293,8 +293,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             SortDefinition<TDocument> sortByDefinition,
             IBsonSerializer<TDocument> documentSerializer)
         {
-            var serializerRegistry = context.SerializationDomain.SerializerRegistry;
-            var sortDocument = sortByDefinition.Render(new(documentSerializer, serializerRegistry, translationOptions: context.TranslationOptions));
+            var sortDocument = sortByDefinition.Render(new(documentSerializer, context.SerializationDomain, translationOptions: context.TranslationOptions));
             var fields = new List<AstSortField>();
             foreach (var element in sortDocument)
             {
