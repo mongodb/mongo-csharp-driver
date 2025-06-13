@@ -25,8 +25,7 @@ namespace MongoDB.Driver.Tests
     {
         private static RenderArgs<C> __args = new(
             BsonSerializer.DefaultSerializationDomain.SerializerRegistry.GetSerializer<C>(),
-            BsonSerializer.DefaultSerializationDomain.SerializerRegistry,
-            serializationDomain: BsonSerializer.DefaultSerializationDomain);
+            BsonSerializer.DefaultSerializationDomain);
         private static FilterDefinitionBuilder<C> __subject = Builders<C>.Filter;
 
         public enum E { A, B }
