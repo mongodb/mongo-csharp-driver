@@ -168,6 +168,34 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(expectedVal, toString);
         }
 
+        [Fact]
+        public void TestAggregate()
+        {
+            RequireServer.Check();
+
+            var customDomain = BsonSerializer.CreateSerializationDomain();
+            customDomain.RegisterSerializer(new CustomStringSerializer());
+
+            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var untypedCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+            var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
+            collection.InsertOne(person);
+
+            var retrievedAsBson = untypedCollection.FindSync("{}").ToList().Single();
+            var toString = retrievedAsBson.ToString();
+
+            var expectedVal =
+                """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "Name" : "Mariotest", "Age" : 24 }""";
+            Assert.Equal(expectedVal, toString);
+
+            var retrievedTyped = collection.AsQueryable().Where(x => x.Name == "Mario").ToList();  //The string serializer is correctly serializing "Mario" to "Mariotest"
+            Assert.NotEmpty(retrievedTyped);
+        }
+
         public class Person
         {
             [BsonId] public ObjectId Id { get; set; }
