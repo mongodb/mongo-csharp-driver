@@ -49,14 +49,11 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
         protected readonly EventLogger<LogCategories.SDAM> _clusterEventLogger;
         protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
-        private Timer _rapidHeartbeatTimer;
-        private readonly object _serverSelectionWaitQueueLock = new object();
-        private int _serverSelectionWaitQueueSize;
         private readonly IClusterableServerFactory _serverFactory;
+        private readonly ServerSelectionWaitQueue _serverSelectionWaitQueue;
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
-        private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
         // constructors
         protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
@@ -66,15 +63,11 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
-            _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
             _clusterId = new ClusterId();
             _descriptionWithChangedTaskCompletionSource = new (this, ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
-
-            _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-
+            _serverSelectionWaitQueue = new ServerSelectionWaitQueue(this);
             _serverSessionPool = new CoreServerSessionPool(this);
-
             _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
         }
@@ -133,43 +126,9 @@ namespace MongoDB.Driver.Core.Clusters
 
                 UpdateClusterDescription(newClusterDescription);
 
-                _rapidHeartbeatTimer.Dispose();
+                _serverSelectionWaitQueue.Dispose();
 
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster disposed");
-            }
-        }
-
-        private void EnterServerSelectionWaitQueue(IServerSelector selector, ClusterDescription clusterDescription, long? operationId, TimeSpan remainingTime)
-        {
-            lock (_serverSelectionWaitQueueLock)
-            {
-                if (_serverSelectionWaitQueueSize >= _settings.MaxServerSelectionWaitQueueSize)
-                {
-                    throw MongoWaitQueueFullException.ForServerSelection();
-                }
-
-                if (++_serverSelectionWaitQueueSize == 1)
-                {
-                    _rapidHeartbeatTimer.Change(TimeSpan.Zero, _minHeartbeatInterval);
-                }
-
-                _serverSelectionEventLogger.LogAndPublish(new ClusterEnteredSelectionQueueEvent(
-                    clusterDescription,
-                    selector,
-                    operationId,
-                    EventContext.OperationName,
-                    remainingTime));
-            }
-        }
-
-        private void ExitServerSelectionWaitQueue()
-        {
-            lock (_serverSelectionWaitQueueLock)
-            {
-                if (--_serverSelectionWaitQueueSize == 0)
-                {
-                    _rapidHeartbeatTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-                }
             }
         }
 
@@ -179,28 +138,6 @@ namespace MongoDB.Driver.Core.Clusters
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _clusterEventLogger.Logger?.LogTrace(_clusterId, "Cluster initialized");
-            }
-        }
-
-        private void RapidHeartbeatTimerCallback(object args)
-        {
-            // avoid requesting heartbeat reentrantly
-            if (_rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.NotRunning, RapidHeartbeatTimerCallbackState.Running))
-            {
-                try
-                {
-                    RequestHeartbeat();
-                }
-                catch
-                {
-                    // TODO: Trace this
-                    // If we don't protect this call, we could
-                    // take down the app domain.
-                }
-                finally
-                {
-                    _rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.NotRunning);
-                }
             }
         }
 
@@ -222,12 +159,10 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            selector = DecorateSelector(selector, out var operationCountSelector);
             operationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
-
             var clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
-            var stopwatch = BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
-            var serverSelectionWaitQueueEntered = false;
+            (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
+            IDisposable serverSelectionWaitQueueDisposer = null;
 
             try
             {
@@ -240,36 +175,19 @@ namespace MongoDB.Driver.Core.Clusters
                         return result.Server;
                     }
 
-                    if (!serverSelectionWaitQueueEntered)
-                    {
-                        EnterServerSelectionWaitQueue(selector, clusterDescriptionChangeSource.ClusterDescription, EventContext.OperationId, operationContext.RemainingTimeout);
-                        serverSelectionWaitQueueEntered = true;
-                    }
+                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(operationContext, selector, clusterDescriptionChangeSource.ClusterDescription, EventContext.OperationId);
 
                     operationContext.WaitTask(clusterDescriptionChangeSource.Changed);
                     clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
                 }
             }
-            catch (TimeoutException)
-            {
-                stopwatch.Stop();
-                var message = BuildTimeoutExceptionMessage(stopwatch.Elapsed, selector, clusterDescriptionChangeSource.ClusterDescription);
-                var timeoutException = new TimeoutException(message);
-                HandleServerSelectionException(clusterDescriptionChangeSource.ClusterDescription, selector, timeoutException);
-
-                throw timeoutException;
-            }
             catch (Exception ex)
             {
-                HandleServerSelectionException(clusterDescriptionChangeSource.ClusterDescription, selector, ex);
-                throw;
+                throw HandleServerSelectionException(clusterDescriptionChangeSource.ClusterDescription, selector, ex, stopwatch);
             }
             finally
             {
-                if (serverSelectionWaitQueueEntered)
-                {
-                    ExitServerSelectionWaitQueue();
-                }
+                serverSelectionWaitQueueDisposer?.Dispose();
             }
         }
 
@@ -279,12 +197,10 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            selector = DecorateSelector(selector, out var operationCountSelector);
             operationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
-
             var clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
-            var stopwatch = BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
-            var serverSelectionWaitQueueEntered = false;
+            (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(clusterDescriptionChangeSource.ClusterDescription, selector);
+            IDisposable serverSelectionWaitQueueDisposer = null;
 
             try
             {
@@ -297,36 +213,19 @@ namespace MongoDB.Driver.Core.Clusters
                         return result.Server;
                     }
 
-                    if (!serverSelectionWaitQueueEntered)
-                    {
-                        EnterServerSelectionWaitQueue(selector, clusterDescriptionChangeSource.ClusterDescription, EventContext.OperationId, operationContext.RemainingTimeout);
-                        serverSelectionWaitQueueEntered = true;
-                    }
+                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(operationContext, selector, clusterDescriptionChangeSource.ClusterDescription, EventContext.OperationId);
 
                     await operationContext.WaitTaskAsync(clusterDescriptionChangeSource.Changed).ConfigureAwait(false);
                     clusterDescriptionChangeSource = _descriptionWithChangedTaskCompletionSource;
                 }
             }
-            catch (TimeoutException)
-            {
-                stopwatch.Stop();
-                var message = BuildTimeoutExceptionMessage(stopwatch.Elapsed, selector, clusterDescriptionChangeSource.ClusterDescription);
-                var timeoutException = new TimeoutException(message);
-                HandleServerSelectionException(clusterDescriptionChangeSource.ClusterDescription, selector, timeoutException);
-
-                throw timeoutException;
-            }
             catch (Exception ex)
             {
-                HandleServerSelectionException(clusterDescriptionChangeSource.ClusterDescription, selector, ex);
-                throw;
+                throw HandleServerSelectionException(clusterDescriptionChangeSource.ClusterDescription, selector, ex, stopwatch);
             }
             finally
             {
-                if (serverSelectionWaitQueueEntered)
-                {
-                    ExitServerSelectionWaitQueue();
-                }
+                serverSelectionWaitQueueDisposer?.Dispose();
             }
         }
 
@@ -348,24 +247,31 @@ namespace MongoDB.Driver.Core.Clusters
             oldClusterDescription.TrySetChanged();
         }
 
-        private string BuildTimeoutExceptionMessage(TimeSpan timeout, IServerSelector selector, ClusterDescription clusterDescription)
-        {
-            var ms = (int)Math.Round(timeout.TotalMilliseconds);
-            return string.Format(
-                "A timeout occurred after {0}ms selecting a server using {1}. Client view of cluster state is {2}.",
-                ms.ToString(),
-                selector.ToString(),
-                clusterDescription.ToString());
-        }
-
-        private Stopwatch BeginServerSelection(ClusterDescription clusterDescription, IServerSelector selector)
+        private (IServerSelector Selector, OperationsCountServerSelector OperationCountSelector, Stopwatch Stopwatch) BeginServerSelection(ClusterDescription clusterDescription, IServerSelector selector)
         {
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 clusterDescription,
                 selector,
                 EventContext.OperationId,
                 EventContext.OperationName));
-            return Stopwatch.StartNew();
+
+            var allSelectors = new List<IServerSelector>();
+            if (Settings.PreServerSelector != null)
+            {
+                allSelectors.Add(Settings.PreServerSelector);
+            }
+
+            allSelectors.Add(selector);
+            if (Settings.PostServerSelector != null)
+            {
+                allSelectors.Add(Settings.PostServerSelector);
+            }
+
+            allSelectors.Add(_latencyLimitingServerSelector);
+            var operationCountSelector = new OperationsCountServerSelector(Array.Empty<IClusterableServer>());
+            allSelectors.Add(operationCountSelector);
+
+            return (new CompositeServerSelector(allSelectors), operationCountSelector, Stopwatch.StartNew());
         }
 
         private void EndServerSelection(ClusterDescription clusterDescription, IServerSelector selector, ServerDescription selectedServerDescription, Stopwatch stopwatch)
@@ -380,38 +286,24 @@ namespace MongoDB.Driver.Core.Clusters
                 EventContext.OperationName));
         }
 
-        private IServerSelector DecorateSelector(IServerSelector selector, out OperationsCountServerSelector operationCountSelector)
+        public Exception HandleServerSelectionException(ClusterDescription clusterDescription, IServerSelector selector, Exception exception, Stopwatch stopwatch)
         {
-            var settings = Settings;
-            var allSelectors = new List<IServerSelector>();
+            stopwatch.Stop();
 
-            if (settings.PreServerSelector != null)
+            if (exception is TimeoutException)
             {
-                allSelectors.Add(settings.PreServerSelector);
+                var message = $"A timeout occurred after {stopwatch.ElapsedMilliseconds}ms selecting a server using {selector}. Client view of cluster state is {clusterDescription}.";
+                exception = new TimeoutException(message);
             }
 
-            allSelectors.Add(selector);
-
-            if (settings.PostServerSelector != null)
-            {
-                allSelectors.Add(settings.PostServerSelector);
-            }
-
-            allSelectors.Add(_latencyLimitingServerSelector);
-            operationCountSelector = new OperationsCountServerSelector(Array.Empty<IClusterableServer>());
-            allSelectors.Add(operationCountSelector);
-
-            return new CompositeServerSelector(allSelectors);
-        }
-
-        public void HandleServerSelectionException(ClusterDescription clusterDescription, IServerSelector selector, Exception exception)
-        {
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerFailedEvent(
                 clusterDescription,
                 selector,
                 exception,
                 EventContext.OperationId,
                 EventContext.OperationName));
+
+            return exception;
         }
 
         private (IClusterableServer Server, ServerDescription ServerDescription) SelectServer(ClusterDescriptionChangeSource clusterDescriptionChangeSource, IServerSelector selector, OperationsCountServerSelector operationCountSelector)
@@ -426,7 +318,6 @@ namespace MongoDB.Driver.Core.Clusters
             if (selectedServerDescription != null)
             {
                 var selectedServer = clusterDescriptionChangeSource.ConnectedServers.FirstOrDefault(s => EndPointHelper.Equals(s.EndPoint, selectedServerDescription.EndPoint));
-
                 if (selectedServer != null)
                 {
                     return (selectedServer, selectedServerDescription);
@@ -542,6 +433,99 @@ namespace MongoDB.Driver.Core.Clusters
         {
             public const int NotRunning = 0;
             public const int Running = 1;
+        }
+
+        private sealed class ServerSelectionWaitQueue : IDisposable
+        {
+            private readonly Cluster _cluster;
+            private readonly object _serverSelectionWaitQueueLock = new object();
+            private readonly Timer _rapidHeartbeatTimer;
+            private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
+
+            private int _serverSelectionWaitQueueSize;
+
+            public ServerSelectionWaitQueue(Cluster cluster)
+            {
+                _cluster = cluster;
+                _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
+                _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            }
+
+            public void Dispose()
+            {
+                _rapidHeartbeatTimer.Dispose();
+            }
+
+            public IDisposable Enter(OperationContext operationContext, IServerSelector selector, ClusterDescription clusterDescription, long? operationId)
+            {
+                lock (_serverSelectionWaitQueueLock)
+                {
+                    if (_serverSelectionWaitQueueSize >= _cluster._settings.MaxServerSelectionWaitQueueSize)
+                    {
+                        throw MongoWaitQueueFullException.ForServerSelection();
+                    }
+
+                    if (++_serverSelectionWaitQueueSize == 1)
+                    {
+                        _rapidHeartbeatTimer.Change(TimeSpan.Zero, _cluster._minHeartbeatInterval);
+                    }
+
+                    _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterEnteredSelectionQueueEvent(
+                        clusterDescription,
+                        selector,
+                        operationId,
+                        EventContext.OperationName,
+                        operationContext.RemainingTimeout));
+                }
+
+                return new ServerSelectionQueueDisposer(this);
+            }
+
+            private void ExitServerSelectionWaitQueue()
+            {
+                lock (_serverSelectionWaitQueueLock)
+                {
+                    if (--_serverSelectionWaitQueueSize == 0)
+                    {
+                        _rapidHeartbeatTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                    }
+                }
+            }
+
+            private void RapidHeartbeatTimerCallback(object args)
+            {
+                // avoid requesting heartbeat reentrantly
+                if (_rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.NotRunning, RapidHeartbeatTimerCallbackState.Running))
+                {
+                    try
+                    {
+                        _cluster.RequestHeartbeat();
+                    }
+                    catch
+                    {
+                        // TODO: Trace this
+                        // If we don't protect this call, we could
+                        // take down the app domain.
+                    }
+                    finally
+                    {
+                        _rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.NotRunning);
+                    }
+                }
+            }
+
+            private sealed class ServerSelectionQueueDisposer : IDisposable
+            {
+                private readonly ServerSelectionWaitQueue _waitQueue;
+
+                public ServerSelectionQueueDisposer(ServerSelectionWaitQueue waitQueue)
+                {
+                    _waitQueue = waitQueue;
+                }
+
+                public void Dispose()
+                    => _waitQueue.ExitServerSelectionWaitQueue();
+            }
         }
     }
 }
