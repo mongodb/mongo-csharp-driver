@@ -286,7 +286,7 @@ namespace MongoDB.Driver.Core.Clusters
                 EventContext.OperationName));
         }
 
-        public Exception HandleServerSelectionException(ClusterDescription clusterDescription, IServerSelector selector, Exception exception, Stopwatch stopwatch)
+        private Exception HandleServerSelectionException(ClusterDescription clusterDescription, IServerSelector selector, Exception exception, Stopwatch stopwatch)
         {
             stopwatch.Stop();
 
