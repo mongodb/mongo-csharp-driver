@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests
                 var customDomain = BsonSerializer.CreateSerializationDomain();
                 customDomain.RegisterSerializer(new CustomStringSerializer());
 
-                var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+                var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
                 var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests
                 var customDomain = BsonSerializer.CreateSerializationDomain();
                 customDomain.RegisterSerializer(new CustomStringSerializer());
 
-                var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+                var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
                 var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Tests
             var customDomain = BsonSerializer.CreateSerializationDomain();
             customDomain.RegisterSerializer(new CustomStringSerializer());
 
-            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Tests
                 m => m.SetElementName(m.MemberName.ToLower()));
             customDomain.ConventionRegistry.Register("myPack", pack, t => t == typeof(Person));
 
-            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Tests
             var customDomain = BsonSerializer.CreateSerializationDomain();
             customDomain.RegisterSerializer(new CustomStringSerializer());
 
-            var client = DriverTestConfiguration.CreateMongoClient(c => c.SerializationDomain = customDomain);
+            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);

@@ -479,7 +479,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public IBsonSerializationDomain SerializationDomain
+        IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain
         {
             get => _serializationDomain;
             set
