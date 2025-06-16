@@ -24,33 +24,14 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonDefaults
     {
-        // private static fields
-        private static bool __dynamicArraySerializerWasSet;
-        private static IBsonSerializer __dynamicArraySerializer;
-        private static bool __dynamicDocumentSerializerWasSet;
-        private static IBsonSerializer __dynamicDocumentSerializer;
-        private static int __maxDocumentSize = int.MaxValue;
-        private static int __maxSerializationDepth = 100;
-
         // public static properties
         /// <summary>
         /// Gets or sets the dynamic array serializer.
         /// </summary>
         public static IBsonSerializer DynamicArraySerializer
         {
-            get
-            {
-                if (!__dynamicArraySerializerWasSet)
-                {
-                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();  //TODO Should we change this? Maybe all the classes that are using this should use the local domain if this is not set
-                }
-                return __dynamicArraySerializer;
-            }
-            set
-            {
-                __dynamicArraySerializerWasSet = true;
-                __dynamicArraySerializer = value;
-            }
+            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicArraySerializer;
+            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicArraySerializer = value;
         }
 
         /// <summary>
@@ -58,19 +39,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static IBsonSerializer DynamicDocumentSerializer
         {
-            get
-            {
-                if (!__dynamicDocumentSerializerWasSet)
-                {
-                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();   //TODO ??
-                }
-                return __dynamicDocumentSerializer;
-            }
-            set
-            {
-                __dynamicDocumentSerializerWasSet = true;
-                __dynamicDocumentSerializer = value;
-            }
+            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicDocumentSerializer;
+            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicDocumentSerializer = value;
         }
 
         /// <summary>
@@ -78,8 +48,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static int MaxDocumentSize
         {
-            get { return __maxDocumentSize; }
-            set { __maxDocumentSize = value; }
+            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxDocumentSize;
+            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxDocumentSize = value;
         }
 
         /// <summary>
@@ -87,8 +57,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static int MaxSerializationDepth
         {
-            get { return __maxSerializationDepth; }
-            set { __maxSerializationDepth = value; }
+            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxSerializationDepth;
+            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxSerializationDepth = value;
         }
     }
 }

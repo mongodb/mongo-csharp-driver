@@ -137,7 +137,7 @@ namespace MongoDB.Bson.IO
                 FixOldBinarySubTypeOnInput = _fixOldBinarySubTypeOnInput,
                 FixOldDateTimeMaxValueOnInput = _fixOldDateTimeMaxValueOnInput,
                 MaxDocumentSize = _maxDocumentSize,
-                SerializationDomain = SerializationDomain,  //TODO This can be improved
+                SerializationDomain = SerializationDomain
             };
 
             return clone;
