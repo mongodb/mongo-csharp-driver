@@ -16,6 +16,7 @@
 using System;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -24,6 +25,7 @@ namespace MongoDB.Driver
         ReadConcern ReadConcern { get; }
         UTF8Encoding ReadEncoding { get; }
         ReadPreference ReadPreference { get; }
+        IBsonSerializationDomain SerializationDomain { get; }
         WriteConcern WriteConcern { get; }
         UTF8Encoding WriteEncoding { get; }
     }

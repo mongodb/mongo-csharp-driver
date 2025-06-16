@@ -169,6 +169,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
                 RunCount++;
                 RunOrder = _orderIndexProvider();
             }
+
+            public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain) => Apply(memberMap);
         }
 
         private class TrackingAfterConvention : IPostProcessingConvention, ITrackRun
@@ -194,6 +196,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
                 RunCount++;
                 RunOrder = _orderIndexProvider();
             }
+
+            public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain) => PostProcess(classMap);
         }
     }
 }

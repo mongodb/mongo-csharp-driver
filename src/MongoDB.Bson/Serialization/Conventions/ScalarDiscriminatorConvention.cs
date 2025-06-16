@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a discriminator convention where the discriminator is provided by the class map of the actual type.
     /// </summary>
-    public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention, IScalarDiscriminatorConvention
+    public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention, IScalarDiscriminatorConvention, IDiscriminatorConventionInternal
     {
         private readonly ConcurrentDictionary<Type, BsonValue[]> _cachedTypeAndSubTypeDiscriminators = new();
 
@@ -42,10 +42,14 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
-        public override BsonValue GetDiscriminator(Type nominalType, Type actualType)
+        public override BsonValue GetDiscriminator(Type nominalType, Type actualType) =>
+            GetDiscriminator(nominalType, actualType, BsonSerializer.DefaultSerializationDomain);  //TODO method should not be used, remove it in the future
+
+        /// <inheritdoc />
+        public BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
         {
             // TODO: this isn't quite right, not all classes are serialized using a class map serializer
-            var classMap = BsonClassMap.LookupClassMap(actualType);
+            var classMap = domain.BsonClassMap.LookupClassMap(actualType);
             if (actualType != nominalType || classMap.DiscriminatorIsRequired)
             {
                 return classMap.Discriminator;

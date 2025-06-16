@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
         {
         }
 
@@ -208,7 +208,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)  //TODO We can keep this as is
         {
         }
 
@@ -318,7 +318,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)  //TODO We can keep this as is
         {
         }
 
@@ -443,7 +443,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)  //TODO We can keep this as is
         {
         }
 
@@ -585,7 +585,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)  //TODO We can keep this as is
         {
         }
 
@@ -743,7 +743,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)  //TODO We can keep this as is
         {
         }
 
@@ -917,7 +917,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6, T7}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)  //TODO We can keep this as is
         {
         }
 
@@ -1107,7 +1107,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="TupleSerializer{T1, T2, T3, T4, T5, T6, T7, TRest}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializer.SerializerRegistry)  //TODO We can keep this as is
         {
         }
 

@@ -2224,8 +2224,8 @@ namespace MongoDB.Driver
         }
 
         public override RenderedProjectionDefinition<TOutput> Render(RenderArgs<TInput> args) => args.RenderForFind ?
-            LinqProviderAdapter.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions) :
-            LinqProviderAdapter.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+            LinqProviderAdapter.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions) :
+            LinqProviderAdapter.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
     }
 
     internal class SortPipelineStageDefinition<TInput> : PipelineStageDefinition<TInput, TInput>

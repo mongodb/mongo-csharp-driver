@@ -44,6 +44,8 @@ namespace MongoDB.Driver.Core.Operations
             if (messageEncoderSettings != null)
             {
                 readerSettings.Encoding = messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
+                readerSettings.SerializationDomain =
+                    messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
             };
 
             using (var stream = new ByteBufferStream(batch.Slice, ownsBuffer: false))

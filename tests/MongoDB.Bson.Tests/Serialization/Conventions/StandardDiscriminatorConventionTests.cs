@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using Xunit;
 

@@ -42,7 +42,7 @@ namespace MongoDB.Bson
             {
                 if (!__dynamicArraySerializerWasSet)
                 {
-                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();
+                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();  //TODO Should we change this? Maybe all the classes that are using this should use the local domain if this is not set
                 }
                 return __dynamicArraySerializer;
             }
@@ -62,7 +62,7 @@ namespace MongoDB.Bson
             {
                 if (!__dynamicDocumentSerializerWasSet)
                 {
-                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();
+                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();   //TODO ??
                 }
                 return __dynamicDocumentSerializer;
             }

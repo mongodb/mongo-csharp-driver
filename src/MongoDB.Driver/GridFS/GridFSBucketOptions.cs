@@ -243,7 +243,7 @@ namespace MongoDB.Driver.GridFS
         /// </value>
         public IBsonSerializerRegistry SerializerRegistry
         {
-            get { return BsonSerializer.SerializerRegistry; }
+            get { return BsonSerializer.SerializerRegistry; }  //TODO This is wrong
         }
 
         /// <summary>
