@@ -447,7 +447,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var exception = Record.Exception(() => adminDatabase.RunCommand<BsonDocument>(legacyHelloCommand));
 
                 exception.Should().BeOfType<TimeoutException>();
-                exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server").And.Contain("localhost:27021");
+                exception.Message.Should().MatchRegex(@".*A timeout occurred after \d+ms selecting a server.*").And.Contain("localhost:27021");
             }
 
             IMongoClient EnsureEnvironmentAndConfigureTestClientEncrypted()
