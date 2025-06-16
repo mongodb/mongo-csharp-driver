@@ -86,7 +86,7 @@ namespace MongoDB.Bson
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        public static byte[] ToBson(
+        internal static byte[] ToBson(
             this object obj,
             Type nominalType,
             IBsonSerializationDomain serializationDomain,
@@ -178,7 +178,7 @@ namespace MongoDB.Bson
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public static BsonDocument ToBsonDocument(
+        internal static BsonDocument ToBsonDocument(
             this object obj,
             Type nominalType,
             IBsonSerializationDomain serializationDomain,

@@ -293,6 +293,11 @@ namespace MongoDB.Bson.Serialization
         /// //TODO
         /// </summary>
         IConventionRegistryDomain ConventionRegistry { get; }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        IBsonDefaults BsonDefaults { get; }
     }
 
     internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
