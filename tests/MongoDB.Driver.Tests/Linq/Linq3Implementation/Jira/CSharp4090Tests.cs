@@ -14,25 +14,27 @@
 */
 
 using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4090Tests : LinqIntegrationTest<CSharp4090Tests.ClassFixture>
+    public class CSharp4090Tests : Linq3IntegrationTest
     {
-        public CSharp4090Tests(ClassFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [Fact]
         public void String_starts_with_with_current_culture_ignore_case_should_work()
         {
-            var collection = Fixture.Collection;
+            var collection = GetCollection<C>();
+            collection.Database.DropCollection(collection.CollectionNamespace.CollectionName);
+
+            collection.InsertMany(
+                new[]
+                {
+                    new C { Id = 100, Text = "Apple-Orange-Banana", Match = "apple" },
+                    new C { Id = 101, Text = "Apple-Kiwi-Pear", Match = "mango" }
+                });
+
             var find = collection.Find(x => x.Text.StartsWith(x.Match, StringComparison.CurrentCultureIgnoreCase));
 
             var rendered = find.ToString();
@@ -50,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void Should_throw_not_supported_exception_for_starts_with_with_unsupported_string_comparison_type(StringComparison comparison)
         {
-            var collection = Fixture.Collection;
+            var collection = GetCollection<C>();
 
             var exception = Record.Exception(() => collection.Find(x => x.Text.StartsWith("orange", comparison)).ToList());
 
@@ -61,7 +63,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void String_contains_with_current_culture_ignore_case_should_work()
         {
-            var collection = Fixture.Collection;
+            var collection = GetCollection<C>();
+            collection.Database.DropCollection(collection.CollectionNamespace.CollectionName);
+
+            collection.InsertMany(
+                new[]
+                {
+                    new C { Id = 100, Text = "Apple-Orange-Banana", Match = "orange" },
+                    new C { Id = 101, Text = "Apple-Kiwi-Pear", Match = "mango" }
+                });
 
             var find = collection.Find(x => x.Text.Contains(x.Match, StringComparison.CurrentCultureIgnoreCase));
 
@@ -80,7 +90,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void Should_throw_not_supported_exception_for_contains_with_unsupported_string_comparison_type(StringComparison comparison)
         {
-            var collection = Fixture.Collection;
+            var collection = GetCollection<C>();
 
             var exception = Record.Exception(() => collection.Find(x => x.Text.Contains("orange", comparison)).ToList());
 
@@ -91,7 +101,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void String_ends_with_with_current_culture_ignore_case_should_work()
         {
-            var collection = Fixture.Collection;
+            var collection = GetCollection<C>();
+            collection.Database.DropCollection(collection.CollectionNamespace.CollectionName);
+
+            collection.InsertMany(
+                new[]
+                {
+                    new C { Id = 100, Text = "Apple-Orange-Banana", Match = "banana" },
+                    new C { Id = 101, Text = "Apple-Kiwi-Pear", Match = "mango" }
+                });
 
             var find = collection.Find(x => x.Text.EndsWith(x.Match, StringComparison.CurrentCultureIgnoreCase));
 
@@ -110,7 +128,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [InlineData(StringComparison.OrdinalIgnoreCase)]
         public void Should_throw_not_supported_exception_for_ends_with_with_unsupported_string_comparison_type(StringComparison comparison)
         {
-            var collection = Fixture.Collection;
+            var collection = GetCollection<C>();
 
             var exception = Record.Exception(() => collection.Find(x => x.Text.EndsWith("orange", comparison)).ToList());
 
@@ -122,15 +140,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             public int Id { get; set; }
             public string Text { get; set; }
             public string Match { get; set; }
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<C>
-        {
-            protected override IEnumerable<C> InitialData =>
-            [
-                new C { Id = 100, Text = "Apple-Orange-Banana", Match = "banana" },
-                new C { Id = 101, Text = "Apple-Kiwi-Pear", Match = "mango" }
-            ];
         }
     }
 }

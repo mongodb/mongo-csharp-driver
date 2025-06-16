@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 new C { Id = 0, A = new int[0] },
                 new C { Id = 1, A = new int[] { 1 } },
                 new C { Id = 2, A = new int[] { 1, 2 } },
-                new C { Id = 3, A = new int[] { 1, 2, 3 } }
+                new C { Id = 3, A = new int[] { 1, 2, 2 } }
             ];
         }
     }
