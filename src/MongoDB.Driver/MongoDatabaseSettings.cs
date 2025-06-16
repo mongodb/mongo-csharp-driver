@@ -107,7 +107,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// //TODO
         /// </summary>
-        public IBsonSerializationDomain SerializationDomain
+        internal IBsonSerializationDomain SerializationDomain
         {
             get => _serializationDomain.Value;
             set
