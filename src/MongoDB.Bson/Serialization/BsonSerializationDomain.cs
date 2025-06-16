@@ -18,6 +18,7 @@ namespace MongoDB.Bson.Serialization
     internal class BsonSerializationDomain : IBsonSerializationDomainInternal, IDisposable
     {
         // private fields
+        private IBsonDefaults _bsonDefaults;
         private ReaderWriterLockSlim _configLock = new(LockRecursionPolicy.SupportsRecursion);
         private IBsonClassMapDomain _classMapDomain;
         private IConventionRegistryDomain _conventionRegistryDomain;
@@ -766,6 +767,8 @@ namespace MongoDB.Bson.Serialization
 
         public IConventionRegistryDomain ConventionRegistry => _conventionRegistryDomain;
 
+        public IBsonDefaults BsonDefaults => _bsonDefaults;
+
         /// <summary>
         /// Tries to register a serializer for a type.
         /// </summary>
@@ -847,6 +850,7 @@ namespace MongoDB.Bson.Serialization
         {
             _classMapDomain = new BsonClassMapDomain(this);
             _conventionRegistryDomain = new ConventionRegistryDomain();
+            _bsonDefaults = new BsonDefaultsDomain(this);
         }
 
         private void RegisterIdGenerators()
