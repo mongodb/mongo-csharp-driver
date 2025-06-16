@@ -25,7 +25,7 @@ namespace MongoDB.Driver
         ReadConcern ReadConcern { get; }
         UTF8Encoding ReadEncoding { get; }
         ReadPreference ReadPreference { get; }
-        IBsonSerializationDomain SerializationDomain { get; }
+        IBsonSerializationDomain SerializationDomain { get; set; }
         WriteConcern WriteConcern { get; }
         UTF8Encoding WriteEncoding { get; }
     }

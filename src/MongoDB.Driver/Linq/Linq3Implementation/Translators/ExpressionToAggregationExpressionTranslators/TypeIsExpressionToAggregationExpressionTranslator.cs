@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
             else
             {
-                var discriminatorConvention = objectTranslation.Serializer.GetDiscriminatorConvention();
+                var discriminatorConvention = objectTranslation.Serializer.GetDiscriminatorConvention(context.SerializationDomain);
                 var discriminatorField = AstExpression.GetField(objectTranslation.Ast, discriminatorConvention.ElementName);
 
                 ast = discriminatorConvention switch
