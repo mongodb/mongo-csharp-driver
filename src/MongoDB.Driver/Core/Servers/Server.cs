@@ -379,174 +379,9 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public CursorBatch<TDocument> Query<TDocument>(
-                CollectionNamespace collectionNamespace,
-                BsonDocument query,
-                BsonDocument fields,
-                IElementNameValidator queryValidator,
-                int skip,
-                int batchSize,
-                bool secondaryOk,
-                bool partialOk,
-                bool noCursorTimeout,
-                bool tailableCursor,
-                bool awaitData,
-                IBsonSerializer<TDocument> serializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-#pragma warning disable 618
-                return Query(
-                    collectionNamespace,
-                    query,
-                    fields,
-                    queryValidator,
-                    skip,
-                    batchSize,
-                    secondaryOk,
-                    partialOk,
-                    noCursorTimeout,
-                    oplogReplay: false,
-                    tailableCursor,
-                    awaitData,
-                    serializer,
-                    messageEncoderSettings,
-                    cancellationToken);
-#pragma warning restore 618
-            }
-
-            [Obsolete("Use the newest overload instead.")]
-            public CursorBatch<TDocument> Query<TDocument>(
-                CollectionNamespace collectionNamespace,
-                BsonDocument query,
-                BsonDocument fields,
-                IElementNameValidator queryValidator,
-                int skip,
-                int batchSize,
-                bool secondaryOk,
-                bool partialOk,
-                bool noCursorTimeout,
-                bool oplogReplay,
-                bool tailableCursor,
-                bool awaitData,
-                IBsonSerializer<TDocument> serializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                secondaryOk = GetEffectiveSecondaryOk(secondaryOk);
-#pragma warning disable 618
-                var protocol = new QueryWireProtocol<TDocument>(
-                    collectionNamespace,
-                    query,
-                    fields,
-                    queryValidator,
-                    skip,
-                    batchSize,
-                    secondaryOk,
-                    partialOk,
-                    noCursorTimeout,
-                    oplogReplay,
-                    tailableCursor,
-                    awaitData,
-                    serializer,
-                    messageEncoderSettings);
-#pragma warning restore 618
-
-                return ExecuteProtocol(protocol, cancellationToken);
-            }
-
-            public Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
-                CollectionNamespace collectionNamespace,
-                BsonDocument query,
-                BsonDocument fields,
-                IElementNameValidator queryValidator,
-                int skip,
-                int batchSize,
-                bool secondaryOk,
-                bool partialOk,
-                bool noCursorTimeout,
-                bool tailableCursor,
-                bool awaitData,
-                IBsonSerializer<TDocument> serializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-#pragma warning disable 618
-                return QueryAsync(
-                    collectionNamespace,
-                    query,
-                    fields,
-                    queryValidator,
-                    skip,
-                    batchSize,
-                    secondaryOk,
-                    partialOk,
-                    noCursorTimeout,
-                    oplogReplay: false,
-                    tailableCursor,
-                    awaitData,
-                    serializer,
-                    messageEncoderSettings,
-                    cancellationToken);
-#pragma warning restore 618
-            }
-
-            [Obsolete("Use the newest overload instead.")]
-            public Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
-                CollectionNamespace collectionNamespace,
-                BsonDocument query,
-                BsonDocument fields,
-                IElementNameValidator queryValidator,
-                int skip,
-                int batchSize,
-                bool secondaryOk,
-                bool partialOk,
-                bool noCursorTimeout,
-                bool oplogReplay,
-                bool tailableCursor,
-                bool awaitData,
-                IBsonSerializer<TDocument> serializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                secondaryOk = GetEffectiveSecondaryOk(secondaryOk);
-#pragma warning disable 618
-                var protocol = new QueryWireProtocol<TDocument>(
-                    collectionNamespace,
-                    query,
-                    fields,
-                    queryValidator,
-                    skip,
-                    batchSize,
-                    secondaryOk,
-                    partialOk,
-                    noCursorTimeout,
-                    oplogReplay,
-                    tailableCursor,
-                    awaitData,
-                    serializer,
-                    messageEncoderSettings);
-#pragma warning restore 618
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
-            }
-
             private ICoreSession CreateClusterClockAdvancingCoreSession(ICoreSession session)
             {
                 return new ClusterClockAdvancingCoreSession(session, _server.ClusterClock);
-            }
-
-            private TResult ExecuteProtocol<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    return protocol.Execute(_connection, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _server.HandleChannelException(_connection, ex);
-                    throw;
-                }
             }
 
             private TResult ExecuteProtocol<TResult>(IWireProtocol<TResult> protocol, ICoreSession session, CancellationToken cancellationToken)
@@ -558,19 +393,6 @@ namespace MongoDB.Driver.Core.Servers
                 catch (Exception ex)
                 {
                     MarkSessionDirtyIfNeeded(session, ex);
-                    _server.HandleChannelException(_connection, ex);
-                    throw;
-                }
-            }
-
-            private async Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    return await protocol.ExecuteAsync(_connection, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
                     _server.HandleChannelException(_connection, ex);
                     throw;
                 }
@@ -595,16 +417,6 @@ namespace MongoDB.Driver.Core.Servers
                 ThrowIfDisposed();
 
                 return new ServerChannel(_server, _connection.Fork(), false);
-            }
-
-            private bool GetEffectiveSecondaryOk(bool secondaryOk)
-            {
-                if (_server.DirectConnection && _server.Description.Type != ServerType.ShardRouter)
-                {
-                    return true;
-                }
-
-                return secondaryOk;
             }
 
             private void MarkSessionDirtyIfNeeded(ICoreSession session, Exception ex)
