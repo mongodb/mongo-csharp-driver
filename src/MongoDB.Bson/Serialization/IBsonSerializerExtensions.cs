@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.ComponentModel;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -56,9 +57,21 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         /// <returns>The discriminator convention.</returns>
         public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer) =>
+            GetDiscriminatorConvention(serializer, BsonSerializer.DefaultSerializationDomain);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="serializationDomain"></param>
+        /// <returns></returns>
+        #if DEBUG
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        #endif
+        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer, IBsonSerializationDomain serializationDomain) =>
             serializer is IHasDiscriminatorConvention hasDiscriminatorConvention
                 ? hasDiscriminatorConvention.DiscriminatorConvention
-                : BsonSerializer.LookupDiscriminatorConvention(serializer.ValueType);   //TODO We can keep this as is? In the long run this method should have the domain passed.
+                : serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
 
         /// <summary>
         /// Serializes a value.
