@@ -660,7 +660,7 @@ namespace MongoDB.Driver
 
         private IWriteOperation<BsonDocument> CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options, ExpressionTranslationOptions translationOptions)
         {
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;  //TODO What do we do here....?
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
             var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions);
