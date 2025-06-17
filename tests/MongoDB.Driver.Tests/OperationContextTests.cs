@@ -43,6 +43,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Constructor_throws_on_negative_timeout()
+        {
+            var exception = Record.Exception(() => new OperationContext(TimeSpan.FromSeconds(-5), CancellationToken.None));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
         public void RemainingTimeout_should_calculate()
         {
             var timeout = TimeSpan.FromMilliseconds(500);
