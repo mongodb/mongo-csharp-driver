@@ -29,7 +29,7 @@ namespace MongoDB.Bson.TestHelpers
 
             if (exceptions.Any())
             {
-                throw exceptions.First();
+                throw new AggregateException(exceptions);
             }
         }
 

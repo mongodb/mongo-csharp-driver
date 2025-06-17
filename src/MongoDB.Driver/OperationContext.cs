@@ -53,7 +53,13 @@ namespace MongoDB.Driver
                     return System.Threading.Timeout.InfiniteTimeSpan;
                 }
 
-                return Timeout - Stopwatch.Elapsed;
+                var result = Timeout - Stopwatch.Elapsed;
+                if (result < TimeSpan.Zero)
+                {
+                    result = TimeSpan.Zero;
+                }
+
+                return result;
             }
         }
 
@@ -69,7 +75,7 @@ namespace MongoDB.Driver
                 return false;
             }
 
-            return remainingTimeout < TimeSpan.Zero;
+            return remainingTimeout == TimeSpan.Zero;
         }
 
         public void ThrowIfTimedOutOrCanceled()
@@ -141,6 +147,11 @@ namespace MongoDB.Driver
 
         public OperationContext WithTimeout(TimeSpan timeout)
         {
+            if (timeout != System.Threading.Timeout.InfiniteTimeSpan && timeout < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout), timeout, "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+            }
+
             var remainingTimeout = RemainingTimeout;
             if (timeout == System.Threading.Timeout.InfiniteTimeSpan)
             {
@@ -149,6 +160,11 @@ namespace MongoDB.Driver
             else if (remainingTimeout != System.Threading.Timeout.InfiniteTimeSpan && remainingTimeout < timeout)
             {
                 timeout = remainingTimeout;
+            }
+
+            if (timeout == TimeSpan.Zero)
+            {
+                throw new TimeoutException();
             }
 
             return new OperationContext(timeout, CancellationToken)
