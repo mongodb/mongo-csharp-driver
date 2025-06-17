@@ -274,13 +274,15 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void WithTimeout_throws_on_timed_out_context()
+        public void WithTimeout_should_create_timed_out_context_on_timed_out_context()
         {
             var operationContext = new OperationContext(TimeSpan.FromMilliseconds(5), CancellationToken.None);
             Thread.Sleep(10);
+            operationContext.IsTimedOut().Should().BeTrue();
 
-            var exception = Record.Exception(() => operationContext.WithTimeout(TimeSpan.FromSeconds(10)));
-            exception.Should().BeOfType<TimeoutException>();
+            var resultContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10));
+
+            resultContext.IsTimedOut().Should().BeTrue();
         }
 
         [Fact]

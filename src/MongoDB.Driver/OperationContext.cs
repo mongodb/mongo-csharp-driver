@@ -162,11 +162,6 @@ namespace MongoDB.Driver
                 timeout = remainingTimeout;
             }
 
-            if (timeout == TimeSpan.Zero)
-            {
-                throw new TimeoutException();
-            }
-
             return new OperationContext(timeout, CancellationToken)
             {
                 ParentContext = this
