@@ -17,9 +17,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-#if !NET6_0_OR_GREATER
 using MongoDB.Driver.Core.Misc;
-#endif
 
 namespace MongoDB.Driver
 {
@@ -36,7 +34,7 @@ namespace MongoDB.Driver
         internal OperationContext(Stopwatch stopwatch, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Stopwatch = stopwatch;
-            Timeout = timeout;
+            Timeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
             CancellationToken = cancellationToken;
         }
 
@@ -53,7 +51,13 @@ namespace MongoDB.Driver
                     return System.Threading.Timeout.InfiniteTimeSpan;
                 }
 
-                return Timeout - Stopwatch.Elapsed;
+                var result = Timeout - Stopwatch.Elapsed;
+                if (result < TimeSpan.Zero)
+                {
+                    result = TimeSpan.Zero;
+                }
+
+                return result;
             }
         }
 
@@ -69,7 +73,7 @@ namespace MongoDB.Driver
                 return false;
             }
 
-            return remainingTimeout < TimeSpan.Zero;
+            return remainingTimeout == TimeSpan.Zero;
         }
 
         public void ThrowIfTimedOutOrCanceled()
@@ -141,6 +145,8 @@ namespace MongoDB.Driver
 
         public OperationContext WithTimeout(TimeSpan timeout)
         {
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
+
             var remainingTimeout = RemainingTimeout;
             if (timeout == System.Threading.Timeout.InfiniteTimeSpan)
             {

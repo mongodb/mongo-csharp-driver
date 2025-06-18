@@ -43,6 +43,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Constructor_throws_on_negative_timeout()
+        {
+            var exception = Record.Exception(() => new OperationContext(TimeSpan.FromSeconds(-5), CancellationToken.None));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
         public void RemainingTimeout_should_calculate()
         {
             var timeout = TimeSpan.FromMilliseconds(500);
@@ -68,16 +76,12 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void RemainingTimeout_could_be_negative()
+        public void RemainingTimeout_should_return_zero_for_timeout_context()
         {
-            var timeout = TimeSpan.FromMilliseconds(5);
-            var stopwatch = Stopwatch.StartNew();
+            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(5), CancellationToken.None);
             Thread.Sleep(10);
-            stopwatch.Stop();
 
-            var operationContext = new OperationContext(stopwatch, timeout, CancellationToken.None);
-
-            operationContext.RemainingTimeout.Should().Be(timeout - stopwatch.Elapsed);
+            operationContext.RemainingTimeout.Should().Be(TimeSpan.Zero);
         }
 
         [Theory]
@@ -275,6 +279,29 @@ namespace MongoDB.Driver.Tests
             var resultContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10));
 
             resultContext.ParentContext.Should().Be(operationContext);
+        }
+
+        [Fact]
+        public void WithTimeout_should_create_timed_out_context_on_timed_out_context()
+        {
+            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(5), CancellationToken.None);
+            Thread.Sleep(10);
+            operationContext.IsTimedOut().Should().BeTrue();
+
+            var resultContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10));
+
+            resultContext.IsTimedOut().Should().BeTrue();
+        }
+
+        [Fact]
+        public void WithTimeout_throws_on_negative_timeout()
+        {
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var exception = Record.Exception(() => operationContext.WithTimeout(TimeSpan.FromSeconds(-5)));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>()
+                .Subject.ParamName.Should().Be("timeout");
         }
     }
 }
