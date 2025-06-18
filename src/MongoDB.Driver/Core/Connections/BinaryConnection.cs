@@ -587,17 +587,17 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsNotNull(message, nameof(message));
             ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
 
-            var helper = new SendMessagesHelper(this, message, messageEncoderSettings);
+            var helper = new SendMessageHelper(this, message, messageEncoderSettings);
             try
             {
                 helper.EncodingMessage();
-                using (var uncompressedBuffer = helper.EncodeMessage(cancellationToken, out var sentMessages))
+                using (var uncompressedBuffer = helper.EncodeMessage(cancellationToken, out var sentMessage))
                 {
                     helper.SendingMessage(uncompressedBuffer);
                     int sentLength;
-                    if (ShouldBeCompressed(sentMessages))
+                    if (ShouldBeCompressed(sentMessage))
                     {
-                        using (var compressedBuffer = CompressMessage(sentMessages, uncompressedBuffer, messageEncoderSettings))
+                        using (var compressedBuffer = CompressMessage(sentMessage, uncompressedBuffer, messageEncoderSettings))
                         {
                             SendBuffer(compressedBuffer, cancellationToken);
                             sentLength = compressedBuffer.Length;
@@ -608,12 +608,12 @@ namespace MongoDB.Driver.Core.Connections
                         SendBuffer(uncompressedBuffer, cancellationToken);
                         sentLength = uncompressedBuffer.Length;
                     }
-                    helper.SentMessages(sentLength);
+                    helper.SentMessage(sentLength);
                 }
             }
             catch (Exception ex)
             {
-                helper.FailedSendingMessages(ex);
+                helper.FailedSendingMessage(ex);
                 ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
@@ -624,17 +624,17 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsNotNull(message, nameof(message));
             ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
 
-            var helper = new SendMessagesHelper(this, message, messageEncoderSettings);
+            var helper = new SendMessageHelper(this, message, messageEncoderSettings);
             try
             {
                 helper.EncodingMessage();
-                using (var uncompressedBuffer = helper.EncodeMessage(cancellationToken, out var sentMessages))
+                using (var uncompressedBuffer = helper.EncodeMessage(cancellationToken, out var sentMessage))
                 {
                     helper.SendingMessage(uncompressedBuffer);
                     int sentLength;
-                    if (ShouldBeCompressed(sentMessages))
+                    if (ShouldBeCompressed(sentMessage))
                     {
-                        using (var compressedBuffer = CompressMessage(sentMessages, uncompressedBuffer, messageEncoderSettings))
+                        using (var compressedBuffer = CompressMessage(sentMessage, uncompressedBuffer, messageEncoderSettings))
                         {
                             await SendBufferAsync(compressedBuffer, cancellationToken).ConfigureAwait(false);
                             sentLength = compressedBuffer.Length;
@@ -645,12 +645,12 @@ namespace MongoDB.Driver.Core.Connections
                         await SendBufferAsync(uncompressedBuffer, cancellationToken).ConfigureAwait(false);
                         sentLength = uncompressedBuffer.Length;
                     }
-                    helper.SentMessages(sentLength);
+                    helper.SentMessage(sentLength);
                 }
             }
             catch (Exception ex)
             {
-                helper.FailedSendingMessages(ex);
+                helper.FailedSendingMessage(ex);
                 ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
@@ -976,7 +976,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private class SendMessagesHelper
+        private class SendMessageHelper
         {
             private readonly Stopwatch _commandStopwatch;
             private readonly BinaryConnection _connection;
@@ -986,7 +986,7 @@ namespace MongoDB.Driver.Core.Connections
             private TimeSpan _serializationDuration;
             private Stopwatch _networkStopwatch;
 
-            public SendMessagesHelper(BinaryConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
+            public SendMessageHelper(BinaryConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 _connection = connection;
                 _message = message;
@@ -1032,7 +1032,7 @@ namespace MongoDB.Driver.Core.Connections
                 _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesEvent(_connection.ConnectionId, _requestIds.Value, EventContext.OperationId));
             }
 
-            public void FailedSendingMessages(Exception ex)
+            public void FailedSendingMessage(Exception ex)
             {
                 if (_connection._commandEventHelper.ShouldCallErrorSending)
                 {
@@ -1052,7 +1052,7 @@ namespace MongoDB.Driver.Core.Connections
                 _networkStopwatch = Stopwatch.StartNew();
             }
 
-            public void SentMessages(int bufferLength)
+            public void SentMessage(int bufferLength)
             {
                 _networkStopwatch.Stop();
                 var networkDuration = _networkStopwatch.Elapsed;

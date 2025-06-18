@@ -489,7 +489,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private void ReceiveMessage(ReplyMessage<BsonDocument> message)
         {
-            MessageHelper.WriteResponseToStream(_stream, message);
+            MessageHelper.WriteResponsesToStream(_stream, message);
             var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
             _subject.ReceiveMessageAsync(message.ResponseTo, encoderSelector, _messageEncoderSettings, CancellationToken.None).Wait();
         }
