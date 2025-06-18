@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -34,7 +33,6 @@ namespace MongoDB.Driver.Core.Connections
     internal class CommandEventHelper
     {
         private readonly EventLogger<LogCategories.Command> _eventLogger;
-        // TODO: this is also might be not needed after changing to single message sending
         private readonly ConcurrentDictionary<int, CommandState> _state;
 
         private readonly bool _shouldProcessRequestMessages;
