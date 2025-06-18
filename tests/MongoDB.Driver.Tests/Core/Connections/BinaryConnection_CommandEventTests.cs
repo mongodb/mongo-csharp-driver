@@ -126,13 +126,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildCommand(
                 expectedCommand,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 expectedReply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -162,13 +162,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildCommand(
                 command,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 reply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -197,13 +197,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildCommand(
                 expectedCommand,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 expectedReply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandFailedEvent = (CommandFailedEvent)_capturedEvents.Next();
@@ -233,13 +233,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildCommand(
                 command,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 reply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandFailedEvent = (CommandFailedEvent)_capturedEvents.Next();
@@ -288,15 +288,14 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildQuery(
                 (BsonDocument)expectedCommand["filter"],
                 requestId: 10);
-            SendMessages(requestMessage);
-
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
                 expectedReplyDocuments,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId,
                 cursorId: expectedReply["cursor"]["id"].ToInt64());
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -374,7 +373,7 @@ namespace MongoDB.Driver.Core.Connections
 
             using (EventContext.BeginFind(expectedCommand["batchSize"].ToInt32(), expectedCommand["limit"].ToInt32()))
             {
-                SendMessages(requestMessage);
+                SendMessage(requestMessage);
             }
 
             var replyMessage = MessageHelper.BuildReply<BsonDocument>(
@@ -382,7 +381,7 @@ namespace MongoDB.Driver.Core.Connections
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId,
                 cursorId: expectedReply["cursor"]["id"].ToInt64());
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -420,13 +419,13 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildQuery(
                 query,
                 requestId: 10);
-            SendMessages(requestMessage);
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildReply(
                 expectedReply,
                 BsonDocumentSerializer.Instance,
                 responseTo: requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
@@ -459,13 +458,12 @@ namespace MongoDB.Driver.Core.Connections
             var requestMessage = MessageHelper.BuildQuery(
                 (BsonDocument)expectedCommand["filter"],
                 requestId: 10);
-            SendMessages(requestMessage);
-
+            SendMessage(requestMessage);
 
             var replyMessage = MessageHelper.BuildQueryFailedReply<BsonDocument>(
                 queryFailureDocument,
                 requestMessage.RequestId);
-            ReceiveMessages(replyMessage);
+            ReceiveMessage(replyMessage);
 
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandFailedEvent = (CommandFailedEvent)_capturedEvents.Next();
@@ -485,19 +483,16 @@ namespace MongoDB.Driver.Core.Connections
             commandFailedEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        private void SendMessages(params RequestMessage[] messages)
+        private void SendMessage(RequestMessage message)
         {
-            _subject.SendMessagesAsync(messages, _messageEncoderSettings, CancellationToken.None).Wait();
+            _subject.SendMessageAsync(message, _messageEncoderSettings, CancellationToken.None).Wait();
         }
 
-        private void ReceiveMessages(params ReplyMessage<BsonDocument>[] messages)
+        private void ReceiveMessage(ReplyMessage<BsonDocument> message)
         {
-            MessageHelper.WriteResponsesToStream(_stream, messages);
+            MessageHelper.WriteResponseToStream(_stream, message);
             var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
-            foreach (var message in messages)
-            {
-                _subject.ReceiveMessageAsync(message.ResponseTo, encoderSelector, _messageEncoderSettings, CancellationToken.None).Wait();
-            }
+            _subject.ReceiveMessageAsync(message.ResponseTo, encoderSelector, _messageEncoderSettings, CancellationToken.None).Wait();
         }
     }
 }

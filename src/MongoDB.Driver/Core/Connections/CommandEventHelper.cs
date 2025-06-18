@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Connections
     internal class CommandEventHelper
     {
         private readonly EventLogger<LogCategories.Command> _eventLogger;
+        // TODO: this is also might be not needed after changing to single message sending
         private readonly ConcurrentDictionary<int, CommandState> _state;
 
         private readonly bool _shouldProcessRequestMessages;
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         public void BeforeSending(
-            IEnumerable<RequestMessage> messages,
+            RequestMessage message,
             ConnectionId connectionId,
             ObjectId? serviceId,
             IByteBuffer buffer,
@@ -93,28 +94,21 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = new ByteBufferStream(buffer, ownsBuffer: false))
             {
-                var messageQueue = new Queue<RequestMessage>(messages);
-
-                while (messageQueue.Count > 0)
-                {
-                    ProcessRequestMessages(messageQueue, connectionId, serviceId, stream, encoderSettings, stopwatch, skipLogging);
-                }
+                ProcessRequestMessage(message, connectionId, serviceId, stream, encoderSettings, stopwatch, skipLogging);
             }
         }
 
-        public void AfterSending(IEnumerable<RequestMessage> messages, ConnectionId connectionId, ObjectId? serviceId, bool skipLogging)
+        public void AfterSending(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, bool skipLogging)
         {
-            foreach (var message in messages)
+            CommandState state;
+            if (_state.TryGetValue(message.RequestId, out state) &&
+                state.ExpectedResponseType == ExpectedResponseType.None)
             {
-                CommandState state;
-                if (_state.TryGetValue(message.RequestId, out state) &&
-                    state.ExpectedResponseType == ExpectedResponseType.None)
-                {
-                    state.Stopwatch.Stop();
+                state.Stopwatch.Stop();
 
-                    if (_shouldTrackSucceeded)
-                    {
-                        _eventLogger.LogAndPublish(new CommandSucceededEvent(
+                if (_shouldTrackSucceeded)
+                {
+                    _eventLogger.LogAndPublish(new CommandSucceededEvent(
                             state.CommandName,
                             new BsonDocument("ok", 1),
                             state.QueryNamespace.DatabaseNamespace,
@@ -123,22 +117,20 @@ namespace MongoDB.Driver.Core.Connections
                             connectionId,
                             serviceId,
                             state.Stopwatch.Elapsed),
-                            skipLogging);
-                    }
-                    _state.TryRemove(message.RequestId, out state);
+                        skipLogging);
                 }
+
+                _state.TryRemove(message.RequestId, out state);
             }
         }
 
-        public void ErrorSending(IEnumerable<RequestMessage> messages, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
+        public void ErrorSending(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
-            foreach (var message in messages)
+            CommandState state;
+            if (_state.TryRemove(message.RequestId, out state))
             {
-                CommandState state;
-                if (_state.TryRemove(message.RequestId, out state))
-                {
-                    state.Stopwatch.Stop();
-                    _eventLogger.LogAndPublish(new CommandFailedEvent(
+                state.Stopwatch.Stop();
+                _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
                         state.QueryNamespace.DatabaseNamespace,
                         exception,
@@ -147,8 +139,7 @@ namespace MongoDB.Driver.Core.Connections
                         connectionId,
                         serviceId,
                         state.Stopwatch.Elapsed),
-                        skipLogging);
-                }
+                    skipLogging);
             }
         }
 
@@ -222,13 +213,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void ProcessRequestMessages(Queue<RequestMessage> messageQueue, ConnectionId connectionId, ObjectId? serviceId, Stream stream, MessageEncoderSettings encoderSettings, Stopwatch stopwatch, bool skipLogging)
+        private void ProcessRequestMessage(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, Stream stream, MessageEncoderSettings encoderSettings, Stopwatch stopwatch, bool skipLogging)
         {
-            var message = messageQueue.Dequeue();
             switch (message.MessageType)
             {
                 case MongoDBMessageType.Command:
-                    ProcessCommandRequestMessage((CommandRequestMessage)message, messageQueue, connectionId, serviceId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch, skipLogging);
+                    ProcessCommandRequestMessage((CommandRequestMessage)message, connectionId, serviceId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch, skipLogging);
                     break;
                 case MongoDBMessageType.Query:
                     ProcessQueryMessage((QueryMessage)message, connectionId, new QueryMessageBinaryEncoder(stream, encoderSettings), stopwatch, skipLogging);
@@ -238,9 +228,9 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void ProcessCommandRequestMessage(CommandRequestMessage originalMessage, Queue<RequestMessage> messageQueue, ConnectionId connectionId, ObjectId? serviceId, CommandMessageBinaryEncoder encoder, Stopwatch stopwatch, bool skipLogging)
+        private void ProcessCommandRequestMessage(CommandRequestMessage message, ConnectionId connectionId, ObjectId? serviceId, CommandMessageBinaryEncoder encoder, Stopwatch stopwatch, bool skipLogging)
         {
-            var requestId = originalMessage.RequestId;
+            var requestId = message.RequestId;
             var operationId = EventContext.OperationId;
 
             var decodedMessage = encoder.ReadMessage();

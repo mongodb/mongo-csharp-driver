@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 unencryptedCommandMessage.ResponseTo,
                 encryptedSections,
                 unencryptedCommandMessage.MoreToCome);
-            return new CommandRequestMessage(encryptedCommandMessage, unencryptedRequestMessage.ShouldBeSent);
+            return new CommandRequestMessage(encryptedCommandMessage);
         }
 
         private byte[] GetUnencryptedCommandBytes(CommandRequestMessage unencryptedRequestMessage)

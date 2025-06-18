@@ -232,15 +232,15 @@ namespace MongoDB.Driver.Core.TestHelpers
             return (ResponseMessage)await action.GetEffectiveMessageAsync().ConfigureAwait(false);
         }
 
-        public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            _sentMessages.AddRange(messages);
+            _sentMessages.Add(message);
         }
 
-        public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            _sentMessages.AddRange(messages);
-            return Task.FromResult<object>(null);
+            _sentMessages.Add(message);
+            return Task.CompletedTask;
         }
 
         public void SetReadTimeout(TimeSpan timeout)

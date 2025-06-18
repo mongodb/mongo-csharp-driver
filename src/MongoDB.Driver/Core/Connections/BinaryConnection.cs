@@ -582,22 +582,22 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(messages, nameof(messages));
+            Ensure.IsNotNull(message, nameof(message));
             ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
 
-            var helper = new SendMessagesHelper(this, messages, messageEncoderSettings);
+            var helper = new SendMessagesHelper(this, message, messageEncoderSettings);
             try
             {
-                helper.EncodingMessages();
-                using (var uncompressedBuffer = helper.EncodeMessages(cancellationToken, out var sentMessages))
+                helper.EncodingMessage();
+                using (var uncompressedBuffer = helper.EncodeMessage(cancellationToken, out var sentMessages))
                 {
-                    helper.SendingMessages(uncompressedBuffer);
+                    helper.SendingMessage(uncompressedBuffer);
                     int sentLength;
-                    if (AnyMessageNeedsToBeCompressed(sentMessages))
+                    if (ShouldBeCompressed(sentMessages))
                     {
-                        using (var compressedBuffer = CompressMessages(sentMessages, uncompressedBuffer, messageEncoderSettings))
+                        using (var compressedBuffer = CompressMessage(sentMessages, uncompressedBuffer, messageEncoderSettings))
                         {
                             SendBuffer(compressedBuffer, cancellationToken);
                             sentLength = compressedBuffer.Length;
@@ -619,22 +619,22 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public async Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(messages, nameof(messages));
+            Ensure.IsNotNull(message, nameof(message));
             ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
 
-            var helper = new SendMessagesHelper(this, messages, messageEncoderSettings);
+            var helper = new SendMessagesHelper(this, message, messageEncoderSettings);
             try
             {
-                helper.EncodingMessages();
-                using (var uncompressedBuffer = helper.EncodeMessages(cancellationToken, out var sentMessages))
+                helper.EncodingMessage();
+                using (var uncompressedBuffer = helper.EncodeMessage(cancellationToken, out var sentMessages))
                 {
-                    helper.SendingMessages(uncompressedBuffer);
+                    helper.SendingMessage(uncompressedBuffer);
                     int sentLength;
-                    if (AnyMessageNeedsToBeCompressed(sentMessages))
+                    if (ShouldBeCompressed(sentMessages))
                     {
-                        using (var compressedBuffer = CompressMessages(sentMessages, uncompressedBuffer, messageEncoderSettings))
+                        using (var compressedBuffer = CompressMessage(sentMessages, uncompressedBuffer, messageEncoderSettings))
                         {
                             await SendBufferAsync(compressedBuffer, cancellationToken).ConfigureAwait(false);
                             sentLength = compressedBuffer.Length;
@@ -663,9 +663,9 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // private methods
-        private bool AnyMessageNeedsToBeCompressed(IEnumerable<RequestMessage> messages)
+        private bool ShouldBeCompressed(RequestMessage message)
         {
-            return _sendCompressorType.HasValue && messages.Any(m => m.MayBeCompressed);
+            return _sendCompressorType.HasValue && message.MayBeCompressed;
         }
 
         private CompressorType? ChooseSendCompressorTypeIfAny(ConnectionDescription connectionDescription)
@@ -674,8 +674,8 @@ namespace MongoDB.Driver.Core.Connections
             return availableCompressors.Count > 0 ? (CompressorType?)availableCompressors[0] : null;
         }
 
-        private IByteBuffer CompressMessages(
-            IEnumerable<RequestMessage> messages,
+        private IByteBuffer CompressMessage(
+            RequestMessage message,
             IByteBuffer uncompressedBuffer,
             MessageEncoderSettings messageEncoderSettings)
         {
@@ -685,24 +685,22 @@ namespace MongoDB.Driver.Core.Connections
             using (var uncompressedStream = new ByteBufferStream(uncompressedBuffer, ownsBuffer: false))
             using (var compressedStream = new ByteBufferStream(compressedBuffer, ownsBuffer: false))
             {
-                foreach (var message in messages)
-                {
-                    var uncompressedMessageLength = uncompressedStream.ReadInt32();
-                    uncompressedStream.Position -= 4;
+                var uncompressedMessageLength = uncompressedStream.ReadInt32();
+                uncompressedStream.Position -= 4;
 
-                    using (var uncompressedMessageSlice = uncompressedBuffer.GetSlice((int)uncompressedStream.Position, uncompressedMessageLength))
-                    using (var uncompressedMessageStream = new ByteBufferStream(uncompressedMessageSlice, ownsBuffer: false))
+                using (var uncompressedMessageSlice = uncompressedBuffer.GetSlice((int)uncompressedStream.Position, uncompressedMessageLength))
+                using (var uncompressedMessageStream = new ByteBufferStream(uncompressedMessageSlice, ownsBuffer: false))
+                {
+                    if (message.MayBeCompressed)
                     {
-                        if (message.MayBeCompressed)
-                        {
-                            CompressMessage(message, uncompressedMessageStream, compressedStream, messageEncoderSettings);
-                        }
-                        else
-                        {
-                            uncompressedMessageStream.EfficientCopyTo(compressedStream);
-                        }
+                        CompressMessage(message, uncompressedMessageStream, compressedStream, messageEncoderSettings);
+                    }
+                    else
+                    {
+                        uncompressedMessageStream.EfficientCopyTo(compressedStream);
                     }
                 }
+
                 compressedBuffer.Length = (int)compressedStream.Length;
             }
 
@@ -983,24 +981,24 @@ namespace MongoDB.Driver.Core.Connections
             private readonly Stopwatch _commandStopwatch;
             private readonly BinaryConnection _connection;
             private readonly MessageEncoderSettings _messageEncoderSettings;
-            private readonly List<RequestMessage> _messages;
-            private Lazy<List<int>> _requestIds;
+            private readonly RequestMessage _message;
+            private Lazy<IReadOnlyList<int>> _requestIds;
             private TimeSpan _serializationDuration;
             private Stopwatch _networkStopwatch;
 
-            public SendMessagesHelper(BinaryConnection connection, IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings)
+            public SendMessagesHelper(BinaryConnection connection, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 _connection = connection;
-                _messages = messages.ToList();
+                _message = message;
                 _messageEncoderSettings = messageEncoderSettings;
 
                 _commandStopwatch = Stopwatch.StartNew();
-                _requestIds = new Lazy<List<int>>(() => _messages.Select(m => m.RequestId).ToList());
+                _requestIds = new Lazy<IReadOnlyList<int>>(() => [_message.RequestId]);
             }
 
-            public IByteBuffer EncodeMessages(CancellationToken cancellationToken, out List<RequestMessage> sentMessages)
+            public IByteBuffer EncodeMessage(CancellationToken cancellationToken, out RequestMessage sentMessage)
             {
-                sentMessages = new List<RequestMessage>();
+                sentMessage = null;
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var serializationStopwatch = Stopwatch.StartNew();
@@ -1009,21 +1007,17 @@ namespace MongoDB.Driver.Core.Connections
                 using (var stream = new ByteBufferStream(buffer, ownsBuffer: false))
                 {
                     var encoderFactory = new BinaryMessageEncoderFactory(stream, _messageEncoderSettings, compressorSource: null);
-                    foreach (var message in _messages)
-                    {
-                        if (message.ShouldBeSent == null || message.ShouldBeSent())
-                        {
-                            var encoder = message.GetEncoder(encoderFactory);
-                            encoder.WriteMessage(message);
-                            message.WasSent = true;
-                            sentMessages.Add(message);
-                        }
 
-                        // Encoding messages includes serializing the
-                        // documents, so encoding message could be expensive
-                        // and worthy of us honoring cancellation here.
-                        cancellationToken.ThrowIfCancellationRequested();
-                    }
+                    var encoder = _message.GetEncoder(encoderFactory);
+                    encoder.WriteMessage(_message);
+                    _message.WasSent = true;
+                    sentMessage = _message;
+
+                    // Encoding messages includes serializing the
+                    // documents, so encoding message could be expensive
+                    // and worthy of us honoring cancellation here.
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     buffer.Length = (int)stream.Length;
                     buffer.MakeReadOnly();
                 }
@@ -1033,7 +1027,7 @@ namespace MongoDB.Driver.Core.Connections
                 return buffer;
             }
 
-            public void EncodingMessages()
+            public void EncodingMessage()
             {
                 _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesEvent(_connection.ConnectionId, _requestIds.Value, EventContext.OperationId));
             }
@@ -1042,17 +1036,17 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallErrorSending)
                 {
-                    _connection._commandEventHelper.ErrorSending(_messages, _connection._connectionId, _connection._description?.ServiceId, ex, _connection.IsInitializing);
+                    _connection._commandEventHelper.ErrorSending(_message, _connection._connectionId, _connection._description?.ServiceId, ex, _connection.IsInitializing);
                 }
 
                 _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesFailedEvent(_connection.ConnectionId, _requestIds.Value, ex, EventContext.OperationId));
             }
 
-            public void SendingMessages(IByteBuffer buffer)
+            public void SendingMessage(IByteBuffer buffer)
             {
                 if (_connection._commandEventHelper.ShouldCallBeforeSending)
                 {
-                    _connection._commandEventHelper.BeforeSending(_messages, _connection.ConnectionId, _connection.Description?.ServiceId, buffer, _messageEncoderSettings, _commandStopwatch, _connection.IsInitializing);
+                    _connection._commandEventHelper.BeforeSending(_message, _connection.ConnectionId, _connection.Description?.ServiceId, buffer, _messageEncoderSettings, _commandStopwatch, _connection.IsInitializing);
                 }
 
                 _networkStopwatch = Stopwatch.StartNew();
@@ -1065,7 +1059,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (_connection._commandEventHelper.ShouldCallAfterSending)
                 {
-                    _connection._commandEventHelper.AfterSending(_messages, _connection._connectionId, _connection.Description?.ServiceId, _connection.IsInitializing);
+                    _connection._commandEventHelper.AfterSending(_message, _connection._connectionId, _connection.Description?.ServiceId, _connection.IsInitializing);
                 }
 
                 _connection._eventLogger.LogAndPublish(new ConnectionSentMessagesEvent(_connection.ConnectionId, _requestIds.Value, bufferLength, networkDuration, _serializationDuration, EventContext.OperationId));

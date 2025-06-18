@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var command = BsonDocument.Parse("{ command : \"x\", writeConcern : { w : 0 } }");
             var query = wrapped ? new BsonDocument("$query", command) : command;
 #pragma warning disable 618
-            var message = new QueryMessage(0, collectionNamespace, query, null, NoOpElementNameValidator.Instance, 0, 0, false, false, false, false, false, false, null)
+            var message = new QueryMessage(0, collectionNamespace, query, null, NoOpElementNameValidator.Instance, 0, 0, false, false, false, false, false, false)
             {
                 PostWriteAction = encoder => encoder.ChangeWriteConcernFromW0ToW1(),
                 ResponseHandling = CommandResponseHandling.Ignore

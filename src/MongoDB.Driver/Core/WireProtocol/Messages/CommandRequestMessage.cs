@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly CommandMessage _wrappedMessage;
 
         // constructors
-        public CommandRequestMessage(CommandMessage wrappedMessage, Func<bool> shouldBeSent)
-            : base(Ensure.IsNotNull(wrappedMessage, nameof(wrappedMessage)).RequestId, shouldBeSent)
+        public CommandRequestMessage(CommandMessage wrappedMessage)
+            : base(Ensure.IsNotNull(wrappedMessage, nameof(wrappedMessage)).RequestId)
         {
             _wrappedMessage = Ensure.IsNotNull(wrappedMessage, nameof(wrappedMessage));
         }
