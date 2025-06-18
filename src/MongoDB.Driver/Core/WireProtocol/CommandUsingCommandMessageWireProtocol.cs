@@ -266,9 +266,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 PostWriteAction = _postWriteAction,
                 ExhaustAllowed = _responseHandling == CommandResponseHandling.ExhaustAllowed,
             };
-            var shouldBeSent = (Func<bool>)(() => true);
 
-            return new CommandRequestMessage(wrappedMessage, shouldBeSent);
+            return new CommandRequestMessage(wrappedMessage);
         }
 
         private IEnumerable<CommandMessageSection> CreateSections(ConnectionDescription connectionDescription)

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -31,7 +32,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly TimeSpan _serializationDuration;
         private readonly int _length;
         private readonly long? _operationId;
-        private readonly IReadOnlyList<int> _requestIds;
+        private readonly int _requestId;
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -43,10 +44,31 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="networkDuration">The duration of time spent on the network.</param>
         /// <param name="serializationDuration">The duration of time spent serializing the messages.</param>
         /// <param name="operationId">The operation identifier.</param>
+        [Obsolete("Support for sending multiple messages has been removed, use the constructor with single requestId instead.")]
         public ConnectionSentMessagesEvent(ConnectionId connectionId, IReadOnlyList<int> requestIds, int length, TimeSpan networkDuration, TimeSpan serializationDuration, long? operationId)
         {
             _connectionId = connectionId;
-            _requestIds = requestIds;
+            _requestId = requestIds.Single();
+            _length = length;
+            _networkDuration = networkDuration;
+            _serializationDuration = serializationDuration;
+            _operationId = operationId;
+            _timestamp = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionSentMessagesEvent" /> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="requestId">The request id.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="networkDuration">The duration of time spent on the network.</param>
+        /// <param name="serializationDuration">The duration of time spent serializing the messages.</param>
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionSentMessagesEvent(ConnectionId connectionId, int requestId, int length, TimeSpan networkDuration, TimeSpan serializationDuration, long? operationId)
+        {
+            _connectionId = connectionId;
+            _requestId = requestId;
             _length = length;
             _networkDuration = networkDuration;
             _serializationDuration = serializationDuration;
@@ -111,11 +133,20 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
+        /// Gets the request id.
+        /// </summary>
+        public int RequestId
+        {
+            get { return _requestId; }
+        }
+
+        /// <summary>
         /// Gets the request ids.
         /// </summary>
+        [Obsolete($"Support for sending multiple messages has been removed, use {nameof(RequestId)} instead.")]
         public IReadOnlyList<int> RequestIds
         {
-            get { return _requestIds; }
+            get { return [_requestId]; }
         }
 
         /// <summary>

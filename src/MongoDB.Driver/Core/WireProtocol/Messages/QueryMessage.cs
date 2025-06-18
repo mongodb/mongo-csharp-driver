@@ -52,8 +52,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool partialOk,
             bool noCursorTimeout,
             bool tailableCursor,
-            bool awaitData,
-            Func<bool> shouldBeSent = null)
+            bool awaitData)
 #pragma warning disable 618
             : this(
                   requestId,
@@ -68,8 +67,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
                   noCursorTimeout,
                   oplogReplay: false,
                   tailableCursor,
-                  awaitData,
-                  shouldBeSent)
+                  awaitData)
 #pragma warning restore 618
         {
         }
@@ -88,9 +86,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool noCursorTimeout,
             bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
             bool tailableCursor,
-            bool awaitData,
-            Func<bool> shouldBeSent = null)
-            : base(requestId, shouldBeSent)
+            bool awaitData)
+            : base(requestId)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _query = Ensure.IsNotNull(query, nameof(query));

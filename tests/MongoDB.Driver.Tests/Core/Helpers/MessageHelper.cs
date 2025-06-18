@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Core.Helpers
             return TranslateMessagesToBsonDocuments(TranslateBytesToRequests(bytes));
         }
 
-        public static void WriteResponsesToStream(BlockingMemoryStream stream, IEnumerable<ResponseMessage> responses)
+        public static void WriteResponsesToStream(BlockingMemoryStream stream, params ResponseMessage[] responses)
         {
             lock (stream.Lock)
             {

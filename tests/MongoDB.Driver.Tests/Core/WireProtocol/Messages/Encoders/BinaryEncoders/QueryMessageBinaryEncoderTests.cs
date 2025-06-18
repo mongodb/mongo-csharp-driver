@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var command = BsonDocument.Parse("{ command : \"x\", writeConcern : { w : 0 } }");
             var query = wrapped ? new BsonDocument("$query", command) : command;
 #pragma warning disable 618
-            var message = new QueryMessage(0, collectionNamespace, query, null, NoOpElementNameValidator.Instance, 0, 0, false, false, false, false, false, false, null)
+            var message = new QueryMessage(0, collectionNamespace, query, null, NoOpElementNameValidator.Instance, 0, 0, false, false, false, false, false, false)
             {
                 PostWriteAction = encoder => encoder.ChangeWriteConcernFromW0ToW1(),
                 ResponseHandling = CommandResponseHandling.Ignore

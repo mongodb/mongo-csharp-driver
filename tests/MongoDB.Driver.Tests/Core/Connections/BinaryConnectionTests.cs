@@ -477,7 +477,7 @@ namespace MongoDB.Driver.Core.Connections
             using (var stream = new BlockingMemoryStream())
             {
                 var messageToReceive = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
-                MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive });
+                MessageHelper.WriteResponsesToStream(stream, messageToReceive);
 
                 var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
 
@@ -545,7 +545,7 @@ namespace MongoDB.Driver.Core.Connections
                 receiveMessageTask.IsCompleted.Should().BeFalse();
 
                 var messageToReceive = MessageHelper.BuildReply<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance, responseTo: 10);
-                MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive });
+                MessageHelper.WriteResponsesToStream(stream, messageToReceive);
 
                 var received = receiveMessageTask.GetAwaiter().GetResult();
 
@@ -601,7 +601,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
                 var messageToReceive11 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 11), BsonDocumentSerializer.Instance, responseTo: 11);
-                MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive11, messageToReceive10 }); // out of order
+                MessageHelper.WriteResponsesToStream(stream, messageToReceive11, messageToReceive10); // out of order
 
                 var received10 = receivedTask10.GetAwaiter().GetResult();
                 var received11 = receivedTask11.GetAwaiter().GetResult();
@@ -829,76 +829,57 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void SendMessages_should_throw_an_ArgumentNullException_if_messages_is_null(
+        public async Task SendMessage_should_throw_an_ArgumentNullException_if_message_is_null(
             [Values(false, true)]
             bool async)
         {
-            Action act;
-            if (async)
-            {
-                act = () => _subject.SendMessagesAsync(null, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => _subject.SendMessages(null, _messageEncoderSettings, CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => _subject.SendMessageAsync(null, _messageEncoderSettings, CancellationToken.None)) :
+                Record.Exception(() => _subject.SendMessage(null, _messageEncoderSettings, CancellationToken.None));
 
-            act.ShouldThrow<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void SendMessages_should_throw_an_ObjectDisposedException_if_the_connection_is_disposed(
+        public async Task SendMessage_should_throw_an_ObjectDisposedException_if_the_connection_is_disposed(
             [Values(false, true)]
             bool async)
         {
             var message = MessageHelper.BuildQuery();
             _subject.Dispose();
 
-            Action act;
-            if (async)
-            {
-                act = () => _subject.SendMessagesAsync(new[] { message }, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => _subject.SendMessages(new[] { message }, _messageEncoderSettings, CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => _subject.SendMessageAsync(message, _messageEncoderSettings, CancellationToken.None)) :
+                Record.Exception(() => _subject.SendMessage(message, _messageEncoderSettings, CancellationToken.None));
 
-            act.ShouldThrow<ObjectDisposedException>();
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void SendMessages_should_throw_an_InvalidOperationException_if_the_connection_is_not_open(
+        public async Task SendMessage_should_throw_an_InvalidOperationException_if_the_connection_is_not_open(
             [Values(false, true)]
             bool async)
         {
             var message = MessageHelper.BuildQuery();
 
-            Action act;
-            if (async)
-            {
-                act = () => _subject.SendMessagesAsync(new[] { message }, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => _subject.SendMessages(new[] { message }, _messageEncoderSettings, CancellationToken.None);
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => _subject.SendMessageAsync(message, _messageEncoderSettings, CancellationToken.None)) :
+                Record.Exception(() => _subject.SendMessage(message, _messageEncoderSettings, CancellationToken.None));
 
-            act.ShouldThrow<InvalidOperationException>();
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void SendMessages_should_put_the_messages_on_the_stream_and_raise_the_correct_events(
+        public void SendMessage_should_put_the_message_on_the_stream_and_raise_the_correct_events(
             [Values(false, true)]
             bool async)
         {
             using (var stream = new MemoryStream())
             {
-                var message1 = MessageHelper.BuildQuery(query: new BsonDocument("x", 1));
-                var message2 = MessageHelper.BuildQuery(query: new BsonDocument("y", 2));
+                var message = MessageHelper.BuildQuery(query: new BsonDocument("x", 1));
 
                 if (async)
                 {
@@ -907,7 +888,7 @@ namespace MongoDB.Driver.Core.Connections
                     _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
                     _capturedEvents.Clear();
 
-                    _subject.SendMessagesAsync(new[] { message1, message2 }, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult();
+                    _subject.SendMessageAsync(message, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult();
                 }
                 else
                 {
@@ -916,15 +897,14 @@ namespace MongoDB.Driver.Core.Connections
                     _subject.Open(CancellationToken.None);
                     _capturedEvents.Clear();
 
-                    _subject.SendMessages(new[] { message1, message2 }, _messageEncoderSettings, CancellationToken.None);
+                    _subject.SendMessage(message, _messageEncoderSettings, CancellationToken.None);
                 }
 
-                var expectedRequests = MessageHelper.TranslateMessagesToBsonDocuments(new[] { message1, message2 });
+                var expectedRequests = MessageHelper.TranslateMessagesToBsonDocuments(new[] { message });
                 var sentRequests = MessageHelper.TranslateMessagesToBsonDocuments(stream.ToArray());
 
                 sentRequests.Should().BeEquivalentTo(expectedRequests);
                 _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesEvent>();
-                _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
                 _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionSentMessagesEvent>();
                 _capturedEvents.Any().Should().BeFalse();

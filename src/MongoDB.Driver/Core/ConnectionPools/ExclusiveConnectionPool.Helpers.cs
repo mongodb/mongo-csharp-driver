@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -461,11 +461,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 try
                 {
-                    _connection.SendMessages(messages, messageEncoderSettings, cancellationToken);
+                    _connection.SendMessage(message, messageEncoderSettings, cancellationToken);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -474,11 +474,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public async Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 try
                 {
-                    await _connection.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    await _connection.SendMessageAsync(message, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -623,16 +623,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
             }
 
-            public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 ThrowIfDisposed();
-                _reference.Instance.SendMessages(messages, messageEncoderSettings, cancellationToken);
+                _reference.Instance.SendMessage(message, messageEncoderSettings, cancellationToken);
             }
 
-            public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.SendMessageAsync(message, messageEncoderSettings, cancellationToken);
             }
 
             public void SetCheckOutReasonIfNotAlreadySet(CheckOutReason reason)

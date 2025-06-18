@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -232,15 +232,15 @@ namespace MongoDB.Driver.Core.TestHelpers
             return (ResponseMessage)await action.GetEffectiveMessageAsync().ConfigureAwait(false);
         }
 
-        public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            _sentMessages.AddRange(messages);
+            _sentMessages.Add(message);
         }
 
-        public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            _sentMessages.AddRange(messages);
-            return Task.FromResult<object>(null);
+            _sentMessages.Add(message);
+            return Task.CompletedTask;
         }
 
         public void SetReadTimeout(TimeSpan timeout)

@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var document = new BsonDocument("x", 1);
             var sections = new[] { new Type0CommandMessageSection<BsonDocument>(document, BsonDocumentSerializer.Instance) };
             var wrappedMessage = new CommandMessage(1, 2, sections, false);
-            var message = new CommandRequestMessage(wrappedMessage, () => true);
+            var message = new CommandRequestMessage(wrappedMessage);
             var expectedBytes = CreateMessageBytes(wrappedMessage);
 
             subject.WriteMessage(message);
