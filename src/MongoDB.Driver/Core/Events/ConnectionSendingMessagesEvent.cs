@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="requestIds">The request ids.</param>
         /// <param name="operationId">The operation identifier.</param>
-        [Obsolete("Sending of multiple messages were deleted, use another constructor accepting single requestId instead.")]
+        [Obsolete("Sending multiple messages is not supported any longer, use the constructor with single requestId instead.")]
         public ConnectionSendingMessagesEvent(ConnectionId connectionId, IReadOnlyList<int> requestIds, long? operationId)
         {
             _connectionId = connectionId;

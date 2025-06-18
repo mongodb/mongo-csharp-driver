@@ -250,17 +250,17 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         private void Handle(ConnectionSendingMessagesEvent @event)
         {
-            Debug(TraceSourceEventHelper.ConnectionIdBase + 9, "{0}: sending message [{1}].", TraceSourceEventHelper.Label(@event.ConnectionId), @event.RequestId);
+            Debug(TraceSourceEventHelper.ConnectionIdBase + 9, "{0}: sending messages [{1}].", TraceSourceEventHelper.Label(@event.ConnectionId), @event.RequestId);
         }
 
         private void Handle(ConnectionSentMessagesEvent @event)
         {
-            Debug(TraceSourceEventHelper.ConnectionIdBase + 10, "{0}: sent message [{1}] of length {2} bytes in {3}ms.", TraceSourceEventHelper.Label(@event.ConnectionId), @event.RequestId, @event.Length, @event.Duration.TotalMilliseconds);
+            Debug(TraceSourceEventHelper.ConnectionIdBase + 10, "{0}: sent messages [{1}] of length {2} bytes in {3}ms.", TraceSourceEventHelper.Label(@event.ConnectionId), @event.RequestId, @event.Length, @event.Duration.TotalMilliseconds);
         }
 
         private void Handle(ConnectionSendingMessagesFailedEvent @event)
         {
-            Error(TraceSourceEventHelper.ConnectionIdBase + 11, @event.Exception, "{0}: error sending message [{1}].", TraceSourceEventHelper.Label(@event.ConnectionId), @event.RequestId);
+            Error(TraceSourceEventHelper.ConnectionIdBase + 11, @event.Exception, "{0}: error sending messages [{1}].", TraceSourceEventHelper.Label(@event.ConnectionId), @event.RequestId);
         }
 
         private void Debug(int id, string message, params object[] args)
