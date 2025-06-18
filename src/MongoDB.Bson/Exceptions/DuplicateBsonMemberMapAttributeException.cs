@@ -48,6 +48,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="info">The info.</param>
         /// <param name="context">The context.</param>
+        [Obsolete("Legacy serialization support APIs are obsolete: SYSLIB0051")]
         protected DuplicateBsonMemberMapAttributeException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
