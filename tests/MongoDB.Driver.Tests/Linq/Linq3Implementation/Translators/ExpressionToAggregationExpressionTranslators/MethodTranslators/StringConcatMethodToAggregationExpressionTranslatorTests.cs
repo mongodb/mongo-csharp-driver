@@ -13,18 +13,25 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
 using System.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class StringConcatMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class StringConcatMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<StringConcatMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public StringConcatMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Filter_using_string_concat_with_two_strings_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(i => string.Concat(i.A, ";") == "A1;");
@@ -41,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Projection_using_string_concat_with_two_strings_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(i => i.Id == 1)
@@ -60,7 +67,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Filter_using_string_concat_with_three_strings_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(i => string.Concat(i.A, ";", i.B) == "A1;B1");
@@ -77,7 +84,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Projection_using_string_concat_with_three_strings_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(i => i.Id == 1)
@@ -96,7 +103,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Filter_using_string_concat_with_four_strings_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(i => string.Concat(i.A, ";", i.B, i.C) == "A1;B1C1");
@@ -113,7 +120,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Projection_using_string_concat_with_four_strings_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(i => i.Id == 1)
@@ -132,7 +139,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Filter_using_string_concat_with_params_array_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Where(i => string.Concat(i.A, ";", i.B, ";", i.C) == "A1;B1;C1");
 
@@ -148,7 +155,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Projection_using_string_concat_with_params_array_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(i => i.Id == 1)
@@ -164,23 +171,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.T.Should().Be("A1;B1;C1");
         }
 
-        private IMongoCollection<Data> CreateCollection()
-        {
-            var collection = GetCollection<Data>("test");
-            CreateCollection(
-                collection,
-                new Data { Id = 1, A = "A1", B = "B1", C = "C1", D="D1" },
-                new Data { Id = 2, A = "A2", B = "B2", C = "C2", D="D2" });
-            return collection;
-        }
-
-        private class Data
+        public class Data
         {
             public int Id { get; set; }
             public string A { get; set; }
             public string B { get; set; }
             public string C { get; set; }
             public string D { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<Data>
+        {
+            protected override IEnumerable<Data> InitialData =>
+            [
+                new Data { Id = 1, A = "A1", B = "B1", C = "C1", D="D1" },
+                new Data { Id = 2, A = "A2", B = "B2", C = "C2", D="D2" }
+            ];
         }
     }
 }

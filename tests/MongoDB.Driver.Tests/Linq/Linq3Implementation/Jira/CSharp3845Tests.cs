@@ -13,26 +13,26 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3845Tests : Linq3IntegrationTest
+    public class CSharp3845Tests : LinqIntegrationTest<CSharp3845Tests.ClassFixture>
     {
+        public CSharp3845Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_of_anonymous_class_with_missing_fields_should_work()
         {
-            var collection = GetCollection<C>();
-            CreateCollection(
-                collection,
-                new[]
-                {
-                    new C { Id = 1, S = null, X = 0 },
-                    new C { Id = 2, S = "abc", X = 123 }
-                });
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(c => new { F = c.S, G = c.X });
@@ -52,13 +52,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[1].G.Should().Be(123);
         }
 
-        private class C
+        public class C
         {
             public int Id { get; set; }
             [BsonIgnoreIfNull]
             public string S { get; set; }
             [BsonIgnoreIfDefault]
             public int X { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, S = null, X = 0 },
+                new C { Id = 2, S = "abc", X = 123 }
+            ];
         }
     }
 }
