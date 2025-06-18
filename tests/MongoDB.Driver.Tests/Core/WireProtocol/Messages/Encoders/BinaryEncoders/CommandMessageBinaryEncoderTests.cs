@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
+using System.Buffers.Binary;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
@@ -141,7 +142,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
            [Values(-1, 1, 4)] int flags)
         {
             var bytes = CreateMessageBytes();
-            BitConverter.GetBytes(flags).CopyTo(bytes, 16);
+            BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(16, 4), flags);
             var subject = CreateSubject(bytes);
             var expectedMessage = flags == 1 ? "Command message CheckSumPresent flag not supported." : "Command message has invalid flags";
 
@@ -271,7 +272,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var result = stream.ToArray();
 
             result.Length.Should().Be(expectedMessageLength);
-            var writtenMessageLength = BitConverter.ToInt32(result, 0);
+            var writtenMessageLength = BinaryPrimitives.ReadInt32LittleEndian(result.AsSpan(0, 4));
             writtenMessageLength.Should().Be(expectedMessageLength);
         }
 
@@ -287,7 +288,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             subject.WriteMessage(message);
             var result = stream.ToArray();
 
-            var resultRequestId = BitConverter.ToInt32(result, 4);
+            var resultRequestId = BinaryPrimitives.ReadInt32LittleEndian(result.AsSpan(4, 4));
             resultRequestId.Should().Be(requestId);
         }
 
@@ -303,7 +304,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             subject.WriteMessage(message);
             var result = stream.ToArray();
 
-            var resultResponseTo = BitConverter.ToInt32(result, 8);
+            var resultResponseTo = BinaryPrimitives.ReadInt32LittleEndian(result.AsSpan(8, 4));
             resultResponseTo.Should().Be(responseTo);
         }
 
@@ -317,7 +318,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             subject.WriteMessage(message);
             var result = stream.ToArray();
 
-            var opcode = BitConverter.ToInt32(result, 12);
+            var opcode = BinaryPrimitives.ReadInt32LittleEndian(result.AsSpan(12, 4));
             opcode.Should().Be((int)Opcode.OpMsg);
         }
 
@@ -334,7 +335,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             subject.WriteMessage(message);
 
             var result = stream.ToArray();
-            var flags = (OpMsgFlags)BitConverter.ToInt32(result, 16);
+            var flags = (OpMsgFlags)BinaryPrimitives.ReadInt32LittleEndian(result.AsSpan(16, 4));
             flags.HasFlag(OpMsgFlags.MoreToCome).Should().Be(moreToCome);
             flags.HasFlag(OpMsgFlags.ExhaustAllowed).Should().Be(exhaustAllowed);
         }
