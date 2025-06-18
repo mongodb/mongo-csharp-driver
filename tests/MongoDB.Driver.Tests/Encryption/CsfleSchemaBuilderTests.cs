@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Tests.Encryption
                             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
                 });
 
-                schemaBuilder.Encrypt<TestClass>(_collectionNamespace, builder =>
+                schemaBuilder.Encrypt<TestClass>(testCollectionNamespace, builder =>
                 {
                     builder.Property(t => t.TestString, BsonType.String);
                 });

@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Encryption
 
             if (bsonTypes != null)
             {
-                var convertedBsonTypes = bsonTypes.Select(MapBsonTypeToString).ToList();
+                var convertedBsonTypes = bsonTypes.Select(type => type.ToStringRepresentation()).ToList();
 
                 if (convertedBsonTypes.Count == 0)
                 {
@@ -329,30 +329,6 @@ namespace MongoDB.Driver.Encryption
             }
             var properties = value.AsBsonDocument;
             properties[field] = document;
-        }
-
-        private static string MapBsonTypeToString(BsonType type)
-        {
-            return type switch
-            {
-                BsonType.Array => "array",
-                BsonType.Binary => "binData",
-                BsonType.Boolean => "bool",
-                BsonType.DateTime => "date",
-                BsonType.Decimal128 => "decimal",
-                BsonType.Document => "object",
-                BsonType.Double => "double",
-                BsonType.Int32 => "int",
-                BsonType.Int64 => "long",
-                BsonType.JavaScript => "javascript",
-                BsonType.JavaScriptWithScope => "javascriptWithScope",
-                BsonType.ObjectId => "objectId",
-                BsonType.RegularExpression => "regex",
-                BsonType.String => "string",
-                BsonType.Symbol => "symbol",
-                BsonType.Timestamp => "timestamp",
-                _ => throw new ArgumentException($"Unsupported BSON type: {type}.", nameof(type))
-            };
         }
 
         private static string MapCsfleEncryptionAlgorithmToString(EncryptionAlgorithm algorithm)
