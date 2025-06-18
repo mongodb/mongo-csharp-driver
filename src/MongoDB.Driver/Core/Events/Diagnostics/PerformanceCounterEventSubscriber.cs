@@ -16,14 +16,11 @@
 #if NET472
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events.Diagnostics.PerformanceCounters;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events.Diagnostics
 {
@@ -32,7 +29,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
     /// </summary>
     public sealed class PerformanceCounterEventSubscriber : IEventSubscriber
     {
-        //static 
+        //static
         /// <summary>
         /// Installs the performance counters.
         /// </summary>
@@ -169,7 +166,7 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             ConnectionPerformanceRecorder recorder;
             if (_connectionRecorders.TryGetValue(@event.ConnectionId, out recorder))
             {
-                recorder.PacketSent(@event.RequestIds.Count, @event.Length);
+                recorder.PacketSent(1, @event.Length);
             }
         }
 

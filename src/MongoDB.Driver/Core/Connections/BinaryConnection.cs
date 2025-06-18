@@ -16,10 +16,8 @@
 using System;
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -982,7 +980,6 @@ namespace MongoDB.Driver.Core.Connections
             private readonly BinaryConnection _connection;
             private readonly MessageEncoderSettings _messageEncoderSettings;
             private readonly RequestMessage _message;
-            private Lazy<IReadOnlyList<int>> _requestIds;
             private TimeSpan _serializationDuration;
             private Stopwatch _networkStopwatch;
 
@@ -993,7 +990,6 @@ namespace MongoDB.Driver.Core.Connections
                 _messageEncoderSettings = messageEncoderSettings;
 
                 _commandStopwatch = Stopwatch.StartNew();
-                _requestIds = new Lazy<IReadOnlyList<int>>(() => [_message.RequestId]);
             }
 
             public IByteBuffer EncodeMessage(CancellationToken cancellationToken, out RequestMessage sentMessage)
@@ -1029,7 +1025,7 @@ namespace MongoDB.Driver.Core.Connections
 
             public void EncodingMessage()
             {
-                _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesEvent(_connection.ConnectionId, _requestIds.Value, EventContext.OperationId));
+                _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesEvent(_connection.ConnectionId, _message.RequestId, EventContext.OperationId));
             }
 
             public void FailedSendingMessage(Exception ex)
@@ -1039,7 +1035,7 @@ namespace MongoDB.Driver.Core.Connections
                     _connection._commandEventHelper.ErrorSending(_message, _connection._connectionId, _connection._description?.ServiceId, ex, _connection.IsInitializing);
                 }
 
-                _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesFailedEvent(_connection.ConnectionId, _requestIds.Value, ex, EventContext.OperationId));
+                _connection._eventLogger.LogAndPublish(new ConnectionSendingMessagesFailedEvent(_connection.ConnectionId, _message.RequestId, ex, EventContext.OperationId));
             }
 
             public void SendingMessage(IByteBuffer buffer)
@@ -1062,7 +1058,7 @@ namespace MongoDB.Driver.Core.Connections
                     _connection._commandEventHelper.AfterSending(_message, _connection._connectionId, _connection.Description?.ServiceId, _connection.IsInitializing);
                 }
 
-                _connection._eventLogger.LogAndPublish(new ConnectionSentMessagesEvent(_connection.ConnectionId, _requestIds.Value, bufferLength, networkDuration, _serializationDuration, EventContext.OperationId));
+                _connection._eventLogger.LogAndPublish(new ConnectionSentMessagesEvent(_connection.ConnectionId, _message.RequestId, bufferLength, networkDuration, _serializationDuration, EventContext.OperationId));
             }
         }
 

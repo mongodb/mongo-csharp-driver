@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -29,7 +30,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
         private readonly long? _operationId;
-        private readonly IReadOnlyList<int> _requestIds;
+        private readonly int _requestId;
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -39,10 +40,27 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="requestIds">The request ids.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="operationId">The operation identifier.</param>
+        [Obsolete("Sending of multiple messages were deleted, use another constructor accepting single requestId instead.")]
         public ConnectionSendingMessagesFailedEvent(ConnectionId connectionId, IReadOnlyList<int> requestIds, Exception exception, long? operationId)
         {
             _connectionId = connectionId;
-            _requestIds = requestIds;
+            _requestId = requestIds.Single();
+            _exception = exception;
+            _operationId = operationId;
+            _timestamp = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionSendingMessagesFailedEvent" /> struct.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="requestId">The request id.</param>
+        /// <param name="exception">The exception.</param>
+        /// <param name="operationId">The operation identifier.</param>
+        public ConnectionSendingMessagesFailedEvent(ConnectionId connectionId, int requestId, Exception exception, long? operationId)
+        {
+            _connectionId = connectionId;
+            _requestId = requestId;
             _exception = exception;
             _operationId = operationId;
             _timestamp = DateTime.UtcNow;
@@ -81,11 +99,20 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
+        /// Gets the request id.
+        /// </summary>
+        public int RequestId
+        {
+            get { return _requestId; }
+        }
+
+        /// <summary>
         /// Gets the request ids.
         /// </summary>
+        [Obsolete($"Sending of multiple messages were deleted, use {nameof(RequestId)} instead.")]
         public IReadOnlyList<int> RequestIds
         {
-            get { return _requestIds; }
+            get { return [_requestId]; }
         }
 
         /// <summary>
