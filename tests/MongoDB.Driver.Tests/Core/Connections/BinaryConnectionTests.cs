@@ -374,6 +374,10 @@ namespace MongoDB.Driver.Core.Connections
             using (var stream = new BlockingMemoryStream())
             {
                 var bytes = BitConverter.GetBytes(length);
+                if (!BitConerter.IsLittleEndian)
+                {
+                    Array.Reverse(bytes);
+                }
                 stream.Write(bytes, 0, bytes.Length);
                 stream.Seek(0, SeekOrigin.Begin);
                 var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
