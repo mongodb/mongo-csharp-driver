@@ -15,38 +15,13 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
 {
     internal static class AstEnumExtensions
     {
-        public static string Render(this BsonType type)
-        {
-            return type switch
-            {
-                BsonType.Array => "array",
-                BsonType.Binary => "binData",
-                BsonType.Boolean => "bool",
-                BsonType.DateTime => "date",
-                BsonType.Decimal128 => "decimal",
-                BsonType.Document => "object",
-                BsonType.Double => "double",
-                BsonType.Int32 => "int",
-                BsonType.Int64 => "long",
-                BsonType.JavaScript => "javascript",
-                BsonType.JavaScriptWithScope => "javascriptWithScope",
-                BsonType.MaxKey => "maxKey",
-                BsonType.MinKey => "minKey",
-                BsonType.Null => "null",
-                BsonType.ObjectId => "objectId",
-                BsonType.RegularExpression => "regex",
-                BsonType.String => "string",
-                BsonType.Symbol => "symbol",
-                BsonType.Timestamp => "timestamp",
-                BsonType.Undefined => "undefined",
-                _ => throw new ArgumentException($"Unexpected BSON type: {type}.", nameof(type))
-            };
-        }
+        public static string Render(this BsonType type) => type.ToStringRepresentation();
 
         public static string Render(this ByteOrder byteOrder)
         {
