@@ -47,23 +47,19 @@ namespace MongoDB.Driver
 
         public bool
             GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
-                => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id, out idNominalType, out idGenerator);
-
-        public bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType,
-            out IIdGenerator idGenerator)
-        {
-            if (_derivedDocumentSerializer is IBsonIdProvider idProvider)
             {
-                return idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator);
+                if (_derivedDocumentSerializer is IBsonIdProvider idProvider)
+                {
+                    return idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator);
+                }
+                else
+                {
+                    id = null;
+                    idNominalType = null;
+                    idGenerator = null;
+                    return false;
+                }
             }
-            else
-            {
-                id = null;
-                idNominalType = null;
-                idGenerator = null;
-                return false;
-            }
-        }
 
         public override int GetHashCode() => 0;
 
