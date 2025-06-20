@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Serialization
         {
             _classMap = classMap;
             _memberInfo = memberInfo;
-            _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
+            _memberType = BsonClassMap.GetMemberInfoType(memberInfo); //FP This is more of a utility method, it can stay like this
             _memberTypeIsBsonValue = typeof(BsonValue).GetTypeInfo().IsAssignableFrom(_memberType);
 
             Reset();

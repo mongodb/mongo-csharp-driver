@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var nominalType = itemSerializer.ValueType;
                 var nominalTypeSerializer = itemSerializer;
                 var actualType = method.GetGenericArguments().Single();
-                var actualTypeSerializer = BsonSerializer.LookupSerializer(actualType);
+                var actualTypeSerializer = context.SerializationDomain.LookupSerializer(actualType);
 
                 AstExpression ast;
                 if (nominalType == actualType)

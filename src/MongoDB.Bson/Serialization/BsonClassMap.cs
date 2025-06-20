@@ -122,7 +122,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public IConventionPack ConventionPack
         {
-            get { return BsonSerializer.DefaultSerializationDomain.ConventionRegistry.Lookup(_classType); }  //TODO This is not completely correct, this should be eliminated.
+            get { return BsonSerializer.DefaultSerializationDomain.ConventionRegistry.Lookup(_classType); }
         }
 
         /// <summary>

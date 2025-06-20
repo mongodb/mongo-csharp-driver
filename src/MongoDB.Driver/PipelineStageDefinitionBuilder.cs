@@ -575,7 +575,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(facets, nameof(facets));
             var outputSerializer = new AggregateFacetResultsSerializer(
                 facets.Select(f => f.Name),
-                facets.Select(f => f.OutputSerializer ?? BsonSerializer.SerializerRegistry.GetSerializer(f.OutputType)));
+                facets.Select(f => f.OutputSerializer ?? BsonSerializer.SerializerRegistry.GetSerializer(f.OutputType)));  //QUESTION What do we do? Do we delay the setting of the serializer..?
             var options = new AggregateFacetOptions<AggregateFacetResults> { OutputSerializer = outputSerializer };
             return Facet(facets, options);
         }
