@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         private readonly ExpressionTranslationOptions _translationOptions = default;
         private readonly IBsonSerializationDomain _serializationDomain = default;
 
-        //TODO We need to stop using this constructor internally, and use the one with the serialization domain instead.
+        //QUESTION We need to stop using this constructor internally, and use the one with the serialization domain instead. How do we do that...?
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderArgs{TDocument}"/> record.
         /// </summary>
