@@ -36,6 +36,10 @@ namespace MongoDB.Bson.Serialization
             _writer = writer;
             _isDynamicType = isDynamicType;
             _serializationDomain = writer.Settings?.SerializationDomain ?? BsonSerializer.DefaultSerializationDomain;
+
+            _isDynamicType??= t =>
+                (_serializationDomain.BsonDefaults.DynamicArraySerializer != null && t == _serializationDomain.BsonDefaults.DynamicArraySerializer.ValueType) ||
+                (_serializationDomain.BsonDefaults.DynamicDocumentSerializer != null && t == _serializationDomain.BsonDefaults.DynamicDocumentSerializer.ValueType);
         }
 
         // public properties
@@ -126,12 +130,10 @@ namespace MongoDB.Bson.Serialization
                 {
                     _isDynamicType = other._isDynamicType;
                 }
-                else
-                {
-                    _isDynamicType = t =>
-                        (BsonDefaults.DynamicArraySerializer != null && t == BsonDefaults.DynamicArraySerializer.ValueType) ||
-                        (BsonDefaults.DynamicDocumentSerializer != null && t == BsonDefaults.DynamicDocumentSerializer.ValueType);
-                }
+
+                /* QUESTION I removed the part where we set _isDynamicType from the BsonDefaults, and delay it until we have a serialization domain (when we build the SerializationContext).
+                 * This is technically changing the public behaviour, but it's in a builder, I do not thing it will affect anyone. Same done for the deserialization context.
+                 */
             }
 
             // properties
