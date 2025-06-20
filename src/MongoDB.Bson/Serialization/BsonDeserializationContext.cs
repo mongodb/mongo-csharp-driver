@@ -48,6 +48,9 @@ namespace MongoDB.Bson.Serialization
             }
 
             _serializationDomain ??= BsonSerializer.DefaultSerializationDomain;
+
+            _dynamicArraySerializer ??= _serializationDomain.BsonDefaults.DynamicArraySerializer;
+            _dynamicDocumentSerializer ??= _serializationDomain.BsonDefaults.DynamicDocumentSerializer;
         }
 
         // public properties
@@ -167,11 +170,10 @@ namespace MongoDB.Bson.Serialization
                     _dynamicArraySerializer = other.DynamicArraySerializer;
                     _dynamicDocumentSerializer = other.DynamicDocumentSerializer;
                 }
-                else
-                {
-                    _dynamicArraySerializer = BsonDefaults.DynamicArraySerializer;
-                    _dynamicDocumentSerializer = BsonDefaults.DynamicDocumentSerializer;
-                }
+
+                /* QUESTION I removed the part where we set the dynamic serializers from the BsonDefaults, and delay it until we have a serialization domain (when we build the DeserializationContext).
+                 * This is technically changing the public behaviour, but it's in a builder, I do not thing it will affect anyone. Same done for the serialization context.
+                 */
             }
 
             // properties

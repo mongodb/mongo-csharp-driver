@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 throw new ArgumentException("Writer must be an instance of BsonBinaryWriter.");
             }
 
-            _serializerRegistry = BsonSerializer.SerializerRegistry;
+            _serializerRegistry = BsonSerializer.SerializerRegistry; //FP This needs to go
             var serializationContext = BsonSerializationContext.CreateRoot(binaryWriter);
             _idsMap = section.IdsMap;
             var stream = binaryWriter.BsonStream;
