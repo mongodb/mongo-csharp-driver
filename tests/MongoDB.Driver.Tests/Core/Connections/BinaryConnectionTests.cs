@@ -374,7 +374,7 @@ namespace MongoDB.Driver.Core.Connections
             using (var stream = new BlockingMemoryStream())
             {
                 var bytes = BitConverter.GetBytes(length);
-                if (!BitConerter.IsLittleEndian)
+                if (!BitConverter.IsLittleEndian)
                 {
                     Array.Reverse(bytes);
                 }
