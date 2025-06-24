@@ -376,7 +376,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the proxy port.
         /// </summary>
-        public int ProxyPort => _proxyPort;
+        public int? ProxyPort => _proxyPort;
 
         /// <summary>
         /// Gets the proxy username.
