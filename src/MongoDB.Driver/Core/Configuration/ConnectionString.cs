@@ -1051,6 +1051,11 @@ namespace MongoDB.Driver.Core.Configuration
                     _minPoolSize = ParseInt32(name, value);
                     break;
                 case "proxyhost":
+                    if (!string.IsNullOrEmpty(_proxyHost))
+                    {
+                        throw new MongoConfigurationException("Multiple proxyHost options are not allowed.");
+                    }
+                    
                     _proxyHost = value;
                     if (_proxyHost.Length == 0)
                     {
@@ -1058,6 +1063,11 @@ namespace MongoDB.Driver.Core.Configuration
                     }
                     break;
                 case "proxyport":
+                    if (_proxyPort != null)
+                    {
+                        throw new MongoConfigurationException("Multiple proxyPort options are not allowed.");
+                    }
+
                     var proxyPortValue = ParseInt32(name, value);
                     if (proxyPortValue is < 0 or > 65535)
                     {
@@ -1066,6 +1076,11 @@ namespace MongoDB.Driver.Core.Configuration
                     _proxyPort = proxyPortValue;
                     break;
                 case "proxyusername":
+                    if (!string.IsNullOrEmpty(_proxyUsername))
+                    {
+                        throw new MongoConfigurationException("Multiple proxyUsername options are not allowed.");
+                    }
+
                     _proxyUsername = value;
                     if (_proxyUsername.Length == 0)
                     {
@@ -1073,6 +1088,11 @@ namespace MongoDB.Driver.Core.Configuration
                     }
                     break;
                 case "proxypassword":
+                    if (!string.IsNullOrEmpty(_proxyPassword))
+                    {
+                        throw new MongoConfigurationException("Multiple proxyPassword options are not allowed.");
+                    }
+
                     _proxyPassword = value;
                     if (_proxyPassword.Length == 0)
                     {
