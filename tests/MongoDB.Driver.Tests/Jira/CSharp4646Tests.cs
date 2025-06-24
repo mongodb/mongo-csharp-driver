@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
 
             // some older versions of the server require the database to exist before you can watch it
             CreateDatabase(database);
-             
+
             using var changeStream = database.Watch(pipeline);
         }
 

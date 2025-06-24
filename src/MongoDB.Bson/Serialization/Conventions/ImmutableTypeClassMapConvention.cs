@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             var constructors = GetUsableConstructors(classTypeInfo);
             foreach (var constructorInfo in constructors)
             {
-                if (classTypeInfo.IsAbstract || 
+                if (classTypeInfo.IsAbstract ||
                     constructorInfo.IsFamily || // protected
                     constructorInfo.IsFamilyOrAssembly) // protected internal
                 {

@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Tests.Search
             {
                 _collection.SearchIndexes.DropOne(indexName);
             }
-            
+
             while (true)
             {
                 List<BsonDocument> indexes;
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Tests.Search
                 {
                     indexes = _collection.SearchIndexes.List().ToList();
                 }
-                
+
                 if (indexes.Count == 0)
                 {
                     return;
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Tests.Search
             {
                 _collection.SearchIndexes.Update(indexName, indexNewDefinition);
             }
-            
+
             var updatedIndex = await GetIndexes(async, indexName);
             updatedIndex[0]["latestDefinition"].AsBsonDocument.Should().Be(indexNewDefinition);
         }
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexNameCreated = async
                 ? await collection.SearchIndexes.CreateOneAsync(_indexDefinition, indexName)
                 : collection.SearchIndexes.CreateOne(_indexDefinition, indexName);
-            
+
             indexNameCreated.Should().Be(indexName);
 
             var indexes = await GetIndexes(async, indexName);
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Tests.Search
                 ? await _collection.SearchIndexes.CreateOneAsync(new CreateSearchIndexModel(indexName3, SearchIndexType.VectorSearch, _vectorIndexDefinition))
                 : _collection.SearchIndexes.CreateOne(new CreateSearchIndexModel(indexName3, SearchIndexType.VectorSearch, _vectorIndexDefinition));
             indexNameCreated.Should().Be(indexName3);
-            
+
             var indexCreated3 = await GetIndexes(async, indexName3);
             indexCreated3[0]["type"].AsString.Should().Be("vectorSearch");
         }
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Tests.Search
             var exception = async
                 ? await Record.ExceptionAsync(() => _collection.SearchIndexes.CreateOneAsync(_vectorIndexDefinition, indexName))
                 : Record.Exception(() => _collection.SearchIndexes.CreateOne(_vectorIndexDefinition, indexName));
-            
+
             exception.Message.Should().Contain("Attribute mappings missing");
         }
 
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Tests.Search
             var indexNameActual = async
                 ? await _collection.SearchIndexes.CreateOneAsync(indexDefinition, indexName)
                 : _collection.SearchIndexes.CreateOne(indexDefinition, indexName);
-            
+
             indexNameActual.Should().Be(indexName);
 
             var result = await GetIndexes(async, indexName);

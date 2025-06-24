@@ -25,11 +25,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         IBsonSerializer EnumSerializer { get; }
     }
 
-    internal class EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : StructSerializerBase<TEnumUnderlyingType>, IEnumUnderlyingTypeSerializer 
-        where TEnum : Enum 
+    internal class EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : StructSerializerBase<TEnumUnderlyingType>, IEnumUnderlyingTypeSerializer
+        where TEnum : Enum
         where TEnumUnderlyingType : struct
     {
-        // private fields 
+        // private fields
         private readonly IBsonSerializer<TEnum> _enumSerializer;
 
         // constructors

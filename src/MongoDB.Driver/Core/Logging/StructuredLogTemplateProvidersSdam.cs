@@ -78,6 +78,6 @@ namespace MongoDB.Driver.Core.Logging
                 LogLevel.Trace,
                 CmapCommonParams(Description),
                 (e, _) => GetParams(e.ServerId, "Server description changed", e.NewDescription));
-        } 
+        }
     }
 }

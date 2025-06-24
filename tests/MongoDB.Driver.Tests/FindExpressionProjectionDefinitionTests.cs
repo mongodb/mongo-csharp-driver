@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool renderForFind)
         {
             var expectedRenderedProjection = renderForFind switch
-            { 
+            {
                 true => "{ A : 1, X : '$B', _id : 0 }",
                 false => "{ A : '$A', X : '$B', _id : 0 }"
             };

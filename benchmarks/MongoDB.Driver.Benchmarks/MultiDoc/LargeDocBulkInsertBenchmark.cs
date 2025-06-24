@@ -32,7 +32,7 @@ namespace MongoDB.Benchmarks.MultiDoc
         private BsonDocument[] _largeDocuments;
         private InsertOneModel<BsonDocument>[] _collectionBulkWriteInsertModels;
         private BulkWriteInsertOneModel<BsonDocument>[] _clientBulkWriteInsertModels;
-        
+
         private static readonly CollectionNamespace __collectionNamespace =
             CollectionNamespace.FromFullName($"{MongoConfiguration.PerfTestDatabaseName}.{MongoConfiguration.PerfTestCollectionName}");
 
@@ -63,13 +63,13 @@ namespace MongoDB.Benchmarks.MultiDoc
         {
             _collection.InsertMany(_largeDocuments, new());
         }
-        
+
         [Benchmark]
         public void LargeDocCollectionBulkWriteInsertBenchmark()
         {
             _collection.BulkWrite(_collectionBulkWriteInsertModels, new());
         }
-        
+
         [Benchmark]
         public void LargeDocClientBulkWriteInsertBenchmark()
         {

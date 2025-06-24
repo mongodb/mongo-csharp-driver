@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             {
                 args.Add(_step.Render());
             }
- 
+
             return new BsonDocument("$range", args);
         }
 

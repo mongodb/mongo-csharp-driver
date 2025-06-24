@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Search
         /// Indicates that tokens in the query can appear in any order in the documents.
         /// </summary>
         Any,
-        
+
         /// <summary>
         /// Indicates that tokens in the query must appear adjacent to each other or in the order
         /// specified in the query in the documents.
