@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.ComponentModel;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -65,10 +63,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer"></param>
         /// <param name="serializationDomain"></param>
         /// <returns></returns>
-        #if DEBUG
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        #endif
-        public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer, IBsonSerializationDomain serializationDomain) =>
+        internal static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer, IBsonSerializationDomain serializationDomain) =>
             serializer is IHasDiscriminatorConvention hasDiscriminatorConvention
                 ? hasDiscriminatorConvention.DiscriminatorConvention
                 : serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);

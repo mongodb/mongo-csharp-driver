@@ -43,7 +43,7 @@ namespace MongoDB.Bson.Serialization
         /// //TODO
         /// </summary>
         /// <param name="serializationDomain"></param>
-        public BsonSerializerRegistry(IBsonSerializationDomain serializationDomain)
+        internal BsonSerializerRegistry(IBsonSerializationDomain serializationDomain)
         {
             _cache = new ConcurrentDictionary<Type, IBsonSerializer>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// //TODO
         /// </summary>
-        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
+        IBsonSerializationDomain IBsonSerializerRegistryInternal.SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the serializer for the specified <paramref name="type" />.

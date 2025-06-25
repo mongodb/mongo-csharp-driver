@@ -97,9 +97,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         public Type GetActualType(IBsonReader bsonReader, Type nominalType) =>  //TODO This one should not be used
             GetActualType(bsonReader, nominalType, BsonSerializer.DefaultSerializationDomain);
 
-        /// <inheritdoc />
-        /// TODO
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
+        internal Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
