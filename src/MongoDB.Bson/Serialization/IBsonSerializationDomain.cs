@@ -9,7 +9,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// //TODO
     /// </summary>
-    public interface IBsonSerializationDomain
+    internal interface IBsonSerializationDomain
     {
         /// <summary>
         /// Returns whether the given type has any discriminators registered for any of its subclasses.
