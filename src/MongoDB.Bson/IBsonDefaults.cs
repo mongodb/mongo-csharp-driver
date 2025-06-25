@@ -17,10 +17,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
 {
-    /// <summary>
-    /// //TODO
-    /// </summary>
-    public interface IBsonDefaults
+    internal interface IBsonDefaults
     {
         /// <summary>
         ///

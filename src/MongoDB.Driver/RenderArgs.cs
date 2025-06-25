@@ -137,10 +137,7 @@ namespace MongoDB.Driver
             init => _serializerRegistry = Ensure.IsNotNull(value, nameof(value));
         }
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        public readonly IBsonSerializationDomain SerializationDomain
+        internal readonly IBsonSerializationDomain SerializationDomain
         {
             get => _serializationDomain;
             init => _serializationDomain = Ensure.IsNotNull(value, nameof(value));

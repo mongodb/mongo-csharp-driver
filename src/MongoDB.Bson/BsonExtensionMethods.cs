@@ -72,20 +72,6 @@ namespace MongoDB.Bson
             int estimatedBsonSize = 0) => ToBson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings,
             serializer, configurator, args, estimatedBsonSize);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="nominalType"></param>
-        /// <param name="serializationDomain"></param>
-        /// <param name="writerSettings"></param>
-        /// <param name="serializer"></param>
-        /// <param name="configurator"></param>
-        /// <param name="args"></param>
-        /// <param name="estimatedBsonSize"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
         internal static byte[] ToBson(
             this object obj,
             Type nominalType,
@@ -166,18 +152,6 @@ namespace MongoDB.Bson
             BsonSerializationArgs args = default) => ToBsonDocument(obj, nominalType,
             BsonSerializer.DefaultSerializationDomain, serializer, configurator, args);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="nominalType"></param>
-        /// <param name="serializationDomain"></param>
-        /// <param name="serializer"></param>
-        /// <param name="configurator"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
         internal static BsonDocument ToBsonDocument(
             this object obj,
             Type nominalType,
@@ -275,20 +249,7 @@ namespace MongoDB.Bson
             BsonSerializationArgs args = default)
             => ToJson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings, serializer, configurator, args);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="nominalType"></param>
-        /// <param name="domain"></param>
-        /// <param name="writerSettings"></param>
-        /// <param name="serializer"></param>
-        /// <param name="configurator"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        public static string ToJson(
+        internal static string ToJson(
             this object obj,
             Type nominalType,
             IBsonSerializationDomain domain,
