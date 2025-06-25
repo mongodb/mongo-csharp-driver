@@ -14,22 +14,26 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp2472Tests : Linq3IntegrationTest
+    public class CSharp2472Tests : LinqIntegrationTest<CSharp2472Tests.ClassFixture>
     {
+        public CSharp2472Tests(ClassFixture fixture)
+            : base(fixture, server => server.Supports(Feature.ToConversionOperators))
+        {
+        }
+
         [Fact]
         public void Numeric_casts_should_work()
         {
-            RequireServer.Check().Supports(Feature.ToConversionOperators);
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var equipmentId = 1;
             var startDate = new DateTime(2022, 01, 01, 0, 0, 0, DateTimeKind.Utc);
             var endDate = new DateTime(2022, 01, 02, 0, 0, 0, DateTimeKind.Utc);
@@ -64,18 +68,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.sqrt_calc.Should().Be(2M);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, equipment_id = 1, timestamp = new DateTime(2022, 01, 01, 12, 0, 0, DateTimeKind.Utc), my_decimal_value = 4M });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int equipment_id { get; set; }
@@ -87,6 +80,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public DateTime timestamp { get; set; }
             public decimal sqrt_calc { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, equipment_id = 1, timestamp = new DateTime(2022, 01, 01, 12, 0, 0, DateTimeKind.Utc), my_decimal_value = 4M }
+            ];
         }
     }
 }

@@ -15,6 +15,7 @@
     <NoWarn>
       1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
       CA1724; <!--The type name Model conflicts in whole or in part with the namespace name. Change either name to eliminate the conflict. (https://docs.microsoft.com/visualstudio/code-quality/ca1724-type-names-should-not-match-namespaces)-->
+      CA1714; <!-- Flags enums should have plural names -->
       xUnit1010; <!--The value is not convertible to the method parameter type (https://xunit.github.io/xunit.analyzers/rules/xUnit1010.html)-->
       xUnit1013; <!--Public method should be marked as test (https://xunit.github.io/xunit.analyzers/rules/xUnit1013.html)-->
       xUnit1014; <!--MemberData should use nameof operator for member name (https://xunit.github.io/xunit.analyzers/rules/xUnit1014.html)-->

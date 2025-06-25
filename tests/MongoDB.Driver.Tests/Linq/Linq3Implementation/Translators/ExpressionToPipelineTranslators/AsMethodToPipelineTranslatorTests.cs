@@ -13,22 +13,28 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators
 {
-    public class AsMethodToPipelineTranslatorTests : Linq3IntegrationTest
+    public class AsMethodToPipelineTranslatorTests : LinqIntegrationTest<AsMethodToPipelineTranslatorTests.ClassFixture>
     {
+        public AsMethodToPipelineTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void As_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Where(x => x.Name == "John")
@@ -45,20 +51,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.Should().Be("{ _id : 1, Name : 'John' }");
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 1, Name = "John" },
-                new C { Id = 2, Name = "Jane" });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, Name = "John" },
+                new C { Id = 2, Name = "Jane" }
+            ];
         }
     }
 }

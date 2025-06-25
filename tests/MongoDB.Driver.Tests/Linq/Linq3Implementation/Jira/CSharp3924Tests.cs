@@ -14,19 +14,25 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3924Tests : Linq3IntegrationTest
+    public class CSharp3924Tests : LinqIntegrationTest<CSharp3924Tests.ClassFixture>
     {
+        public CSharp3924Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Projection_with_call_to_Tuple1_constructor_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -42,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Projection_with_call_to_Tuple2_constructor_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -58,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Projection_with_call_to_Tuple3_constructor_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -74,7 +80,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_Tuple1_item_comparisons_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -94,7 +100,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_Tuple2_item_comparisons_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -114,7 +120,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Where_with_Tuple3_item_comparisons_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection
                 .AsQueryable()
@@ -131,23 +137,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result.Should().Be(new Tuple<int, int, int>(1, 11, 111));
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("C");
-
-            CreateCollection(
-                collection,
-                new C { Id = 1, X = 1, Y = 11, Z = 111 });
-
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
             public int Z { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, X = 1, Y = 11, Z = 111 }
+            ];
         }
     }
 }

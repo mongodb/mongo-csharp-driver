@@ -13,20 +13,25 @@
 * limitations under the License.
 */
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3234Tests : Linq3IntegrationTest
+    public class CSharp3234Tests : LinqIntegrationTest<CSharp3234Tests.ClassFixture>
     {
+        public CSharp3234Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Contains_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var selectedIds = new[] { 1, 2, 3 };
 
             var queryable = collection
@@ -43,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_equals_false_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var selectedIds = new[] { 1, 2, 3 };
 
             var queryable = collection
@@ -60,7 +65,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Contains_equals_true_should_work()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var selectedIds = new[] { 1, 2, 3 };
 
             var queryable = collection
@@ -74,24 +79,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.OrderBy(x => x.Id).Select(x => x.Id).Should().Equal(1, 2, 3);
         }
 
-        private IMongoCollection<C> CreateCollection()
+        public class C
         {
-            var collection = GetCollection<C>("C");
+            public int Id { get; set; }
+        }
 
-            CreateCollection(
-                collection,
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
                 new C { Id = 1 },
                 new C { Id = 2 },
                 new C { Id = 3 },
                 new C { Id = 4 },
-                new C { Id = 5 });
-
-            return collection;
-        }
-
-        private class C
-        {
-            public int Id { get; set; }
+                new C { Id = 5 }
+            ];
         }
     }
 }

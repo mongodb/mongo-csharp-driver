@@ -13,38 +13,36 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    [Trait("Category", "Integration")]
-    public class CSharp3713Tests
+    public class CSharp3713Tests : LinqIntegrationTest<CSharp3713Tests.ClassFixture>
     {
+        public CSharp3713Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void DefaultIfEmpty_should_work()
         {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            var collection = database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var collection = Fixture.Collection;
             var subject = collection.AsQueryable();
-
-            database.DropCollection(collection.CollectionNamespace.CollectionName);
-            collection.InsertMany(new[] {
-                new C { Id = 1, InnerArray = new A[0] },
-                new C { Id = 2, InnerArray = new[] { new A { S = "abc" } } }
-            });
 
             var queryable = subject.SelectMany(outerObject => outerObject.InnerArray.DefaultIfEmpty(), (o, a) => new { o, a });
 
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
                 "{ $project : { _v : { $map : { input : { $cond : { if : { $eq : [{ $size : '$InnerArray' }, 0] }, then : [null], else : '$InnerArray' } }, as : 'a', in : { o : '$$ROOT', a : '$$a' } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }"
             };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
+            AssertStages(stages, expectedStages);
 
             var result = queryable.ToList();
             result.Count.Should().Be(2);
@@ -57,27 +55,19 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void DefaultIfEmpty_with_explicit_default_should_work()
         {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            var collection = database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var collection = Fixture.Collection;
             var subject = collection.AsQueryable();
-
-            database.DropCollection(collection.CollectionNamespace.CollectionName);
-            collection.InsertMany(new[] {
-                new C { Id = 1, InnerArray = new A[0] },
-                new C { Id = 2, InnerArray = new[] { new A { S = "abc" } } }
-            });
 
             var defaultValue = new A { S = "default" };
             var queryable = subject.SelectMany(outerObject => outerObject.InnerArray.DefaultIfEmpty(defaultValue), (o, a) => new { o, a });
 
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
                 "{ $project : { _v : { $map : { input : { $cond : { if : { $eq : [{ $size : '$InnerArray' }, 0] }, then : [{ S : 'default' }], else : '$InnerArray' } }, as : 'a', in : { o : '$$ROOT', a : '$$a' } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }"
             };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
+            AssertStages(stages, expectedStages);
 
             var result = queryable.ToList();
             result.Count.Should().Be(2);
@@ -87,15 +77,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             result[1].a.S.Should().Be("abc");
         }
 
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public A[] InnerArray { get; set; }
         }
 
-        private class A
+        public class A
         {
             public string S { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, InnerArray = new A[0] },
+                new C { Id = 2, InnerArray = new[] { new A { S = "abc" } } }
+            ];
         }
     }
 }

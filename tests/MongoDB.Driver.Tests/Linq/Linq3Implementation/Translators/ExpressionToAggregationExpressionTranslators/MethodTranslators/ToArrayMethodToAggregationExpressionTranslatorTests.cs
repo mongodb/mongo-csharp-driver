@@ -16,20 +16,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class ToArrayMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class ToArrayMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<ToArrayMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public ToArrayMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Array_ToArray_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.Array.AsQueryable().ToArray()) :
@@ -47,7 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void IEnumerable_ToArray_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.IEnumerable.AsQueryable().ToArray()) :
@@ -65,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void List_ToArray_should_work(
             [Values(false, true)] bool withNestedAsQueryable)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryable ?
                 collection.AsQueryable().Select(x => x.List.AsQueryable().ToArray()) :
@@ -78,27 +83,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             result.Should().Equal(1, 2, 3);
         }
 
-        private IMongoCollection<C> CreateCollection()
+        public class C
         {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
+            public int Id { get; set; }
+            public int[] Array { get; set; }
+            public IEnumerable<int> IEnumerable { get; set; }
+            public List<int> List { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
                 new C
                 {
                     Id = 1,
                     Array = new int[] { 1, 2, 3 },
                     IEnumerable = new List<int> { 1, 2, 3 },
                     List = new List<int> { 1, 2, 3 }
-                });
-            return collection;
-        }
-
-        private class C
-        {
-            public int Id { get; set; }
-            public int[] Array { get; set; }
-            public IEnumerable<int> IEnumerable { get; set; }
-            public List<int> List { get; set; }
+                }
+            ];
         }
     }
 }
