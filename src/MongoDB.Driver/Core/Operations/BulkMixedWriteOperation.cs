@@ -138,11 +138,11 @@ namespace MongoDB.Driver.Core.Operations
 
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
+            var retryRequested = _retryRequested && AreAllWriteRequestRetryable();
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, retryRequested))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
-                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
                 {
@@ -154,11 +154,11 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
+            var retryRequested = _retryRequested && AreAllWriteRequestRetryable();
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
-                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
                 {
@@ -167,6 +167,9 @@ namespace MongoDB.Driver.Core.Operations
                 return helper.GetFinalResultOrThrow(context.Channel.ConnectionDescription.ConnectionId);
             }
         }
+
+        private bool AreAllWriteRequestRetryable()
+            => _requests.All(r => r.IsRetryable());
 
         private IDisposable BeginOperation() =>
             // Execution starts with the first request

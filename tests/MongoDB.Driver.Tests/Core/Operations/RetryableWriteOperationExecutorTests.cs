@@ -13,17 +13,14 @@
 * limitations under the License.
 */
 
-using System.Linq;
+using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Reflection;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -36,9 +33,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         [Fact]
         public void AreRetryableWritesSupportedTest()
         {
-            var connectionDescription = CreateConnectionDescription(withLogicalSessionTimeout: false, serviceId: true);
+            var serverDescription = CreateServerDescription(withLogicalSessionTimeout: false, isLoadBalanced: true);
 
-            var result = RetryableWriteOperationExecutorReflector.AreRetryableWritesSupported(connectionDescription);
+            var result = RetryableWriteOperationExecutorReflector.AreRetryableWritesSupported(serverDescription);
 
             result.Should().BeTrue();
         }
@@ -69,24 +66,20 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var context = CreateContext(retryRequested, areRetryableWritesSupported, hasSessionId, isInTransaction);
 
-            var result = RetryableWriteOperationExecutorReflector.DoesContextAllowRetries(context);
+            var result = RetryableWriteOperationExecutorReflector.DoesContextAllowRetries(context, context.ChannelSource.ServerDescription);
 
             result.Should().Be(expectedResult);
         }
 
         [Theory]
-        [InlineData(false, false, true)]
-        [InlineData(false, true, true)]
-        [InlineData(true, false, false)]
-        [InlineData(true, true, true)]
-        public void IsOperationAcknowledged_should_return_expected_result(
-            bool withWriteConcern,
-            bool isAcknowledged,
-            bool expectedResult)
+        [InlineData(null, true)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        public void IsOperationAcknowledged_should_return_expected_result(bool? isAcknowledged, bool expectedResult)
         {
-            var operation = CreateOperation(withWriteConcern, isAcknowledged);
+            var writeConcern = isAcknowledged.HasValue ? (isAcknowledged.Value ? WriteConcern.Acknowledged : WriteConcern.Unacknowledged) : null;
 
-            var result = RetryableWriteOperationExecutorReflector.IsOperationAcknowledged(operation);
+            var result = RetryableWriteOperationExecutorReflector.IsOperationAcknowledged(writeConcern);
 
             result.Should().Be(expectedResult);
         }
@@ -98,59 +91,35 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var session = CreateSession(hasSessionId, isInTransaction);
             var channelSource = CreateChannelSource(areRetryableWritesSupported);
             mockBinding.SetupGet(m => m.Session).Returns(session);
-            mockBinding.Setup(m => m.GetWriteChannelSource(It.IsAny<OperationContext>())).Returns(channelSource);
+            mockBinding.Setup(m => m.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource);
             return mockBinding.Object;
-        }
-
-        private IChannelHandle CreateChannel(bool areRetryableWritesSupported)
-        {
-            var mockChannel = new Mock<IChannelHandle>();
-            var connectionDescription = CreateConnectionDescription(withLogicalSessionTimeout: areRetryableWritesSupported);
-            mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
-            return mockChannel.Object;
         }
 
         private IChannelSourceHandle CreateChannelSource(bool areRetryableWritesSupported)
         {
             var mockChannelSource = new Mock<IChannelSourceHandle>();
-            var channel = CreateChannel(areRetryableWritesSupported);
+            var channel = Mock.Of<IChannelHandle>();
             mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
+            mockChannelSource.Setup(m => m.ServerDescription).Returns(CreateServerDescription(withLogicalSessionTimeout: areRetryableWritesSupported));
             return mockChannelSource.Object;
         }
 
-        private ConnectionDescription CreateConnectionDescription(bool withLogicalSessionTimeout, bool? serviceId = null)
+        private ServerDescription CreateServerDescription(bool withLogicalSessionTimeout, bool isLoadBalanced = false)
         {
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
-            var connectionId = new ConnectionId(serverId, 1);
-            var helloResultDocument = BsonDocument.Parse($"{{ ok : 1, maxWireVersion : {WireVersion.Server42} }}");
-            if (withLogicalSessionTimeout)
-            {
-                helloResultDocument["logicalSessionTimeoutMinutes"] = 1;
-                helloResultDocument["msg"] = "isdbgrid"; // mongos
-            }
-            if (serviceId.HasValue)
-            {
-                helloResultDocument["serviceId"] = ObjectId.Empty; // load balancing mode
-            }
-            var helloResult = new HelloResult(helloResultDocument);
-            var connectionDescription = new ConnectionDescription(connectionId, helloResult);
-            return connectionDescription;
+            TimeSpan? logicalSessionTimeout = withLogicalSessionTimeout ? TimeSpan.FromMinutes(1) : null;
+            var serverType = isLoadBalanced ? ServerType.LoadBalanced : ServerType.ShardRouter;
+
+            return new ServerDescription(serverId, endPoint, logicalSessionTimeout: logicalSessionTimeout, type: serverType);
         }
 
         private RetryableWriteContext CreateContext(bool retryRequested, bool areRetryableWritesSupported, bool hasSessionId, bool isInTransaction)
         {
             var binding = CreateBinding(areRetryableWritesSupported, hasSessionId, isInTransaction);
-            return RetryableWriteContext.Create(OperationContext.NoTimeout, binding, retryRequested);
-        }
-
-        private IRetryableWriteOperation<BsonDocument> CreateOperation(bool withWriteConcern, bool isAcknowledged)
-        {
-            var mockOperation = new Mock<IRetryableWriteOperation<BsonDocument>>();
-            var writeConcern = withWriteConcern ? (isAcknowledged ? WriteConcern.Acknowledged : WriteConcern.Unacknowledged) : null;
-            mockOperation.SetupGet(m => m.WriteConcern).Returns(writeConcern);
-            return mockOperation.Object;
+            var context = RetryableWriteContext.Create(OperationContext.NoTimeout, binding, retryRequested);
+            return context;
         }
 
         private ICoreSessionHandle CreateSession(bool hasSessionId, bool isInTransaction)
@@ -165,28 +134,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
     // nested types
     internal static class RetryableWriteOperationExecutorReflector
     {
-        public static bool AreRetryableWritesSupported(ConnectionDescription connectionDescription)
-        {
-            return (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(AreRetryableWritesSupported), connectionDescription);
-        }
+        public static bool AreRetryableWritesSupported(ServerDescription serverDescription)
+            => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(AreRetryableWritesSupported), serverDescription);
 
-        public static bool DoesContextAllowRetries(RetryableWriteContext context) =>
-            (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(DoesContextAllowRetries), context);
+        public static bool DoesContextAllowRetries(RetryableWriteContext context, ServerDescription server)
+            => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(DoesContextAllowRetries), context, server);
 
-        public static bool IsOperationAcknowledged(IRetryableWriteOperation<BsonDocument> operation)
-        {
-            var methodInfoDefinition = typeof(RetryableWriteOperationExecutor).GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
-                .Where(m => m.Name == nameof(IsOperationAcknowledged))
-                .Single();
-            var methodInfo = methodInfoDefinition.MakeGenericMethod(typeof(BsonDocument));
-            try
-            {
-                return (bool)methodInfo.Invoke(null, new object[] { operation });
-            }
-            catch (TargetInvocationException exception)
-            {
-                throw exception.InnerException;
-            }
-        }
+        public static bool IsOperationAcknowledged(WriteConcern writeConcern)
+            => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(IsOperationAcknowledged), writeConcern);
     }
 }

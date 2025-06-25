@@ -14,9 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -29,20 +31,16 @@ namespace MongoDB.Driver.Core.Operations
             var context = new RetryableReadContext(binding, retryRequested);
             try
             {
-                context.Initialize(operationContext);
-
-                ChannelPinningHelper.PinChannellIfRequired(
-                    context.ChannelSource,
-                    context.Channel,
-                    context.Binding.Session);
-
-                return context;
+                context.Initialize(operationContext, null);
             }
             catch
             {
                 context.Dispose();
                 throw;
             }
+
+            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+            return context;
         }
 
         public static async Task<RetryableReadContext> CreateAsync(OperationContext operationContext, IReadBinding binding, bool retryRequested)
@@ -50,20 +48,16 @@ namespace MongoDB.Driver.Core.Operations
             var context = new RetryableReadContext(binding, retryRequested);
             try
             {
-                await context.InitializeAsync(operationContext).ConfigureAwait(false);
-
-                ChannelPinningHelper.PinChannellIfRequired(
-                    context.ChannelSource,
-                    context.Channel,
-                    context.Binding.Session);
-
-                return context;
+                await context.InitializeAsync(operationContext, null).ConfigureAwait(false);
             }
             catch
             {
                 context.Dispose();
                 throw;
             }
+
+            ChannelPinningHelper.PinChannellIfRequired(context.ChannelSource, context.Channel, context.Binding.Session);
+            return context;
         }
         #endregion
 
@@ -96,50 +90,72 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public void ReplaceChannel(IChannelHandle channel)
+        internal void Initialize(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        {
+            var attempt = 1;
+            while (true)
+            {
+                try
+                {
+                    ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
+                    ReplaceChannel(ChannelSource.GetChannel(operationContext));
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
+                    if (RetryableReadOperationExecutor.ShouldRetryOperation(operationContext, this, innerException, attempt))
+                    {
+                        attempt++;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+        }
+
+        internal async Task InitializeAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        {
+            var attempt = 1;
+            while (true)
+            {
+                try
+                {
+                    ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
+                    ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
+                    if (RetryableReadOperationExecutor.ShouldRetryOperation(operationContext, this, innerException, attempt))
+                    {
+                        attempt++;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+        }
+
+        private void ReplaceChannel(IChannelHandle channel)
         {
             Ensure.IsNotNull(channel, nameof(channel));
             _channel?.Dispose();
             _channel = channel;
         }
 
-        public void ReplaceChannelSource(IChannelSourceHandle channelSource)
+        private void ReplaceChannelSource(IChannelSourceHandle channelSource)
         {
             Ensure.IsNotNull(channelSource, nameof(channelSource));
             _channelSource?.Dispose();
             _channel?.Dispose();
             _channelSource = channelSource;
             _channel = null;
-        }
-
-        private void Initialize(OperationContext operationContext)
-        {
-            _channelSource = _binding.GetReadChannelSource(operationContext);
-
-            try
-            {
-                _channel = _channelSource.GetChannel(operationContext);
-            }
-            catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(this, ex))
-            {
-                ReplaceChannelSource(_binding.GetReadChannelSource(operationContext));
-                ReplaceChannel(_channelSource.GetChannel(operationContext));
-            }
-        }
-
-        private async Task InitializeAsync(OperationContext operationContext)
-        {
-            _channelSource = await _binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false);
-
-            try
-            {
-                _channel = await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(this, ex))
-            {
-                ReplaceChannelSource(await _binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false));
-                ReplaceChannel(await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-            }
         }
     }
 }

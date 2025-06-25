@@ -135,20 +135,17 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return exception is MongoException mongoException ? mongoException.HasErrorLabel(ResumableChangeStreamErrorLabel) : false;
             }
-            else
-            {
-                var commandException = exception as MongoCommandException;
-                if (commandException != null)
-                {
-                    var code = (ServerErrorCode)commandException.Code;
-                    if (__resumableChangeStreamErrorCodes.Contains(code))
-                    {
-                        return true;
-                    }
-                }
 
-                return __resumableChangeStreamExceptions.Contains(exception.GetType());
+            if (exception is MongoCommandException commandException)
+            {
+                var code = (ServerErrorCode)commandException.Code;
+                if (__resumableChangeStreamErrorCodes.Contains(code))
+                {
+                    return true;
+                }
             }
+
+            return __resumableChangeStreamExceptions.Contains(exception.GetType());
         }
 
         /// <summary>

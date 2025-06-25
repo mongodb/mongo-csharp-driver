@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         public UpdateType UpdateType { get; init; }
 
         // public methods
-        public override bool IsRetryable(ConnectionDescription connectionDescription) => !IsMulti;
+        public override bool IsRetryable() => !IsMulti;
 
         // private methods
         private static BsonValue EnsureUpdateIsValid(BsonValue update, UpdateType updateType)
