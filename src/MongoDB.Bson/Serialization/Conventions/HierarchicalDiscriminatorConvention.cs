@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -34,6 +35,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
         }
 
+        Type IDiscriminatorConventionInternal.GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
+        {
+            return base.GetActualType(bsonReader, nominalType, domain);
+        }
+
         // public methods
         /// <summary>
         /// Gets the discriminator value for an actual type.
@@ -42,10 +48,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
         public override BsonValue GetDiscriminator(Type nominalType, Type actualType) =>
-            GetDiscriminator(nominalType, actualType, BsonSerializer.DefaultSerializationDomain);
+            (this as IDiscriminatorConventionInternal).GetDiscriminator(nominalType, actualType, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
-        public BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
+        BsonValue IDiscriminatorConventionInternal.GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
         {
             // TODO: this isn't quite right, not all classes are serialized using  a class map serializer
             var classMap = domain.BsonClassMap.LookupClassMap(actualType);

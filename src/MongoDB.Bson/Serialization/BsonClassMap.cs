@@ -363,7 +363,7 @@ namespace MongoDB.Bson.Serialization
         /// //TODO
         /// </summary>
         /// <param name="serializationDomain"></param>
-        public void AutoMap(IBsonSerializationDomain serializationDomain)
+        internal void AutoMap(IBsonSerializationDomain serializationDomain)
         {
             if (_frozen) { ThrowFrozenException(); }
             AutoMapClass(serializationDomain);

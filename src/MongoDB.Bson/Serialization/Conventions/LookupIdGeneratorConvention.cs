@@ -13,9 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Reflection;
-
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
@@ -24,10 +21,10 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConventionInternal
     {
         /// <inheritdoc/>
-        public void PostProcess(BsonClassMap classMap) => PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
+        public void PostProcess(BsonClassMap classMap) => (this as IPostProcessingConventionInternal).PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc/>
-        public void PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
+        void IPostProcessingConventionInternal.PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
         {
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null)
