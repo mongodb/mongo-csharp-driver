@@ -138,9 +138,8 @@ namespace MongoDB.Driver.Core.Operations
 
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
-            var retryRequested = _retryRequested && AreAllWriteRequestRetryable();
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, retryRequested))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -154,9 +153,8 @@ namespace MongoDB.Driver.Core.Operations
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
-            var retryRequested = _retryRequested && AreAllWriteRequestRetryable();
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, IsOperationRetryable()).ConfigureAwait(false))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -168,8 +166,8 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private bool AreAllWriteRequestRetryable()
-            => _requests.All(r => r.IsRetryable());
+        private bool IsOperationRetryable()
+            => _retryRequested && _requests.All(r => r.IsRetryable());
 
         private IDisposable BeginOperation() =>
             // Execution starts with the first request
