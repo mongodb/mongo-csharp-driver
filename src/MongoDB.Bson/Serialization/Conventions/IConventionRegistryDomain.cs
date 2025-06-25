@@ -2,10 +2,7 @@ using System;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
-    /// <summary>
-    /// //TODO
-    /// </summary>
-    public interface IConventionRegistryDomain
+    internal interface IConventionRegistryDomain
     {
         /// <summary>
         /// //TODO
