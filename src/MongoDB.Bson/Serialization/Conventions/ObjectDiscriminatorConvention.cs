@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             GetActualType(bsonReader, nominalType, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
+        internal Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
@@ -160,7 +160,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         /// <inheritdoc />
-        public BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
+        internal BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
         {
             throw new NotImplementedException();
         }

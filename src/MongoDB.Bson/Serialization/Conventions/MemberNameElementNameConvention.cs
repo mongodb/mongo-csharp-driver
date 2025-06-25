@@ -13,9 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Reflection;
-
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
@@ -28,10 +25,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
-        public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
+        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             memberMap.SetElementName(memberMap.MemberName);
         }

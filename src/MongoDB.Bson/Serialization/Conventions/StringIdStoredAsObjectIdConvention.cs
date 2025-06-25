@@ -26,10 +26,10 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class StringIdStoredAsObjectIdConvention : ConventionBase, IMemberMapConventionInternal
     {
         /// <inheritdoc/>
-        public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc/>
-        public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
+        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             if (memberMap != memberMap.ClassMap.IdMemberMap)
             {

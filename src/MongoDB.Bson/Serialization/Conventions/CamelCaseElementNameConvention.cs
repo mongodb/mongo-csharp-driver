@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Reflection;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -25,10 +24,10 @@ namespace MongoDB.Bson.Serialization.Conventions
     {
         // public methods
         /// <inheritdoc />
-        public void Apply(BsonMemberMap memberMap) => Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
 
         /// <inheritdoc />
-        public void Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
+        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             string name = memberMap.MemberName;
             name = GetElementName(name);

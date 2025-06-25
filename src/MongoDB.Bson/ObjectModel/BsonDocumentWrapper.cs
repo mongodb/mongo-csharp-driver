@@ -101,7 +101,7 @@ namespace MongoDB.Bson
         /// <param name="domain"></param>
         /// <typeparam name="TNominalType"></typeparam>
         /// <returns></returns>
-        public static BsonDocumentWrapper Create<TNominalType>(TNominalType value, IBsonSerializationDomain domain)
+        internal static BsonDocumentWrapper Create<TNominalType>(TNominalType value, IBsonSerializationDomain domain)
         {
             return Create(typeof(TNominalType), value, domain);
         }
@@ -122,7 +122,7 @@ namespace MongoDB.Bson
         /// <param name="value"></param>
         /// <param name="domain"></param>
         /// <returns></returns>
-        public static BsonDocumentWrapper Create(Type nominalType, object value, IBsonSerializationDomain domain)
+        internal static BsonDocumentWrapper Create(Type nominalType, object value, IBsonSerializationDomain domain)
         {
             var serializer = domain.LookupSerializer(nominalType);
             return new BsonDocumentWrapper(value, serializer);
@@ -145,7 +145,7 @@ namespace MongoDB.Bson
         /// <typeparam name="TNominalType"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values, IBsonSerializationDomain domain)
+        internal static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values, IBsonSerializationDomain domain)
         {
             if (values == null)
             {
@@ -173,7 +173,7 @@ namespace MongoDB.Bson
         /// <param name="domain"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values, IBsonSerializationDomain domain)
+        internal static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values, IBsonSerializationDomain domain)
         {
             if (nominalType == null)
             {

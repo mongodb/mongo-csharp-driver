@@ -301,7 +301,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="domain"></param>
         /// <returns></returns>
-        public IBsonSerializer GetSerializer(IBsonSerializationDomain domain)
+        internal IBsonSerializer GetSerializer(IBsonSerializationDomain domain)
         {
             if (_serializer == null)
             {
