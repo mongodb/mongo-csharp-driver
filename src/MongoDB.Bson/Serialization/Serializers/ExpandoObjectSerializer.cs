@@ -43,7 +43,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// //TODO
         /// </summary>
         /// <param name="serializerRegistry"></param>
-        public ExpandoObjectSerializer(IBsonSerializerRegistry serializerRegistry)
+        internal ExpandoObjectSerializer(IBsonSerializerRegistry serializerRegistry)
         {
             _listSerializer = serializerRegistry.GetSerializer<List<object>>();
         }
