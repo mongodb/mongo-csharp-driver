@@ -79,10 +79,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        public IBsonSerializationDomain SerializationDomain
+        internal IBsonSerializationDomain SerializationDomain
         {
             get => _serializationDomain;
             set
