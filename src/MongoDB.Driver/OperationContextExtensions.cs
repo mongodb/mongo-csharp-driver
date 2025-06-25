@@ -19,7 +19,7 @@ namespace MongoDB.Driver
 {
     internal static class OperationContextExtensions
     {
-        public static bool HasOperationTimeout(this OperationContext operationContext)
+        public static bool IsOperationTimeoutConfigured(this OperationContext operationContext)
         {
             var rootContext = operationContext.GetRootOperationContext();
             return rootContext.Timeout != Timeout.InfiniteTimeSpan;
