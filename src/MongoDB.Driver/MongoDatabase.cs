@@ -660,12 +660,19 @@ namespace MongoDB.Driver
 
         private IWriteOperation<BsonDocument> CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options, ExpressionTranslationOptions translationOptions)
         {
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;  //QUESTION What do we do here....?
+            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
-            var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions);
-            var validator = options.Validator?.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
+            //DOMAIN-API This will need to go away
+            RenderArgs<TDocument> renderArgs = options.SerializationDomain is null ?
+                new(documentSerializer, serializerRegistry, translationOptions: translationOptions) :
+                new(documentSerializer, options.SerializationDomain, translationOptions: translationOptions);
 
+            //DOMAIN-API This will need to go away
+            var clusteredIndex = options.SerializationDomain is null?  options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions):
+                options.ClusteredIndex?.Render(documentSerializer, options.SerializationDomain, translationOptions);
+
+            var validator = options.Validator?.Render(renderArgs);
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
             var effectiveEncryptedFields = EncryptedCollectionHelper.GetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap);
@@ -705,7 +712,13 @@ namespace MongoDB.Driver
         {
             var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-            var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
+
+            //DOMAIN-API This will need to go away
+            RenderArgs<TDocument> renderArgs = options.SerializationDomain is null ?
+                new(documentSerializer, serializerRegistry, translationOptions: translationOptions) :
+                new(documentSerializer, options.SerializationDomain, translationOptions: translationOptions);
+
+            var pipelineDocuments = pipeline.Render(renderArgs).Documents;
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
             {
                 Collation = options.Collation,

@@ -139,6 +139,7 @@ namespace MongoDB.Driver
         /// </summary>
         Type OutputType { get; }
 
+        //DOMAIN-API We need to swap the serializer registry for the serialization domain.
         /// <summary>
         /// Renders the specified document serializer.
         /// </summary>
