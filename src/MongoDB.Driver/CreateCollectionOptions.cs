@@ -38,6 +38,7 @@ namespace MongoDB.Driver
         private TimeSeriesOptions _timeSeriesOptions;
         private bool? _usePowerOf2Sizes;
         private IBsonSerializerRegistry _serializerRegistry;
+        private IBsonSerializationDomain _serializationDomain;
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
 
@@ -127,6 +128,8 @@ namespace MongoDB.Driver
             set { _noPadding = value; }
         }
 
+        //DOMAIN-API We need to remove this, and have only the SerializationDomain property.
+        //We should also decide if we even need any of those two properties.
         /// <summary>
         /// Gets or sets the serializer registry.
         /// </summary>
@@ -134,6 +137,12 @@ namespace MongoDB.Driver
         {
             get { return _serializerRegistry; }
             set { _serializerRegistry = value; }
+        }
+
+        internal IBsonSerializationDomain SerializationDomain
+        {
+            get => _serializationDomain;
+            set => _serializationDomain = value;
         }
 
         /// <summary>
@@ -204,6 +213,7 @@ namespace MongoDB.Driver
                 _maxDocuments = _maxDocuments,
                 _maxSize = _maxSize,
                 _serializerRegistry = _serializerRegistry,
+                _serializationDomain = _serializationDomain,
                 _storageEngine = _storageEngine,
                 _timeSeriesOptions = _timeSeriesOptions,
                 _validationAction = _validationAction,
@@ -244,6 +254,7 @@ namespace MongoDB.Driver
                     MaxDocuments = options.MaxDocuments,
                     MaxSize = options.MaxSize,
                     SerializerRegistry = options.SerializerRegistry,
+                    SerializationDomain = options.SerializationDomain,
                     StorageEngine = options.StorageEngine,
                     TimeSeriesOptions = options.TimeSeriesOptions,
                     ValidationAction = options.ValidationAction,
