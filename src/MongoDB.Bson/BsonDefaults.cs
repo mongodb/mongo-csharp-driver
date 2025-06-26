@@ -43,10 +43,9 @@ namespace MongoDB.Bson
             set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicDocumentSerializer = value;
         }
 
-        /* QUESTION How do we do with those two? I don't think I can remove references to them without breaking public API.
-         * We should modify the API to have those two values (in the writer/reader settings where they are used) be nullable.
+        /* DOMAIN-API We should modify the API to have those two values (and in the writer/reader settings where they are used) be nullable.
          * The problem is that we need to now when these values have been set externally or not. If they have not, then they should
-         * be retrieved from the closest domain. We could use a negative sentinel value for that, but that would not be the best.
+         * be retrieved from the closest domain.
          */
 
         /// <summary>
