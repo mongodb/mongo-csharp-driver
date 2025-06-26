@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -212,6 +213,24 @@ namespace MongoDB.Driver
             Action action = () => enumerable.GetAsyncEnumerator();
 
             action.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Fact]
+        public async Task ToAsyncEnumerable_should_respect_cancellation_token()
+        {
+            var source = CreateCursor(5);
+            using var cts = new CancellationTokenSource();
+
+            var count = 0;
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                await foreach (var doc in source.ToAsyncEnumerable().WithCancellation(cts.Token))
+                {
+                    count++;
+                    if (count == 2)
+                        cts.Cancel();
+                }
+            });
         }
 
         [Fact]

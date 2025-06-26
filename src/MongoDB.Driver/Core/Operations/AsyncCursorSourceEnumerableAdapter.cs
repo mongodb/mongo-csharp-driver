@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Operations
 
         // constructors
         public AsyncCursorSourceEnumerableAdapter(IAsyncCursorSource<TDocument> source)
+            : this(source, CancellationToken.None)
         {
-            _source = Ensure.IsNotNull(source, nameof(source));
         }
 
         public AsyncCursorSourceEnumerableAdapter(IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken)
