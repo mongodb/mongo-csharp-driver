@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
             var context = new RetryableReadContext(binding, retryRequested);
             try
             {
-                context.Initialize(operationContext, null);
+                context.AcquireOrReplaceChannel(operationContext, null);
             }
             catch
             {
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
             var context = new RetryableReadContext(binding, retryRequested);
             try
             {
-                await context.InitializeAsync(operationContext, null).ConfigureAwait(false);
+                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
             }
             catch
             {
@@ -90,54 +90,40 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal void Initialize(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        internal void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var attempt = 1;
             while (true)
             {
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
                 try
                 {
-                    ReplaceChannelSource(Binding.GetReadChannelSource(operationContext, deprioritizedServers));
                     ReplaceChannel(ChannelSource.GetChannel(operationContext));
                     return;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
                 {
-                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
-                    if (RetryableReadOperationExecutor.ShouldRetryOperation(operationContext, this, innerException, attempt))
-                    {
-                        attempt++;
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    attempt++;
                 }
             }
         }
 
-        internal async Task InitializeAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        internal async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var attempt = 1;
             while (true)
             {
+                operationContext.ThrowIfTimedOutOrCanceled();
+                ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
                 try
                 {
-                    ReplaceChannelSource(await Binding.GetReadChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
                     ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
                     return;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, ex, attempt))
                 {
-                    var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
-                    if (RetryableReadOperationExecutor.ShouldRetryOperation(operationContext, this, innerException, attempt))
-                    {
-                        attempt++;
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    attempt++;
                 }
             }
         }

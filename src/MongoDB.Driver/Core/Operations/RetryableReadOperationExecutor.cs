@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 try
                 {
-                    context.Initialize(operationContext, deprioritizedServers);
+                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
                 }
                 catch
                 {
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 try
                 {
-                    await context.InitializeAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -103,11 +103,17 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
+        {
+            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+            return ShouldRetryOperation(operationContext, context, innerException, attempt);
+        }
+
         // private static methods
         private static bool AreRetriesAllowed(RetryableReadContext context)
             => context.RetryRequested && !context.Binding.Session.IsInTransaction;
 
-        public static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
+        private static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
             if (!AreRetriesAllowed(context))
             {

@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests
             operationContext.Timeout.Should().Be(timeout);
             operationContext.RemainingTimeout.Should().Be(timeout);
             operationContext.CancellationToken.Should().Be(cancellationToken);
-            operationContext.ParentContext.Should().BeNull();
+            operationContext.RootContext.Should().BeNull();
         }
 
         [Fact]
@@ -273,12 +273,23 @@ namespace MongoDB.Driver.Tests
         ];
 
         [Fact]
-        public void WithTimeout_should_set_ParentContext()
+        public void WithTimeout_should_set_RootContext()
         {
             var operationContext = new OperationContext(new Stopwatch(), Timeout.InfiniteTimeSpan, CancellationToken.None);
             var resultContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10));
 
-            resultContext.ParentContext.Should().Be(operationContext);
+            resultContext.RootContext.Should().Be(operationContext);
+        }
+
+        [Fact]
+        public void WithTimeout_should_preserve_RootContext()
+        {
+            var rootContext = new OperationContext(new Stopwatch(), Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            var intermediateContext = rootContext.WithTimeout(TimeSpan.FromSeconds(200));
+            var resultContext = intermediateContext.WithTimeout(TimeSpan.FromSeconds(10));
+
+            resultContext.RootContext.Should().Be(rootContext);
         }
 
         [Fact]

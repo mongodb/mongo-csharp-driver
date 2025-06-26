@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
             var context = new RetryableWriteContext(binding, retryRequested);
             try
             {
-                context.Initialize(operationContext, null);
+                context.AcquireOrReplaceChannel(operationContext, null);
             }
             catch
             {
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
             var context = new RetryableWriteContext(binding, retryRequested);
             try
             {
-                await context.InitializeAsync(operationContext, null).ConfigureAwait(false);
+                await context.AcquireOrReplaceChannelAsync(operationContext, null).ConfigureAwait(false);
             }
             catch
             {
@@ -90,11 +90,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal void Initialize(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        internal void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var attempt = 1;
             while (true)
             {
+                operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(Binding.GetWriteChannelSource(operationContext, deprioritizedServers));
                 var server = ChannelSource.ServerDescription;
                 try
@@ -102,25 +103,19 @@ namespace MongoDB.Driver.Core.Operations
                     ReplaceChannel(ChannelSource.GetChannel(operationContext));
                     return;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
                 {
-                    if (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
-                    {
-                        attempt++;
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    attempt++;
                 }
             }
         }
 
-        internal async Task InitializeAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        internal async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var attempt = 1;
             while (true)
             {
+                operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannelSource(await Binding.GetWriteChannelSourceAsync(operationContext, deprioritizedServers).ConfigureAwait(false));
                 var server = ChannelSource.ServerDescription;
                 try
@@ -128,16 +123,9 @@ namespace MongoDB.Driver.Core.Operations
                     ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
                     return;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
                 {
-                    if (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(operationContext, this, server, ex, attempt))
-                    {
-                        attempt++;
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    attempt++;
                 }
             }
         }
