@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
         public ValueTask DisposeAsync()
         {
             Dispose();
-            return new ValueTask(Task.CompletedTask);
+            return default;
         }
 
         public bool MoveNext()
@@ -89,24 +89,20 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
 
-            while (true)
+            while (_cursor.MoveNext(_cancellationToken))
             {
-                if (_cursor.MoveNext(_cancellationToken))
+                _batchEnumerator?.Dispose();
+                _batchEnumerator = _cursor.Current.GetEnumerator();
+                if (_batchEnumerator.MoveNext())
                 {
-                    _batchEnumerator?.Dispose();
-                    _batchEnumerator = _cursor.Current.GetEnumerator();
-                    if (_batchEnumerator.MoveNext())
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    _batchEnumerator = null;
-                    _finished = true;
-                    return false;
+                    return true;
                 }
             }
+
+            _batchEnumerator?.Dispose();
+            _batchEnumerator = null;
+            _finished = true;
+            return false;
         }
 
         public async ValueTask<bool> MoveNextAsync()
@@ -123,9 +119,13 @@ namespace MongoDB.Driver.Core.Operations
             {
                 _batchEnumerator?.Dispose();
                 _batchEnumerator = _cursor.Current.GetEnumerator();
-                return _batchEnumerator.MoveNext();
+                if (_batchEnumerator.MoveNext())
+                {
+                    return true;
+                }
             }
 
+            _batchEnumerator?.Dispose();
             _batchEnumerator = null;
             _finished = true;
             return false;
