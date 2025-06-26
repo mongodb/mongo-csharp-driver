@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -29,14 +30,14 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
         }
 
-        protected override IServer GetFailPointServer()
+        protected override (IServer Server, TimeSpan RoundTripTime) GetFailPointServer()
         {
             var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
             var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);
             return TestRunner.FailPointCluster.SelectServer(OperationContext.NoTimeout, pinnedServerSelector);
         }
 
-        protected async override Task<IServer> GetFailPointServerAsync()
+        protected async override Task<(IServer Server, TimeSpan RoundTripTime)> GetFailPointServerAsync()
         {
             var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
             var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);

@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation("createSearchIndexes"))
             using (var channelSource = binding.GetWriteChannelSource(operationContext))
             using (var channel = channelSource.GetChannel(operationContext))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
                 return operation.Execute(operationContext, channelBinding);
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation("createSearchIndexes"))
             using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);

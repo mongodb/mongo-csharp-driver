@@ -18,6 +18,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Servers;
@@ -97,7 +98,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool async)
         {
             var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
-            var selectedServer = new Mock<IServer>().Object;
+            var selectedServer = (new Mock<IServer>().Object, TimeSpan.FromMilliseconds(42));
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -154,7 +155,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool async)
         {
             var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
-            var selectedServer = new Mock<IServer>().Object;
+            var selectedServer = (new Mock<IServer>().Object, TimeSpan.FromMilliseconds(42));
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -194,7 +195,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool async)
         {
             var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
-            var selectedServer = new Mock<IServer>().Object;
+            var selectedServer = (new Mock<IServer>().Object, TimeSpan.FromMilliseconds(42));
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -235,7 +236,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool async)
         {
             var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
-            var selectedServer = new Mock<IServer>().Object;
+            var selectedServer = (new Mock<IServer>().Object, TimeSpan.FromMilliseconds(42));
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -288,9 +289,6 @@ namespace MongoDB.Driver.Core.Bindings
     internal static class WritableServerBindingReflector
     {
         public static IClusterInternal _cluster(this WritableServerBinding obj)
-        {
-            var fieldInfo = typeof(WritableServerBinding).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IClusterInternal)fieldInfo.GetValue(obj);
-        }
+            => (IClusterInternal)Reflector.GetFieldValue(obj, "_cluster");
     }
 }

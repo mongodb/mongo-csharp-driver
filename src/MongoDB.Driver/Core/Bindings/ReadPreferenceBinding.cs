@@ -41,15 +41,9 @@ namespace MongoDB.Driver.Core.Bindings
             _serverSelector = new ReadPreferenceServerSelector(readPreference);
         }
 
-        public ReadPreference ReadPreference
-        {
-            get { return _readPreference; }
-        }
+        public ReadPreference ReadPreference => _readPreference;
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
+        public ICoreSessionHandle Session => _session;
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
@@ -75,9 +69,9 @@ namespace MongoDB.Driver.Core.Bindings
             return GetChannelSourceHelper(server);
         }
 
-        private IChannelSourceHandle GetChannelSourceHelper(IServer server)
+        private IChannelSourceHandle GetChannelSourceHelper((IServer Server, TimeSpan RoundTripTime) server)
         {
-            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
+            return new ChannelSourceHandle(new ServerChannelSource(server.Server, server.RoundTripTime, _session.Fork()));
         }
 
         public void Dispose()

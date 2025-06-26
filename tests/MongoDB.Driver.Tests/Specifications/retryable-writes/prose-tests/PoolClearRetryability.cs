@@ -82,8 +82,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                .Capture<ConnectionPoolCheckingOutConnectionFailedEvent>()
                .CaptureCommandEvents("insert");
 
-            var failpointServer = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, failPointSelector);
-            using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
+            var (failpointServer, roundTripTime) = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, failPointSelector);
+            using var failPoint = FailPoint.Configure(failpointServer, roundTripTime, NoCoreSession.NewHandle(), failPointCommand);
 
             using var client = CreateClient(settings, eventCapturer, heartbeatInterval);
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);

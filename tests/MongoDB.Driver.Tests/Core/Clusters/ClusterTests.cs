@@ -212,13 +212,13 @@ namespace MongoDB.Driver.Core.Clusters
 
             var selector = new DelegateServerSelector((c, s) => s);
 
-            var result = async ?
+            var (server, _) = async ?
                 await subject.SelectServerAsync(OperationContext.NoTimeout, selector) :
                 subject.SelectServer(OperationContext.NoTimeout, selector);
 
 
-            result.Should().NotBeNull();
-            result.EndPoint.Should().Be(endPoint2);
+            server.Should().NotBeNull();
+            server.EndPoint.Should().Be(endPoint2);
 
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
@@ -376,13 +376,13 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 _capturedEvents.Clear();
 
-                var result = async ?
+                var (server, _) = async ?
                     await subject.SelectServerAsync(OperationContext.NoTimeout, selector) :
                     subject.SelectServer(OperationContext.NoTimeout, selector);
 
-                result.Should().NotBeNull();
+                server.Should().NotBeNull();
 
-                deprioritizedServers.Should().NotContain(d => d.EndPoint == result.Description.EndPoint);
+                deprioritizedServers.Should().NotContain(d => d.EndPoint == server.Description.EndPoint);
 
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
                 _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
@@ -410,13 +410,13 @@ namespace MongoDB.Driver.Core.Clusters
             var selector = new PriorityServerSelector(deprioritizedServers);
 
             _capturedEvents.Clear();
-            var result = async ?
+            var (server, _) = async ?
                 await subject.SelectServerAsync(OperationContext.NoTimeout, selector) :
                 subject.SelectServer(OperationContext.NoTimeout, selector);
 
-            result.Should().NotBeNull();
+            server.Should().NotBeNull();
 
-            deprioritizedServers.Should().Contain(d => d.EndPoint == result.Description.EndPoint);
+            deprioritizedServers.Should().Contain(d => d.EndPoint == server.Description.EndPoint);
 
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
@@ -491,11 +491,11 @@ namespace MongoDB.Driver.Core.Clusters
                 ServerDescriptionHelper.Connected(subject.Description.ClusterId, new DnsEndPoint("localhost", 27020)));
             _capturedEvents.Clear();
 
-            var result = async ?
+            var (server, _) = async ?
                 await subject.SelectServerAsync(OperationContext.NoTimeout, middleSelector) :
                 subject.SelectServer(OperationContext.NoTimeout, middleSelector);
 
-            ((DnsEndPoint)result.EndPoint).Port.Should().Be(27020);
+            ((DnsEndPoint)server.EndPoint).Port.Should().Be(27020);
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
             _capturedEvents.Any().Should().BeFalse();
@@ -526,7 +526,7 @@ namespace MongoDB.Driver.Core.Clusters
             if (withEligibleServers)
             {
                 var selector = new DelegateServerSelector((c, s) => s);
-                var selectedServer = async ?
+                var (selectedServer, _) = async ?
                     await subject.SelectServerAsync(OperationContext.NoTimeout, selector):
                     subject.SelectServer(OperationContext.NoTimeout, selector);
 

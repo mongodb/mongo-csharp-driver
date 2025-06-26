@@ -1003,8 +1003,8 @@ namespace MongoDB.Driver.GridFS
         {
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
-            var server = _cluster.SelectServer(operationContext, selector);
-            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle());
+            var (server, serverRoundTripTime) = _cluster.SelectServer(operationContext, selector);
+            var binding = new SingleServerReadBinding(server, serverRoundTripTime, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
@@ -1012,24 +1012,24 @@ namespace MongoDB.Driver.GridFS
         {
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
-            var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle());
+            var (server, serverRoundTripTime) = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
+            var binding = new SingleServerReadBinding(server, serverRoundTripTime, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
         private IReadWriteBindingHandle GetSingleServerReadWriteBinding(OperationContext operationContext)
         {
             var selector = WritableServerSelector.Instance;
-            var server = _cluster.SelectServer(operationContext, selector);
-            var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
+            var (server, serverRoundTripTime) = _cluster.SelectServer(operationContext, selector);
+            var binding = new SingleServerReadWriteBinding(server, serverRoundTripTime, NoCoreSession.NewHandle());
             return new ReadWriteBindingHandle(binding);
         }
 
         private async Task<IReadWriteBindingHandle> GetSingleServerReadWriteBindingAsync(OperationContext operationContext)
         {
             var selector = WritableServerSelector.Instance;
-            var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
+            var (server, serverRoundTripTime) = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
+            var binding = new SingleServerReadWriteBinding(server, serverRoundTripTime, NoCoreSession.NewHandle());
             return new ReadWriteBindingHandle(binding);
         }
 

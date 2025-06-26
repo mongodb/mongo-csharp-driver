@@ -170,8 +170,8 @@ namespace MongoDB.Driver.Core.Servers
             {
                 // if we are cancelling, it's because the server has
                 // been shut down and we really don't need to wait.
-                roundTripTimeConnection.Open(_cancellationToken);
-                _cancellationToken.ThrowIfCancellationRequested();
+                var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, _cancellationToken);
+                roundTripTimeConnection.Open(operationContext);
             }
             catch
             {

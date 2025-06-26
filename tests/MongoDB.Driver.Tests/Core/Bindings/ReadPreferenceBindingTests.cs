@@ -15,9 +15,9 @@
 
 using System;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool async)
         {
             var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
-            var selectedServer = new Mock<IServer>().Object;
+            var selectedServer = (new Mock<IServer>().Object, TimeSpan.FromMilliseconds(42));
 
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var mockSession = new Mock<ICoreSessionHandle>();
             var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, mockSession.Object);
-            var selectedServer = new Mock<IServer>().Object;
+            var selectedServer = (new Mock<IServer>().Object, TimeSpan.FromMilliseconds(42));
             _mockCluster.Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>())).Returns(selectedServer);
             _mockCluster.Setup(m => m.SelectServerAsync(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>())).Returns(Task.FromResult(selectedServer));
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
@@ -187,9 +187,6 @@ namespace MongoDB.Driver.Core.Bindings
     internal static class ReadPreferenceBindingReflector
     {
         public static IClusterInternal _cluster(this ReadPreferenceBinding obj)
-        {
-            var fieldInfo = typeof(ReadPreferenceBinding).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IClusterInternal)fieldInfo.GetValue(obj);
-        }
+            => (IClusterInternal)Reflector.GetFieldValue(obj, "_cluster");
     }
 }

@@ -62,7 +62,8 @@ namespace MongoDB.Driver.Core.Connections
         private readonly EventLogger<LogCategories.Connection> _eventLogger;
 
         // constructors
-        public BinaryConnection(ServerId serverId,
+        public BinaryConnection(
+            ServerId serverId,
             EndPoint endPoint,
             ConnectionSettings settings,
             IStreamFactory streamFactory,
@@ -203,9 +204,9 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void Open(CancellationToken cancellationToken)
+        public void Open(OperationContext operationContext)
         {
-            ThrowIfCancelledOrDisposed(cancellationToken);
+            ThrowIfCancelledOrDisposed(operationContext);
 
             TaskCompletionSource<bool> taskCompletionSource = null;
             var connecting = false;
@@ -225,7 +226,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 try
                 {
-                    OpenHelper(cancellationToken);
+                    OpenHelper(operationContext);
                     taskCompletionSource.TrySetResult(true);
                 }
                 catch (Exception ex)
@@ -240,33 +241,37 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public Task OpenAsync(CancellationToken cancellationToken)
+        public Task OpenAsync(OperationContext operationContext)
         {
-            ThrowIfCancelledOrDisposed(cancellationToken);
+            ThrowIfCancelledOrDisposed(operationContext);
 
             lock (_openLock)
             {
                 if (_state.TryChange(State.Initial, State.Connecting))
                 {
                     _openedAtUtc = DateTime.UtcNow;
-                    _openTask = OpenHelperAsync(cancellationToken);
+                    _openTask = OpenHelperAsync(operationContext);
                 }
                 return _openTask;
             }
         }
 
-        private void OpenHelper(CancellationToken cancellationToken)
+        private void OpenHelper(OperationContext operationContext)
         {
             var helper = new OpenConnectionHelper(this);
             ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
-                _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
+#pragma warning disable CS0618 // Type or member is obsolete
+                _stream = _streamFactory.CreateStream(_endPoint, operationContext.CombinedCancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
                 helper.InitializingConnection();
-                _connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
+                // TODO: CSOT: Implement operation context support for MongoDB Handshake
+                _connectionInitializerContext = _connectionInitializer.SendHello(this, operationContext.CancellationToken);
                 handshakeDescription = _connectionInitializerContext.Description;
-                _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+                // TODO: CSOT: Implement operation context support for Auth
+                _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, operationContext.CancellationToken);
                 _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
@@ -281,18 +286,22 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async Task OpenHelperAsync(CancellationToken cancellationToken)
+        private async Task OpenHelperAsync(OperationContext operationContext)
         {
             var helper = new OpenConnectionHelper(this);
             ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
-                _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
+#pragma warning disable CS0618 // Type or member is obsolete
+                _stream = await _streamFactory.CreateStreamAsync(_endPoint, operationContext.CombinedCancellationToken).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
                 helper.InitializingConnection();
-                _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
+                // TODO: CSOT: Implement operation context support for MongoDB Handshake
+                _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, operationContext.CancellationToken).ConfigureAwait(false);
                 handshakeDescription = _connectionInitializerContext.Description;
-                _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+                // TODO: CSOT: Implement operation context support for Auth
+                _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, operationContext.CancellationToken).ConfigureAwait(false);
                 _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
                 helper.OpenedConnection();
@@ -326,20 +335,19 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private IByteBuffer ReceiveBuffer(CancellationToken cancellationToken)
+        private IByteBuffer ReceiveBuffer(OperationContext operationContext)
         {
             try
             {
                 var messageSizeBytes = new byte[4];
-                var readTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
-                _stream.ReadBytes(messageSizeBytes, 0, 4, readTimeout, cancellationToken);
+                _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                _stream.ReadBytes(buffer, 4, messageSize - 4, readTimeout, cancellationToken);
+                _stream.ReadBytes(operationContext, buffer, 4, messageSize - 4);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -352,9 +360,9 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private IByteBuffer ReceiveBuffer(int responseTo, CancellationToken cancellationToken)
+        private IByteBuffer ReceiveBuffer(OperationContext operationContext, int responseTo)
         {
-            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, cancellationToken))
+            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, operationContext.RemainingTimeout, operationContext.CancellationToken))
             {
                 var messageTask = _dropbox.GetMessageAsync(responseTo);
                 try
@@ -370,7 +378,7 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         try
                         {
-                            var buffer = ReceiveBuffer(cancellationToken);
+                            var buffer = ReceiveBuffer(operationContext);
                             _dropbox.AddMessage(buffer);
                         }
                         catch (Exception ex)
@@ -383,7 +391,7 @@ namespace MongoDB.Driver.Core.Connections
                             return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
                         }
 
-                        cancellationToken.ThrowIfCancellationRequested();
+                        operationContext.ThrowIfTimedOutOrCanceled();
                     }
                 }
                 catch
@@ -396,20 +404,19 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async Task<IByteBuffer> ReceiveBufferAsync(CancellationToken cancellationToken)
+        private async Task<IByteBuffer> ReceiveBufferAsync(OperationContext operationContext)
         {
             try
             {
                 var messageSizeBytes = new byte[4];
-                var readTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
-                await _stream.ReadBytesAsync(messageSizeBytes, 0, 4, readTimeout, cancellationToken).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4).ConfigureAwait(false);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                await _stream.ReadBytesAsync(buffer, 4, messageSize - 4, readTimeout, cancellationToken).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(operationContext, buffer, 4, messageSize - 4).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -422,9 +429,9 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async Task<IByteBuffer> ReceiveBufferAsync(int responseTo, CancellationToken cancellationToken)
+        private async Task<IByteBuffer> ReceiveBufferAsync(OperationContext operationContext, int responseTo)
         {
-            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, cancellationToken))
+            using (var receiveLockRequest = new SemaphoreSlimRequest(_receiveLock, operationContext.RemainingTimeout, operationContext.CancellationToken))
             {
                 var messageTask = _dropbox.GetMessageAsync(responseTo);
                 try
@@ -435,12 +442,12 @@ namespace MongoDB.Driver.Core.Connections
                         return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
                     }
 
-                    receiveLockRequest.Task.GetAwaiter().GetResult(); // propagate exceptions
+                    await receiveLockRequest.Task.ConfigureAwait(false); // propagate exceptions
                     while (true)
                     {
                         try
                         {
-                            var buffer = await ReceiveBufferAsync(cancellationToken).ConfigureAwait(false);
+                            var buffer = await ReceiveBufferAsync(operationContext).ConfigureAwait(false);
                             _dropbox.AddMessage(buffer);
                         }
                         catch (Exception ex)
@@ -453,7 +460,7 @@ namespace MongoDB.Driver.Core.Connections
                             return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
                         }
 
-                        cancellationToken.ThrowIfCancellationRequested();
+                        operationContext.ThrowIfTimedOutOrCanceled();
                     }
                 }
                 catch
@@ -467,21 +474,21 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         public ResponseMessage ReceiveMessage(
+            OperationContext operationContext,
             int responseTo,
             IMessageEncoderSelector encoderSelector,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken)
+            MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(encoderSelector, nameof(encoderSelector));
-            ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
+            ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
             var helper = new ReceiveMessageHelper(this, responseTo, messageEncoderSettings, _compressorSource);
             try
             {
                 helper.ReceivingMessage();
-                using (var buffer = ReceiveBuffer(responseTo, cancellationToken))
+                using (var buffer = ReceiveBuffer(operationContext, responseTo))
                 {
-                    var message = helper.DecodeMessage(buffer, encoderSelector, cancellationToken);
+                    var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
                     helper.ReceivedMessage(buffer, message);
                     return message;
                 }
@@ -494,22 +501,20 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task<ResponseMessage> ReceiveMessageAsync(
-            int responseTo,
+        public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo,
             IMessageEncoderSelector encoderSelector,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken)
+            MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(encoderSelector, nameof(encoderSelector));
-            ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
+            ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
             var helper = new ReceiveMessageHelper(this, responseTo, messageEncoderSettings, _compressorSource);
             try
             {
                 helper.ReceivingMessage();
-                using (var buffer = await ReceiveBufferAsync(responseTo, cancellationToken).ConfigureAwait(false))
+                using (var buffer = await ReceiveBufferAsync(operationContext, responseTo).ConfigureAwait(false))
                 {
-                    var message = helper.DecodeMessage(buffer, encoderSelector, cancellationToken);
+                    var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
                     helper.ReceivedMessage(buffer, message);
                     return message;
                 }
@@ -522,9 +527,9 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void SendBuffer(IByteBuffer buffer, CancellationToken cancellationToken)
+        private void SendBuffer(OperationContext operationContext, IByteBuffer buffer)
         {
-            _sendLock.Wait(cancellationToken);
+            _sendLock.Wait(operationContext.RemainingTimeout, operationContext.CancellationToken);
             try
             {
                 if (_state.Value == State.Failed)
@@ -534,8 +539,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 try
                 {
-                    var writeTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.WriteTimeout) : Timeout.InfiniteTimeSpan;
-                    _stream.WriteBytes(buffer, 0, buffer.Length, writeTimeout, cancellationToken);
+                    _stream.WriteBytes(operationContext, buffer, 0, buffer.Length);
                     _lastUsedAtUtc = DateTime.UtcNow;
                 }
                 catch (Exception ex)
@@ -551,9 +555,9 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private async Task SendBufferAsync(IByteBuffer buffer, CancellationToken cancellationToken)
+        private async Task SendBufferAsync(OperationContext operationContext, IByteBuffer buffer)
         {
-            await _sendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await _sendLock.WaitAsync(operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
             try
             {
                 if (_state.Value == State.Failed)
@@ -563,8 +567,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 try
                 {
-                    var writeTimeout = _stream.CanTimeout ? TimeSpan.FromMilliseconds(_stream.WriteTimeout) : Timeout.InfiniteTimeSpan;
-                    await _stream.WriteBytesAsync(buffer, 0, buffer.Length, writeTimeout, cancellationToken).ConfigureAwait(false);
+                    await _stream.WriteBytesAsync(operationContext, buffer, 0, buffer.Length).ConfigureAwait(false);
                     _lastUsedAtUtc = DateTime.UtcNow;
                 }
                 catch (Exception ex)
@@ -580,16 +583,16 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(message, nameof(message));
-            ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
+            ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
             var helper = new SendMessageHelper(this, message, messageEncoderSettings);
             try
             {
                 helper.EncodingMessage();
-                using (var uncompressedBuffer = helper.EncodeMessage(cancellationToken, out var sentMessage))
+                using (var uncompressedBuffer = helper.EncodeMessage(operationContext, out var sentMessage))
                 {
                     helper.SendingMessage(uncompressedBuffer);
                     int sentLength;
@@ -597,13 +600,13 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         using (var compressedBuffer = CompressMessage(sentMessage, uncompressedBuffer, messageEncoderSettings))
                         {
-                            SendBuffer(compressedBuffer, cancellationToken);
+                            SendBuffer(operationContext, compressedBuffer);
                             sentLength = compressedBuffer.Length;
                         }
                     }
                     else
                     {
-                        SendBuffer(uncompressedBuffer, cancellationToken);
+                        SendBuffer(operationContext, uncompressedBuffer);
                         sentLength = uncompressedBuffer.Length;
                     }
                     helper.SentMessage(sentLength);
@@ -617,16 +620,16 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public async Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             Ensure.IsNotNull(message, nameof(message));
-            ThrowIfCancelledOrDisposedOrNotOpen(cancellationToken);
+            ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
             var helper = new SendMessageHelper(this, message, messageEncoderSettings);
             try
             {
                 helper.EncodingMessage();
-                using (var uncompressedBuffer = helper.EncodeMessage(cancellationToken, out var sentMessage))
+                using (var uncompressedBuffer = helper.EncodeMessage(operationContext, out var sentMessage))
                 {
                     helper.SendingMessage(uncompressedBuffer);
                     int sentLength;
@@ -634,13 +637,13 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         using (var compressedBuffer = CompressMessage(sentMessage, uncompressedBuffer, messageEncoderSettings))
                         {
-                            await SendBufferAsync(compressedBuffer, cancellationToken).ConfigureAwait(false);
+                            await SendBufferAsync(operationContext, compressedBuffer).ConfigureAwait(false);
                             sentLength = compressedBuffer.Length;
                         }
                     }
                     else
                     {
-                        await SendBufferAsync(uncompressedBuffer, cancellationToken).ConfigureAwait(false);
+                        await SendBufferAsync(operationContext, uncompressedBuffer).ConfigureAwait(false);
                         sentLength = uncompressedBuffer.Length;
                     }
                     helper.SentMessage(sentLength);
@@ -717,15 +720,15 @@ namespace MongoDB.Driver.Core.Connections
             compressedMessageEncoder.WriteMessage(compressedMessage);
         }
 
-        private void ThrowIfCancelledOrDisposed(CancellationToken cancellationToken = default)
+        private void ThrowIfCancelledOrDisposed(OperationContext operationContext)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            operationContext.ThrowIfTimedOutOrCanceled();
             ThrowIfDisposed();
         }
 
-        private void ThrowIfCancelledOrDisposedOrNotOpen(CancellationToken cancellationToken)
+        private void ThrowIfCancelledOrDisposedOrNotOpen(OperationContext operationContext)
         {
-            ThrowIfCancelledOrDisposed(cancellationToken);
+            ThrowIfCancelledOrDisposed(operationContext);
             if (_state.Value == State.Failed)
             {
                 throw new MongoConnectionClosedException(_connectionId);
@@ -905,9 +908,9 @@ namespace MongoDB.Driver.Core.Connections
                 _messageEncoderSettings = messageEncoderSettings;
             }
 
-            public ResponseMessage DecodeMessage(IByteBuffer buffer, IMessageEncoderSelector encoderSelector, CancellationToken cancellationToken)
+            public ResponseMessage DecodeMessage(OperationContext operationContext, IByteBuffer buffer, IMessageEncoderSelector encoderSelector)
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                operationContext.ThrowIfTimedOutOrCanceled();
 
                 _stopwatch.Stop();
                 _networkDuration = _stopwatch.Elapsed;
@@ -992,10 +995,10 @@ namespace MongoDB.Driver.Core.Connections
                 _commandStopwatch = Stopwatch.StartNew();
             }
 
-            public IByteBuffer EncodeMessage(CancellationToken cancellationToken, out RequestMessage sentMessage)
+            public IByteBuffer EncodeMessage(OperationContext operationContext, out RequestMessage sentMessage)
             {
                 sentMessage = null;
-                cancellationToken.ThrowIfCancellationRequested();
+                operationContext.ThrowIfTimedOutOrCanceled();
 
                 var serializationStopwatch = Stopwatch.StartNew();
                 var outputBufferChunkSource = new OutputBufferChunkSource(BsonChunkPool.Default);
@@ -1012,7 +1015,7 @@ namespace MongoDB.Driver.Core.Connections
                     // Encoding messages includes serializing the
                     // documents, so encoding message could be expensive
                     // and worthy of us honoring cancellation here.
-                    cancellationToken.ThrowIfCancellationRequested();
+                    operationContext.ThrowIfTimedOutOrCanceled();
 
                     buffer.Length = (int)stream.Length;
                     buffer.MakeReadOnly();

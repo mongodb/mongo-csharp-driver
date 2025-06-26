@@ -116,11 +116,11 @@ namespace MongoDB.Driver.Core.WireProtocol
 #pragma warning restore 618
         }
 
-        public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
+        public TCommandResult Execute(OperationContext operationContext, IConnection connection)
         {
             bool messageContainsSessionId;
             var message = CreateMessage(connection.Description, out messageContainsSessionId);
-            connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+            connection.SendMessage(operationContext, message, _messageEncoderSettings);
             if (messageContainsSessionId)
             {
                 _session.WasUsed();
@@ -129,20 +129,20 @@ namespace MongoDB.Driver.Core.WireProtocol
             switch (message.ResponseHandling)
             {
                 case CommandResponseHandling.Ignore:
-                    IgnoreResponse(connection, message, cancellationToken);
+                    IgnoreResponse(operationContext, connection, message);
                     return default(TCommandResult);
                 default:
                     var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
-                    var reply = connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+                    var reply = connection.ReceiveMessage(operationContext, message.RequestId, encoderSelector, _messageEncoderSettings);
                     return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
             }
         }
 
-        public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
+        public async Task<TCommandResult> ExecuteAsync(OperationContext operationContext, IConnection connection)
         {
             bool messageContainsSessionId;
             var message = CreateMessage(connection.Description, out messageContainsSessionId);
-            await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+            await connection.SendMessageAsync(operationContext, message, _messageEncoderSettings).ConfigureAwait(false);
             if (messageContainsSessionId)
             {
                 _session.WasUsed();
@@ -151,11 +151,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             switch (message.ResponseHandling)
             {
                 case CommandResponseHandling.Ignore:
-                    IgnoreResponse(connection, message, cancellationToken);
+                    IgnoreResponse(operationContext, connection, message);
                     return default(TCommandResult);
                 default:
                     var encoderSelector = new ReplyMessageEncoderSelector<RawBsonDocument>(RawBsonDocumentSerializer.Instance);
-                    var reply = await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    var reply = await connection.ReceiveMessageAsync(operationContext, message.RequestId, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
                     return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
             }
         }
@@ -230,10 +230,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             return (IBsonSerializer)constructorInfo.Invoke(new object[] { itemSerializer, itemElementNameValidator, maxBatchCount, maxItemSize, maxBatchSize });
         }
 
-        private void IgnoreResponse(IConnection connection, QueryMessage message, CancellationToken cancellationToken)
+        private void IgnoreResponse(OperationContext operationContext, IConnection connection, QueryMessage message)
         {
             var encoderSelector = new ReplyMessageEncoderSelector<IgnoredReply>(IgnoredReplySerializer.Instance);
-            connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).IgnoreExceptions();
+            connection.ReceiveMessageAsync(operationContext, message.RequestId, encoderSelector, _messageEncoderSettings).IgnoreExceptions();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]

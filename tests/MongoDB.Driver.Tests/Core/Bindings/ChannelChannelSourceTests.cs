@@ -14,9 +14,10 @@
 */
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -30,14 +31,16 @@ namespace MongoDB.Driver.Core.Bindings
         public void constructor_should_initialize_instance()
         {
             var server = new Mock<IServer>().Object;
+            var roundTripTime = TimeSpan.FromSeconds(42);
             var channel = new Mock<IChannelHandle>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var result = new ChannelChannelSource(server, channel, session);
+            var result = new ChannelChannelSource(server, roundTripTime, channel, session);
 
             result._channel().Should().BeSameAs(channel);
             result._disposed().Should().BeFalse();
             result.Server.Should().BeSameAs(server);
+            result.RoundTripTime.Should().Be(roundTripTime);
             result.Session.Should().BeSameAs(session);
         }
 
@@ -47,11 +50,31 @@ namespace MongoDB.Driver.Core.Bindings
             var channel = new Mock<IChannelHandle>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelChannelSource(null, channel, session));
+            var exception = Record.Exception(() => new ChannelChannelSource(null, TimeSpan.FromSeconds(42), channel, session));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("server");
         }
+
+        [Theory]
+        [MemberData(nameof(InvalidRoundTripCases))]
+        public void constructor_should_throw_when_round_trip_time_is_invalid(TimeSpan roundTripTime)
+        {
+            var server = new Mock<IServer>().Object;
+            var channel = new Mock<IChannelHandle>().Object;
+            var session = new Mock<ICoreSessionHandle>().Object;
+
+            var exception = Record.Exception(() => new ChannelChannelSource(server, roundTripTime, channel, session));
+
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("roundTripTime");
+        }
+
+        public static IEnumerable<object[]> InvalidRoundTripCases =
+        [
+            [TimeSpan.Zero],
+            [TimeSpan.FromMilliseconds(-5)]
+        ];
 
         [Fact]
         public void constructor_should_throw_when_channel_is_null()
@@ -59,7 +82,7 @@ namespace MongoDB.Driver.Core.Bindings
             var server = new Mock<IServer>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelChannelSource(server, null, session));
+            var exception = Record.Exception(() => new ChannelChannelSource(server, TimeSpan.FromSeconds(42), null, session));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("channel");
@@ -71,7 +94,7 @@ namespace MongoDB.Driver.Core.Bindings
             var server = new Mock<IServer>().Object;
             var channel = new Mock<IChannelHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelChannelSource(server, channel, null));
+            var exception = Record.Exception(() => new ChannelChannelSource(server, TimeSpan.FromSeconds(42), channel, null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("session");
@@ -183,6 +206,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             return new ChannelChannelSource(
                 server ?? new Mock<IServer>().Object,
+                TimeSpan.FromSeconds(42),
                 channel ?? new Mock<IChannelHandle>().Object,
                 session ?? new Mock<ICoreSessionHandle>().Object);
         }
@@ -191,15 +215,9 @@ namespace MongoDB.Driver.Core.Bindings
     internal static class ChannelChannelSourceReflector
     {
         public static IChannelHandle _channel(this ChannelChannelSource obj)
-        {
-            var fieldInfo = typeof(ChannelChannelSource).GetField("_channel", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IChannelHandle)fieldInfo.GetValue(obj);
-        }
+            => (IChannelHandle)Reflector.GetFieldValue(obj, "_channel");
 
         public static bool _disposed(this ChannelChannelSource obj)
-        {
-            var fieldInfo = typeof(ChannelChannelSource).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)fieldInfo.GetValue(obj);
-        }
+            => (bool)Reflector.GetFieldValue(obj, "_disposed");
     }
 }

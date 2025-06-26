@@ -26,31 +26,26 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly IChannelHandle _channel;
         private bool _disposed;
         private readonly IServer _server;
+        private readonly TimeSpan _roundTripTime;
         private readonly ICoreSessionHandle _session;
 
         // constructors
-        public ChannelChannelSource(IServer server, IChannelHandle channel, ICoreSessionHandle session)
+        public ChannelChannelSource(IServer server, TimeSpan roundTripTime, IChannelHandle channel, ICoreSessionHandle session)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
+            _roundTripTime = Ensure.IsGreaterThanZero(roundTripTime, nameof(roundTripTime));
             _channel = Ensure.IsNotNull(channel, nameof(channel));
             _session = Ensure.IsNotNull(session, nameof(session));
         }
 
         // properties
-        public IServer Server
-        {
-            get { return _server; }
-        }
+        public IServer Server => _server;
 
-        public ServerDescription ServerDescription
-        {
-            get { return _server.Description; }
-        }
+        public ServerDescription ServerDescription => _server.Description;
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
+        public TimeSpan RoundTripTime => _roundTripTime;
+
+        public ICoreSessionHandle Session => _session;
 
         // methods
         public void Dispose()

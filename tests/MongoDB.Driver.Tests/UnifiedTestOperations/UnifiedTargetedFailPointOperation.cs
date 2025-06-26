@@ -52,11 +52,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap.RegisterForDispose(client);
 
             var cluster = client.GetClusterInternal();
-            var server = cluster.SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(pinnedServer));
+            var (server, roundTripTime) = cluster.SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(pinnedServer));
 
             var session = NoCoreSession.NewHandle();
 
-            var failPoint = FailPoint.Configure(server, session, _failPointCommand, withAsync: _async);
+            var failPoint = FailPoint.Configure(server, roundTripTime, session, _failPointCommand, withAsync: _async);
             _entityMap.RegisterForDispose(failPoint);
         }
     }

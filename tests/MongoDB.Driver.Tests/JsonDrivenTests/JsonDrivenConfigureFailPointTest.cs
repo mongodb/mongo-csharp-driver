@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,34 +35,24 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            var server = GetFailPointServer();
-            TestRunner.ConfigureFailPoint(server, NoCoreSession.NewHandle(), _failCommand);
+            var (server, serverRoundTripTime) = GetFailPointServer();
+            TestRunner.ConfigureFailPoint(server, serverRoundTripTime, NoCoreSession.NewHandle(), _failCommand);
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            var server = await GetFailPointServerAsync().ConfigureAwait(false);
-            await TestRunner.ConfigureFailPointAsync(server, NoCoreSession.NewHandle(), _failCommand).ConfigureAwait(false);
+            var (server, serverRoundTripTime) = await GetFailPointServerAsync().ConfigureAwait(false);
+            await TestRunner.ConfigureFailPointAsync(server, serverRoundTripTime, NoCoreSession.NewHandle(), _failCommand).ConfigureAwait(false);
         }
 
-        protected virtual IServer GetFailPointServer()
+        protected virtual (IServer Server, TimeSpan RoundTripTime) GetFailPointServer()
         {
-            if (TestRunner.FailPointServer != null)
-            {
-                return TestRunner.FailPointServer;
-            }
-
             var cluster = TestRunner.FailPointCluster;
             return cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
         }
 
-        protected async virtual Task<IServer> GetFailPointServerAsync()
+        protected async virtual Task<(IServer Server, TimeSpan RoundTripTime)> GetFailPointServerAsync()
         {
-            if (TestRunner.FailPointServer != null)
-            {
-                return TestRunner.FailPointServer;
-            }
-
             var cluster = TestRunner.FailPointCluster;
             return await cluster.SelectServerAsync(OperationContext.NoTimeout, WritableServerSelector.Instance).ConfigureAwait(false);
         }

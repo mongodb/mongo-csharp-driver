@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -1378,7 +1377,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationContext.NoTimeout))
             using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
 
@@ -1425,7 +1424,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationContext.NoTimeout))
             using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(5);
@@ -1466,7 +1465,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationContext.NoTimeout))
             using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(5);
@@ -1507,7 +1506,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationContext.NoTimeout))
             using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(4);

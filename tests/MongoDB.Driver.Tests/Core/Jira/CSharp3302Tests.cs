@@ -142,13 +142,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     server.DescriptionChanged += ProcessServerDescriptionChanged;
                 }
 
-                var selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
+                var (selectedServer, _) = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint1));
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
                 // Change primary
                 currentPrimaries.Add(__serverId2);
-                selectedServer = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint2));
+                (selectedServer, _) = cluster.SelectServer(OperationContext.NoTimeout, CreateWritableServerAndEndPointSelector(__endPoint2));
                 selectedServer.EndPoint.Should().Be(__endPoint2);
 
                 // Ensure stalling happened
@@ -303,9 +303,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 .SetupGet(c => c.Description)
                 .Returns(GetConnectionDescription);
 
-            mockConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())); // no action is required
+            mockConnection.Setup(c => c.Open(It.IsAny<OperationContext>())); // no action is required
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(GetHelloResponse);
 
             ResponseMessage GetHelloResponse()

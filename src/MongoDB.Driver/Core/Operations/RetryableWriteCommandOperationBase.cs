@@ -115,8 +115,8 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
-            // TODO: CSOT implement timeout in Command Execution
             return context.Channel.Command<BsonDocument>(
+                operationContext,
                 context.ChannelSource.Session,
                 ReadPreference.Primary,
                 _databaseNamespace,
@@ -127,15 +127,14 @@ namespace MongoDB.Driver.Core.Operations
                 args.PostWriteAction,
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                args.MessageEncoderSettings,
-                operationContext.CancellationToken);
+                args.MessageEncoderSettings);
         }
 
         public Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
-            // TODO: CSOT implement timeout in Command Execution
             return context.Channel.CommandAsync<BsonDocument>(
+                operationContext,
                 context.ChannelSource.Session,
                 ReadPreference.Primary,
                 _databaseNamespace,
@@ -146,8 +145,7 @@ namespace MongoDB.Driver.Core.Operations
                 args.PostWriteAction,
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                args.MessageEncoderSettings,
-                operationContext.CancellationToken);
+                args.MessageEncoderSettings);
         }
 
         protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber);

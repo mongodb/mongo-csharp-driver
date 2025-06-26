@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Core.Bindings
     {
         IServer Server { get; }
         ServerDescription ServerDescription { get; }
+        TimeSpan RoundTripTime { get; }
         ICoreSessionHandle Session { get; }
 
         IChannelHandle GetChannel(OperationContext operationContext);

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
@@ -27,27 +28,43 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class ServerChannelSourceTests
     {
-        private Mock<IServer> _mockServer;
-
-        public ServerChannelSourceTests()
-        {
-            _mockServer = new Mock<IServer>();
-        }
-
         [Fact]
         public void Constructor_should_throw_when_server_is_null()
         {
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var session = new Mock<ICoreSessionHandle>().Object;
-            var exception = Record.Exception(() => new ServerChannelSource(null, session));
+            var exception = Record.Exception(() => new ServerChannelSource(null, roundTripTime, session));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("server");
         }
 
+        [Theory]
+        [MemberData(nameof(InvalidRoundTripCases))]
+        public void Constructor_should_throw_when_roundTripTime_is_invalid(TimeSpan roundTripTime)
+        {
+            var server = Mock.Of<IServer>();
+            var session = Mock.Of<ICoreSessionHandle>();
+
+            var exception = Record.Exception(() => new ServerChannelSource(server, roundTripTime, session));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>()
+                .Subject.ParamName.Should().Be("roundTripTime");
+        }
+
+        public static IEnumerable<object[]> InvalidRoundTripCases =
+        [
+            [TimeSpan.Zero],
+            [TimeSpan.FromMilliseconds(-5)]
+        ];
+
         [Fact]
         public void Constructor_should_throw_when_session_is_null()
         {
-            var exception = Record.Exception(() => new ServerChannelSource(_mockServer.Object, null));
+            var server = Mock.Of<IServer>();
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
+
+            var exception = Record.Exception(() => new ServerChannelSource(server, roundTripTime, null));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("session");
@@ -56,13 +73,14 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void ServerDescription_should_return_description_of_server()
         {
-            var session = new Mock<ICoreSessionHandle>().Object;
-            var subject = new ServerChannelSource(_mockServer.Object, session);
-
             var desc = ServerDescriptionHelper.Disconnected(new ClusterId());
 
-            _mockServer.SetupGet(s => s.Description).Returns(desc);
+            var serverMock = new Mock<IServer>();
+            serverMock.SetupGet(s => s.Description).Returns(desc);
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
+            var session = new Mock<ICoreSessionHandle>().Object;
 
+            var subject = new ServerChannelSource(serverMock.Object, roundTripTime, session);
             var result = subject.ServerDescription;
 
             result.Should().BeSameAs(desc);
@@ -72,7 +90,7 @@ namespace MongoDB.Driver.Core.Bindings
         public void Session_should_return_expected_result()
         {
             var session = new Mock<ICoreSessionHandle>().Object;
-            var subject = new ServerChannelSource(_mockServer.Object, session);
+            var subject = new ServerChannelSource(Mock.Of<IServer>(), TimeSpan.FromMilliseconds(42), session);
 
             var result = subject.Session;
 
@@ -86,7 +104,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool async)
         {
             var session = new Mock<ICoreSessionHandle>().Object;
-            var subject = new ServerChannelSource(_mockServer.Object, session);
+            var subject = new ServerChannelSource(Mock.Of<IServer>(), TimeSpan.FromMilliseconds(42), session);
             subject.Dispose();
 
             var exception = async ?
@@ -102,20 +120,21 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
+            var serverMock = new Mock<IServer>();
             var session = new Mock<ICoreSessionHandle>().Object;
-            var subject = new ServerChannelSource(_mockServer.Object, session);
+            var subject = new ServerChannelSource(serverMock.Object, TimeSpan.FromMilliseconds(42), session);
 
             if (async)
             {
                 await subject.GetChannelAsync(OperationContext.NoTimeout);
 
-                _mockServer.Verify(s => s.GetChannelAsync(It.IsAny<OperationContext>()), Times.Once);
+                serverMock.Verify(s => s.GetConnectionAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
                 subject.GetChannel(OperationContext.NoTimeout);
 
-                _mockServer.Verify(s => s.GetChannel(It.IsAny<OperationContext>()), Times.Once);
+                serverMock.Verify(s => s.GetConnection(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 
@@ -123,7 +142,7 @@ namespace MongoDB.Driver.Core.Bindings
         public void Dispose_should_dispose_session()
         {
             var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = new ServerChannelSource(_mockServer.Object, mockSession.Object);
+            var subject = new ServerChannelSource(Mock.Of<IServer>(), TimeSpan.FromMilliseconds(42), mockSession.Object);
 
             subject.Dispose();
 

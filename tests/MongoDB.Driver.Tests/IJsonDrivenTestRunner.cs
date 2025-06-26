@@ -27,10 +27,8 @@ namespace MongoDB.Driver.Tests
     internal interface IJsonDrivenTestRunner
     {
         IClusterInternal FailPointCluster { get; }
-        IServer FailPointServer { get; }
-
-        void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
-        Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
+        void ConfigureFailPoint(IServer server, TimeSpan serverRoundTripTime, ICoreSessionHandle session, BsonDocument failCommand);
+        Task ConfigureFailPointAsync(IServer server, TimeSpan serverRoundTripTime, ICoreSessionHandle session, BsonDocument failCommand);
     }
 
     internal sealed class JsonDrivenTestRunner : IJsonDrivenTestRunner, IDisposable
@@ -49,17 +47,15 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        public IServer FailPointServer => null;
-
-        public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
+        public void ConfigureFailPoint(IServer server, TimeSpan serverRoundTripTime, ICoreSessionHandle session, BsonDocument failCommand)
         {
-            var failPoint = FailPoint.Configure(server, session, failCommand, withAsync: false);
+            var failPoint = FailPoint.Configure(server, serverRoundTripTime, session, failCommand, withAsync: false);
             _disposables.Add(failPoint);
         }
 
-        public async Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
+        public async Task ConfigureFailPointAsync(IServer server, TimeSpan serverRoundTripTime, ICoreSessionHandle session, BsonDocument failCommand)
         {
-            var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand, withAsync: true)).ConfigureAwait(false);
+            var failPoint = await Task.Run(() => FailPoint.Configure(server, serverRoundTripTime, session, failCommand, withAsync: true)).ConfigureAwait(false);
             _disposables.Add(failPoint);
         }
 

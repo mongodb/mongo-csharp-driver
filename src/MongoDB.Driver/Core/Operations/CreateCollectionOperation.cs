@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(operationContext))
             {
                 EnsureServerIsValid(channel.ConnectionDescription.MaxWireVersion);
-                using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+                using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, binding.Session.Fork()))
                 {
                     var operation = CreateOperation(channelBinding.Session);
                     return operation.Execute(operationContext, channelBinding);
@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
                 EnsureServerIsValid(channel.ConnectionDescription.MaxWireVersion);
-                using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+                using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, binding.Session.Fork()))
                 {
                     var operation = CreateOperation(channelBinding.Session);
                     return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);

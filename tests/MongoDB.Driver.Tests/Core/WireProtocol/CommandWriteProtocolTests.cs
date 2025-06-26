@@ -71,13 +71,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 responseHandling,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings,
-                null); // serverApi
+                null, // serverApi
+                TimeSpan.FromMilliseconds(42));
 
             var mockConnection = new Mock<IConnection>();
             var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             var connectionId = SetupConnection(mockConnection);
 
-            var result = subject.Execute(mockConnection.Object, CancellationToken.None);
+            var result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object);
 
             var cachedWireProtocol = subject._cachedWireProtocol();
             cachedWireProtocol.Should().NotBeNull();
@@ -91,7 +92,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             subject._responseHandling(CommandResponseHandling.Ignore); // will trigger the exception if the CommandUsingCommandMessageWireProtocol ctor will be called
 
             result = null;
-            var exception = Record.Exception(() => { result = subject.Execute(mockConnection.Object, CancellationToken.None); });
+            var exception = Record.Exception(() => { result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object); });
 
             if (withSameConnection)
             {
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
 
                 connection
-                    .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None))
+                    .Setup(c => c.ReceiveMessage(OperationContext.NoTimeout, It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings))
                     .Returns(commandResponse);
                 connection.SetupGet(c => c.ConnectionId).Returns(id);
                 connection
@@ -133,7 +134,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_should_use_serverApi_with_getMoreCommand(
+        public async Task Execute_should_use_serverApi_with_getMoreCommand(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
@@ -155,15 +156,16 @@ namespace MongoDB.Driver.Core.WireProtocol
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings(),
-                serverApi);
+                serverApi,
+                TimeSpan.FromMilliseconds(42));
 
             if (async)
             {
-                subject.ExecuteAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
             }
             else
             {
-                subject.Execute(connection, CancellationToken.None);
+                subject.Execute(OperationContext.NoTimeout, connection);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
@@ -177,7 +179,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_should_use_serverApi_in_transaction(
+        public async Task Execute_should_use_serverApi_in_transaction(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
@@ -199,15 +201,16 @@ namespace MongoDB.Driver.Core.WireProtocol
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings(),
-                serverApi);
+                serverApi,
+                TimeSpan.FromMilliseconds(42));
 
             if (async)
             {
-                subject.ExecuteAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
             }
             else
             {
-                subject.Execute(connection, CancellationToken.None);
+                subject.Execute(OperationContext.NoTimeout, connection);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
@@ -247,17 +250,18 @@ namespace MongoDB.Driver.Core.WireProtocol
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings,
-                null); // serverApi
+                null, // serverApi
+                TimeSpan.FromMilliseconds(42));
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
             var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings))
                 .Returns(commandResponse);
 
-            var result = subject.Execute(mockConnection.Object, CancellationToken.None);
+            var result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object);
             result.Should().Be("{ok: 1}");
         }
 
@@ -277,21 +281,22 @@ namespace MongoDB.Driver.Core.WireProtocol
                 CommandResponseHandling.NoResponseExpected,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings,
-                null); // serverApi
+                null, // serverApi
+                TimeSpan.FromMilliseconds(42));
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
-            var result = subject.Execute(mockConnection.Object, CancellationToken.None);
+            var result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object);
             result.Should().BeNull();
 
             mockConnection.Verify(
-                c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None),
+                c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings),
                 Times.Once);
         }
 
         [Fact]
-        public void ExecuteAsync_should_wait_for_response_when_CommandResponseHandling_is_Return()
+        public async Task ExecuteAsync_should_wait_for_response_when_CommandResponseHandling_is_Return()
         {
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
@@ -306,22 +311,23 @@ namespace MongoDB.Driver.Core.WireProtocol
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings,
-                null); // serverApi
+                null, // serverApi
+                TimeSpan.FromMilliseconds(42));
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
             var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
-                .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None))
+                .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings))
                 .Returns(Task.FromResult<ResponseMessage>(commandResponse));
 
-            var result = subject.ExecuteAsync(mockConnection.Object, CancellationToken.None).GetAwaiter().GetResult();
+            var result = await subject.ExecuteAsync(OperationContext.NoTimeout, mockConnection.Object);
             result.Should().Be("{ok: 1}");
         }
 
         [Fact]
-        public void ExecuteAsync_should_not_wait_for_response_when_CommandResponseHandling_is_NoResponseExpected()
+        public async Task ExecuteAsync_should_not_wait_for_response_when_CommandResponseHandling_is_NoResponseExpected()
         {
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
@@ -336,15 +342,16 @@ namespace MongoDB.Driver.Core.WireProtocol
                 CommandResponseHandling.NoResponseExpected,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings,
-                null); // serverApi
+                null, // serverApi
+                TimeSpan.FromMilliseconds(42));
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
-            var result = subject.ExecuteAsync(mockConnection.Object, CancellationToken.None).GetAwaiter().GetResult();
+            var result = await subject.ExecuteAsync(OperationContext.NoTimeout, mockConnection.Object);
             result.Should().BeNull();
 
-            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None), Times.Once);
+            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings), Times.Once);
         }
 
         // private methods

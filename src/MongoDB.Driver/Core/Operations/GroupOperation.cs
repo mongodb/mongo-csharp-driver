@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
             using (var channelSource = binding.GetReadChannelSource(operationContext))
             using (var channel = channelSource.GetChannel(operationContext))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channelSource.RoundTripTime, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
                 return operation.Execute(operationContext, channelBinding);
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
             using (var channelSource = await binding.GetReadChannelSourceAsync(operationContext).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channelSource.RoundTripTime, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation();
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);

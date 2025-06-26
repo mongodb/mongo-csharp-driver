@@ -70,6 +70,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         private IDictionary<string, object> _objectMap = null;
 
         private protected IServer _failPointServer = null;
+        private protected TimeSpan? _failPointRoundTripTime = null;
 
         protected BsonDocument LastKnownClusterTime { get; set; }
 
@@ -451,22 +452,22 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 var settings = client.Settings.Clone();
                 ConfigureClientSettings(settings, test);
 
-                if (settings.DirectConnection == true)
+                if (settings.DirectConnection)
                 {
                     var serverAddress = EndPointHelper.Parse(settings.Server.ToString());
 
                     var selector = new EndPointServerSelector(serverAddress);
-                    _failPointServer = cluster.SelectServer(OperationContext.NoTimeout, selector);
+                    (_failPointServer, _failPointRoundTripTime) = cluster.SelectServer(OperationContext.NoTimeout, selector);
                 }
                 else
                 {
-                    _failPointServer = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                    (_failPointServer, _failPointRoundTripTime) = cluster.SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
                 }
 
                 var session = NoCoreSession.NewHandle();
                 var command = failPoint.AsBsonDocument;
 
-                return FailPoint.Configure(_failPointServer, session, command, _async);
+                return FailPoint.Configure(_failPointServer, _failPointRoundTripTime.Value, session, command, _async);
             }
 
             return null;

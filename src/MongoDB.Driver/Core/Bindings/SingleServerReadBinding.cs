@@ -28,25 +28,21 @@ namespace MongoDB.Driver.Core.Bindings
 
         private bool _disposed;
         private readonly ReadPreference _readPreference;
+        private readonly TimeSpan _roundTripTime;
         private readonly IServer _server;
         private readonly ICoreSessionHandle _session;
 
-        public SingleServerReadBinding(IServer server, ReadPreference readPreference, ICoreSessionHandle session)
+        public SingleServerReadBinding(IServer server, TimeSpan roundTripTime, ReadPreference readPreference, ICoreSessionHandle session)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
+            _roundTripTime = Ensure.IsGreaterThanZero(roundTripTime, nameof(roundTripTime));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
             _session = Ensure.IsNotNull(session, nameof(session));
         }
 
-        public ReadPreference ReadPreference
-        {
-            get { return _readPreference; }
-        }
+        public ReadPreference ReadPreference => _readPreference;
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
+        public ICoreSessionHandle Session => _session;
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
@@ -90,7 +86,7 @@ namespace MongoDB.Driver.Core.Bindings
                 SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, SingleServerSelectionTimeoutMS);
             }
 
-            return new ChannelSourceHandle(new ServerChannelSource(_server, _session.Fork()));
+            return new ChannelSourceHandle(new ServerChannelSource(_server, _roundTripTime, _session.Fork()));
         }
 
         private void ThrowIfDisposed()

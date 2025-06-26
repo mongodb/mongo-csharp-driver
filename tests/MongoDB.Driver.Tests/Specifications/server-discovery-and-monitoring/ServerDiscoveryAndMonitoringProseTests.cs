@@ -165,8 +165,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             settings.ApplicationName = appName;
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
 
-            var server = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)));
-            using var failPoint = FailPoint.Configure(server, NoCoreSession.NewHandle(), failPointCommand);
+            var (server, serverRoundTripTime) = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)));
+            using var failPoint = FailPoint.Configure(server, serverRoundTripTime, NoCoreSession.NewHandle(), failPointCommand);
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 {
                     // Note that the Server Description Equality rule means that ServerDescriptionChangedEvents will not be published.
                     // So we use reflection to obtain the latest RTT instead.
-                    var server = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                    var (server, _) = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
                     var roundTripTimeMonitor = server._monitor()._roundTripTimeMonitor();
                     var expectedRoundTripTime = TimeSpan.FromMilliseconds(250);
                     var timeout = TimeSpan.FromSeconds(30); // should not be reached without a driver bug
@@ -273,8 +273,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 eventsWaitTimeout);
             eventCapturer.Clear();
 
-            var failpointServer = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)));
-            using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
+            var (failpointServer, serverRoundTripTime) = DriverTestConfiguration.Client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)));
+            using var failPoint = FailPoint.Configure(failpointServer, serverRoundTripTime, NoCoreSession.NewHandle(), failPointCommand);
 
             eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolReadyEvent>(eventsWaitTimeout);
             var events = eventCapturer.Events

@@ -25,30 +25,25 @@ namespace MongoDB.Driver.Core.Bindings
         // fields
         private bool _disposed;
         private readonly IServer _server;
+        private readonly TimeSpan _serverRoundTripTime;
         private readonly ICoreSessionHandle _session;
 
         // constructors
-        public ServerChannelSource(IServer server, ICoreSessionHandle session)
+        public ServerChannelSource(IServer server, TimeSpan roundTripTime, ICoreSessionHandle session)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
+            _serverRoundTripTime = Ensure.IsGreaterThanZero(roundTripTime, nameof(roundTripTime));
             _session = Ensure.IsNotNull(session, nameof(session));
         }
 
         // properties
-        public IServer Server
-        {
-            get { return _server; }
-        }
+        public IServer Server => _server;
 
-        public ServerDescription ServerDescription
-        {
-            get { return _server.Description; }
-        }
+        public ServerDescription ServerDescription => _server.Description;
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
+        public TimeSpan RoundTripTime => _serverRoundTripTime;
+
+        public ICoreSessionHandle Session => _session;
 
         // methods
         public void Dispose()
@@ -63,13 +58,15 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelHandle GetChannel(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _server.GetChannel(operationContext);
+            var connection = _server.GetConnection(operationContext);
+            return new ServerChannel(_server, connection, _serverRoundTripTime);
         }
 
-        public Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
+        public async Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _server.GetChannelAsync(operationContext);
+            var connection = await _server.GetConnectionAsync(operationContext).ConfigureAwait(false);
+            return new ServerChannel(_server, connection, _serverRoundTripTime);
         }
 
         private void ThrowIfDisposed()

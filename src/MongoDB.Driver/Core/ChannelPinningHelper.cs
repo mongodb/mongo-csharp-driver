@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core
             {
                 readBinding = new ChannelReadWriteBinding(
                     session.CurrentTransaction.PinnedServer,
+                    session.CurrentTransaction.PinnedServerRoundTripTime,
                     session.CurrentTransaction.PinnedChannel.Fork(),
                     session);
             }
@@ -57,6 +58,7 @@ namespace MongoDB.Driver.Core
             {
                 readWriteBinding = new ChannelReadWriteBinding(
                     session.CurrentTransaction.PinnedServer,
+                    session.CurrentTransaction.PinnedServerRoundTripTime,
                     session.CurrentTransaction.PinnedChannel.Fork(),
                     session);
             }
@@ -85,12 +87,13 @@ namespace MongoDB.Driver.Core
 
                 effectiveChannelSource = new ChannelChannelSource(
                     channelSource.Server,
+                    channelSource.RoundTripTime,
                     channel.Fork(),
                     channelSource.Session.Fork());
             }
             else
             {
-                effectiveChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
+                effectiveChannelSource = new ServerChannelSource(channelSource.Server, channelSource.RoundTripTime, channelSource.Session.Fork());
             }
 
             return new ChannelSourceHandle(effectiveChannelSource);
@@ -110,7 +113,7 @@ namespace MongoDB.Driver.Core
                     checkOutReasonTracker.SetCheckOutReasonIfNotAlreadySet(CheckOutReason.Transaction);
                 }
                 session.CurrentTransaction.PinChannel(channel.Fork());
-                session.CurrentTransaction.PinnedServer = channelSource.Server;
+                session.CurrentTransaction.PinServer(channelSource.Server, channelSource.RoundTripTime);
             }
         }
 

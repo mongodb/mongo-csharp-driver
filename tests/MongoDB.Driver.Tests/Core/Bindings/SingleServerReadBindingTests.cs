@@ -14,11 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -32,10 +32,11 @@ namespace MongoDB.Driver.Core.Bindings
         public void constructor_should_initialize_instance()
         {
             var server = new Mock<IServer>().Object;
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var readPreference = ReadPreference.Primary;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var result = new SingleServerReadBinding(server, readPreference, session);
+            var result = new SingleServerReadBinding(server, roundTripTime, readPreference, session);
 
             result._disposed().Should().BeFalse();
             result.ReadPreference.Should().BeSameAs(readPreference);
@@ -46,22 +47,44 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void constructor_should_throw_when_server_is_null()
         {
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var readPreference = ReadPreference.Primary;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new SingleServerReadBinding(null, readPreference, session));
+            var exception = Record.Exception(() => new SingleServerReadBinding(null, roundTripTime, readPreference, session));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("server");
         }
 
+        [Theory]
+        [MemberData(nameof(InvalidRoundTripCases))]
+        public void constructor_should_throw_when_roundTripTime_is_invalid(TimeSpan roundTripTime)
+        {
+            var server = new Mock<IServer>().Object;
+            var readPreference = ReadPreference.Primary;
+            var session = new Mock<ICoreSessionHandle>().Object;
+
+            var exception = Record.Exception(() => new SingleServerReadBinding(server, roundTripTime, readPreference, session));
+
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("roundTripTime");
+        }
+
+        public static IEnumerable<object[]> InvalidRoundTripCases =
+        [
+            [TimeSpan.Zero],
+            [TimeSpan.FromMilliseconds(-5)]
+        ];
+
         [Fact]
         public void constructor_should_throw_when_readPreference_is_null()
         {
             var server = new Mock<IServer>().Object;
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new SingleServerReadBinding(server, null, session));
+            var exception = Record.Exception(() => new SingleServerReadBinding(server, roundTripTime, null, session));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("readPreference");
@@ -71,9 +94,10 @@ namespace MongoDB.Driver.Core.Bindings
         public void constructor_should_throw_when_session_is_null()
         {
             var server = new Mock<IServer>().Object;
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var readPreference = ReadPreference.Primary;
 
-            var exception = Record.Exception(() => new SingleServerReadBinding(server, readPreference, null));
+            var exception = Record.Exception(() => new SingleServerReadBinding(server, roundTripTime, readPreference, null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("session");
@@ -130,8 +154,10 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetReadChannelSource_should_return_expected_result(
             [Values(false, true)] bool async)
         {
+            var server = CreateMockServer();
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(session: mockSession.Object);
+            var subject = CreateSubject(server.Object, roundTripTime, session: mockSession.Object);
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 
@@ -143,6 +169,8 @@ namespace MongoDB.Driver.Core.Bindings
             var referenceCounted = newHandle._reference();
             var source = referenceCounted.Instance.Should().BeOfType<ServerChannelSource>().Subject;
             source.Session.Should().BeSameAs(forkedSession);
+            source.Server.Should().Be(server.Object);
+            source.RoundTripTime.Should().Be(roundTripTime);
         }
 
         [Theory]
@@ -150,7 +178,8 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetReadChannelSource_should_throw_when_disposed(
             [Values(false, true)] bool async)
         {
-            var subject = CreateDisposedSubject();
+            var subject = CreateSubject();
+            subject.Dispose();
 
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
@@ -161,17 +190,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // private methods
-        private SingleServerReadBinding CreateDisposedSubject()
-        {
-            var subject = CreateSubject();
-            subject.Dispose();
-            return subject;
-        }
-
-        private SingleServerReadBinding CreateSubject(IServer server = null, ReadPreference readPreference = null, ICoreSessionHandle session = null)
+        private SingleServerReadBinding CreateSubject(IServer server = null, TimeSpan? roundTripTime = null, ReadPreference readPreference = null, ICoreSessionHandle session = null)
         {
             return new SingleServerReadBinding(
                 server ?? CreateMockServer().Object,
+                roundTripTime ?? TimeSpan.FromMilliseconds(5),
                 readPreference ?? ReadPreference.Primary,
                 session ?? new Mock<ICoreSessionHandle>().Object);
         }
@@ -191,15 +214,9 @@ namespace MongoDB.Driver.Core.Bindings
     internal static class SingleServerReadBindingReflector
     {
         public static bool _disposed(this SingleServerReadBinding obj)
-        {
-            var fieldInfo = typeof(SingleServerReadBinding).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)fieldInfo.GetValue(obj);
-        }
+            => (bool)Reflector.GetFieldValue(obj, "_disposed");
 
         public static IServer _server(this SingleServerReadBinding obj)
-        {
-            var fieldInfo = typeof(SingleServerReadBinding).GetField("_server", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IServer)fieldInfo.GetValue(obj);
-        }
+            => (IServer)Reflector.GetFieldValue(obj, "_server");
     }
 }

@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -31,8 +30,10 @@ namespace MongoDB.Driver.Core.Bindings
     {
         IConnectionHandle Connection { get; }
         ConnectionDescription ConnectionDescription { get; }
+        TimeSpan RoundTripTimeout { get; }
 
         TResult Command<TResult>(
+            OperationContext operationContext,
             ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
@@ -43,10 +44,10 @@ namespace MongoDB.Driver.Core.Bindings
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
+            MessageEncoderSettings messageEncoderSettings);
 
         Task<TResult> CommandAsync<TResult>(
+            OperationContext operationContext,
             ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
@@ -57,8 +58,7 @@ namespace MongoDB.Driver.Core.Bindings
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
+            MessageEncoderSettings messageEncoderSettings);
     }
 
     internal interface IChannelHandle : IChannel

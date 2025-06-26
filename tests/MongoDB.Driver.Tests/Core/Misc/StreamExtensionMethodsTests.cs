@@ -14,10 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -40,7 +37,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new MemoryStream(bytes);
             var destination = new byte[2];
 
-            await stream.ReadBytesAsync(destination, 0, count, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, count);
 
             destination.Should().Equal(expectedBytes);
         }
@@ -54,7 +51,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new MemoryStream(bytes);
             var destination = new byte[3];
 
-            await stream.ReadBytesAsync(destination, offset, 1, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, 1);
 
             destination.Should().Equal(expectedBytes);
         }
@@ -80,7 +77,7 @@ namespace MongoDB.Driver.Core.Misc
                 });
             var destination = new byte[3];
 
-            await mockStream.Object.ReadBytesAsync(destination, 0, 3, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await mockStream.Object.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 3);
 
             destination.Should().Equal(bytes);
         }
@@ -92,7 +89,7 @@ namespace MongoDB.Driver.Core.Misc
             var destination = new byte[1];
             mockStream.Setup(s => s.ReadAsync(destination, 0, 1, It.IsAny<CancellationToken>())).Returns(Task.FromResult(0));
 
-            Func<Task> action = () => mockStream.Object.ReadBytesAsync(destination, 0, 1, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => mockStream.Object.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 1);
 
             action.ShouldThrow<EndOfStreamException>();
         }
@@ -103,7 +100,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new Mock<Stream>().Object;
             byte[] destination = null;
 
-            Func<Task> action = () => stream.ReadBytesAsync(destination, 0, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
@@ -117,7 +114,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new Mock<Stream>().Object;
             var destination = new byte[2];
 
-            Func<Task> action = () => stream.ReadBytesAsync(destination, offset, count, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, count);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
@@ -131,7 +128,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new Mock<Stream>().Object;
             var destination = new byte[2];
 
-            Func<Task> action = () => stream.ReadBytesAsync(destination, offset, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, 0);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
@@ -142,7 +139,7 @@ namespace MongoDB.Driver.Core.Misc
             Stream stream = null;
             var destination = new byte[0];
 
-            Func<Task> action = () => stream.ReadBytesAsync(destination, 0, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
@@ -157,7 +154,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new MemoryStream(bytes);
             var destination = new ByteArrayBuffer(new byte[2]);
 
-            await stream.ReadBytesAsync(destination, 0, count, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, count);
 
             destination.AccessBackingBytes(0).Array.Should().Equal(expectedBytes);
         }
@@ -171,7 +168,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new MemoryStream(bytes);
             var destination = new ByteArrayBuffer(new byte[3]);
 
-            await stream.ReadBytesAsync(destination, offset, 1, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, 1);
 
             destination.AccessBackingBytes(0).Array.Should().Equal(expectedBytes);
         }
@@ -197,7 +194,7 @@ namespace MongoDB.Driver.Core.Misc
                     return Task.FromResult(length);
                 });
 
-            await mockStream.Object.ReadBytesAsync(destination, 0, 3, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await mockStream.Object.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 3);
 
             destination.AccessBackingBytes(0).Array.Should().Equal(bytes);
         }
@@ -209,7 +206,7 @@ namespace MongoDB.Driver.Core.Misc
             var destination = CreateMockByteBuffer(1).Object;
             mockStream.Setup(s => s.ReadAsync(It.IsAny<byte[]>(), 0, 1, It.IsAny<CancellationToken>())).Returns(Task.FromResult(0));
 
-            Func<Task> action = () => mockStream.Object.ReadBytesAsync(destination, 0, 1, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => mockStream.Object.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 1);
 
             action.ShouldThrow<EndOfStreamException>();
         }
@@ -220,7 +217,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new Mock<Stream>().Object;
             IByteBuffer destination = null;
 
-            Func<Task> action = () => stream.ReadBytesAsync(destination, 0, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
@@ -234,7 +231,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new Mock<Stream>().Object;
             var destination = CreateMockByteBuffer(2).Object;
 
-            Func<Task> action = () => stream.ReadBytesAsync(destination, offset, count, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, count);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
@@ -248,7 +245,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new Mock<Stream>().Object;
             var destination = CreateMockByteBuffer(2).Object;
 
-            Func<Task> action = () => stream.ReadBytesAsync(destination, offset, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, offset, 0);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
@@ -259,7 +256,7 @@ namespace MongoDB.Driver.Core.Misc
             Stream stream = null;
             var destination = new Mock<IByteBuffer>().Object;
 
-            Func<Task> action = () => stream.ReadBytesAsync(destination, 0, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.ReadBytesAsync(OperationContext.NoTimeout, destination, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
@@ -273,7 +270,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new MemoryStream();
             var source = new ByteArrayBuffer(new byte[] { 1, 2 });
 
-            await stream.WriteBytesAsync(source, 0, count, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await stream.WriteBytesAsync(OperationContext.NoTimeout, source, 0, count);
 
             stream.ToArray().Should().Equal(expectedBytes);
         }
@@ -286,7 +283,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new MemoryStream();
             var source = new ByteArrayBuffer(new byte[] { 1, 2, 3 });
 
-            await stream.WriteBytesAsync(source, offset, 1, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await stream.WriteBytesAsync(OperationContext.NoTimeout, source, offset, 1);
 
             stream.ToArray().Should().Equal(expectedBytes);
         }
@@ -310,7 +307,7 @@ namespace MongoDB.Driver.Core.Misc
                     return new ArraySegment<byte>(bytes, position, length);
                 });
 
-            await stream.WriteBytesAsync(mockSource.Object, 0, 3, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            await stream.WriteBytesAsync(OperationContext.NoTimeout, mockSource.Object, 0, 3);
 
             stream.ToArray().Should().Equal(bytes);
         }
@@ -320,7 +317,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             var stream = new Mock<Stream>().Object;
 
-            Func<Task> action = () => stream.WriteBytesAsync(null, 0, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.WriteBytesAsync(OperationContext.NoTimeout, null, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("buffer");
         }
@@ -334,7 +331,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new Mock<Stream>().Object;
             var source = CreateMockByteBuffer(2).Object;
 
-            Func<Task> action = () => stream.WriteBytesAsync(source, offset, count, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.WriteBytesAsync(OperationContext.NoTimeout, source, offset, count);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("count");
         }
@@ -348,7 +345,7 @@ namespace MongoDB.Driver.Core.Misc
             var stream = new Mock<Stream>().Object;
             var destination = CreateMockByteBuffer(2).Object;
 
-            Func<Task> action = () => stream.WriteBytesAsync(destination, offset, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.WriteBytesAsync(OperationContext.NoTimeout, destination, offset, 0);
 
             action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("offset");
         }
@@ -359,7 +356,7 @@ namespace MongoDB.Driver.Core.Misc
             Stream stream = null;
             var source = new Mock<IByteBuffer>().Object;
 
-            Func<Task> action = () => stream.WriteBytesAsync(source, 0, 0, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            Func<Task> action = () => stream.WriteBytesAsync(OperationContext.NoTimeout, source, 0, 0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }

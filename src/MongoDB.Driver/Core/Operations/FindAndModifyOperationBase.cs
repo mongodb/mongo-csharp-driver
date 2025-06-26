@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, transactionNumber);
                 using (var rawBsonDocument = operation.Execute(operationContext, channelBinding))
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channelSource.RoundTripTime, channel, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription, transactionNumber);
                 using (var rawBsonDocument = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false))

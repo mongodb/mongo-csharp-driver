@@ -79,11 +79,11 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
 
             if (async)
             {
-                await subject.OpenAsync(CancellationToken.None);
+                await subject.OpenAsync(OperationContext.NoTimeout);
             }
             else
             {
-                subject.Open(CancellationToken.None);
+                subject.Open(OperationContext.NoTimeout);
             }
 
             subject._state().Should().Be(3); // 3 - open.

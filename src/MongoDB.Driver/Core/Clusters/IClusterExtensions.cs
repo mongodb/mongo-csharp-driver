@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -23,7 +24,7 @@ namespace MongoDB.Driver.Core.Clusters
 {
     internal static class IClusterExtensions
     {
-        public static IServer SelectServerAndPinIfNeeded(
+        public static (IServer, TimeSpan) SelectServerAndPinIfNeeded(
             this IClusterInternal cluster,
             OperationContext operationContext,
             ICoreSessionHandle session,
@@ -31,7 +32,7 @@ namespace MongoDB.Driver.Core.Clusters
             IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
-            if (pinnedServer != null)
+            if (pinnedServer != default)
             {
                 return pinnedServer;
             }
@@ -42,12 +43,12 @@ namespace MongoDB.Driver.Core.Clusters
 
             // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = cluster.SelectServer(operationContext, selector);
-            PinServerIfNeeded(cluster, session, server);
-            return server;
+            var (server, serverRoundTripTime) = cluster.SelectServer(operationContext, selector);
+            PinServerIfNeeded(cluster, session, server, serverRoundTripTime);
+            return (server, serverRoundTripTime);
         }
 
-        public static async Task<IServer> SelectServerAndPinIfNeededAsync(
+        public static async Task<(IServer, TimeSpan)> SelectServerAndPinIfNeededAsync(
             this IClusterInternal cluster,
             OperationContext operationContext,
             ICoreSessionHandle session,
@@ -55,7 +56,7 @@ namespace MongoDB.Driver.Core.Clusters
             IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var pinnedServer = GetPinnedServerIfValid(cluster, session);
-            if (pinnedServer != null)
+            if (pinnedServer != default)
             {
                 return pinnedServer;
             }
@@ -66,32 +67,30 @@ namespace MongoDB.Driver.Core.Clusters
 
             // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
-            var server = await cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            PinServerIfNeeded(cluster, session, server);
+            var (server, serverRoundTripTime) = await cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
+            PinServerIfNeeded(cluster, session, server, serverRoundTripTime);
 
-            return server;
+            return (server, serverRoundTripTime);
         }
 
-        private static void PinServerIfNeeded(ICluster cluster, ICoreSessionHandle session, IServer server)
+        private static void PinServerIfNeeded(ICluster cluster, ICoreSessionHandle session, IServer server, TimeSpan serverRoundTripTime)
         {
             if (cluster.Description.Type == ClusterType.Sharded && session.IsInTransaction)
             {
-                session.CurrentTransaction.PinnedServer = server;
+                session.CurrentTransaction.PinServer(server, serverRoundTripTime);
             }
         }
 
-        private static IServer GetPinnedServerIfValid(ICluster cluster, ICoreSessionHandle session)
+        private static (IServer, TimeSpan) GetPinnedServerIfValid(ICluster cluster, ICoreSessionHandle session)
         {
             if (cluster.Description.Type == ClusterType.Sharded
                 && session.IsInTransaction
                 && session.CurrentTransaction.State != CoreTransactionState.Starting)
             {
-                return session.CurrentTransaction.PinnedServer;
+                return (session.CurrentTransaction.PinnedServer, session.CurrentTransaction.PinnedServerRoundTripTime);
             }
-            else
-            {
-                return null;
-            }
+
+            return default;
         }
     }
 }

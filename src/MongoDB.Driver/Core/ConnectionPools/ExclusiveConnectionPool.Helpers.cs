@@ -401,11 +401,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Open(CancellationToken cancellationToken)
+            public void Open(OperationContext operationContext)
             {
                 try
                 {
-                    _connection.Open(cancellationToken);
+                    _connection.Open(operationContext);
                     SetEffectiveGenerationIfRequired(_connection.Description);
                 }
                 catch (MongoConnectionException ex)
@@ -416,11 +416,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task OpenAsync(CancellationToken cancellationToken)
+            public async Task OpenAsync(OperationContext operationContext)
             {
                 try
                 {
-                    await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                    await _connection.OpenAsync(operationContext).ConfigureAwait(false);
                     SetEffectiveGenerationIfRequired(_connection.Description);
                 }
                 catch (MongoConnectionException ex)
@@ -435,11 +435,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public Task ReauthenticateAsync(CancellationToken cancellationToken) => _connection.ReauthenticateAsync(cancellationToken);
 
-            public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    return _connection.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+                    return _connection.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -448,11 +448,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    return await _connection.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    return await _connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings).ConfigureAwait(false);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -461,11 +461,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    _connection.SendMessage(message, messageEncoderSettings, cancellationToken);
+                    _connection.SendMessage(operationContext, message, messageEncoderSettings);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -474,11 +474,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public async Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public async Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 try
                 {
-                    await _connection.SendMessageAsync(message, messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    await _connection.SendMessageAsync(operationContext, message, messageEncoderSettings).ConfigureAwait(false);
                 }
                 catch (MongoConnectionException ex)
                 {
@@ -587,16 +587,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return new AcquiredConnection(_connectionPool, _reference);
             }
 
-            public void Open(CancellationToken cancellationToken)
+            public void Open(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                _reference.Instance.Open(cancellationToken);
+                _reference.Instance.Open(operationContext);
             }
 
-            public Task OpenAsync(CancellationToken cancellationToken)
+            public Task OpenAsync(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.OpenAsync(cancellationToken);
+                return _reference.Instance.OpenAsync(operationContext);
             }
 
             public void Reauthenticate(CancellationToken cancellationToken)
@@ -611,28 +611,28 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.ReauthenticateAsync(cancellationToken);
             }
 
-            public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, messageEncoderSettings);
             }
 
-            public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.ReceiveMessage(operationContext, responseTo, encoderSelector, messageEncoderSettings);
             }
 
-            public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                _reference.Instance.SendMessage(message, messageEncoderSettings, cancellationToken);
+                _reference.Instance.SendMessage(operationContext, message, messageEncoderSettings);
             }
 
-            public Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+            public Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.SendMessageAsync(message, messageEncoderSettings, cancellationToken);
+                return _reference.Instance.SendMessageAsync(operationContext, message, messageEncoderSettings);
             }
 
             public void SetCheckOutReasonIfNotAlreadySet(CheckOutReason reason)
@@ -974,8 +974,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 var stopwatch = StartCreating(operationContext);
 
-                // TODO: CSOT add support of CSOT timeout in connection open code too.
-                _connection.Open(operationContext.CancellationToken);
+                _connection.Open(operationContext);
 
                 FinishCreating(_connection.Description, stopwatch);
 
@@ -986,8 +985,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 var stopwatch = StartCreating(operationContext);
 
-                // TODO: CSOT add support of CSOT timeout in connection open code too.
-                await _connection.OpenAsync(operationContext.CancellationToken).ConfigureAwait(false);
+                await _connection.OpenAsync(operationContext).ConfigureAwait(false);
 
                 FinishCreating(_connection.Description, stopwatch);
 

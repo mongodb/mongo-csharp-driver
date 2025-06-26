@@ -153,13 +153,13 @@ namespace MongoDB.Driver.Core.Clusters
             DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(oldDescription, newDescription));
         }
 
-        public IServer SelectServer(OperationContext operationContext, IServerSelector selector)
+        public (IServer, TimeSpan) SelectServer(OperationContext operationContext, IServerSelector selector)
         {
             Ensure.IsNotNull(selector, nameof(selector));
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            operationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
             var expirableClusterDescription = _expirableClusterDescription;
             IDisposable serverSelectionWaitQueueDisposer = null;
             (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
@@ -168,16 +168,16 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 while (true)
                 {
-                    var result = SelectServer(expirableClusterDescription, selector, operationCountSelector);
-                    if (result != default)
+                    var (server, description) = SelectServer(expirableClusterDescription, selector, operationCountSelector);
+                    if (server != null)
                     {
-                        EndServerSelection(expirableClusterDescription.ClusterDescription, selector, result.ServerDescription, stopwatch);
-                        return result.Server;
+                        EndServerSelection(expirableClusterDescription.ClusterDescription, selector, description, stopwatch);
+                        return (server, description.AverageRoundTripTime);
                     }
 
-                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(operationContext, selector, expirableClusterDescription.ClusterDescription, EventContext.OperationId);
+                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(serverSelectionOperationContext, selector, expirableClusterDescription.ClusterDescription, EventContext.OperationId);
 
-                    operationContext.WaitTask(expirableClusterDescription.Expired);
+                    serverSelectionOperationContext.WaitTask(expirableClusterDescription.Expired);
                     expirableClusterDescription = _expirableClusterDescription;
                 }
             }
@@ -191,13 +191,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public async Task<IServer> SelectServerAsync(OperationContext operationContext, IServerSelector selector)
+        public async Task<(IServer, TimeSpan)> SelectServerAsync(OperationContext operationContext, IServerSelector selector)
         {
             Ensure.IsNotNull(selector, nameof(selector));
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposedOrNotOpen();
 
-            operationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(Settings.ServerSelectionTimeout);
             var expirableClusterDescription = _expirableClusterDescription;
             IDisposable serverSelectionWaitQueueDisposer = null;
             (selector, var operationCountSelector, var stopwatch) = BeginServerSelection(expirableClusterDescription.ClusterDescription, selector);
@@ -206,16 +206,16 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 while (true)
                 {
-                    var result = SelectServer(expirableClusterDescription, selector, operationCountSelector);
-                    if (result != default)
+                    var (server, description) = SelectServer(expirableClusterDescription, selector, operationCountSelector);
+                    if (server != null)
                     {
-                        EndServerSelection(expirableClusterDescription.ClusterDescription, selector, result.ServerDescription, stopwatch);
-                        return result.Server;
+                        EndServerSelection(expirableClusterDescription.ClusterDescription, selector, description, stopwatch);
+                        return (server, description.AverageRoundTripTime);
                     }
 
-                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(operationContext, selector, expirableClusterDescription.ClusterDescription, EventContext.OperationId);
+                    serverSelectionWaitQueueDisposer ??= _serverSelectionWaitQueue.Enter(serverSelectionOperationContext, selector, expirableClusterDescription.ClusterDescription, EventContext.OperationId);
 
-                    await operationContext.WaitTaskAsync(expirableClusterDescription.Expired).ConfigureAwait(false);
+                    await serverSelectionOperationContext.WaitTaskAsync(expirableClusterDescription.Expired).ConfigureAwait(false);
                     expirableClusterDescription = _expirableClusterDescription;
                 }
             }

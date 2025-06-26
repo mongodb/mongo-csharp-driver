@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Servers;
 
@@ -27,6 +28,7 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _isEmpty;
         private IChannelHandle _pinnedChannel = null;
         private IServer _pinnedServer;
+        private TimeSpan _pinnedServerRoundTripTime;
         private BsonDocument _recoveryToken;
         private CoreTransactionState _state;
         private readonly long _transactionNumber;
@@ -64,10 +66,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// </value>
         public CoreTransactionState State => _state;
 
-        internal IChannelHandle PinnedChannel
-        {
-            get => _pinnedChannel;
-        }
+        internal IChannelHandle PinnedChannel => _pinnedChannel;
 
         /// <summary>
         /// Gets or sets pinned server for the current transaction.
@@ -76,11 +75,9 @@ namespace MongoDB.Driver.Core.Bindings
         /// <value>
         /// The pinned server for the current transaction.
         /// </value>
-        internal IServer PinnedServer
-        {
-            get => _pinnedServer;
-            set => _pinnedServer = value;
-        }
+        internal IServer PinnedServer => _pinnedServer;
+
+        internal TimeSpan PinnedServerRoundTripTime => _pinnedServerRoundTripTime;
 
         /// <summary>
         /// Gets the transaction number.
@@ -120,6 +117,12 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        internal void PinServer(IServer server, TimeSpan roundTripTime)
+        {
+            _pinnedServer = server;
+            _pinnedServerRoundTripTime = roundTripTime;
+        }
+
         internal void SetState(CoreTransactionState state)
         {
             _state = state;
@@ -135,6 +138,7 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 _pinnedChannel?.Dispose();
                 _pinnedChannel = null;
+                _pinnedServerRoundTripTime = default;
                 _pinnedServer = null;
             }
         }

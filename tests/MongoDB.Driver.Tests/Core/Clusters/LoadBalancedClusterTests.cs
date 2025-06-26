@@ -327,11 +327,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
                 PublishDescription(_endPoint);
 
-                var result = async ?
+                var (server, _) = async ?
                     await subject.SelectServerAsync(OperationContext.NoTimeout, Mock.Of<IServerSelector>()) :
                     subject.SelectServer(OperationContext.NoTimeout, Mock.Of<IServerSelector>());
 
-                result.EndPoint.Should().Be(_endPoint);
+                server.EndPoint.Should().Be(_endPoint);
             }
         }
 

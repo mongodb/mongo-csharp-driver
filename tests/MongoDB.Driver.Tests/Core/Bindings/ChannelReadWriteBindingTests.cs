@@ -14,9 +14,10 @@
 */
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -30,10 +31,11 @@ namespace MongoDB.Driver.Core.Bindings
         public void constructor_should_initialize_instance()
         {
             var server = new Mock<IServer>().Object;
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var channel = new Mock<IChannelHandle>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var result = new ChannelReadWriteBinding(server, channel, session);
+            var result = new ChannelReadWriteBinding(server, roundTripTime, channel, session);
 
             result._channel().Should().BeSameAs(channel);
             result._disposed().Should().BeFalse();
@@ -44,22 +46,44 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void constructor_should_throw_when_server_is_null()
         {
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var channel = new Mock<IChannelHandle>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelReadWriteBinding(null, channel, session));
+            var exception = Record.Exception(() => new ChannelReadWriteBinding(null, roundTripTime, channel, session));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("server");
         }
 
+        [Theory]
+        [MemberData(nameof(InvalidRoundTripCases))]
+        public void constructor_should_throw_when_roundTripTime_is_invalid(TimeSpan roundTripTime)
+        {
+            var server = new Mock<IServer>().Object;
+            var channel = new Mock<IChannelHandle>().Object;
+            var session = new Mock<ICoreSessionHandle>().Object;
+
+            var exception = Record.Exception(() => new ChannelReadWriteBinding(server, roundTripTime, channel, session));
+
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("roundTripTime");
+        }
+
+        public static IEnumerable<object[]> InvalidRoundTripCases =
+        [
+            [TimeSpan.Zero],
+            [TimeSpan.FromMilliseconds(-5)]
+        ];
+
         [Fact]
         public void constructor_should_throw_when_channel_is_null()
         {
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var server = new Mock<IServer>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelReadWriteBinding(server, null, session));
+            var exception = Record.Exception(() => new ChannelReadWriteBinding(server, roundTripTime, null, session));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("channel");
@@ -68,10 +92,11 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void constructor_should_throw_when_session_is_null()
         {
+            var roundTripTime = TimeSpan.FromMilliseconds(42);
             var server = new Mock<IServer>().Object;
             var channel = new Mock<IChannelHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelReadWriteBinding(server, channel, null));
+            var exception = Record.Exception(() => new ChannelReadWriteBinding(server, roundTripTime, channel, null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("session");
@@ -156,9 +181,11 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetWriteChannelSource_should_return_expected_result(
             [Values(false, true)] bool async)
         {
+            var server = Mock.Of<IServer>();
+            var roundTripTime = TimeSpan.FromMilliseconds(5);
             var mockChannel = new Mock<IChannelHandle>();
             var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(channel: mockChannel.Object, session: mockSession.Object);
+            var subject = CreateSubject(server, roundTripTime, mockChannel.Object, mockSession.Object);
 
             var forkedChannel = new Mock<IChannelHandle>().Object;
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
@@ -174,6 +201,8 @@ namespace MongoDB.Driver.Core.Bindings
             var newSource = referenceCounted.Instance.Should().BeOfType<ChannelChannelSource>().Subject;
             newSource._channel().Should().Be(forkedChannel);
             newSource.Session.Should().Be(forkedSession);
+            newSource.Server.Should().Be(server);
+            newSource.RoundTripTime.Should().Be(roundTripTime);
         }
 
         [Theory]
@@ -212,10 +241,11 @@ namespace MongoDB.Driver.Core.Bindings
             return subject;
         }
 
-        private ChannelReadWriteBinding CreateSubject(IServer server = null, IChannelHandle channel = null, ICoreSessionHandle session = null)
+        private ChannelReadWriteBinding CreateSubject(IServer server = null, TimeSpan? roundTripTime = null, IChannelHandle channel = null, ICoreSessionHandle session = null)
         {
             return new ChannelReadWriteBinding(
                 server ?? new Mock<IServer>().Object,
+                roundTripTime ?? TimeSpan.FromSeconds(42),
                 channel ?? new Mock<IChannelHandle>().Object,
                 session ?? new Mock<ICoreSessionHandle>().Object);
         }
@@ -224,21 +254,12 @@ namespace MongoDB.Driver.Core.Bindings
     internal static class ChannelReadWriteBindingReflector
     {
         public static IChannelHandle _channel(this ChannelReadWriteBinding obj)
-        {
-            var fieldInfo = typeof(ChannelReadWriteBinding).GetField("_channel", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IChannelHandle)fieldInfo.GetValue(obj);
-        }
+            => (IChannelHandle)Reflector.GetFieldValue(obj, "_channel");
 
         public static bool _disposed(this ChannelReadWriteBinding obj)
-        {
-            var fieldInfo = typeof(ChannelReadWriteBinding).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)fieldInfo.GetValue(obj);
-        }
+            => (bool)Reflector.GetFieldValue(obj, "_disposed");
 
         public static IServer _server(this ChannelReadWriteBinding obj)
-        {
-            var fieldInfo = typeof(ChannelReadWriteBinding).GetField("_server", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IServer)fieldInfo.GetValue(obj);
-        }
+            => (IServer)Reflector.GetFieldValue(obj, "_server");
     }
 }

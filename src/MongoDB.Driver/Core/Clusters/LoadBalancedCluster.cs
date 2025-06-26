@@ -170,13 +170,13 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public IServer SelectServer(OperationContext operationContext, IServerSelector selector)
+        public (IServer, TimeSpan) SelectServer(OperationContext operationContext, IServerSelector selector)
         {
             Ensure.IsNotNull(selector, nameof(selector));
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
 
-            var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -205,19 +205,20 @@ namespace MongoDB.Driver.Core.Clusters
                    stopwatch.Elapsed,
                    null,
                    EventContext.OperationName));
+
+                return (_server, _server.Description.AverageRoundTripTime);
             }
 
-            return _server ??
-                throw new InvalidOperationException("The server must be created before usage."); // should not be reached
+            throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
-        public async Task<IServer> SelectServerAsync(OperationContext operationContext, IServerSelector selector)
+        public async Task<(IServer, TimeSpan)> SelectServerAsync(OperationContext operationContext, IServerSelector selector)
         {
             Ensure.IsNotNull(selector, nameof(selector));
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
 
-            var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -245,10 +246,11 @@ namespace MongoDB.Driver.Core.Clusters
                    stopwatch.Elapsed,
                    null,
                    EventContext.OperationName));
+
+                return (_server, _server.Description.AverageRoundTripTime);
             }
 
-            return _server ??
-                throw new InvalidOperationException("The server must be created before usage."); // should not be reached
+            throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
         public ICoreSessionHandle StartSession(CoreSessionOptions options = null)

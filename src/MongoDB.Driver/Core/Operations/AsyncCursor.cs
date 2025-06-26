@@ -219,7 +219,10 @@ namespace MongoDB.Driver.Core.Operations
             BsonDocument result;
             try
             {
+                // TODO: CSOT: Implement operation context support for Cursors
+                var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
                 result = channel.Command<BsonDocument>(
+                    operationContext,
                     _channelSource.Session,
                     null, // readPreference
                     _collectionNamespace.DatabaseNamespace,
@@ -230,8 +233,7 @@ namespace MongoDB.Driver.Core.Operations
                     null, // postWriteAction
                     CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings,
-                    cancellationToken);
+                    _messageEncoderSettings);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {
@@ -247,7 +249,10 @@ namespace MongoDB.Driver.Core.Operations
             BsonDocument result;
             try
             {
+                // TODO: CSOT: Implement operation context support for Cursors
+                var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
                 result = await channel.CommandAsync<BsonDocument>(
+                    operationContext,
                     _channelSource.Session,
                     null, // readPreference
                     _collectionNamespace.DatabaseNamespace,
@@ -258,8 +263,7 @@ namespace MongoDB.Driver.Core.Operations
                     null, // postWriteAction
                     CommandResponseHandling.Return,
                     __getMoreCommandResultSerializer,
-                    _messageEncoderSettings,
-                    cancellationToken).ConfigureAwait(false);
+                    _messageEncoderSettings).ConfigureAwait(false);
             }
             catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
             {
@@ -271,8 +275,11 @@ namespace MongoDB.Driver.Core.Operations
 
         private void ExecuteKillCursorsCommand(IChannelHandle channel, CancellationToken cancellationToken)
         {
+            // TODO: CSOT: Implement operation context support for Cursors
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             var command = CreateKillCursorsCommand();
             var result = channel.Command(
+                operationContext,
                 _channelSource.Session,
                 null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
@@ -283,16 +290,18 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
-                cancellationToken);
+                _messageEncoderSettings);
 
             ThrowIfKillCursorsCommandFailed(result, channel.ConnectionDescription.ConnectionId);
         }
 
         private async Task ExecuteKillCursorsCommandAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
+            // TODO: CSOT: Implement operation context support for Cursors
+            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
             var command = CreateKillCursorsCommand();
             var result = await channel.CommandAsync(
+                operationContext,
                 _channelSource.Session,
                 null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
@@ -303,8 +312,7 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
-                cancellationToken)
+                _messageEncoderSettings)
                 .ConfigureAwait(false);
 
             ThrowIfKillCursorsCommandFailed(result, channel.ConnectionDescription.ConnectionId);

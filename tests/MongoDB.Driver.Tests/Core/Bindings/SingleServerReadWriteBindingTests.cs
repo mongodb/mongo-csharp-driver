@@ -14,9 +14,10 @@
 */
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.Core.Bindings
             var server = new Mock<IServer>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var result = new SingleServerReadWriteBinding(server, session);
+            var result = new SingleServerReadWriteBinding(server, TimeSpan.FromMilliseconds(42), session);
 
             result._disposed().Should().BeFalse();
             result._server().Should().BeSameAs(server);
@@ -44,18 +45,37 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new SingleServerReadWriteBinding(null, session));
+            var exception = Record.Exception(() => new SingleServerReadWriteBinding(null, TimeSpan.FromMilliseconds(42), session));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("server");
         }
+
+        [Theory]
+        [MemberData(nameof(InvalidRoundTripCases))]
+        public void constructor_should_throw_when_roundTripTime_is_invalid(TimeSpan roundTripTime)
+        {
+            var server = new Mock<IServer>().Object;
+            var session = new Mock<ICoreSessionHandle>().Object;
+
+            var exception = Record.Exception(() => new SingleServerReadWriteBinding(server, roundTripTime, session));
+
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("roundTripTime");
+        }
+
+        public static IEnumerable<object[]> InvalidRoundTripCases =
+        [
+            [TimeSpan.Zero],
+            [TimeSpan.FromMilliseconds(-5)]
+        ];
 
         [Fact]
         public void constructor_should_throw_when_session_is_null()
         {
             var server = new Mock<IServer>().Object;
 
-            var exception = Record.Exception(() => new SingleServerReadWriteBinding(server, null));
+            var exception = Record.Exception(() => new SingleServerReadWriteBinding(server, TimeSpan.FromMilliseconds(42), null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("session");
@@ -111,8 +131,10 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetReadChannelSource_should_return_expected_result(
             [Values(false, true)] bool async)
         {
+            var server = Mock.Of<IServer>();
+            var roundTripTime = TimeSpan.FromMilliseconds(5);
             var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(session: mockSession.Object);
+            var subject = CreateSubject(server, roundTripTime, mockSession.Object);
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 
@@ -123,6 +145,8 @@ namespace MongoDB.Driver.Core.Bindings
             var newHandle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
             var referenceCounted = newHandle._reference();
             var source = referenceCounted.Instance.Should().BeOfType<ServerChannelSource>().Subject;
+            source.Server.Should().Be(server);
+            source.RoundTripTime.Should().Be(roundTripTime);
             source.Session.Should().BeSameAs(forkedSession);
         }
 
@@ -131,7 +155,9 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetReadChannelSource_should_throw_when_disposed(
             [Values(false, true)] bool async)
         {
-            var subject = CreateDisposedSubject();
+            var subject = CreateSubject();
+            subject.Dispose();
+
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
                 Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
@@ -145,8 +171,10 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetWriteChannelSource_should_return_expected_result(
             [Values(false, true)] bool async)
         {
+            var server = Mock.Of<IServer>();
+            var roundTripTime = TimeSpan.FromMilliseconds(5);
             var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(session: mockSession.Object);
+            var subject = CreateSubject(server, roundTripTime, mockSession.Object);
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
 
@@ -157,6 +185,8 @@ namespace MongoDB.Driver.Core.Bindings
             var newHandle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
             var referenceCounted = newHandle._reference();
             var source = referenceCounted.Instance.Should().BeOfType<ServerChannelSource>().Subject;
+            source.Server.Should().Be(server);
+            source.RoundTripTime.Should().Be(roundTripTime);
             source.Session.Should().BeSameAs(forkedSession);
         }
 
@@ -165,7 +195,9 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task GetWriteChannelSource_should_throw_when_disposed(
             [Values(false, true)] bool async)
         {
-            var subject = CreateDisposedSubject();
+            var subject = CreateSubject();
+            subject.Dispose();
+
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
                 Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
@@ -175,17 +207,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // private methods
-        private SingleServerReadWriteBinding CreateDisposedSubject()
-        {
-            var subject = CreateSubject();
-            subject.Dispose();
-            return subject;
-        }
-
-        private SingleServerReadWriteBinding CreateSubject(IServer server = null, ICoreSessionHandle session = null)
+        private SingleServerReadWriteBinding CreateSubject(IServer server = null, TimeSpan? roundTripTime = null, ICoreSessionHandle session = null)
         {
             return new SingleServerReadWriteBinding(
                 server ?? new Mock<IServer>().Object,
+                roundTripTime ?? TimeSpan.FromMilliseconds(42),
                 session ?? new Mock<ICoreSessionHandle>().Object);
         }
     }
@@ -193,15 +219,9 @@ namespace MongoDB.Driver.Core.Bindings
     internal static class SingleServerReadWriteBindingReflector
     {
         public static bool _disposed(this SingleServerReadWriteBinding obj)
-        {
-            var fieldInfo = typeof(SingleServerReadWriteBinding).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)fieldInfo.GetValue(obj);
-        }
+            => (bool)Reflector.GetFieldValue(obj, "_disposed");
 
         public static IServer _server(this SingleServerReadWriteBinding obj)
-        {
-            var fieldInfo = typeof(SingleServerReadWriteBinding).GetField("_server", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IServer)fieldInfo.GetValue(obj);
-        }
+            => (IServer)Reflector.GetFieldValue(obj, "_server");
     }
 }

@@ -755,6 +755,7 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannelSource = new Mock<IChannelSourceHandle>();
             mockChannelSource.Setup(x => x.Server).Returns(mockServer.Object);
             mockChannelSource.Setup(x => x.Session).Returns(mockSession.Object);
+            mockChannelSource.Setup(x => x.RoundTripTime).Returns(TimeSpan.FromSeconds(42));
 
             var cursor = subject.CreateCursor(mockChannelSource.Object, Mock.Of<IChannelHandle>(), commandResult);
 

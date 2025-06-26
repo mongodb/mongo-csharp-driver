@@ -44,12 +44,12 @@ namespace MongoDB.Driver.Core.TestHelpers
         public static FailPoint Configure(IClusterInternal cluster, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
         {
             var server = GetWriteableServer(cluster);
-            return FailPoint.Configure(server, session, command, withAsync);
+            return FailPoint.Configure(server.Server, server.RoundTripTime, session, command, withAsync);
         }
 
-        public static FailPoint Configure(IServer server, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
+        public static FailPoint Configure(IServer server, TimeSpan serverRoundTripTime, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
         {
-            var binding = new SingleServerReadWriteBinding(server, session.Fork());
+            var binding = new SingleServerReadWriteBinding(server, serverRoundTripTime, session.Fork());
             if (withAsync.HasValue)
             {
                 MakeFailPointApplicationNameTestableIfConfigured(command, withAsync.Value);
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         public static string DecorateApplicationName(string applicationName, bool async) => $"{applicationName}{ApplicationNameTestableSuffix}{async}";
 
         // private static methods
-        private static IServer GetWriteableServer(IClusterInternal cluster)
+        private static (IServer Server, TimeSpan RoundTripTime) GetWriteableServer(IClusterInternal cluster)
         {
             var selector = WritableServerSelector.Instance;
             return cluster.SelectServer(OperationContext.NoTimeout, selector);
