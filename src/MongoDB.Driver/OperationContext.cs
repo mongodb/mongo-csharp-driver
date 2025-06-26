@@ -36,6 +36,7 @@ namespace MongoDB.Driver
             Stopwatch = stopwatch;
             Timeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
             CancellationToken = cancellationToken;
+            RootContext = this;
         }
 
         public CancellationToken CancellationToken { get; }
@@ -159,7 +160,7 @@ namespace MongoDB.Driver
 
             return new OperationContext(timeout, CancellationToken)
             {
-                RootContext = RootContext ?? this
+                RootContext = RootContext
             };
         }
     }

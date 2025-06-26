@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests
             operationContext.Timeout.Should().Be(timeout);
             operationContext.RemainingTimeout.Should().Be(timeout);
             operationContext.CancellationToken.Should().Be(cancellationToken);
-            operationContext.RootContext.Should().BeNull();
+            operationContext.RootContext.Should().Be(operationContext);
         }
 
         [Fact]
