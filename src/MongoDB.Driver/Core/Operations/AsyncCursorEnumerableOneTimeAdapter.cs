@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Operations
         private bool _hasBeenEnumerated;
 
         public AsyncCursorEnumerableOneTimeAdapter(IAsyncCursor<TDocument> cursor)
+            : this(cursor, CancellationToken.None)
         {
-            _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
         }
 
         public AsyncCursorEnumerableOneTimeAdapter(IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken)
