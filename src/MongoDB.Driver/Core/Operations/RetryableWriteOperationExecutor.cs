@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-            while (true)
+            while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
@@ -48,13 +48,14 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
                 }
-                catch (Exception ex) when (ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
-                {
-                    originalException ??= ex;
-                }
                 catch (Exception ex)
                 {
-                    throw originalException ?? ex;
+                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    {
+                        throw originalException ?? ex;
+                    }
+
+                    originalException ??= ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Core.Operations
 
             long? transactionNumber = AreRetriesAllowed(operation.WriteConcern, context, context.ChannelSource.ServerDescription) ? context.Binding.Session.AdvanceTransactionNumber() : null;
 
-            while (true)
+            while (true)  // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
@@ -102,13 +103,14 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
                 }
-                catch (Exception ex) when (ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
-                {
-                    originalException ??= ex;
-                }
                 catch (Exception ex)
                 {
-                    throw originalException ?? ex;
+                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                    {
+                        throw originalException ?? ex;
+                    }
+
+                    originalException ??= ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();

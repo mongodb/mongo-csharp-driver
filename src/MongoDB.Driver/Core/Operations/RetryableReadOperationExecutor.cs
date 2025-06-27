@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
             var attempt = 1;
             Exception originalException = null;
 
-            while (true)
+            while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
                 var server = context.ChannelSource.ServerDescription;
@@ -37,13 +37,14 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
                 }
-                catch (Exception ex) when (ShouldRetryOperation(operationContext, context, ex, attempt))
-                {
-                    originalException ??= ex;
-                }
                 catch (Exception ex)
                 {
-                    throw originalException ?? ex;
+                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
+                    {
+                        throw originalException ?? ex;
+                    }
+
+                    originalException ??= ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
@@ -68,21 +69,23 @@ namespace MongoDB.Driver.Core.Operations
             var attempt = 1;
             Exception originalException = null;
 
-            while (true)
+            while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
+                attempt++;
                 var server = context.ChannelSource.ServerDescription;
                 try
                 {
                     return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
                 }
-                catch (Exception ex) when (ShouldRetryOperation(operationContext, context, ex, attempt))
-                {
-                    originalException ??= ex;
-                }
                 catch (Exception ex)
                 {
-                    throw originalException ?? ex;
+                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
+                    {
+                        throw originalException ?? ex;
+                    }
+
+                    originalException ??= ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
@@ -108,12 +111,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private static methods
-        private static bool AreRetriesAllowed(RetryableReadContext context)
-            => context.RetryRequested && !context.Binding.Session.IsInTransaction;
-
         private static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
-            if (!AreRetriesAllowed(context))
+            if (!context.RetryRequested || context.Binding.Session.IsInTransaction)
             {
                 return false;
             }
