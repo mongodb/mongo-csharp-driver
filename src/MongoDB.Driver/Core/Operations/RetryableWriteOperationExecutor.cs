@@ -48,18 +48,17 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber);
                 }
+                catch (Exception ex) when (ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                {
+                    originalException ??= ex;
+                }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
-                    {
-                        throw originalException ?? ex;
-                    }
-
-                    originalException ??= ex;
+                    throw originalException ?? ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(context.ChannelSource.ServerDescription);
+                deprioritizedServers.Add(server);
 
                 try
                 {
@@ -103,18 +102,17 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber).ConfigureAwait(false);
                 }
+                catch (Exception ex) when (ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
+                {
+                    originalException ??= ex;
+                }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, operation.WriteConcern, context, server, ex, attempt))
-                    {
-                        throw originalException ?? ex;
-                    }
-
-                    originalException ??= ex;
+                    throw originalException ?? ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(context.ChannelSource.ServerDescription);
+                deprioritizedServers.Add(server);
 
                 try
                 {

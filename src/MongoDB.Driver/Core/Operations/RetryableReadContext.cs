@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public void AcquireOrReplaceChannel(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var attempt = 1;
             while (true)
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
+        public async Task AcquireOrReplaceChannelAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             var attempt = 1;
             while (true)

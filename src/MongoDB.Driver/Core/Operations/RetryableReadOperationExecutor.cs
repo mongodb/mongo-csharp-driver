@@ -32,23 +32,22 @@ namespace MongoDB.Driver.Core.Operations
             while (true)
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-
+                var server = context.ChannelSource.ServerDescription;
                 try
                 {
                     return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
                 }
+                catch (Exception ex) when (ShouldRetryOperation(operationContext, context, ex, attempt))
+                {
+                    originalException ??= ex;
+                }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
-                    {
-                        throw originalException ?? ex;
-                    }
-
-                    originalException ??= ex;
+                    throw originalException ?? ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(context.ChannelSource.ServerDescription);
+                deprioritizedServers.Add(server);
 
                 try
                 {
@@ -72,23 +71,22 @@ namespace MongoDB.Driver.Core.Operations
             while (true)
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-
+                var server = context.ChannelSource.ServerDescription;
                 try
                 {
                     return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
                 }
+                catch (Exception ex) when (ShouldRetryOperation(operationContext, context, ex, attempt))
+                {
+                    originalException ??= ex;
+                }
                 catch (Exception ex)
                 {
-                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
-                    {
-                        throw originalException ?? ex;
-                    }
-
-                    originalException ??= ex;
+                    throw originalException ?? ex;
                 }
 
                 deprioritizedServers ??= new HashSet<ServerDescription>();
-                deprioritizedServers.Add(context.ChannelSource.ServerDescription);
+                deprioritizedServers.Add(server);
 
                 try
                 {
