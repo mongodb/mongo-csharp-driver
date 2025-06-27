@@ -72,7 +72,6 @@ namespace MongoDB.Driver.Core.Operations
             while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
-                attempt++;
                 var server = context.ChannelSource.ServerDescription;
                 try
                 {
