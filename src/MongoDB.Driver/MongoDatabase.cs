@@ -617,8 +617,11 @@ namespace MongoDB.Driver
                 new(documentSerializer, serializerRegistry, translationOptions: translationOptions) :
                 new(documentSerializer, options.SerializationDomain, translationOptions: translationOptions);
 
+            //var serializationDomain = Settings.SerializationDomain.WithSerializerRegistry(serializerRegistry);  //FP This could be the way to go
+
             //DOMAIN-API This will need to go away
-            var clusteredIndex = options.SerializationDomain is null?  options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions):
+            var clusteredIndex = options.SerializationDomain is null?
+                options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions):
                 options.ClusteredIndex?.Render(documentSerializer, options.SerializationDomain, translationOptions);
 
             var validator = options.Validator?.Render(renderArgs);

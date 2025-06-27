@@ -128,7 +128,7 @@ namespace MongoDB.Driver
             set { _noPadding = value; }
         }
 
-        //DOMAIN-API We need to remove this, and have only the SerializationDomain property.
+        //DOMAIN-API We need to remove this, and have only the SerializationDomain property. When we have builder, we will add Obsolete
         //We should also decide if we even need any of those two properties.
         /// <summary>
         /// Gets or sets the serializer registry.
