@@ -25,6 +25,8 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonExtensionMethods
     {
+        //DOMAIN-API We should remove this and use the version with the domain.
+        //QUESTION: Do we want to do something now about this...? It's used also internally, but in a huge number of places.
         /// <summary>
         /// Serializes an object to a BSON byte array.
         /// </summary>
@@ -49,6 +51,21 @@ namespace MongoDB.Bson
             return ToBson(obj, typeof(TNominalType), writerSettings, serializer, configurator, args, estimatedBsonSize);
         }
 
+        internal static byte[] ToBson<TNominalType>(
+            this TNominalType obj,
+            IBsonSerializationDomain serializationDomain,
+            IBsonSerializer<TNominalType> serializer = null,
+            BsonBinaryWriterSettings writerSettings = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs),
+            int estimatedBsonSize = 0)
+        {
+            args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
+
+            return ToBson(obj, typeof(TNominalType), serializationDomain, writerSettings, serializer, configurator, args, estimatedBsonSize);
+        }
+
+        //DOMAIN-API We should remove this and use the version with the domain.
         /// <summary>
         /// Serializes an object to a BSON byte array.
         /// </summary>
