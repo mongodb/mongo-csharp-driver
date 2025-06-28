@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a discriminator convention where the discriminator is provided by the class map of the actual type.
     /// </summary>
-    public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention, IScalarDiscriminatorConvention, IDiscriminatorConventionInternal
+    public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention, IScalarDiscriminatorConventionInternal, IDiscriminatorConventionInternal
     {
         private readonly ConcurrentDictionary<Type, BsonValue[]> _cachedTypeAndSubTypeDiscriminators = new();
 
@@ -67,9 +67,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         /// <inheritdoc/>
-        public BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type)
+        public BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type) =>
+            (this as IScalarDiscriminatorConventionInternal).GetDiscriminatorsForTypeAndSubTypes(type, BsonSerializer.DefaultSerializationDomain);
+
+        BsonValue[] IScalarDiscriminatorConventionInternal.GetDiscriminatorsForTypeAndSubTypes(Type type, IBsonSerializationDomain serializationDomain)
         {
-            return _cachedTypeAndSubTypeDiscriminators.GetOrAdd(type, BsonSerializer.GetDiscriminatorsForTypeAndSubTypes);
+            return _cachedTypeAndSubTypeDiscriminators.GetOrAdd(type, serializationDomain.GetDiscriminatorsForTypeAndSubTypes);
         }
     }
 }

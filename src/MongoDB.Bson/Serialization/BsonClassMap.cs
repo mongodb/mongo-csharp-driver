@@ -415,16 +415,16 @@ namespace MongoDB.Bson.Serialization
         {
             public int FreezeNestingLevel { get; set; } = 0;
             public Queue<Type> KnownTypesQueue { get; set; } = new();
-            public IBsonSerializationDomainInternal SerializationDomain { get; set; }
+            public IBsonSerializationDomain SerializationDomain { get; set; }
         }
 
         /// <summary>
         /// Freezes the class map.
         /// </summary>
         /// <returns>The frozen class map.</returns>
-        public BsonClassMap Freeze() => Freeze(BsonSerializer.DefaultSerializationDomain as IBsonSerializationDomainInternal);
+        public BsonClassMap Freeze() => Freeze(BsonSerializer.DefaultSerializationDomain);
 
-        internal BsonClassMap Freeze(IBsonSerializationDomainInternal domain)
+        internal BsonClassMap Freeze(IBsonSerializationDomain domain)
         {
             var freezeContext = new FreezeContext { SerializationDomain = domain };
             return Freeze(freezeContext);
@@ -1171,7 +1171,7 @@ namespace MongoDB.Bson.Serialization
         /// Gets the discriminator convention for the class.
         /// </summary>
         /// <returns>The discriminator convention for the class.</returns>
-        internal IDiscriminatorConvention GetDiscriminatorConvention(IBsonSerializationDomainInternal serializationDomain)
+        internal IDiscriminatorConvention GetDiscriminatorConvention(IBsonSerializationDomain serializationDomain)
         {
             // return a cached discriminator convention when possible
             var discriminatorConvention = _discriminatorConvention;
@@ -1218,7 +1218,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <returns>The discriminator convention for the class.</returns>
         internal IDiscriminatorConvention GetDiscriminatorConvention()
-            => GetDiscriminatorConvention(BsonSerializer.DefaultSerializationDomain as IBsonSerializationDomainInternal);
+            => GetDiscriminatorConvention(BsonSerializer.DefaultSerializationDomain);
 
         // private methods
         private void AutoMapClass(IBsonSerializationDomain serializationDomain)
