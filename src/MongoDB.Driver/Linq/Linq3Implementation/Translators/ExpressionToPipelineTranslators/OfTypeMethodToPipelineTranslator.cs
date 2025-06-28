@@ -51,12 +51,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     return pipeline;
                 }
 
-                var discriminatorConvention = pipeline.OutputSerializer.GetDiscriminatorConvention();
+                var discriminatorConvention = pipeline.OutputSerializer.GetDiscriminatorConvention(context.SerializationDomain);
                 var discriminatorElementName = discriminatorConvention.ElementName;
                 var wrappedValueOutputSerializer = pipeline.OutputSerializer as IWrappedValueSerializer;
                 if (wrappedValueOutputSerializer != null)
                 {
-                    discriminatorConvention = wrappedValueOutputSerializer.ValueSerializer.GetDiscriminatorConvention();
+                    discriminatorConvention = wrappedValueOutputSerializer.ValueSerializer.GetDiscriminatorConvention(context.SerializationDomain);
                     discriminatorElementName = wrappedValueOutputSerializer.FieldName + "." + discriminatorElementName;
                 }
                 var discriminatorField = AstFilter.Field(discriminatorElementName);

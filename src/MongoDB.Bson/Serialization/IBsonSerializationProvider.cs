@@ -17,6 +17,7 @@ using System;
 
 namespace MongoDB.Bson.Serialization
 {
+    //DOMAIN-API We should remove this interface and merge it with IRegistryAwareBsonSerializationProvider.
     /// <summary>
     /// An interface implemented by serialization providers.
     /// </summary>
