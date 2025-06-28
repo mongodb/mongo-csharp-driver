@@ -2212,7 +2212,7 @@ namespace MongoDB.Driver
                     throw new NotSupportedException(message);
                 }
 
-                var discriminator = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TDerived));
+                var discriminator = discriminatorConvention.GetDiscriminatorInternal(typeof(TDocument), typeof(TDerived), args.SerializationDomain);
                 if (discriminator == null)
                 {
                     throw new NotSupportedException($"OfType requires that documents of type {BsonUtils.GetFriendlyTypeName(typeof(TDerived))} have a discriminator value.");
@@ -2221,8 +2221,8 @@ namespace MongoDB.Driver
                 var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
                 ofTypeFilter= discriminatorConvention switch
                 {
-                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
+                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
                     _ => throw new NotSupportedException("OfType is not supported with the configured discriminator convention.")
                 };
             }
@@ -2280,8 +2280,8 @@ namespace MongoDB.Driver
 
                 ofTypeFilter = discriminatorConvention switch
                 {
-                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
+                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
                     _ => throw new NotSupportedException("OfType is not supported with the configured discriminator convention.")
                 };
             }

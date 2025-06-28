@@ -84,7 +84,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             out IIdGenerator idGenerator) => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id,
             out idNominalType, out idGenerator);
 
-        /// <inheritdoc />
         internal bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType,
             out IIdGenerator idGenerator)
         {
