@@ -62,7 +62,7 @@ internal static class DiscriminatorAstFilter
 
     public static AstFieldOperationFilter TypeIs(AstFilterField discriminatorField, IScalarDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
     {
-        var discriminators = discriminatorConvention.GetDiscriminatorsForTypeAndSubTypes(actualType);
+        var discriminators = discriminatorConvention.GetDiscriminatorsForTypeAndSubTypesInternal(actualType, serializationDomain);
         return discriminators.Length == 1 ?
             AstFilter.Eq(discriminatorField, discriminators.Single()) :
             AstFilter.In(discriminatorField, discriminators);
