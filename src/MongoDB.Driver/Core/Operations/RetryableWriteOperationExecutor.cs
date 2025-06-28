@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            return operationContext.IsOperationTimeoutConfigured() || attempt < 2;
+            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
         // private static methods
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            return operationContext.IsOperationTimeoutConfigured() || attempt < 2;
+            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
 
         private static bool AreRetriesAllowed(WriteConcern writeConcern, RetryableWriteContext context, ServerDescription server)

@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Core.Operations
                 return false;
             }
 
-            return operationContext.IsOperationTimeoutConfigured() || attempt < 2;
+            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
     }
 }
