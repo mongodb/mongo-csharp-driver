@@ -20,7 +20,7 @@ using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson
 {
-    //TODO This could be moved somewhere else
+    //FP This could be moved somewhere else
     internal static class InternalExtensions
     {
         public static Type GetActualTypeInternal(this IDiscriminatorConvention discriminatorConvention, IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain serializationDomain)
@@ -30,6 +30,15 @@ namespace MongoDB.Bson
                 return internalConvention.GetActualType(bsonReader, nominalType, serializationDomain);
             }
             return discriminatorConvention.GetActualType(bsonReader, nominalType);
+        }
+
+        public static BsonValue GetDiscriminatorInternal(this IDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
+        {
+            if (discriminatorConvention is IDiscriminatorConventionInternal internalConvention)
+            {
+                return internalConvention.GetDiscriminator(nominalType, actualType, serializationDomain);
+            }
+            return discriminatorConvention.GetDiscriminator(nominalType, actualType);
         }
 
         public static void ApplyInternal(this IMemberMapConvention memberMapConvention, BsonMemberMap memberMap, IBsonSerializationDomain serializationDomain)

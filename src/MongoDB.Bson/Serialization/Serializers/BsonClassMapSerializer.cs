@@ -329,7 +329,6 @@ namespace MongoDB.Bson.Serialization
             out IIdGenerator idGenerator)
             => GetDocumentId(document, BsonSerializer.DefaultSerializationDomain, out id, out idNominalType, out idGenerator);
 
-        /// <inheritdoc/>
         internal bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType,
             out IIdGenerator idGenerator)
         {
@@ -647,16 +646,7 @@ namespace MongoDB.Bson.Serialization
             if (discriminatorConvention != null)
             {
                 var actualType = obj.GetType();
-
-                BsonValue discriminator;
-                if (discriminatorConvention is IDiscriminatorConventionInternal discriminatorConventionInternal)
-                {
-                    discriminator = discriminatorConventionInternal.GetDiscriminator(nominalType, actualType, context.SerializationDomain);
-                }
-                else
-                {
-                    discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                }
+                var discriminator = discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, context.SerializationDomain);
 
                 if (discriminator != null)
                 {

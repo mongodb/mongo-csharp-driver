@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Core.Operations
         private ReadCommandOperation<TResult[]> CreateOperation()
         {
             var command = CreateCommand();
-            var resultSerializer = _resultSerializer ?? BsonSerializer.LookupSerializer<TResult>();
+            var resultSerializer = _resultSerializer ?? BsonSerializer.LookupSerializer<TResult>(); //FP Need to take a look
             var resultArraySerializer = new ArraySerializer<TResult>(resultSerializer);
             var commandResultSerializer = new ElementDeserializer<TResult[]>("retval", resultArraySerializer);
             return new ReadCommandOperation<TResult[]>(_collectionNamespace.DatabaseNamespace, command, commandResultSerializer, _messageEncoderSettings)
