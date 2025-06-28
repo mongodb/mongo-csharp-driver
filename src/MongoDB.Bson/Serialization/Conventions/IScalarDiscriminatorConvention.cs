@@ -27,6 +27,6 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>The discriminators.</returns>
-        BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type);
+        BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type);  //FP Need to fix this....
     }
 }

@@ -45,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         BsonValue GetDiscriminator(Type nominalType, Type actualType);
     }
 
+    //DOMAIN-API These methods should be substitute the above methods in the interface
     internal interface IDiscriminatorConventionInternal : IDiscriminatorConvention
     {
         /// <summary>

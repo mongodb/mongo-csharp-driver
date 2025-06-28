@@ -117,6 +117,7 @@ namespace MongoDB.Bson.Serialization
             get { return _creatorMaps; }
         }
 
+        //DOMAIN-API This one should be removed, or become a method to get the convention registry/domain as input
         /// <summary>
         /// Gets the conventions used for auto mapping.
         /// </summary>
@@ -246,6 +247,7 @@ namespace MongoDB.Bson.Serialization
             get { return _extraElementsMemberIndex; }
         }
 
+        //DOMAIN-API This is a utility method, it should not be public.
         // public static methods
         /// <summary>
         /// Gets the type of a member.

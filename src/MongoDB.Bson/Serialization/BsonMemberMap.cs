@@ -296,11 +296,6 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The serializer.</returns>
         public IBsonSerializer GetSerializer() => GetSerializer(BsonSerializer.DefaultSerializationDomain);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="domain"></param>
-        /// <returns></returns>
         internal IBsonSerializer GetSerializer(IBsonSerializationDomain domain)
         {
             if (_serializer == null)
