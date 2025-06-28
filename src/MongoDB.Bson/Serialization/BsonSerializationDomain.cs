@@ -15,7 +15,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// A class that represents the BSON serialization functionality.
     /// </summary>
-    internal class BsonSerializationDomain : IBsonSerializationDomainInternal, IDisposable
+    internal class BsonSerializationDomain : IBsonSerializationDomain, IDisposable
     {
         // private fields
         private IBsonDefaults _bsonDefaults;

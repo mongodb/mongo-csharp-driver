@@ -88,7 +88,7 @@ namespace MongoDB.Bson.Serialization
                 return default(TClass);
             }
 
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain as IBsonSerializationDomainInternal);
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain);
 
             var actualType = discriminatorConvention.GetActualTypeInternal(bsonReader, args.NominalType, context.SerializationDomain);
 
@@ -147,7 +147,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain as IBsonSerializationDomainInternal);
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain);
             var allMemberMaps = _classMap.AllMemberMaps;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
             var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
@@ -642,7 +642,7 @@ namespace MongoDB.Bson.Serialization
 
         private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj)
         {
-            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain as IBsonSerializationDomainInternal);
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention(context.SerializationDomain);
             if (discriminatorConvention != null)
             {
                 var actualType = obj.GetType();
