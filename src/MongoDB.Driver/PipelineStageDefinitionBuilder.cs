@@ -1290,8 +1290,8 @@ namespace MongoDB.Driver
                         var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
                         ofTypeFilter = discriminatorConvention switch
                         {
-                            IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                            IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                            IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
+                            IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
                             _ => throw new NotSupportedException( "OfType is not supported with the configured discriminator convention.")
                         };
                     }

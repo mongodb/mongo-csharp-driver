@@ -456,7 +456,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 else
                 {
                     var bsonWriter = context.Writer;
-                    var discriminator = _discriminatorConvention.GetDiscriminator(typeof(object), actualType);
+                    var discriminator = _discriminatorConvention.GetDiscriminatorInternal(typeof(object), actualType, context.SerializationDomain);
 
                     bsonWriter.WriteStartDocument();
                     if (discriminator != null)
