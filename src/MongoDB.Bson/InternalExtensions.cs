@@ -23,6 +23,20 @@ namespace MongoDB.Bson
     //FP This could be moved somewhere else, and maybe reordered.
     internal static class InternalExtensions
     {
+        #region IBsonIdProvider
+
+        public static bool GetDocumentIdInternal(this IBsonIdProvider provider, object document, IBsonSerializationDomain serializationDomain, out object id,
+            out Type idNominalType, out IIdGenerator idGenerator)
+        {
+            if (provider is IBsonIdProviderInternal internalProvider)
+            {
+                return internalProvider.GetDocumentId(document, serializationDomain, out id, out idNominalType, out idGenerator);
+            }
+            return provider.GetDocumentId(document, out id, out idNominalType, out idGenerator);
+        }
+
+        #endregion
+
         #region IDiscriminatorConvention
 
         public static Type GetActualTypeInternal(this IDiscriminatorConvention discriminatorConvention, IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain serializationDomain)
