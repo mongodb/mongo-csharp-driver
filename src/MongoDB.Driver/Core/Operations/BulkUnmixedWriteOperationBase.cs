@@ -129,9 +129,8 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
             {
-                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 return Execute(operationContext, context);
             }
         }
@@ -146,9 +145,8 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, IsOperationRetryable()).ConfigureAwait(false))
             {
-                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 return await ExecuteAsync(operationContext, context).ConfigureAwait(false);
             }
         }
@@ -159,6 +157,9 @@ namespace MongoDB.Driver.Core.Operations
         protected abstract bool RequestHasHint(TWriteRequest request);
 
         // private methods
+        private bool IsOperationRetryable()
+            => _retryRequested && _requests.All(r => r.IsRetryable());
+
         private IDisposable BeginOperation() =>
             EventContext.BeginOperation(null, _requests.FirstOrDefault()?.RequestType.ToString().ToLower());
 

@@ -139,10 +139,9 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = RetryableWriteContext.Create(operationContext, binding, _retryRequested))
+            using (var context = RetryableWriteContext.Create(operationContext, binding, IsOperationRetryable()))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
-                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
                 {
@@ -155,10 +154,9 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<BulkWriteOperationResult> ExecuteAsync(OperationContext operationContext, IWriteBinding binding)
         {
             using (BeginOperation())
-            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, _retryRequested).ConfigureAwait(false))
+            using (var context = await RetryableWriteContext.CreateAsync(operationContext, binding, IsOperationRetryable()).ConfigureAwait(false))
             {
                 EnsureHintIsSupportedIfAnyRequestHasHint();
-                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
                 {
@@ -167,6 +165,9 @@ namespace MongoDB.Driver.Core.Operations
                 return helper.GetFinalResultOrThrow(context.Channel.ConnectionDescription.ConnectionId);
             }
         }
+
+        private bool IsOperationRetryable()
+            => _retryRequested && _requests.All(r => r.IsRetryable());
 
         private IDisposable BeginOperation() =>
             // Execution starts with the first request

@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,121 +14,115 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
     internal static class RetryableReadOperationExecutor
     {
         // public static methods
-        public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, IReadBinding binding, bool retryRequested)
-        {
-            using (var context = RetryableReadContext.Create(operationContext, binding, retryRequested))
-            {
-                return Execute(operationContext, operation, context);
-            }
-        }
-
         public static TResult Execute<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
-            if (!ShouldReadBeRetried(context))
-            {
-                return operation.ExecuteAttempt(operationContext, context, attempt: 1, transactionNumber: null);
-            }
+            HashSet<ServerDescription> deprioritizedServers = null;
+            var attempt = 1;
+            Exception originalException = null;
 
-            Exception originalException;
-            try
+            while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
-                return operation.ExecuteAttempt(operationContext, context, attempt: 1, transactionNumber: null);
+                operationContext.ThrowIfTimedOutOrCanceled();
+                var server = context.ChannelSource.ServerDescription;
+                try
+                {
+                    return operation.ExecuteAttempt(operationContext, context, attempt, transactionNumber: null);
+                }
+                catch (Exception ex)
+                {
+                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
+                    {
+                        throw originalException ?? ex;
+                    }
 
-            }
-            catch (Exception ex) when (RetryabilityHelper.IsRetryableReadException(ex))
-            {
-                originalException = ex;
-            }
+                    originalException ??= ex;
+                }
 
-            try
-            {
-                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(operationContext, new[] { context.ChannelSource.ServerDescription }));
-                context.ReplaceChannel(context.ChannelSource.GetChannel(operationContext));
-            }
-            catch
-            {
-                throw originalException;
-            }
+                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers.Add(server);
 
-            try
-            {
-                return operation.ExecuteAttempt(operationContext, context, attempt: 2, transactionNumber: null);
-            }
-            catch (Exception ex) when (ShouldThrowOriginalException(ex))
-            {
-                throw originalException;
-            }
-        }
+                try
+                {
+                    context.AcquireOrReplaceChannel(operationContext, deprioritizedServers);
+                }
+                catch
+                {
+                    throw originalException;
+                }
 
-        public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, IReadBinding binding, bool retryRequested)
-        {
-            using (var context = await RetryableReadContext.CreateAsync(operationContext, binding, retryRequested).ConfigureAwait(false))
-            {
-                return await ExecuteAsync(operationContext, operation, context).ConfigureAwait(false);
+                attempt++;
             }
         }
 
         public static async Task<TResult> ExecuteAsync<TResult>(OperationContext operationContext, IRetryableReadOperation<TResult> operation, RetryableReadContext context)
         {
-            if (!ShouldReadBeRetried(context))
-            {
-                return await operation.ExecuteAttemptAsync(operationContext, context, attempt: 1, transactionNumber: null).ConfigureAwait(false);
-            }
+            HashSet<ServerDescription> deprioritizedServers = null;
+            var attempt = 1;
+            Exception originalException = null;
 
-            Exception originalException;
-            try
+            while (true) // Circle breaking logic based on ShouldRetryOperation method, see the catch block below.
             {
-                return await operation.ExecuteAttemptAsync(operationContext, context, attempt: 1, transactionNumber: null).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (RetryabilityHelper.IsRetryableReadException(ex))
-            {
-                originalException = ex;
-            }
+                operationContext.ThrowIfTimedOutOrCanceled();
+                var server = context.ChannelSource.ServerDescription;
+                try
+                {
+                    return await operation.ExecuteAttemptAsync(operationContext, context, attempt, transactionNumber: null).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    if (!ShouldRetryOperation(operationContext, context, ex, attempt))
+                    {
+                        throw originalException ?? ex;
+                    }
 
-            try
-            {
-                context.ReplaceChannelSource(context.Binding.GetReadChannelSource(operationContext, new[] { context.ChannelSource.ServerDescription }));
-                context.ReplaceChannel(context.ChannelSource.GetChannel(operationContext));
-            }
-            catch
-            {
-                throw originalException;
-            }
+                    originalException ??= ex;
+                }
 
-            try
-            {
-                return await operation.ExecuteAttemptAsync(operationContext, context, attempt: 2, transactionNumber: null).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (ShouldThrowOriginalException(ex))
-            {
-                throw originalException;
+                deprioritizedServers ??= new HashSet<ServerDescription>();
+                deprioritizedServers.Add(server);
+
+                try
+                {
+                    await context.AcquireOrReplaceChannelAsync(operationContext, deprioritizedServers).ConfigureAwait(false);
+                }
+                catch
+                {
+                    throw originalException;
+                }
+
+                attempt++;
             }
         }
 
-        public static bool ShouldConnectionAcquireBeRetried(RetryableReadContext context, Exception ex)
+        public static bool ShouldConnectionAcquireBeRetried(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
-            // According the spec error during handshake should be handle according to RetryableReads logic
-            var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
-            return context.RetryRequested && !context.Binding.Session.IsInTransaction && RetryabilityHelper.IsRetryableReadException(innerException);
+            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+            return ShouldRetryOperation(operationContext, context, innerException, attempt);
         }
 
         // private static methods
-        private static bool ShouldReadBeRetried(RetryableReadContext context)
+        private static bool ShouldRetryOperation(OperationContext operationContext, RetryableReadContext context, Exception exception, int attempt)
         {
-            return context.RetryRequested && !context.Binding.Session.IsInTransaction;
-        }
+            if (!context.RetryRequested || context.Binding.Session.IsInTransaction)
+            {
+                return false;
+            }
 
-        private static bool ShouldThrowOriginalException(Exception retryException)
-        {
-            return retryException is MongoException && !(retryException is MongoConnectionException);
+            if (!RetryabilityHelper.IsRetryableReadException(exception))
+            {
+                return false;
+            }
+
+            return operationContext.IsRootContextTimeoutConfigured() || attempt < 2;
         }
     }
 }
