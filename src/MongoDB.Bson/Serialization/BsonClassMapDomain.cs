@@ -8,7 +8,7 @@ namespace MongoDB.Bson.Serialization;
 internal class BsonClassMapDomain : IBsonClassMapDomain
 {
     // private fields
-    private readonly IBsonSerializationDomainInternal _serializationDomain;
+    private readonly IBsonSerializationDomain _serializationDomain;
     private readonly Dictionary<Type, BsonClassMap> _classMaps = new();
 
     public BsonClassMapDomain(BsonSerializationDomain serializationDomain)

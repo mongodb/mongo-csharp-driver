@@ -298,10 +298,9 @@ namespace MongoDB.Bson.Serialization
         /// //TODO
         /// </summary>
         IBsonDefaults BsonDefaults { get; }
-    }
 
-    internal interface IBsonSerializationDomainInternal : IBsonSerializationDomain
-    {
+        //DOMAIN-API The following methods and properties were not public on BsonSerializer
+
         void EnsureKnownTypesAreRegistered(Type nominalType);
 
         BsonValue[] GetDiscriminatorsForTypeAndSubTypes(Type type);

@@ -20,9 +20,11 @@ using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson
 {
-    //FP This could be moved somewhere else
+    //FP This could be moved somewhere else, and maybe reordered.
     internal static class InternalExtensions
     {
+        #region IDiscriminatorConvention
+
         public static Type GetActualTypeInternal(this IDiscriminatorConvention discriminatorConvention, IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain serializationDomain)
         {
             if (discriminatorConvention is IDiscriminatorConventionInternal internalConvention)
@@ -41,6 +43,23 @@ namespace MongoDB.Bson
             return discriminatorConvention.GetDiscriminator(nominalType, actualType);
         }
 
+        #endregion
+
+        #region IScalarDiscriminatorConvention
+
+        public static BsonValue[] GetDiscriminatorsForTypeAndSubTypesInternal(this IScalarDiscriminatorConvention discriminatorConvention, Type type, IBsonSerializationDomain serializationDomain)
+        {
+            if (discriminatorConvention is IScalarDiscriminatorConventionInternal internalConvention)
+            {
+                return internalConvention.GetDiscriminatorsForTypeAndSubTypes(type, serializationDomain);
+            }
+            return discriminatorConvention.GetDiscriminatorsForTypeAndSubTypes(type);
+        }
+
+        #endregion
+
+        #region IMemberMapConvention
+
         public static void ApplyInternal(this IMemberMapConvention memberMapConvention, BsonMemberMap memberMap, IBsonSerializationDomain serializationDomain)
         {
             if (memberMapConvention is IMemberMapConventionInternal internalConvention)
@@ -53,6 +72,10 @@ namespace MongoDB.Bson
             }
         }
 
+        #endregion
+
+        #region IPostProcessingConvention
+
         public static void PostProcessInternal(this IPostProcessingConvention postProcessingConvention, BsonClassMap classMap, IBsonSerializationDomain serializationDomain)
         {
             if (postProcessingConvention is IPostProcessingConventionInternal internalConvention)
@@ -64,5 +87,7 @@ namespace MongoDB.Bson
                 postProcessingConvention.PostProcess(classMap);
             }
         }
+
+        #endregion
     }
 }
