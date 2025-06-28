@@ -109,12 +109,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _interfaceType = typeof(TInterface);
-            _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention();
+            _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention(); //QUESTION What do we do here? We don't have the domain close by, should we lazy initialize it during serialization/deserialization?
             _interfaceSerializer = interfaceSerializer;
 
             if (objectSerializer == null)
             {
-                objectSerializer = BsonSerializer.LookupSerializer<object>();  //TODO What do we do here?
+                objectSerializer = BsonSerializer.LookupSerializer<object>();  //QUESTION What do we do here? We don't have the domain close by, should we lazy initialize it during serialization/deserialization?
                 if (objectSerializer is ObjectSerializer standardObjectSerializer)
                 {
                     Func<Type, bool> allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);

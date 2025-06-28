@@ -2205,7 +2205,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                var discriminatorConvention = args.DocumentSerializer.GetDiscriminatorConvention();
+                var discriminatorConvention = args.DocumentSerializer.GetDiscriminatorConvention(args.SerializationDomain);
                 if (discriminatorConvention == null)
                 {
                     var message = string.Format("OfType requires a discriminator convention for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TDocument)));
@@ -2268,7 +2268,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                var discriminatorConvention = renderedField.FieldSerializer.GetDiscriminatorConvention();
+                var discriminatorConvention = renderedField.FieldSerializer.GetDiscriminatorConvention(args.SerializationDomain);
                 if (discriminatorConvention == null)
                 {
                     var message = string.Format("OfType requires a discriminator convention for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TField)));

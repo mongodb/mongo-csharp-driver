@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             WriteStartModel(serializationContext, "insert", model);
             var documentSerializer = _serializerRegistry.GetSerializer<TDocument>();
-            var documentId = documentSerializer.SetDocumentIdIfMissing(null, model.Document);
+            var documentId = documentSerializer.SetDocumentIdIfMissing(null, model.Document, serializationContext.SerializationDomain);
             _idsMap[_currentIndex] = BsonValue.Create(documentId);
             serializationContext.Writer.WriteName("document");
             documentSerializer.Serialize(serializationContext, model.Document);

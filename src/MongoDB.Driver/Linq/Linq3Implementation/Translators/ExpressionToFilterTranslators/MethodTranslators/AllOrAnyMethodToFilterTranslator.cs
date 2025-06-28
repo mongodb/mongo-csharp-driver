@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     var sourceSerializer = fieldTranslation.Serializer;
                     var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
 
-                    var discriminatorConvention = itemSerializer.GetDiscriminatorConvention();
+                    var discriminatorConvention = itemSerializer.GetDiscriminatorConvention(context.SerializationDomain);
                     var discriminatorField = AstFilter.Field(discriminatorConvention.ElementName);
 
                     var ofTypeFilter = discriminatorConvention switch

@@ -1280,7 +1280,7 @@ namespace MongoDB.Driver
                     else
                     {
                         var inputSerializer = args.DocumentSerializer;
-                        var discriminatorConvention = inputSerializer.GetDiscriminatorConvention();
+                        var discriminatorConvention = inputSerializer.GetDiscriminatorConvention(args.SerializationDomain);
                         if (discriminatorConvention == null)
                         {
                             var message = string.Format("OfType requires that a discriminator convention exist for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TOutput)));

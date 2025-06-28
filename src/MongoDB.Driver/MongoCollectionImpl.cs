@@ -682,7 +682,7 @@ namespace MongoDB.Driver
                     var insertOneModel = (InsertOneModel<TDocument>)model;
                     if (_settings.AssignIdOnInsert)
                     {
-                        _documentSerializer.SetDocumentIdIfMissing(this, insertOneModel.Document);
+                        _documentSerializer.SetDocumentIdIfMissing(this, insertOneModel.Document, renderArgs.SerializationDomain);
                     }
                     return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _documentSerializer))
                     {
