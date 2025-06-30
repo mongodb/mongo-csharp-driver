@@ -28,11 +28,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Lazy<IBsonSerializer<TNominalType>> _lazyNominalTypeSerializer;
 
         // constructors
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="SerializeAsNominalTypeSerializer{TActualType, TNominalType}"/> class.
         /// </summary>
         public SerializeAsNominalTypeSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 

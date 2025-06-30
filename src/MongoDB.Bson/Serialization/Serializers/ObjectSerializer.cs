@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets the standard instance.
         /// </summary>
-        public static ObjectSerializer Instance => __instance;
+        public static ObjectSerializer Instance => __instance;  //FP This is problematic, but can't do much about it now.
 
         /// <summary>
         /// An allowed types function that returns false for all types.
@@ -63,11 +63,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly GuidSerializer _guidSerializer;
 
         // constructors
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectSerializer"/> class.
         /// </summary>
         public ObjectSerializer()
-            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object))) //TODO We can keep this as is
+            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object)))
         {
         }
 
@@ -91,12 +92,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectSerializer"/> class.
         /// </summary>
         /// <param name="allowedTypes">A delegate that determines what types are allowed.</param>
         public ObjectSerializer(Func<Type, bool> allowedTypes)
-            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object)), allowedTypes) //TODO We can keep this as is
+            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object)), allowedTypes)
         {
         }
 

@@ -45,12 +45,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly Lazy<IBsonSerializer<TItem>> _lazyItemSerializer;
 
+        //DOMAIN-API This should be removed in the future.
         // constructors
         /// <summary>
         /// Initializes a new instance of the IEnumerableDeserializingAsCollectionSerializer class.
         /// </summary>
         public IEnumerableDeserializingAsCollectionSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 

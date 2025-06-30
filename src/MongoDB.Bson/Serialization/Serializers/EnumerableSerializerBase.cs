@@ -31,11 +31,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Lazy<IBsonSerializer> _lazyItemSerializer;
 
         // constructors
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue}"/> class.
         /// </summary>
         protected EnumerableSerializerBase()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -230,11 +231,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Lazy<IBsonSerializer<TItem>> _lazyItemSerializer;
 
         // constructors
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue, TItem}"/> class.
         /// </summary>
         protected EnumerableSerializerBase()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 

@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly IBsonSerializer<List<object>> _listSerializer;
 
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="ExpandoObjectSerializer"/> class.
         /// </summary>
@@ -39,10 +40,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="serializerRegistry"></param>
         internal ExpandoObjectSerializer(IBsonSerializerRegistry serializerRegistry)
         {
             _listSerializer = serializerRegistry.GetSerializer<List<object>>();

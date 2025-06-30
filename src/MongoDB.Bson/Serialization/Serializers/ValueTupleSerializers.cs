@@ -71,11 +71,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
 
         // constructors
+        //DOMAIN-API This should be removed in the future (also for the other versions)
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -193,7 +194,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -329,7 +330,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -483,7 +484,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -655,7 +656,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4, T5}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -845,7 +846,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4, T5, T6}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -1053,7 +1054,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4, T5, T6, T7}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
@@ -1280,7 +1281,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="ValueTupleSerializer{T1, T2, T3, T4, T5, T6, T7, TRest}"/> class.
         /// </summary>
         public ValueTupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
