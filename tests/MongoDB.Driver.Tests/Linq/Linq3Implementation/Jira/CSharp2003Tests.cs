@@ -142,7 +142,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Flags]
+#pragma warning disable CA1714
         public enum E
+#pragma warning restore CA1714
         {
             E1 = 1,
             E2 = 2,
