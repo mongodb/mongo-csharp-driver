@@ -13,23 +13,30 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp3946Tests : Linq3IntegrationTest
+    public class CSharp3946Tests : LinqIntegrationTest<CSharp3946Tests.ClassFixture>
     {
+        public CSharp3946Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Where_with_constant_limit_should_work()
         {
             RequireServer.Check().Supports(Feature.FilterLimit);
 
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => x.IA.Where(i => i >= 2, 2));
 
@@ -46,7 +53,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             RequireServer.Check().Supports(Feature.FilterLimit);
 
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => x.IA.Where(i => i >= 2, x.Id + 1));
 
@@ -58,19 +65,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results[0].Should().Equal(2, 3);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-            CreateCollection(
-                collection,
-                new C { Id = 1, IA = new[] { 1, 2, 3, 4 } });
-            return collection;
-        }
-
         public class C
         {
             public int Id { get; set; }
             public int[] IA { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, IA = new[] { 1, 2, 3, 4 } }
+            ];
         }
     }
 }

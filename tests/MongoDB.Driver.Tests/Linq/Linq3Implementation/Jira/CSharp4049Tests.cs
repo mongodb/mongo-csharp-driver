@@ -13,19 +13,26 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp4049Tests : Linq3IntegrationTest
+    public class CSharp4049Tests : LinqIntegrationTest<CSharp4049Tests.ClassFixture>
     {
+        public CSharp4049Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Aggregate_Project_should_translate_as_expected()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var aggregate = collection.Aggregate()
                 .Project(x => new TestClass { Property = x.Property.ToUpper() });
 
@@ -39,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         [Fact]
         public void Queryable_Select_should_translate_as_expected()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var queryable = collection.AsQueryable()
                 .Select(x => new TestClass { Property = x.Property.ToUpper() });
 
@@ -50,23 +57,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Property.Should().Be("ABC");
         }
 
-        private IMongoCollection<TestClass> CreateCollection()
-        {
-            var collection = GetCollection<TestClass>();
-
-            var documents = new[]
-            {
-                new TestClass { Property = "abc" }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
         public class TestClass
         {
             [BsonElement("_p")]
             public string Property { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<TestClass>
+        {
+            protected override IEnumerable<TestClass> InitialData =>
+            [
+                new TestClass { Property = "abc" }
+            ];
         }
     }
 }

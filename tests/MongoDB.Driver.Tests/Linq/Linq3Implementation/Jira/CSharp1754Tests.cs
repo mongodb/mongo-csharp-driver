@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
-    public class CSharp1754Tests : Linq3IntegrationTest
+    public class CSharp1754Tests : LinqIntegrationTest<CSharp1754Tests.ClassFixture>
     {
+        public CSharp1754Tests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Test()
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
             var requiredMeta = new[] { "a", "b" };
 
             var queryable = collection.AsQueryable()
@@ -38,20 +44,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.Select(r => r.Id).Should().Equal(2);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>();
-
-            var documents = new[]
-            {
-                new C { Id = 1, Occurrences = new[] { new Occurrence { Meta = new[] { "a" } } } },
-                new C { Id = 2, Occurrences = new[] { new Occurrence { Meta = new[] { "a" } }, new Occurrence { Meta = new[] { "a", "b" } } } }
-            };
-            CreateCollection(collection, documents);
-
-            return collection;
-        }
-
         public class C
         {
             public int Id { get; set; }
@@ -61,6 +53,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         public class Occurrence
         {
             public string[] Meta { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 1, Occurrences = new[] { new Occurrence { Meta = new[] { "a" } } } },
+                new C { Id = 2, Occurrences = new[] { new Occurrence { Meta = new[] { "a" } }, new Occurrence { Meta = new[] { "a", "b" } } } }
+            ];
         }
     }
 }

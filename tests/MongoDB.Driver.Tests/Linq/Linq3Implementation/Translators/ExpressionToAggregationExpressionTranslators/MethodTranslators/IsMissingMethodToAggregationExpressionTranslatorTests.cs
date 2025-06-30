@@ -13,20 +13,26 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class IsMissingMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class IsMissingMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<IsMissingMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public IsMissingMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Fact]
         public void Select_Exists_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => Mql.Exists(x.S));
@@ -41,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Select_IsMissing_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => Mql.IsMissing(x.S));
@@ -56,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Select_IsNullOrMissing_should_work()
         {
-            var collection = GetCollection();
+            var collection = Fixture.Collection;
 
             var queryable = collection.AsQueryable()
                 .Select(x => Mql.IsNullOrMissing(x.S));
@@ -68,21 +74,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().Equal(true, true, false);
         }
 
-        private IMongoCollection<C> GetCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                GetCollection<BsonDocument>("test"),
-                BsonDocument.Parse("{ _id : 1 }"),
-                BsonDocument.Parse("{ _id : 2, S : null }"),
-                BsonDocument.Parse("{ _id : 3, S : 'abc' }"));
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public string S { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C, BsonDocument>
+        {
+            protected override IEnumerable<BsonDocument> InitialData =>
+            [
+                BsonDocument.Parse("{ _id : 1 }"),
+                BsonDocument.Parse("{ _id : 2, S : null }"),
+                BsonDocument.Parse("{ _id : 3, S : 'abc' }")
+            ];
         }
     }
 }

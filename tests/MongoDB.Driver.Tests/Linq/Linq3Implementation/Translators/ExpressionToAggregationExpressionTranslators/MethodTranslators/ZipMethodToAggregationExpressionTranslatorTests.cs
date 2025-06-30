@@ -13,22 +13,28 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class ZipMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class ZipMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<ZipMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
+        public ZipMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Enumerable_Zip_should_work(
             [Values(false, true)] bool withNestedAsQueryableSource2)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryableSource2 ?
                 collection.AsQueryable().Select(x => x.A.Zip(x.B.AsQueryable(), (x, y) => x * y)) :
@@ -50,7 +56,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         public void Queryable_Zip_should_work(
             [Values(false, true)] bool withNestedAsQueryableSource2)
         {
-            var collection = CreateCollection();
+            var collection = Fixture.Collection;
 
             var queryable = withNestedAsQueryableSource2 ?
                 collection.AsQueryable().Select(x => x.A.AsQueryable().Zip(x.B.AsQueryable(), (x, y) => x * y)) :
@@ -67,23 +73,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results[3].Should().Equal(3, 8);
         }
 
-        private IMongoCollection<C> CreateCollection()
-        {
-            var collection = GetCollection<C>("test");
-            CreateCollection(
-                collection,
-                new C { Id = 0, A = new int[0], B = new int[0] },
-                new C { Id = 1, A = new int[0], B = new int[] { 1 } },
-                new C { Id = 2, A = new int[] { 1 }, B = new int[0] },
-                new C { Id = 3, A = new int[] { 1, 2 }, B = new int[] { 3, 4, 5 } });
-            return collection;
-        }
-
-        private class C
+        public class C
         {
             public int Id { get; set; }
             public int[] A { get; set; }
             public int[] B { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<C>
+        {
+            protected override IEnumerable<C> InitialData =>
+            [
+                new C { Id = 0, A = new int[0], B = new int[0] },
+                new C { Id = 1, A = new int[0], B = new int[] { 1 } },
+                new C { Id = 2, A = new int[] { 1 }, B = new int[0] },
+                new C { Id = 3, A = new int[] { 1, 2 }, B = new int[] { 3, 4, 5 } }
+            ];
         }
     }
 }
