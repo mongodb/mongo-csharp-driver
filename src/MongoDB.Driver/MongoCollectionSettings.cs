@@ -125,6 +125,7 @@ namespace MongoDB.Driver
         internal IBsonSerializationDomain SerializationDomain
         {
             //QUESTION Is this correct? Normally the domain would be setup by ApplyDefaultValues, but for testing it would not work.
+            //Internally we can also modify the tests to set this (when we use mocks), but externally developers won't be able to set this.
             get => _serializationDomain.Value ?? BsonSerializer.DefaultSerializationDomain;
             set
             {
