@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -135,20 +135,17 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return exception is MongoException mongoException ? mongoException.HasErrorLabel(ResumableChangeStreamErrorLabel) : false;
             }
-            else
-            {
-                var commandException = exception as MongoCommandException;
-                if (commandException != null)
-                {
-                    var code = (ServerErrorCode)commandException.Code;
-                    if (__resumableChangeStreamErrorCodes.Contains(code))
-                    {
-                        return true;
-                    }
-                }
 
-                return __resumableChangeStreamExceptions.Contains(exception.GetType());
+            if (exception is MongoCommandException commandException)
+            {
+                var code = (ServerErrorCode)commandException.Code;
+                if (__resumableChangeStreamErrorCodes.Contains(code))
+                {
+                    return true;
+                }
             }
+
+            return __resumableChangeStreamExceptions.Contains(exception.GetType());
         }
 
         /// <summary>

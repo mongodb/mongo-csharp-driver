@@ -13,9 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using MongoDB.Driver.Core.Connections;
-
 namespace MongoDB.Driver.Core.Operations
 {
     internal abstract class WriteRequest
@@ -31,6 +28,6 @@ namespace MongoDB.Driver.Core.Operations
         public WriteRequestType RequestType { get; init; }
 
         // public methods
-        public abstract bool IsRetryable(ConnectionDescription connectionDescription);
+        public abstract bool IsRetryable();
     }
 }
