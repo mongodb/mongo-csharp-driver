@@ -26,7 +26,7 @@ namespace MongoDB.Bson.IO
         // private fields
         private bool _isFrozen;
         private int _maxSerializationDepth = BsonDefaults.MaxSerializationDepth;
-        private IBsonSerializationDomain _serializationDomain;
+        private IBsonSerializationDomain _serializationDomain = BsonSerializer.DefaultSerializationDomain;
 
         // constructors
         /// <summary>
