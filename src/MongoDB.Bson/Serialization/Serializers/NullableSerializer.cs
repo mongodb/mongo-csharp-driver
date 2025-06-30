@@ -60,11 +60,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private Lazy<IBsonSerializer<T>> _lazySerializer;
 
         // constructors
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="NullableSerializer{T}"/> class.
         /// </summary>
         public NullableSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 
