@@ -124,7 +124,8 @@ namespace MongoDB.Driver
         /// </summary>
         internal IBsonSerializationDomain SerializationDomain
         {
-            get => _serializationDomain.Value;
+            //QUESTION Is this correct? Normally the domain would be setup by ApplyDefaultValues, but for testing it would not work.
+            get => _serializationDomain.Value ?? BsonSerializer.DefaultSerializationDomain;
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
