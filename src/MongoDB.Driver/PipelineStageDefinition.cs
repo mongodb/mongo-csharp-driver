@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -168,12 +167,17 @@ namespace MongoDB.Driver
         string ToString(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry);
     }
 
+    internal interface IPipelineStageStageDefinitionInternal : IPipelineStageDefinition
+    {
+        IRenderedPipelineStageDefinition Render(IBsonSerializer inputSerializer, IBsonSerializationDomain serializationDomain, ExpressionTranslationOptions translationOptions);
+    }
+
     /// <summary>
     /// Base class for pipeline stages.
     /// </summary>
     /// <typeparam name="TInput">The type of the input.</typeparam>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public abstract class PipelineStageDefinition<TInput, TOutput> : IPipelineStageDefinition
+    public abstract class PipelineStageDefinition<TInput, TOutput> : IPipelineStageStageDefinitionInternal
     {
         /// <summary>
         /// Gets the type of the input.
@@ -292,6 +296,12 @@ namespace MongoDB.Driver
         IRenderedPipelineStageDefinition IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry, ExpressionTranslationOptions translationOptions)
         {
             return Render(new((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, translationOptions: translationOptions));
+        }
+
+        IRenderedPipelineStageDefinition IPipelineStageStageDefinitionInternal.Render(IBsonSerializer inputSerializer, IBsonSerializationDomain serializationDomain,
+            ExpressionTranslationOptions translationOptions)
+        {
+            return Render(new((IBsonSerializer<TInput>)inputSerializer, serializationDomain, translationOptions: translationOptions));
         }
     }
 
