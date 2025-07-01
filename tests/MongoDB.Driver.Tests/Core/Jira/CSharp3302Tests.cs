@@ -282,8 +282,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
             var baseDocument = new BsonDocument
             {
                 { "ok", 1 },
-                { "minWireVersion", WireVersion.Server36 },
-                { "maxWireVersion", WireVersion.Server40 },
+                { "minWireVersion", WireVersion.Server42 },
+                { "maxWireVersion", WireVersion.Server44 },
                 { "setName", "rs" },
                 { "hosts", new BsonArray(new [] { "localhost:27017", "localhost:27018" })},
                 { "topologyVersion", new TopologyVersion(ObjectId.Empty, 1).ToBsonDocument(), false }
