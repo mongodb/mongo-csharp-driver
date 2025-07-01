@@ -398,6 +398,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the mmapv1 storage engine feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature MmapV1StorageEngine => __mmapV1StorageEngine;
 
         /// <summary>

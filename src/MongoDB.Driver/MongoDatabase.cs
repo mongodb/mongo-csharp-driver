@@ -634,10 +634,8 @@ namespace MongoDB.Driver
                     cco.IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument();
                     cco.MaxDocuments = options.MaxDocuments;
                     cco.MaxSize = options.MaxSize;
-                    cco.NoPadding = options.NoPadding;
                     cco.StorageEngine = options.StorageEngine;
                     cco.TimeSeriesOptions = options.TimeSeriesOptions;
-                    cco.UsePowerOf2Sizes = options.UsePowerOf2Sizes;
                     cco.ValidationAction = options.ValidationAction;
                     cco.ValidationLevel = options.ValidationLevel;
                     cco.Validator = validator;

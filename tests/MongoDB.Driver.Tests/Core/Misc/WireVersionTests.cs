@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
         [Fact]
         public void SupportedWireRange_should_be_correct()
         {
-            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(7, 27));
+            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(8, 27));
         }
 
         [Fact]

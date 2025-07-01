@@ -409,9 +409,7 @@ namespace MongoDB.Driver
                 IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
                 MaxDocuments = 10,
                 MaxSize = 11,
-                NoPadding = true,
                 StorageEngine = storageEngine,
-                UsePowerOf2Sizes = true,
                 ValidationAction = DocumentValidationAction.Warn,
                 ValidationLevel = DocumentValidationLevel.Off,
                 Validator = validatorDefinition
@@ -461,9 +459,7 @@ namespace MongoDB.Driver
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
             op.MaxDocuments.Should().Be(options.MaxDocuments);
             op.MaxSize.Should().Be(options.MaxSize);
-            op.NoPadding.Should().Be(options.NoPadding);
             op.StorageEngine.Should().Be(storageEngine);
-            op.UsePowerOf2Sizes.Should().Be(options.UsePowerOf2Sizes);
             op.ValidationAction.Should().Be(options.ValidationAction);
             op.ValidationLevel.Should().Be(options.ValidationLevel);
             op.Validator.Should().Be(validatorDocument);
@@ -488,9 +484,7 @@ namespace MongoDB.Driver
                 IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
                 MaxDocuments = 10,
                 MaxSize = 11,
-                NoPadding = true,
                 StorageEngine = storageEngine,
-                UsePowerOf2Sizes = true,
                 ValidationAction = DocumentValidationAction.Warn,
                 ValidationLevel = DocumentValidationLevel.Off
             };
@@ -532,9 +526,7 @@ namespace MongoDB.Driver
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
             op.MaxDocuments.Should().Be(options.MaxDocuments);
             op.MaxSize.Should().Be(options.MaxSize);
-            op.NoPadding.Should().Be(options.NoPadding);
             op.StorageEngine.Should().Be(storageEngine);
-            op.UsePowerOf2Sizes.Should().Be(options.UsePowerOf2Sizes);
             op.ValidationAction.Should().Be(options.ValidationAction);
             op.ValidationLevel.Should().Be(options.ValidationLevel);
             op.Validator.Should().BeNull();
@@ -586,9 +578,7 @@ namespace MongoDB.Driver
             op.IndexOptionDefaults.Should().BeNull();
             op.MaxDocuments.Should().NotHaveValue();
             op.MaxSize.Should().NotHaveValue();
-            op.NoPadding.Should().NotHaveValue();
             op.StorageEngine.Should().BeNull();
-            op.UsePowerOf2Sizes.Should().NotHaveValue();
             op.ValidationAction.Should().BeNull();
             op.ValidationLevel.Should().BeNull();
             op.Validator.Should().BeNull();

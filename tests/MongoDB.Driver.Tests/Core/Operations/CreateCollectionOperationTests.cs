@@ -76,9 +76,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.IndexOptionDefaults.Should().BeNull();
             subject.MaxDocuments.Should().NotHaveValue();
             subject.MaxSize.Should().NotHaveValue();
-            subject.NoPadding.Should().NotHaveValue();
             subject.StorageEngine.Should().BeNull();
-            subject.UsePowerOf2Sizes.Should().NotHaveValue();
             subject.ValidationAction.Should().BeNull();
             subject.ValidationLevel.Should().BeNull();
             subject.Validator.Should().BeNull();
@@ -268,28 +266,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateCommand_should_return_expected_result_when_NoPadding_is_set(
-            [Values(null, false, true)]
-            bool? noPadding)
-        {
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                NoPadding = noPadding
-            };
-            var session = OperationTestHelper.CreateSession();
-
-            var result = subject.CreateCommand(session);
-
-            var expectedResult = new BsonDocument
-            {
-                { "create", _collectionNamespace.CollectionName },
-                { "flags", () => noPadding.Value ? 2 : 0, noPadding != null }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_StorageEngine_is_set(
             [Values(null, "{ x : 1 }", "{ x : 2 }")]
             string storageEngineString)
@@ -307,28 +283,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "create", _collectionNamespace.CollectionName },
                 { "storageEngine", storageEngine, storageEngineString != null }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_expected_result_when_UsePowerOf2Sizes_is_set(
-            [Values(null, false, true)]
-            bool? usePowerOf2Sizes)
-        {
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                UsePowerOf2Sizes = usePowerOf2Sizes
-            };
-            var session = OperationTestHelper.CreateSession();
-
-            var result = subject.CreateCommand(session);
-
-            var expectedResult = new BsonDocument
-            {
-                { "create", _collectionNamespace.CollectionName },
-                { "flags", () => usePowerOf2Sizes.Value ? 1 : 0, usePowerOf2Sizes != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -702,31 +656,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_should_create_collection_when_NoPadding_is_set(
-            [Values(false, true)]
-            bool noPadding,
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
-            DropCollection();
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                NoPadding = noPadding
-            };
-
-            BsonDocument info;
-            using (var binding = CreateReadWriteBinding())
-            {
-                ExecuteOperation(subject, binding, async);
-                info = GetCollectionInfo(binding);
-            }
-
-            info["options"]["flags"].Should().Be(noPadding ? 2 : 0);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Execute_should_create_collection_when_StorageEngine_is_set(
             [Values("abc", "def")]
             string metadata,
@@ -752,31 +681,6 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             info["options"]["storageEngine"].Should().Be(storageEngine);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_should_create_collection_when_UsePowerOf2Sizes_is_set(
-            [Values(false, true)]
-            bool usePowerOf2Sizes,
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
-            DropCollection();
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                UsePowerOf2Sizes = usePowerOf2Sizes
-            };
-
-            BsonDocument info;
-            using (var binding = CreateReadWriteBinding())
-            {
-                ExecuteOperation(subject, binding, async);
-                info = GetCollectionInfo(binding);
-            }
-
-            info["options"]["flags"].Should().Be(usePowerOf2Sizes ? 1 : 0);
         }
 
         [Theory]
@@ -927,20 +831,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void NoPadding_get_and_set_should_work(
-            [Values(null, false, true)]
-            bool? value)
-        {
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-
-            subject.NoPadding = value;
-            var result = subject.NoPadding;
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void StorageEngine_get_and_set_should_work(
             [Values(null, "{ x : 1 }", "{ x : 2 }")]
             string valueString)
@@ -952,20 +842,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.StorageEngine;
 
             result.Should().BeSameAs(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void UsePowerOf2Sizes_get_and_set_should_work(
-            [Values(null, false, true)]
-            bool? value)
-        {
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-
-            subject.UsePowerOf2Sizes = value;
-            var result = subject.UsePowerOf2Sizes;
-
-            result.Should().Be(value);
         }
 
         [Theory]

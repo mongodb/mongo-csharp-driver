@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 else
                 {
-                    // The driver doesn't support servers less than 4.0. However it's still useful to support OP_QUERY for initial handshake.
+                    // The driver doesn't support servers less than 4.2. However it's still useful to support OP_QUERY for initial handshake.
                     // For pre-3.6 servers, it will allow throwing unsupported wire protocol exception on the driver side.
                     // If we only supported OP_MSG, we would throw a general server error about closing connection without actual reason of why it happened
                     return _cachedWireProtocol = CreateCommandUsingQueryMessageWireProtocol();
