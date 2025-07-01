@@ -34,17 +34,14 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check();
 
             {
-                var client = DriverTestConfiguration.CreateMongoClient();
-                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-                db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-                var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-                var bsonCollection =
-                    db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                var client = CreateClient();
+                var collection = GetTypedCollection<Person>(client);
+                var bsonCollection = GetUntypedCollection(client);
 
                 var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
                 collection.InsertOne(person);
 
-                var retrieved = bsonCollection.FindSync("{}").ToList().Single();
+                var retrieved = bsonCollection.FindSync(FilterDefinition<BsonDocument>.Empty).ToList().Single();
                 var toString = retrieved.ToString();
 
                 var expectedVal =
@@ -57,24 +54,21 @@ namespace MongoDB.Driver.Tests
                 var customDomain = BsonSerializer.CreateSerializationDomain();
                 customDomain.RegisterSerializer(new CustomStringSerializer());
 
-                var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
-                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-                db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-                var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-                var bsonCollection =
-                    db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                var client = CreateClientWithDomain(customDomain);
+                var collection = GetTypedCollection<Person>(client);
+                var bsonCollection = GetUntypedCollection(client);
 
                 var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
                 collection.InsertOne(person);
 
-                var retrievedAsBson = bsonCollection.FindSync("{}").ToList().Single();
+                var retrievedAsBson = bsonCollection.FindSync(FilterDefinition<BsonDocument>.Empty).ToList().Single();
                 var toString = retrievedAsBson.ToString();
 
                 var expectedVal =
                     """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "Name" : "Mariotest", "Age" : 24 }""";
                 Assert.Equal(expectedVal, toString);
 
-                var retrievedTyped = collection.FindSync("{}").ToList().Single();
+                var retrievedTyped = collection.FindSync(FilterDefinition<Person>.Empty).ToList().Single();
                 Assert.Equal("Mario", retrievedTyped.Name);
             }
         }
@@ -85,10 +79,8 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check();
 
             {
-                var client = DriverTestConfiguration.CreateMongoClient();
-                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-                db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-                var collection = db.GetCollection<Person1>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                var client = CreateClient();
+                var collection = GetTypedCollection<Person1>(client);
 
                 var person = new Person1 { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mariotest", Age = 24 };
                 collection.InsertOne(person);
@@ -98,11 +90,10 @@ namespace MongoDB.Driver.Tests
                 var customDomain = BsonSerializer.CreateSerializationDomain();
                 customDomain.RegisterSerializer(new CustomStringSerializer());
 
-                var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
-                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-                var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                var client = CreateClientWithDomain(customDomain, dropCollection: false);
+                var collection = GetTypedCollection<Person>(client);
 
-                var retrievedTyped = collection.FindSync("{}").ToList().Single();
+                var retrievedTyped = collection.FindSync(FilterDefinition<Person>.Empty).ToList().Single();
                 Assert.Equal("Mario", retrievedTyped.Name);
             }
         }
@@ -115,16 +106,14 @@ namespace MongoDB.Driver.Tests
             var customDomain = BsonSerializer.CreateSerializationDomain();
             customDomain.RegisterSerializer(new CustomStringSerializer());
 
-            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
-            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            var untypedCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<Person>(client);
+            var untypedCollection = GetUntypedCollection(client);
 
             var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
             collection.InsertOne(person);
 
-            var retrievedAsBson = untypedCollection.FindSync("{}").ToList().Single();
+            var retrievedAsBson = untypedCollection.FindSync(FilterDefinition<BsonDocument>.Empty).ToList().Single();
             var toString = retrievedAsBson.ToString();
 
             var expectedVal =
@@ -152,16 +141,14 @@ namespace MongoDB.Driver.Tests
                 m => m.SetElementName(m.MemberName.ToLower()));
             customDomain.ConventionRegistry.Register("myPack", pack, t => t == typeof(Person));
 
-            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
-            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            var untypedCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<Person>(client);
+            var untypedCollection = GetUntypedCollection(client);
 
             var person = new Person { Name = "Mario", Age = 24 };  //Id is not set, so the custom ObjectIdGenerator should be used
             collection.InsertOne(person);
 
-            var retrievedAsBson = untypedCollection.FindSync("{}").ToList().Single();
+            var retrievedAsBson = untypedCollection.FindSync(FilterDefinition<BsonDocument>.Empty).ToList().Single();
             var toString = retrievedAsBson.ToString();
 
             var expectedVal =
@@ -194,44 +181,69 @@ namespace MongoDB.Driver.Tests
                 cm.SetDiscriminator("dp2");
             });
 
-            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
-            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            var collection = db.GetCollection<BasePerson>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            var untypedCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var client = CreateClientWithDomain(customDomain);
+            var collection = GetTypedCollection<BasePerson>(client);
 
             var bp1 = new DerivedPerson1 { Name = "Alice", Age = 30, ExtraField1 = "Field1" };
             var bp2 = new DerivedPerson2 { Name = "Bob", Age = 40, ExtraField2 = "Field2" };
             collection.InsertMany(new BasePerson[] { bp1, bp2 });
 
-            var test1 = collection.Aggregate().OfType<DerivedPerson1>().Single();
-            var test2 = collection.Aggregate().OfType<DerivedPerson2>().Single();
+            //Aggregate with OfType
+            var retrievedDerivedPerson1 = collection.Aggregate().OfType<DerivedPerson1>().Single();
+            var retrievedDerivedPerson2 = collection.Aggregate().OfType<DerivedPerson2>().Single();
 
-            Assert.Equal(bp1.Id, test1.Id);
-            Assert.Equal(bp2.Id, test2.Id);
+            Assert.Equal(bp1.Id, retrievedDerivedPerson1.Id);
+            Assert.Equal(bp2.Id, retrievedDerivedPerson2.Id);
 
-            var a1 = collection.AsQueryable().AppendStage(PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson1>())
+            //AppendStage with OfType
+            retrievedDerivedPerson1 = collection.AsQueryable().AppendStage(PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson1>())
                 .OfType<DerivedPerson1>().Single();
-            var a2 = collection.AsQueryable().AppendStage(PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson2>())
+            retrievedDerivedPerson2 = collection.AsQueryable().AppendStage(PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson2>())
                 .OfType<DerivedPerson2>().Single();
 
-            Assert.Equal(bp1.Id, a1.Id);
-            Assert.Equal(bp2.Id, a2.Id);
+            Assert.Equal(bp1.Id, retrievedDerivedPerson1.Id);
+            Assert.Equal(bp2.Id, retrievedDerivedPerson2.Id);
 
-            var res1 = collection.AsQueryable().OfType<DerivedPerson1>().Single();
-            var res2 = collection.AsQueryable().OfType<DerivedPerson2>().Single();
+            //LINQ with OfType
+            retrievedDerivedPerson1 = collection.AsQueryable().OfType<DerivedPerson1>().Single();
+            retrievedDerivedPerson2 = collection.AsQueryable().OfType<DerivedPerson2>().Single();
 
-            Assert.Equal(bp1.Id, res1.Id);
-            Assert.Equal(bp2.Id, res2.Id);
+            Assert.Equal(bp1.Id, retrievedDerivedPerson1.Id);
+            Assert.Equal(bp2.Id, retrievedDerivedPerson2.Id);
 
-            var filter1 = Builders<BasePerson>.Filter.OfType<DerivedPerson1>();
-            var dp1 = collection.FindSync(filter1).Single();
+            //Find with OfType
+            var retrievedBasePerson1 = collection.FindSync(Builders<BasePerson>.Filter.OfType<DerivedPerson1>()).Single();
+            var retrievedBasePerson2 = collection.FindSync(Builders<BasePerson>.Filter.OfType<DerivedPerson2>()).Single();
 
-            var filter2 = Builders<BasePerson>.Filter.OfType<DerivedPerson2>();
-            var dp2 = collection.FindSync(filter2).Single();
+            Assert.Equal(bp1.Id, retrievedBasePerson1.Id);
+            Assert.Equal(bp2.Id, retrievedBasePerson2.Id);
+        }
 
-            Assert.Equal(bp1.Id, dp1.Id);
-            Assert.Equal(bp2.Id, dp2.Id);
+        private static IMongoCollection<T> GetTypedCollection<T>(IMongoClient client) =>
+            client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
+                .GetCollection<T>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+        private static IMongoCollection<BsonDocument> GetUntypedCollection(IMongoClient client) =>
+            client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
+                .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+
+        private static IMongoClient CreateClientWithDomain(IBsonSerializationDomain domain, bool dropCollection = true)
+        {
+            var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => ((IInheritableMongoClientSettings)c).SerializationDomain = domain);
+            if (dropCollection)
+            {
+                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+                db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            }
+            return client;
+        }
+
+        private static IMongoClient CreateClient()
+        {
+            var client = DriverTestConfiguration.CreateMongoClient();
+            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            return client;
         }
 
         public class Person
