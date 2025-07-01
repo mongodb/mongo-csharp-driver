@@ -35,20 +35,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
-        public IServer Server
-        {
-            get { return _server; }
-        }
+        public IServer Server => _server;
 
-        public ServerDescription ServerDescription
-        {
-            get { return _server.Description; }
-        }
+        public ServerDescription ServerDescription => _server.Description;
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
+        public ICoreSessionHandle Session => _session;
 
         // methods
         public void Dispose()
@@ -63,13 +54,15 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelHandle GetChannel(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _server.GetChannel(operationContext);
+            var connection = _server.GetConnection(operationContext);
+            return new ServerChannel(_server, connection);
         }
 
-        public Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
+        public async Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            return _server.GetChannelAsync(operationContext);
+            var connection = await _server.GetConnectionAsync(operationContext).ConfigureAwait(false);
+            return new ServerChannel(_server, connection);
         }
 
         private void ThrowIfDisposed()

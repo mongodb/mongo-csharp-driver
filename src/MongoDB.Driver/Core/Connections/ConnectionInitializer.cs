@@ -68,7 +68,8 @@ namespace MongoDB.Driver.Core.Connections
                     try
                     {
                         var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
-                        var getLastErrorResult = getLastErrorProtocol.Execute(connection, cancellationToken);
+                        // TODO: CSOT: Implement operation context support for MongoDB Handshake
+                        var getLastErrorResult = getLastErrorProtocol.Execute(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken), connection);
 
                         description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
                     }
@@ -103,8 +104,9 @@ namespace MongoDB.Driver.Core.Connections
                     try
                     {
                         var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
+                        // TODO: CSOT: Implement operation context support for MongoDB Handshake
                         var getLastErrorResult = await getLastErrorProtocol
-                            .ExecuteAsync(connection, cancellationToken)
+                            .ExecuteAsync(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken), connection)
                             .ConfigureAwait(false);
 
                         description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);

@@ -25,6 +25,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -91,17 +92,16 @@ namespace MongoDB.Driver.Tests
                 var fastServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)));
 
                 using var failPoint = FailPoint.Configure(slowServer, NoCoreSession.NewHandle(), failCommand, async);
-
                 var database = client.GetDatabase(_databaseName);
                 CreateCollection();
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
 
                 // warm up connections
-                var channels = new ConcurrentBag<IChannelHandle>();
+                var channels = new ConcurrentBag<IConnectionHandle>();
                 ThreadingUtilities.ExecuteOnNewThreads(threadsCount, i =>
                 {
-                    channels.Add(slowServer.GetChannel(OperationContext.NoTimeout));
-                    channels.Add(fastServer.GetChannel(OperationContext.NoTimeout));
+                    channels.Add(slowServer.GetConnection(OperationContext.NoTimeout));
+                    channels.Add(fastServer.GetConnection(OperationContext.NoTimeout));
                 });
 
                 foreach (var channel in channels)

@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
 
-            var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -205,10 +205,11 @@ namespace MongoDB.Driver.Core.Clusters
                    stopwatch.Elapsed,
                    null,
                    EventContext.OperationName));
+
+                return new SelectedServer(_server, _server.Description);
             }
 
-            return _server ??
-                throw new InvalidOperationException("The server must be created before usage."); // should not be reached
+            throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
         public async Task<IServer> SelectServerAsync(OperationContext operationContext, IServerSelector selector)
@@ -217,7 +218,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(operationContext, nameof(operationContext));
             ThrowIfDisposed();
 
-            var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
+            using var serverSelectionOperationContext = operationContext.WithTimeout(_settings.ServerSelectionTimeout);
 
             _serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                 _description,
@@ -245,10 +246,11 @@ namespace MongoDB.Driver.Core.Clusters
                    stopwatch.Elapsed,
                    null,
                    EventContext.OperationName));
+
+                return new SelectedServer(_server, _server.Description);
             }
 
-            return _server ??
-                throw new InvalidOperationException("The server must be created before usage."); // should not be reached
+            throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
         public ICoreSessionHandle StartSession(CoreSessionOptions options = null)

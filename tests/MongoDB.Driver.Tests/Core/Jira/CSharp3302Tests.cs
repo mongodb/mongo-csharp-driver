@@ -303,9 +303,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 .SetupGet(c => c.Description)
                 .Returns(GetConnectionDescription);
 
-            mockConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())); // no action is required
+            mockConnection.Setup(c => c.Open(It.IsAny<OperationContext>())); // no action is required
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(GetHelloResponse);
 
             ResponseMessage GetHelloResponse()

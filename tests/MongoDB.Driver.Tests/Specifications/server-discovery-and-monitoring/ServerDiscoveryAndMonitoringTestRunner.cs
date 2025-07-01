@@ -617,6 +617,11 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
         public static IServerMonitor _monitor(this IServer server)
         {
+            if (server is SelectedServer)
+            {
+                server = (IServer)Reflector.GetFieldValue(server, "_server");
+            }
+
             return (IServerMonitor)Reflector.GetFieldValue(server, nameof(_monitor));
         }
 

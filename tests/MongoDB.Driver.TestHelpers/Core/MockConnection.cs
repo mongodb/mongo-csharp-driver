@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             return _sentMessages;
         }
 
-        public void Open(CancellationToken cancellationToken)
+        public void Open(OperationContext operationContext)
         {
             _openingEventHandler?.Invoke(new ConnectionOpeningEvent(_connectionId, _connectionSettings, null));
 
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.FromTicks(1), null));
         }
 
-        public Task OpenAsync(CancellationToken cancellationToken)
+        public Task OpenAsync(OperationContext operationContext)
         {
             _openingEventHandler?.Invoke(new ConnectionOpeningEvent(_connectionId, _connectionSettings, null));
 
@@ -220,24 +220,24 @@ namespace MongoDB.Driver.Core.TestHelpers
             await _replyActions.Dequeue().GetEffectiveMessageAsync().ConfigureAwait(false);
         }
 
-        public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
         {
             var action = _replyActions.Dequeue();
             return (ResponseMessage)action.GetEffectiveMessage();
         }
 
-        public async Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public async Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
         {
             var action = _replyActions.Dequeue();
             return (ResponseMessage)await action.GetEffectiveMessageAsync().ConfigureAwait(false);
         }
 
-        public void SendMessage(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             _sentMessages.Add(message);
         }
 
-        public Task SendMessageAsync(RequestMessage message, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public Task SendMessageAsync(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings)
         {
             _sentMessages.Add(message);
             return Task.CompletedTask;

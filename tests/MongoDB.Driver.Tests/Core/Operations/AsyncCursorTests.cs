@@ -432,6 +432,7 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(channel));
                 mockChannel
                     .Setup(m => m.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         session,
                         null,
                         databaseNamespace,
@@ -442,8 +443,7 @@ namespace MongoDB.Driver.Core.Operations
                         null,
                         CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
-                        It.IsAny<MessageEncoderSettings>(),
-                        It.IsAny<CancellationToken>()))
+                        It.IsAny<MessageEncoderSettings>()))
                     .Callback(() => sameSessionWasUsed = true)
                     .Returns(Task.FromResult(secondBatch));
 
@@ -454,6 +454,7 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
                 mockChannel
                     .Setup(m => m.Command(
+                        It.IsAny<OperationContext>(),
                         session,
                         null,
                         databaseNamespace,
@@ -464,8 +465,7 @@ namespace MongoDB.Driver.Core.Operations
                         null,
                         CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
-                        It.IsAny<MessageEncoderSettings>(),
-                        It.IsAny<CancellationToken>()))
+                        It.IsAny<MessageEncoderSettings>()))
                     .Callback(() => sameSessionWasUsed = true)
                     .Returns(secondBatch);
 
@@ -543,6 +543,7 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelHandle
                     .Setup(
                         c => c.CommandAsync(
+                            It.IsAny<OperationContext>(),
                             It.IsAny<ICoreSession>(),
                             It.IsAny<ReadPreference>(),
                             It.IsAny<DatabaseNamespace>(),
@@ -553,8 +554,7 @@ namespace MongoDB.Driver.Core.Operations
                             It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                             It.IsAny<CommandResponseHandling>(),
                             It.IsAny<IBsonSerializer<BsonDocument>>(),
-                            It.IsAny<MessageEncoderSettings>(),
-                            It.IsAny<CancellationToken>()))
+                            It.IsAny<MessageEncoderSettings>()))
                     .ReturnsAsync(() =>
                     {
                         var bsonDocument = commandResultFunc();
@@ -570,6 +570,7 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelHandle
                     .Setup(
                         c => c.Command(
+                            It.IsAny<OperationContext>(),
                             It.IsAny<ICoreSession>(),
                             It.IsAny<ReadPreference>(),
                             It.IsAny<DatabaseNamespace>(),
@@ -580,8 +581,7 @@ namespace MongoDB.Driver.Core.Operations
                             It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                             It.IsAny<CommandResponseHandling>(),
                             It.IsAny<IBsonSerializer<BsonDocument>>(),
-                            It.IsAny<MessageEncoderSettings>(),
-                            It.IsAny<CancellationToken>()))
+                            It.IsAny<MessageEncoderSettings>()))
                     .Returns(() =>
                     {
                         var bsonDocument = commandResultFunc();
@@ -596,6 +596,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 mockChannelHandle.Verify(
                     s => s.CommandAsync(
+                        It.IsAny<OperationContext>(),
                         It.IsAny<ICoreSession>(),
                         It.IsAny<ReadPreference>(),
                         It.IsAny<DatabaseNamespace>(),
@@ -606,16 +607,14 @@ namespace MongoDB.Driver.Core.Operations
                         It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                         It.IsAny<CommandResponseHandling>(),
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
-                        It.IsAny<MessageEncoderSettings>(),
-                        It.IsAny<CancellationToken>()),
+                        It.IsAny<MessageEncoderSettings>()),
                     times);
-
-
             }
             else
             {
                 mockChannelHandle.Verify(
                     s => s.Command(
+                        It.IsAny<OperationContext>(),
                         It.IsAny<ICoreSession>(),
                         It.IsAny<ReadPreference>(),
                         It.IsAny<DatabaseNamespace>(),
@@ -626,8 +625,7 @@ namespace MongoDB.Driver.Core.Operations
                         It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                         It.IsAny<CommandResponseHandling>(),
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
-                        It.IsAny<MessageEncoderSettings>(),
-                        It.IsAny<CancellationToken>()),
+                        It.IsAny<MessageEncoderSettings>()),
                     times);
             }
         }
@@ -694,6 +692,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "batchSize", batchSize }
             };
             var result = channel.Command<BsonDocument>(
+                new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken),
                 _session,
                 ReadPreference.Primary,
                 _databaseNamespace,
@@ -704,8 +703,7 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
-                cancellationToken);
+                _messageEncoderSettings);
             var cursor = result["cursor"].AsBsonDocument;
             var firstBatch = cursor["firstBatch"].AsBsonArray.Select(i => i.AsBsonDocument).ToList();
             cursorId = cursor["id"].ToInt64();

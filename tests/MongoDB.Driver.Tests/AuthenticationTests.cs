@@ -16,7 +16,6 @@
 using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -339,8 +338,8 @@ namespace MongoDB.Driver.Tests
                 {
                     var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
                     var server = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, serverSelector);
-                    var channel = server.GetChannel(OperationContext.NoTimeout);
-                    var helloResult = channel.ConnectionDescription.HelloResult;
+                    var channel = server.GetConnection(OperationContext.NoTimeout);
+                    var helloResult = channel.Description.HelloResult;
                     helloResult.SpeculativeAuthenticate.Should().NotBeNull();
                 }
             }

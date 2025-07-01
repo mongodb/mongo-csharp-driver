@@ -87,9 +87,9 @@ namespace MongoDB.Driver.Core.Connections
                     new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }));
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
-            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
+            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), null)));
-            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), It.IsAny<CancellationToken>()))
                 .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), null)));
 
             _subject = new BinaryConnection(
@@ -102,9 +102,9 @@ namespace MongoDB.Driver.Core.Connections
                 LoggerFactory);
 
             _stream = new BlockingMemoryStream();
-            _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
+            _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<Stream>(_stream));
-            _subject.OpenAsync(CancellationToken.None).Wait();
+            _subject.OpenAsync(OperationContext.NoTimeout).Wait();
             _capturedEvents.Clear();
 
             _operationIdDisposer = EventContext.BeginOperation();
@@ -484,14 +484,14 @@ namespace MongoDB.Driver.Core.Connections
 
         private void SendMessage(RequestMessage message)
         {
-            _subject.SendMessageAsync(message, _messageEncoderSettings, CancellationToken.None).Wait();
+            _subject.SendMessageAsync(OperationContext.NoTimeout, message, _messageEncoderSettings).Wait();
         }
 
         private void ReceiveMessage(ReplyMessage<BsonDocument> message)
         {
             MessageHelper.WriteResponsesToStream(_stream, message);
             var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
-            _subject.ReceiveMessageAsync(message.ResponseTo, encoderSelector, _messageEncoderSettings, CancellationToken.None).Wait();
+            _subject.ReceiveMessageAsync(OperationContext.NoTimeout, message.ResponseTo, encoderSelector, _messageEncoderSettings).Wait();
         }
     }
 }

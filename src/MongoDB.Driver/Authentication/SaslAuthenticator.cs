@@ -109,7 +109,8 @@ namespace MongoDB.Driver.Authentication
                     try
                     {
                         var protocol = CreateCommandProtocol(command);
-                        result = protocol.Execute(connection, cancellationToken);
+                        // TODO: CSOT: implement operationContext support for Auth.
+                        result = protocol.Execute(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken), connection);
                         conversationId ??= result?.GetValue("conversationId").AsInt32;
                     }
                     catch (MongoException ex)
@@ -172,7 +173,8 @@ namespace MongoDB.Driver.Authentication
                     try
                     {
                         var protocol = CreateCommandProtocol(command);
-                        result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                        // TODO: CSOT: implement operationContext support for Auth.
+                        result = await protocol.ExecuteAsync(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken), connection).ConfigureAwait(false);
                         conversationId ??= result?.GetValue("conversationId").AsInt32;
                     }
                     catch (MongoException ex)
