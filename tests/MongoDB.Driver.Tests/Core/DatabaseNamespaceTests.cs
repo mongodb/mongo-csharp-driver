@@ -76,7 +76,9 @@ namespace MongoDB.Driver
         {
             var subject = new DatabaseNamespace("test");
 
+#pragma warning disable CS0618 // Type or member is obsolete
             var commandCollection = subject.SystemIndexesCollection;
+#pragma warning restore CS0618 // Type or member is obsolete
             commandCollection.FullName.Should().Be("test.system.indexes");
         }
 
@@ -85,7 +87,9 @@ namespace MongoDB.Driver
         {
             var subject = new DatabaseNamespace("test");
 
+#pragma warning disable CS0618 // Type or member is obsolete
             var commandCollection = subject.SystemNamespacesCollection;
+#pragma warning restore CS0618 // Type or member is obsolete
             commandCollection.FullName.Should().Be("test.system.namespaces");
         }
 

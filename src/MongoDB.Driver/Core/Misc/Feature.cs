@@ -215,6 +215,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the create indexes using insert operations feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
 
         /// <summary>
@@ -275,6 +276,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the eval feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature Eval => __eval;
 
         /// <summary>
@@ -328,6 +330,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the group command feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature GroupCommand => __groupCommand;
 
         /// <summary>
