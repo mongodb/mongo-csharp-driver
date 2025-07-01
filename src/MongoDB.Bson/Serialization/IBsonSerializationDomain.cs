@@ -11,6 +11,8 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     internal interface IBsonSerializationDomain
     {
+        string Name { get; } //FP This is used for debugging purposes, but we could decide to make it public if needed.
+
         /// <summary>
         /// Returns whether the given type has any discriminators registered for any of its subclasses.
         /// </summary>

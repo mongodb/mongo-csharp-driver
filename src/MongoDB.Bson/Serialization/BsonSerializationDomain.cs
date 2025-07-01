@@ -35,15 +35,15 @@ namespace MongoDB.Bson.Serialization
         private bool _useZeroIdChecker;
 
         // constructor
-        public BsonSerializationDomain(string name = null) //TODO name is used for testing
+        public BsonSerializationDomain(string name = null)
         {
             CreateSerializerRegistry();
             CreateSubDomains();
             RegisterIdGenerators();
-            Name = name ?? "CUSTOM";  //TODO remove after testing is done
+            Name = name ?? "CUSTOM";
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         // public properties
         /// <summary>

@@ -20,6 +20,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -169,31 +170,68 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestAggregate()
+        public void TestDiscriminators()
         {
             RequireServer.Check();
 
             var customDomain = BsonSerializer.CreateSerializationDomain();
-            customDomain.RegisterSerializer(new CustomStringSerializer());
+
+            customDomain.BsonClassMap.RegisterClassMap<BasePerson>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIsRootClass(true);
+            });
+
+            customDomain.BsonClassMap.RegisterClassMap<DerivedPerson1>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetDiscriminator("dp1");
+            });
+
+            customDomain.BsonClassMap.RegisterClassMap<DerivedPerson2>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetDiscriminator("dp2");
+            });
 
             var client = DriverTestConfiguration.CreateMongoClient((MongoClientSettings c) => (c as IInheritableMongoClientSettings).SerializationDomain = customDomain);
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            var collection = db.GetCollection<Person>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var collection = db.GetCollection<BasePerson>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             var untypedCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
-            var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
-            collection.InsertOne(person);
+            var bp1 = new DerivedPerson1 { Name = "Alice", Age = 30, ExtraField1 = "Field1" };
+            var bp2 = new DerivedPerson2 { Name = "Bob", Age = 40, ExtraField2 = "Field2" };
+            collection.InsertMany(new BasePerson[] { bp1, bp2 });
 
-            var retrievedAsBson = untypedCollection.FindSync("{}").ToList().Single();
-            var toString = retrievedAsBson.ToString();
+            var test1 = collection.Aggregate().OfType<DerivedPerson1>().Single();
+            var test2 = collection.Aggregate().OfType<DerivedPerson2>().Single();
 
-            var expectedVal =
-                """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "Name" : "Mariotest", "Age" : 24 }""";
-            Assert.Equal(expectedVal, toString);
+            Assert.Equal(bp1.Id, test1.Id);
+            Assert.Equal(bp2.Id, test2.Id);
 
-            var retrievedTyped = collection.AsQueryable().Where(x => x.Name == "Mario").ToList();  //The string serializer is correctly serializing "Mario" to "Mariotest"
-            Assert.NotEmpty(retrievedTyped);
+            var a1 = collection.AsQueryable().AppendStage(PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson1>())
+                .OfType<DerivedPerson1>().Single();
+            var a2 = collection.AsQueryable().AppendStage(PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson2>())
+                .OfType<DerivedPerson2>().Single();
+
+            Assert.Equal(bp1.Id, a1.Id);
+            Assert.Equal(bp2.Id, a2.Id);
+
+            var res1 = collection.AsQueryable().OfType<DerivedPerson1>().Single();
+            var res2 = collection.AsQueryable().OfType<DerivedPerson2>().Single();
+
+            Assert.Equal(bp1.Id, res1.Id);
+            Assert.Equal(bp2.Id, res2.Id);
+
+            var filter1 = Builders<BasePerson>.Filter.OfType<DerivedPerson1>();
+            var dp1 = collection.FindSync(filter1).Single();
+
+            var filter2 = Builders<BasePerson>.Filter.OfType<DerivedPerson2>();
+            var dp2 = collection.FindSync(filter2).Single();
+
+            Assert.Equal(bp1.Id, dp1.Id);
+            Assert.Equal(bp2.Id, dp2.Id);
         }
 
         public class Person
@@ -212,14 +250,21 @@ namespace MongoDB.Driver.Tests
 
         public class BasePerson
         {
-            [BsonId] public ObjectId Id { get; set; }
+            [BsonId] public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
             public string Name { get; set; }
             public int Age { get; set; }
         }
 
-        public class DerivedPerson : BasePerson
+        public class DerivedPerson1 : BasePerson
         {
+            public string ExtraField1 { get; set; }
         }
+
+        public class DerivedPerson2 : BasePerson
+        {
+            public string ExtraField2 { get; set; }
+        }
+
 
         public class CustomStringSerializer : SealedClassSerializerBase<string> //This serializer just adds "test" to any serialised string
         {

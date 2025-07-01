@@ -474,11 +474,6 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
         IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain
         {
             get => _serializationDomain;
