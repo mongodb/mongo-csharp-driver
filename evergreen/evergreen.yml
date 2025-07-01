@@ -98,9 +98,13 @@ functions:
   install-dotnet:
     - command: shell.exec
       params:
+        include_expansions_in_env:
+          - "OS"
+          - "DOTNET_SDK_VERSION"
+          - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} DOTNET_SDK_VERSION=${DOTNET_SDK_VERSION} bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
+          bash ${PROJECT_DIRECTORY}/evergreen/install-dotnet.sh
 
   prepare-resources:
     - command: shell.exec
@@ -246,6 +250,18 @@ functions:
       params:
         file: mo-expansion.yml
 
+  generate-sbom:
+    - command: shell.exec
+      params:
+        working_dir: "mongo-csharp-driver"
+        env:
+          GITHUB_USER: ${github_user}
+          GITHUB_APIKEY: ${github_apikey}
+          PACKAGE_VERSION: ${PACKAGE_VERSION}
+        script: |
+          ${PREPARE_SHELL}
+          ./evergreen/generate-sbom.sh
+          
   download-and-promote-augmented-sbom-to-s3-bucket:
     - command: ec2.assume_role
       params:
@@ -276,18 +292,6 @@ functions:
         content_type: application/json
         display_name: augmented-sbom.json
 
-  generate-sbom:
-    - command: shell.exec
-      params:
-        working_dir: "mongo-csharp-driver"
-        env:
-          GITHUB_USER: ${github_user}
-          GITHUB_APIKEY: ${github_apikey}
-          PACKAGE_VERSION: ${PACKAGE_VERSION}
-        script: |
-          ${PREPARE_SHELL}
-          ./evergreen/generate-sbom.sh
-        
   generate-ssdlc-report:
     - command: shell.exec
       params:
@@ -326,6 +330,10 @@ functions:
   bootstrap-mongohoused:
     - command: shell.exec
       params:
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           DRIVERS_TOOLS="${DRIVERS_TOOLS}" bash ${DRIVERS_TOOLS}/.evergreen/atlas_data_lake/pull-mongohouse-image.sh
     - command: shell.exec
@@ -363,6 +371,18 @@ functions:
         script: |
           cd ${DRIVERS_TOOLS}/.evergreen
           DRIVERS_TOOLS=${DRIVERS_TOOLS} MONGODB_URI=${MONGODB_URI} bash ${DRIVERS_TOOLS}/.evergreen/run-load-balancer.sh stop
+
+  run-unit-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        shell: "bash"
+        include_expansions_in_env:
+          - "FRAMEWORK"
+        script: |
+          ${PREPARE_SHELL}
+          bash evergreen/run-unit-tests.sh
 
   run-tests:
     - command: shell.exec
@@ -451,6 +471,10 @@ functions:
       params:
         shell: "bash"
         working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
         script: |
           . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas_connect
           . evergreen/run-atlas-connectivity-tests.sh
@@ -488,9 +512,38 @@ functions:
         script: |
           ${PREPARE_SHELL}
           MONGODB_URI="${MONGODB_URI}" ../../evergreen/run-perf-tests.sh
-    - command: perf.send
+    - command: shell.exec
       params:
-        file: mongo-csharp-driver/benchmarks/MongoDB.Driver.Benchmarks/Benchmark.Artifacts/results/evergreen-results.json
+        script: |
+          # We use the requester expansion to determine whether the data is from a mainline evergreen run or not
+          if [ "${requester}" == "commit" ]; then
+            is_mainline=true
+          else
+            is_mainline=false
+          fi
+
+          # We parse the username out of the order_id as patches append that in and SPS does not need that information
+          parsed_order_id=$(echo "${revision_order_id}" | awk -F'_' '{print $NF}')
+
+          # Submit the performance data to the SPS endpoint
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X 'POST' \
+            "https://performance-monitoring-api.corp.mongodb.com/raw_perf_results/cedar_report?project=${project_id}&version=${version_id}&variant=${build_variant}&order=$parsed_order_id&task_name=${task_name}&task_id=${task_id}&execution=${execution}&mainline=$is_mainline" \
+            -H 'accept: application/json' \
+            -H 'Content-Type: application/json' \
+            -d @mongo-csharp-driver/benchmarks/MongoDB.Driver.Benchmarks/Benchmark.Artifacts/results/evergreen-results.json)
+
+          http_status=$(echo "$response" | grep "HTTP_STATUS" | awk -F':' '{print $2}')
+          response_body=$(echo "$response" | sed '/HTTP_STATUS/d')
+
+          # We want to throw an error if the data was not successfully submitted
+          if [ "$http_status" -ne 200 ]; then
+            echo "Error: Received HTTP status $http_status"
+            echo "Response Body: $response_body"
+            exit 1
+          fi
+
+          echo "Response Body: $response_body"
+          echo "HTTP Status: $http_status"
 
   assume-ec2-role:
     - command: ec2.assume_role
@@ -1014,6 +1067,36 @@ post:
   - func: cleanup
 
 tasks:
+    - name: unit-tests-net472
+      commands:
+        - command: expansions.update
+          params:
+            updates:
+              - key: 'FRAMEWORK'
+                value: 'net472'
+        - func: install-dotnet
+        - func: run-unit-tests
+
+    - name: unit-tests-netstandard21
+      commands:
+        - command: expansions.update
+          params:
+            updates:
+              - key: 'FRAMEWORK'
+                value: 'netstandard2.1'
+        - func: install-dotnet
+        - func: run-unit-tests
+
+    - name: unit-tests-net60
+      commands:
+        - command: expansions.update
+          params:
+            updates:
+              - key: 'FRAMEWORK'
+                value: 'net6.0'
+        - func: install-dotnet
+        - func: run-unit-tests
+
     - name: test-net472
       commands:
         - func: setup-csfle-secrets
@@ -1195,6 +1278,7 @@ tasks:
 
     - name: atlas-data-lake-test
       commands:
+        - func: assume-ec2-role
         - func: bootstrap-mongohoused
         - func: run-atlas-data-lake-test
 
@@ -1607,7 +1691,7 @@ tasks:
     - name: generate-release-notes
       commands:
         - func: generate-release-notes
-       
+
     - name: validate-apidocs
       commands:
         - func: install-dotnet
@@ -1980,9 +2064,14 @@ task_groups:
     setup_group:
       - func: fetch-source
       - func: prepare-resources
+      - func: assume-ec2-role
       - command: subprocess.exec
         params:
           binary: bash
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           env:
             LAMBDA_STACK_NAME: dbx-csharp-lambda
           args:
@@ -2122,6 +2211,10 @@ task_groups:
           binary: bash
           env:
             VAULT_NAME: ${VAULT_NAME}
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
       - command: expansions.update
@@ -2162,6 +2255,42 @@ task_groups:
       - validate-apicompat
 
 buildvariants:
+- name: unit-tests-windows
+  display_name: Unit Tests on Windows
+  run_on: windows-64-vs2017-test
+  expansions:
+    OS: "windows-64"
+  tasks:
+    - name: unit-tests-net472
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+
+- name: unit-tests-ubuntu
+  display_name: Unit Tests on Ubuntu
+  run_on: ubuntu2004-small
+  expansions:
+    OS: "ubuntu-2004"
+  tasks:
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+
+- name: unit-tests-macos
+  display_name: Unit Tests on MacOs
+  run_on: macos-14
+  expansions:
+    OS: "macos-14"
+  tasks:
+    - name: unit-tests-netstandard21
+    - name: unit-tests-net60
+
+- name: unit-tests-macos-arm
+  display_name: Unit Tests on MacOs Arm
+  run_on: macos-14-arm64
+  expansions:
+    OS: "macos-14-arm64"
+  tasks:
+    - name: unit-tests-net60
+
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
   display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"
