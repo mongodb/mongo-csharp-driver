@@ -22,3 +22,5 @@ docker run --platform="linux/amd64" --rm -v ${PWD}:/pwd \
   --env-file ${PWD}/kondukto_credentials.env \
   artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:2.0 \
   augment --repo mongodb/mongo-csharp-driver --branch main --sbom-in /pwd/sbom.json --sbom-out /pwd/${SSDLC_PATH}/augmented-sbom.json
+
+cp /pwd/${SSDLC_PATH}/augmented-sbom.json ./vex.cdx.json
