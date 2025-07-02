@@ -173,12 +173,14 @@ namespace MongoDB.Driver.Tests
             {
                 cm.AutoMap();
                 cm.SetDiscriminator("dp1");
+                cm.MapMember( m => m.ExtraField1).SetSerializer(new CustomStringSerializer());
             });
 
             customDomain.BsonClassMap.RegisterClassMap<DerivedPerson2>(cm =>
             {
                 cm.AutoMap();
                 cm.SetDiscriminator("dp2");
+                cm.MapMember( m => m.ExtraField2).SetSerializer(new CustomStringSerializer());
             });
 
             var client = CreateClientWithDomain(customDomain);
@@ -192,8 +194,8 @@ namespace MongoDB.Driver.Tests
             var retrievedDerivedPerson1 = collection.Aggregate().OfType<DerivedPerson1>().Single();
             var retrievedDerivedPerson2 = collection.Aggregate().OfType<DerivedPerson2>().Single();
 
-            Assert.Equal(bp1.Id, retrievedDerivedPerson1.Id);
-            Assert.Equal(bp2.Id, retrievedDerivedPerson2.Id);
+            AssertDerivedPerson1(bp1, retrievedDerivedPerson1);
+            AssertDerivedPerson2(bp2, retrievedDerivedPerson2);
 
             //AppendStage with OfType
             retrievedDerivedPerson1 = collection.AsQueryable().AppendStage(PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson1>())
@@ -201,22 +203,58 @@ namespace MongoDB.Driver.Tests
             retrievedDerivedPerson2 = collection.AsQueryable().AppendStage(PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson2>())
                 .OfType<DerivedPerson2>().Single();
 
-            Assert.Equal(bp1.Id, retrievedDerivedPerson1.Id);
-            Assert.Equal(bp2.Id, retrievedDerivedPerson2.Id);
+            AssertDerivedPerson1(bp1, retrievedDerivedPerson1);
+            AssertDerivedPerson2(bp2, retrievedDerivedPerson2);
 
             //LINQ with OfType
             retrievedDerivedPerson1 = collection.AsQueryable().OfType<DerivedPerson1>().Single();
             retrievedDerivedPerson2 = collection.AsQueryable().OfType<DerivedPerson2>().Single();
 
-            Assert.Equal(bp1.Id, retrievedDerivedPerson1.Id);
-            Assert.Equal(bp2.Id, retrievedDerivedPerson2.Id);
+            AssertDerivedPerson1(bp1, retrievedDerivedPerson1);
+            AssertDerivedPerson2(bp2, retrievedDerivedPerson2);
+
+            //Facet with OfType
+
+            var pipeline1 = PipelineDefinition<BasePerson, DerivedPerson1>.Create( new [] {
+                PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson1>() });
+            var facet1 = AggregateFacet.Create("facet1", pipeline1);
+
+            var pipeline2 = PipelineDefinition<BasePerson, DerivedPerson2>.Create( new [] {
+                PipelineStageDefinitionBuilder.OfType<BasePerson, DerivedPerson2>() });
+            var facet2 = AggregateFacet.Create("facet2", pipeline2);
+
+            var result = collection.Aggregate().Facet(facet1, facet2).Single().Facets;
+            retrievedDerivedPerson1 = result[0].Output<DerivedPerson1>().Single();
+            retrievedDerivedPerson2 = result[1].Output<DerivedPerson2>().Single();
+
+            AssertDerivedPerson1(bp1, retrievedDerivedPerson1);
+            AssertDerivedPerson2(bp2, retrievedDerivedPerson2);
 
             //Find with OfType
             var retrievedBasePerson1 = collection.FindSync(Builders<BasePerson>.Filter.OfType<DerivedPerson1>()).Single();
             var retrievedBasePerson2 = collection.FindSync(Builders<BasePerson>.Filter.OfType<DerivedPerson2>()).Single();
 
-            Assert.Equal(bp1.Id, retrievedBasePerson1.Id);
-            Assert.Equal(bp2.Id, retrievedBasePerson2.Id);
+            AssertBasePerson(bp1, retrievedBasePerson1);
+            AssertBasePerson(bp2, retrievedBasePerson2);
+
+            void AssertDerivedPerson1(DerivedPerson1 expected, DerivedPerson1 retrieved)
+            {
+                AssertBasePerson(expected, retrieved);
+                Assert.Equal(expected.ExtraField1, retrieved.ExtraField1);
+            }
+
+            void AssertDerivedPerson2(DerivedPerson2 expected, DerivedPerson2 retrieved)
+            {
+                AssertBasePerson(expected, retrieved);
+                Assert.Equal(expected.ExtraField2, retrieved.ExtraField2);
+            }
+
+            void AssertBasePerson(BasePerson expected, BasePerson retrieved)
+            {
+                Assert.Equal(expected.Id, retrieved.Id);
+                Assert.Equal(expected.Name, retrieved.Name);
+                Assert.Equal(expected.Age, retrieved.Age);
+            }
         }
 
         private static IMongoCollection<T> GetTypedCollection<T>(IMongoClient client) =>

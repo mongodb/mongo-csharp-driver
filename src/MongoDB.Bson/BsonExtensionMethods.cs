@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public static class BsonExtensionMethods
     {
         //DOMAIN-API We should remove this and use the version with the domain.
-        //QUESTION: Do we want to do something now about this...? It's used also internally, but in a huge number of places.
+        //QUESTION: Do we want to do something now about this...? It's used also internally, but it seems in most cases it's used for "default serialization", so it should be ok.
         /// <summary>
         /// Serializes an object to a BSON byte array.
         /// </summary>
