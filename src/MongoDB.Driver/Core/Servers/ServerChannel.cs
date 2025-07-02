@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (_ownConnection)
                 {
-                    _server.ReturnConnection(_connection);
+                    _server.ReturnChannel(this);
                 }
 
                 _connection.Dispose();

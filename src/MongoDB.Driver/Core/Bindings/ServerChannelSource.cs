@@ -54,15 +54,13 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelHandle GetChannel(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            var connection = _server.GetConnection(operationContext);
-            return new ServerChannel(_server, connection);
+            return _server.GetChannel(operationContext);
         }
 
-        public async Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
+        public Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
         {
             ThrowIfDisposed();
-            var connection = await _server.GetConnectionAsync(operationContext).ConfigureAwait(false);
-            return new ServerChannel(_server, connection);
+            return _server.GetChannelAsync(operationContext);
         }
 
         private void ThrowIfDisposed()

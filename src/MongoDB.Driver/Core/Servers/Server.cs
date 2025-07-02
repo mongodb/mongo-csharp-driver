@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -97,7 +98,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public void HandleChannelException(IConnection connection, Exception ex)
+        public void HandleChannelException(IConnectionHandle connection, Exception ex)
         {
             if (!IsOpen() || ShouldIgnoreException(ex))
             {
@@ -127,15 +128,15 @@ namespace MongoDB.Driver.Core.Servers
         public void HandleExceptionOnOpen(Exception exception) =>
             HandleBeforeHandshakeCompletesException(exception);
 
-        public IConnectionHandle GetConnection(OperationContext operationContext)
+        public IChannelHandle GetChannel(OperationContext operationContext)
         {
             ThrowIfNotOpen();
 
             try
             {
                 Interlocked.Increment(ref _outstandingOperationsCount);
-
-                return _connectionPool.AcquireConnection(operationContext);
+                var connection = _connectionPool.AcquireConnection(operationContext);
+                return new ServerChannel(this, connection);
             }
             catch
             {
@@ -145,14 +146,15 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public async Task<IConnectionHandle> GetConnectionAsync(OperationContext operationContext)
+        public async Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
         {
             ThrowIfNotOpen();
 
             try
             {
                 Interlocked.Increment(ref _outstandingOperationsCount);
-                return await _connectionPool.AcquireConnectionAsync(operationContext).ConfigureAwait(false);
+                var connection = await _connectionPool.AcquireConnectionAsync(operationContext).ConfigureAwait(false);
+                return new ServerChannel(this, connection);
             }
             catch
             {
@@ -190,13 +192,12 @@ namespace MongoDB.Driver.Core.Servers
 
         public abstract void RequestHeartbeat();
 
-        public void ReturnConnection(IConnectionHandle connection)
+        public void ReturnChannel(IChannelHandle channel)
         {
             Interlocked.Decrement(ref _outstandingOperationsCount);
         }
 
         // protected methods
-
         protected abstract void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion responseTopologyDescription);
 
         protected abstract void Dispose(bool disposing);

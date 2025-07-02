@@ -25,7 +25,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -97,11 +96,11 @@ namespace MongoDB.Driver.Tests
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
 
                 // warm up connections
-                var channels = new ConcurrentBag<IConnectionHandle>();
+                var channels = new ConcurrentBag<IChannelHandle>();
                 ThreadingUtilities.ExecuteOnNewThreads(threadsCount, i =>
                 {
-                    channels.Add(slowServer.GetConnection(OperationContext.NoTimeout));
-                    channels.Add(fastServer.GetConnection(OperationContext.NoTimeout));
+                    channels.Add(slowServer.GetChannel(OperationContext.NoTimeout));
+                    channels.Add(fastServer.GetChannel(OperationContext.NoTimeout));
                 });
 
                 foreach (var channel in channels)

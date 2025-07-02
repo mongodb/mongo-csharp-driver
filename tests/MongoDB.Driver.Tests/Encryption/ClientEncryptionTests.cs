@@ -136,9 +136,9 @@ namespace MongoDB.Driver.Tests.Encryption
             mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
             var mockServer = new Mock<IServer>();
             mockServer.SetupGet(s => s.Description).Returns(serverDescription);
-            var connection = Mock.Of<IConnectionHandle>(c => c.Description == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
-            mockServer.Setup(s => s.GetConnection(It.IsAny<OperationContext>())).Returns(connection);
-            mockServer.Setup(s => s.GetConnectionAsync(It.IsAny<OperationContext>())).ReturnsAsync(connection);
+            var connection = Mock.Of<IChannelHandle>(c => c.ConnectionDescription == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
+            mockServer.Setup(s => s.GetChannel(It.IsAny<OperationContext>())).Returns(connection);
+            mockServer.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(connection);
 
             mockCluster
                 .Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))
@@ -225,9 +225,9 @@ namespace MongoDB.Driver.Tests.Encryption
             mockCluster.SetupGet(c => c.Description).Returns(clusterDescription);
             var mockServer = new Mock<IServer>();
             mockServer.SetupGet(s => s.Description).Returns(serverDescription);
-            var connection = Mock.Of<IConnectionHandle>(c => c.Description == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
-            mockServer.Setup(s => s.GetConnection(It.IsAny<OperationContext>())).Returns(connection);
-            mockServer.Setup(s => s.GetConnectionAsync(It.IsAny<OperationContext>())).ReturnsAsync(connection);
+            var connection = Mock.Of<IChannelHandle>(c => c.ConnectionDescription == new ConnectionDescription(new ConnectionId(serverId), new HelloResult(new BsonDocument("maxWireVersion", serverDescription.WireVersionRange.Max))));
+            mockServer.Setup(s => s.GetChannel(It.IsAny<OperationContext>())).Returns(connection);
+            mockServer.Setup(s => s.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(connection);
 
             mockCluster
                 .Setup(m => m.SelectServer(It.IsAny<OperationContext>(), It.IsAny<IServerSelector>()))

@@ -86,11 +86,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 Exception exception;
                 if (async)
                 {
-                    exception = Record.Exception(() => selectedServer.GetConnectionAsync(OperationContext.NoTimeout).GetAwaiter().GetResult());
+                    exception = Record.Exception(() => selectedServer.GetChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult());
                 }
                 else
                 {
-                    exception = Record.Exception(() => selectedServer.GetConnection(OperationContext.NoTimeout));
+                    exception = Record.Exception(() => selectedServer.GetChannel(OperationContext.NoTimeout));
                 }
 
                 var e = exception.Should().BeOfType<MongoConnectionException>().Subject;

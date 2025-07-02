@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -630,7 +631,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             Reflector.Invoke(server, nameof(HandleBeforeHandshakeCompletesException), ex);
         }
 
-        public static void HandleChannelException(this Server server, IConnection connection, Exception ex)
+        public static void HandleChannelException(this Server server, IConnectionHandle connection, Exception ex)
         {
             Reflector.Invoke(server, nameof(HandleChannelException), connection, ex, checkBaseClass: true);
         }

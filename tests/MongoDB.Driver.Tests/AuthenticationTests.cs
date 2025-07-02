@@ -338,8 +338,8 @@ namespace MongoDB.Driver.Tests
                 {
                     var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
                     var server = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, serverSelector);
-                    var channel = server.GetConnection(OperationContext.NoTimeout);
-                    var helloResult = channel.Description.HelloResult;
+                    var channel = server.GetChannel(OperationContext.NoTimeout);
+                    var helloResult = channel.ConnectionDescription.HelloResult;
                     helloResult.SpeculativeAuthenticate.Should().NotBeNull();
                 }
             }

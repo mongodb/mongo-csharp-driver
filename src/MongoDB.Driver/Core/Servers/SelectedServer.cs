@@ -16,6 +16,7 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 
@@ -45,11 +46,19 @@ internal class SelectedServer : ISelectedServer
     public ServerApi ServerApi => _server.ServerApi;
     public ServerDescription DescriptionWhenSelected => _descriptionWhenSelected;
 
-    public IConnectionHandle GetConnection(OperationContext operationContext) => _server.GetConnection(operationContext);
+    public IChannelHandle GetChannel(OperationContext operationContext)
+    {
+        var channel = _server.GetChannel(operationContext);
+        return new ServerChannel(this, channel.Connection);
+    }
 
-    public Task<IConnectionHandle> GetConnectionAsync(OperationContext operationContext) => _server.GetConnectionAsync(operationContext);
+    public async Task<IChannelHandle> GetChannelAsync(OperationContext operationContext)
+    {
+        var channel = await _server.GetChannelAsync(operationContext).ConfigureAwait(false);
+        return new ServerChannel(this, channel.Connection);
+    }
 
-    public void ReturnConnection(IConnectionHandle connection) => _server.ReturnConnection(connection);
+    public void HandleChannelException(IConnectionHandle channel, Exception exception) => _server.HandleChannelException(channel, exception);
 
-    public void HandleChannelException(IConnection connection, Exception exception) => _server.HandleChannelException(connection, exception);
+    public void ReturnChannel(IChannelHandle channel) => _server.ReturnChannel(channel);
 }

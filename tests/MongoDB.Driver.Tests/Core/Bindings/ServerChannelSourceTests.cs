@@ -104,13 +104,13 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 await subject.GetChannelAsync(OperationContext.NoTimeout);
 
-                serverMock.Verify(s => s.GetConnectionAsync(It.IsAny<OperationContext>()), Times.Once);
+                serverMock.Verify(s => s.GetChannelAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
                 subject.GetChannel(OperationContext.NoTimeout);
 
-                serverMock.Verify(s => s.GetConnection(It.IsAny<OperationContext>()), Times.Once);
+                serverMock.Verify(s => s.GetChannel(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 

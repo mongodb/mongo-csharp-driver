@@ -16,6 +16,7 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 
@@ -31,10 +32,10 @@ namespace MongoDB.Driver.Core.Servers
         ServerId ServerId { get; }
         ServerApi ServerApi { get; }
 
-        IConnectionHandle GetConnection(OperationContext operationContext); // questionable to switch from channel to connection
-        Task<IConnectionHandle> GetConnectionAsync(OperationContext operationContext);
-        void ReturnConnection(IConnectionHandle connection);
-        void HandleChannelException(IConnection connection, Exception exception);
+        IChannelHandle GetChannel(OperationContext operationContext);
+        Task<IChannelHandle> GetChannelAsync(OperationContext operationContext);
+        void HandleChannelException(IConnectionHandle connection, Exception exception);
+        void ReturnChannel(IChannelHandle channel);
     }
 
     internal interface IClusterableServer : IServer, IDisposable
