@@ -215,7 +215,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the create indexes using insert operations feature.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
+        [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the eval feature.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
+        [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature Eval => __eval;
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the group command feature.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
+        [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature GroupCommand => __groupCommand;
 
         /// <summary>
@@ -398,7 +398,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the mmapv1 storage engine feature.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
+        [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature MmapV1StorageEngine => __mmapV1StorageEngine;
 
         /// <summary>

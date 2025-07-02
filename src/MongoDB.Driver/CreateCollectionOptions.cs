@@ -120,7 +120,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether padding should not be used.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
+        [Obsolete("This option was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public bool? NoPadding
         {
             get { return _noPadding; }
@@ -157,7 +157,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether to use power of 2 sizes.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
+        [Obsolete("This option was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public bool? UsePowerOf2Sizes
         {
             get { return _usePowerOf2Sizes; }

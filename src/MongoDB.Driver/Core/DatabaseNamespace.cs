@@ -86,13 +86,13 @@ namespace MongoDB.Driver
             get { return _databaseName; }
         }
 
-        [Obsolete("This property will be removed in a later release.")]
+        [Obsolete("This collection namespace was removed in server version 4.2. As such, this property will be removed in a later release.")]
         internal CollectionNamespace SystemIndexesCollection
         {
             get { return new CollectionNamespace(this, "system.indexes"); }
         }
 
-        [Obsolete("This property will be removed in a later release.")]
+        [Obsolete("This collection namespace was removed in server version 4.2. As such, this property will be removed in a later release.")]
         internal CollectionNamespace SystemNamespacesCollection
         {
             get { return new CollectionNamespace(this, "system.namespaces"); }
