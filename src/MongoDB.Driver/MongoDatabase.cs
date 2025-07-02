@@ -613,11 +613,10 @@ namespace MongoDB.Driver
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
             //DOMAIN-API This will need to go away
+            //This is only happening in a couple of places, it's not worth to find better solutions right now.
             RenderArgs<TDocument> renderArgs = options.SerializationDomain is null ?
                 new(documentSerializer, serializerRegistry, translationOptions: translationOptions) :
                 new(documentSerializer, options.SerializationDomain, translationOptions: translationOptions);
-
-            //var serializationDomain = Settings.SerializationDomain.WithSerializerRegistry(serializerRegistry);  //FP This could be the way to go
 
             //DOMAIN-API This will need to go away
             var clusteredIndex = options.SerializationDomain is null?

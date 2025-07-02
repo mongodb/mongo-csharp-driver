@@ -544,6 +544,7 @@ namespace MongoDB.Driver
 
             const string operatorName = "$facet";
             var materializedFacets = facets.ToArray();
+
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
                 args =>
@@ -556,7 +557,25 @@ namespace MongoDB.Driver
                         facetsDocument.Add(facet.Name, renderedPipeline);
                     }
                     var document = new BsonDocument("$facet", facetsDocument);
-                    var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
+
+                    IBsonSerializer<TOutput> outputSerializer;
+
+                    if (options?.OutputSerializer is not null)
+                    {
+                        outputSerializer = options.OutputSerializer;
+                    }
+                    else if (typeof(TOutput) == typeof(AggregateFacetResults))
+                    {
+                        outputSerializer = (IBsonSerializer<TOutput>)new AggregateFacetResultsSerializer(
+                            materializedFacets.Select(f => f.Name),
+                            materializedFacets.Select(f => f.OutputSerializer ?? args.SerializerRegistry.GetSerializer(f.OutputType)));  //QUESTION What do we do? Do we delay the setting of the serializer..?
+                    }
+                    else
+                    {
+                        outputSerializer = args.SerializerRegistry.GetSerializer<TOutput>();
+                    }
+
+                    //var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
 
@@ -572,12 +591,7 @@ namespace MongoDB.Driver
         public static PipelineStageDefinition<TInput, AggregateFacetResults> Facet<TInput>(
             IEnumerable<AggregateFacet<TInput>> facets)
         {
-            Ensure.IsNotNull(facets, nameof(facets));
-            var outputSerializer = new AggregateFacetResultsSerializer(
-                facets.Select(f => f.Name),
-                facets.Select(f => f.OutputSerializer ?? BsonSerializer.SerializerRegistry.GetSerializer(f.OutputType)));  //QUESTION What do we do? Do we delay the setting of the serializer..?
-            var options = new AggregateFacetOptions<AggregateFacetResults> { OutputSerializer = outputSerializer };
-            return Facet(facets, options);
+            return Facet<TInput, AggregateFacetResults>(facets, options: null);
         }
 
         /// <summary>
