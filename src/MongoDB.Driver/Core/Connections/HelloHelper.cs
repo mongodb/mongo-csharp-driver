@@ -90,7 +90,8 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
-                var helloResultDocument = helloProtocol.Execute(connection, cancellationToken);
+                // TODO: CSOT: Implement operation context support for MongoDB Handshake
+                var helloResultDocument = helloProtocol.Execute(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken), connection);
                 return new HelloResult(helloResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)
@@ -109,7 +110,8 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
-                var helloResultDocument = await helloProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                // TODO: CSOT: Implement operation context support for MongoDB Handshake
+                var helloResultDocument = await helloProtocol.ExecuteAsync(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken), connection).ConfigureAwait(false);
                 return new HelloResult(helloResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)

@@ -216,7 +216,8 @@ namespace MongoDB.Driver.Core.Servers
             {
                 // if we are cancelling, it's because the server has
                 // been shut down and we really don't need to wait.
-                connection.Open(cancellationToken);
+                // TODO: CSOT: Implement operation context support for Server Discovery and Monitoring
+                connection.Open(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken));
 
                 _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, false, connection.Description.HelloResult.Wrapped));
             }

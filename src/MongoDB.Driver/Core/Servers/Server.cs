@@ -14,14 +14,10 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -30,9 +26,6 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.WireProtocol;
-using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Servers
 {
@@ -82,6 +75,7 @@ namespace MongoDB.Driver.Core.Servers
         public abstract ServerDescription Description { get; }
         public EndPoint EndPoint => _endPoint;
         public bool IsInitialized => _state.Value != State.Initial;
+        public ServerApi ServerApi => _serverApi;
         public ServerId ServerId => _serverId;
         protected EventLogger<LogCategories.SDAM> EventLogger => _eventLogger;
 
@@ -104,6 +98,38 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        public void DecrementOutstandingOperationsCount()
+        {
+            Interlocked.Decrement(ref _outstandingOperationsCount);
+        }
+
+        public void HandleChannelException(IConnectionHandle connection, Exception ex)
+        {
+            if (!IsOpen() || ShouldIgnoreException(ex))
+            {
+                return;
+            }
+
+            ex = GetEffectiveException(ex);
+
+            HandleAfterHandshakeCompletesException(connection, ex);
+
+            bool ShouldIgnoreException(Exception ex)
+            {
+                // For most connection exceptions, we are going to immediately
+                // invalidate the server. However, we aren't going to invalidate
+                // because of OperationCanceledExceptions. We trust that the
+                // implementations of connection don't leave themselves in a state
+                // where they can't be used based on user cancellation.
+                return ex is OperationCanceledException;
+            }
+
+            Exception GetEffectiveException(Exception ex) =>
+                ex is AggregateException aggregateException && aggregateException.InnerExceptions.Count == 1
+                    ? aggregateException.InnerException
+                    : ex;
+        }
+
         public void HandleExceptionOnOpen(Exception exception) =>
             HandleBeforeHandshakeCompletesException(exception);
 
@@ -114,7 +140,6 @@ namespace MongoDB.Driver.Core.Servers
             try
             {
                 Interlocked.Increment(ref _outstandingOperationsCount);
-
                 var connection = _connectionPool.AcquireConnection(operationContext);
                 return new ServerChannel(this, connection);
             }
@@ -173,7 +198,6 @@ namespace MongoDB.Driver.Core.Servers
         public abstract void RequestHeartbeat();
 
         // protected methods
-
         protected abstract void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion responseTopologyDescription);
 
         protected abstract void Dispose(bool disposing);
@@ -222,33 +246,6 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
-        private void HandleChannelException(IConnection connection, Exception ex)
-        {
-            if (!IsOpen() || ShouldIgnoreException(ex))
-            {
-                return;
-            }
-
-            ex = GetEffectiveException(ex);
-
-            HandleAfterHandshakeCompletesException(connection, ex);
-
-            bool ShouldIgnoreException(Exception ex)
-            {
-                // For most connection exceptions, we are going to immediately
-                // invalidate the server. However, we aren't going to invalidate
-                // because of OperationCanceledExceptions. We trust that the
-                // implementations of connection don't leave themselves in a state
-                // where they can't be used based on user cancellation.
-                return ex is OperationCanceledException;
-            }
-
-            Exception GetEffectiveException(Exception ex) =>
-                ex is AggregateException aggregateException && aggregateException.InnerExceptions.Count == 1
-                    ? aggregateException.InnerException
-                    : ex;
-        }
-
         private bool IsOpen() => _state.Value == State.Open;
 
         private void ThrowIfDisposed()
@@ -274,173 +271,6 @@ namespace MongoDB.Driver.Core.Servers
             public const int Initial = 0;
             public const int Open = 1;
             public const int Disposed = 2;
-        }
-
-        private sealed class ServerChannel : IChannelHandle
-        {
-            // fields
-            private readonly IConnectionHandle _connection;
-            private readonly Server _server;
-
-            private readonly InterlockedInt32 _state;
-            private readonly bool _decrementOperationsCount;
-
-            // constructors
-            public ServerChannel(Server server, IConnectionHandle connection, bool decrementOperationsCount = true)
-            {
-                _server = server;
-                _connection = connection;
-
-                _state = new InterlockedInt32(ChannelState.Initial);
-                _decrementOperationsCount = decrementOperationsCount;
-            }
-
-            // properties
-            public IConnectionHandle Connection => _connection;
-
-            public ConnectionDescription ConnectionDescription
-            {
-                get { return _connection.Description; }
-            }
-
-            // methods
-            public TResult Command<TResult>(
-                ICoreSession session,
-                ReadPreference readPreference,
-                DatabaseNamespace databaseNamespace,
-                BsonDocument command,
-                IEnumerable<BatchableCommandMessageSection> commandPayloads,
-                IElementNameValidator commandValidator,
-                BsonDocument additionalOptions,
-                Action<IMessageEncoderPostProcessor> postWriteAction,
-                CommandResponseHandling responseHandling,
-                IBsonSerializer<TResult> resultSerializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new CommandWireProtocol<TResult>(
-                    CreateClusterClockAdvancingCoreSession(session),
-                    readPreference,
-                    databaseNamespace,
-                    command,
-                    commandPayloads,
-                    commandValidator,
-                    additionalOptions,
-                    postWriteAction,
-                    responseHandling,
-                    resultSerializer,
-                    messageEncoderSettings,
-                    _server._serverApi);
-
-                return ExecuteProtocol(protocol, session, cancellationToken);
-            }
-
-            public Task<TResult> CommandAsync<TResult>(
-                ICoreSession session,
-                ReadPreference readPreference,
-                DatabaseNamespace databaseNamespace,
-                BsonDocument command,
-                IEnumerable<BatchableCommandMessageSection> commandPayloads,
-                IElementNameValidator commandValidator,
-                BsonDocument additionalOptions,
-                Action<IMessageEncoderPostProcessor> postWriteAction,
-                CommandResponseHandling responseHandling,
-                IBsonSerializer<TResult> resultSerializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new CommandWireProtocol<TResult>(
-                    CreateClusterClockAdvancingCoreSession(session),
-                    readPreference,
-                    databaseNamespace,
-                    command,
-                    commandPayloads,
-                    commandValidator,
-                    additionalOptions,
-                    postWriteAction,
-                    responseHandling,
-                    resultSerializer,
-                    messageEncoderSettings,
-                    _server._serverApi);
-
-                return ExecuteProtocolAsync(protocol, session, cancellationToken);
-            }
-
-            public void Dispose()
-            {
-                if (_state.TryChange(ChannelState.Initial, ChannelState.Disposed))
-                {
-                    if (_decrementOperationsCount)
-                    {
-                        Interlocked.Decrement(ref _server._outstandingOperationsCount);
-                    }
-
-                    _connection.Dispose();
-                }
-            }
-
-            private ICoreSession CreateClusterClockAdvancingCoreSession(ICoreSession session)
-            {
-                return new ClusterClockAdvancingCoreSession(session, _server.ClusterClock);
-            }
-
-            private TResult ExecuteProtocol<TResult>(IWireProtocol<TResult> protocol, ICoreSession session, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    return protocol.Execute(_connection, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    MarkSessionDirtyIfNeeded(session, ex);
-                    _server.HandleChannelException(_connection, ex);
-                    throw;
-                }
-            }
-
-            private async Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, ICoreSession session, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    return await protocol.ExecuteAsync(_connection, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    MarkSessionDirtyIfNeeded(session, ex);
-                    _server.HandleChannelException(_connection, ex);
-                    throw;
-                }
-            }
-
-            public IChannelHandle Fork()
-            {
-                ThrowIfDisposed();
-
-                return new ServerChannel(_server, _connection.Fork(), false);
-            }
-
-            private void MarkSessionDirtyIfNeeded(ICoreSession session, Exception ex)
-            {
-                if (ex is MongoConnectionException)
-                {
-                    session.MarkDirty();
-                }
-            }
-
-            private void ThrowIfDisposed()
-            {
-                if (_state.Value == ChannelState.Disposed)
-                {
-                    throw new ObjectDisposedException(GetType().Name);
-                }
-            }
-
-            // nested types
-            private static class ChannelState
-            {
-                public const int Initial = 0;
-                public const int Disposed = 1;
-            }
         }
     }
 }

@@ -16,7 +16,6 @@
 using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;

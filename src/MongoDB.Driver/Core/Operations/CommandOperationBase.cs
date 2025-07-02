@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -85,11 +84,12 @@ namespace MongoDB.Driver.Core.Operations
             get { return _resultSerializer; }
         }
 
-        protected TCommandResult ExecuteProtocol(IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, CancellationToken cancellationToken)
+        protected TCommandResult ExecuteProtocol(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference)
         {
             var additionalOptions = GetEffectiveAdditionalOptions();
 
             return channel.Command(
+                operationContext,
                 session,
                 readPreference,
                 _databaseNamespace,
@@ -100,8 +100,7 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction,
                 CommandResponseHandling.Return,
                 _resultSerializer,
-                _messageEncoderSettings,
-                cancellationToken);
+                _messageEncoderSettings);
         }
 
         protected TCommandResult ExecuteProtocol(
@@ -112,15 +111,16 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var channel = channelSource.GetChannel(operationContext))
             {
-                return ExecuteProtocol(channel, session, readPreference, operationContext.CancellationToken);
+                return ExecuteProtocol(operationContext, channel, session, readPreference);
             }
         }
 
-        protected Task<TCommandResult> ExecuteProtocolAsync(IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, CancellationToken cancellationToken)
+        protected Task<TCommandResult> ExecuteProtocolAsync(OperationContext operationContext, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference)
         {
             var additionalOptions = GetEffectiveAdditionalOptions();
 
             return channel.CommandAsync(
+                operationContext,
                 session,
                 readPreference,
                 _databaseNamespace,
@@ -131,8 +131,7 @@ namespace MongoDB.Driver.Core.Operations
                 null, // postWriteAction,
                 CommandResponseHandling.Return,
                 _resultSerializer,
-                _messageEncoderSettings,
-                cancellationToken);
+                _messageEncoderSettings);
         }
 
         protected async Task<TCommandResult> ExecuteProtocolAsync(
@@ -143,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(channel, session, readPreference, operationContext.CancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(operationContext, channel, session, readPreference).ConfigureAwait(false);
             }
         }
 

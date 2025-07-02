@@ -27,8 +27,6 @@ namespace MongoDB.Driver.Tests
     internal interface IJsonDrivenTestRunner
     {
         IClusterInternal FailPointCluster { get; }
-        IServer FailPointServer { get; }
-
         void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
         Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
     }
@@ -48,8 +46,6 @@ namespace MongoDB.Driver.Tests
                 return client.GetClusterInternal();
             }
         }
-
-        public IServer FailPointServer => null;
 
         public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {

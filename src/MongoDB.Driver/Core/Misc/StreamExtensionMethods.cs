@@ -109,16 +109,20 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static void ReadBytes(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
+        public static void ReadBytes(this Stream stream, OperationContext operationContext, byte[] buffer, int offset, int count)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
+            var hasOperationTimeout = operationContext.IsRootContextTimeoutConfigured();
+            var streamTimeout = stream.CanTimeout ? TimeSpan.FromMilliseconds(stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
+
             while (count > 0)
             {
-                var bytesRead = stream.Read(buffer, offset, count, timeout, cancellationToken);
+                var timeout = hasOperationTimeout ? operationContext.RemainingTimeout : streamTimeout;
+                var bytesRead = stream.Read(buffer, offset, count, timeout, operationContext.CancellationToken);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -128,18 +132,22 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static void ReadBytes(this Stream stream, IByteBuffer buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
+        public static void ReadBytes(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
+            var hasOperationTimeout = operationContext.IsRootContextTimeoutConfigured();
+            var streamTimeout = stream.CanTimeout ? TimeSpan.FromMilliseconds(stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
+
             while (count > 0)
             {
+                var timeout = hasOperationTimeout ? operationContext.RemainingTimeout : streamTimeout;
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToRead = Math.Min(count, backingBytes.Count);
-                var bytesRead = stream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead, timeout, cancellationToken);
+                var bytesRead = stream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead, timeout, operationContext.CancellationToken);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -149,16 +157,20 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task ReadBytesAsync(this Stream stream, byte[] buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
+        public static async Task ReadBytesAsync(this Stream stream, OperationContext operationContext, byte[] buffer, int offset, int count)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
+            var hasOperationTimeout = operationContext.IsRootContextTimeoutConfigured();
+            var streamTimeout = stream.CanTimeout ? TimeSpan.FromMilliseconds(stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
+
             while (count > 0)
             {
-                var bytesRead = await stream.ReadAsync(buffer, offset, count, timeout, cancellationToken).ConfigureAwait(false);
+                var timeout = hasOperationTimeout ? operationContext.RemainingTimeout : streamTimeout;
+                var bytesRead = await stream.ReadAsync(buffer, offset, count, timeout, operationContext.CancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -168,18 +180,22 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task ReadBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
+        public static async Task ReadBytesAsync(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
+            var hasOperationTimeout = operationContext.IsRootContextTimeoutConfigured();
+            var streamTimeout = stream.CanTimeout ? TimeSpan.FromMilliseconds(stream.ReadTimeout) : Timeout.InfiniteTimeSpan;
+
             while (count > 0)
             {
+                var timeout = hasOperationTimeout ? operationContext.RemainingTimeout : streamTimeout;
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToRead = Math.Min(count, backingBytes.Count);
-                var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, timeout, cancellationToken).ConfigureAwait(false);
+                var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, timeout, operationContext.CancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -264,36 +280,43 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static void WriteBytes(this Stream stream, IByteBuffer buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
+        public static void WriteBytes(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
+            var hasOperationTimeout = operationContext.IsRootContextTimeoutConfigured();
+            var streamTimeout = stream.CanTimeout ? TimeSpan.FromMilliseconds(stream.WriteTimeout) : Timeout.InfiniteTimeSpan;
+
             while (count > 0)
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                var timeout = hasOperationTimeout ? operationContext.RemainingTimeout : streamTimeout;
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToWrite = Math.Min(count, backingBytes.Count);
-                stream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite, timeout, cancellationToken);
+                stream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite, timeout, operationContext.CancellationToken);
                 offset += bytesToWrite;
                 count -= bytesToWrite;
             }
         }
 
-        public static async Task WriteBytesAsync(this Stream stream, IByteBuffer buffer, int offset, int count, TimeSpan timeout, CancellationToken cancellationToken)
+        public static async Task WriteBytesAsync(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
             Ensure.IsBetween(offset, 0, buffer.Length, nameof(offset));
             Ensure.IsBetween(count, 0, buffer.Length - offset, nameof(count));
 
+            var hasOperationTimeout = operationContext.IsRootContextTimeoutConfigured();
+            var streamTimeout = stream.CanTimeout ? TimeSpan.FromMilliseconds(stream.WriteTimeout) : Timeout.InfiniteTimeSpan;
+
             while (count > 0)
             {
+                var timeout = hasOperationTimeout ? operationContext.RemainingTimeout : streamTimeout;
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToWrite = Math.Min(count, backingBytes.Count);
-                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, timeout, cancellationToken).ConfigureAwait(false);
+                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, timeout, operationContext.CancellationToken).ConfigureAwait(false);
                 offset += bytesToWrite;
                 count -= bytesToWrite;
             }

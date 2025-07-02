@@ -35,20 +35,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // properties
-        public IServer Server
-        {
-            get { return _server; }
-        }
+        public IServer Server => _server;
 
-        public ServerDescription ServerDescription
-        {
-            get { return _server.Description; }
-        }
+        public ServerDescription ServerDescription => _server.Description;
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
+        public ICoreSessionHandle Session => _session;
 
         // methods
         public void Dispose()

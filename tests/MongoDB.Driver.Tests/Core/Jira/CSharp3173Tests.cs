@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     () => WaitForTaskOrTimeout(hasClusterBeenDisposed.Task, TimeSpan.FromMinutes(1), "cluster dispose")
                 });
                 mockFaultyConnection
-                    .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.Open(It.IsAny<OperationContext>()))
                     .Callback(() =>
                     {
                         var responseAction = faultyConnectionResponses.Dequeue();
@@ -361,7 +361,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     });
 
                 mockFaultyConnection
-                    .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                     .Returns(() =>
                     {
                         WaitForTaskOrTimeout(
@@ -374,13 +374,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             void SetupHealthyConnection(Mock<IConnection> mockHealthyConnection)
             {
-                mockHealthyConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())); // no action is required
-                mockHealthyConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)); // no action is required
+                mockHealthyConnection.Setup(c => c.Open(It.IsAny<OperationContext>())); // no action is required
+                mockHealthyConnection.Setup(c => c.OpenAsync(It.IsAny<OperationContext>())).Returns(Task.FromResult(true)); // no action is required
                 mockHealthyConnection
-                    .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                     .Returns(commandResponseAction);
                 mockConnection
-                    .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                    .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
                     .ReturnsAsync(commandResponseAction);
             }
         }
