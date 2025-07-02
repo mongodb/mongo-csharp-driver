@@ -46,6 +46,9 @@ internal class SelectedServer : ISelectedServer
     public ServerApi ServerApi => _server.ServerApi;
     public ServerDescription DescriptionWhenSelected => _descriptionWhenSelected;
 
+    public void DecrementOutstandingOperationsCount()
+        => _server.DecrementOutstandingOperationsCount();
+
     public IChannelHandle GetChannel(OperationContext operationContext)
     {
         var channel = _server.GetChannel(operationContext);
@@ -59,6 +62,4 @@ internal class SelectedServer : ISelectedServer
     }
 
     public void HandleChannelException(IConnectionHandle channel, Exception exception) => _server.HandleChannelException(channel, exception);
-
-    public void ReturnConnection(IConnectionHandle connection) => _server.ReturnConnection(connection);
 }

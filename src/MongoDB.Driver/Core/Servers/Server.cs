@@ -98,6 +98,11 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        public void DecrementOutstandingOperationsCount()
+        {
+            Interlocked.Decrement(ref _outstandingOperationsCount);
+        }
+
         public void HandleChannelException(IConnectionHandle connection, Exception ex)
         {
             if (!IsOpen() || ShouldIgnoreException(ex))
@@ -191,11 +196,6 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         public abstract void RequestHeartbeat();
-
-        public void ReturnConnection(IConnectionHandle connection)
-        {
-            Interlocked.Decrement(ref _outstandingOperationsCount);
-        }
 
         // protected methods
         protected abstract void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion responseTopologyDescription);

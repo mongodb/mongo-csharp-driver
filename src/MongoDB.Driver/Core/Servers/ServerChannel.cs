@@ -34,15 +34,15 @@ namespace MongoDB.Driver.Core.Servers
         private readonly IConnectionHandle _connection;
         private readonly IServer _server;
         private readonly InterlockedInt32 _state;
-        private readonly bool _ownConnection;
+        private readonly bool _decrementOperationsCount;
 
         // constructors
-        public ServerChannel(IServer server, IConnectionHandle connection, bool ownConnection = true)
+        public ServerChannel(IServer server, IConnectionHandle connection, bool decrementOperationsCount = true)
         {
             _server = server;
             _connection = connection;
             _state = new InterlockedInt32(ChannelState.Initial);
-            _ownConnection = ownConnection;
+            _decrementOperationsCount = decrementOperationsCount;
         }
 
         // properties
@@ -131,9 +131,9 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(ChannelState.Initial, ChannelState.Disposed))
             {
-                if (_ownConnection)
+                if (_decrementOperationsCount)
                 {
-                    _server.ReturnConnection(_connection);
+                    _server.DecrementOutstandingOperationsCount();
                 }
 
                 _connection.Dispose();
