@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public abstract void RequestHeartbeat();
 
-        public void ReturnChannel(IChannelHandle channel)
+        public void ReturnConnection(IConnectionHandle connection)
         {
             Interlocked.Decrement(ref _outstandingOperationsCount);
         }

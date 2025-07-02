@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Servers
         IChannelHandle GetChannel(OperationContext operationContext);
         Task<IChannelHandle> GetChannelAsync(OperationContext operationContext);
         void HandleChannelException(IConnectionHandle connection, Exception exception);
-        void ReturnChannel(IChannelHandle channel);
+        void ReturnConnection(IConnectionHandle connection);
     }
 
     internal interface IClusterableServer : IServer, IDisposable

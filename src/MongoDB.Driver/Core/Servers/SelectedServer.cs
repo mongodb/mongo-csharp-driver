@@ -60,5 +60,5 @@ internal class SelectedServer : ISelectedServer
 
     public void HandleChannelException(IConnectionHandle channel, Exception exception) => _server.HandleChannelException(channel, exception);
 
-    public void ReturnChannel(IChannelHandle channel) => _server.ReturnChannel(channel);
+    public void ReturnConnection(IConnectionHandle connection) => _server.ReturnConnection(connection);
 }

@@ -237,9 +237,9 @@ namespace MongoDB.Driver.Core.Servers
 
             server.OutstandingOperationsCount.Should().Be(operationsCount);
 
-            foreach (var connection in channels)
+            foreach (var channel in channels)
             {
-                server.ReturnChannel(connection);
+                server.ReturnConnection(channel.Connection);
                 server.OutstandingOperationsCount.Should().Be(--operationsCount);
             }
         }
