@@ -28,6 +28,7 @@ namespace MongoDB.Bson.Serialization
         private readonly IBsonSerializer _dynamicArraySerializer;
         private readonly IBsonSerializer _dynamicDocumentSerializer;
         private readonly IBsonReader _reader;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         private BsonDeserializationContext(
@@ -40,6 +41,16 @@ namespace MongoDB.Bson.Serialization
             _allowDuplicateElementNames = allowDuplicateElementNames;
             _dynamicArraySerializer = dynamicArraySerializer;
             _dynamicDocumentSerializer = dynamicDocumentSerializer;
+
+            if (reader is IBsonReaderInternal readerInternal)
+            {
+                _serializationDomain = readerInternal.Settings?.SerializationDomain;
+            }
+
+            _serializationDomain ??= BsonSerializer.DefaultSerializationDomain;
+
+            _dynamicArraySerializer ??= _serializationDomain.BsonDefaults.DynamicArraySerializer;
+            _dynamicDocumentSerializer ??= _serializationDomain.BsonDefaults.DynamicDocumentSerializer;
         }
 
         // public properties
@@ -53,6 +64,11 @@ namespace MongoDB.Bson.Serialization
         {
             get { return _allowDuplicateElementNames; }
         }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the dynamic array serializer.
@@ -154,11 +170,10 @@ namespace MongoDB.Bson.Serialization
                     _dynamicArraySerializer = other.DynamicArraySerializer;
                     _dynamicDocumentSerializer = other.DynamicDocumentSerializer;
                 }
-                else
-                {
-                    _dynamicArraySerializer = BsonDefaults.DynamicArraySerializer;
-                    _dynamicDocumentSerializer = BsonDefaults.DynamicDocumentSerializer;
-                }
+
+                /* QUESTION I removed the part where we set the dynamic serializers from the BsonDefaults, and delay it until we have a serialization domain (when we build the DeserializationContext).
+                 * This is technically changing the public behaviour, but it's in a builder, I do not thing it will affect anyone. Same done for the serialization context.
+                 */
             }
 
             // properties

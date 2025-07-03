@@ -41,14 +41,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             // where TInterface is an interface
     {
         #region static
-        private static IBsonSerializer<TInterface> CreateInterfaceSerializer()
+        private static IBsonSerializer<TInterface> CreateInterfaceSerializer(IBsonSerializationDomain serializationDomain)
         {
             var classMapDefinition = typeof(BsonClassMap<>);
             var classMapType = classMapDefinition.MakeGenericType(typeof(TInterface));
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
             classMap.AutoMap();
-            classMap.SetDiscriminatorConvention(BsonSerializer.LookupDiscriminatorConvention(typeof(TInterface)));
-            classMap.Freeze();
+            classMap.SetDiscriminatorConvention(serializationDomain.LookupDiscriminatorConvention(typeof(TInterface)));
+            classMap.Freeze(serializationDomain);
             return new BsonClassMapSerializer<TInterface>(classMap);
         }
         #endregion
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.ArgumentException">interfaceType</exception>
         /// <exception cref="System.ArgumentNullException">interfaceType</exception>
         public DiscriminatedInterfaceSerializer(IDiscriminatorConvention discriminatorConvention)
-            : this(discriminatorConvention, CreateInterfaceSerializer(), objectSerializer: null)
+            : this(discriminatorConvention, CreateInterfaceSerializer(BsonSerializer.DefaultSerializationDomain), objectSerializer: null)  //TODO Is this ok?
         {
         }
 
@@ -109,12 +109,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _interfaceType = typeof(TInterface);
-            _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention();
+            _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention(); //QUESTION What do we do here? We don't have the domain close by, should we lazy initialize it during serialization/deserialization?
             _interfaceSerializer = interfaceSerializer;
 
             if (objectSerializer == null)
             {
-                objectSerializer = BsonSerializer.LookupSerializer<object>();
+                objectSerializer = BsonSerializer.LookupSerializer<object>();  //QUESTION What do we do here? We don't have the domain close by, should we lazy initialize it during serialization/deserialization?
                 if (objectSerializer is ObjectSerializer standardObjectSerializer)
                 {
                     Func<Type, bool> allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);
@@ -158,7 +158,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var actualType = _discriminatorConvention.GetActualType(bsonReader, typeof(TInterface));
+                var actualType = _discriminatorConvention.GetActualTypeInternal(bsonReader, typeof(TInterface), context.SerializationDomain);
                 if (actualType == _interfaceType)
                 {
                     var message = string.Format("Unable to determine actual type of object to deserialize for interface type {0}.", _interfaceType.FullName);

@@ -205,11 +205,11 @@ namespace MongoDB.Driver
         {
             if (args.RenderForElemMatch)
             {
-                return LinqProviderAdapter.TranslateExpressionToElemMatchFilter(_expression, elementSerializer: args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+                return LinqProviderAdapter.TranslateExpressionToElemMatchFilter(_expression, elementSerializer: args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
             }
             else
             {
-                return LinqProviderAdapter.TranslateExpressionToFilter(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+                return LinqProviderAdapter.TranslateExpressionToFilter(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
             }
         }
     }

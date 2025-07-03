@@ -682,7 +682,7 @@ namespace MongoDB.Driver
                     var insertOneModel = (InsertOneModel<TDocument>)model;
                     if (_settings.AssignIdOnInsert)
                     {
-                        _documentSerializer.SetDocumentIdIfMissing(this, insertOneModel.Document);
+                        _documentSerializer.SetDocumentIdIfMissing(this, insertOneModel.Document, renderArgs.SerializationDomain);
                     }
                     return new InsertRequest(new BsonDocumentWrapper(insertOneModel.Document, _documentSerializer))
                     {
@@ -1230,7 +1230,8 @@ namespace MongoDB.Driver
             var messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
-                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict },
+                { MessageEncoderSettingsName.SerializationDomain, _settings.SerializationDomain }
             };
 
             if (_database.Client is MongoClient mongoClient)
@@ -1290,13 +1291,13 @@ namespace MongoDB.Driver
         private RenderArgs<TDocument> GetRenderArgs()
         {
             var translationOptions = _database.Client.Settings.TranslationOptions;
-            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private RenderArgs<TDocument> GetRenderArgs(ExpressionTranslationOptions translationOptions)
         {
             translationOptions = translationOptions.AddMissingOptionsFrom(_database.Client.Settings.TranslationOptions);
-            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(_documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private IEnumerable<BsonDocument> RenderArrayFilters(IEnumerable<ArrayFilterDefinition> arrayFilters)

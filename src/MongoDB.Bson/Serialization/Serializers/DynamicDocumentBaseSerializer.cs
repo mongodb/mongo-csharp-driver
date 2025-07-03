@@ -26,8 +26,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The dynamic type.</typeparam>
     public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T> where T : class, IDynamicMetaObjectProvider
     {
-        // private static fields
-        private static readonly IBsonSerializer<object> __objectSerializer = BsonSerializer.LookupSerializer<object>();
+        // private fields
+        private IBsonSerializer<object> __objectSerializer;
 
         // constructors
         /// <summary>
@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var name = bsonReader.ReadName();
-                        var value = __objectSerializer.Deserialize(dynamicContext);
+                        var value = GetObjectSerializer(context.SerializationDomain).Deserialize(dynamicContext);
                         SetValueForMember(document, name, value);
                     }
                     bsonReader.ReadEndDocument();
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (TryGetValueForMember(value, memberName, out memberValue))
                 {
                     bsonWriter.WriteName(memberName);
-                    __objectSerializer.Serialize(dynamicContext, memberValue);
+                    GetObjectSerializer(context.SerializationDomain).Serialize(dynamicContext, memberValue);
                 }
             }
             bsonWriter.WriteEndDocument();
@@ -142,5 +142,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The value.</param>
         /// <returns><c>true</c> if the member should be serialized; otherwise <c>false</c>.</returns>
         protected abstract bool TryGetValueForMember(T document, string memberName, out object value);
+
+        //private methods
+        private IBsonSerializer<object> GetObjectSerializer(IBsonSerializationDomain domain)
+        {
+            return __objectSerializer ??= domain.LookupSerializer<object>();
+        }
     }
 }

@@ -22,25 +22,41 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Default, global implementation of an <see cref="IBsonSerializerRegistry"/>.
     /// </summary>
-    public sealed class BsonSerializerRegistry : IBsonSerializerRegistry
+    public sealed class BsonSerializerRegistry : IBsonSerializerRegistryInternal
     {
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
         private readonly ConcurrentStack<IBsonSerializationProvider> _serializationProviders;
         private readonly Func<Type, IBsonSerializer> _createSerializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="BsonSerializerRegistry"/> class.
         /// </summary>
-        public BsonSerializerRegistry()
+        public BsonSerializerRegistry():
+            this(BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="serializationDomain"></param>
+        internal BsonSerializerRegistry(IBsonSerializationDomain serializationDomain)
         {
             _cache = new ConcurrentDictionary<Type, IBsonSerializer>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
             _createSerializer = CreateSerializer;
+            _serializationDomain = serializationDomain;
         }
 
         // public methods
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        IBsonSerializationDomain IBsonSerializerRegistryInternal.SerializationDomain => _serializationDomain;
+
         /// <summary>
         /// Gets the serializer for the specified <paramref name="type" />.
         /// If none is already registered, the serialization providers will be used to create a serializer and it will be automatically registered.

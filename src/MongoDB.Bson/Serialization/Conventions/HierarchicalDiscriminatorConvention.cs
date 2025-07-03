@@ -16,13 +16,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
     /// Represents a discriminator convention where the discriminator is an array of all the discriminators provided by the class maps of the root class down to the actual type.
     /// </summary>
-    public class HierarchicalDiscriminatorConvention : StandardDiscriminatorConvention, IHierarchicalDiscriminatorConvention
+    public class HierarchicalDiscriminatorConvention : StandardDiscriminatorConvention, IHierarchicalDiscriminatorConvention, IDiscriminatorConventionInternal
     {
         // constructors
         /// <summary>
@@ -34,6 +35,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
         }
 
+        Type IDiscriminatorConventionInternal.GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
+        {
+            return base.GetActualType(bsonReader, nominalType, domain);
+        }
+
         // public methods
         /// <summary>
         /// Gets the discriminator value for an actual type.
@@ -41,10 +47,14 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="nominalType">The nominal type.</param>
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
-        public override BsonValue GetDiscriminator(Type nominalType, Type actualType)
+        public override BsonValue GetDiscriminator(Type nominalType, Type actualType) =>
+            (this as IDiscriminatorConventionInternal).GetDiscriminator(nominalType, actualType, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        BsonValue IDiscriminatorConventionInternal.GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
         {
             // TODO: this isn't quite right, not all classes are serialized using  a class map serializer
-            var classMap = BsonClassMap.LookupClassMap(actualType);
+            var classMap = domain.BsonClassMap.LookupClassMap(actualType);
             if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass)
             {
                 if (classMap.HasRootClass && !classMap.IsRootClass)

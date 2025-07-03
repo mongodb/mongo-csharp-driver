@@ -140,7 +140,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<TSource> args)
         {
             var contextData = _contextData?.With("SerializerRegistry", args.SerializerRegistry);
-            return LinqProviderAdapter.TranslateExpressionToAggregateExpression(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions, contextData);
+            return LinqProviderAdapter.TranslateExpressionToAggregateExpression(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions, contextData);
         }
     }
 

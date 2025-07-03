@@ -32,7 +32,8 @@ namespace MongoDB.Driver
             bool retryRequested,
             ExpressionTranslationOptions translationOptions)
         {
-            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, translationOptions);
+            var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
+            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, serializationDomain, translationOptions);
 
             var operation = new ChangeStreamOperation<TResult>(
                 renderedPipeline.Documents,
@@ -55,7 +56,8 @@ namespace MongoDB.Driver
             bool retryRequested,
             ExpressionTranslationOptions translationOptions)
         {
-            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, translationOptions);
+            var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
+            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, serializationDomain, translationOptions);
 
             var operation = new ChangeStreamOperation<TResult>(
                 database.DatabaseNamespace,
@@ -80,7 +82,8 @@ namespace MongoDB.Driver
             bool retryRequested,
             ExpressionTranslationOptions translationOptions)
         {
-            var renderedPipeline = RenderPipeline(pipeline, documentSerializer, translationOptions);
+            var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
+            var renderedPipeline = RenderPipeline(pipeline, documentSerializer, serializationDomain, translationOptions);
 
             var operation = new ChangeStreamOperation<TResult>(
                 collection.CollectionNamespace,
@@ -99,11 +102,11 @@ namespace MongoDB.Driver
         private static RenderedPipelineDefinition<TResult> RenderPipeline<TResult, TDocument>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             var changeStreamDocumentSerializer = new ChangeStreamDocumentSerializer<TDocument>(documentSerializer);
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return pipeline.Render(new(changeStreamDocumentSerializer, serializerRegistry, translationOptions: translationOptions));
+            return pipeline.Render(new(changeStreamDocumentSerializer, serializationDomain, translationOptions: translationOptions));
         }
 
         private static void SetOperationOptions<TResult>(

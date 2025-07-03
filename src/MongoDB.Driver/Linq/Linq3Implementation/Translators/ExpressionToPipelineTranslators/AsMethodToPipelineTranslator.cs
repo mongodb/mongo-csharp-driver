@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var resultSerializerExpression = arguments[1];
                 var resultSerializer = resultSerializerExpression.GetConstantValue<IBsonSerializer>(expression);
                 var resultType = method.GetGenericArguments()[1];
-                var outputSerializer = resultSerializer ?? BsonSerializer.LookupSerializer(resultType);
+                var outputSerializer = resultSerializer ?? context.SerializationDomain.LookupSerializer(resultType);
 
                 pipeline = pipeline.WithNewOutputSerializer(outputSerializer);
                 return pipeline;

@@ -45,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly IBsonSerializer _valueSerializer;
 
         // constructors
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary}"/> class.
         /// </summary>
@@ -53,6 +54,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary}"/> class.
         /// </summary>
@@ -373,6 +375,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
 
         // constructors
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary, TKey, TValue}"/> class.
         /// </summary>
@@ -381,6 +384,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        //DOMAIN-API This version should be removed in the future.
+        //FP Fortunately it seems that all the constructors that should not be used are actually not used in the codebase.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary, TKey, TValue}" /> class.
         /// </summary>

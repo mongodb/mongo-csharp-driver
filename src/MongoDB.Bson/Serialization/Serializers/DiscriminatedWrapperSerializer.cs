@@ -73,8 +73,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonReader = context.Reader;
             var nominalType = args.NominalType;
-            var actualType = _discriminatorConvention.GetActualType(bsonReader, nominalType);
-            var serializer = BsonSerializer.LookupSerializer(actualType);
+            var actualType = _discriminatorConvention.GetActualTypeInternal(bsonReader, nominalType, context.SerializationDomain);
+            var serializer = context.SerializationDomain.LookupSerializer(actualType);
 
             TValue value = default(TValue);
             _helper.DeserializeMembers(context, (elementName, flag) =>
@@ -145,7 +145,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonWriter = context.Writer;
             var nominalType = args.NominalType;
             var actualType = value.GetType();
-            var discriminator = _discriminatorConvention.GetDiscriminator(nominalType, actualType);
+            var discriminator = _discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, context.SerializationDomain);
 
             bsonWriter.WriteStartDocument();
             if (discriminator != null)
