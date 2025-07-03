@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Linq
         [Fact]
         public void AsQueryable_should_return_expected_result()
         {
-            var collection = Mock.Of<IMongoCollection<C>>( m => m.Settings.SerializationDomain == BsonSerializer.DefaultSerializationDomain );
+            var collection = Mock.Of<IMongoCollection<C>>();
             var session = Mock.Of<IClientSessionHandle>();
             var options = new AggregateOptions();
 

@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             _collection = Ensure.IsNotNull(collection, nameof(collection));
             _pipelineInputSerializer = collection.DocumentSerializer;
-            _serializationDomain = collection.Settings.SerializationDomain;
+            _serializationDomain = collection.Settings?.SerializationDomain ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         public MongoQueryProvider(

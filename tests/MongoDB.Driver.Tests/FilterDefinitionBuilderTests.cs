@@ -1044,8 +1044,8 @@ namespace MongoDB.Driver.Tests
 
         private void Assert<TDocument>(FilterDefinition<TDocument> filter, BsonDocument expected)
         {
-            var documentSerializer = BsonSerializer.DefaultSerializationDomain.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedFilter = filter.Render(new(documentSerializer,  BsonSerializer.DefaultSerializationDomain));
+            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
+            var renderedFilter = filter.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedFilter.Should().Be(expected);
         }

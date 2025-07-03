@@ -1377,7 +1377,6 @@ namespace MongoDB.Driver.Tests
             var mockCollection = new Mock<IMongoCollection<Person>> { DefaultValue = DefaultValue.Mock };
             mockCollection.SetupGet(c => c.Database).Returns(mockDatabase.Object);
             var collectionSettings = new MongoCollectionSettings();
-            collectionSettings.SerializationDomain = BsonSerializer.CreateSerializationDomain();
             mockCollection.SetupGet(s => s.DocumentSerializer).Returns(collectionSettings.SerializerRegistry.GetSerializer<Person>());
             mockCollection.SetupGet(s => s.Settings).Returns(collectionSettings);
 
