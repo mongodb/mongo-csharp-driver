@@ -1771,10 +1771,6 @@ axes:
         display_name: "4.2"
         variables:
            VERSION: "4.2"
-      - id: "4.0"
-        display_name: "4.0"
-        variables:
-           VERSION: "4.0"
 
   - id: os
     display_name: OS
@@ -2309,7 +2305,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "secure-tests-linux-1804"
-  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
+  matrix_spec: { version: ["4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2344,7 +2340,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "unsecure-tests-linux-1804"
-  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { version: ["4.2", "4.4", "5.0", "6.0"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2379,7 +2375,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "tests-compression-linux-1804"
-  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.0", "4.2", "4.4", "5.0", "6.0"], topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0"], topology: "standalone", os: "ubuntu-1804" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:

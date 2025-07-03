@@ -485,7 +485,7 @@ namespace MongoDB.Driver
                     break;
             }
 
-            return result ?? "mmapv1";
+            return result ?? "wiredTiger";
 
             string GetStorageEngineForCluster(IClusterInternal cluster)
             {

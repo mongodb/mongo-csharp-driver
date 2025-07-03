@@ -120,6 +120,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether padding should not be used.
         /// </summary>
+        [Obsolete("This option was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public bool? NoPadding
         {
             get { return _noPadding; }
@@ -156,6 +157,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether to use power of 2 sizes.
         /// </summary>
+        [Obsolete("This option was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public bool? UsePowerOf2Sizes
         {
             get { return _usePowerOf2Sizes; }
@@ -201,11 +203,9 @@ namespace MongoDB.Driver
                 _indexOptionDefaults = _indexOptionDefaults,
                 _maxDocuments = _maxDocuments,
                 _maxSize = _maxSize,
-                _noPadding = _noPadding,
                 _serializerRegistry = _serializerRegistry,
                 _storageEngine = _storageEngine,
                 _timeSeriesOptions = _timeSeriesOptions,
-                _usePowerOf2Sizes = _usePowerOf2Sizes,
                 _validationAction = _validationAction,
                 _validationLevel = _validationLevel
             };
@@ -243,11 +243,9 @@ namespace MongoDB.Driver
                     IndexOptionDefaults = options.IndexOptionDefaults,
                     MaxDocuments = options.MaxDocuments,
                     MaxSize = options.MaxSize,
-                    NoPadding = options.NoPadding,
                     SerializerRegistry = options.SerializerRegistry,
                     StorageEngine = options.StorageEngine,
                     TimeSeriesOptions = options.TimeSeriesOptions,
-                    UsePowerOf2Sizes = options.UsePowerOf2Sizes,
                     ValidationAction = options.ValidationAction,
                     ValidationLevel = options.ValidationLevel
                 };
@@ -308,11 +306,9 @@ namespace MongoDB.Driver
                 IndexOptionDefaults = base.IndexOptionDefaults,
                 MaxDocuments = base.MaxDocuments,
                 MaxSize = base.MaxSize,
-                NoPadding = base.NoPadding,
                 SerializerRegistry = base.SerializerRegistry,
                 StorageEngine = base.StorageEngine,
                 TimeSeriesOptions = base.TimeSeriesOptions,
-                UsePowerOf2Sizes = base.UsePowerOf2Sizes,
                 ValidationAction = base.ValidationAction,
                 ValidationLevel = base.ValidationLevel,
 
