@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -51,39 +52,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             if (_types.Count == 1)
             {
                 var type = _types[0];
-                return new BsonDocument("$type", MapBsonTypeToString(type));
+                return new BsonDocument("$type", type.ToStringRepresentation());
             }
             else
             {
-                return new BsonDocument("$type", new BsonArray(_types.Select(type => MapBsonTypeToString(type))));
-            }
-        }
-
-        private string MapBsonTypeToString(BsonType type)
-        {
-            switch (type)
-            {
-                case BsonType.Array: return "array";
-                case BsonType.Binary: return "binData";
-                case BsonType.Boolean: return "bool";
-                case BsonType.DateTime: return "date";
-                case BsonType.Decimal128: return "decimal";
-                case BsonType.Document: return "object";
-                case BsonType.Double: return "double";
-                case BsonType.Int32: return "int";
-                case BsonType.Int64: return "long";
-                case BsonType.JavaScript: return "javascript";
-                case BsonType.JavaScriptWithScope: return "javascriptWithScope";
-                case BsonType.MaxKey: return "maxKey";
-                case BsonType.MinKey: return "minKey";
-                case BsonType.Null: return "null";
-                case BsonType.ObjectId: return "objectId";
-                case BsonType.RegularExpression: return "regex";
-                case BsonType.String: return "string";
-                case BsonType.Symbol: return "symbol";
-                case BsonType.Timestamp: return "timestamp";
-                case BsonType.Undefined: return "undefined";
-                default: throw new ArgumentException($"Unexpected BSON type: {type}.", nameof(type));
+                return new BsonDocument("$type", new BsonArray(_types.Select(type => type.ToStringRepresentation())));
             }
         }
     }
