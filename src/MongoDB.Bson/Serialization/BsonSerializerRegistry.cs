@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Serialization
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
         private readonly ConcurrentStack<IBsonSerializationProvider> _serializationProviders;
         private readonly Func<Type, IBsonSerializer> _createSerializer;
-        private readonly IBsonSerializationDomain _serializationDomain;
+        private readonly IBsonSerializationDomain _serializationDomain;  //FP Need to investigate if we can remove this from here.
 
         // constructors
         /// <summary>

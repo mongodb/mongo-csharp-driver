@@ -62,7 +62,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Pops the settings.
         /// </summary>
-        void PopSettings(); //TODO Why do we have push and pop methods? They are not used. We should remove them.
+        void PopSettings();
 
         /// <summary>
         /// Pushes new settings for the reader.
