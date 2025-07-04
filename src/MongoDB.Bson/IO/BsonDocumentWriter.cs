@@ -195,7 +195,7 @@ namespace MongoDB.Bson.IO
 
             base.WriteEndArray();
             var array = _context.Array;
-            _context = _context.ParentContext;
+            _context = _context.PopContext();
             WriteValue(array);
             State = GetNextState();
         }
@@ -219,15 +219,15 @@ namespace MongoDB.Bson.IO
             if (_context.ContextType == ContextType.ScopeDocument)
             {
                 var scope = _context.Document;
-                _context = _context.ParentContext;
+                _context = _context.PopContext();
                 var code = _context.Code;
-                _context = _context.ParentContext;
+                _context = _context.PopContext();
                 WriteValue(new BsonJavaScriptWithScope(code, scope));
             }
             else
             {
                 var document = _context.Document;
-                _context = _context.ParentContext;
+                _context = _context.PopContext();
                 if (_context != null)
                 {
                     WriteValue(document);
@@ -304,7 +304,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteJavaScriptWithScope", BsonWriterState.Value);
             }
 
-            _context = new BsonDocumentWriterContext(_context, ContextType.JavaScriptWithScope, code);
+            _context = _context.PushContext(ContextType.JavaScriptWithScope, code);
             State = BsonWriterState.ScopeDocument;
         }
 
@@ -407,7 +407,7 @@ namespace MongoDB.Bson.IO
             }
 
             base.WriteStartArray();
-            _context = new BsonDocumentWriterContext(_context, ContextType.Array, new BsonArray());
+            _context = _context.PushContext(ContextType.Array, new BsonArray());
             State = BsonWriterState.Value;
         }
 
@@ -430,10 +430,10 @@ namespace MongoDB.Bson.IO
                     _context = new BsonDocumentWriterContext(null, ContextType.Document, _document);
                     break;
                 case BsonWriterState.Value:
-                    _context = new BsonDocumentWriterContext(_context, ContextType.Document, new BsonDocument());
+                    _context = _context.PushContext(ContextType.Document, new BsonDocument());
                     break;
                 case BsonWriterState.ScopeDocument:
-                    _context = new BsonDocumentWriterContext(_context, ContextType.ScopeDocument, new BsonDocument());
+                    _context = _context.PushContext(ContextType.ScopeDocument, new BsonDocument());
                     break;
                 default:
                     throw new BsonInternalException("Unexpected state.");
