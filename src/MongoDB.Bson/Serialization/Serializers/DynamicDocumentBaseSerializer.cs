@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T> where T : class, IDynamicMetaObjectProvider
     {
         // private fields
-        private IBsonSerializer<object> __objectSerializer;
+        private IBsonSerializer<object> _objectSerializer;
 
         // constructors
         /// <summary>
@@ -146,7 +146,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         //private methods
         private IBsonSerializer<object> GetObjectSerializer(IBsonSerializationDomain domain)
         {
-            return __objectSerializer ??= domain.LookupSerializer<object>();
+            return _objectSerializer ??= domain.LookupSerializer<object>();
         }
     }
 }

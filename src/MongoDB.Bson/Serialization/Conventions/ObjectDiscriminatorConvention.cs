@@ -159,12 +159,6 @@ namespace MongoDB.Bson.Serialization.Conventions
             return TypeNameDiscriminator.GetDiscriminator(actualType);
         }
 
-        /// <inheritdoc />
-        internal BsonValue GetDiscriminator(Type nominalType, Type actualType, IBsonSerializationDomain domain)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <inheritdoc/>
         public override int GetHashCode() => 0;
     }
