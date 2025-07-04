@@ -51,6 +51,38 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Gets the serializer for a base type starting from a serializer for a derived type.
+        /// </summary>
+        /// <param name="serializer">The serializer for the derived type.</param>
+        /// <param name="baseType">The base type.</param>
+        /// <returns>The serializer for the base type.</returns>
+        public static IBsonSerializer GetBaseTypeSerializer(this IBsonSerializer serializer, Type baseType)
+        {
+            if (!baseType.IsAssignableFrom(serializer.ValueType))
+            {
+                throw new ArgumentException($"{baseType} is not assignable from {serializer.ValueType}.");
+            }
+
+            return BsonSerializer.LookupSerializer(baseType); // TODO: should be able to navigate from serializer
+        }
+
+        /// <summary>
+        /// Gets the serializer for a derived type starting from a serializer for a base type.
+        /// </summary>
+        /// <param name="serializer">The serializer for the base type.</param>
+        /// <param name="derivedType">The derived type.</param>
+        /// <returns>The serializer for the derived type.</returns>
+        public static IBsonSerializer GetDerivedTypeSerializer(this IBsonSerializer serializer, Type derivedType)
+        {
+            if (!serializer.ValueType.IsAssignableFrom(derivedType))
+            {
+                throw new ArgumentException($"{serializer.ValueType} is not assignable from {derivedType}.");
+            }
+
+            return BsonSerializer.LookupSerializer(derivedType); // TODO: should be able to navigate from serializer
+        }
+
+        /// <summary>
         /// Gets the discriminator convention for a serializer.
         /// </summary>
         /// <param name="serializer">The serializer.</param>
