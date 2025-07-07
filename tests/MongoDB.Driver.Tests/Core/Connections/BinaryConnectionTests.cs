@@ -69,16 +69,16 @@ namespace MongoDB.Driver.Core.Connections
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer
-                .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHello(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .Returns(_connectionInitializerContext);
             _mockConnectionInitializer
-                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .Returns(_connectionInitializerContextAfterAuthentication);
             _mockConnectionInitializer
-                .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHelloAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .ReturnsAsync(_connectionInitializerContext);
             _mockConnectionInitializer
-                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .ReturnsAsync(_connectionInitializerContextAfterAuthentication);
 
             _subject = new BinaryConnection(
@@ -112,16 +112,16 @@ namespace MongoDB.Driver.Core.Connections
 
             var socketException = new SocketException();
             _mockConnectionInitializer
-                .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHello(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .Returns(new ConnectionInitializerContext(connectionDescription, null));
             _mockConnectionInitializer
-                .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHelloAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .ReturnsAsync(new ConnectionInitializerContext(connectionDescription, null));
             _mockConnectionInitializer
-                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .Throws(socketException);
             _mockConnectionInitializer
-                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .ThrowsAsync(socketException);
 
             var exception = async ?
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var authenticatorMock = new Mock<IAuthenticator>();
             authenticatorMock
-                .Setup(a => a.CustomizeInitialHelloCommand(It.IsAny<BsonDocument>(), It.IsAny<CancellationToken>()))
+                .Setup(a => a.CustomizeInitialHelloCommand(It.IsAny<OperationContext>(), It.IsAny<BsonDocument>()))
                 .Returns(new BsonDocument(OppressiveLanguageConstants.LegacyHelloCommandName, 1));
 
             var authenticatorFactoryMock = new Mock<IAuthenticatorFactory>();
@@ -219,9 +219,9 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .Throws<SocketException>();
-            _mockConnectionInitializer.Setup(i => i.SendHello(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+            _mockConnectionInitializer.Setup(i => i.SendHello(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .Throws<SocketException>();
 
             var exception = async ?
@@ -325,15 +325,15 @@ namespace MongoDB.Driver.Core.Connections
 
             if (async)
             {
-                await _subject.ReauthenticateAsync(CancellationToken.None);
-                _mockConnectionInitializer.Verify(c => c.AuthenticateAsync(It.IsAny<IConnection>(), It.Is<ConnectionInitializerContext>(cxt => cxt == _connectionInitializerContext), CancellationToken.None), Times.Exactly(1));
-                _mockConnectionInitializer.Verify(c => c.AuthenticateAsync(It.IsAny<IConnection>(), It.Is<ConnectionInitializerContext>(cxt => cxt == _connectionInitializerContextAfterAuthentication), CancellationToken.None), Times.Exactly(1));
+                await _subject.ReauthenticateAsync(OperationContext.NoTimeout);
+                _mockConnectionInitializer.Verify(c => c.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), _connectionInitializerContext), Times.Once);
+                _mockConnectionInitializer.Verify(c => c.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), _connectionInitializerContextAfterAuthentication), Times.Once);
             }
             else
             {
-                _subject.Reauthenticate(CancellationToken.None);
-                _mockConnectionInitializer.Verify(c => c.Authenticate(It.IsAny<IConnection>(), It.Is<ConnectionInitializerContext>(cxt => cxt == _connectionInitializerContext), CancellationToken.None), Times.Exactly(1));
-                _mockConnectionInitializer.Verify(c => c.Authenticate(It.IsAny<IConnection>(), It.Is<ConnectionInitializerContext>(cxt => cxt == _connectionInitializerContextAfterAuthentication), CancellationToken.None), Times.Exactly(1));
+                _subject.Reauthenticate(OperationContext.NoTimeout);
+                _mockConnectionInitializer.Verify(c => c.Authenticate(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), _connectionInitializerContext), Times.Once);
+                _mockConnectionInitializer.Verify(c => c.Authenticate(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), _connectionInitializerContextAfterAuthentication), Times.Once);
             }
         }
 

@@ -267,11 +267,9 @@ namespace MongoDB.Driver.Core.Connections
                 _stream = _streamFactory.CreateStream(_endPoint, operationContext.CombinedCancellationToken);
 #pragma warning restore CS0618 // Type or member is obsolete
                 helper.InitializingConnection();
-                // TODO: CSOT: Implement operation context support for MongoDB Handshake
-                _connectionInitializerContext = _connectionInitializer.SendHello(this, operationContext.CancellationToken);
+                _connectionInitializerContext = _connectionInitializer.SendHello(operationContext, this);
                 handshakeDescription = _connectionInitializerContext.Description;
-                // TODO: CSOT: Implement operation context support for Auth
-                _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, operationContext.CancellationToken);
+                _connectionInitializerContext = _connectionInitializer.Authenticate(operationContext, this, _connectionInitializerContext);
                 _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
@@ -297,11 +295,9 @@ namespace MongoDB.Driver.Core.Connections
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, operationContext.CombinedCancellationToken).ConfigureAwait(false);
 #pragma warning restore CS0618 // Type or member is obsolete
                 helper.InitializingConnection();
-                // TODO: CSOT: Implement operation context support for MongoDB Handshake
-                _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, operationContext.CancellationToken).ConfigureAwait(false);
+                _connectionInitializerContext = await _connectionInitializer.SendHelloAsync(operationContext, this).ConfigureAwait(false);
                 handshakeDescription = _connectionInitializerContext.Description;
-                // TODO: CSOT: Implement operation context support for Auth
-                _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, operationContext.CancellationToken).ConfigureAwait(false);
+                _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(operationContext, this, _connectionInitializerContext).ConfigureAwait(false);
                 _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
                 helper.OpenedConnection();
@@ -315,16 +311,16 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void Reauthenticate(CancellationToken cancellationToken)
+        public void Reauthenticate(OperationContext operationContext)
         {
             InvalidateAuthenticator();
-            _connectionInitializerContext = _connectionInitializer.Authenticate(this, _connectionInitializerContext, cancellationToken);
+            _connectionInitializerContext = _connectionInitializer.Authenticate(operationContext, this, _connectionInitializerContext);
         }
 
-        public async Task ReauthenticateAsync(CancellationToken cancellationToken)
+        public async Task ReauthenticateAsync(OperationContext operationContext)
         {
             InvalidateAuthenticator();
-            _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(this, _connectionInitializerContext, cancellationToken).ConfigureAwait(false);
+            _connectionInitializerContext = await _connectionInitializer.AuthenticateAsync(operationContext, this, _connectionInitializerContext).ConfigureAwait(false);
         }
 
         private void InvalidateAuthenticator()
@@ -655,12 +651,6 @@ namespace MongoDB.Driver.Core.Connections
                 ThrowOperationCanceledExceptionIfRequired(ex);
                 throw;
             }
-        }
-
-        public void SetReadTimeout(TimeSpan timeout)
-        {
-            ThrowIfDisposed();
-            _stream.ReadTimeout = (int)timeout.TotalMilliseconds;
         }
 
         // private methods

@@ -98,6 +98,9 @@ namespace MongoDB.Driver
         public bool IsTimedOut()
             => RemainingTimeout == TimeSpan.Zero;
 
+        public bool IsCancelledOrTimedOut()
+            => IsTimedOut() || CancellationToken.IsCancellationRequested;
+
         public void ThrowIfTimedOutOrCanceled()
         {
             CancellationToken.ThrowIfCancellationRequested();
