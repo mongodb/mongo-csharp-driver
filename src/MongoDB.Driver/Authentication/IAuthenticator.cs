@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
@@ -24,10 +23,10 @@ namespace MongoDB.Driver.Authentication
     {
         string Name { get; }
 
-        void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+        void Authenticate(OperationContext operationContext, IConnection connection, ConnectionDescription description);
 
-        Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+        Task AuthenticateAsync(OperationContext operationContext, IConnection connection, ConnectionDescription description);
 
-        BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken);
+        BsonDocument CustomizeInitialHelloCommand(OperationContext operationContext, BsonDocument helloCommand);
     }
 }

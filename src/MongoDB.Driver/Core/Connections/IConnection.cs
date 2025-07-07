@@ -15,7 +15,6 @@
 
 using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -32,12 +31,10 @@ namespace MongoDB.Driver.Core.Connections
         bool IsExpired { get; }
         ConnectionSettings Settings { get; }
 
-        // TODO: CSOT: remove this in scope of MongoDB Handshake
-        void SetReadTimeout(TimeSpan timeout);
         void Open(OperationContext operationContext);
         Task OpenAsync(OperationContext operationContext);
-        void Reauthenticate(CancellationToken cancellationToken);
-        Task ReauthenticateAsync(CancellationToken cancellationToken);
+        void Reauthenticate(OperationContext operationContext);
+        Task ReauthenticateAsync(OperationContext operationContext);
         ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
         Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings);
         void SendMessage(OperationContext operationContext, RequestMessage message, MessageEncoderSettings messageEncoderSettings);

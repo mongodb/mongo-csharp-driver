@@ -87,9 +87,9 @@ namespace MongoDB.Driver.Core.Connections
                     new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }));
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
-            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), null)));
-            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), It.IsAny<CancellationToken>()))
+            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .Returns(() => Task.FromResult(new ConnectionInitializerContext(connectionDescriptionFunc(), null)));
 
             _subject = new BinaryConnection(
