@@ -632,7 +632,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             if (operationContext.RemainingTimeout == Timeout.InfiniteTimeSpan ||
                 _roundTripTime == TimeSpan.Zero ||
-                _roundTripTime > operationContext.RemainingTimeout)
+                operationContext.RemainingTimeout > _roundTripTime)
             {
                 return;
             }
