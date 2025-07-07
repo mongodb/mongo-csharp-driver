@@ -630,7 +630,9 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private void ThrowIfRemainingTimeoutLessThenRoundTripTime(OperationContext operationContext)
         {
-            if (operationContext.RemainingTimeout == Timeout.InfiniteTimeSpan || operationContext.RemainingTimeout > _roundTripTime)
+            if (operationContext.RemainingTimeout == Timeout.InfiniteTimeSpan ||
+                _roundTripTime == TimeSpan.Zero ||
+                _roundTripTime > operationContext.RemainingTimeout)
             {
                 return;
             }
