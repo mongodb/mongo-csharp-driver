@@ -129,9 +129,9 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
-                    using var operationContext = new OperationContext(_connectTimeout, _cancellationToken);
                     if (_roundTripTimeConnection == null)
                     {
+                        using var operationContext = new OperationContext(_connectTimeout, _cancellationToken);
                         InitializeConnection(operationContext); // sets _roundTripTimeConnection
                     }
                     else
@@ -140,6 +140,7 @@ namespace MongoDB.Driver.Core.Servers
                         var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
 
                         var stopwatch = Stopwatch.StartNew();
+                        using var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, _cancellationToken);
                         var helloResult = HelloHelper.GetResult(operationContext, _roundTripTimeConnection, helloProtocol);
                         stopwatch.Stop();
                         AddSample(stopwatch.Elapsed);
@@ -172,14 +173,14 @@ namespace MongoDB.Driver.Core.Servers
             var stopwatch = Stopwatch.StartNew();
             try
             {
+                roundTripTimeConnection.Open(operationContext);
                 // if we are cancelling, it's because the server has
                 // been shut down and we really don't need to wait.
-                roundTripTimeConnection.Open(operationContext);
-                operationContext.ThrowIfTimedOutOrCanceled();
+                operationContext.CancellationToken.ThrowIfCancellationRequested();
             }
             catch
             {
-                // dispose it here because the _connection is not initialized yet
+                // dispose it here because the _roundTripTimeConnection is not initialized yet
                 try { roundTripTimeConnection.Dispose(); } catch { }
                 throw;
             }
