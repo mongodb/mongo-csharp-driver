@@ -49,4 +49,13 @@ namespace MongoDB.Bson.Serialization
         /// </returns>
         IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry);
     }
+
+    //DOMAIN-API We should use this interface the default one, and remove the previous two.
+    internal interface IDomainAwareBsonSerializationProvider : IRegistryAwareBsonSerializationProvider
+    {
+        IBsonSerializationDomain SerializationDomain { get; }
+
+        //FP Can't use just GetSerializer because it's already used by the base interface.
+        IBsonSerializer GetSerializerWithDomain(Type type);
+    }
 }

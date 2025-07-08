@@ -852,7 +852,7 @@ namespace MongoDB.Bson.Serialization
             _typeMappingSerializationProvider = new TypeMappingSerializationProvider();
 
             // order matters. It's in reverse order of how they'll get consumed
-            _serializerRegistry.RegisterSerializationProvider(new BsonClassMapSerializationProvider());
+            _serializerRegistry.RegisterSerializationProvider(new BsonClassMapSerializationProvider(this));
             _serializerRegistry.RegisterSerializationProvider(new DiscriminatedInterfaceSerializationProvider());
             _serializerRegistry.RegisterSerializationProvider(new CollectionsSerializationProvider());
             _serializerRegistry.RegisterSerializationProvider(new PrimitiveSerializationProvider());

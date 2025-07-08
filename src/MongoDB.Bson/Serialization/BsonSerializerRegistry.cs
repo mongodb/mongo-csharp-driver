@@ -22,13 +22,12 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Default, global implementation of an <see cref="IBsonSerializerRegistry"/>.
     /// </summary>
-    public sealed class BsonSerializerRegistry : IBsonSerializerRegistryInternal
+    public sealed class BsonSerializerRegistry : IBsonSerializerRegistry
     {
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
         private readonly ConcurrentStack<IBsonSerializationProvider> _serializationProviders;
         private readonly Func<Type, IBsonSerializer> _createSerializer;
-        private readonly IBsonSerializationDomain _serializationDomain;  //FP Need to investigate if we can remove this from here.
 
         // constructors
         /// <summary>
@@ -48,14 +47,7 @@ namespace MongoDB.Bson.Serialization
             _cache = new ConcurrentDictionary<Type, IBsonSerializer>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
             _createSerializer = CreateSerializer;
-            _serializationDomain = serializationDomain;
         }
-
-        // public methods
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        IBsonSerializationDomain IBsonSerializerRegistryInternal.SerializationDomain => _serializationDomain;
 
         /// <summary>
         /// Gets the serializer for the specified <paramref name="type" />.
@@ -172,17 +164,14 @@ namespace MongoDB.Bson.Serialization
         {
             foreach (var serializationProvider in _serializationProviders)
             {
-                IBsonSerializer serializer;
-
-                var registryAwareSerializationProvider = serializationProvider as IRegistryAwareBsonSerializationProvider;
-                if (registryAwareSerializationProvider != null)
+                var serializer = serializationProvider switch
                 {
-                    serializer = registryAwareSerializationProvider.GetSerializer(type, this);
-                }
-                else
-                {
-                    serializer = serializationProvider.GetSerializer(type);
-                }
+                    IDomainAwareBsonSerializationProvider domainAwareBsonSerializationProvider =>
+                        domainAwareBsonSerializationProvider.GetSerializerWithDomain(type),
+                    IRegistryAwareBsonSerializationProvider registryAwareSerializationProvider =>
+                        registryAwareSerializationProvider.GetSerializer(type, this),
+                    _ => serializationProvider.GetSerializer(type)
+                };
 
                 if (serializer != null)
                 {
