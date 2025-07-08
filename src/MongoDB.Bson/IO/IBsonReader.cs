@@ -17,7 +17,6 @@ using System;
 
 namespace MongoDB.Bson.IO
 {
-    //FP This interface should have the settingg property as well, same way it's done for thr writer
     /// <summary>
     /// Represents a BSON reader.
     /// </summary>
@@ -256,5 +255,14 @@ namespace MongoDB.Bson.IO
         /// Skips the value (reader must be positioned on a value).
         /// </summary>
         void SkipValue();
+    }
+
+    internal interface IBsonReaderInternal : IBsonReader
+    {
+        //TODO I'm not sure why this was not already present, there is already an equivalent in IBsonWriter.
+        /// <summary>
+        /// Gets the settings of the reader.
+        /// </summary>
+        BsonReaderSettings Settings { get; }
     }
 }

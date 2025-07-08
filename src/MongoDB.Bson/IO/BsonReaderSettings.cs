@@ -25,6 +25,7 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private bool _isFrozen;
+        private IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -75,6 +76,16 @@ namespace MongoDB.Bson.IO
             else
             {
                 return Clone().Freeze();
+            }
+        }
+
+        internal IBsonSerializationDomain SerializationDomain
+        {
+            get => _serializationDomain;
+            set
+            {
+                if (_isFrozen) { ThrowFrozenException(); }
+                _serializationDomain = value;
             }
         }
 
