@@ -16,11 +16,13 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -105,29 +107,51 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ObjectDisposedException>();
         }
 
-        [Fact]
-        public void Dispose_should_dispose_cursor()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Dispose_should_dispose_cursor(
+            [Values(false, true)] bool async)
         {
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var subject = new AsyncCursorEnumerator<BsonDocument>(mockCursor.Object, CancellationToken.None);
 
-            subject.Dispose();
+            if (async)
+            {
+                await subject.DisposeAsync();
+            }
+            else
+            {
+                subject.Dispose();
+            }
 
             mockCursor.Verify(c => c.Dispose(), Times.Once);
         }
 
-        [Fact]
-        public void MoveNext_should_return_expected_result()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task MoveNext_should_return_expected_result(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject(2);
 
-            subject.MoveNext().Should().BeTrue();
-            subject.MoveNext().Should().BeTrue();
-            subject.MoveNext().Should().BeFalse();
+            if (async)
+            {
+                (await subject.MoveNextAsync()).Should().BeTrue();
+                (await subject.MoveNextAsync()).Should().BeTrue();
+                (await subject.MoveNextAsync()).Should().BeFalse();
+            }
+            else
+            {
+                subject.MoveNext().Should().BeTrue();
+                subject.MoveNext().Should().BeTrue();
+                subject.MoveNext().Should().BeFalse();
+            }
         }
 
-        [Fact]
-        public void MoveNext_should_return_expected_result_when_there_are_two_batches()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task MoveNext_should_return_expected_result_when_there_are_two_batches(
+            [Values(false, true)] bool async)
         {
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var firstBatch = new[]
@@ -139,25 +163,61 @@ namespace MongoDB.Driver.Core.Operations
             {
                 new BsonDocument("_id", 2)
             };
-            mockCursor.SetupSequence(c => c.MoveNext(CancellationToken.None)).Returns(true).Returns(true).Returns(false);
+
+            if (async)
+            {
+                mockCursor.SetupSequence(c => c.MoveNextAsync(CancellationToken.None))
+                    .ReturnsAsync(true)
+                    .ReturnsAsync(true)
+                    .ReturnsAsync(false);
+            }
+            else
+            {
+                mockCursor.SetupSequence(c => c.MoveNext(CancellationToken.None))
+                    .Returns(true)
+                    .Returns(true)
+                    .Returns(false);
+            }
+
             mockCursor.SetupSequence(c => c.Current).Returns(firstBatch).Returns(secondBatch);
             var subject = new AsyncCursorEnumerator<BsonDocument>(mockCursor.Object, CancellationToken.None);
 
-            subject.MoveNext().Should().BeTrue();
-            subject.MoveNext().Should().BeTrue();
-            subject.MoveNext().Should().BeTrue();
-            subject.MoveNext().Should().BeFalse();
+            if (async)
+            {
+                (await subject.MoveNextAsync()).Should().BeTrue();
+                (await subject.MoveNextAsync()).Should().BeTrue();
+                (await subject.MoveNextAsync()).Should().BeTrue();
+                (await subject.MoveNextAsync()).Should().BeFalse();
+            }
+            else
+            {
+                subject.MoveNext().Should().BeTrue();
+                subject.MoveNext().Should().BeTrue();
+                subject.MoveNext().Should().BeTrue();
+                subject.MoveNext().Should().BeFalse();
+            }
         }
 
-        [Fact]
-        public void MoveNext_should_throw_when_subject_has_been_disposed()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task MoveNext_should_throw_when_subject_has_been_disposed(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject(0);
-            subject.Dispose();
+            if (async)
+            {
+                await subject.DisposeAsync();
 
-            Action action = () => subject.MoveNext();
+                Func<Task> action = async () => await subject.MoveNextAsync();
+                action.ShouldThrow<ObjectDisposedException>();
+            }
+            else
+            {
+                subject.Dispose();
 
-            action.ShouldThrow<ObjectDisposedException>();
+                Action action = () => subject.MoveNext();
+                action.ShouldThrow<ObjectDisposedException>();
+            }
         }
 
         [Fact]
