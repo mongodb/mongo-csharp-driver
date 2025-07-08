@@ -368,7 +368,7 @@ namespace MongoDB.Driver
         /// <returns>An IAsyncEnumerable.</returns>
         public static IAsyncEnumerable<TDocument> ToAsyncEnumerable<TDocument>(this IAsyncCursor<TDocument> cursor)
         {
-            return new AsyncCursorEnumerableOneTimeAdapter<TDocument>(cursor);
+            return new AsyncCursorEnumerableOneTimeAdapter<TDocument>(cursor, CancellationToken.None);
         }
 
         /// <summary>

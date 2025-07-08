@@ -75,8 +75,11 @@ namespace MongoDB.Driver.Core.Operations
 
         public ValueTask DisposeAsync()
         {
+            // TODO: implement true async disposal (CSHARP-5630)
             Dispose();
-            return default;
+
+            // TODO: convert to ValueTask.CompletedTask once we stop supporting older target frameworks
+            return default; // Equivalent to ValueTask.CompletedTask which is not available on older target frameworks.
         }
 
         public bool MoveNext()

@@ -27,11 +27,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IAsyncCursorSource<TDocument> _source;
 
         // constructors
-        public AsyncCursorSourceEnumerableAdapter(IAsyncCursorSource<TDocument> source)
-            : this(source, CancellationToken.None)
-        {
-        }
-
         public AsyncCursorSourceEnumerableAdapter(IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken)
         {
             _source = Ensure.IsNotNull(source, nameof(source));
@@ -40,8 +35,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public IAsyncEnumerator<TDocument> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
-            var cursor = _source.ToCursor(cancellationToken);
-            return new AsyncCursorEnumerator<TDocument>(cursor, cancellationToken);
+            return new AsyncCursorSourceEnumerator<TDocument>(_source, cancellationToken);
         }
 
         // public methods

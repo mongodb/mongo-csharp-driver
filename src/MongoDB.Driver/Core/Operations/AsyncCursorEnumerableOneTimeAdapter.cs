@@ -27,11 +27,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IAsyncCursor<TDocument> _cursor;
         private bool _hasBeenEnumerated;
 
-        public AsyncCursorEnumerableOneTimeAdapter(IAsyncCursor<TDocument> cursor)
-            : this(cursor, CancellationToken.None)
-        {
-        }
-
         public AsyncCursorEnumerableOneTimeAdapter(IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken)
         {
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
