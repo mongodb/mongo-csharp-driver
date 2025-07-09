@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Core.Servers
             var timeout = _serverMonitorSettings.HeartbeatTimeout;
             if (IsUsingStreamingProtocol(connection.Description.HelloResult))
             {
-                timeout += _serverMonitorSettings.HeartbeatInterval;
+                timeout = _serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval;
             }
 
             using var operationContext = new OperationContext(timeout, cancellationToken);
