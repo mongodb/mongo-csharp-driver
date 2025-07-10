@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -107,6 +107,18 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>();
             return client.WatchAsync(session, emptyPipeline, options, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns a new IMongoClient instance with a different timeout setting.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="timeout">The timeout.</param>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA release
+        internal static IMongoClient WithTimeout(this IMongoClient client, TimeSpan timeout)
+        {
+            Ensure.IsNotNull(client, nameof(client));
+            return ((MongoClient)client).WithTimeout(timeout);
         }
 
         // internal static methods

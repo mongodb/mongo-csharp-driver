@@ -2653,6 +2653,18 @@ namespace MongoDB.Driver
             return collection.WatchAsync(session, emptyPipeline, options, cancellationToken);
         }
 
+        /// <summary>
+        /// Returns a new IMongoDatabase instance with a different timeout setting.
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        /// <param name="timeout">The timeout.</param>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA release
+        internal static IMongoCollection<TDocument> WithTimeout<TDocument>(this IMongoCollection<TDocument> collection, TimeSpan timeout)
+        {
+            Ensure.IsNotNull(collection, nameof(collection));
+            return ((MongoCollectionBase<TDocument>)collection).WithTimeout(timeout);
+        }
+
         // private static methods
         private static IQueryable<TDocument> AsQueryableHelper<TDocument>(IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions)
         {
