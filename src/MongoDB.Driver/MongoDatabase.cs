@@ -51,8 +51,8 @@ namespace MongoDB.Driver
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
             // TODO: CSOT populate the timeout from settings
-            _readOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan, DefaultReadPreference: _settings.ReadPreference);
-            _writeOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan);
+            _readOperationOptions = new(Timeout: _settings.Timeout, DefaultReadPreference: _settings.ReadPreference);
+            _writeOperationOptions = new(Timeout: _settings.Timeout);
         }
 
         // public properties
@@ -505,6 +505,16 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(readPreference, nameof(readPreference));
             var newSettings = _settings.Clone();
             newSettings.ReadPreference = readPreference;
+            return new MongoDatabase(_client, _databaseNamespace, newSettings, _cluster, _operationExecutor);
+        }
+
+        // TODO: Should move WithTimeout into IMongoDatabase interface and made the method public
+        internal IMongoDatabase WithTimeout(TimeSpan timeout)
+        {
+            Ensure.IsGreaterThanZero(timeout, nameof(timeout));
+
+            var newSettings = Settings.Clone();
+            newSettings.Timeout = timeout;
             return new MongoDatabase(_client, _databaseNamespace, newSettings, _cluster, _operationExecutor);
         }
 

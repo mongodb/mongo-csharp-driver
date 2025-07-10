@@ -882,6 +882,9 @@ namespace MongoDB.Driver
 
         public abstract IMongoCollection<TDocument> WithReadPreference(ReadPreference readPreference);
 
+        // TODO: Should move WithTimeout into IMongoCollection interface and made the method public
+        internal abstract IMongoCollection<TDocument> WithTimeout(TimeSpan timeout);
+
         public abstract IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern);
     }
 }
