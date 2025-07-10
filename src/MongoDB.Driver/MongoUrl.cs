@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _socketTimeout;
         private readonly int? _srvMaxHosts;
         private readonly string _srvServiceName;
+        private readonly TimeSpan _timeout;
         private readonly bool _tlsDisableCertificateRevocationCheck;
         private readonly string _username;
         private readonly bool _useTls;
@@ -129,6 +130,7 @@ namespace MongoDB.Driver
             _socketTimeout = builder.SocketTimeout;
             _srvMaxHosts = builder.SrvMaxHosts;
             _srvServiceName = builder.SrvServiceName;
+            _timeout = builder.Timeout;
             _tlsDisableCertificateRevocationCheck = builder.TlsDisableCertificateRevocationCheck;
             _username = builder.Username;
             _useTls = builder.UseTls;
@@ -461,6 +463,12 @@ namespace MongoDB.Driver
         {
             get { return _srvServiceName; }
         }
+
+        /// <summary>
+        /// Gets the per-operation timeout
+        /// </summary>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA release
+        internal TimeSpan Timeout => _timeout;
 
         /// <summary>
         /// Gets whether or not to disable checking certificate revocation status during the TLS handshake.

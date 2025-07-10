@@ -59,8 +59,8 @@ namespace MongoDB.Driver
 
             _messageEncoderSettings = GetMessageEncoderSettings();
             // TODO: CSOT populate the timeout from settings
-            _readOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan, DefaultReadPreference: _settings.ReadPreference);
-            _writeOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan);
+            _readOperationOptions = new(Timeout: _settings.Timeout, DefaultReadPreference: _settings.ReadPreference);
+            _writeOperationOptions = new(Timeout: _settings.Timeout);
         }
 
         // properties
@@ -656,6 +656,13 @@ namespace MongoDB.Driver
         {
             var newSettings = _settings.Clone();
             newSettings.ReadConcern = readConcern;
+            return new MongoCollectionImpl<TDocument>(_database, _collectionNamespace, newSettings, _cluster, _operationExecutor);
+        }
+
+        internal override IMongoCollection<TDocument> WithTimeout(TimeSpan timeout)
+        {
+            var newSettings = _settings.Clone();
+            newSettings.Timeout = timeout;
             return new MongoCollectionImpl<TDocument>(_database, _collectionNamespace, newSettings, _cluster, _operationExecutor);
         }
 

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
@@ -48,6 +49,11 @@ namespace MongoDB.Driver
         public override IMongoCollection<TDerivedDocument> WithReadPreference(ReadPreference readPreference)
         {
             return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadPreference(readPreference), Filter);
+        }
+
+        internal override IMongoCollection<TDerivedDocument> WithTimeout(TimeSpan timeout)
+        {
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithTimeout(timeout), Filter);
         }
 
         public override IMongoCollection<TDerivedDocument> WithWriteConcern(WriteConcern writeConcern)

@@ -93,8 +93,8 @@ namespace MongoDB.Driver
             _cluster = _settings.ClusterSource.Get(_settings.ToClusterKey());
             _operationExecutor = _operationExecutorFactory(this);
             // TODO: CSOT populate the timeout from settings
-            _readOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan, DefaultReadPreference: _settings.ReadPreference);
-            _writeOperationOptions = new(Timeout: Timeout.InfiniteTimeSpan);
+            _readOperationOptions = new(Timeout: _settings.Timeout, DefaultReadPreference: _settings.ReadPreference);
+            _writeOperationOptions = new(Timeout: _settings.Timeout);
 
             if (settings.AutoEncryptionOptions != null)
             {
@@ -468,6 +468,17 @@ namespace MongoDB.Driver
 
             var newSettings = Settings.Clone();
             newSettings.ReadPreference = readPreference;
+            return new MongoClient(newSettings, _operationExecutorFactory);
+        }
+
+        // TODO: Should move WithTimeout into IMongoClient interface and made the method public
+        internal IMongoClient WithTimeout(TimeSpan timeout)
+        {
+            Ensure.IsGreaterThanZero(timeout, nameof(timeout));
+            ThrowIfDisposed();
+
+            var newSettings = Settings.Clone();
+            newSettings.Timeout = timeout;
             return new MongoClient(newSettings, _operationExecutorFactory);
         }
 
