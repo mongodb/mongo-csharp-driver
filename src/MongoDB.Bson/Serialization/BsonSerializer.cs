@@ -321,8 +321,20 @@ namespace MongoDB.Bson.Serialization
         /// <returns>True if the type is discriminated.</returns>
         public static bool IsTypeDiscriminated(Type type)
         {
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsInterface || __discriminatedTypes.Contains(type);
+            if (type.GetTypeInfo().IsInterface)
+            {
+                return true;
+            }
+
+            __configLock.EnterReadLock();
+            try
+            {
+                return __discriminatedTypes.Contains(type);
+            }
+            finally
+            {
+                __configLock.ExitReadLock();
+            }
         }
 
         /// <summary>
