@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -35,13 +36,15 @@ namespace MongoDB.Driver.Core.Operations
         private readonly Dictionary<int, BsonValue> _idsMap = new();
         private readonly BsonDocument _let;
         private readonly RenderArgs<BsonDocument> _renderArgs;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly IBatchableSource<BulkWriteModel> _writeModels;
 
         public ClientBulkWriteOperation(
             IReadOnlyList<BulkWriteModel> writeModels,
             ClientBulkWriteOptions options,
             MessageEncoderSettings messageEncoderSettings,
-            RenderArgs<BsonDocument> renderArgs)
+            RenderArgs<BsonDocument> renderArgs,
+            IBsonSerializationDomain serializationDomain)
             : base(DatabaseNamespace.Admin, messageEncoderSettings)
         {
             Ensure.IsNotNullOrEmpty(writeModels, nameof(writeModels));
@@ -50,6 +53,7 @@ namespace MongoDB.Driver.Core.Operations
             _errorsOnly = !(options?.VerboseResult).GetValueOrDefault(false);
             _let = options?.Let;
             _renderArgs = renderArgs;
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
             Comment = options?.Comment;
             IsOrdered = (options?.IsOrdered).GetValueOrDefault(true);
             WriteConcern = options?.WriteConcern;
@@ -279,7 +283,8 @@ namespace MongoDB.Driver.Core.Operations
                 0,
                 0,
                 BsonDocumentSerializer.Instance,
-                MessageEncoderSettings);
+                MessageEncoderSettings,
+                _serializationDomain);
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResult bulkWriteResult)

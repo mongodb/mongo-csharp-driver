@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -115,6 +116,8 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
+            var serializationDomain = args.MessageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(
+                MessageEncoderSettingsName.SerializationDomain, null);
             return context.Channel.Command<BsonDocument>(
                 operationContext,
                 context.ChannelSource.Session,
@@ -127,12 +130,15 @@ namespace MongoDB.Driver.Core.Operations
                 args.PostWriteAction,
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                args.MessageEncoderSettings);
+                args.MessageEncoderSettings,
+                serializationDomain);
         }
 
         public Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
+            var serializationDomain = args.MessageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(
+                MessageEncoderSettingsName.SerializationDomain, null);
             return context.Channel.CommandAsync<BsonDocument>(
                 operationContext,
                 context.ChannelSource.Session,
@@ -145,7 +151,8 @@ namespace MongoDB.Driver.Core.Operations
                 args.PostWriteAction,
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                args.MessageEncoderSettings);
+                args.MessageEncoderSettings,
+                serializationDomain);
         }
 
         protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber);

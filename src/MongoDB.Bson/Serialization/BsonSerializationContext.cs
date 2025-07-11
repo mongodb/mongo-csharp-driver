@@ -26,17 +26,31 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private readonly Func<Type, bool> _isDynamicType;
         private readonly IBsonWriter _writer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         private BsonSerializationContext(
             IBsonWriter writer,
+            IBsonSerializationDomain serializationDomain,
             Func<Type, bool> isDynamicType)
         {
             _writer = writer;
             _isDynamicType = isDynamicType;
+
+            _serializationDomain = serializationDomain; //FP Using this version to find error in an easier way for now
+            //_serializationDomain = serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
+
+            _isDynamicType??= t =>
+                (_serializationDomain.BsonDefaults.DynamicArraySerializer != null && t == _serializationDomain.BsonDefaults.DynamicArraySerializer.ValueType) ||
+                (_serializationDomain.BsonDefaults.DynamicDocumentSerializer != null && t == _serializationDomain.BsonDefaults.DynamicDocumentSerializer.ValueType);
         }
 
         // public properties
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        internal IBsonSerializationDomain SerializationDomain => _serializationDomain;
+
         /// <summary>
         /// Gets a function that, when executed, will indicate whether the type
         /// is a dynamic type.
@@ -57,6 +71,7 @@ namespace MongoDB.Bson.Serialization
             get { return _writer; }
         }
 
+        //DOMAIN-API This method should be probably removed.
         // public static methods
         /// <summary>
         /// Creates a root context.
@@ -69,8 +84,14 @@ namespace MongoDB.Bson.Serialization
         public static BsonSerializationContext CreateRoot(
             IBsonWriter writer,
             Action<Builder> configurator = null)
+            => CreateRoot(writer, BsonSerializer.DefaultSerializationDomain, configurator);
+
+        internal static BsonSerializationContext CreateRoot(
+            IBsonWriter writer,
+            IBsonSerializationDomain serializationDomain,
+            Action<Builder> configurator = null)
         {
-            var builder = new Builder(null, writer);
+            var builder = new Builder(null, writer, serializationDomain);
             if (configurator != null)
             {
                 configurator(builder);
@@ -88,7 +109,7 @@ namespace MongoDB.Bson.Serialization
         public BsonSerializationContext With(
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(this, _writer);
+            var builder = new Builder(this, _writer, _serializationDomain);
             if (configurator != null)
             {
                 configurator(builder);
@@ -105,9 +126,10 @@ namespace MongoDB.Bson.Serialization
             // private fields
             private Func<Type, bool> _isDynamicType;
             private IBsonWriter _writer;
+            private IBsonSerializationDomain _serializationDomain;
 
             // constructors
-            internal Builder(BsonSerializationContext other, IBsonWriter writer)
+            internal Builder(BsonSerializationContext other, IBsonWriter writer, IBsonSerializationDomain serializationDomain)
             {
                 if (writer == null)
                 {
@@ -115,16 +137,15 @@ namespace MongoDB.Bson.Serialization
                 }
 
                 _writer = writer;
+                _serializationDomain = serializationDomain;
                 if (other != null)
                 {
                     _isDynamicType = other._isDynamicType;
                 }
-                else
-                {
-                    _isDynamicType = t =>
-                        (BsonDefaults.DynamicArraySerializer != null && t == BsonDefaults.DynamicArraySerializer.ValueType) ||
-                        (BsonDefaults.DynamicDocumentSerializer != null && t == BsonDefaults.DynamicDocumentSerializer.ValueType);
-                }
+
+                /* QUESTION I removed the part where we set _isDynamicType from the BsonDefaults, and delay it until we have a serialization domain (when we build the SerializationContext).
+                 * This is technically changing the public behaviour, but it's in a builder, I do not thing it will affect anyone. Same done for the deserialization context.
+                 */
             }
 
             // properties
@@ -155,7 +176,7 @@ namespace MongoDB.Bson.Serialization
             /// <returns>A BsonSerializationContext.</returns>
             internal BsonSerializationContext Build()
             {
-                return new BsonSerializationContext(_writer, _isDynamicType);
+                return new BsonSerializationContext(_writer, _serializationDomain, _isDynamicType);
             }
         }
     }

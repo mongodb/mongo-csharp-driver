@@ -28,12 +28,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         private const int EncryptedMaxBatchSize = 2 * 1024 * 1024; // 2 MiB
-        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter();
+        private readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> _type0SectionFormatter;
 
         // constructors
         public CommandMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
+            _type0SectionFormatter = new Type0SectionFormatter(SerializationDomain);
         }
 
         // public methods
@@ -214,7 +215,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private Type0CommandMessageSection<RawBsonDocument> ReadType0Section(IBsonReader reader)
         {
             var serializer = RawBsonDocumentSerializer.Instance;
-            var context = BsonDeserializationContext.CreateRoot(reader);
+            var context = BsonDeserializationContext.CreateRoot(reader, SerializationDomain);
             var document = serializer.Deserialize(context);
             return new Type0CommandMessageSection<RawBsonDocument>(document, serializer);
         }
@@ -229,7 +230,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var payloadEndPosition = payloadStartPosition + payloadLength;
             var identifier = stream.ReadCString(Utf8Encodings.Strict);
             var serializer = RawBsonDocumentSerializer.Instance;
-            var context = BsonDeserializationContext.CreateRoot(reader);
+            var context = BsonDeserializationContext.CreateRoot(reader, SerializationDomain);
             var documents = new List<RawBsonDocument>();
             while (stream.Position < payloadEndPosition)
             {
@@ -249,14 +250,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             switch (section)
             {
                 case Type0CommandMessageSection type0Section:
-                    __type0SectionFormatter.FormatSection(type0Section, writer);
+                    _type0SectionFormatter.FormatSection(type0Section, writer);
                     break;
                 case Type1CommandMessageSection type1Section:
-                    var type1SectionFormatter = new Type1SectionFormatter(GetSectionMaxSize());
+                    var type1SectionFormatter = new Type1SectionFormatter(GetSectionMaxSize(), SerializationDomain);
                     type1SectionFormatter.FormatSection(type1Section, writer);
                     break;
                 case ClientBulkWriteOpsCommandMessageSection bulkWriteOpsSection:
-                    using (var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(GetSectionMaxSize()))
+                    using (var bulkWriteOpsSectionFormatter = new ClientBulkWriteOpsSectionFormatter(GetSectionMaxSize(), SerializationDomain))
                     {
                         bulkWriteOpsSectionFormatter.FormatSection(bulkWriteOpsSection, writer);
                     }

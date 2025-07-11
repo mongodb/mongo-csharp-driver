@@ -46,10 +46,12 @@ namespace MongoDB.Driver.Core.Operations
                 readerSettings.Encoding = messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
             };
 
+            var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
+
             using (var stream = new ByteBufferStream(batch.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, readerSettings))
             {
-                var context = BsonDeserializationContext.CreateRoot(reader);
+                var context = BsonDeserializationContext.CreateRoot(reader, serializationDomain);
 
                 // BSON requires that the top level object be a document, but an array looks close enough to a document that we can pretend it is one
                 reader.ReadStartDocument();

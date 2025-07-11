@@ -39,4 +39,9 @@ namespace MongoDB.Bson.Serialization
         /// <param name="id">The Id.</param>
         void SetDocumentId(object document, object id);
     }
+
+    internal interface IBsonIdProviderInternal : IBsonIdProvider
+    {
+        bool GetDocumentId(object document, IBsonSerializationDomain serializationDomain, out object id, out Type idNominalType, out IIdGenerator idGenerator);
+    }
 }

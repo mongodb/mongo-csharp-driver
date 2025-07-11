@@ -19,6 +19,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -250,7 +251,8 @@ namespace MongoDB.Driver.Authentication
                 secondaryOk: true,
                 resultSerializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: null,
-                serverApi: _serverApi);
+                serverApi: _serverApi,
+                serializationDomain: BsonSerializer.DefaultSerializationDomain); //QUESTION Is it correct to use the default serialization domain here?
 
         private BsonDocument CreateStartCommand(byte[] bytesToSendToServer)
         {

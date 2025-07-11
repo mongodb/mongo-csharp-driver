@@ -40,12 +40,25 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _sort;
         private readonly BsonValue _update;
 
-        public FindOneAndUpdateOperation(CollectionNamespace collectionNamespace, BsonDocument filter, BsonValue update, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
-            : base(collectionNamespace, resultSerializer, messageEncoderSettings)
+        public FindOneAndUpdateOperation(CollectionNamespace collectionNamespace,
+            BsonDocument filter, BsonValue update,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
+            : base(collectionNamespace, resultSerializer, messageEncoderSettings, serializationDomain)
         {
             _filter = Ensure.IsNotNull(filter, nameof(filter));
             _update = EnsureUpdateIsValid(update);
             _returnDocument = ReturnDocument.Before;
+        }
+
+        //EXIT
+        public FindOneAndUpdateOperation(CollectionNamespace collectionNamespace,
+            BsonDocument filter, BsonValue update,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, filter, update, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         public IEnumerable<BsonDocument> ArrayFilters
