@@ -15,10 +15,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
 using Xunit;
 using Xunit.Abstractions;
@@ -111,6 +114,21 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
                     var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();
                     _output.WriteLine(result.ToJson());
+                }
+                catch (Exception ex)
+                {
+                    // SERVER-106469
+#pragma warning disable CS0618 // Type or member is obsolete
+                    var serverVersion = client.Cluster.Description.Servers[0].Version;
+#pragma warning restore CS0618 // Type or member is obsolete
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                        serverVersion >= new SemanticVersion(8, 1, 9999))
+                    {
+                        ex.Should().BeOfType<MongoEncryptionException >();
+                        return;
+                    }
+
+                    throw;
                 }
                 finally
                 {
