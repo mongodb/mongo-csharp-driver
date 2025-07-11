@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -76,6 +75,21 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
 
             result = await CreateQuery().AnyAsync(x => x.C.E.F == 11);
             result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task ToAsyncEnumerable()
+        {
+            var query = CreateQuery().Select(x => x.A);
+            var expectedResults = query.ToList();
+
+            var asyncResults = new List<string>();
+            await foreach (var item in query.ToAsyncEnumerable())
+            {
+                asyncResults.Add(item);
+            }
+
+            asyncResults.Should().Equal(expectedResults);
         }
 
         [Fact]

@@ -205,6 +205,31 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public async Task ToAsyncEnumerable_result_should_be_enumerable_multiple_times(
+            [Values(1, 2)] int times)
+        {
+            var source = CreateCursorSource(2);
+            var expectedDocuments = new[]
+            {
+                new BsonDocument("_id", 0),
+                new BsonDocument("_id", 1)
+            };
+
+            var result = new List<BsonDocument>();
+            for (var i = 0; i < times; i++)
+            {
+                await foreach (var doc in source.ToAsyncEnumerable())
+                {
+                    result.Add(doc);
+                }
+
+                result.Should().Equal(expectedDocuments);
+                result.Clear();
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ToEnumerable_result_should_be_enumerable_multiple_times(
             [Values(1, 2)] int times)
         {
