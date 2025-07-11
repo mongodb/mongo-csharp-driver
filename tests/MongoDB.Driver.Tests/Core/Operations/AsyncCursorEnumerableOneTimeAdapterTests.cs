@@ -59,9 +59,9 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new AsyncCursorEnumerableOneTimeAdapter<BsonDocument>(mockCursor.Object, CancellationToken.None);
             subject.GetAsyncEnumerator();
 
-            Action action = () => subject.GetAsyncEnumerator();
+            var exception = Record.Exception(() => subject.GetAsyncEnumerator());
 
-            action.ShouldThrow<InvalidOperationException>();
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]

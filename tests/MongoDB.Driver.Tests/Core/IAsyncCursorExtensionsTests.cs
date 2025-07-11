@@ -210,9 +210,7 @@ namespace MongoDB.Driver
             var enumerable = cursor.ToAsyncEnumerable();
             enumerable.GetAsyncEnumerator();
 
-            Action action = () => enumerable.GetAsyncEnumerator();
-
-            action.ShouldThrow<InvalidOperationException>();
+            Record.Exception(() => enumerable.GetAsyncEnumerator()).Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -222,7 +220,7 @@ namespace MongoDB.Driver
             using var cts = new CancellationTokenSource();
 
             var count = 0;
-            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            var exception = await Record.ExceptionAsync(async () =>
             {
                 await foreach (var doc in source.ToAsyncEnumerable().WithCancellation(cts.Token))
                 {
@@ -231,6 +229,8 @@ namespace MongoDB.Driver
                         cts.Cancel();
                 }
             });
+
+            exception.Should().BeOfType<OperationCanceledException>();
         }
 
         [Fact]
