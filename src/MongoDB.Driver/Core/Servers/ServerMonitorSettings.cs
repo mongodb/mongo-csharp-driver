@@ -14,28 +14,24 @@
 */
 
 using System;
-using System.Net;
 
 namespace MongoDB.Driver.Core.Servers
 {
     internal class ServerMonitorSettings
     {
-        private readonly TimeSpan _connectTimeout;
-        private readonly TimeSpan _heartbeatInterval;
-        private readonly TimeSpan _minHeartbeatInterval;
-        private readonly ServerMonitoringMode _serverMonitoringMode;
-
-        public ServerMonitorSettings(TimeSpan connectTimeout, TimeSpan heartbeatInterval, Optional<TimeSpan> minHeartbeatInterval = default, Optional<ServerMonitoringMode> serverMonitoringMode = default)
+        public ServerMonitorSettings(TimeSpan connectTimeout, TimeSpan heartbeatInterval, TimeSpan heartbeatTimeout, Optional<TimeSpan> minHeartbeatInterval = default, Optional<ServerMonitoringMode> serverMonitoringMode = default)
         {
-            _connectTimeout = connectTimeout;
-            _heartbeatInterval = heartbeatInterval;
-            _minHeartbeatInterval = minHeartbeatInterval.WithDefault(TimeSpan.FromMilliseconds(500));
-            _serverMonitoringMode = serverMonitoringMode.WithDefault(ServerMonitoringMode.Auto);
+            ConnectTimeout = connectTimeout;
+            HeartbeatInterval = heartbeatInterval;
+            HeartbeatTimeout = heartbeatTimeout;
+            MinHeartbeatInterval = minHeartbeatInterval.WithDefault(TimeSpan.FromMilliseconds(500));
+            ServerMonitoringMode = serverMonitoringMode.WithDefault(ServerMonitoringMode.Auto);
         }
 
-        public TimeSpan ConnectTimeout => _connectTimeout;
-        public TimeSpan HeartbeatInterval => _heartbeatInterval;
-        public TimeSpan MinHeartbeatInterval => _minHeartbeatInterval;
-        public ServerMonitoringMode ServerMonitoringMode => _serverMonitoringMode;
+        public TimeSpan ConnectTimeout { get; }
+        public TimeSpan HeartbeatInterval { get; }
+        public TimeSpan HeartbeatTimeout { get; }
+        public TimeSpan MinHeartbeatInterval { get; }
+        public ServerMonitoringMode ServerMonitoringMode { get; }
     }
 }

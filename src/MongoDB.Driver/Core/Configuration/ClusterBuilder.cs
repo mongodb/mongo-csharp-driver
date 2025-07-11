@@ -30,9 +30,6 @@ namespace MongoDB.Driver.Core.Configuration
     /// </summary>
     public class ClusterBuilder
     {
-        // constants
-        private const string __traceSourceName = "MongoDB-SDAM";
-
         // fields
         private EventAggregator _eventAggregator;
         private ClusterSettings _clusterSettings;
@@ -252,22 +249,23 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 heartbeatConnectTimeout = TimeSpan.FromSeconds(30);
             }
-            var heartbeatSocketTimeout = _serverSettings.HeartbeatTimeout;
-            if (heartbeatSocketTimeout == TimeSpan.Zero || heartbeatSocketTimeout == Timeout.InfiniteTimeSpan)
+            var heartbeatTimeout = _serverSettings.HeartbeatTimeout;
+            if (heartbeatTimeout == TimeSpan.Zero || heartbeatTimeout == Timeout.InfiniteTimeSpan)
             {
-                heartbeatSocketTimeout = heartbeatConnectTimeout;
+                heartbeatTimeout = heartbeatConnectTimeout;
             }
             var serverMonitorTcpStreamSettings = new TcpStreamSettings(_tcpStreamSettings)
                 .With(
                     connectTimeout: heartbeatConnectTimeout,
-                    readTimeout: heartbeatSocketTimeout,
-                    writeTimeout: heartbeatSocketTimeout
+                    readTimeout: null,
+                    writeTimeout: null
                 );
 
             var serverMonitorStreamFactory = CreateTcpStreamFactory(serverMonitorTcpStreamSettings);
             var serverMonitorSettings = new ServerMonitorSettings(
-                connectTimeout: serverMonitorTcpStreamSettings.ConnectTimeout,
+                connectTimeout: heartbeatConnectTimeout,
                 heartbeatInterval: _serverSettings.HeartbeatInterval,
+                heartbeatTimeout: heartbeatTimeout,
                 serverMonitoringMode: _serverSettings.ServerMonitoringMode);
 
             var serverMonitorConnectionFactory = new BinaryConnectionFactory(

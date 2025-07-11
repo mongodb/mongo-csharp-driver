@@ -253,7 +253,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 serverApi: null);
 
             var serverMonitorSettings = new ServerMonitorSettings(
-                connectTimeout: TimeSpan.FromMilliseconds(1),
+                connectTimeout: TimeSpan.FromMilliseconds(20),
+                heartbeatTimeout: TimeSpan.FromMilliseconds(10),
                 heartbeatInterval: __heartbeatInterval);
             var serverSettings = new ServerSettings(serverMonitorSettings.HeartbeatInterval);
 

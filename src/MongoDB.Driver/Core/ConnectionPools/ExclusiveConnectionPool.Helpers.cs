@@ -431,9 +431,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Reauthenticate(CancellationToken cancellationToken) => _connection.Reauthenticate(cancellationToken);
+            public void Reauthenticate(OperationContext operationContext) => _connection.Reauthenticate(operationContext);
 
-            public Task ReauthenticateAsync(CancellationToken cancellationToken) => _connection.ReauthenticateAsync(cancellationToken);
+            public Task ReauthenticateAsync(OperationContext operationContext) => _connection.ReauthenticateAsync(operationContext);
 
             public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
             {
@@ -494,11 +494,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _checkOutReason = reason;
                     _connectionPool._checkOutReasonCounter.Increment(reason);
                 }
-            }
-
-            public void SetReadTimeout(TimeSpan timeout)
-            {
-                _connection.SetReadTimeout(timeout);
             }
 
             // private methods
@@ -599,16 +594,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _reference.Instance.OpenAsync(operationContext);
             }
 
-            public void Reauthenticate(CancellationToken cancellationToken)
+            public void Reauthenticate(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                _reference.Instance.Reauthenticate(cancellationToken);
+                _reference.Instance.Reauthenticate(operationContext);
             }
 
-            public Task ReauthenticateAsync(CancellationToken cancellationToken)
+            public Task ReauthenticateAsync(OperationContext operationContext)
             {
                 ThrowIfDisposed();
-                return _reference.Instance.ReauthenticateAsync(cancellationToken);
+                return _reference.Instance.ReauthenticateAsync(operationContext);
             }
 
             public Task<ResponseMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
@@ -639,12 +634,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 ThrowIfDisposed();
                 _reference.Instance.SetCheckOutReasonIfNotAlreadySet(reason);
-            }
-
-            public void SetReadTimeout(TimeSpan timeout)
-            {
-                ThrowIfDisposed();
-                _reference.Instance.SetReadTimeout(timeout);
             }
 
             private void ThrowIfDisposed()

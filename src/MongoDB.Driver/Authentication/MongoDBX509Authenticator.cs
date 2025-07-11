@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Authentication
             get { return MechanismName; }
         }
 
-        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public void Authenticate(OperationContext operationContext, IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -58,8 +57,7 @@ namespace MongoDB.Driver.Authentication
             try
             {
                 var protocol = CreateAuthenticateProtocol();
-                // TODO: CSOT: implement operationContext support for Auth.
-                protocol.Execute(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken), connection);
+                protocol.Execute(operationContext, connection);
             }
             catch (MongoCommandException ex)
             {
@@ -67,7 +65,7 @@ namespace MongoDB.Driver.Authentication
             }
         }
 
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(OperationContext operationContext, IConnection connection, ConnectionDescription description)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -80,8 +78,7 @@ namespace MongoDB.Driver.Authentication
             try
             {
                 var protocol = CreateAuthenticateProtocol();
-                // TODO: CSOT: implement operationContext support for Auth.
-                await protocol.ExecuteAsync(new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken), connection).ConfigureAwait(false);
+                await protocol.ExecuteAsync(operationContext, connection).ConfigureAwait(false);
             }
             catch (MongoCommandException ex)
             {
@@ -89,7 +86,7 @@ namespace MongoDB.Driver.Authentication
             }
         }
 
-        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
+        public BsonDocument CustomizeInitialHelloCommand(OperationContext operationContext, BsonDocument helloCommand)
         {
             helloCommand.Add("speculativeAuthenticate", CreateAuthenticateCommand());
             return helloCommand;

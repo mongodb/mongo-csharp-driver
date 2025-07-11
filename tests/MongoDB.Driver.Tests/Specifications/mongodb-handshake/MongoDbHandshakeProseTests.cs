@@ -14,7 +14,6 @@
  */
 
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -56,16 +55,16 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake
 
             var mockConnectionInitializer = new Mock<IConnectionInitializer>();
             mockConnectionInitializer
-                .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHello(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .Returns(connectionInitializerContext);
             mockConnectionInitializer
-                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .Returns(connectionInitializerContextAfterAuthentication);
             mockConnectionInitializer
-                .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHelloAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>()))
                 .ReturnsAsync(connectionInitializerContext);
             mockConnectionInitializer
-                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<OperationContext>(), It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>()))
                 .ReturnsAsync(connectionInitializerContextAfterAuthentication);
 
             using var subject = new BinaryConnection(

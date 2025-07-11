@@ -128,8 +128,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 catch (MongoCommandException commandException) when (RetryabilityHelper.IsReauthenticationRequested(commandException, _command))
                 {
-                    // TODO: CSOT: support operationContext in auth
-                    connection.Reauthenticate(operationContext.CancellationToken);
+                    connection.Reauthenticate(operationContext);
                     return SendMessageAndProcessResponse(operationContext, message, responseTo, connection);
                 }
             }
@@ -167,8 +166,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 catch (MongoCommandException commandException) when (RetryabilityHelper.IsReauthenticationRequested(commandException, _command))
                 {
-                    // TODO: CSOT: support operationContext in auth
-                    await connection.ReauthenticateAsync(operationContext.CancellationToken).ConfigureAwait(false);
+                    await connection.ReauthenticateAsync(operationContext).ConfigureAwait(false);
                     return await SendMessageAndProcessResponseAsync(operationContext, message, responseTo, connection).ConfigureAwait(false);
                 }
             }
@@ -376,7 +374,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
             }
 
-            if (operationContext.IsRootContextTimeoutConfigured())
+            if (operationContext.IsRootContextTimeoutConfigured() && _roundTripTime > TimeSpan.Zero)
             {
                 var serverTimeout = operationContext.RemainingTimeout - _roundTripTime;
                 if (serverTimeout < TimeSpan.Zero)
@@ -384,7 +382,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     throw new TimeoutException();
                 }
 
-                AddIfNotAlreadyAdded("maxTimeMS", (int)serverTimeout.TotalMilliseconds);
+                AddIfNotAlreadyAdded("maxTimeMS", (long)serverTimeout.TotalMilliseconds);
             }
 
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
@@ -632,7 +630,9 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private void ThrowIfRemainingTimeoutLessThenRoundTripTime(OperationContext operationContext)
         {
-            if (operationContext.RemainingTimeout == Timeout.InfiniteTimeSpan || operationContext.RemainingTimeout > _roundTripTime)
+            if (operationContext.RemainingTimeout == Timeout.InfiniteTimeSpan ||
+                _roundTripTime == TimeSpan.Zero ||
+                operationContext.RemainingTimeout > _roundTripTime)
             {
                 return;
             }
