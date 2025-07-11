@@ -502,7 +502,7 @@ namespace MongoDB.Driver
 
             var messageEncoderSettings = GetMessageEncoderSettings();
             var renderArgs = GetRenderArgs();
-            var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs)
+            var operation = new ClientBulkWriteOperation(models, options, messageEncoderSettings, renderArgs, _settings.SerializationDomain)
             {
                 RetryRequested = _settings.RetryWrites,
             };
@@ -520,7 +520,7 @@ namespace MongoDB.Driver
                 databases => databases.Select(database => database["name"].AsString));
 
         private DropDatabaseOperation CreateDropDatabaseOperation(string name)
-            => new(new DatabaseNamespace(name), GetMessageEncoderSettings())
+            => new(new DatabaseNamespace(name), GetMessageEncoderSettings(), _settings.SerializationDomain)
             {
                 WriteConcern = _settings.WriteConcern
             };
@@ -531,7 +531,7 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             var translationOptions = _settings.TranslationOptions;
 
-            return new ListDatabasesOperation(messageEncoderSettings)
+            return new ListDatabasesOperation(messageEncoderSettings, _settings.SerializationDomain)
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
                 Comment = options.Comment,

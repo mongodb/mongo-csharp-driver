@@ -124,7 +124,7 @@ namespace MongoDB.Bson.Serialization
             Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer<TNominalType>();
-            var context = BsonDeserializationContext.CreateRoot(bsonReader, configurator);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader, this, configurator);
             return serializer.Deserialize(context);
         }
 
@@ -220,7 +220,7 @@ namespace MongoDB.Bson.Serialization
             Action<BsonDeserializationContext.Builder> configurator = null)
         {
             var serializer = LookupSerializer(nominalType);
-            var context = BsonDeserializationContext.CreateRoot(bsonReader, configurator);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader, this, configurator);
             return serializer.Deserialize(context);
         }
 
@@ -753,7 +753,7 @@ namespace MongoDB.Bson.Serialization
         {
             args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
             var serializer = LookupSerializer<TNominalType>();
-            var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter, this, configurator);
             serializer.Serialize(context, args, value);
         }
 
@@ -774,7 +774,7 @@ namespace MongoDB.Bson.Serialization
         {
             args.SetOrValidateNominalType(nominalType, "nominalType");
             var serializer = LookupSerializer(nominalType);
-            var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter, this, configurator);
             serializer.Serialize(context, args, value);
         }
 

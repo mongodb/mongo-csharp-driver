@@ -37,12 +37,17 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private WriteConcern _writeConcern;
         private bool _retryRequested;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
-        public FindAndModifyOperationBase(CollectionNamespace collectionNamespace, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        public FindAndModifyOperationBase(CollectionNamespace collectionNamespace,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         public Collation Collation
@@ -157,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<RawBsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var command = CreateCommand(session, connectionDescription, transactionNumber);
-            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain)
             {
                 CommandValidator = GetCommandValidator()
             };
@@ -171,10 +176,12 @@ namespace MongoDB.Driver.Core.Operations
                 Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict)
             };
 
+            var serializationDomain = _messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
+
             using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
             {
-                var context = BsonDeserializationContext.CreateRoot(reader);
+                var context = BsonDeserializationContext.CreateRoot(reader, serializationDomain);
                 return _resultSerializer.Deserialize(context);
             }
         }

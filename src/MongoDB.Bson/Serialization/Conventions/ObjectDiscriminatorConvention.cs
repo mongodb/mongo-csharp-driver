@@ -133,7 +133,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 var actualType = nominalType;
                 if (bsonReader.FindElement(_elementName))
                 {
-                    var context = BsonDeserializationContext.CreateRoot(bsonReader);
+                    var context = BsonDeserializationContext.CreateRoot(bsonReader, domain);
                     var discriminator = BsonValueSerializer.Instance.Deserialize(context);
                     if (discriminator.IsBsonArray)
                     {

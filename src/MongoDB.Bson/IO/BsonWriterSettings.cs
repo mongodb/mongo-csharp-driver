@@ -26,7 +26,6 @@ namespace MongoDB.Bson.IO
         // private fields
         private bool _isFrozen;
         private int _maxSerializationDepth = BsonDefaults.MaxSerializationDepth;
-        private IBsonSerializationDomain _serializationDomain = BsonSerializer.DefaultSerializationDomain;
 
         // constructors
         /// <summary>
@@ -91,19 +90,6 @@ namespace MongoDB.Bson.IO
             else
             {
                 return Clone().Freeze();
-            }
-        }
-
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        internal IBsonSerializationDomain SerializationDomain
-        {
-            get => _serializationDomain;
-            set
-            {
-                if (_isFrozen) { ThrowFrozenException(); }
-                _serializationDomain = value;
             }
         }
 

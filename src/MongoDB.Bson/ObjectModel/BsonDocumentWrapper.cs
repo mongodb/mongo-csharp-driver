@@ -94,16 +94,9 @@ namespace MongoDB.Bson
         public static BsonDocumentWrapper Create<TNominalType>(TNominalType value) =>
             Create(value, BsonSerializer.DefaultSerializationDomain);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="domain"></param>
-        /// <typeparam name="TNominalType"></typeparam>
-        /// <returns></returns>
-        internal static BsonDocumentWrapper Create<TNominalType>(TNominalType value, IBsonSerializationDomain domain)
+        internal static BsonDocumentWrapper Create<TNominalType>(TNominalType value, IBsonSerializationDomain serializationDomain)
         {
-            return Create(typeof(TNominalType), value, domain);
+            return Create(typeof(TNominalType), value, serializationDomain);
         }
 
         /// <summary>
@@ -115,13 +108,6 @@ namespace MongoDB.Bson
         public static BsonDocumentWrapper Create(Type nominalType, object value) =>
             Create(nominalType, value, BsonSerializer.DefaultSerializationDomain);
 
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <param name="nominalType"></param>
-        /// <param name="value"></param>
-        /// <param name="domain"></param>
-        /// <returns></returns>
         internal static BsonDocumentWrapper Create(Type nominalType, object value, IBsonSerializationDomain domain)
         {
             var serializer = domain.LookupSerializer(nominalType);
@@ -220,7 +206,8 @@ namespace MongoDB.Bson
             var writerSettings = BsonDocumentWriterSettings.Defaults;
             using (var bsonWriter = new BsonDocumentWriter(bsonDocument, writerSettings))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, BsonSerializer.DefaultSerializationDomain);
                 _serializer.Serialize(context, _wrapped);
             }
 

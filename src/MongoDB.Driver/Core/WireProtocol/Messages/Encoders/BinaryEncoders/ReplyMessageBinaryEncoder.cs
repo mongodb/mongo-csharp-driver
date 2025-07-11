@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             if (queryFailure)
             {
-                var context = BsonDeserializationContext.CreateRoot(binaryReader);
+                var context = BsonDeserializationContext.CreateRoot(binaryReader, SerializationDomain);
                 queryFailureDocument = BsonDocumentSerializer.Instance.Deserialize(context);
             }
             else
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 for (var i = 0; i < numberReturned; i++)
                 {
                     var allowDuplicateElementNames = typeof(TDocument) == typeof(BsonDocument);
-                    var context = BsonDeserializationContext.CreateRoot(binaryReader, builder =>
+                    var context = BsonDeserializationContext.CreateRoot(binaryReader, SerializationDomain, builder =>
                     {
                         builder.AllowDuplicateElementNames = allowDuplicateElementNames;
                     });
@@ -124,14 +124,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.WriteInt32(message.NumberReturned);
             if (message.QueryFailure)
             {
-                var context = BsonSerializationContext.CreateRoot(binaryWriter);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonSerializationContext.CreateRoot(binaryWriter, BsonSerializer.DefaultSerializationDomain);
                 _serializer.Serialize(context, message.QueryFailureDocument);
             }
             else
             {
                 foreach (var doc in message.Documents)
                 {
-                    var context = BsonSerializationContext.CreateRoot(binaryWriter);
+                    //QUESTION Is it correct we only need a default domain here?
+                    var context = BsonSerializationContext.CreateRoot(binaryWriter, BsonSerializer.DefaultSerializationDomain);
                     _serializer.Serialize(context, doc);
                 }
             }

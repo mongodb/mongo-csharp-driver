@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
@@ -292,6 +293,7 @@ namespace MongoDB.Driver
                 limit: null,
                 serializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: new MessageEncoderSettings(),
+                serializationDomain: BsonSerializer.DefaultSerializationDomain,
                 maxTime: null);
         }
 

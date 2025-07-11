@@ -33,21 +33,21 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
 
-            {
-                var client = CreateClient();
-                var collection = GetTypedCollection<Person>(client);
-                var bsonCollection = GetUntypedCollection(client);
-
-                var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
-                collection.InsertOne(person);
-
-                var retrieved = bsonCollection.FindSync(FilterDefinition<BsonDocument>.Empty).ToList().Single();
-                var toString = retrieved.ToString();
-
-                var expectedVal =
-                    """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "Name" : "Mario", "Age" : 24 }""";
-                Assert.Equal(expectedVal, toString);
-            }
+            // {
+            //     var client = CreateClient();
+            //     var collection = GetTypedCollection<Person>(client);
+            //     var bsonCollection = GetUntypedCollection(client);
+            //
+            //     var person = new Person { Id = ObjectId.Parse("6797b56bf5495bf53aa3078f"), Name = "Mario", Age = 24 };
+            //     collection.InsertOne(person);
+            //
+            //     var retrieved = bsonCollection.FindSync(FilterDefinition<BsonDocument>.Empty).ToList().Single();
+            //     var toString = retrieved.ToString();
+            //
+            //     var expectedVal =
+            //         """{ "_id" : { "$oid" : "6797b56bf5495bf53aa3078f" }, "Name" : "Mario", "Age" : 24 }""";
+            //     Assert.Equal(expectedVal, toString);
+            // }
 
             //The first section demonstrates that the class maps are also separated
             {

@@ -22,10 +22,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     internal sealed class Type1SectionFormatter : ICommandMessageSectionFormatter<Type1CommandMessageSection>
     {
         private readonly long? _maxSize;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
-        public Type1SectionFormatter(long? maxSize)
+        public Type1SectionFormatter(long? maxSize, IBsonSerializationDomain serializationDomain)
         {
             _maxSize = maxSize;
+            _serializationDomain = serializationDomain;
         }
 
         public void FormatSection(Type1CommandMessageSection section, IBsonWriter writer)
@@ -37,7 +39,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
             var stream = binaryWriter.BsonStream;
             var serializer = section.DocumentSerializer;
-            var context = BsonSerializationContext.CreateRoot(binaryWriter);
+            var context = BsonSerializationContext.CreateRoot(binaryWriter, _serializationDomain);
             var startPosition = stream.Position;
 
             stream.WriteInt32(0); // size

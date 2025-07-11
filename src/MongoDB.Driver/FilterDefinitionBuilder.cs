@@ -1853,7 +1853,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2013,7 +2013,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2055,7 +2055,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2351,7 +2351,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2445,7 +2445,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
 
@@ -2495,7 +2495,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2551,7 +2551,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2600,7 +2600,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 itemSerializer.Serialize(context, _value);
@@ -2660,7 +2660,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 var stringSerializer = BsonStringSerializer.Instance;
                 var regularExpressionSerializer = BsonRegularExpressionSerializer.Instance;
 

@@ -102,26 +102,19 @@ namespace MongoDB.Bson.Serialization
         }
 
         // //DOMAIN-API We should remove this version of the CreateRoot method, and use the one that takes a serialization domain.
-        // // public static methods
-        // /// <summary>
-        // /// Creates a root context.
-        // /// </summary>
-        // /// <param name="reader">The reader.</param>
-        // /// <param name="configurator">The configurator.</param>
-        // /// <returns>
-        // /// A root context.
-        // /// </returns>
-        // public static BsonDeserializationContext CreateRoot(
-        //     IBsonReader reader,
-        //     Action<Builder> configurator = null)
-        // {
-        //     var builder = new Builder(null, reader, BsonSerializer.DefaultSerializationDomain);
-        //     if (configurator != null)
-        //     {
-        //         configurator(builder);
-        //     }
-        //     return builder.Build();
-        // }
+        // public static methods
+        /// <summary>
+        /// Creates a root context.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <param name="configurator">The configurator.</param>
+        /// <returns>
+        /// A root context.
+        /// </returns>
+        public static BsonDeserializationContext CreateRoot(
+            IBsonReader reader,
+            Action<Builder> configurator = null)
+            => CreateRoot(reader, BsonSerializer.DefaultSerializationDomain, configurator);
 
         internal static BsonDeserializationContext CreateRoot(
             IBsonReader reader,
@@ -166,7 +159,7 @@ namespace MongoDB.Bson.Serialization
             private IBsonSerializer _dynamicArraySerializer;
             private IBsonSerializer _dynamicDocumentSerializer;
             private IBsonReader _reader;
-            internal IBsonSerializationDomain _serializationDomain;
+            private IBsonSerializationDomain _serializationDomain;
 
             // constructors
             internal Builder(BsonDeserializationContext other, IBsonReader reader, IBsonSerializationDomain serializationDomain)

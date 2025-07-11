@@ -484,6 +484,16 @@ namespace MongoDB.Driver
             }
         }
 
+        internal IBsonSerializationDomain SerializationDomain
+        {
+            get => _serializationDomain;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _serializationDomain = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
+
         /// <summary>
         /// Gets or sets the name of the replica set.
         /// </summary>

@@ -38,7 +38,8 @@ namespace MongoDB.Driver
             var operation = new ChangeStreamOperation<TResult>(
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                serializationDomain)
             {
                 RetryRequested = retryRequested
             };
@@ -56,6 +57,7 @@ namespace MongoDB.Driver
             bool retryRequested,
             ExpressionTranslationOptions translationOptions)
         {
+            //FP Need to stop using the message encoder settings to pass the serialization domain.
             var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
             var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, serializationDomain, translationOptions);
 
@@ -63,7 +65,8 @@ namespace MongoDB.Driver
                 database.DatabaseNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                serializationDomain)
             {
                 RetryRequested = retryRequested
             };
@@ -89,7 +92,8 @@ namespace MongoDB.Driver
                 collection.CollectionNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                serializationDomain)
             {
                 RetryRequested = retryRequested
             };

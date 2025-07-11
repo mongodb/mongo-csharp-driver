@@ -104,7 +104,8 @@ namespace MongoDB.Bson.Serialization
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(writer);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonSerializationContext.CreateRoot(writer, BsonSerializer.DefaultSerializationDomain);
                 writer.WriteStartDocument();
                 writer.WriteName("x");
                 serializer.Serialize(context, value);
@@ -125,7 +126,8 @@ namespace MongoDB.Bson.Serialization
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(writer);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonSerializationContext.CreateRoot(writer, BsonSerializer.DefaultSerializationDomain);
                 writer.WriteStartDocument();
                 writer.WriteName("x");
                 serializer.Serialize(context, value);

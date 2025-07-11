@@ -124,7 +124,7 @@ namespace MongoDB.Bson
             {
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, writerSettings ?? BsonBinaryWriterSettings.Defaults))
                 {
-                    var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter, serializationDomain, configurator);
                     serializer.Serialize(context, args, obj);
                 }
                 return memoryStream.ToArray();
@@ -214,7 +214,7 @@ namespace MongoDB.Bson
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, serializationDomain, configurator);
                 serializer.Serialize(context, args, obj);
             }
             return document;
@@ -295,7 +295,7 @@ namespace MongoDB.Bson
             {
                 using (var bsonWriter = new JsonWriter(stringWriter, writerSettings ?? JsonWriterSettings.Defaults))
                 {
-                    var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter, domain, configurator);
                     serializer.Serialize(context, args, obj);
                 }
                 return stringWriter.ToString();
