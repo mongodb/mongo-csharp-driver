@@ -204,19 +204,22 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject(0);
+
+            Exception exception;
             if (async)
             {
                 await subject.DisposeAsync();
 
-                (await Record.ExceptionAsync(async () => await subject.MoveNextAsync()))
-                    .Should().BeOfType<ObjectDisposedException>();
+                exception = await Record.ExceptionAsync(async () => await subject.MoveNextAsync());
             }
             else
             {
                 subject.Dispose();
 
-                Record.Exception(() => subject.MoveNext()).Should().BeOfType<ObjectDisposedException>();
+                exception = Record.Exception(() => subject.MoveNext());
             }
+
+            exception.Should().BeOfType<ObjectDisposedException>();
         }
 
         [Fact]

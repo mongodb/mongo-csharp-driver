@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
             var expectedResults = query.ToList();
 
             var asyncResults = new List<string>();
-            await foreach (var item in query.ToAsyncEnumerable().ConfigureAwait(false))
+            await foreach (var item in query.ToAsyncEnumerable())
             {
                 asyncResults.Add(item);
             }
