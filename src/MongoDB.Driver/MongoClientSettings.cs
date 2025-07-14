@@ -476,7 +476,8 @@ namespace MongoDB.Driver
 
         IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain
         {
-            get => _serializationDomain;
+            //QUESTION Is this reasonable?
+            get => _serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
@@ -484,15 +485,9 @@ namespace MongoDB.Driver
             }
         }
 
+        //FP This is a convenience property, it could be removed.
         internal IBsonSerializationDomain SerializationDomain
-        {
-            get => _serializationDomain;
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _serializationDomain = value ?? throw new ArgumentNullException(nameof(value));
-            }
-        }
+            => (this as IInheritableMongoClientSettings).SerializationDomain;
 
         /// <summary>
         /// Gets or sets the name of the replica set.
