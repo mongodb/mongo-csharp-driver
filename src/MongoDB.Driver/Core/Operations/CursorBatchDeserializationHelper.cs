@@ -34,9 +34,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="batch">The batch.</param>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="serializationDomain">The serialization domain.</param>
         /// <returns>The documents.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        public static List<TDocument> DeserializeBatch<TDocument>(RawBsonArray batch, IBsonSerializer<TDocument> documentSerializer, MessageEncoderSettings messageEncoderSettings)
+        public static List<TDocument> DeserializeBatch<TDocument>(RawBsonArray batch, IBsonSerializer<TDocument> documentSerializer, MessageEncoderSettings messageEncoderSettings, IBsonSerializationDomain serializationDomain)
         {
             var documents = new List<TDocument>();
 
@@ -45,8 +46,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 readerSettings.Encoding = messageEncoderSettings.GetOrDefault(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
             };
-
-            var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
 
             using (var stream = new ByteBufferStream(batch.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, readerSettings))

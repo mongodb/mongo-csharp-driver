@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (batch)
             {
-                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings);
+                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings, _serializationDomain);
                 return new CursorBatch<TDocument>(cursorId, postBatchResumeToken, documents);
             }
         }

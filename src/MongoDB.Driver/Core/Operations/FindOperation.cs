@@ -383,7 +383,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (batch)
             {
-                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _resultSerializer, _messageEncoderSettings);
+                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _resultSerializer, _messageEncoderSettings, _serializationDomain);
                 return new CursorBatch<TDocument>(cursorId, documents);
             }
         }

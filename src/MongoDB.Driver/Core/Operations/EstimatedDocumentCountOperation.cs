@@ -47,7 +47,6 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-
         public CollectionNamespace CollectionNamespace => _collectionNamespace;
 
         public BsonValue Comment

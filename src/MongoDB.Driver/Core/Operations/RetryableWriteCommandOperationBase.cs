@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
             var serializationDomain = args.MessageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(
-                MessageEncoderSettingsName.SerializationDomain, null);
+                MessageEncoderSettingsName.SerializationDomain, BsonSerializer.DefaultSerializationDomain);
             return context.Channel.Command<BsonDocument>(
                 operationContext,
                 context.ChannelSource.Session,

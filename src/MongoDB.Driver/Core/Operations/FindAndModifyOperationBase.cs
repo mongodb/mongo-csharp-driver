@@ -176,12 +176,10 @@ namespace MongoDB.Driver.Core.Operations
                 Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict)
             };
 
-            var serializationDomain = _messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
-
             using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
             {
-                var context = BsonDeserializationContext.CreateRoot(reader, serializationDomain);
+                var context = BsonDeserializationContext.CreateRoot(reader, _serializationDomain);
                 return _resultSerializer.Deserialize(context);
             }
         }
