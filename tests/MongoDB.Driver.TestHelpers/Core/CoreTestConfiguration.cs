@@ -46,7 +46,6 @@ namespace MongoDB.Driver
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
         private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
-        private static Lazy<bool> __serverless = new Lazy<bool>(GetServerless, isThreadSafe: true);
         private static Lazy<SemanticVersion> __serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
         private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
         private static TraceSource __traceSource;
@@ -104,11 +103,6 @@ namespace MongoDB.Driver
         public static ServerApi ServerApi
         {
             get { return __serverApi.Value; }
-        }
-
-        public static bool Serverless
-        {
-            get { return __serverless.Value; }
         }
 
         public static SemanticVersion ServerVersion => __serverVersion.Value;
@@ -290,13 +284,6 @@ namespace MongoDB.Driver
             return new ServerApi(ServerApiVersion.V1);
         }
 
-        private static bool GetServerless()
-        {
-            var serverless = Environment.GetEnvironmentVariable("SERVERLESS");
-
-            return serverless?.ToLower() == "true";
-        }
-
         public static DatabaseNamespace GetDatabaseNamespaceForTestClass(Type testClassType)
         {
             var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.Value.DatabaseName + "-" + testClassType.Name);
@@ -453,8 +440,7 @@ namespace MongoDB.Driver
             switch (clusterType)
             {
                 case ClusterType.LoadBalanced:
-                case var _ when Serverless:
-                    // Load balancing and serverless are only supported for servers higher than 50
+                    // Load balancing only supported for servers higher than 50
                     result = "wiredTiger";
                     break;
                 case ClusterType.Sharded:

@@ -33,7 +33,6 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.sessions
 {
-    [Trait("Category", "Serverless")]
     [Trait("Category", "Integration")]
     public class SessionsProseTests : LoggableTestClass
     {

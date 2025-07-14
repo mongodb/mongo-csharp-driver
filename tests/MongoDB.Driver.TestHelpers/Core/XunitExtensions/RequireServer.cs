@@ -18,7 +18,6 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
-using Xunit;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
@@ -127,18 +126,6 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             }
 
             throw new SkipException($"Test skipped because cluster does not meet runOn requirements: {requirements}.");
-        }
-
-        public RequireServer Serverless(bool require = true)
-        {
-            var isServerless = CoreTestConfiguration.Serverless;
-
-            if (isServerless == require)
-            {
-                return this;
-            }
-
-            throw new SkipException("Test skipped because serverless is " + (require ? "required" : "not required") + ".");
         }
 
         public RequireServer StableServer(bool stable = true)
@@ -321,12 +308,8 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     var serverlessValue = requirement.Value.AsString;
                     switch (serverlessValue)
                     {
-                        case "allow":
-                            return true;
                         case "forbid":
-                            return CoreTestConfiguration.Serverless == false;
-                        case "require":
-                            return CoreTestConfiguration.Serverless == true;
+                            return true;
                         default:
                             throw new FormatException($"Invalid runOn requirement serverless field value: '{requirement.Value}'.");
                     }
