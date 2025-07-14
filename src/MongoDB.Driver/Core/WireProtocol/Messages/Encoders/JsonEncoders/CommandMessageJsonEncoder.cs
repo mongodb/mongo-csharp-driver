@@ -33,7 +33,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         public CommandMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings)
             : base(textReader, textWriter, encoderSettings)
         {
-            _type0SectionFormatter = new Type0SectionFormatter(SerializationDomain);
+            //QUESTION Looking at the spec and our implementation, it seems that type 0 sections always serialize/deserialize RawBsonDocument, so they should use the default domain. Am I missing something?
+            _type0SectionFormatter = new Type0SectionFormatter(BsonSerializer.DefaultSerializationDomain);
             _type1SectionFormatter = new Type1SectionFormatter(SerializationDomain);
         }
 

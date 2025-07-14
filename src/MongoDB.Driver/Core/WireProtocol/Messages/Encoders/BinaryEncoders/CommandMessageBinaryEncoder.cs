@@ -28,13 +28,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     internal sealed class CommandMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
     {
         private const int EncryptedMaxBatchSize = 2 * 1024 * 1024; // 2 MiB
-        private readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> _type0SectionFormatter;
+        private static readonly ICommandMessageSectionFormatter<Type0CommandMessageSection> __type0SectionFormatter = new Type0SectionFormatter(BsonSerializer.DefaultSerializationDomain);
+        //QUESTION Looking at the spec and our implementation, it seems that type 0 sections always serialize/deserialize RawBsonDocument, so they should use the default domain. Am I missing something?
 
         // constructors
         public CommandMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
-            _type0SectionFormatter = new Type0SectionFormatter(SerializationDomain);
         }
 
         // public methods
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             switch (section)
             {
                 case Type0CommandMessageSection type0Section:
-                    _type0SectionFormatter.FormatSection(type0Section, writer);
+                    __type0SectionFormatter.FormatSection(type0Section, writer);
                     break;
                 case Type1CommandMessageSection type1Section:
                     var type1SectionFormatter = new Type1SectionFormatter(GetSectionMaxSize(), SerializationDomain);

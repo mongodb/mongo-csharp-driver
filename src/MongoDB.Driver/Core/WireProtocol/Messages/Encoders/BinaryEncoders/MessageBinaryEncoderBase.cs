@@ -83,7 +83,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         protected IBsonSerializationDomain SerializationDomain
-            => _encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
+            => _encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null)  ?? BsonSerializer.DefaultSerializationDomain;
+        //QUESTION Is this correct? If we don't have a domain in the encoder settings, just use the default one?
 
         // methods
         public BsonBinaryReader CreateBinaryReader()
