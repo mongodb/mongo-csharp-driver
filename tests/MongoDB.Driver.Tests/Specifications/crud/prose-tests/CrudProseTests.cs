@@ -496,6 +496,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 
             var bulkWriteException = exception.Should().BeOfType<ClientBulkWriteException>().Subject;
             bulkWriteException.InnerException.Should().BeOfType<FormatException>();
+            bulkWriteException.PartialResult.Should().BeNull();
         }
 
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L602
@@ -522,6 +523,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 
             var bulkWriteException = exception.Should().BeOfType<ClientBulkWriteException>().Subject;
             bulkWriteException.InnerException.Should().BeOfType<FormatException>();
+            bulkWriteException.PartialResult.Should().BeNull();
         }
 
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L647
@@ -560,6 +562,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 : Record.Exception(() => client.BulkWrite(models));
 
             exception.Should().BeOfType<NotSupportedException>();
+            exception.Message.Should().Be("BulkWrite does not currently support automatic encryption.");
         }
 
         // https://github.com/mongodb/specifications/blob/d1bdb68b7b4aec9681ea56d41c8b9a6c1a97d365/source/crud/tests/README.md?plain=1#L699
