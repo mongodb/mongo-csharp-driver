@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             _encoderSettings = encoderSettings;
         }
 
-        protected IBsonSerializationDomain SerializationDomain => _encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
+        protected IBsonSerializationDomain SerializationDomain => _encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null) ?? BsonSerializer.DefaultSerializationDomain;
 
         // methods
         public JsonReader CreateJsonReader()
