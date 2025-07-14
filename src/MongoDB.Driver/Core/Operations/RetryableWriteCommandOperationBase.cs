@@ -37,14 +37,17 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxBatchCount;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
+        private IBsonSerializationDomain _serializationDomain;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         public RetryableWriteCommandOperationBase(
             DatabaseNamespace databaseNamespace,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         public BsonValue Comment
@@ -81,6 +84,8 @@ namespace MongoDB.Driver.Core.Operations
             set { _retryRequested = value; }
         }
 
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
+
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
@@ -116,8 +121,6 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
-            var serializationDomain = args.MessageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(
-                MessageEncoderSettingsName.SerializationDomain, BsonSerializer.DefaultSerializationDomain);
             return context.Channel.Command<BsonDocument>(
                 operationContext,
                 context.ChannelSource.Session,
@@ -131,14 +134,14 @@ namespace MongoDB.Driver.Core.Operations
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
                 args.MessageEncoderSettings,
-                serializationDomain);
+                _serializationDomain);
         }
 
         public Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(context, attempt, transactionNumber);
             var serializationDomain = args.MessageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(
-                MessageEncoderSettingsName.SerializationDomain, null);
+                MessageEncoderSettingsName.SerializationDomain, BsonSerializer.DefaultSerializationDomain);
             return context.Channel.CommandAsync<BsonDocument>(
                 operationContext,
                 context.ChannelSource.Session,

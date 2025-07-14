@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly Dictionary<int, BsonValue> _idsMap = new();
         private readonly BsonDocument _let;
         private readonly RenderArgs<BsonDocument> _renderArgs;
-        private readonly IBsonSerializationDomain _serializationDomain;
         private readonly IBatchableSource<BulkWriteModel> _writeModels;
 
         public ClientBulkWriteOperation(
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings,
             RenderArgs<BsonDocument> renderArgs,
             IBsonSerializationDomain serializationDomain)
-            : base(DatabaseNamespace.Admin, messageEncoderSettings)
+            : base(DatabaseNamespace.Admin, messageEncoderSettings, serializationDomain)
         {
             Ensure.IsNotNullOrEmpty(writeModels, nameof(writeModels));
             _writeModels = new BatchableSource<BulkWriteModel>(writeModels, true);
@@ -53,7 +52,6 @@ namespace MongoDB.Driver.Core.Operations
             _errorsOnly = !(options?.VerboseResult).GetValueOrDefault(false);
             _let = options?.Let;
             _renderArgs = renderArgs;
-            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
             Comment = options?.Comment;
             IsOrdered = (options?.IsOrdered).GetValueOrDefault(true);
             WriteConcern = options?.WriteConcern;
@@ -284,7 +282,7 @@ namespace MongoDB.Driver.Core.Operations
                 0,
                 BsonDocumentSerializer.Instance,
                 MessageEncoderSettings,
-                _serializationDomain);
+                SerializationDomain);
         }
 
         private void PopulateBulkWriteResponse(BsonDocument bulkWriteResponse, BulkWriteRawResult bulkWriteResult)
