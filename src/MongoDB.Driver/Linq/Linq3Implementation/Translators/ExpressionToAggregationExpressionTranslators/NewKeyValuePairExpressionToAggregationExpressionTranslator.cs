@@ -43,24 +43,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
 
+            var serializer = CreateResultSerializer(expression.Type, keyTranslation.Serializer, valueTranslation.Serializer, out var keyElementName, out var valueElementName);
             var ast = AstExpression.ComputedDocument([
-                AstExpression.ComputedField("Key", keyTranslation.Ast),
-                AstExpression.ComputedField("Value", valueTranslation.Ast)
+                AstExpression.ComputedField(keyElementName, keyTranslation.Ast),
+                AstExpression.ComputedField(valueElementName, valueTranslation.Ast)
             ]);
-
-            var serializer = CreateResultSerializer(expression.Type, keyTranslation.Serializer, valueTranslation.Serializer);
 
             return new TranslatedExpression(expression, ast, serializer);
         }
 
-        private static IBsonSerializer CreateResultSerializer(Type resultType, IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        private static IBsonSerializer CreateResultSerializer(
+            Type resultType,
+            IBsonSerializer keySerializer,
+            IBsonSerializer valueSerializer,
+            out string keyElementName,
+            out string valueElementName)
         {
             var constructorInfo = resultType.GetConstructor([keySerializer.ValueType, valueSerializer.ValueType]);
             var classMap = new BsonClassMap(resultType);
             classMap.MapConstructor(constructorInfo);
             classMap.AutoMap();
-            classMap.GetMemberMap("Key").SetSerializer(keySerializer);
-            classMap.GetMemberMap("Value").SetSerializer(valueSerializer);
+            var keyMemberMap = classMap.GetMemberMap("Key");
+            keyElementName = keyMemberMap.ElementName;
+            keyMemberMap.SetSerializer(keySerializer);
+            var valueMemberMap = classMap.GetMemberMap("Value");
+            valueElementName = valueMemberMap.ElementName;
+            valueMemberMap.SetSerializer(valueSerializer);
             classMap.Freeze();
 
             // have to use BsonClassMapSerializer here to mimic the MemberInitExpressionToAggregationExpressionTranslator to avoid risking a behavioral breaking change
