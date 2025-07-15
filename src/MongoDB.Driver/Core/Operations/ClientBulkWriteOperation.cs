@@ -210,7 +210,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (bulkWriteResult.TopLevelException != null)
             {
-                var partialResult = ToClientBulkWriteResult(bulkWriteResult);
+                ClientBulkWriteResult partialResult = null;
+                if (_writeModels.Offset != 0)
+                {
+                    partialResult = ToClientBulkWriteResult(bulkWriteResult);
+                }
+
                 throw new ClientBulkWriteException(
                     connectionId,
                     "An error occurred during bulkWrite operation. See InnerException for more details.",
