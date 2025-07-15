@@ -124,7 +124,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                         serverVersion >= new SemanticVersion(8, 1, 9999))
                     {
-                        ex.Should().BeOfType<MongoEncryptionException >();
+                        ex.Should().BeOfType<MongoEncryptionException>();
                         return;
                     }
 

@@ -65,6 +65,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         public async Task Ensure_explicit_session_raises_error_if_connection_does_not_support_sessions([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
 
             using var mongocryptdContext = GetMongocryptdContext();
             using var session = mongocryptdContext.MongoClient.StartSession();
@@ -73,27 +74,13 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                 await Record.ExceptionAsync(() => mongocryptdContext.MongocryptdCollection.FindAsync(session, FilterDefinition<BsonDocument>.Empty)) :
                 Record.Exception(() => mongocryptdContext.MongocryptdCollection.Find(session, FilterDefinition<BsonDocument>.Empty).ToList());
 
-            if (ShouldSkipOnLatestWindows())
-            {
-                exception.Should().BeOfType<TimeoutException>();
-            }
-            else
-            {
-                exception.Should().BeOfType<MongoClientException>().Subject.Message.Should().Be("Sessions are not supported.");
-            }
 
+            exception.Should().BeOfType<MongoClientException>().Subject.Message.Should().Be("Sessions are not supported.");
             exception = async ?
                 await Record.ExceptionAsync(() => mongocryptdContext.MongocryptdCollection.InsertOneAsync(session, new BsonDocument())) :
                 Record.Exception(() => mongocryptdContext.MongocryptdCollection.InsertOne(session, new BsonDocument()));
 
-            if (ShouldSkipOnLatestWindows())
-            {
-                exception.Should().BeOfType<TimeoutException>();
-            }
-            else
-            {
-                exception.Should().BeOfType<MongoClientException>().Subject.Message.Should().Be("Sessions are not supported.");
-            }
+            exception.Should().BeOfType<MongoClientException>().Subject.Message.Should().Be("Sessions are not supported.");
         }
 
         [Theory]
@@ -101,6 +88,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         public async Task Ensure_implicit_session_is_ignored_if_connection_does_not_support_sessions([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
 
             using var mongocryptdContext = GetMongocryptdContext();
 
@@ -131,17 +119,8 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             catch { } // Ignore command errors from mongocryptd
 
             var commandEvents = mongocryptdContext.EventCapturer.Events.OfType<CommandStartedEvent>().ToArray();
-
-            // SERVER-106469
-            if (ShouldSkipOnLatestWindows())
-            {
-                commandEvents.Should().BeEmpty();
-            }
-            else
-            {
-                commandEvents.Single(c => c.CommandName == "find").Command.Contains("lsid").Should().BeFalse();
-                commandEvents.Single(c => c.CommandName == "insert").Command.Contains("lsid").Should().BeFalse();
-            }
+            commandEvents.Single(c => c.CommandName == "find").Command.Contains("lsid").Should().BeFalse();
+            commandEvents.Single(c => c.CommandName == "insert").Command.Contains("lsid").Should().BeFalse();
         }
 
         [Theory]
@@ -412,9 +391,5 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             var collection = client.GetDatabase("db").GetCollection<BsonDocument>("coll");
             return new MongocryptdContext(client, collection, eventCapturer);
         }
-
-        private bool ShouldSkipOnLatestWindows() =>
-            RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows &&
-            CoreTestConfiguration.ServerVersion >= new SemanticVersion(8, 1, 9999);
     }
 }

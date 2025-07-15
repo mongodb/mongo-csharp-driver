@@ -101,11 +101,9 @@ namespace MongoDB.Driver.Tests.Encryption
                     }
                     catch (Exception ex)
                     {
-                        // SERVER-106469
-                        if (RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows &&
-                            CoreTestConfiguration.ServerVersion >= new SemanticVersion(8, 1, 9999))
+                        if (CoreTestConfiguration.ShouldSkipMongocryptdTests_SERVER_106469())
                         {
-                            ex.Should().BeOfType<MongoEncryptionException >();
+                            ex.Should().BeOfType<MongoEncryptionException>();
                             return;
                         }
                         else

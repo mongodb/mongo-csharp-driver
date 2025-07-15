@@ -86,6 +86,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             : base(testOutputHelper)
         {
             _cluster = CoreTestConfiguration.Cluster;
+
+            CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469(checkForSharedLib: true);
         }
 
         // public methods

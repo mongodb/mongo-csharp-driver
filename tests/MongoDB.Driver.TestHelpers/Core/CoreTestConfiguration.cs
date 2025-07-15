@@ -29,6 +29,9 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Encryption;
+using MongoDB.Driver.TestHelpers;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver
 {
@@ -341,6 +344,19 @@ namespace MongoDB.Driver
                 var serverParameters = operation.Execute(binding, CancellationToken.None);
 
                 return serverParameters;
+            }
+        }
+
+        public static bool ShouldSkipMongocryptdTests_SERVER_106469() =>
+            RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows &&
+            ServerVersion >= new SemanticVersion(8, 1, 9999);
+
+        public static void SkipMongocryptdTests_SERVER_106469(bool checkForSharedLib = false)
+        {
+            if (ShouldSkipMongocryptdTests_SERVER_106469() &&
+                (!checkForSharedLib || GetCryptSharedLibPath() == null))
+            {
+                throw new SkipException("Test skipped because of SERVER-106469.");
             }
         }
 
