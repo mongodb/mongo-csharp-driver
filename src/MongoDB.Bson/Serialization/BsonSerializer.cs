@@ -321,7 +321,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>True if the type is discriminated.</returns>
         public static bool IsTypeDiscriminated(Type type)
         {
-            return type.GetTypeInfo().IsInterface || __discriminatedTypes.ContainsKey(type);
+            return type.IsInterface || __discriminatedTypes.ContainsKey(type);
         }
 
         /// <summary>
@@ -586,6 +586,7 @@ namespace MongoDB.Bson.Serialization
                     // mark all base types as discriminated (so we know that it's worth reading a discriminator)
                     for (var baseType = typeInfo.BaseType; baseType != null; baseType = baseType.GetTypeInfo().BaseType)
                     {
+                        // We expect that TryAdd will always return true, so no need to check the return value.
                         __discriminatedTypes.TryAdd(baseType, true);
                     }
                 }
