@@ -70,14 +70,6 @@ namespace MongoDB.Driver.Core.Operations
             _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
-        public ChangeStreamOperation(
-            IEnumerable<BsonDocument> pipeline,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
-            : this(pipeline, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
-        {
-        }
-
         //EXIT
         public ChangeStreamOperation(
             DatabaseNamespace databaseNamespace,

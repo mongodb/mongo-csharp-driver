@@ -866,7 +866,8 @@ namespace MongoDB.Driver
                 options,
                 _settings.ReadConcern, messageEncoderSettings: _messageEncoderSettings,
                 _database.Client.Settings.RetryReads,
-                translationOptions);
+                translationOptions,
+                _settings.SerializationDomain);
         }
 
         private CountDocumentsOperation CreateCountDocumentsOperation(

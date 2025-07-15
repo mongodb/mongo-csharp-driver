@@ -563,7 +563,8 @@ namespace MongoDB.Driver
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _settings.RetryReads,
-                _settings.TranslationOptions);
+                _settings.TranslationOptions,
+                _settings.SerializationDomain);
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)
             => _operationExecutor.ExecuteReadOperation(session, operation, _readOperationOptions, false, cancellationToken);

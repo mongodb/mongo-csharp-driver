@@ -760,7 +760,8 @@ namespace MongoDB.Driver
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _client.Settings.RetryReads,
-                translationOptions);
+                translationOptions,
+                _client.Settings.SerializationDomain);
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken)

@@ -30,9 +30,9 @@ namespace MongoDB.Driver
             ReadConcern readConcern,
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            IBsonSerializationDomain serializationDomain)
         {
-            var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
             var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, serializationDomain, translationOptions);
 
             var operation = new ChangeStreamOperation<TResult>(
@@ -55,10 +55,9 @@ namespace MongoDB.Driver
             ReadConcern readConcern,
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            IBsonSerializationDomain serializationDomain)
         {
-            //FP Need to stop using the message encoder settings to pass the serialization domain.
-            var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
             var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, serializationDomain, translationOptions);
 
             var operation = new ChangeStreamOperation<TResult>(
@@ -83,9 +82,9 @@ namespace MongoDB.Driver
             ReadConcern readConcern,
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            IBsonSerializationDomain serializationDomain)
         {
-            var serializationDomain = messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
             var renderedPipeline = RenderPipeline(pipeline, documentSerializer, serializationDomain, translationOptions);
 
             var operation = new ChangeStreamOperation<TResult>(

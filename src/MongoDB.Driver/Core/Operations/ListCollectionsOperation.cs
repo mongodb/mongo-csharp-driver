@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Operations
         public ListCollectionsOperation(
             DatabaseNamespace databaseNamespace,
             MessageEncoderSettings messageEncoderSettings)
+            :this(databaseNamespace, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
         {
         }
 
