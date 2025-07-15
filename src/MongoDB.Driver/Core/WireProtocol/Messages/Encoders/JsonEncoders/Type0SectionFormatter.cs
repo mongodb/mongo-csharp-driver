@@ -20,11 +20,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
     internal sealed class Type0SectionFormatter : ICommandMessageSectionFormatter<Type0CommandMessageSection>
     {
+        private readonly IBsonSerializationDomain _serializationDomain;
+
+        public Type0SectionFormatter(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
+        }
         public void FormatSection(Type0CommandMessageSection section, IBsonWriter writer)
         {
             writer.WriteName("document");
             var serializer = section.DocumentSerializer;
-            var context = BsonSerializationContext.CreateRoot(writer);
+            var context = BsonSerializationContext.CreateRoot(writer, _serializationDomain);
             serializer.Serialize(context, section.Document);
         }
     }

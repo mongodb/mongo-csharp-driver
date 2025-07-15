@@ -16,6 +16,7 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -28,15 +29,29 @@ namespace MongoDB.Driver.Core.Operations
         private MessageEncoderSettings _messageEncoderSettings;
         private readonly BsonDocument _recoveryToken;
         private readonly WriteConcern _writeConcern;
+        private IBsonSerializationDomain _serializationDomain;
 
-        protected EndTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
+        protected EndTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern, IBsonSerializationDomain serializationDomain)
         {
             _recoveryToken = recoveryToken;
             _writeConcern = Ensure.IsNotNull(writeConcern, nameof(writeConcern));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
+        //EXIT
+        protected EndTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
+            : this(recoveryToken, writeConcern, BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
+        protected EndTransactionOperation(WriteConcern writeConcern, IBsonSerializationDomain serializationDomain)
+            : this(recoveryToken: null, writeConcern, serializationDomain)
+        {
+        }
+
+        //EXIT
         protected EndTransactionOperation(WriteConcern writeConcern)
-            : this(recoveryToken: null, writeConcern)
+            : this(writeConcern, BsonSerializer.DefaultSerializationDomain)
         {
         }
 
@@ -89,7 +104,7 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOperation<BsonDocument> CreateOperation()
         {
             var command = CreateCommand();
-            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain)
             {
                 RetryRequested = false
             };
@@ -98,13 +113,25 @@ namespace MongoDB.Driver.Core.Operations
 
     internal sealed class AbortTransactionOperation : EndTransactionOperation
     {
-        public AbortTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
-            : base(recoveryToken, writeConcern)
+        public AbortTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern, IBsonSerializationDomain serializationDomain)
+            : base(recoveryToken, writeConcern, serializationDomain)
         {
         }
 
+        //EXIT
+        public AbortTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
+            : this(recoveryToken, writeConcern, BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
+        public AbortTransactionOperation(WriteConcern writeConcern, IBsonSerializationDomain serializationDomain)
+            : base(writeConcern, serializationDomain)
+        {
+        }
+
+        //EXIT
         public AbortTransactionOperation(WriteConcern writeConcern)
-            : base(writeConcern)
+            : this(writeConcern, BsonSerializer.DefaultSerializationDomain)
         {
         }
 
@@ -115,15 +142,28 @@ namespace MongoDB.Driver.Core.Operations
     {
         private TimeSpan? _maxCommitTime;
 
-        public CommitTransactionOperation(WriteConcern writeConcern)
-            : base(writeConcern)
+        public CommitTransactionOperation(WriteConcern writeConcern, IBsonSerializationDomain serializationDomain)
+            : base(writeConcern, serializationDomain)
         {
         }
 
-        public CommitTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
-            : base(recoveryToken, writeConcern)
+        //EXIT
+        public CommitTransactionOperation(WriteConcern writeConcern)
+            : this(writeConcern, BsonSerializer.DefaultSerializationDomain)
         {
         }
+
+        public CommitTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern, IBsonSerializationDomain serializationDomain)
+            : base(recoveryToken, writeConcern, serializationDomain)
+        {
+        }
+
+        //EXIT
+        public CommitTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
+            : this(recoveryToken, writeConcern, BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
 
         public TimeSpan? MaxCommitTime
         {

@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var @operator = GetNullaryWindowOperator(method);
                     var ast = AstExpression.NullaryWindowExpression(@operator, window);
-                    var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
+                    var serializer = context.SerializationDomain.LookupSerializer(method.ReturnType); // TODO: use correct serializer
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
@@ -296,7 +296,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     var @operator = GetUnaryWindowOperator(method);
                     var ast = AstExpression.UnaryWindowExpression(@operator, selectorTranslation.Ast, window);
-                    var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
+                    var serializer = context.SerializationDomain.LookupSerializer(method.ReturnType); // TODO: use correct serializer
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
@@ -309,7 +309,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     var @operator = GetBinaryWindowOperator(method);
                     var ast = AstExpression.BinaryWindowExpression(@operator, selector1Translation.Ast, selector2Translation.Ast, window);
-                    var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
+                    var serializer = context.SerializationDomain.LookupSerializer(method.ReturnType); // TODO: use correct serializer
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
@@ -324,7 +324,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     var @operator = GetDerivativeOrIntegralWindowOperator(method);
                     var ast = AstExpression.DerivativeOrIntegralWindowExpression(@operator, selectorTranslation.Ast, unit, window);
-                    var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
+                    var serializer = context.SerializationDomain.LookupSerializer(method.ReturnType); // TODO: use correct serializer
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
@@ -335,7 +335,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var weighting = weightingExpression.GetConstantValue<ExponentialMovingAverageWeighting>(expression);
 
                     var ast = AstExpression.ExponentialMovingAverageWindowExpression(selectorTranslation.Ast, weighting, window);
-                    var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
+                    var serializer = context.SerializationDomain.LookupSerializer(method.ReturnType); // TODO: use correct serializer
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
@@ -354,7 +354,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     }
 
                     var ast = AstExpression.ShiftWindowExpression(selectorTranslation.Ast, by, defaultValue);
-                    var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
+                    var serializer = context.SerializationDomain.LookupSerializer(method.ReturnType); // TODO: use correct serializer
                     return new TranslatedExpression(expression, ast, serializer);
                 }
             }
@@ -460,15 +460,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var windowConstant = windowExpression.GetConstantValue<SetWindowFieldsWindow>(expression);
             var sortBy = context.Data?.GetValueOrDefault<object>("SortBy", null);
-            var serializerRegistry = context.Data?.GetValueOrDefault<BsonSerializerRegistry>("SerializerRegistry", null);
-            return ToAstWindow(windowConstant, sortBy, inputSerializer, serializerRegistry, context.TranslationOptions);
+            return ToAstWindow(windowConstant, sortBy, inputSerializer, context.SerializationDomain, context.TranslationOptions);
         }
 
         private static AstWindow ToAstWindow(
             SetWindowFieldsWindow window,
             object sortBy,
             IBsonSerializer inputSerializer,
-            BsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             if (window == null)
@@ -495,7 +494,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IBsonSerializer upperBoundaryValueSerializer = null;
                 if (lowerValueBoundary != null || upperValueBoundary != null)
                 {
-                    var sortBySerializer = GetSortBySerializer(sortBy, inputSerializer, serializerRegistry, translationOptions);
+                    var sortBySerializer = GetSortBySerializer(sortBy, inputSerializer, serializationDomain, translationOptions);
                     if (lowerValueBoundary != null)
                     {
                         lowerBoundaryValueSerializer = ValueRangeWindowBoundaryConvertingValueSerializerFactory.Create(lowerValueBoundary, sortBySerializer);
@@ -522,7 +521,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static IBsonSerializer GetSortBySerializer(
             object sortBy,
             IBsonSerializer inputSerializer,
-            BsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             Ensure.IsNotNull(sortBy, nameof(sortBy));
@@ -534,13 +533,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 nameof(GetSortBySerializerGeneric),
                 BindingFlags.NonPublic | BindingFlags.Static);
             var methodInfo = methodInfoDefinition.MakeGenericMethod(documentType);
-            return (IBsonSerializer)methodInfo.Invoke(null, new object[] { sortBy, inputSerializer, serializerRegistry, translationOptions });
+            return (IBsonSerializer)methodInfo.Invoke(null, new object[] { sortBy, inputSerializer, serializationDomain, translationOptions });
         }
 
         private static IBsonSerializer GetSortBySerializerGeneric<TDocument>(
             SortDefinition<TDocument> sortBy,
             IBsonSerializer<TDocument> documentSerializer,
-            BsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             var directionalSortBy = sortBy as DirectionalSortDefinition<TDocument>;
@@ -554,7 +553,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             var field = directionalSortBy.Field;
-            var renderedField = field.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
+            var renderedField = field.Render(new(documentSerializer, serializationDomain, translationOptions: translationOptions));
 
             return renderedField.FieldSerializer;
         }
