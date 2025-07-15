@@ -16,7 +16,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -24,19 +23,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
 public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : LinqIntegrationTest<NewKeyValuePairExpressionToAggregationExpressionTranslatorTests.ClassFixture>
 {
-    private readonly bool _useCamelCase = false;
-
     public NewKeyValuePairExpressionToAggregationExpressionTranslatorTests(ClassFixture fixture)
         : base(fixture)
     {
-        // TODO: uncomment the code to demonstrate the fix, revert changes in the test class before merging into the main
-        // _useCamelCase = true;
-
-        if (_useCamelCase)
-        {
-            var defaultPack = new ConventionPack { new CamelCaseElementNameConvention() };
-            ConventionRegistry.Register("camelCase", defaultPack, c => true);
-        }
     }
 
     [Fact]
@@ -48,14 +37,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
             .Select(d => new KeyValuePair<string,int>("X", d.X));
 
         var stages = Translate(collection, queryable);
-        if (_useCamelCase)
-        {
-            AssertStages(stages, "{ $project : { key : 'X', value : '$X', _id : 0 } }");
-        }
-        else
-        {
-            AssertStages(stages, "{ $project : { Key : 'X', Value : '$X', _id : 0 } }");
-        }
+        AssertStages(stages, "{ $project : { Key : 'X', Value : '$X', _id : 0 } }");
 
         var result = queryable.Single();
         result.Key.Should().Be("X");
@@ -72,14 +54,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
             .Select(d => KeyValuePair.Create("X", d.X));
 
         var stages = Translate(collection, queryable);
-        if (_useCamelCase)
-        {
-            AssertStages(stages, "{ $project : { key : 'X', value : '$X', _id : 0 } }");
-        }
-        else
-        {
-            AssertStages(stages, "{ $project : { Key : 'X', Value : '$X', _id : 0 } }");
-        }
+        AssertStages(stages, "{ $project : { Key : 'X', Value : '$X', _id : 0 } }");
 
         var result = queryable.Single();
         result.Key.Should().Be("X");
@@ -100,4 +75,3 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
         ];
     }
 }
-
