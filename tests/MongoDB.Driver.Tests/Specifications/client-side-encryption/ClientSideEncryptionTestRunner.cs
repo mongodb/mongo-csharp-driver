@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         public ClientSideEncryptionTestRunner(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
+            CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469();
         }
 
         [Theory]
