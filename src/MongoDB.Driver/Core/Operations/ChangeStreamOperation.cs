@@ -296,7 +296,6 @@ namespace MongoDB.Driver.Core.Operations
                 initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
 
                 var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
-                var serializationDomain = _messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
 
                 return new ChangeStreamCursor<TResult>(
                     cursor,
@@ -309,7 +308,7 @@ namespace MongoDB.Driver.Core.Operations
                     _resumeAfter,
                     _startAtOperationTime,
                     context.Channel.ConnectionDescription.MaxWireVersion,
-                    serializationDomain);
+                    _serializationDomain);
             }
         }
 
@@ -333,7 +332,6 @@ namespace MongoDB.Driver.Core.Operations
                 initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
 
                 var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
-                var serializationDomain = _messageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null);
 
                 return new ChangeStreamCursor<TResult>(
                     cursor,
@@ -346,7 +344,7 @@ namespace MongoDB.Driver.Core.Operations
                     _resumeAfter,
                     _startAtOperationTime,
                     context.Channel.ConnectionDescription.MaxWireVersion,
-                    serializationDomain);
+                    _serializationDomain);
             }
         }
 
