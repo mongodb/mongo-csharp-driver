@@ -76,7 +76,6 @@ functions:
           TEST_RESULTS_PATH: "./mongo-csharp-driver/build/test-results/TEST-*.xml"
           PREPARE_SHELL: |
             set -o errexit
-            set -o xtrace
             export DRIVERS_TOOLS="$DRIVERS_TOOLS"
             export MONGO_ORCHESTRATION_HOME="$MONGO_ORCHESTRATION_HOME"
             export MONGODB_BINARIES="$MONGODB_BINARIES"
