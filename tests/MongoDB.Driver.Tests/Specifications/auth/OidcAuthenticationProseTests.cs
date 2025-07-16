@@ -473,6 +473,36 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
         }
 
+        // 4.5 Reauthentication Succeeds when a Session is involved
+        // https://github.com/mongodb/specifications/blob/668992950d975d3163e538849dd20383a214fc37/source/auth/tests/mongodb-oidc.md?plain=1#L235
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Reauthentication_Succeeds_when_Session_involved([Values(false, true)] bool async)
+        {
+            EnsureOidcIsConfigured("test");
+
+            var callbackMock = new Mock<IOidcCallback>();
+            // configure mock with valid access token
+            ConfigureOidcCallback(callbackMock, GetAccessTokenValue());
+            var credential = MongoCredential.CreateOidcCredential(callbackMock.Object);
+            var (collection, client, eventCapturer) = CreateOidcTestObjects(credential);
+
+            using (ConfigureFailPoint(1, (int)ServerErrorCode.ReauthenticationRequired, "find"))
+            {
+                var session = client.StartSession();
+                _ = async
+                    ? await collection.FindAsync(session, Builders<BsonDocument>.Filter.Empty)
+                    : collection.FindSync(session, Builders<BsonDocument>.Filter.Empty);
+            }
+
+            VerifyCallbackUsage(callbackMock, async, Times.Exactly(2));
+            eventCapturer.Count.Should().Be(4);
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandStartedEvent>();
+            eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>();
+        }
+
         // 5.1 Azure With No Username
         // https://github.com/mongodb/specifications/blob/1448ba6eedfa2f16584222e683b427bea07bb085/source/auth/tests/mongodb-oidc.md?plain=1#L212
         [Theory]
