@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Core.Operations
         private BsonValue _comment;
         private CursorType _cursorType;
         private BsonDocument _filter;
-        private int? _firstBatchSize;
         private BsonValue _hint;
         private BsonDocument _let;
         private int? _limit;
@@ -123,12 +122,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _filter; }
             set { _filter = value; }
-        }
-
-        public int? FirstBatchSize
-        {
-            get { return _firstBatchSize; }
-            set { _firstBatchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
         public BsonValue Hint
@@ -249,7 +242,13 @@ namespace MongoDB.Driver.Core.Operations
             var wireVersion = connectionDescription.MaxWireVersion;
             FindProjectionChecker.ThrowIfAggregationExpressionIsUsedWhenNotSupported(_projection, wireVersion);
 
-            var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
+            var batchSize = _batchSize;
+            // https://github.com/mongodb/specifications/blob/668992950d975d3163e538849dd20383a214fc37/source/crud/crud.md?plain=1#L803
+            if (batchSize.HasValue && batchSize == _limit)
+            {
+                batchSize = _limit + 1;
+            }
+
             var isShardRouter = connectionDescription.HelloResult.ServerType == ServerType.ShardRouter;
 
             var effectiveComment = _comment;
@@ -271,7 +270,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "hint", effectiveHint, effectiveHint != null },
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "limit", () => Math.Abs(_limit.Value), _limit.HasValue && _limit != 0 },
-                { "batchSize", () => firstBatchSize.Value, firstBatchSize.HasValue },
+                { "batchSize", () => batchSize.Value, batchSize.HasValue && batchSize > 0 },
                 { "singleBatch", () => _limit < 0 || _singleBatch.Value, _limit < 0 || _singleBatch.HasValue },
                 { "comment", effectiveComment, effectiveComment != null },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(effectiveMaxTime.Value), effectiveMaxTime.HasValue },
