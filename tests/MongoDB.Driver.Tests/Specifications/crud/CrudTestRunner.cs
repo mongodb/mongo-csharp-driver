@@ -31,7 +31,6 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
-    [Trait("Category", "Serverless")]
     [Trait("Category", "Integration")]
     public class CrudTestRunner : LoggableTestClass
     {
@@ -313,11 +312,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
             if (definition.TryGetValue("serverless", out var serverless))
             {
-                if (serverless == "forbid")
-                {
-                    RequireServer.Check().Serverless(false);
-                }
-                else
+                if (serverless != "forbid")
                 {
                     throw new FormatException($"Invalid serverless field value: '{serverless.AsString}'.");
                 }

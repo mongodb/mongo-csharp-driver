@@ -126,15 +126,15 @@ namespace MongoDB.Driver.Tests.Specifications
            Run(testCase);
         }
 
-        [Category("Serverless", "SupportLoadBalancing")]
+        [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("read_write_concern.tests.operation")]
         public void ReadWriteConcern(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [Category("Serverless", "SupportLoadBalancing")]
+        [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_reads.tests.unified")]
         public void RetryableReads(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [Category("Serverless", "SupportLoadBalancing")]
+        [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_writes.tests.unified")]
         public void RetryableWrites(JsonDrivenTestCase testCase)
         {
@@ -156,11 +156,10 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("server_selection.tests.logging")]
         public void ServerSelection(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [Category("Serverless")]
         [UnifiedTestsTheory("sessions.tests")]
         public void Sessions(JsonDrivenTestCase testCase) => Run(testCase);
 
-        [Category("Serverless", "SupportLoadBalancing")]
+        [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("transactions.tests.unified")]
         public void Transactions(JsonDrivenTestCase testCase)
         {
@@ -203,7 +202,7 @@ namespace MongoDB.Driver.Tests.Specifications
             Run(testCase);
         }
 
-        [Category("Serverless", "SupportLoadBalancing")]
+        [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("versioned_api.tests")]
         public void VersionedApi(JsonDrivenTestCase testCase) => Run(testCase);
 

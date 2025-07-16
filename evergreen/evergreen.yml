@@ -727,19 +727,6 @@ functions:
         args:
           - evergreen/run-mongodb-oidc-tests.sh
 
-  run-serverless-tests:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
-        script: |
-          ${PREPARE_SHELL}
-          AUTH=${AUTH} \
-          FRAMEWORK=${FRAMEWORK} \
-          SSL=${SSL} \
-          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
-            evergreen/run-serverless-tests.sh
-
   run-smoke-tests:
     - command: shell.exec
       type: test
@@ -1339,12 +1326,6 @@ tasks:
           vars:
             K8S_VARIANT: aks
 
-    - name: test-serverless
-      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
-      commands:
-        - func: setup-csfle-secrets
-        - func: run-serverless-tests
-
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
       tags: ["ocsp"]
       commands:
@@ -1899,14 +1880,6 @@ axes:
         variables:
           FRAMEWORK: net80
 
-  - id: serverless
-    display_name: Serverless
-    values:
-      - id: "Passthrough"
-        display_name: "Serverless Passthrough Proxy"
-        variables:
-          VAULT_NAME: "serverless"
-
 task_groups:
   - name: testazurekms-task-group
     setup_group_can_fail_task: true
@@ -2180,39 +2153,6 @@ task_groups:
     tasks:
       - test-oidc-k8s
 
-  - name: serverless-task-group
-    setup_group_can_fail_task: true
-    setup_group_timeout_secs: 1800 # 30 minutes
-    setup_group:
-      - func: fetch-source
-      - func: prepare-resources
-      - func: fix-absolute-paths
-      - func: make-files-executable
-      - func: assume-ec2-role
-      - command: subprocess.exec
-        params:
-          binary: bash
-          env:
-            VAULT_NAME: ${VAULT_NAME}
-          include_expansions_in_env:
-            - "AWS_ACCESS_KEY_ID"
-            - "AWS_SECRET_ACCESS_KEY"
-            - "AWS_SESSION_TOKEN"
-          args:
-            - ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
-      - command: expansions.update
-        params:
-          file: serverless-expansion.yml
-    teardown_group:
-      - func: upload-test-results
-      - command: subprocess.exec
-        params:
-          binary: bash
-          args:
-            - ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
-    tasks:
-      - test-serverless
-
   - name: validate-apicompat-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
@@ -2482,21 +2422,6 @@ buildvariants:
   tasks:
     - name: "test-load-balancer-netstandard21"
     - name: "test-load-balancer-net60"
-
-# Serverless tests
-- matrix_name: serverless-tests-windows
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", target_framework: ["net472", "netstandard21", "net60"], serverless: "*" }
-  display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
-  batchtime: 10080  # 7 days
-  tasks:
-    - name: serverless-task-group
-
-- matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004", target_framework: ["netstandard21", "net60"], serverless: "*" }
-  display_name: "${serverless} ${compressor} ${auth} ${ssl} ${os} ${target_framework}"
-  batchtime: 10080  # 7 days
-  tasks:
-    - name: serverless-task-group
 
 # Performance tests
 - name: driver-performance-tests

@@ -378,9 +378,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 // SERVER-38335
                 serverVersion < new SemanticVersion(4, 1, 9) && ex.Code == (int)ServerErrorCode.Interrupted ||
                 // SERVER-54216
-                ex.Code == (int)ServerErrorCode.Unauthorized ||
-                // Serverless has a different code for Unauthorized error
-                ex.Code == (int)ServerErrorCode.UnauthorizedServerless)
+                ex.Code == (int)ServerErrorCode.Unauthorized)
             {
                 // ignore errors
             }
