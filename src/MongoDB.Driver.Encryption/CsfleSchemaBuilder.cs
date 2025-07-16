@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Builds and returns the resulting CSFLE schema.
         /// </summary>
-        public IDictionary<string, BsonDocument> Build()
+        public Dictionary<string, BsonDocument> Build()
         {
             if (!_schemas.Any())
             {
