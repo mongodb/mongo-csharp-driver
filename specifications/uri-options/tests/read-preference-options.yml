@@ -27,6 +27,17 @@ tests:
                 -
                     dc: "ny"
     -
+        description: "Read preference tags are case sensitive"
+        uri: "mongodb://example.com/?readPreference=secondary&readPreferenceTags=dc:NY"
+        valid: true
+        warning: false
+        hosts: ~
+        auth: ~
+        options:
+            readPreferenceTags:
+                -
+                    dc: "NY"
+    -
         description: "Invalid readPreferenceTags causes a warning"
         uri: "mongodb://example.com/?readPreferenceTags=invalid"
         valid: true
