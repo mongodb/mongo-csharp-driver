@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -87,13 +88,28 @@ namespace MongoDB.Driver.Tests.Encryption
 
                     var coll = client.GetDatabase(__collectionNamespace.DatabaseNamespace.DatabaseName).GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
 
-                    if (async)
+                    try
                     {
-                        await coll.InsertOneAsync(new BsonDocument());
+                        if (async)
+                        {
+                            await coll.InsertOneAsync(new BsonDocument());
+                        }
+                        else
+                        {
+                            coll.InsertOne(new BsonDocument());
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        coll.InsertOne(new BsonDocument());
+                        if (CoreTestConfiguration.ShouldSkipMongocryptdTests_SERVER_106469())
+                        {
+                            ex.Should().BeOfType<MongoEncryptionException>();
+                            return;
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
 
                     mongocryptdClient.IsValueCreated.Should().BeTrue();
