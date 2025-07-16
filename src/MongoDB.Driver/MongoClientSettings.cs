@@ -445,7 +445,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _proxyHost = Ensure.IsNotNullOrEmpty(value, nameof(ProxyHost));
+                _proxyHost = value;
             }
         }
 
@@ -477,7 +477,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _proxyUsername = Ensure.IsNotNullOrEmpty(value, nameof(ProxyUsername));
+                _proxyUsername = value;
             }
         }
 
@@ -490,7 +490,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _proxyPassword = Ensure.IsNotNullOrEmpty(value, nameof(ProxyPassword));
+                _proxyPassword = value;
             }
         }
 
