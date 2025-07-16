@@ -15,7 +15,7 @@
 
 using System;
 
-namespace MongoDB.Bson.Serialization
+namespace MongoDB.Bson
 {
     /// <summary>
     /// A static class containing extension methods for <see cref="BsonType"/>.
