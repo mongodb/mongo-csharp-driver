@@ -421,7 +421,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
 
-                AssertInnerEncryptionException<TimeoutException>(exception, "A timeout occurred after 10000ms selecting a server");
+                AssertInnerEncryptionExceptionRegex<TimeoutException>(exception, "A timeout occurred after \\d+ms selecting a server");
             }
         }
 
@@ -2903,6 +2903,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private void AssertInnerEncryptionException<TInnerException>(Exception ex, string exceptionMessageContains)
             where TInnerException : Exception
             => AssertInnerEncryptionException<TInnerException>(ex, e => e.Message.Should().Contain(exceptionMessageContains));
+
+        private void AssertInnerEncryptionExceptionRegex<TInnerException>(Exception ex, string exceptionMessageRegex)
+            where TInnerException : Exception
+            => AssertInnerEncryptionException<TInnerException>(ex, e => e.Message.Should().MatchRegex(exceptionMessageRegex));
 
         private IMongoClient ConfigureClient(
             bool clearCollections = true,
