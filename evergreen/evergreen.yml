@@ -2110,12 +2110,17 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
+      - func: assume-ec2-role
       - func: install-dotnet
       - command: subprocess.exec
         params:
           binary: bash
           env:
             AZUREOIDC_VMNAME_PREFIX: "CSHARP_DRIVER"
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/azure/create-and-setup-vm.sh
     teardown_group:
@@ -2136,12 +2141,17 @@ task_groups:
       - func: prepare-resources
       - func: fix-absolute-paths
       - func: make-files-executable
+      - func: assume-ec2-role
       - func: install-dotnet
       - command: subprocess.exec
         params:
           binary: bash
           env:
             GCPOIDC_VMNAME_PREFIX: "CSHARP_DRIVER"
+          include_expansions_in_env:
+            - "AWS_ACCESS_KEY_ID"
+            - "AWS_SECRET_ACCESS_KEY"
+            - "AWS_SESSION_TOKEN"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/auth_oidc/gcp/setup.sh
     teardown_group:
