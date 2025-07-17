@@ -65,6 +65,12 @@ namespace MongoDB.Driver.Core.Connections
                     var socket = CreateSocket(resolved[i]);
                     Connect(socket, resolved[i], cancellationToken);
                     var stream =  CreateNetworkStream(socket);
+
+                    //TODO Need to do the same for the async version and for net472
+                    if (_settings.UseProxy)
+                    {
+                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.ProxyUsername, _settings.ProxyPassword, cancellationToken);
+                    }
                 }
                 catch
                 {
@@ -241,20 +247,18 @@ namespace MongoDB.Driver.Core.Connections
 
         private EndPoint[] ResolveEndPoints(EndPoint initial)
         {
-            var dnsInitial = initial as DnsEndPoint;
-            if (dnsInitial == null)
+            if (initial is not DnsEndPoint dnsInitial)
             {
-                return new[] { initial };
+                return [initial];
             }
 
-            IPAddress address;
-            if (IPAddress.TryParse(dnsInitial.Host, out address))
+            if (IPAddress.TryParse(dnsInitial.Host, out var address))
             {
-                return new[] { new IPEndPoint(address, dnsInitial.Port) };
+                return [new IPEndPoint(address, dnsInitial.Port)];
             }
 
             var preferred = initial.AddressFamily;
-            if (preferred == AddressFamily.Unspecified || preferred == AddressFamily.Unknown)
+            if (preferred is AddressFamily.Unspecified or AddressFamily.Unknown)
             {
                 preferred = _settings.AddressFamily;
             }
@@ -268,20 +272,18 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task<EndPoint[]> ResolveEndPointsAsync(EndPoint initial)
         {
-            var dnsInitial = initial as DnsEndPoint;
-            if (dnsInitial == null)
+            if (initial is not DnsEndPoint dnsInitial)
             {
-                return new[] { initial };
+                return [initial];
             }
 
-            IPAddress address;
-            if (IPAddress.TryParse(dnsInitial.Host, out address))
+            if (IPAddress.TryParse(dnsInitial.Host, out var address))
             {
-                return new[] { new IPEndPoint(address, dnsInitial.Port) };
+                return [new IPEndPoint(address, dnsInitial.Port)];
             }
 
             var preferred = initial.AddressFamily;
-            if (preferred == AddressFamily.Unspecified || preferred == AddressFamily.Unknown)
+            if (preferred is AddressFamily.Unspecified or AddressFamily.Unknown)
             {
                 preferred = _settings.AddressFamily;
             }

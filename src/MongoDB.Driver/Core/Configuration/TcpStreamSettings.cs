@@ -205,6 +205,10 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="sendBufferSize">Size of the send buffer.</param>
         /// <param name="socketConfigurator">The socket configurator.</param>
         /// <param name="writeTimeout">The write timeout.</param>
+        /// <param name="proxyHost">  //TODO Add docs</param>
+        /// <param name="proxyPort"></param>
+        /// <param name="proxyUsername"></param>
+        /// <param name="proxyPassword"></param>
         /// <returns>A new TcpStreamSettings instance.</returns>
         public TcpStreamSettings With(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
@@ -213,8 +217,11 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> receiveBufferSize = default(Optional<int>),
             Optional<int> sendBufferSize = default(Optional<int>),
             Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
-            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
-        //TODO Need to add proxy settings
+            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>),
+            Optional<string> proxyHost = default(Optional<string>),
+            Optional<int?> proxyPort = default(Optional<int?>),
+            Optional<string> proxyUsername = default(Optional<string>),
+            Optional<string> proxyPassword = default(Optional<string>))
         {
             return new TcpStreamSettings(
                 addressFamily: addressFamily.WithDefault(_addressFamily),
@@ -223,7 +230,11 @@ namespace MongoDB.Driver.Core.Configuration
                 receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
                 sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
                 socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
-                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
+                writeTimeout: writeTimeout.WithDefault(_writeTimeout),
+                proxyHost: proxyHost.WithDefault(_proxyHost),
+                proxyPort: proxyPort.WithDefault(_proxyPort),
+                proxyUsername: proxyUsername.WithDefault(_proxyUsername),
+                proxyPassword: proxyPassword.WithDefault(_proxyPassword));
         }
     }
 }
