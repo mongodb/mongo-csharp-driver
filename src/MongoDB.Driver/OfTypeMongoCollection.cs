@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
@@ -49,11 +48,6 @@ namespace MongoDB.Driver
         public override IMongoCollection<TDerivedDocument> WithReadPreference(ReadPreference readPreference)
         {
             return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadPreference(readPreference), Filter);
-        }
-
-        internal override IMongoCollection<TDerivedDocument> WithTimeout(TimeSpan timeout)
-        {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithTimeout(timeout), Filter);
         }
 
         public override IMongoCollection<TDerivedDocument> WithWriteConcern(WriteConcern writeConcern)

@@ -23,7 +23,7 @@ namespace MongoDB.Driver
         ReadConcern ReadConcern { get; }
         UTF8Encoding ReadEncoding { get; }
         ReadPreference ReadPreference { get; }
-        TimeSpan Timeout { get; }
+        TimeSpan? Timeout { get; }
         WriteConcern WriteConcern { get; }
         UTF8Encoding WriteEncoding { get; }
     }

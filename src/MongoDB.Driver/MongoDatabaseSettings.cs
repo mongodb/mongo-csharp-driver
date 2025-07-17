@@ -30,7 +30,7 @@ namespace MongoDB.Driver
         private Setting<ReadConcern> _readConcern;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
-        private Setting<TimeSpan> _timeout;
+        private TimeSpan? _timeout;
         private Setting<WriteConcern> _writeConcern;
         private Setting<UTF8Encoding> _writeEncoding;
 
@@ -109,14 +109,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the per-operation timeout
         /// </summary>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA release
-        internal TimeSpan Timeout
+        public TimeSpan? Timeout
         {
             get { return _timeout.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                _timeout.Value = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(Timeout));
+                _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
             }
         }
 
@@ -161,7 +160,7 @@ namespace MongoDB.Driver
             clone._readConcern = _readConcern.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
-            clone._timeout = _timeout.Clone();
+            clone._timeout = _timeout;
             clone._writeConcern = _writeConcern.Clone();
             clone._writeEncoding = _writeEncoding.Clone();
             return clone;
@@ -269,7 +268,7 @@ namespace MongoDB.Driver
                 parts.Add(string.Format("ReadEncoding={0}", (_readEncoding.Value == null) ? "null" : "UTF8Encoding"));
             }
             parts.Add(string.Format("ReadPreference={0}", _readPreference.Value));
-            if (_timeout.HasBeenSet)
+            if (_timeout.HasValue)
             {
                 parts.Add(string.Format("Timeout={0}", _timeout.Value));
             }
@@ -296,7 +295,7 @@ namespace MongoDB.Driver
             {
                 ReadPreference = clientSettings.ReadPreference;
             }
-            if (!_timeout.HasBeenSet)
+            if (!_timeout.HasValue)
             {
                 Timeout = clientSettings.Timeout;
             }

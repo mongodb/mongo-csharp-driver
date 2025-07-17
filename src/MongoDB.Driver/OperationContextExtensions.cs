@@ -13,13 +13,11 @@
  * limitations under the License.
  */
 
-using System.Threading;
-
 namespace MongoDB.Driver
 {
     internal static class OperationContextExtensions
     {
         public static bool IsRootContextTimeoutConfigured(this OperationContext operationContext)
-            => operationContext.RootContext.Timeout != Timeout.InfiniteTimeSpan;
+            => operationContext.RootContext.Timeout.HasValue;
     }
 }

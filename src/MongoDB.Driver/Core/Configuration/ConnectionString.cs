@@ -471,8 +471,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the per-operation timeout
         /// </summary>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA release
-        internal TimeSpan? Timeout => _timeout;
+        public TimeSpan? Timeout => _timeout;
 
         /// <summary>
         /// Gets whether to use TLS.

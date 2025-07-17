@@ -319,7 +319,10 @@ namespace MongoDB.Driver
             return new CreateManyIndexesOptions
             {
                 CommitQuorum = options?.CommitQuorum,
-                MaxTime = options?.MaxTime
+#pragma warning disable CS0618 // Type or member is obsolete
+                MaxTime = options?.MaxTime,
+#pragma warning restore CS0618 // Type or member is obsolete
+                Timeout = options?.Timeout,
             };
         }
     }

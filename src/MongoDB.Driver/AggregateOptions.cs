@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         private BsonDocument _let;
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
+        private TimeSpan? _timeout;
         private ExpressionTranslationOptions _translationOptions;
         private bool? _useCursor;
 
@@ -121,10 +122,20 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>
+        [Obsolete("Use Timeout instead")]
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        public TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
 
         /// <summary>

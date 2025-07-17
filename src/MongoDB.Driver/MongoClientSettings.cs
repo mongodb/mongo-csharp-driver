@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         private int _srvMaxHosts;
         private string _srvServiceName;
         private SslSettings _sslSettings;
-        private TimeSpan _timeout;
+        private TimeSpan? _timeout;
         private ExpressionTranslationOptions _translationOptions;
         private bool _useTls;
         private int _waitQueueSize;
@@ -670,19 +670,15 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the per-operation timeout
         /// </summary>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA release
-        internal TimeSpan Timeout
+        public TimeSpan? Timeout
         {
             get { return _timeout; }
             set
             {
                 ThrowIfFrozen();
-                _timeout = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(Timeout));
+                _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
             }
         }
-
-        // TODO: CSOT: Remove this explicit interface implementaion in favor of public Timeout property
-        TimeSpan IInheritableMongoClientSettings.Timeout => _timeout;
 
         /// <summary>
         /// Gets or sets the translation options.

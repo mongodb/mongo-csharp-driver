@@ -91,8 +91,8 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
-                MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
+                MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
 #pragma warning restore 618
             };
@@ -135,7 +135,9 @@ namespace MongoDB.Driver
             operation.Hint.Should().Be(options.Hint);
             operation.Let.Should().Be(options.Let);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.Pipeline.Should().Equal(renderedPipeline.Documents);
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
@@ -171,8 +173,8 @@ namespace MongoDB.Driver
                 Comment = "test",
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
-                MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
+                MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
 #pragma warning restore 618
             };
@@ -223,7 +225,9 @@ namespace MongoDB.Driver
             aggregateOperation.Comment.Should().Be(options.Comment);
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.Let.Should().Be(options.Let);
+#pragma warning disable CS0618 // Type or member is obsolete
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.ReadConcern.Should().Be(readConcern);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
@@ -253,7 +257,9 @@ namespace MongoDB.Driver
             findOperation.CursorType.Should().Be(CursorType.NonTailable);
             findOperation.Filter.Should().BeNull();
             findOperation.Limit.Should().Be(null);
+#pragma warning disable CS0618 // Type or member is obsolete
             findOperation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             findOperation.NoCursorTimeout.Should().NotHaveValue();
 #pragma warning disable 618
             findOperation.OplogReplay.Should().NotHaveValue();
@@ -346,8 +352,8 @@ namespace MongoDB.Driver
                 Comment = "test",
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
-                MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
+                MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
 #pragma warning restore 618
             };
@@ -393,7 +399,9 @@ namespace MongoDB.Driver
             aggregateOperation.Comment.Should().Be(options.Comment);
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.Let.Should().Be(options.Let);
+#pragma warning disable CS0618 // Type or member is obsolete
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.ReadConcern.Should().Be(readConcern);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
@@ -769,7 +777,9 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Hint = "funny",
                 Limit = 10,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(20),
+#pragma warning restore CS0618 // Type or member is obsolete
                 Skip = 30
             };
             using var cancellationTokenSource = new CancellationTokenSource();
@@ -815,7 +825,9 @@ namespace MongoDB.Driver
             operation.Filter.Should().Be(filter);
             operation.Hint.Should().Be(options.Hint);
             operation.Limit.Should().Be(options.Limit);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.Skip.Should().Be(options.Skip);
@@ -835,7 +847,9 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Hint = "funny",
                 Limit = 10,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(20),
+#pragma warning restore CS0618 // Type or member is obsolete
                 Skip = 30
             };
             using var cancellationTokenSource = new CancellationTokenSource();
@@ -873,7 +887,9 @@ namespace MongoDB.Driver
             operation.Filter.Should().Be(filter);
             operation.Hint.Should().Be(options.Hint);
             operation.Limit.Should().Be(options.Limit);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.Skip.Should().Be(options.Skip);
@@ -1118,7 +1134,9 @@ namespace MongoDB.Driver
             var options = new DistinctOptions
             {
                 Collation = new Collation("en_US"),
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(20)
+#pragma warning restore CS0618 // Type or member is obsolete
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -1154,7 +1172,9 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.FieldName.Should().Be(fieldName);
             operation.Filter.Should().Be(filterDocument);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.ValueSerializer.ValueType.Should().Be(typeof(int));
@@ -1184,7 +1204,9 @@ namespace MongoDB.Driver
             var options = new DistinctOptions
             {
                 Collation = new Collation("en_US"),
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(20)
+#pragma warning restore CS0618 // Type or member is obsolete
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -1220,7 +1242,9 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.FieldName.Should().Be(fieldName);
             operation.Filter.Should().Be(filterDocument);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
 
@@ -1246,7 +1270,9 @@ namespace MongoDB.Driver
             var options = new DistinctOptions
             {
                 Collation = new Collation("en_US"),
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(20)
+#pragma warning restore CS0618 // Type or member is obsolete
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -1282,7 +1308,9 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.FieldName.Should().Be(fieldName);
             operation.Filter.Should().Be(filterDocument);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
 
@@ -1310,7 +1338,9 @@ namespace MongoDB.Driver
             var options = new DistinctOptions
             {
                 Collation = new Collation("en_US"),
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(20)
+#pragma warning restore CS0618 // Type or member is obsolete
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -1346,7 +1376,9 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.FieldName.Should().Be(fieldName);
             operation.Filter.Should().Be(filterDocument);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
 
@@ -1364,7 +1396,9 @@ namespace MongoDB.Driver
             var subject = CreateSubject<BsonDocument>();
             var options = new EstimatedDocumentCountOptions
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(20)
+#pragma warning restore CS0618 // Type or member is obsolete
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -1383,7 +1417,9 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<EstimatedDocumentCountOperation>().Subject;
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.ReadConcern.Should().Be(ReadConcern.Default);
             operation.RetryRequested.Should().BeTrue();
         }
@@ -1415,7 +1451,9 @@ namespace MongoDB.Driver
                 Let = letDocument,
                 Limit = 30,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(3),
+#pragma warning restore CS0618 // Type or member is obsolete
                 NoCursorTimeout = true,
 #pragma warning disable 618
                 OplogReplay = true,
@@ -1466,7 +1504,9 @@ namespace MongoDB.Driver
             operation.Let.Should().Be(options.Let);
             operation.Limit.Should().Be(options.Limit);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
 #pragma warning disable 618
             operation.OplogReplay.Should().Be(options.OplogReplay);
@@ -1504,7 +1544,9 @@ namespace MongoDB.Driver
                 Let = letDocument,
                 Limit = 30,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(3),
+#pragma warning restore CS0618 // Type or member is obsolete
                 NoCursorTimeout = true,
 #pragma warning disable 618
                 OplogReplay = true,
@@ -1554,7 +1596,9 @@ namespace MongoDB.Driver
             operation.Let.Should().Be(options.Let);
             operation.Limit.Should().Be(options.Limit);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
 #pragma warning disable 618
             operation.OplogReplay.Should().Be(options.OplogReplay);
@@ -1640,7 +1684,9 @@ namespace MongoDB.Driver
                 Let = letDocument,
                 Projection = projectionDefinition,
                 Sort = sortDefinition,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(2)
+#pragma warning restore CS0618 // Type or member is obsolete
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -1676,7 +1722,9 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.Filter.Should().Be(filterDocument);
             operation.Let.Should().Be(letDocument);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.Projection.Should().Be(projectionDocument);
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
             operation.Sort.Should().Be(sortDocument);
@@ -1764,7 +1812,9 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("_id", 1),
                 IsUpsert = isUpsert,
                 Let = letDocument,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(2),
+#pragma warning restore CS0618 // Type or member is obsolete
                 Projection = projectionDefinition,
                 ReturnDocument = returnDocument,
                 Sort = sortDefinition
@@ -1806,7 +1856,9 @@ namespace MongoDB.Driver
             operation.Filter.Should().Be(filterDocument);
             operation.IsUpsert.Should().Be(isUpsert);
             operation.Let.Should().Be(options.Let);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.Projection.Should().Be(projectionDocument);
             operation.Replacement.Should().Be(replacement);
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
@@ -1899,7 +1951,9 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("_id", 1),
                 IsUpsert = isUpsert,
                 Let = letDocument,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(2),
+#pragma warning restore CS0618 // Type or member is obsolete
                 Projection = projectionDefinition,
                 ReturnDocument = returnDocument,
                 Sort = sortDefinition,
@@ -1942,7 +1996,9 @@ namespace MongoDB.Driver
             operation.Filter.Should().Be(filterDocument);
             operation.IsUpsert.Should().Be(isUpsert);
             operation.Let.Should().Be(options.Let);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.Projection.Should().Be(projectionDocument);
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
             operation.ReturnDocument.Should().Be(returnDocument);
@@ -2061,7 +2117,13 @@ namespace MongoDB.Driver
             var storageEngine = new BsonDocument("awesome", true);
             var commitQuorum = commitQuorumW.HasValue ? CreateIndexCommitQuorum.Create(commitQuorumW.Value) : null;
             var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
-            var createOneIndexOptions = usingCreateOneIndexOptions ? new CreateOneIndexOptions { CommitQuorum = commitQuorum, MaxTime = maxTime } : null;
+            var createOneIndexOptions = usingCreateOneIndexOptions ? new CreateOneIndexOptions
+            {
+                CommitQuorum = commitQuorum,
+#pragma warning disable CS0618 // Type or member is obsolete
+                MaxTime = maxTime
+#pragma warning restore CS0618 // Type or member is obsolete
+            } : null;
             var wildcardProjectionDefinition = Builders<BsonDocument>.Projection.Include("w");
             var options = new CreateIndexOptions<BsonDocument>
             {
@@ -2125,7 +2187,9 @@ namespace MongoDB.Driver
             var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.CommitQuorum.Should().BeSameAs(createOneIndexOptions?.CommitQuorum);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(createOneIndexOptions?.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.Requests.Count().Should().Be(1);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
 
@@ -2197,7 +2261,13 @@ namespace MongoDB.Driver
             var storageEngine = new BsonDocument("awesome", true);
             var commitQuorum = commitQuorumW.HasValue ? CreateIndexCommitQuorum.Create(commitQuorumW.Value) : null;
             var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
-            var createManyIndexesOptions = usingCreateManyIndexesOptions ? new CreateManyIndexesOptions { CommitQuorum = commitQuorum, MaxTime = maxTime } : null;
+            var createManyIndexesOptions = usingCreateManyIndexesOptions ? new CreateManyIndexesOptions
+            {
+                CommitQuorum = commitQuorum,
+#pragma warning disable CS0618 // Type or member is obsolete
+                MaxTime = maxTime
+#pragma warning restore CS0618 // Type or member is obsolete
+            } : null;
 
             var options = new CreateIndexOptions<BsonDocument>
             {
@@ -2262,7 +2332,9 @@ namespace MongoDB.Driver
             var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.CommitQuorum.Should().BeSameAs(createManyIndexesOptions?.CommitQuorum);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(createManyIndexesOptions?.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.Requests.Count().Should().Be(2);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
 
@@ -2346,7 +2418,12 @@ namespace MongoDB.Driver
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
             var maxTime = TimeSpan.FromMilliseconds(42);
-            var options = new DropIndexOptions { MaxTime = maxTime };
+            var options = new DropIndexOptions
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                MaxTime = maxTime
+#pragma warning restore CS0618 // Type or member is obsolete
+            };
 
             if (usingSession)
             {
@@ -2377,7 +2454,9 @@ namespace MongoDB.Driver
             var operation = call.Operation.Should().BeOfType<DropIndexOperation>().Subject;
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.IndexName.Should().Be("*");
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
@@ -2393,7 +2472,12 @@ namespace MongoDB.Driver
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
             var maxTime = TimeSpan.FromMilliseconds(42);
-            var options = new DropIndexOptions { MaxTime = maxTime };
+            var options = new DropIndexOptions
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                MaxTime = maxTime
+#pragma warning restore CS0618 // Type or member is obsolete
+            };
 
             if (usingSession)
             {
@@ -2821,8 +2905,8 @@ namespace MongoDB.Driver
                 JavaScriptMode = true,
 #pragma warning restore 618
                 Limit = 10,
-                MaxTime = TimeSpan.FromMinutes(2),
 #pragma warning disable CS0618 // Type or member is obsolete
+                MaxTime = TimeSpan.FromMinutes(2),
                 OutputOptions = MapReduceOutputOptions.Inline,
 #pragma warning restore CS0618 // Type or member is obsolete
                 Scope = new BsonDocument("test", 3),
@@ -2878,7 +2962,9 @@ namespace MongoDB.Driver
 #pragma warning restore 618
             operation.Limit.Should().Be(options.Limit);
             operation.MapFunction.Should().Be(map);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
             operation.ReduceFunction.Should().Be(reduce);
             operation.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
@@ -2914,8 +3000,8 @@ namespace MongoDB.Driver
                 JavaScriptMode = true,
 #pragma warning restore 618
                 Limit = 10,
-                MaxTime = TimeSpan.FromMinutes(2),
 #pragma warning disable 618
+                MaxTime = TimeSpan.FromMinutes(2),
                 OutputOptions = MapReduceOutputOptions.Replace("awesome", "otherDB", true),
 #pragma warning restore 618
                 Scope = new BsonDocument("test", 3),
@@ -2972,8 +3058,8 @@ namespace MongoDB.Driver
 #pragma warning restore 618
             operation.Limit.Should().Be(options.Limit);
             operation.MapFunction.Should().Be(map);
-            operation.MaxTime.Should().Be(options.MaxTime);
 #pragma warning disable 618
+            operation.MaxTime.Should().Be(options.MaxTime);
             operation.NonAtomicOutput.Should().NotHaveValue();
 #pragma warning restore 618
             operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));

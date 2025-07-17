@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -107,18 +106,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>();
             return client.WatchAsync(session, emptyPipeline, options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns a new IMongoClient instance with a different timeout setting.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        /// <param name="timeout">The timeout.</param>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA release
-        internal static IMongoClient WithTimeout(this IMongoClient client, TimeSpan timeout)
-        {
-            Ensure.IsNotNull(client, nameof(client));
-            return ((MongoClient)client).WithTimeout(timeout);
         }
 
         // internal static methods

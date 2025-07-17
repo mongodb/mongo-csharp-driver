@@ -1192,7 +1192,9 @@ namespace MongoDB.Driver
                     Let = options.Let,
                     Max = options.Max,
                     MaxAwaitTime = options.MaxAwaitTime,
+#pragma warning disable CS0618 // Type or member is obsolete
                     MaxTime = options.MaxTime,
+#pragma warning restore CS0618 // Type or member is obsolete
                     Min = options.Min,
                     NoCursorTimeout = options.NoCursorTimeout,
 #pragma warning disable 618
@@ -1200,6 +1202,7 @@ namespace MongoDB.Driver
 #pragma warning restore 618
                     ReturnKey = options.ReturnKey,
                     ShowRecordId = options.ShowRecordId,
+                    Timeout = options.Timeout,
                     TranslationOptions = options.TranslationOptions
                 };
             }
@@ -2651,18 +2654,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamDocument<TDocument>>();
             return collection.WatchAsync(session, emptyPipeline, options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns a new IMongoDatabase instance with a different timeout setting.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <param name="timeout">The timeout.</param>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA release
-        internal static IMongoCollection<TDocument> WithTimeout<TDocument>(this IMongoCollection<TDocument> collection, TimeSpan timeout)
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            return ((MongoCollectionBase<TDocument>)collection).WithTimeout(timeout);
         }
 
         // private static methods

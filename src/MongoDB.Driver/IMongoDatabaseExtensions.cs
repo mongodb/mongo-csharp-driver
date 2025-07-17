@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -166,18 +165,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>();
             return database.WatchAsync(session, emptyPipeline, options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Returns a new IMongoDatabase instance with a different timeout setting.
-        /// </summary>
-        /// <param name="database">The database.</param>
-        /// <param name="timeout">The timeout.</param>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA release
-        internal static IMongoDatabase WithTimeout(this IMongoDatabase database, TimeSpan timeout)
-        {
-            Ensure.IsNotNull(database, nameof(database));
-            return ((MongoDatabase)database).WithTimeout(timeout);
         }
 
         // private static methods

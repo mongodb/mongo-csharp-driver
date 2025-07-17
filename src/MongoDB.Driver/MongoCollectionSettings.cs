@@ -31,7 +31,7 @@ namespace MongoDB.Driver
         private Setting<ReadConcern> _readConcern;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
-        private Setting<TimeSpan> _timeout;
+        private TimeSpan? _timeout;
         private Setting<WriteConcern> _writeConcern;
         private Setting<UTF8Encoding> _writeEncoding;
 
@@ -124,14 +124,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the per-operation timeout
         /// </summary>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA release
-        internal TimeSpan Timeout
+        public TimeSpan? Timeout
         {
             get { return _timeout.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                _timeout.Value = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(Timeout));
+                _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
             }
         }
 
@@ -177,7 +176,7 @@ namespace MongoDB.Driver
             clone._readConcern = _readConcern.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
-            clone._timeout = _timeout.Clone();
+            clone._timeout = _timeout;
             clone._writeConcern = _writeConcern.Clone();
             clone._writeEncoding = _writeEncoding.Clone();
             return clone;
@@ -208,7 +207,7 @@ namespace MongoDB.Driver
                         object.Equals(_readConcern.Value, rhs._readConcern.Value) &&
                         object.Equals(_readEncoding, rhs._readEncoding) &&
                         _readPreference.Value == rhs._readPreference.Value &&
-                        _timeout.Value == rhs._timeout.Value &&
+                        _timeout == rhs._timeout &&
                         _writeConcern.Value == rhs._writeConcern.Value &&
                         object.Equals(_writeEncoding, rhs._writeEncoding);
                 }
@@ -263,7 +262,7 @@ namespace MongoDB.Driver
             hash = 37 * hash + ((_readConcern.Value == null) ? 0 : _readConcern.Value.GetHashCode());
             hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.Value.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
-            hash = 37 * hash + _timeout.Value.GetHashCode();
+            hash = 37 * hash + _timeout.GetHashCode();
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
             hash = 37 * hash + ((_writeEncoding.Value == null) ? 0 : _writeEncoding.Value.GetHashCode());
             return hash;
@@ -288,7 +287,7 @@ namespace MongoDB.Driver
                 parts.Add(string.Format("ReadEncoding={0}", (_readEncoding.Value == null) ? "null" : "UTF8Encoding"));
             }
             parts.Add(string.Format("ReadPreference={0}", _readPreference));
-            if (_timeout.HasBeenSet)
+            if (_timeout.HasValue)
             {
                 parts.Add(string.Format("Timeout={0}", _timeout));
             }
@@ -319,7 +318,7 @@ namespace MongoDB.Driver
             {
                 ReadPreference = databaseSettings.ReadPreference;
             }
-            if (!_timeout.HasBeenSet)
+            if (!_timeout.HasValue)
             {
                 Timeout = databaseSettings.Timeout;
             }

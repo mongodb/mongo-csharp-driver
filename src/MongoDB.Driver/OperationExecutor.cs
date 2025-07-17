@@ -41,17 +41,18 @@ namespace MongoDB.Driver
         public TResult ExecuteReadOperation<TResult>(
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions options,
+            ReadPreference readPreference,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(operation, nameof(operation));
-            Ensure.IsNotNull(options, nameof(options));
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            Ensure.IsNullOrValidTimeout(timeout, nameof(timeout));
             ThrowIfDisposed();
 
-            using var operationContext = options.ToOperationContext(cancellationToken);
-            var readPreference = options.GetEffectiveReadPreference(session);
+            using var operationContext = new OperationContext(timeout, cancellationToken);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
             return operation.Execute(operationContext, binding);
         }
@@ -59,17 +60,18 @@ namespace MongoDB.Driver
         public async Task<TResult> ExecuteReadOperationAsync<TResult>(
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions options,
+            ReadPreference readPreference,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(operation, nameof(operation));
-            Ensure.IsNotNull(options, nameof(options));
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNotNull(readPreference, nameof(readPreference));
+            Ensure.IsNullOrValidTimeout(timeout, nameof(timeout));
             ThrowIfDisposed();
 
-            using var operationContext = options.ToOperationContext(cancellationToken);
-            var readPreference = options.GetEffectiveReadPreference(session);
+            using var operationContext = new OperationContext(timeout, cancellationToken);
             using var binding = CreateReadBinding(session, readPreference, allowChannelPinning);
             return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
         }
@@ -77,16 +79,16 @@ namespace MongoDB.Driver
         public TResult ExecuteWriteOperation<TResult>(
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions options,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(operation, nameof(operation));
-            Ensure.IsNotNull(options, nameof(options));
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNullOrValidTimeout(timeout, nameof(timeout));
             ThrowIfDisposed();
 
-            using var operationContext = options.ToOperationContext(cancellationToken);
+            using var operationContext = new OperationContext(timeout, cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return operation.Execute(operationContext, binding);
         }
@@ -94,16 +96,16 @@ namespace MongoDB.Driver
         public async Task<TResult> ExecuteWriteOperationAsync<TResult>(
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions options,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(operation, nameof(operation));
-            Ensure.IsNotNull(options, nameof(options));
             Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(operation, nameof(operation));
+            Ensure.IsNullOrValidTimeout(timeout, nameof(timeout));
             ThrowIfDisposed();
 
-            using var operationContext = options.ToOperationContext(cancellationToken);
+            using var operationContext = new OperationContext(timeout, cancellationToken);
             using var binding = CreateReadWriteBinding(session, allowChannelPinning);
             return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
         }

@@ -25,29 +25,31 @@ namespace MongoDB.Driver
         TResult ExecuteReadOperation<TResult>(
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions options,
+            ReadPreference readPreference,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken);
 
         Task<TResult> ExecuteReadOperationAsync<TResult>(
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions options,
+            ReadPreference readPreference,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken);
 
         TResult ExecuteWriteOperation<TResult>(
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions options,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken);
 
         Task<TResult> ExecuteWriteOperationAsync<TResult>(
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions options,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken);
 
         IClientSessionHandle StartImplicitSession();

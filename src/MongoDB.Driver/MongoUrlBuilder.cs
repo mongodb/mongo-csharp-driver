@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         private TimeSpan _socketTimeout;
         private int? _srvMaxHosts;
         private string _srvServiceName;
-        private TimeSpan _timeout;
+        private TimeSpan? _timeout;
         private bool? _tlsDisableCertificateRevocationCheck;
         private string _username;
         private bool _useTls;
@@ -596,13 +596,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the per-operation timeout
         /// </summary>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA release
-        internal TimeSpan Timeout
+        public TimeSpan? Timeout
         {
             get { return _timeout; }
             set
             {
-                _timeout = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(Timeout));
+                _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
             }
         }
 
@@ -971,9 +970,9 @@ namespace MongoDB.Driver
                 query.AppendFormat("socketTimeout={0}&", FormatTimeSpan(_socketTimeout));
             }
 
-            if (_timeout != System.Threading.Timeout.InfiniteTimeSpan)
+            if (_timeout.HasValue)
             {
-                query.AppendFormat("timeout={0}&", FormatTimeSpan(_timeout));
+                query.AppendFormat("timeout={0}&", FormatTimeSpan(_timeout.Value));
             }
 
 #pragma warning disable 618
