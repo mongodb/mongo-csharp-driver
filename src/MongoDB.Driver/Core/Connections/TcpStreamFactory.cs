@@ -48,19 +48,23 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
+            EndPoint actualEndPoint;
+
+            actualEndPoint = _settings.UseProxy ? new DnsEndPoint(_settings.ProxyHost, _settings.ProxyPort.Value) : endPoint;
+
 #if NET472
-            var socket = CreateSocket(endPoint);
-            Connect(socket, endPoint, cancellationToken);
+            var socket = CreateSocket(actualEndPoint);
+            Connect(socket, actualEndPoint, cancellationToken);
             return CreateNetworkStream(socket);
 #else
-            var resolved = ResolveEndPoints(endPoint);
+            var resolved = ResolveEndPoints(actualEndPoint);
             for (int i = 0; i < resolved.Length; i++)
             {
                 try
                 {
                     var socket = CreateSocket(resolved[i]);
                     Connect(socket, resolved[i], cancellationToken);
-                    return CreateNetworkStream(socket);
+                    var stream =  CreateNetworkStream(socket);
                 }
                 catch
                 {
@@ -74,7 +78,7 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             // we should never get here...
-            throw new InvalidOperationException("Unabled to resolve endpoint.");
+            throw new InvalidOperationException("Unable to resolve endpoint.");
 #endif
         }
 
