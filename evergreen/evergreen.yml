@@ -395,8 +395,6 @@ functions:
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
-          OS=${OS} \
-            evergreen/cleanup-test-resources.sh
 
   run-csfle-with-mocked-kms-tests:
     - command: shell.exec
@@ -421,8 +419,6 @@ functions:
           TARGET="TestCsfleWithMockedKms" \
           CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
-          OS=${OS} \
-            evergreen/cleanup-test-resources.sh
 
   run-csfle-with-mongocryptd-tests:
     - command: shell.exec
@@ -449,8 +445,6 @@ functions:
           CRYPT_SHARED_LIB_PATH="" \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
-          OS=${OS} \
-            evergreen/cleanup-test-resources.sh
 
   run-atlas-connectivity-tests:
     - command: shell.exec
@@ -831,6 +825,14 @@ functions:
           mongo-orchestration stop
           cd -
           rm -rf $DRIVERS_TOOLS || true
+    - command: subprocess.exec
+      params:
+        binary: bash
+        working_dir: mongo-csharp-driver
+        include_expansions_in_env:
+          - "OS"
+        args:
+          - evergreen/cleanup-test-resources.sh
 
   fix-absolute-paths:
     - command: shell.exec
