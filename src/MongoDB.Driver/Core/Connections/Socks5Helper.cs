@@ -21,6 +21,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GridFS;
 
 namespace MongoDB.Driver.Core.Connections
@@ -43,8 +44,11 @@ namespace MongoDB.Driver.Core.Connections
 
         private const int BufferSize = 512;
 
-        public static void PerformSocks5Handshake(Stream stream, string targetHost, int targetPort, string proxyUsername, string proxyPassword, CancellationToken cancellationToken)
+        //TODO Make an async version of this method
+        public static void PerformSocks5Handshake(Stream stream, EndPoint endPoint, string proxyUsername, string proxyPassword, CancellationToken cancellationToken)
         {
+            var (targetHost, targetPort) = endPoint.GetHostAndPort();
+
             var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
             try
             {
@@ -100,9 +104,18 @@ namespace MongoDB.Driver.Core.Connections
                     // | 1  |  1   | 1 to 255 |  1   | 1 to 255 |
                     // +----+------+----------+------+----------+
                     buffer[0] = SubnegotiationVersion;
+                    //TODO Maybe it can be extracted to a method?
+#if NET472
+                    var usernameLength = EncodeString(proxyUsername, buffer, 2, nameof(proxyUsername));
+#else
                     var usernameLength = EncodeString(proxyUsername, buffer.AsSpan(2), nameof(proxyUsername));
+#endif
                     buffer[1] = usernameLength;
+#if NET472
+                    var passwordLength = EncodeString(proxyPassword, buffer, 3 + usernameLength, nameof(proxyPassword));
+#else
                     var passwordLength = EncodeString(proxyPassword, buffer.AsSpan(3 + usernameLength), nameof(proxyPassword));
+#endif
                     buffer[2 + usernameLength] = passwordLength;
 
                     var authLength = 3 + usernameLength + passwordLength;
@@ -137,18 +150,23 @@ namespace MongoDB.Driver.Core.Connections
                 buffer[2] = 0x00;
                 var addressLength = 0;
 
+                //TODO Can we avoid doing this...?
                 if (IPAddress.TryParse(targetHost, out var ip))
                 {
                     switch (ip.AddressFamily)
                     {
                         case AddressFamily.InterNetwork:
                             buffer[3] = AddressTypeIPv4;
+#if !NET472
                             ip.TryWriteBytes(buffer.AsSpan(4), out _);
+#endif
                             addressLength = 4;
                             break;
                         case AddressFamily.InterNetworkV6:
                             buffer[3] = AddressTypeIPv6;
+#if !NET472
                             ip.TryWriteBytes(buffer.AsSpan(4), out _);
+#endif
                             addressLength = 16;
                             break;
                         default:
@@ -158,7 +176,11 @@ namespace MongoDB.Driver.Core.Connections
                 else
                 {
                     buffer[3] = AddressTypeDomain;
+#if NET472
+                    var hostLength = EncodeString(targetHost, buffer, 5, nameof(targetHost));
+#else
                     var hostLength = EncodeString(targetHost, buffer.AsSpan(5), nameof(targetHost));
+#endif
                     buffer[4] = hostLength;
                     addressLength = hostLength + 1;
                 }
@@ -206,10 +228,24 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private static byte EncodeString(ReadOnlySpan<char> chars, Span<byte> buffer, string parameterName)
+#if NET472
+        private static byte EncodeString(string input, byte[] buffer, int offset, string parameterName)
         {
             try
             {
+                var written = Encoding.UTF8.GetBytes(input, 0, input.Length, buffer, offset);
+                return checked((byte)written);
+            }
+            catch
+            {
+                throw new IOException($"The {parameterName} could not be encoded as UTF-8.");
+            }
+        }
+#else
+        private static byte EncodeString(ReadOnlySpan<char> chars, Span<byte> buffer, string parameterName)
+        {
+            try
+            { //TODO Maybe we should remove checked?
                 return checked((byte)Encoding.UTF8.GetBytes(chars, buffer));
             }
             catch
@@ -217,5 +253,6 @@ namespace MongoDB.Driver.Core.Connections
                 throw new IOException($"The {parameterName} could not be encoded as UTF-8.");
             }
         }
+#endif
     }
 }
