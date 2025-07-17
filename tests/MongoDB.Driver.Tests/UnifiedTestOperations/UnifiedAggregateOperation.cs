@@ -188,6 +188,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new AggregateOptions();
                         options.BatchSize = argument.Value.ToInt32();
                         break;
+                    case "bypassDocumentValidation":
+                        options ??= new AggregateOptions();
+                        options.BypassDocumentValidation = argument.Value.AsBoolean;
+                        break;
                     case "comment":
                         options ??= new AggregateOptions();
                         options.Comment = argument.Value;
