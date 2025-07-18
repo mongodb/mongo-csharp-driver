@@ -205,9 +205,9 @@ namespace MongoDB.Driver.Core.Connections
 
                 var skip = buffer[3] switch
                 {
-                    AddressTypeIPv4 => 4 + 2,
-                    AddressTypeIPv6 => 16 + 2,
-                    AddressTypeDomain => buffer[4] + 1 + 2,
+                    AddressTypeIPv4 => 5,
+                    AddressTypeIPv6 => 17,
+                    AddressTypeDomain => buffer[4] + 2,
                     _ => throw new IOException("Unknown address type in SOCKS5 reply.")
                 };
 

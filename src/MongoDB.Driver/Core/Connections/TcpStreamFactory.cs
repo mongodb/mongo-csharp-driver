@@ -71,6 +71,8 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.ProxyUsername, _settings.ProxyPassword, cancellationToken);
                     }
+
+                    return stream;
                 }
                 catch
                 {
