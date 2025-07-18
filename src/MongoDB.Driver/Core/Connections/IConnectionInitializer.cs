@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Misc;
@@ -34,9 +33,9 @@ namespace MongoDB.Driver.Core.Connections
 
     internal interface IConnectionInitializer
     {
-        ConnectionInitializerContext Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken);
-        Task<ConnectionInitializerContext> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken);
-        ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken);
-        Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken);
+        ConnectionInitializerContext Authenticate(OperationContext operationContext, IConnection connection, ConnectionInitializerContext connectionInitializerContext);
+        Task<ConnectionInitializerContext> AuthenticateAsync(OperationContext operationContext, IConnection connection, ConnectionInitializerContext connectionInitializerContext);
+        ConnectionInitializerContext SendHello(OperationContext operationContext, IConnection connection);
+        Task<ConnectionInitializerContext> SendHelloAsync(OperationContext operationContext, IConnection connection);
     }
 }

@@ -243,8 +243,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 endPoints: serverInfoCollection.Select(c => c.Endpoint).ToArray());
 
             var serverMonitorSettings = new ServerMonitorSettings(
-                connectTimeout: TimeSpan.FromMilliseconds(1),
-                heartbeatInterval: __heartbeatInterval);
+                ConnectTimeout: TimeSpan.FromMilliseconds(20),
+                HeartbeatTimeout: TimeSpan.FromMilliseconds(10),
+                HeartbeatInterval: __heartbeatInterval);
             var serverSettings = new ServerSettings(serverMonitorSettings.HeartbeatInterval);
 
             var eventCapturer = new EventCapturer();

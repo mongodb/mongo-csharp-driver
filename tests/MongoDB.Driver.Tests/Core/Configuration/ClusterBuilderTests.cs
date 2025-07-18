@@ -55,11 +55,13 @@ namespace MongoDB.Driver.Core.Configuration
             var serverMonitorStreamFactory = (TcpStreamFactory)serverMonitorConnectionFactory._streamFactory();
             var serverMonitorTcpStreamSettings = serverMonitorStreamFactory._settings();
             serverMonitorTcpStreamSettings.ConnectTimeout.Should().Be(expectedServerMonitorConnectTimeout);
-            serverMonitorTcpStreamSettings.ReadTimeout.Should().Be(expectedServerMonitorSocketTimeout);
-            serverMonitorTcpStreamSettings.WriteTimeout.Should().Be(expectedServerMonitorSocketTimeout);
+            serverMonitorTcpStreamSettings.ReadTimeout.Should().Be(null);
+            serverMonitorTcpStreamSettings.WriteTimeout.Should().Be(null);
 
             var serverSettings = result._serverMonitorSettings();
             serverSettings.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
+            serverSettings.ConnectTimeout.Should().Be(expectedServerMonitorConnectTimeout);
+            serverSettings.HeartbeatTimeout.Should().Be(expectedServerMonitorSocketTimeout);
         }
 
         [Fact]

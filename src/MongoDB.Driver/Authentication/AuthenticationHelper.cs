@@ -17,7 +17,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -28,8 +27,9 @@ namespace MongoDB.Driver.Authentication
 {
     internal static class AuthenticationHelper
     {
-        public static void Authenticate(IConnection connection, ConnectionDescription description, IAuthenticator authenticator, CancellationToken cancellationToken)
+        public static void Authenticate(OperationContext operationContext, IConnection connection, ConnectionDescription description, IAuthenticator authenticator)
         {
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
 
@@ -41,12 +41,13 @@ namespace MongoDB.Driver.Authentication
             // authentication is currently broken on arbiters
             if (!description.HelloResult.IsArbiter)
             {
-                authenticator.Authenticate(connection, description, cancellationToken);
+                authenticator.Authenticate(operationContext, connection, description);
             }
         }
 
-        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, IAuthenticator authenticator, CancellationToken cancellationToken)
+        public static async Task AuthenticateAsync(OperationContext operationContext, IConnection connection, ConnectionDescription description, IAuthenticator authenticator)
         {
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
 
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Authentication
             // authentication is currently broken on arbiters
             if (!description.HelloResult.IsArbiter)
             {
-                    await authenticator.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
+                    await authenticator.AuthenticateAsync(operationContext, connection, description).ConfigureAwait(false);
             }
         }
 
@@ -68,29 +69,27 @@ namespace MongoDB.Driver.Authentication
             {
                 return MongoPasswordDigest(username, new byte[0]);
             }
-            else
+
+            var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(password);
+            try
             {
-                var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(password);
+                var passwordChars = new char[password.Length];
+                var passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
                 try
                 {
-                    var passwordChars = new char[password.Length];
-                    var passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
-                    try
-                    {
-                        Marshal.Copy(passwordIntPtr, passwordChars, 0, password.Length);
+                    Marshal.Copy(passwordIntPtr, passwordChars, 0, password.Length);
 
-                        return MongoPasswordDigest(username, passwordChars);
-                    }
-                    finally
-                    {
-                        Array.Clear(passwordChars, 0, passwordChars.Length);
-                        passwordCharsHandle.Free();
-                    }
+                    return MongoPasswordDigest(username, passwordChars);
                 }
                 finally
                 {
-                    Marshal.ZeroFreeGlobalAllocUnicode(passwordIntPtr);
+                    Array.Clear(passwordChars, 0, passwordChars.Length);
+                    passwordCharsHandle.Free();
                 }
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocUnicode(passwordIntPtr);
             }
         }
 

@@ -1,4 +1,4 @@
-/* Copyright 2018–present MongoDB Inc.
+/* Copyright 2010–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -102,7 +103,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_command_wire_protocol(
+        public async Task Authenticate_should_send_serverApi_with_command_wire_protocol(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
@@ -120,11 +121,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -141,7 +142,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
+        public async Task Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
             [Values(false, true)] bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
@@ -157,11 +158,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -178,7 +179,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
+        public async Task Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
             [Values("MongoConnectionException", "MongoNotPrimaryException")] string exceptionName,
             [Values(false, true)] bool async)
         {
@@ -189,22 +190,16 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(responseException);
             connection.Description = __descriptionCommandWireProtocol;
 
-            Exception exception;
-            if (async)
-            {
-                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult());
-            }
-            else
-            {
-                exception = Record.Exception(() => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None));
-            }
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_throw_when_server_provides_invalid_r_value(
+        public async Task Authenticate_should_throw_when_server_provides_invalid_r_value(
             [Values(false, true)] bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
@@ -221,24 +216,16 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(poisonedSaslStartResponseMessage);
             connection.Description = __descriptionCommandWireProtocol;
 
-            Action action;
-            if (async)
-            {
-                action = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                action = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
-            }
-
-            var exception = Record.Exception(action);
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_throw_when_server_provides_invalid_serverSignature(
+        public async Task Authenticate_should_throw_when_server_provides_invalid_serverSignature(
             [Values(false, true)] bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
@@ -262,24 +249,16 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(poisonedSaslContinueResponseMessage);
             connection.Description = __descriptionCommandWireProtocol;
 
-            Action act;
-            if (async)
-            {
-                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
-            }
-
-            var exception = Record.Exception(act);
+            var exception = async ?
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_not_throw_when_authentication_succeeds(
+        public async Task Authenticate_should_not_throw_when_authentication_succeeds(
             [Values(false, true)] bool useSpeculativeAuthenticate,
             [Values(false, true)] bool useLongAuthentication,
             [Values(false, true)] bool async)
@@ -317,7 +296,7 @@ namespace MongoDB.Driver.Tests.Authentication
             {
                 // We must call CustomizeInitialHelloCommand so that the authenticator thinks its started to speculatively
                 // authenticate
-                helloCommand = subject.CustomizeInitialHelloCommand(new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } }, default);
+                helloCommand = subject.CustomizeInitialHelloCommand(OperationContext.NoTimeout, new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
             }
             else
             {
@@ -332,20 +311,15 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
 
-            Exception exception;
             if (async)
             {
-                exception = Record.Exception(
-                    () => subject.AuthenticateAsync(connection, connection.Description, CancellationToken.None)
-                        .GetAwaiter().GetResult());
+                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, connection.Description);
             }
             else
             {
-                exception = Record.Exception(
-                    () => subject.Authenticate(connection, connection.Description, CancellationToken.None));
+                subject.Authenticate(OperationContext.NoTimeout, connection, connection.Description);
             }
 
-            exception.Should().BeNull();
             var expectedSentMessageCount = 3 - (useLongAuthentication ? 0 : 1) - (useSpeculativeAuthenticate ? 1 : 0);
             SpinWait.SpinUntil(
                 () => connection.GetSentMessages().Count >= expectedSentMessageCount,
@@ -443,7 +417,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_use_cache(
+        public async Task Authenticate_should_use_cache(
             [Values(false, true)] bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
@@ -467,13 +441,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None)
-                    .GetAwaiter()
-                    .GetResult();
+                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5))
@@ -488,11 +460,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_work_regardless_of_culture(
+        public Task Authenticate_should_work_regardless_of_culture(
             [Values("da-DK", "en-US")] string name,
             [Values(false, true)] bool async)
         {
-            SetCultureAndResetAfterTest(name, () =>
+            return SetCultureAndResetAfterTest(name, async Task() =>
             {
                 var randomStringGenerator = new ConstantRandomStringGenerator("a");
 
@@ -517,25 +489,22 @@ namespace MongoDB.Driver.Tests.Authentication
 
                 if (async)
                 {
-                    subject
-                        .AuthenticateAsync(mockConnection, __descriptionCommandWireProtocol, CancellationToken.None)
-                        .GetAwaiter()
-                        .GetResult();
+                    await subject.AuthenticateAsync(OperationContext.NoTimeout, mockConnection, __descriptionCommandWireProtocol);
                 }
                 else
                 {
-                    subject.Authenticate(mockConnection, __descriptionCommandWireProtocol, CancellationToken.None);
+                    subject.Authenticate(OperationContext.NoTimeout, mockConnection, __descriptionCommandWireProtocol);
                 }
             });
 
-            void SetCultureAndResetAfterTest(string cultureName, Action test)
+            async Task SetCultureAndResetAfterTest(string cultureName, Func<Task> test)
             {
                 var originalCulture = Thread.CurrentThread.CurrentCulture;
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo(cultureName);
 
                 try
                 {
-                    test();
+                    await test();
                 }
                 finally
                 {

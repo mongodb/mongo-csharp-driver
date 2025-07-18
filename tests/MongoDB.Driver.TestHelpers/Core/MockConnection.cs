@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Core.TestHelpers
         private DateTime _openedAtUtc;
         private readonly Queue<ActionQueueItem> _replyActions;
         private readonly List<RequestMessage> _sentMessages;
-        private bool? _wasReadTimeoutChanged;
 
         private readonly Action<ConnectionOpeningEvent> _openingEventHandler;
         private readonly Action<ConnectionOpenedEvent> _openedEventHandler;
@@ -139,8 +138,6 @@ namespace MongoDB.Driver.Core.TestHelpers
 
         public ConnectionSettings Settings => _connectionSettings;
 
-        public bool? WasReadTimeoutChanged => _wasReadTimeoutChanged;
-
         // methods
         public void Dispose()
         {
@@ -210,15 +207,11 @@ namespace MongoDB.Driver.Core.TestHelpers
             return Task.CompletedTask;
         }
 
-        public void Reauthenticate(CancellationToken cancellationToken)
-        {
-            _replyActions.Dequeue().GetEffectiveMessage();
-        }
+        public void Reauthenticate(OperationContext operationContext)
+            => _replyActions.Dequeue().GetEffectiveMessage();
 
-        public async Task ReauthenticateAsync(CancellationToken cancellationToken)
-        {
-            await _replyActions.Dequeue().GetEffectiveMessageAsync().ConfigureAwait(false);
-        }
+        public Task ReauthenticateAsync(OperationContext operationContext)
+            => _replyActions.Dequeue().GetEffectiveMessageAsync();
 
         public ResponseMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
         {
@@ -241,11 +234,6 @@ namespace MongoDB.Driver.Core.TestHelpers
         {
             _sentMessages.Add(message);
             return Task.CompletedTask;
-        }
-
-        public void SetReadTimeout(TimeSpan timeout)
-        {
-            _wasReadTimeoutChanged = true;
         }
 
         // nested type
