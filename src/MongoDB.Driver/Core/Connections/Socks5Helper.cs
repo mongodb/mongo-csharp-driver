@@ -104,7 +104,6 @@ namespace MongoDB.Driver.Core.Connections
                     // | 1  |  1   | 1 to 255 |  1   | 1 to 255 |
                     // +----+------+----------+------+----------+
                     buffer[0] = SubnegotiationVersion;
-                    //TODO Maybe it can be extracted to a method?
 #if NET472
                     var usernameLength = EncodeString(proxyUsername, buffer, 2, nameof(proxyUsername));
 #else
