@@ -106,16 +106,15 @@ namespace MongoDB.Driver.Core.Connections
                     buffer[0] = SubnegotiationVersion;
 #if NET472
                     var usernameLength = EncodeString(proxyUsername, buffer, 2, nameof(proxyUsername));
-#else
-                    var usernameLength = EncodeString(proxyUsername, buffer.AsSpan(2), nameof(proxyUsername));
-#endif
-                    buffer[1] = usernameLength;
-#if NET472
+                    buffer[1] = (byte)usernameLength;
                     var passwordLength = EncodeString(proxyPassword, buffer, 3 + usernameLength, nameof(proxyPassword));
+                    buffer[2 + usernameLength] = (byte)passwordLength;
 #else
-                    var passwordLength = EncodeString(proxyPassword, buffer.AsSpan(3 + usernameLength), nameof(proxyPassword));
+                    usernameLength = EncodeString(proxyUsername.AsSpan(), buffer.AsSpan(2), nameof(proxyUsername));
+                    buffer[1] = (byte)usernameLength;
+                    passwordLength = EncodeString(proxyPassword.AsSpan(), buffer.AsSpan(3 + usernameLength), nameof(proxyPassword));
+                    buffer[2 + usernameLength] = (byte)passwordLength;
 #endif
-                    buffer[2 + usernameLength] = passwordLength;
 
                     var authLength = 3 + usernameLength + passwordLength;
                     stream.Write(buffer, 0, authLength);
@@ -156,14 +155,18 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         case AddressFamily.InterNetwork:
                             buffer[3] = AddressTypeIPv4;
-#if !NET472
+#if NET472
+                            Array.Copy(ip.GetAddressBytes(), 0, buffer, 4, 4);
+#else
                             ip.TryWriteBytes(buffer.AsSpan(4), out _);
 #endif
                             addressLength = 4;
                             break;
                         case AddressFamily.InterNetworkV6:
                             buffer[3] = AddressTypeIPv6;
-#if !NET472
+#if NET472
+                            Array.Copy(ip.GetAddressBytes(), 0, buffer, 4, 16);
+#else
                             ip.TryWriteBytes(buffer.AsSpan(4), out _);
 #endif
                             addressLength = 16;
@@ -244,7 +247,7 @@ namespace MongoDB.Driver.Core.Connections
         private static byte EncodeString(ReadOnlySpan<char> chars, Span<byte> buffer, string parameterName)
         {
             try
-            { //TODO Maybe we should remove checked?
+            {
                 return checked((byte)Encoding.UTF8.GetBytes(chars, buffer));
             }
             catch
