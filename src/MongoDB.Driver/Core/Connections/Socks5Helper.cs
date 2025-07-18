@@ -104,17 +104,10 @@ namespace MongoDB.Driver.Core.Connections
                     // | 1  |  1   | 1 to 255 |  1   | 1 to 255 |
                     // +----+------+----------+------+----------+
                     buffer[0] = SubnegotiationVersion;
-#if NET472
                     var usernameLength = EncodeString(proxyUsername, buffer, 2, nameof(proxyUsername));
                     buffer[1] = (byte)usernameLength;
                     var passwordLength = EncodeString(proxyPassword, buffer, 3 + usernameLength, nameof(proxyPassword));
                     buffer[2 + usernameLength] = (byte)passwordLength;
-#else
-                    usernameLength = EncodeString(proxyUsername.AsSpan(), buffer.AsSpan(2), nameof(proxyUsername));
-                    buffer[1] = (byte)usernameLength;
-                    passwordLength = EncodeString(proxyPassword.AsSpan(), buffer.AsSpan(3 + usernameLength), nameof(proxyPassword));
-                    buffer[2 + usernameLength] = (byte)passwordLength;
-#endif
 
                     var authLength = 3 + usernameLength + passwordLength;
                     stream.Write(buffer, 0, authLength);
@@ -178,11 +171,8 @@ namespace MongoDB.Driver.Core.Connections
                 else
                 {
                     buffer[3] = AddressTypeDomain;
-#if NET472
                     var hostLength = EncodeString(targetHost, buffer, 5, nameof(targetHost));
-#else
-                    var hostLength = EncodeString(targetHost, buffer.AsSpan(5), nameof(targetHost));
-#endif
+
                     buffer[4] = hostLength;
                     addressLength = hostLength + 1;
                 }
@@ -230,7 +220,6 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-#if NET472
         private static byte EncodeString(string input, byte[] buffer, int offset, string parameterName)
         {
             try
@@ -243,18 +232,5 @@ namespace MongoDB.Driver.Core.Connections
                 throw new IOException($"The {parameterName} could not be encoded as UTF-8.");
             }
         }
-#else
-        private static byte EncodeString(ReadOnlySpan<char> chars, Span<byte> buffer, string parameterName)
-        {
-            try
-            {
-                return checked((byte)Encoding.UTF8.GetBytes(chars, buffer));
-            }
-            catch
-            {
-                throw new IOException($"The {parameterName} could not be encoded as UTF-8.");
-            }
-        }
-#endif
     }
 }
