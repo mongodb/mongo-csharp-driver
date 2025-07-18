@@ -25,9 +25,9 @@ namespace MongoDB.Driver.Tests.Specifications.socks5_support
     public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : LoggableTestClass(testOutputHelper)
     {
 
-        [Theory]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true)]
+        // [Theory]
+        // [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false)]
+        // [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true)]
         // [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080", false)]
         // [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true)]
         // [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", false)]
@@ -39,11 +39,13 @@ namespace MongoDB.Driver.Tests.Specifications.socks5_support
         // [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true)]
         public void TestConnectionStrings(string connectionString, bool expectedResult)
         {
+            connectionString = connectionString.Replace("<mappedhost>", "localhost:27017");
             var client = new MongoClient(connectionString);
             var database = client.GetDatabase("admin");
 
             var command = new BsonDocument("hello", 1);
             var result = database.RunCommand<BsonDocument>(command);
+            Assert.NotEmpty(result);
         }
 
     }

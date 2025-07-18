@@ -79,6 +79,28 @@ namespace MongoDB.Driver.Core.Configuration
             _proxyPassword = proxyPassword.WithDefault(null);
         }
 
+        // /// <summary>
+        // ///
+        // /// </summary>
+        // /// <param name="addressFamily"></param>
+        // /// <param name="connectTimeout"></param>
+        // /// <param name="readTimeout"></param>
+        // /// <param name="receiveBufferSize"></param>
+        // /// <param name="sendBufferSize"></param>
+        // /// <param name="socketConfigurator"></param>
+        // /// <param name="writeTimeout"></param>
+        // public TcpStreamSettings(
+        //     Optional<AddressFamily> addressFamily,
+        //     Optional<TimeSpan> connectTimeout,
+        //     Optional<TimeSpan?> readTimeout,
+        //     Optional<int> receiveBufferSize,
+        //     Optional<int> sendBufferSize,
+        //     Optional<Action<Socket>> socketConfigurator,
+        //     Optional<TimeSpan?> writeTimeout)
+        // {
+        //
+        // }
+
         internal TcpStreamSettings(TcpStreamSettings other)
         {
             _addressFamily = other.AddressFamily;

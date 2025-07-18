@@ -1208,6 +1208,7 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the settings.</returns>
         public override string ToString()
         {
+            //TODO Need to add proxy here
             if (_isFrozen)
             {
                 return _frozenStringRepresentation;
@@ -1334,6 +1335,10 @@ namespace MongoDB.Driver
                 _maxConnectionLifeTime,
                 _maxConnectionPoolSize,
                 _minConnectionPoolSize,
+                _proxyHost,
+                _proxyPort,
+                _proxyUsername,
+                _proxyPassword,
                 MongoDefaults.TcpReceiveBufferSize, // TODO: add ReceiveBufferSize to MongoClientSettings?
                 _replicaSetName,
                 _scheme,

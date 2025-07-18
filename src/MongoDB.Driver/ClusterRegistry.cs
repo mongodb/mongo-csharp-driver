@@ -171,8 +171,11 @@ namespace MongoDB.Driver
                 readTimeout: clusterKey.SocketTimeout,
                 receiveBufferSize: clusterKey.ReceiveBufferSize,
                 sendBufferSize: clusterKey.SendBufferSize,
-                writeTimeout: clusterKey.SocketTimeout);
-            //TODO Maybe need to add proxy settings to clusterKey as well
+                writeTimeout: clusterKey.SocketTimeout,
+                proxyHost: clusterKey.ProxyHost,
+                proxyPort: clusterKey.ProxyPort,
+                proxyUsername: clusterKey.ProxyUsername,
+                proxyPassword: clusterKey.ProxyPassword);
         }
 
         internal IClusterInternal GetOrCreateCluster(ClusterKey clusterKey)
