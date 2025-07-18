@@ -2227,7 +2227,7 @@ buildvariants:
     - name: unit-tests-net60
 
 - matrix_name: stable-api-tests
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["standalone", "sharded-cluster"], auth: "auth", ssl: "nossl", os: "windows-64" }
   display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"
   run_on:
     - windows-64-vs2017-test
