@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         private TimeSpan? _maxTime;
         private ProjectionDefinition<TDocument, TProjection> _projection;
         private SortDefinition<TDocument> _sort;
+        private TimeSpan? _timeout;
 
         // properties
         /// <summary>
@@ -75,6 +76,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>
+        [Obsolete("Use Timeout instead")]
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -97,6 +99,15 @@ namespace MongoDB.Driver
         {
             get { return _sort; }
             set { _sort = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        public TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 

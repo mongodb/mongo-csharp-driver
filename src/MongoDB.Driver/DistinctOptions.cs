@@ -28,6 +28,7 @@ namespace MongoDB.Driver
         private Collation _collation;
         private BsonValue _comment;
         private TimeSpan? _maxTime;
+        private TimeSpan? _timeout;
 
         // properties
         /// <summary>
@@ -51,10 +52,20 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>
+        [Obsolete("Use Timeout instead")]
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
             set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        public TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 }

@@ -65,16 +65,18 @@ namespace MongoDB.Driver.Tests
         public TResult ExecuteReadOperation<TResult>(
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions readOperationOptions,
+            ReadPreference readPreference,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken)
         {
             _calls.Enqueue(new ReadCall<TResult>
             {
                 Operation = operation,
                 CancellationToken = cancellationToken,
-                Options = readOperationOptions,
+                ReadPreference = readPreference,
                 SessionId = session?.WrappedCoreSession.Id,
+                Timeout = timeout,
                 UsedImplicitSession = session == null || session.IsImplicit
             });
 
@@ -97,13 +99,14 @@ namespace MongoDB.Driver.Tests
         public Task<TResult> ExecuteReadOperationAsync<TResult>(
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
-            ReadOperationOptions readOperationOptions,
+            ReadPreference readPreference,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken)
         {
             try
             {
-                var result = ExecuteReadOperation(session, operation, readOperationOptions, allowChannelPinning, cancellationToken);
+                var result = ExecuteReadOperation(session, operation, readPreference, allowChannelPinning, timeout, cancellationToken);
                 return Task.FromResult(result);
             }
             catch (Exception ex)
@@ -117,16 +120,16 @@ namespace MongoDB.Driver.Tests
         public TResult ExecuteWriteOperation<TResult>(
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions writeOperationOptions,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken)
         {
             _calls.Enqueue(new WriteCall<TResult>
             {
                 Operation = operation,
                 CancellationToken = cancellationToken,
-                Options = writeOperationOptions,
                 SessionId = session?.WrappedCoreSession.Id,
+                Timeout = timeout,
                 UsedImplicitSession = session == null || session.IsImplicit
             });
 
@@ -149,13 +152,13 @@ namespace MongoDB.Driver.Tests
         public Task<TResult> ExecuteWriteOperationAsync<TResult>(
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            WriteOperationOptions writeOperationOptions,
             bool allowChannelPinning,
+            TimeSpan? timeout,
             CancellationToken cancellationToken)
         {
             try
             {
-                var result = ExecuteWriteOperation(session, operation, writeOperationOptions, allowChannelPinning, cancellationToken);
+                var result = ExecuteWriteOperation(session, operation, allowChannelPinning, timeout, cancellationToken);
                 return Task.FromResult(result);
             }
             catch (Exception ex)
@@ -214,8 +217,9 @@ namespace MongoDB.Driver.Tests
         {
             public IReadOperation<TResult> Operation { get; set; }
             public CancellationToken CancellationToken { get; set; }
-            public ReadOperationOptions Options { get; set; }
+            public ReadPreference ReadPreference { get; set; }
             public BsonDocument SessionId { get; set; }
+            public TimeSpan? Timeout { get; set; }
             public bool UsedImplicitSession { get; set; }
         }
 
@@ -223,8 +227,8 @@ namespace MongoDB.Driver.Tests
         {
             public IWriteOperation<TResult> Operation { get; set; }
             public CancellationToken CancellationToken { get; set; }
-            public WriteOperationOptions Options { get; set; }
             public BsonDocument SessionId { get; set; }
+            public TimeSpan? Timeout { get; set; }
             public bool UsedImplicitSession { get; set; }
         }
     }

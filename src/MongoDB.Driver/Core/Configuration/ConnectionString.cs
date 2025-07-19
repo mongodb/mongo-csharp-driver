@@ -98,6 +98,7 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _socketTimeout;
         private int? _srvMaxHosts;
         private string _srvServiceName;
+        private TimeSpan? _timeout;
         private bool? _tls;
         private bool? _tlsDisableCertificateRevocationCheck;
         private bool? _tlsInsecure;
@@ -399,7 +400,6 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _retryReads; }
         }
 
-
         /// <summary>
         /// Gets a value indicating whether or not to retry writes.
         /// </summary>
@@ -467,6 +467,11 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         [Obsolete("Use TlsInsecure instead.")]
         public bool? SslVerifyCertificate => !_tlsInsecure;
+
+        /// <summary>
+        /// Gets the per-operation timeout
+        /// </summary>
+        public TimeSpan? Timeout => _timeout;
 
         /// <summary>
         /// Gets whether to use TLS.
@@ -1088,6 +1093,10 @@ namespace MongoDB.Driver.Core.Configuration
                 case "sslverifycertificate": // Obsolete
                     var sslVerifyCertificateValue = ParseBoolean(name, value);
                     _tlsInsecure = EnsureTlsInsecureIsValid(!sslVerifyCertificateValue);
+                    break;
+                case "timeout":
+                case "timeoutms":
+                    _timeout = ParseTimeSpan(name, value);
                     break;
                 case "tlsdisablecertificaterevocationcheck":
                     var tlsDisableCertificateRevocationCheckValue = ParseBoolean(name, value);

@@ -86,8 +86,8 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
-                MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
+                MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
 #pragma warning restore 618
             };
@@ -131,7 +131,9 @@ namespace MongoDB.Driver
             operation.Hint.Should().Be(options.Hint);
             operation.Let.Should().Be(options.Let);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
+#pragma warning disable CS0618 // Type or member is obsolete
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             operation.Pipeline.Should().Equal(renderedPipeline.Documents);
             operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
             operation.RetryRequested.Should().BeTrue();
@@ -165,8 +167,8 @@ namespace MongoDB.Driver
                 Comment = "test",
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
-                MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
+                MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
 #pragma warning restore 618
             };
@@ -214,7 +216,9 @@ namespace MongoDB.Driver
             aggregateOperation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.Let.Should().Be(options.Let);
+#pragma warning disable CS0618 // Type or member is obsolete
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
 
@@ -243,7 +247,9 @@ namespace MongoDB.Driver
             findOperation.CursorType.Should().Be(CursorType.NonTailable);
             findOperation.Filter.Should().BeNull();
             findOperation.Limit.Should().Be(null);
+#pragma warning disable CS0618 // Type or member is obsolete
             findOperation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             findOperation.NoCursorTimeout.Should().NotHaveValue();
 #pragma warning disable 618
             findOperation.OplogReplay.Should().NotHaveValue();
@@ -284,8 +290,8 @@ namespace MongoDB.Driver
                 Comment = "test",
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
-                MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
+                MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
 #pragma warning restore 618
             };
@@ -332,7 +338,9 @@ namespace MongoDB.Driver
             aggregateOperation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.Let.Should().Be(options.Let);
+#pragma warning disable CS0618 // Type or member is obsolete
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
         }
@@ -1087,8 +1095,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Options.ExplicitReadPreference.Should().BeNull();
-            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
+            call.ReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
@@ -1134,8 +1141,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Options.ExplicitReadPreference.Should().Be(readPreference);
-            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
+            call.ReadPreference.Should().Be(readPreference);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
@@ -1180,8 +1186,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Options.ExplicitReadPreference.Should().BeNull();
-            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
+            call.ReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
@@ -1226,8 +1231,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Options.ExplicitReadPreference.Should().BeNull();
-            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
+            call.ReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
@@ -1272,8 +1276,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Options.ExplicitReadPreference.Should().BeNull();
-            call.Options.DefaultReadPreference.Should().Be(ReadPreference.Primary);
+            call.ReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);

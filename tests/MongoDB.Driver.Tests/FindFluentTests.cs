@@ -20,8 +20,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -87,7 +85,9 @@ namespace MongoDB.Driver.Tests
                 Collation = new Collation("en-us"),
                 Hint = hint,
                 Limit = 1,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(2),
+#pragma warning restore CS0618 // Type or member is obsolete
                 Skip = 3
             };
             var subject = CreateSubject(session: session, filter: filter, options: findOptions);
@@ -98,7 +98,9 @@ namespace MongoDB.Driver.Tests
                 countOptions.Collation.Equals(findOptions.Collation) &&
                 countOptions.Hint.Equals(hint) &&
                 countOptions.Limit.Equals((long?)findOptions.Limit) &&
+#pragma warning disable CS0618 // Type or member is obsolete
                 countOptions.MaxTime.Equals(findOptions.MaxTime) &&
+#pragma warning restore CS0618 // Type or member is obsolete
                 countOptions.Skip.Equals((long?)findOptions.Skip);
 
             if (async)
@@ -173,7 +175,9 @@ namespace MongoDB.Driver.Tests
                 Collation = new Collation("en-us"),
                 Hint = hint,
                 Limit = 1,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(2),
+#pragma warning restore CS0618 // Type or member is obsolete
                 Skip = 3
             };
             var subject = CreateSubject(session: session, filter: filter, options: findOptions);
@@ -184,7 +188,9 @@ namespace MongoDB.Driver.Tests
                 countOptions.Collation.Equals(findOptions.Collation) &&
                 countOptions.Hint.Equals(hint) &&
                 countOptions.Limit.Equals((long?)findOptions.Limit) &&
+#pragma warning disable CS0618 // Type or member is obsolete
                 countOptions.MaxTime.Equals(findOptions.MaxTime) &&
+#pragma warning restore CS0618 // Type or member is obsolete
                 countOptions.Skip.Equals((long?)findOptions.Skip);
 
             if (async)
@@ -309,7 +315,9 @@ namespace MongoDB.Driver.Tests
             subject.Options.Comment = "awesome";
             subject.Options.Hint = "x_3";
             subject.Options.Max = new BsonDocument("max", 5);
+#pragma warning disable CS0618 // Type or member is obsolete
             subject.Options.MaxTime = TimeSpan.FromSeconds(2);
+#pragma warning restore CS0618 // Type or member is obsolete
             subject.Options.Min = new BsonDocument("min", 2);
             subject.Options.ReturnKey = true;
             subject.Options.ShowRecordId = true;

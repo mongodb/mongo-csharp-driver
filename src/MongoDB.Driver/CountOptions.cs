@@ -31,6 +31,7 @@ namespace MongoDB.Driver
         private long? _limit;
         private TimeSpan? _maxTime;
         private long? _skip;
+        private TimeSpan? _timeout;
 
         // properties
         /// <summary>
@@ -72,6 +73,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>
+        [Obsolete("Use Timeout instead")]
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
@@ -85,6 +87,15 @@ namespace MongoDB.Driver
         {
             get { return _skip; }
             set { _skip = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        public TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 }

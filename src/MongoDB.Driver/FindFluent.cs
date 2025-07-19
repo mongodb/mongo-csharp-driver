@@ -133,7 +133,9 @@ namespace MongoDB.Driver
                 Limit = _options.Limit,
                 Max = _options.Max,
                 MaxAwaitTime = _options.MaxAwaitTime,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = _options.MaxTime,
+#pragma warning restore CS0618 // Type or member is obsolete
                 Min = _options.Min,
                 NoCursorTimeout = _options.NoCursorTimeout,
 #pragma warning disable 618
@@ -144,6 +146,7 @@ namespace MongoDB.Driver
                 ShowRecordId = _options.ShowRecordId,
                 Skip = _options.Skip,
                 Sort = _options.Sort,
+                Timeout = _options.Timeout,
                 TranslationOptions = _options.TranslationOptions
             };
             return new FindFluent<TDocument, TNewProjection>(_session, _collection, _filter, newOptions);
@@ -227,10 +230,12 @@ namespace MongoDB.Driver
                 sb.Append(".limit(" + _options.Limit.Value.ToString() + ")");
             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
             if (_options.MaxTime != null)
             {
                 sb.Append(".maxTime(" + _options.MaxTime.Value.TotalMilliseconds + ")");
             }
+#pragma warning restore CS0618 // Type or member is obsolete
 
             if (_options.Hint != null)
             {
@@ -273,8 +278,11 @@ namespace MongoDB.Driver
                 Collation = _options.Collation,
                 Hint = _options.Hint,
                 Limit = _options.Limit,
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = _options.MaxTime,
-                Skip = _options.Skip
+#pragma warning restore CS0618 // Type or member is obsolete
+                Skip = _options.Skip,
+                Timeout = _options.Timeout
             };
         }
 

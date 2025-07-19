@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -274,7 +275,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, transactionNumber);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, transactionNumber);
 
             var expectedResult = new BsonDocument
             {
@@ -300,7 +301,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -326,7 +327,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -351,7 +352,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyFeature.FirstSupportedWireVersion);
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -376,7 +377,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -404,7 +405,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -415,6 +416,25 @@ namespace MongoDB.Driver.Core.Operations
             };
             result.Should().Be(expectedResult);
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
+        }
+
+        [Theory]
+        [InlineData(42)]
+        [InlineData(-1)]
+        public void CreateCommand_should_ignore_maxtime_if_timeout_specified(int timeoutMs)
+        {
+            var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                MaxTime = TimeSpan.FromTicks(10)
+            };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+
+
+            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(timeoutMs), CancellationToken.None);
+            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
+
+            result.Should().NotContain("maxTimeMS");
         }
 
         [Theory]
@@ -431,7 +451,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -456,7 +476,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -482,7 +502,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -508,7 +528,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription, null);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {

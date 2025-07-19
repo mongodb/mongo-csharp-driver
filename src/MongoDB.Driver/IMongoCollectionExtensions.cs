@@ -1192,7 +1192,9 @@ namespace MongoDB.Driver
                     Let = options.Let,
                     Max = options.Max,
                     MaxAwaitTime = options.MaxAwaitTime,
+#pragma warning disable CS0618 // Type or member is obsolete
                     MaxTime = options.MaxTime,
+#pragma warning restore CS0618 // Type or member is obsolete
                     Min = options.Min,
                     NoCursorTimeout = options.NoCursorTimeout,
 #pragma warning disable 618
@@ -1200,6 +1202,7 @@ namespace MongoDB.Driver
 #pragma warning restore 618
                     ReturnKey = options.ReturnKey,
                     ShowRecordId = options.ShowRecordId,
+                    Timeout = options.Timeout,
                     TranslationOptions = options.TranslationOptions
                 };
             }

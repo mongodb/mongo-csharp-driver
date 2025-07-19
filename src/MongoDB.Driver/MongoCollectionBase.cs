@@ -435,7 +435,8 @@ namespace MongoDB.Driver
                 var bulkWriteOptions = options == null ? null : new BulkWriteOptions
                 {
                     BypassDocumentValidation = options.BypassDocumentValidation,
-                    Comment = options.Comment
+                    Comment = options.Comment,
+                    Timeout = options.Timeout,
                 };
                 bulkWrite(new[] { model }, bulkWriteOptions);
             }

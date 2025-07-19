@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -202,7 +202,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "maxTimeMS":
                         options ??= new AggregateOptions();
+#pragma warning disable CS0618 // Type or member is obsolete
                         options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+#pragma warning restore CS0618 // Type or member is obsolete
                         break;
                     case "pipeline":
                         pipeline = argument.Value.AsBsonArray.Cast<BsonDocument>().ToList();
