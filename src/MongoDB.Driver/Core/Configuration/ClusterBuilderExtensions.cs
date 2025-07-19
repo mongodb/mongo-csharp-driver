@@ -118,6 +118,15 @@ namespace MongoDB.Driver.Core.Configuration
                 builder = builder.ConfigureTcp(s => s.With(addressFamily: AddressFamily.InterNetworkV6));
             }
 
+            if (connectionString.ProxyHost != null)
+            {
+                builder = builder.ConfigureTcp(s => s.With(
+                    proxyHost: connectionString.ProxyHost,
+                    proxyPort: connectionString.ProxyPort,
+                    proxyUsername: connectionString.ProxyUsername,
+                    proxyPassword: connectionString.ProxyPassword));
+            }
+
             if (connectionString.SocketTimeout != null)
             {
                 builder = builder.ConfigureTcp(s => s.With(

@@ -48,19 +48,31 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
+            EndPoint actualEndPoint;
+
+            actualEndPoint = _settings.UseProxy ? new DnsEndPoint(_settings.ProxyHost, _settings.ProxyPort.Value) : endPoint;
+
 #if NET472
-            var socket = CreateSocket(endPoint);
-            Connect(socket, endPoint, cancellationToken);
+            var socket = CreateSocket(actualEndPoint);
+            Connect(socket, actualEndPoint, cancellationToken);
             return CreateNetworkStream(socket);
 #else
-            var resolved = ResolveEndPoints(endPoint);
+            var resolved = ResolveEndPoints(actualEndPoint);
             for (int i = 0; i < resolved.Length; i++)
             {
                 try
                 {
                     var socket = CreateSocket(resolved[i]);
                     Connect(socket, resolved[i], cancellationToken);
-                    return CreateNetworkStream(socket);
+                    var stream =  CreateNetworkStream(socket);
+
+                    //TODO Need to do the same for the async version and for net472
+                    if (_settings.UseProxy)
+                    {
+                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.ProxyUsername, _settings.ProxyPassword, cancellationToken);
+                    }
+
+                    return stream;
                 }
                 catch
                 {
@@ -74,7 +86,7 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             // we should never get here...
-            throw new InvalidOperationException("Unabled to resolve endpoint.");
+            throw new InvalidOperationException("Unable to resolve endpoint.");
 #endif
         }
 
@@ -258,20 +270,18 @@ namespace MongoDB.Driver.Core.Connections
 
         private EndPoint[] ResolveEndPoints(EndPoint initial)
         {
-            var dnsInitial = initial as DnsEndPoint;
-            if (dnsInitial == null)
+            if (initial is not DnsEndPoint dnsInitial)
             {
-                return new[] { initial };
+                return [initial];
             }
 
-            IPAddress address;
-            if (IPAddress.TryParse(dnsInitial.Host, out address))
+            if (IPAddress.TryParse(dnsInitial.Host, out var address))
             {
-                return new[] { new IPEndPoint(address, dnsInitial.Port) };
+                return [new IPEndPoint(address, dnsInitial.Port)];
             }
 
             var preferred = initial.AddressFamily;
-            if (preferred == AddressFamily.Unspecified || preferred == AddressFamily.Unknown)
+            if (preferred is AddressFamily.Unspecified or AddressFamily.Unknown)
             {
                 preferred = _settings.AddressFamily;
             }
@@ -285,20 +295,18 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task<EndPoint[]> ResolveEndPointsAsync(EndPoint initial)
         {
-            var dnsInitial = initial as DnsEndPoint;
-            if (dnsInitial == null)
+            if (initial is not DnsEndPoint dnsInitial)
             {
-                return new[] { initial };
+                return [initial];
             }
 
-            IPAddress address;
-            if (IPAddress.TryParse(dnsInitial.Host, out address))
+            if (IPAddress.TryParse(dnsInitial.Host, out var address))
             {
-                return new[] { new IPEndPoint(address, dnsInitial.Port) };
+                return [new IPEndPoint(address, dnsInitial.Port)];
             }
 
             var preferred = initial.AddressFamily;
-            if (preferred == AddressFamily.Unspecified || preferred == AddressFamily.Unknown)
+            if (preferred is AddressFamily.Unspecified or AddressFamily.Unknown)
             {
                 preferred = _settings.AddressFamily;
             }
