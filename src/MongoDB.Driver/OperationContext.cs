@@ -24,7 +24,7 @@ namespace MongoDB.Driver
     internal sealed class OperationContext : IDisposable
     {
         // TODO: this static field is temporary here and will be removed in a future PRs in scope of CSOT.
-        public static readonly OperationContext NoTimeout = new(System.Threading.Timeout.InfiniteTimeSpan, CancellationToken.None);
+        public static readonly OperationContext NoTimeout = new(null, CancellationToken.None);
 
         private CancellationTokenSource _remainingTimeoutCancellationTokenSource;
         private CancellationTokenSource _combinedCancellationTokenSource;
@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         internal OperationContext(Stopwatch stopwatch, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Stopwatch = stopwatch;
-            Timeout = Ensure.IsNullOrValidTimeout(timeout, nameof(timeout));
+            Timeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
             CancellationToken = cancellationToken;
             RootContext = this;
         }

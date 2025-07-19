@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -221,15 +221,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        /// <summary>
-        /// Creates the command.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="connectionDescription">The connection description.</param>
-        /// <returns>
-        /// The command.
-        /// </returns>
-        protected internal virtual BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        protected internal virtual BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             return new BsonDocument
             {
@@ -244,7 +236,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "scope", _scope, _scope != null },
                 { "jsMode", () => _javaScriptMode.Value, _javaScriptMode.HasValue },
                 { "verbose", () => _verbose.Value, _verbose.HasValue },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
         }

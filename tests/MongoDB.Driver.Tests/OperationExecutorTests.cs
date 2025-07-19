@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests
                 Record.Exception(() => subject.ExecuteReadOperation(session, operation, null, true, Timeout.InfiniteTimeSpan, CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentNullException>()
-                .Subject.ParamName.Should().Be("options");
+                .Subject.ParamName.Should().Be("readPreference");
         }
 
         [Theory]

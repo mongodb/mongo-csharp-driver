@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,10 +18,7 @@ using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -217,7 +214,7 @@ namespace MongoDB.Driver.Core.Operations
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -246,7 +243,7 @@ namespace MongoDB.Driver.Core.Operations
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {

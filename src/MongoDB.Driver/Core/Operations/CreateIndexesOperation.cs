@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(operationContext))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
@@ -105,12 +105,12 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
+                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var maxWireVersion = connectionDescription.MaxWireVersion;
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
                 { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument())) },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "comment", _comment, _comment != null },
                 { "commitQuorum", () => _commitQuorum.ToBsonValue(), _commitQuorum != null }
@@ -132,10 +132,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private IDisposable BeginOperation() => EventContext.BeginOperation(null, "createIndexes");
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
-            var command = CreateCommand(session, connectionDescription);
+            var command = CreateCommand(operationContext, session, connectionDescription);
             var resultSerializer = BsonDocumentSerializer.Instance;
             return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings);
         }

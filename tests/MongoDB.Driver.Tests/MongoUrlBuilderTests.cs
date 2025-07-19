@@ -447,7 +447,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(MongoDefaults.LocalThreshold, builder.LocalThreshold);
                 Assert.Equal(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
                 Assert.Equal(MongoDefaults.SocketTimeout, builder.SocketTimeout);
-                Assert.Equal(Timeout.InfiniteTimeSpan, builder.Timeout);
+                Assert.Equal(null, builder.Timeout);
                 Assert.Equal(MongoInternalDefaults.MongoClientSettings.SrvServiceName, builder.SrvServiceName);
                 Assert.Equal(null, builder.Username);
 #pragma warning disable 618
@@ -1157,7 +1157,7 @@ namespace MongoDB.Driver.Tests
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.Equal(timeout ?? Timeout.InfiniteTimeSpan, builder.Timeout);
+                Assert.Equal(timeout, builder.Timeout);
                 Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }

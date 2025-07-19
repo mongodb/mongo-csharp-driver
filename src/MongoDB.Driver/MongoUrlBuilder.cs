@@ -116,7 +116,7 @@ namespace MongoDB.Driver
             _socketTimeout = MongoDefaults.SocketTimeout;
             _srvMaxHosts = null;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
-            _timeout = System.Threading.Timeout.InfiniteTimeSpan;
+            _timeout = null;
             _username = null;
             _useTls = false;
             _w = null;
@@ -969,12 +969,10 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("socketTimeout={0}&", FormatTimeSpan(_socketTimeout));
             }
-
             if (_timeout.HasValue)
             {
                 query.AppendFormat("timeout={0}&", FormatTimeSpan(_timeout.Value));
             }
-
 #pragma warning disable 618
             if (_waitQueueMultiple != 0.0 && _waitQueueMultiple != MongoDefaults.WaitQueueMultiple)
 #pragma warning restore 618
@@ -1064,7 +1062,7 @@ namespace MongoDB.Driver
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
             _srvMaxHosts = connectionString.SrvMaxHosts;
             _srvServiceName = connectionString.SrvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName;
-            _timeout = connectionString.Timeout.GetValueOrDefault(System.Threading.Timeout.InfiniteTimeSpan);
+            _timeout = connectionString.Timeout;
             _tlsDisableCertificateRevocationCheck = connectionString.TlsDisableCertificateRevocationCheck;
             _username = connectionString.Username;
             _useTls = connectionString.Tls.GetValueOrDefault(false);
@@ -1083,11 +1081,6 @@ namespace MongoDB.Driver
 #pragma warning restore 618
             _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
             _wTimeout = connectionString.WTimeout;
-        }
-
-        private bool AnyWriteConcernSettingsAreSet()
-        {
-            return _fsync != null || _journal != null || _w != null || _wTimeout != null;
         }
 
         private string FormatTimeSpan(TimeSpan value)

@@ -465,7 +465,7 @@ namespace MongoDB.Driver.Core.Misc
                 return value;
             }
 
-            throw new ArgumentException($"Invalid timeout: {value}.", paramName);
+            throw new ArgumentOutOfRangeException($"Invalid timeout: {value}.", paramName);
         }
 
         /// <summary>

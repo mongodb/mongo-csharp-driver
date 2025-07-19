@@ -190,7 +190,7 @@ namespace MongoDB.Driver
                         _readConcern.Value == rhs._readConcern.Value &&
                         object.Equals(_readEncoding, rhs._readEncoding) &&
                         object.Equals(_readPreference.Value, rhs._readPreference.Value) &&
-                        _timeout.Value == rhs._timeout.Value &&
+                        _timeout == rhs._timeout &&
                         _writeConcern.Value == rhs._writeConcern.Value &&
                         object.Equals(_writeEncoding, rhs._writeEncoding);
                 }
@@ -244,7 +244,7 @@ namespace MongoDB.Driver
             hash = 37 * hash + ((_readConcern.Value == null) ? 0 : _readConcern.GetHashCode());
             hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
-            hash = 37 * hash + _timeout.Value.GetHashCode();
+            hash = 37 * hash + _timeout?.GetHashCode() ?? 0;
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
             hash = 37 * hash + ((_writeEncoding.Value == null) ? 0 : _writeEncoding.GetHashCode());
             return hash;

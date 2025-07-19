@@ -758,11 +758,5 @@ namespace MongoDB.Driver
         {
             return _url;
         }
-
-        // private methods
-        private bool AnyWriteConcernSettingsAreSet()
-        {
-            return _fsync != null || _journal != null || _w != null || _wTimeout != null;
-        }
     }
 }
