@@ -13,60 +13,58 @@
  * limitations under the License.
  */
 
-using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.transactions
 {
     [Trait("Category", "Integration")]
-    public class TransactionsProseTests
+    public class TransactionsProseTests : LoggableTestClass
     {
-        private string _collectionName = "txn-test-col";
-        private string _databaseName = "txn-test";
+        private const string CollectionName = "txn-test-col";
+        private const string DatabaseName = "txn-test";
+
+        public TransactionsProseTests(ITestOutputHelper output) : base(output)
+        {
+        }
 
         // https://github.com/mongodb/specifications/blob/fc7996db26d0ea92091a5034c6acb287ef7282fe/source/transactions/tests/README.md#10-write-concern-not-inherited-from-collection-object-inside-transaction
         [Theory]
         [ParameterAttributeData]
-        public async void Ensure_write_concern_is_not_inherited_from_collection_object_inside_transaction([Values(false, true)] bool async)
+        public async Task Ensure_write_concern_is_not_inherited_from_collection_object_inside_transaction([Values(false, true)] bool async)
         {
             RequireServer.Check().ClusterTypes(ClusterType.LoadBalanced, ClusterType.ReplicaSet, ClusterType.Sharded);
 
             using var client = DriverTestConfiguration.CreateMongoClient();
-            var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
-            database.DropCollection(_collectionName);
+            var database = client.GetDatabase(DatabaseName).WithWriteConcern(WriteConcern.WMajority);
+            database.DropCollection(CollectionName);
 
-            var collection = client.GetDatabase(_databaseName).GetCollection<BsonDocument>(_collectionName)
+            var collection = client.GetDatabase(DatabaseName).GetCollection<BsonDocument>(CollectionName)
                 .WithWriteConcern(WriteConcern.Unacknowledged);
 
-            Exception exception;
             using (var session = client.StartSession())
             {
                 session.StartTransaction();
 
                 if (async)
                 {
-                    exception = await Record.ExceptionAsync( async () =>
-                    {
-                        await collection.InsertOneAsync(new BsonDocument("n", 1));
-                        await session.CommitTransactionAsync();
-                    });
+                    await collection.InsertOneAsync(new BsonDocument("n", 1));
+                    await session.CommitTransactionAsync();
                 }
                 else
                 {
-                    exception = Record.Exception(() =>
-                    {
-                        collection.InsertOne(new BsonDocument("n", 1));
-                        session.CommitTransaction();
-                    });
+                    collection.InsertOne(new BsonDocument("n", 1));
+                    session.CommitTransaction();
                 }
             }
 
-            exception.Should().BeNull();
             collection.Find(new BsonDocument("n", 1)).First().Should().NotBeNull().And.Subject["n"].AsInt32.Should().Be(1);
         }
     }
