@@ -1991,14 +1991,8 @@ task_groups:
             - "AWS_ACCESS_KEY_ID"
             - "AWS_SECRET_ACCESS_KEY"
             - "AWS_SESSION_TOKEN"
-          args:
-            - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-secrets.sh
-            - "atlas"
-      - command: subprocess.exec
-        params:
-          binary: bash
           env:
-            LAMBDA_STACK_NAME: dbx-csharp-lambda
+            CLUSTER_PREFIX: dbx-csharp-search-index
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update
@@ -2009,8 +2003,6 @@ task_groups:
       - command: subprocess.exec
         params:
           binary: bash
-          env:
-            LAMBDA_STACK_NAME: dbx-csharp-lambda
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/teardown-atlas-cluster.sh
     tasks:
