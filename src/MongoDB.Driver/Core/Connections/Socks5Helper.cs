@@ -141,31 +141,22 @@ namespace MongoDB.Driver.Core.Connections
                 buffer[2] = 0x00;
                 var addressLength = 0;
 
-                //TODO Can we avoid doing this...?
                 if (IPAddress.TryParse(targetHost, out var ip))
                 {
                     switch (ip.AddressFamily)
                     {
                         case AddressFamily.InterNetwork:
                             buffer[3] = AddressTypeIPv4;
-#if NET472
                             Array.Copy(ip.GetAddressBytes(), 0, buffer, 4, 4);
-#else
-                            ip.TryWriteBytes(buffer.AsSpan(4), out _);
-#endif
                             addressLength = 4;
                             break;
                         case AddressFamily.InterNetworkV6:
                             buffer[3] = AddressTypeIPv6;
-#if NET472
                             Array.Copy(ip.GetAddressBytes(), 0, buffer, 4, 16);
-#else
-                            ip.TryWriteBytes(buffer.AsSpan(4), out _);
-#endif
                             addressLength = 16;
                             break;
                         default:
-                            throw new IOException("Invalid target host address family. Only IPv4 and IPv6 are supported.");
+                            throw new IOException("Invalid target host address family.");
                     }
                 }
                 else
@@ -188,6 +179,8 @@ namespace MongoDB.Driver.Core.Connections
                 // +----+-----+-------+------+----------+----------+
                 // | 1  |  1  | X'00' |  1   | Variable |    2     |
                 // +----+-----+-------+------+----------+----------+
+
+                // We read also the first byte of the address, as it contains the length of the address if it is a domain.
                 stream.ReadBytes(buffer, 0,5, cancellationToken);
                 VerifyProtocolVersion(buffer[0]);
                 if (buffer[1] != Socks5Success)
@@ -195,6 +188,7 @@ namespace MongoDB.Driver.Core.Connections
                     throw new IOException($"SOCKS5 connect failed with code 0x{buffer[1]:X2}");
                 }
 
+                // We need to skip the address length minus 1, because we ready already the first byte of the address before
                 var skip = buffer[3] switch
                 {
                     AddressTypeIPv4 => 5,
@@ -203,8 +197,8 @@ namespace MongoDB.Driver.Core.Connections
                     _ => throw new IOException("Unknown address type in SOCKS5 reply.")
                 };
 
+                // Address and port in response are read, but ignored.
                 stream.ReadBytes(buffer, 0, skip, cancellationToken);
-                // Address and port in response are ignored
             }
             finally
             {
