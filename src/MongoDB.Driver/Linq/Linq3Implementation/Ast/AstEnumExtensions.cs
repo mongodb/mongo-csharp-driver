@@ -16,12 +16,13 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
 {
     internal static class AstEnumExtensions
     {
-        public static string Render(this BsonType type) => type.ToStringRepresentation();
+        public static string Render(this BsonType type) => Utils.ConvertBsonTypeToServerRepresentation(type);
 
         public static string Render(this ByteOrder byteOrder)
         {

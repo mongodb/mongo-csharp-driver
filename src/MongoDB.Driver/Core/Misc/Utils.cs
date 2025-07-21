@@ -14,19 +14,13 @@
  */
 
 using System;
+using MongoDB.Bson;
 
-namespace MongoDB.Bson
+namespace MongoDB.Driver.Core.Misc
 {
-    /// <summary>
-    /// A static class containing extension methods for <see cref="BsonType"/>.
-    /// </summary>
-    public static class BsonTypeExtensions
+    internal static class Utils
     {
-        /// <summary>
-        /// Maps a <see cref="BsonType"/> to its corresponding string representation.
-        /// </summary>
-        /// <param name="type">The input type to map.</param>
-        public static string ToStringRepresentation(this BsonType type)
+        public static string ConvertBsonTypeToServerRepresentation(BsonType type)
         {
             return type switch
             {

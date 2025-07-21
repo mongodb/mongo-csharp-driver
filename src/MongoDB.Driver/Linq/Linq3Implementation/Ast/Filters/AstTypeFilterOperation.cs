@@ -52,11 +52,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             if (_types.Count == 1)
             {
                 var type = _types[0];
-                return new BsonDocument("$type", type.ToStringRepresentation());
+                return new BsonDocument("$type", Utils.ConvertBsonTypeToServerRepresentation(type));
             }
             else
             {
-                return new BsonDocument("$type", new BsonArray(_types.Select(type => type.ToStringRepresentation())));
+                return new BsonDocument("$type", new BsonArray(_types.Select(Utils.ConvertBsonTypeToServerRepresentation)));
             }
         }
     }
