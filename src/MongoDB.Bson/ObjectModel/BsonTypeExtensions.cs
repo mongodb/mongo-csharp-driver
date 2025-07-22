@@ -23,10 +23,10 @@ namespace MongoDB.Bson
     public static class BsonTypeExtensions
     {
         /// <summary>
-        /// Maps a <see cref="BsonType"/> to its corresponding string representation.
+        /// Maps a <see cref="BsonType"/> to its corresponding server string representation.
         /// </summary>
         /// <param name="type">The input type to map.</param>
-        public static string ToStringRepresentation(this BsonType type)
+        public static string ToServerString(this BsonType type)
         {
             return type switch
             {

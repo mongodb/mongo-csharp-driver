@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
 {
     internal static class AstEnumExtensions
     {
-        public static string Render(this BsonType type) => type.ToStringRepresentation();
+        public static string Render(this BsonType type) => type.ToServerString();
 
         public static string Render(this ByteOrder byteOrder)
         {
