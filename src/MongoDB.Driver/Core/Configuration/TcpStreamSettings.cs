@@ -16,6 +16,7 @@
 using System;
 using System.Net.Sockets;
 using System.Threading;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -32,11 +33,8 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly int _receiveBufferSize;
         private readonly int _sendBufferSize;
         private readonly Action<Socket> _socketConfigurator;
+        private readonly Socks5ProxySettings _socks5ProxySettings;
         private readonly TimeSpan? _writeTimeout;
-        private readonly string _proxyHost;
-        private readonly int? _proxyPort;
-        private readonly string _proxyUsername;
-        private readonly string _proxyPassword;
 
         // constructors
         /// <summary>
@@ -48,11 +46,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="receiveBufferSize">Size of the receive buffer.</param>
         /// <param name="sendBufferSize">Size of the send buffer.</param>
         /// <param name="socketConfigurator">The socket configurator.</param>
+        /// <param name="socks5ProxySettings">The SOCKS5 proxy settings.</param>
         /// <param name="writeTimeout">The write timeout.</param>
-        /// <param name="proxyHost">//TODO</param>
-        /// <param name="proxyPort"></param>
-        /// <param name="proxyUsername"></param>
-        /// <param name="proxyPassword"></param>
         public TcpStreamSettings(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
             Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
@@ -61,10 +56,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> sendBufferSize = default(Optional<int>),
             Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>),
-            Optional<string> proxyHost = default(Optional<string>),
-            Optional<int?> proxyPort = default(Optional<int?>),
-            Optional<string> proxyUsername = default(Optional<string>),
-            Optional<string> proxyPassword = default(Optional<string>))
+            Optional<Socks5ProxySettings> socks5ProxySettings = default(Optional<Socks5ProxySettings>))
         {
             _addressFamily = addressFamily.WithDefault(AddressFamily.InterNetwork);
             _connectTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(connectTimeout.WithDefault(Timeout.InfiniteTimeSpan), "connectTimeout");
@@ -73,10 +65,7 @@ namespace MongoDB.Driver.Core.Configuration
             _sendBufferSize = Ensure.IsGreaterThanZero(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
             _socketConfigurator = socketConfigurator.WithDefault(null);
             _writeTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(writeTimeout.WithDefault(null), "writeTimeout");
-            _proxyHost = proxyHost.WithDefault(null);
-            _proxyPort = proxyPort.WithDefault(null);
-            _proxyUsername = proxyUsername.WithDefault(null);
-            _proxyPassword = proxyPassword.WithDefault(null);
+            _socks5ProxySettings = socks5ProxySettings.WithDefault(null);
         }
 
         // /// <summary>
@@ -109,11 +98,8 @@ namespace MongoDB.Driver.Core.Configuration
             _receiveBufferSize = other.ReceiveBufferSize;
             _sendBufferSize = other.SendBufferSize;
             _socketConfigurator = other.SocketConfigurator;
+            _socks5ProxySettings = other._socks5ProxySettings;
             _writeTimeout = other.WriteTimeout;
-            _proxyHost = other._proxyHost;
-            _proxyPort = other._proxyPort;
-            _proxyUsername = other._proxyUsername;
-            _proxyPassword = other._proxyPassword;
         }
 
         // properties
@@ -184,6 +170,11 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the SOCKS5 proxy settings.
+        /// </summary>
+        public Socks5ProxySettings Socks5ProxySettings => _socks5ProxySettings;
+
+        /// <summary>
         /// Gets the write timeout.
         /// </summary>
         /// <value>
@@ -193,28 +184,6 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get { return _writeTimeout; }
         }
-
-        //TODO Add xml docs
-        /// <summary>
-        ///
-        /// </summary>
-        public string ProxyHost => _proxyHost;
-        /// <summary>
-        ///
-        /// </summary>
-        public int? ProxyPort => _proxyPort;
-        /// <summary>
-        ///
-        /// </summary>
-        public string ProxyUsername => _proxyUsername;
-        /// <summary>
-        ///
-        /// </summary>
-        public string ProxyPassword => _proxyPassword;
-
-        //TODO We can decide to remove this
-        internal bool UseProxy => !string.IsNullOrEmpty(_proxyHost) && _proxyPort.HasValue;
-
 
         // methods
         /// <summary>
@@ -226,11 +195,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="receiveBufferSize">Size of the receive buffer.</param>
         /// <param name="sendBufferSize">Size of the send buffer.</param>
         /// <param name="socketConfigurator">The socket configurator.</param>
+        /// <param name="socks5ProxySettings">The SOCKS5 proxy settings.</param>
         /// <param name="writeTimeout">The write timeout.</param>
-        /// <param name="proxyHost">  //TODO Add docs</param>
-        /// <param name="proxyPort"></param>
-        /// <param name="proxyUsername"></param>
-        /// <param name="proxyPassword"></param>
         /// <returns>A new TcpStreamSettings instance.</returns>
         public TcpStreamSettings With(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
@@ -240,10 +206,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> sendBufferSize = default(Optional<int>),
             Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>),
-            Optional<string> proxyHost = default(Optional<string>),
-            Optional<int?> proxyPort = default(Optional<int?>),
-            Optional<string> proxyUsername = default(Optional<string>),
-            Optional<string> proxyPassword = default(Optional<string>))
+            Optional<Socks5ProxySettings> socks5ProxySettings = default(Optional<Socks5ProxySettings>))
         {
             return new TcpStreamSettings(
                 addressFamily: addressFamily.WithDefault(_addressFamily),
@@ -252,11 +215,8 @@ namespace MongoDB.Driver.Core.Configuration
                 receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
                 sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
                 socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
-                writeTimeout: writeTimeout.WithDefault(_writeTimeout),
-                proxyHost: proxyHost.WithDefault(_proxyHost),
-                proxyPort: proxyPort.WithDefault(_proxyPort),
-                proxyUsername: proxyUsername.WithDefault(_proxyUsername),
-                proxyPassword: proxyPassword.WithDefault(_proxyPassword));
+                socks5ProxySettings: socks5ProxySettings.WithDefault(_socks5ProxySettings),
+                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
         }
     }
 }
