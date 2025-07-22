@@ -172,10 +172,7 @@ namespace MongoDB.Driver
                 receiveBufferSize: clusterKey.ReceiveBufferSize,
                 sendBufferSize: clusterKey.SendBufferSize,
                 writeTimeout: clusterKey.SocketTimeout,
-                proxyHost: clusterKey.ProxyHost,
-                proxyPort: clusterKey.ProxyPort,
-                proxyUsername: clusterKey.ProxyUsername,
-                proxyPassword: clusterKey.ProxyPassword);
+                socks5ProxySettings: clusterKey.Socks5ProxySettings);
         }
 
         internal IClusterInternal GetOrCreateCluster(ClusterKey clusterKey)

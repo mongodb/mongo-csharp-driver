@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
@@ -58,10 +59,6 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
-        private string _proxyHost;
-        private int? _proxyPort;
-        private string _proxyUsername;
-        private string _proxyPassword;
         private ReadConcern _readConcern;
         private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
@@ -74,6 +71,7 @@ namespace MongoDB.Driver
         private ServerMonitoringMode _serverMonitoringMode;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
+        private Socks5ProxySettings _socks5ProxySettings;
         private int _srvMaxHosts;
         private string _srvServiceName;
         private SslSettings _sslSettings;
@@ -114,10 +112,6 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
-            _proxyHost = null;
-            _proxyPort = null;
-            _proxyUsername = null;
-            _proxyPassword = null;
             _readConcern = ReadConcern.Default;
             _readEncoding = null;
             _readPreference = ReadPreference.Primary;
@@ -130,6 +124,7 @@ namespace MongoDB.Driver
             _serverMonitoringMode = ServerMonitoringMode.Auto;
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _socks5ProxySettings = null;
             _srvMaxHosts = 0;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _sslSettings = null;
@@ -438,60 +433,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the proxy host.
+        /// Gets or sets the SOCKS5 proxy settings.
         /// </summary>
-        public string ProxyHost
+        public Socks5ProxySettings Socks5ProxySettings
         {
-            get => _proxyHost;
+            get => _socks5ProxySettings;
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _proxyHost = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the proxy port.
-        /// </summary>
-        public int? ProxyPort
-        {
-            get => _proxyPort;
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-
-                if (value is < 0 or > 65535)
-                {
-                    throw new MongoConfigurationException("ProxyPort must be between 0 and 65535.");
-                }
-
-                _proxyPort = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the proxy username.
-        /// </summary>
-        public string ProxyUsername
-        {
-            get => _proxyUsername;
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _proxyUsername = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the proxy password.
-        /// </summary>
-        public string ProxyPassword
-        {
-            get => _proxyPassword;
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _proxyPassword = value;
+                _socks5ProxySettings = value;
             }
         }
 
@@ -945,10 +895,6 @@ namespace MongoDB.Driver
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
             clientSettings.MaxConnectionPoolSize = ConnectionStringConversions.GetEffectiveMaxConnections(url.MaxConnectionPoolSize);
             clientSettings.MinConnectionPoolSize = url.MinConnectionPoolSize;
-            clientSettings.ProxyHost = url.ProxyHost;
-            clientSettings.ProxyPort = url.ProxyPort;
-            clientSettings.ProxyUsername = url.ProxyUsername;
-            clientSettings.ProxyPassword = url.ProxyPassword;
             clientSettings.ReadConcern = new ReadConcern(url.ReadConcernLevel);
             clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             clientSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
@@ -960,6 +906,10 @@ namespace MongoDB.Driver
             clientSettings.ServerMonitoringMode = url.ServerMonitoringMode ?? ServerMonitoringMode.Auto;
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
+            if (!string.IsNullOrEmpty(url.ProxyHost))
+            {
+                clientSettings.Socks5ProxySettings = Socks5ProxySettings.Create(url.ProxyHost, url.ProxyPort, url.ProxyUsername, url.ProxyPassword);
+            }
             clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);
             clientSettings.SrvServiceName = url.SrvServiceName;
             clientSettings.SslSettings = null;
@@ -1007,10 +957,6 @@ namespace MongoDB.Driver
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
             clone._minConnectionPoolSize = _minConnectionPoolSize;
-            clone._proxyHost = _proxyHost;
-            clone._proxyPort = _proxyPort;
-            clone._proxyUsername = _proxyUsername;
-            clone._proxyPassword = _proxyPassword;
             clone._readConcern = _readConcern;
             clone._readEncoding = _readEncoding;
             clone._readPreference = _readPreference;
@@ -1023,6 +969,7 @@ namespace MongoDB.Driver
             clone._serverMonitoringMode = _serverMonitoringMode;
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
+            clone._socks5ProxySettings = _socks5ProxySettings;
             clone._srvMaxHosts = _srvMaxHosts;
             clone._srvServiceName = _srvServiceName;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
@@ -1081,10 +1028,6 @@ namespace MongoDB.Driver
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
-                _proxyHost == rhs._proxyHost &&
-                _proxyPort == rhs._proxyPort &&
-                _proxyUsername == rhs._proxyUsername &&
-                _proxyPassword == rhs._proxyPassword &&
                 object.Equals(_readEncoding, rhs._readEncoding) &&
                 object.Equals(_readConcern, rhs._readConcern) &&
                 object.Equals(_readPreference, rhs._readPreference) &&
@@ -1097,6 +1040,7 @@ namespace MongoDB.Driver
                 _serverMonitoringMode == rhs._serverMonitoringMode &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
+                object.Equals(_socks5ProxySettings, rhs._socks5ProxySettings) &&
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs._srvServiceName &&
                 _sslSettings == rhs._sslSettings &&
@@ -1173,10 +1117,6 @@ namespace MongoDB.Driver
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
                 .Hash(_minConnectionPoolSize)
-                .Hash(_proxyHost)
-                .Hash(_proxyPort)
-                .Hash(_proxyUsername)
-                .Hash(_proxyPassword)
                 .Hash(_readConcern)
                 .Hash(_readEncoding)
                 .Hash(_readPreference)
@@ -1189,6 +1129,7 @@ namespace MongoDB.Driver
                 .Hash(_serverMonitoringMode)
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
+                .Hash(_socks5ProxySettings)
                 .Hash(_srvMaxHosts)
                 .Hash(_srvServiceName)
                 .Hash(_sslSettings)
@@ -1208,7 +1149,6 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the settings.</returns>
         public override string ToString()
         {
-            //TODO Need to add proxy here
             if (_isFrozen)
             {
                 return _frozenStringRepresentation;
@@ -1248,21 +1188,9 @@ namespace MongoDB.Driver
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
             sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
-            if (_proxyHost != null)
+            if (_socks5ProxySettings!= null)
             {
-                sb.AppendFormat("ProxyHost={0};", _proxyHost);
-            }
-            if (_proxyPort != null)
-            {
-                sb.AppendFormat("ProxyPort={0};", _proxyPort.Value);
-            }
-            if (_proxyUsername != null)
-            {
-                sb.AppendFormat("ProxyUsername={0};", _proxyUsername);
-            }
-            if (_proxyPassword != null)
-            {
-                sb.AppendFormat("ProxyPassword={0};", _proxyPassword);
+                sb.AppendFormat("ProxyHost={0};", _socks5ProxySettings);
             }
             if (_readEncoding != null)
             {
@@ -1335,10 +1263,6 @@ namespace MongoDB.Driver
                 _maxConnectionLifeTime,
                 _maxConnectionPoolSize,
                 _minConnectionPoolSize,
-                _proxyHost,
-                _proxyPort,
-                _proxyUsername,
-                _proxyPassword,
                 MongoDefaults.TcpReceiveBufferSize, // TODO: add ReceiveBufferSize to MongoClientSettings?
                 _replicaSetName,
                 _scheme,
@@ -1348,6 +1272,7 @@ namespace MongoDB.Driver
                 _serverMonitoringMode,
                 _serverSelectionTimeout,
                 _socketTimeout,
+                _socks5ProxySettings,
                 _srvMaxHosts,
                 _srvServiceName,
                 _sslSettings,
@@ -1423,29 +1348,6 @@ namespace MongoDB.Driver
                 {
                     throw new InvalidOperationException("Load balanced mode cannot be used with direct connection.");
                 }
-            }
-
-            if (string.IsNullOrEmpty(_proxyHost))
-            {
-                if (_proxyPort is not null)
-                {
-                    throw new InvalidOperationException("ProxyPort cannot be specified without ProxyHost.");
-                }
-
-                if (!string.IsNullOrEmpty(_proxyUsername))
-                {
-                    throw new InvalidOperationException("ProxyUsername cannot be specified without ProxyHost.");
-                }
-
-                if (!string.IsNullOrEmpty(_proxyPassword))
-                {
-                    throw new InvalidOperationException("ProxyPassword cannot be specified without ProxyHost.");
-                }
-            }
-
-            if (string.IsNullOrEmpty(_proxyUsername) != string.IsNullOrEmpty(_proxyPassword))
-            {
-                throw new InvalidOperationException("ProxyUsername and ProxyPassword must both be specified or neither.");
             }
         }
     }
