@@ -27,8 +27,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {
     public class UnifiedValueMatcher
     {
+        private static readonly List<string> __numericTypes = ["int", "long", "double", "decimal"];
+
         private UnifiedEntityMap _entityMap;
-        private static readonly HashSet<string> NumericTypes = ["int", "long", "double", "decimal"];
 
         public UnifiedValueMatcher(UnifiedEntityMap entityMap)
         {
@@ -195,30 +196,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         private void AssertExpectedType(BsonValue actual, BsonValue expectedTypes)
         {
             var actualTypeName = GetBsonTypeNameAsString(actual.BsonType);
+            List<string> expectedTypeNames;
 
             if (expectedTypes.IsString)
             {
                 var expectedType = expectedTypes.AsString;
-                if (expectedType == "number")
-                {
-                    NumericTypes.Should().Contain(actualTypeName);
-                }
-                else
-                {
-                    actualTypeName.Should().Be(expectedType);
-                }
+                expectedTypeNames = expectedType == "number" ? __numericTypes : [expectedType];
             }
             else if (expectedTypes.IsBsonArray)
             {
-                expectedTypes.AsBsonArray.Any(t =>
-                        t.AsString == actualTypeName ||
-                        (t.AsString == "number" && NumericTypes.Contains(actualTypeName)))
-                    .Should().BeTrue();
+                expectedTypeNames = expectedTypes.AsBsonArray.Select(t => t.AsString).ToList();
             }
             else
             {
                 throw new FormatException($"Unexpected $$type value BsonType: '{expectedTypes.BsonType}'.");
             }
+
+            actualTypeName.Should().BeOneOf(expectedTypeNames);
         }
 
         private string GetBsonTypeNameAsString(BsonType bsonType)
