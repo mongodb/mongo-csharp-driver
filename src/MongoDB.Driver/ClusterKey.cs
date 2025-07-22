@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
 
@@ -46,10 +47,6 @@ namespace MongoDB.Driver
         private readonly TimeSpan _maxConnectionLifeTime;
         private readonly int _maxConnectionPoolSize;
         private readonly int _minConnectionPoolSize;
-        private readonly string _proxyHost;
-        private readonly int? _proxyPort;
-        private readonly string _proxyUsername;
-        private readonly string _proxyPassword;
         private readonly int _receiveBufferSize;
         private readonly string _replicaSetName;
         private readonly ConnectionStringScheme _scheme;
@@ -59,6 +56,7 @@ namespace MongoDB.Driver
         private readonly ServerMonitoringMode _serverMonitoringMode;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
+        private readonly Socks5ProxySettings _socks5ProxySettings;
         private readonly int _srvMaxHosts;
         private readonly string _srvServiceName;
         private readonly SslSettings _sslSettings;
@@ -88,10 +86,6 @@ namespace MongoDB.Driver
             TimeSpan maxConnectionLifeTime,
             int maxConnectionPoolSize,
             int minConnectionPoolSize,
-            string proxyHost,
-            int? proxyPort,
-            string proxyUsername,
-            string proxyPassword,
             int receiveBufferSize,
             string replicaSetName,
             ConnectionStringScheme scheme,
@@ -101,6 +95,7 @@ namespace MongoDB.Driver
             ServerMonitoringMode serverMonitoringMode,
             TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
+            Socks5ProxySettings socks5ProxySettings,
             int srvMaxHosts,
             string srvServiceName,
             SslSettings sslSettings,
@@ -128,10 +123,6 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = maxConnectionLifeTime;
             _maxConnectionPoolSize = maxConnectionPoolSize;
             _minConnectionPoolSize = minConnectionPoolSize;
-            _proxyHost = proxyHost;
-            _proxyPort = proxyPort;
-            _proxyUsername = proxyUsername;
-            _proxyPassword = proxyPassword;
             _receiveBufferSize = receiveBufferSize;
             _replicaSetName = replicaSetName;
             _scheme = scheme;
@@ -141,6 +132,7 @@ namespace MongoDB.Driver
             _serverMonitoringMode = serverMonitoringMode;
             _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
+            _socks5ProxySettings = socks5ProxySettings;
             _srvMaxHosts = srvMaxHosts;
             _srvServiceName = srvServiceName;
             _sslSettings = sslSettings;
@@ -172,10 +164,6 @@ namespace MongoDB.Driver
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
         public int MaxConnectionPoolSize { get { return _maxConnectionPoolSize; } }
         public int MinConnectionPoolSize { get { return _minConnectionPoolSize; } }
-        public string ProxyHost { get { return _proxyHost; } }
-        public int? ProxyPort { get { return _proxyPort; } }
-        public string ProxyUsername { get { return _proxyUsername; } }
-        public string ProxyPassword { get { return _proxyPassword; } }
         public int ReceiveBufferSize { get { return _receiveBufferSize; } }
         public string ReplicaSetName { get { return _replicaSetName; } }
         public ConnectionStringScheme Scheme { get { return _scheme; } }
@@ -185,6 +173,7 @@ namespace MongoDB.Driver
         public ServerMonitoringMode ServerMonitoringMode { get { return _serverMonitoringMode; } }
         public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
+        public Socks5ProxySettings Socks5ProxySettings { get { return _socks5ProxySettings; } }
         public int SrvMaxHosts { get { return _srvMaxHosts; } }
         public string SrvServiceName { get { return _srvServiceName; } }
         public SslSettings SslSettings { get { return _sslSettings; } }
@@ -231,10 +220,6 @@ namespace MongoDB.Driver
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
-                _proxyHost == rhs._proxyHost &&
-                _proxyPort == rhs._proxyPort &&
-                _proxyUsername == rhs._proxyUsername &&
-                _proxyPassword == rhs._proxyPassword &&
                 _receiveBufferSize == rhs._receiveBufferSize &&
                 _replicaSetName == rhs._replicaSetName &&
                 _scheme == rhs._scheme &&
@@ -244,6 +229,7 @@ namespace MongoDB.Driver
                 _serverMonitoringMode == rhs._serverMonitoringMode &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
+                object.Equals(_socks5ProxySettings, rhs._socks5ProxySettings) &&
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs.SrvServiceName &&
                 object.Equals(_sslSettings, rhs._sslSettings) &&
