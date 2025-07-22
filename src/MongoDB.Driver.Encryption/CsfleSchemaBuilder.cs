@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Encryption
 
             if (bsonTypes != null)
             {
-                var convertedBsonTypes = bsonTypes.Select(Utils.ConvertBsonTypeToServerRepresentation).ToList();
+                var convertedBsonTypes = bsonTypes.Select(type => type.ToStringRepresentation()).ToList();
 
                 if (convertedBsonTypes.Count == 0)
                 {
