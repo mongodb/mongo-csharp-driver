@@ -18,7 +18,8 @@ namespace MongoDB.Bson.IO
     internal class JsonReaderContext
     {
         // private fields
-        private JsonReaderContext _parentContext;
+        private readonly JsonReaderContext _parentContext;
+        private JsonReaderContext _cachedPushContext;
         private ContextType _contextType;
 
         // constructors
@@ -52,6 +53,15 @@ namespace MongoDB.Bson.IO
         public JsonReaderContext PopContext()
         {
             return _parentContext;
+        }
+
+        internal JsonReaderContext PushContext(ContextType contextType)
+        {
+            if (_cachedPushContext == null)
+                _cachedPushContext = new JsonReaderContext(this, contextType);
+            else
+                _cachedPushContext._contextType = contextType;
+            return _cachedPushContext;
         }
     }
 }
