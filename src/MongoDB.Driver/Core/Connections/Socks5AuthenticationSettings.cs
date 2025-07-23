@@ -31,8 +31,8 @@ public abstract class Socks5AuthenticationSettings
     /// <summary>
     /// Creates authentication settings for username and password.
     /// </summary>
-    /// <param name="username"></param>
-    /// <param name="password"></param>
+    /// <param name="username">The username</param>
+    /// <param name="password">The password</param>
     /// <returns></returns>
     public static Socks5AuthenticationSettings UsernamePassword(string username, string password)
         => new UsernamePasswordAuthenticationSettings(username, password);
