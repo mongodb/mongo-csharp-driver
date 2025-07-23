@@ -48,15 +48,17 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var targetEndpoint = _settings.UseProxy ? new DnsEndPoint(_settings.ProxyHost, _settings.ProxyPort.Value) : endPoint;
+            var socks5ProxySettings = _settings.Socks5ProxySettings;
+            var useProxy = socks5ProxySettings != null;
+            var targetEndpoint = socks5ProxySettings != null ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
 
 #if NET472
             var socket = CreateSocket(targetEndpoint);
             Connect(socket, targetEndpoint, cancellationToken);
             var stream = CreateNetworkStream(socket);
-            if (_settings.UseProxy)
+            if (useProxy)
             {
-                Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.ProxyUsername, _settings.ProxyPassword, cancellationToken);
+                Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
             }
 
             return stream;
@@ -71,9 +73,9 @@ namespace MongoDB.Driver.Core.Connections
                     var stream = CreateNetworkStream(socket);
 
                     //TODO Need to do the same for the async version and for net472
-                    if (_settings.UseProxy)
+                    if (useProxy)
                     {
-                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.ProxyUsername, _settings.ProxyPassword, cancellationToken);
+                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
                     }
 
                     return stream;
@@ -96,15 +98,17 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var targetEndpoint = _settings.UseProxy ? new DnsEndPoint(_settings.ProxyHost, _settings.ProxyPort.Value) : endPoint;
+            var socks5ProxySettings = _settings.Socks5ProxySettings;
+            var useProxy = socks5ProxySettings != null;
+            var targetEndpoint = socks5ProxySettings != null ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
 
 #if NET472
             var socket = CreateSocket(targetEndpoint);
             await ConnectAsync(socket, targetEndpoint, cancellationToken).ConfigureAwait(false);
             var stream = CreateNetworkStream(socket);
-            if (_settings.UseProxy)
+            if (useProxy)
             {
-                Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.ProxyUsername, _settings.ProxyPassword, cancellationToken);
+                Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
             }
 
             return stream;
@@ -118,9 +122,9 @@ namespace MongoDB.Driver.Core.Connections
                     await ConnectAsync(socket, resolved[i], cancellationToken).ConfigureAwait(false);
                     var stream = CreateNetworkStream(socket);
 
-                    if (_settings.UseProxy)
+                    if (useProxy)
                     {
-                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.ProxyUsername, _settings.ProxyPassword, cancellationToken);
+                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
                     }
 
                     return stream;
