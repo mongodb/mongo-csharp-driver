@@ -145,6 +145,23 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        private static void CreateGreetingRequest(byte[] buffer, bool useAuth)
+        {
+            buffer[0] = ProtocolVersion5;
+
+            if (!useAuth)
+            {
+                buffer[1] = 1;
+                buffer[2] = MethodNoAuth;
+            }
+            else
+            {
+                buffer[1] = 2;
+                buffer[2] = MethodNoAuth;
+                buffer[3] = MethodUsernamePassword;
+            }
+        }
+
         private static void ReadGreetingResponse(Stream stream, byte[] buffer, bool useAuth, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
         {
             stream.ReadBytes(buffer, 0, 2, cancellationToken);
@@ -270,7 +287,11 @@ namespace MongoDB.Driver.Core.Connections
         private static int ReadConnectResponse(byte[] buffer, CancellationToken cancellationToken)
         {
             VerifyProtocolVersion(buffer[0]);
-            VerifySockSuccess(buffer[1]);
+
+            if (buffer[1] != Socks5Success)
+            {
+                throw new IOException($"SOCKS5 connect failed");
+            }
 
             return buffer[3] switch
             {
@@ -281,36 +302,11 @@ namespace MongoDB.Driver.Core.Connections
             };
         }
 
-        private static void CreateGreetingRequest(byte[] buffer, bool useAuth)
-        {
-            buffer[0] = ProtocolVersion5;
-
-            if (!useAuth)
-            {
-                buffer[1] = 1;
-                buffer[2] = MethodNoAuth;
-            }
-            else
-            {
-                buffer[1] = 2;
-                buffer[2] = MethodNoAuth;
-                buffer[3] = MethodUsernamePassword;
-            }
-        }
-
         private static void VerifyProtocolVersion(byte version)
         {
             if (version != ProtocolVersion5)
             {
                 throw new IOException("Invalid SOCKS version in response.");
-            }
-        }
-
-        private static void VerifySockSuccess(byte value) //TODO Need to check this
-        {
-            if (value != Socks5Success)
-            {
-                throw new IOException($"SOCKS5 connect failed");
             }
         }
 
