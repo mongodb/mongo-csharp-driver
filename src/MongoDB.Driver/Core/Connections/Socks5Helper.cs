@@ -87,9 +87,6 @@ namespace MongoDB.Driver.Core.Connections
 
         private const int BufferSize = 512;
 
-        //TODO Maybe need to change the name of the ReadMethods... It's more like interpret
-        //Need to specify all create request methods return the bytes of the message
-
         public static void PerformSocks5Handshake(Stream stream, EndPoint endPoint, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
         {
             var (targetHost, targetPort) = endPoint.GetHostAndPort();
@@ -102,7 +99,7 @@ namespace MongoDB.Driver.Core.Connections
                 stream.Write(buffer, 0, greetingRequestLength);
 
                 stream.ReadBytes(buffer, 0, 2, cancellationToken);
-                var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth, authenticationSettings, cancellationToken);
+                var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth);
 
                 if (useAuth && acceptsUsernamePasswordAuth)
                 {
@@ -137,7 +134,7 @@ namespace MongoDB.Driver.Core.Connections
                 var greetingRequestLength = CreateGreetingRequest(buffer, useAuth);
                 await stream.WriteAsync(buffer, 0, greetingRequestLength, cancellationToken).ConfigureAwait(false);
 
-                var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth, authenticationSettings, cancellationToken);
+                var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth);
 
                 if (useAuth && acceptsUsernamePasswordAuth)
                 {
@@ -178,7 +175,7 @@ namespace MongoDB.Driver.Core.Connections
             return 4;
         }
 
-        private static bool ProcessGreetingResponse(byte[] buffer, bool useAuth, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
+        private static bool ProcessGreetingResponse(byte[] buffer, bool useAuth)
         {
             VerifyProtocolVersion(buffer[0]);
             var method = buffer[1];
