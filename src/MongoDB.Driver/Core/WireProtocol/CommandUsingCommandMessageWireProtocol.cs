@@ -380,10 +380,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (serverTimeout != Timeout.InfiniteTimeSpan)
                 {
                     serverTimeout -= _roundTripTime;
-                }
 
-                var serverTimeoutMs = MaxTimeHelper.ToMaxTimeMS(serverTimeout);
-                AddIfNotAlreadyAdded("maxTimeMS", serverTimeoutMs);
+                    var serverTimeoutMs = MaxTimeHelper.ToMaxTimeMS(serverTimeout);
+                    AddIfNotAlreadyAdded("maxTimeMS", serverTimeoutMs);
+                }
             }
 
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
