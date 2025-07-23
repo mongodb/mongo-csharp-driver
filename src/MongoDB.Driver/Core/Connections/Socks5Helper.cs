@@ -106,7 +106,10 @@ namespace MongoDB.Driver.Core.Connections
                 stream.Write(buffer, 0, addressLength + 6);
                 stream.Flush();
 
-                ReadConnectResponse(stream, buffer, cancellationToken);
+                stream.ReadBytes(buffer, 0, 5, cancellationToken);
+                var skip = ReadConnectResponse(buffer, cancellationToken);
+                stream.ReadBytes(buffer, 0, skip, cancellationToken);
+
             }
             finally
             {
@@ -132,7 +135,9 @@ namespace MongoDB.Driver.Core.Connections
                 await stream.WriteAsync(buffer, 0, addressLength + 6, cancellationToken).ConfigureAwait(false);
                 await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
 
-                await ReadConnectResponseAsync(stream, buffer, cancellationToken).ConfigureAwait(false);
+                await stream.ReadBytesAsync(buffer, 0, 5, cancellationToken).ConfigureAwait(false);
+                var skip = ReadConnectResponse(buffer, cancellationToken);
+                await stream.ReadBytesAsync(buffer, 0, skip, cancellationToken).ConfigureAwait(true);
             }
             finally
             {
@@ -262,38 +267,18 @@ namespace MongoDB.Driver.Core.Connections
             return addressLength;
         }
 
-        private static void ReadConnectResponse(Stream stream, byte[] buffer, CancellationToken cancellationToken)
+        private static int ReadConnectResponse(byte[] buffer, CancellationToken cancellationToken)
         {
-            stream.ReadBytes(buffer, 0, 5, cancellationToken);
             VerifyProtocolVersion(buffer[0]);
             VerifySockSuccess(buffer[1]);
 
-            var skip = buffer[3] switch
+            return buffer[3] switch
             {
                 AddressTypeIPv4 => 5,
                 AddressTypeIPv6 => 17,
                 AddressTypeDomain => buffer[4] + 2,
                 _ => throw new IOException("Unknown address type in SOCKS5 reply.")
             };
-
-            stream.ReadBytes(buffer, 0, skip, cancellationToken);
-        }
-
-        private static async Task ReadConnectResponseAsync(Stream stream, byte[] buffer, CancellationToken cancellationToken)
-        {
-            await stream.ReadBytesAsync(buffer, 0, 5, cancellationToken).ConfigureAwait(false);
-            VerifyProtocolVersion(buffer[0]);
-            VerifySockSuccess(buffer[1]);
-
-            var skip = buffer[3] switch
-            {
-                AddressTypeIPv4 => 5,
-                AddressTypeIPv6 => 17,
-                AddressTypeDomain => buffer[4] + 2,
-                _ => throw new IOException("Unknown address type in SOCKS5 reply.")
-            };
-
-            await stream.ReadBytesAsync(buffer, 0, skip, cancellationToken).ConfigureAwait(false);
         }
 
         private static void CreateGreetingRequest(byte[] buffer, bool useAuth)
@@ -317,15 +302,15 @@ namespace MongoDB.Driver.Core.Connections
         {
             if (version != ProtocolVersion5)
             {
-                throw new IOException("Invalid SOCKS version in method selection response.");
+                throw new IOException("Invalid SOCKS version in response.");
             }
         }
 
-        private static void VerifySockSuccess(byte value)
+        private static void VerifySockSuccess(byte value) //TODO Need to check this
         {
             if (value != Socks5Success)
             {
-                throw new IOException($"SOCKS5 connect failed with code 0x{value:X2}");
+                throw new IOException($"SOCKS5 connect failed");
             }
         }
 
