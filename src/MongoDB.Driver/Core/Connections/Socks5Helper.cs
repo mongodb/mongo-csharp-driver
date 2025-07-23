@@ -134,6 +134,7 @@ namespace MongoDB.Driver.Core.Connections
                 var greetingRequestLength = CreateGreetingRequest(buffer, useAuth);
                 await stream.WriteAsync(buffer, 0, greetingRequestLength, cancellationToken).ConfigureAwait(false);
 
+                await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken).ConfigureAwait(false);
                 var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth);
 
                 if (useAuth && acceptsUsernamePasswordAuth)
