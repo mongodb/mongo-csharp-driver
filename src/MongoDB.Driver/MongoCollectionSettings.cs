@@ -126,7 +126,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan? Timeout
         {
-            get { return _timeout.Value; }
+            get { return _timeout; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
