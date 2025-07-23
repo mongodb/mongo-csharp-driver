@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = Record.Exception(() => { new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings); });
 
-            exception.Should().BeOfType<ArgumentNullException>().Subject
+            exception.Should().BeAssignableTo<ArgumentException>().Subject
                 .ParamName.Should().Be("indexName");
         }
 

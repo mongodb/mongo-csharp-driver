@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             ReconfigureOperationResumeValues();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(null, cancellationToken);
             return _changeStreamOperation.Resume(operationContext, _binding);
         }
 
@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             ReconfigureOperationResumeValues();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(null, cancellationToken);
             return await _changeStreamOperation.ResumeAsync(operationContext, _binding).ConfigureAwait(false);
         }
 

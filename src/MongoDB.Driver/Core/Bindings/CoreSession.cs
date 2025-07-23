@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Core.Bindings
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(null, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Core.Bindings
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(null, cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Core.Bindings
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(null, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Core.Bindings
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken);
+            var operationContext = new OperationContext(null, cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
