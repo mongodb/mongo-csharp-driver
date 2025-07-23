@@ -72,7 +72,6 @@ namespace MongoDB.Driver.Core.Connections
                     Connect(socket, resolved[i], cancellationToken);
                     var stream = CreateNetworkStream(socket);
 
-                    //TODO Need to do the same for the async version and for net472
                     if (useProxy)
                     {
                         Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
@@ -108,7 +107,7 @@ namespace MongoDB.Driver.Core.Connections
             var stream = CreateNetworkStream(socket);
             if (useProxy)
             {
-                Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
+                await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken).ConfigureAwait(false);
             }
 
             return stream;
@@ -124,7 +123,7 @@ namespace MongoDB.Driver.Core.Connections
 
                     if (useProxy)
                     {
-                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
+                        await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken).ConfigureAwait(false);
                     }
 
                     return stream;
