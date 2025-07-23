@@ -102,9 +102,9 @@ namespace MongoDB.Driver.Core.Connections
                 stream.Write(buffer, 0, greetingRequestLength);
 
                 stream.ReadBytes(buffer, 0, 2, cancellationToken);
-                ProcessGreetingResponse(buffer, useAuth, authenticationSettings, cancellationToken);
+                var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth, authenticationSettings, cancellationToken);
 
-                if (useAuth)
+                if (useAuth && acceptsUsernamePasswordAuth)
                 {
                     var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings, cancellationToken);
                     stream.Write(buffer, 0, authenticationRequestLength);
@@ -137,9 +137,9 @@ namespace MongoDB.Driver.Core.Connections
                 var greetingRequestLength = CreateGreetingRequest(buffer, useAuth);
                 await stream.WriteAsync(buffer, 0, greetingRequestLength, cancellationToken).ConfigureAwait(false);
 
-                ProcessGreetingResponse(buffer, useAuth, authenticationSettings, cancellationToken);
+                var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth, authenticationSettings, cancellationToken);
 
-                if (useAuth)
+                if (useAuth && acceptsUsernamePasswordAuth)
                 {
                     var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings, cancellationToken);
                     await stream.WriteAsync(buffer, 0, authenticationRequestLength, cancellationToken).ConfigureAwait(false);
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Core.Connections
             return 4;
         }
 
-        private static void ProcessGreetingResponse(byte[] buffer, bool useAuth, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
+        private static bool ProcessGreetingResponse(byte[] buffer, bool useAuth, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
         {
             VerifyProtocolVersion(buffer[0]);
             var method = buffer[1];
@@ -188,11 +188,16 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     throw new IOException("SOCKS5 proxy requires authentication, but no credentials were provided.");
                 }
+
+                return true;
             }
-            else if (method != MethodNoAuth)
+
+            if (method != MethodNoAuth)
             {
                 throw new IOException("SOCKS5 proxy requires unsupported authentication method.");
             }
+
+            return false;
         }
 
         private static int CreateAuthenticationRequest(byte[] buffer, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
