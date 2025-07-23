@@ -45,14 +45,14 @@ namespace MongoDB.Driver.Core.Connections
         private const int BufferSize = 512;
 
         //TODO Make an async version of this method
-        public static void PerformSocks5Handshake(Stream stream, EndPoint endPoint, string proxyUsername, string proxyPassword, CancellationToken cancellationToken)
+        public static void PerformSocks5Handshake(Stream stream, EndPoint endPoint, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
         {
             var (targetHost, targetPort) = endPoint.GetHostAndPort();
 
             var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
             try
             {
-                var useAuth = !string.IsNullOrEmpty(proxyUsername) && !string.IsNullOrEmpty(proxyPassword);
+                var useAuth = authenticationSettings is Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings;
 
                 // Greeting request
                 // +----+----------+----------+
@@ -96,6 +96,10 @@ namespace MongoDB.Driver.Core.Connections
                         //We should not reach here
                         throw new IOException("SOCKS5 proxy requires authentication, but no credentials were provided.");
                     }
+
+                    var usernamePasswordAuthenticationSettings = (Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)authenticationSettings;
+                    var proxyUsername = usernamePasswordAuthenticationSettings!.Username;
+                    var proxyPassword = usernamePasswordAuthenticationSettings!.Password;
 
                     // Authentication request
                     // +----+------+----------+------+----------+

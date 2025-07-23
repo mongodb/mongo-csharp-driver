@@ -259,10 +259,6 @@ namespace MongoDB.Driver.Tests
                 maxConnectionLifeTime,
                 maxConnectionPoolSize,
                 minConnectionPoolSize,
-                null, //TODO Need to add correct proxy for tests
-                null,
-                null,
-                null,
                 receiveBufferSize,
                 replicaSetName,
                 scheme,
@@ -272,6 +268,7 @@ namespace MongoDB.Driver.Tests
                 serverMonitoringMode,
                 serverSelectionTimeout,
                 socketTimeout,
+                null, //TODO Add correct proxy for tests
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
@@ -348,10 +345,6 @@ namespace MongoDB.Driver.Tests
                 maxConnectionLifeTime,
                 maxConnectionPoolSize,
                 minConnectionPoolSize,
-                null, //TODO Add correct proxy for tests
-                null,
-                null,
-                null,
                 receiveBufferSize,
                 replicaSetName,
                 scheme,
@@ -361,6 +354,7 @@ namespace MongoDB.Driver.Tests
                 serverMonitoringMode,
                 serverSelectionTimeout,
                 socketTimeout,
+                null, //TODO Add correct proxy for tests
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,

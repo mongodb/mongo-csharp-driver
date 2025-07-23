@@ -13,16 +13,19 @@
  * limitations under the License.
  */
 
-using System;
+using System.Text;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Connections
 {
     /// <summary>
     /// Represents the settings for a SOCKS5 proxy connection.
     /// </summary>
-    public class Socks5ProxySettings
+    public sealed class Socks5ProxySettings
     {
+        private const int DefaultPort = 1080;
+
         /// <summary>
         /// Gets the host of the SOCKS5 proxy.
         /// </summary>
@@ -38,85 +41,65 @@ namespace MongoDB.Driver.Core.Connections
         /// </summary>
         public Socks5AuthenticationSettings Authentication { get; }
 
-        private Socks5ProxySettings(string host, int port, Socks5AuthenticationSettings authentication)
+        internal Socks5ProxySettings(string host, int? port, Socks5AuthenticationSettings authentication)
         {
             Host = Ensure.IsNotNullOrEmpty(host, nameof(host));
-            Port = Ensure.IsBetween(port, 0, 65535, nameof(port));
-            Authentication = Ensure.IsNotNull(authentication, nameof(authentication));
+            Port = port is null ? DefaultPort : Ensure.IsBetween(port.Value, 1, 65535, nameof(port));
+            Authentication = authentication ?? Socks5AuthenticationSettings.None;
         }
 
+        // Convenience method used internally.
         internal static Socks5ProxySettings Create(string host, int? port, string username, string password)
         {
-            Socks5AuthenticationSettings authentication;
+            var authentication = !string.IsNullOrEmpty(username) ?
+                Socks5AuthenticationSettings.UsernamePassword(username, password) : Socks5AuthenticationSettings.None;
 
-            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
-            {
-                authentication = Socks5AuthenticationSettings.UsernamePassword(username, password);
-            }
-            else
-            {
-                authentication = Socks5AuthenticationSettings.None;
-            }
-
-            return new Socks5ProxySettings(host, port ?? 1080, authentication);
+            return new Socks5ProxySettings(host, port, authentication);
         }
 
-        /// <summary>
-        /// Creates a new instance of <see cref="Socks5ProxySettings"/>.
-        /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="port">The port</param>
-        /// <param name="authentication">The authentication settings.</param>
-        /// <returns></returns>
-        public static Socks5ProxySettings Create(string host, int port = 1080, Socks5AuthenticationSettings authentication = null)
+        /// <inheritdoc />
+        public override bool Equals(object obj)
         {
-            return new Socks5ProxySettings(host, port, authentication ?? Socks5AuthenticationSettings.None);
-        }
-    }
-
-    internal enum Socks5AuthenticationType
-    {
-        None,
-        UsernamePassword
-    }
-
-    /// <summary>
-    /// Represents the settings for SOCKS5 authentication.
-    /// </summary>
-    public abstract class Socks5AuthenticationSettings
-    {
-        internal abstract Socks5AuthenticationType Type { get; }
-
-        /// <summary>
-        /// Creates authentication settings that do not require any authentication.
-        /// </summary>
-        public static Socks5AuthenticationSettings None => new NoAuthenticationSettings();
-
-        /// <summary>
-        /// Creates authentication settings for username and password.
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        public static Socks5AuthenticationSettings UsernamePassword(string username, string password)
-            => new UsernamePasswordAuthenticationSettings(username, password);
-
-        private sealed class NoAuthenticationSettings : Socks5AuthenticationSettings
-        {
-            internal override Socks5AuthenticationType Type => Socks5AuthenticationType.None;
-        }
-
-        private sealed class UsernamePasswordAuthenticationSettings : Socks5AuthenticationSettings
-        {
-            internal override Socks5AuthenticationType Type => Socks5AuthenticationType.UsernamePassword;
-            public string Username { get; }
-            public string Password { get; }
-
-            internal UsernamePasswordAuthenticationSettings(string username, string password)
+            if (obj is Socks5ProxySettings other)
             {
-                Username = Ensure.IsNotNullOrEmpty(username, nameof(username));
-                Password = Ensure.IsNotNullOrEmpty(password, nameof(password));
+                return Host == other.Host &&
+                       Port == other.Port &&
+                       Equals(Authentication, other.Authentication);
             }
+
+            return false;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .Hash(Host)
+                .Hash(Port)
+                .Hash(Authentication)
+                .GetHashCode();
+        }
+
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append("{ Host : ");
+            sb.Append(Host);
+            sb.Append(", Port : ");
+            sb.Append(Port);
+            sb.Append(", Authentication : ");
+
+            sb.Append(Authentication switch
+            {
+                Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings up =>
+                    $"UsernamePassword (Username: {up.Username}, Password: {up.Password})",
+                _ => "None"
+            });
+
+            sb.Append(" }");
+            return sb.ToString();
         }
     }
 }
