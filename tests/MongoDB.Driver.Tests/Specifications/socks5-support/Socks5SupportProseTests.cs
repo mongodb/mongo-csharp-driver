@@ -58,7 +58,6 @@ namespace MongoDB.Driver.Tests.Specifications.socks5_support
             var database = client.GetDatabase("admin");
             var command = new BsonDocument("hello", 1);
 
-
             if (expectedResult)
             {
                 var result = async
