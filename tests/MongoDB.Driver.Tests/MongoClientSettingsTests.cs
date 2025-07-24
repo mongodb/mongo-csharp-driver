@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Encryption;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
