@@ -80,7 +80,6 @@ public sealed class Socks5ProxySettings
             .GetHashCode();
     }
 
-
     /// <inheritdoc/>
     public override string ToString()
     {
