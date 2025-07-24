@@ -50,6 +50,8 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
     [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, true)]
     public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool async)
     {
+        //Requires server versions > 5.0 according to spec tests, not sure why
+
         connectionString = connectionString.Replace("<mappedhost>", "localhost:27017").Replace("<replicaset>", "localhost:27017");
         var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
         mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(1.5);
