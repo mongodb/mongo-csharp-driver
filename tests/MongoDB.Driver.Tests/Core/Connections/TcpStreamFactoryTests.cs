@@ -185,6 +185,42 @@ namespace MongoDB.Driver.Core.Connections
             stream.Should().NotBeNull();
         }
 
+        [Fact]
+        public async Task CreateStream_should_not_produce_unobserved_exceptions_on_timeout()
+        {
+            // The idea of the test: we are trying to connect to some host/port (non-localhost) that will definitely reject the connection,
+            // when specifying very small timeout leads us to the TimeoutException, but also we should ensure there is no Unobserved Task Exception happening.
+            var subject = new TcpStreamFactory(new TcpStreamSettings(connectTimeout: TimeSpan.FromMilliseconds(1)));
+            var host =  IPAddress.Parse("1.1.1.1");
+            var port = 23456;
+
+            GC.Collect();
+
+            var unobservedTaskExceptionRaised = false;
+            EventHandler<UnobservedTaskExceptionEventArgs> eventHandler = (s, args) =>
+            {
+                unobservedTaskExceptionRaised = true;
+            };
+
+            TaskScheduler.UnobservedTaskException += eventHandler;
+
+            try
+            {
+                var exception = await Record.ExceptionAsync(() => subject.CreateStreamAsync(new IPEndPoint(host, port), CancellationToken.None));
+                exception.Should().BeOfType<TimeoutException>();
+
+                Thread.Sleep(100);
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            finally
+            {
+                TaskScheduler.UnobservedTaskException -= eventHandler;
+            }
+
+            unobservedTaskExceptionRaised.Should().BeFalse();
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void SocketConfigurator_can_be_used_to_set_keepAlive(
