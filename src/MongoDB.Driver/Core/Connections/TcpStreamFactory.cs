@@ -164,7 +164,11 @@ namespace MongoDB.Driver.Core.Connections
 
             if (!connectTask.IsCompleted)
             {
-                try { socket.Dispose(); } catch { }
+                try
+                {
+                    connectTask.IgnoreExceptions();
+                    socket.Dispose();
+                } catch { }
 
                 cancellationToken.ThrowIfCancellationRequested();
                 throw new TimeoutException($"Timed out connecting to {endPoint}. Timeout was {_settings.ConnectTimeout}.");
