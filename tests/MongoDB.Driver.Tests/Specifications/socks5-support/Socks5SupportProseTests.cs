@@ -20,62 +20,59 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Tests.Specifications.socks5_support
+namespace MongoDB.Driver.Tests.Specifications.socks5_support;
+
+[Trait("Category", "Integration")]
+public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : LoggableTestClass(testOutputHelper)
 {
-    [Trait("Category", "Integration")]
-    public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : LoggableTestClass(testOutputHelper)
+    [Theory]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false, false)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false, true)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, false)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, true)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080", false, false)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080", false, true)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, false)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, true)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", false, false)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", false, true)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", true, false)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", true, true)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth", true, false)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth", true, true)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd&directConnection=true", true, false)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd&directConnection=true", true, true)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, false)]
+    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, true)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd", true, false)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd", true, true)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, false)]
+    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, true)]
+    public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool async)
     {
-        [Theory]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false, false)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false, true)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, false)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, true)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080", false, false)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080", false, true)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, false)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, true)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", false, false)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", false, true)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", true, false)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", true, true)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth", true, false)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth", true, true)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd&directConnection=true", true, false)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd&directConnection=true", true, true)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, false)]
-        [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, true)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd", true, false)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd", true, true)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, false)]
-        [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, true)]
-        public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool async)
+        connectionString = connectionString.Replace("<mappedhost>", "localhost:27017").Replace("<replicaset>", "localhost:27017");
+        var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
+        mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(1.5);
+        var client = new MongoClient(mongoClientSettings);
+
+        var database = client.GetDatabase("admin");
+        var command = new BsonDocument("hello", 1);
+
+        if (expectedResult)
         {
-            connectionString = connectionString.Replace("<mappedhost>", "localhost:27017").Replace("<replicaset>", "localhost:27017");
-            var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
-            mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(1.5);
-            var client = new MongoClient(mongoClientSettings);
+            var result = async
+                ? await database.RunCommandAsync<BsonDocument>(command)
+                : database.RunCommand<BsonDocument>(command);
 
-            var database = client.GetDatabase("admin");
-            var command = new BsonDocument("hello", 1);
-
-            if (expectedResult)
-            {
-                var result = async
-                    ? await database.RunCommandAsync<BsonDocument>(command)
-                    : database.RunCommand<BsonDocument>(command);
-
-                Assert.NotEmpty(result);
-            }
-            else
-            {
-                var exception = async
-                    ? await Record.ExceptionAsync(() => database.RunCommandAsync<BsonDocument>(command))
-                    : Record.Exception(() => database.RunCommand<BsonDocument>(command));
-
-                Assert.IsType<TimeoutException>(exception);
-            }
-
+            Assert.NotEmpty(result);
         }
+        else
+        {
+            var exception = async
+                ? await Record.ExceptionAsync(() => database.RunCommandAsync<BsonDocument>(command))
+                : Record.Exception(() => database.RunCommand<BsonDocument>(command));
 
+            Assert.IsType<TimeoutException>(exception);
+        }
     }
 }
