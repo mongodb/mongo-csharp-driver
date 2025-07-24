@@ -102,7 +102,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>
-        [Obsolete("Use Timeout instead")]
+        [Obsolete("MaxTime is obsolete and will be removed in a future version. Use Timeout instead.")]
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
