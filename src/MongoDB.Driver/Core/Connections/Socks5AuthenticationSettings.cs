@@ -42,6 +42,17 @@ public abstract class Socks5AuthenticationSettings
     /// </summary>
     public sealed class NoAuthenticationSettings : Socks5AuthenticationSettings
     {
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            return obj is Socks5AuthenticationSettings;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return 1;
+        }
     }
 
     /// <summary>
