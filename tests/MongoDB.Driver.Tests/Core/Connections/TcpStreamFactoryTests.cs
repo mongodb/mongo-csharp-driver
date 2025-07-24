@@ -195,7 +195,9 @@ namespace MongoDB.Driver.Core.Connections
             var endpoint = new IPEndPoint(IPAddress.Parse("1.1.1.1"), 23456);
 
             GC.Collect();
+            GC.WaitForPendingFinalizers();
             var unobservedTaskExceptionRaised = false;
+
             EventHandler<UnobservedTaskExceptionEventArgs> eventHandler = (s, args) =>
             {
                 unobservedTaskExceptionRaised = true;
