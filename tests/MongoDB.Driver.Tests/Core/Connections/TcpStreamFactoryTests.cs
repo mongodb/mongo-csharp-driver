@@ -195,7 +195,6 @@ namespace MongoDB.Driver.Core.Connections
             var port = 23456;
 
             GC.Collect();
-
             var unobservedTaskExceptionRaised = false;
             EventHandler<UnobservedTaskExceptionEventArgs> eventHandler = (s, args) =>
             {
