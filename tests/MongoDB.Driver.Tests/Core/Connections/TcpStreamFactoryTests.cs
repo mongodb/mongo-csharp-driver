@@ -188,11 +188,11 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public async Task CreateStream_should_not_produce_unobserved_exceptions_on_timeout()
         {
-            // The idea of the test: we are trying to connect to some host/port (non-localhost) that will definitely reject the connection,
-            // when specifying very small timeout leads us to the TimeoutException, but also we should ensure there is no Unobserved Task Exception happening.
+            // The purpose of this test is to attempt a connection that will reliably be rejected and throw exception the connection.
+            // By specifying a very short timeout, we expect a TimeoutException to occur before the connection exception.
+            // This test ensures that the connection exception is observed.
             var subject = new TcpStreamFactory(new TcpStreamSettings(connectTimeout: TimeSpan.FromMilliseconds(1)));
-            var host =  IPAddress.Parse("1.1.1.1");
-            var port = 23456;
+            var endpoint = new IPEndPoint(IPAddress.Parse("1.1.1.1"), 23456);
 
             GC.Collect();
             var unobservedTaskExceptionRaised = false;
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Core.Connections
 
             try
             {
-                var exception = await Record.ExceptionAsync(() => subject.CreateStreamAsync(new IPEndPoint(host, port), CancellationToken.None));
+                var exception = await Record.ExceptionAsync(() => subject.CreateStreamAsync(endpoint, CancellationToken.None));
                 exception.Should().BeOfType<TimeoutException>();
 
                 Thread.Sleep(100);
