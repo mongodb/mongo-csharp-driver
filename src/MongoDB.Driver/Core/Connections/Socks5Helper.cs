@@ -75,17 +75,24 @@ namespace MongoDB.Driver.Core.Connections
         // | 1  |  1  | X'00' |  1   | Variable |    2     |
         // +----+-----+-------+------+----------+----------+
 
+        //General use constants
         private const byte ProtocolVersion5 = 0x05;
-        private const byte SubnegotiationVersion = 0x01;
+        private const byte Socks5Success = 0x00;
+        private const byte Reserved = 0x00;
         private const byte CmdConnect = 0x01;
+
+        //Auth constants
         private const byte MethodNoAuth = 0x00;
         private const byte MethodUsernamePassword = 0x02;
-        private const byte AddressTypeIPv4 = 0x01;
-        private const byte AddressTypeDomain = 0x03;
-        private const byte AddressTypeIPv6 = 0x04;
-        private const byte Socks5Success = 0x00;
+        private const byte SubnegotiationVersion = 0x01;
 
-        private const int BufferSize = 512;
+        //Address type constants
+        private const byte AddressTypeIPv4 = 0x01;
+        private const byte AddressTypeIPv6 = 0x04;
+        private const byte AddressTypeDomain = 0x03;
+
+        // Largest possible message size when using username and password auth.
+        private const int BufferSize = 513;
 
         public static void PerformSocks5Handshake(Stream stream, EndPoint endPoint, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
         {
@@ -101,9 +108,10 @@ namespace MongoDB.Driver.Core.Connections
                 stream.ReadBytes(buffer, 0, 2, cancellationToken);
                 var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth);
 
+                // If we have username and password, but the proxy doesn't need them, we skip.
                 if (useAuth && acceptsUsernamePasswordAuth)
                 {
-                    var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings, cancellationToken);
+                    var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings);
                     stream.Write(buffer, 0, authenticationRequestLength);
 
                     stream.ReadBytes(buffer, 0, 2, cancellationToken);
@@ -137,9 +145,10 @@ namespace MongoDB.Driver.Core.Connections
                 await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken).ConfigureAwait(false);
                 var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth);
 
+                // If we have username and password, but the proxy doesn't need them, we skip.
                 if (useAuth && acceptsUsernamePasswordAuth)
                 {
-                    var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings, cancellationToken);
+                    var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings);
                     await stream.WriteAsync(buffer, 0, authenticationRequestLength, cancellationToken).ConfigureAwait(false);
 
                     await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken).ConfigureAwait(false);
@@ -163,6 +172,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             buffer[0] = ProtocolVersion5;
 
+            //buffer[1] is the number of methods supported by the client.
             if (!useAuth)
             {
                 buffer[1] = 1;
@@ -179,8 +189,8 @@ namespace MongoDB.Driver.Core.Connections
         private static bool ProcessGreetingResponse(byte[] buffer, bool useAuth)
         {
             VerifyProtocolVersion(buffer[0]);
-            var method = buffer[1];
-            if (method == MethodUsernamePassword)
+            var acceptedMethod = buffer[1];
+            if (acceptedMethod == MethodUsernamePassword)
             {
                 if (!useAuth)
                 {
@@ -190,7 +200,7 @@ namespace MongoDB.Driver.Core.Connections
                 return true;
             }
 
-            if (method != MethodNoAuth)
+            if (acceptedMethod != MethodNoAuth)
             {
                 throw new IOException("SOCKS5 proxy requires unsupported authentication method.");
             }
@@ -198,12 +208,13 @@ namespace MongoDB.Driver.Core.Connections
             return false;
         }
 
-        private static int CreateAuthenticationRequest(byte[] buffer, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
+        private static int CreateAuthenticationRequest(byte[] buffer, Socks5AuthenticationSettings authenticationSettings)
         {
             var usernamePasswordAuthenticationSettings = (Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)authenticationSettings;
             var proxyUsername = usernamePasswordAuthenticationSettings.Username;
             var proxyPassword = usernamePasswordAuthenticationSettings.Password;
 
+            // We need to add version, username.length, username, password.length, password (in this order)
             buffer[0] = SubnegotiationVersion;
             var usernameLength = EncodeString(proxyUsername, buffer, 2, nameof(proxyUsername));
             buffer[1] = usernameLength;
@@ -221,56 +232,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private static void PerformUsernamePasswordAuth(Stream stream, byte[] buffer, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
-        {
-            var usernamePasswordAuthenticationSettings = (Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)authenticationSettings;
-            var proxyUsername = usernamePasswordAuthenticationSettings.Username;
-            var proxyPassword = usernamePasswordAuthenticationSettings.Password;
-
-            buffer[0] = SubnegotiationVersion;
-            var usernameLength = EncodeString(proxyUsername, buffer, 2, nameof(proxyUsername));
-            buffer[1] = usernameLength;
-            var passwordLength = EncodeString(proxyPassword, buffer, 3 + usernameLength, nameof(proxyPassword));
-            buffer[2 + usernameLength] = (byte)passwordLength;
-
-            var authLength = 3 + usernameLength + passwordLength;
-            stream.Write(buffer, 0, authLength);
-
-            stream.ReadBytes(buffer, 0, 2, cancellationToken);
-            if (buffer[0] != SubnegotiationVersion || buffer[1] != Socks5Success)
-            {
-                throw new IOException("SOCKS5 authentication failed.");
-            }
-        }
-
-        private static async Task PerformUsernamePasswordAuthAsync(Stream stream, byte[] buffer, Socks5AuthenticationSettings authenticationSettings, CancellationToken cancellationToken)
-        {
-            var usernamePasswordAuthenticationSettings = (Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)authenticationSettings;
-            var proxyUsername = usernamePasswordAuthenticationSettings.Username;
-            var proxyPassword = usernamePasswordAuthenticationSettings.Password;
-
-            buffer[0] = SubnegotiationVersion;
-            var usernameLength = EncodeString(proxyUsername, buffer, 2, nameof(proxyUsername));
-            buffer[1] = usernameLength;
-            var passwordLength = EncodeString(proxyPassword, buffer, 3 + usernameLength, nameof(proxyPassword));
-            buffer[2 + usernameLength] = passwordLength;
-
-            var authLength = 3 + usernameLength + passwordLength;
-            await stream.WriteAsync(buffer, 0, authLength, cancellationToken).ConfigureAwait(false);
-
-            await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken).ConfigureAwait(false);
-            if (buffer[0] != SubnegotiationVersion || buffer[1] != Socks5Success)
-            {
-                throw new IOException("SOCKS5 authentication failed.");
-            }
-        }
-
         private static int CreateConnectRequest(byte[] buffer, string targetHost, int targetPort)
         {
             buffer[0] = ProtocolVersion5;
             buffer[1] = CmdConnect;
-            buffer[2] = 0x00;
-            var addressLength = 0;
+            buffer[2] = Reserved;
+            int addressLength;
 
             if (IPAddress.TryParse(targetHost, out var ip))
             {
@@ -310,9 +277,13 @@ namespace MongoDB.Driver.Core.Connections
 
             if (buffer[1] != Socks5Success)
             {
-                throw new IOException($"SOCKS5 connect failed");
+                throw new IOException($"SOCKS5 connect failed");  //TODO Need to add the reason here.
             }
 
+            // We skip the last bytes of the response as we do not need them.
+            // We skip length(dst.address) + length(dst.port) - 1 --- length(dst.port) is always 2
+            // -1 because we already ready the first byte of the address type
+            // (used for the variable length domain-type addresses)
             return buffer[3] switch
             {
                 AddressTypeIPv4 => 5,
