@@ -48,19 +48,36 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
+            var socks5ProxySettings = _settings.Socks5ProxySettings;
+            var useProxy = socks5ProxySettings != null;
+            var targetEndpoint = socks5ProxySettings != null ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
+
 #if NET472
-            var socket = CreateSocket(endPoint);
-            Connect(socket, endPoint, cancellationToken);
-            return CreateNetworkStream(socket);
+            var socket = CreateSocket(targetEndpoint);
+            Connect(socket, targetEndpoint, cancellationToken);
+            var stream = CreateNetworkStream(socket);
+            if (useProxy)
+            {
+                Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
+            }
+
+            return stream;
 #else
-            var resolved = ResolveEndPoints(endPoint);
+            var resolved = ResolveEndPoints(targetEndpoint);
             for (int i = 0; i < resolved.Length; i++)
             {
                 try
                 {
                     var socket = CreateSocket(resolved[i]);
                     Connect(socket, resolved[i], cancellationToken);
-                    return CreateNetworkStream(socket);
+                    var stream = CreateNetworkStream(socket);
+
+                    if (useProxy)
+                    {
+                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
+                    }
+
+                    return stream;
                 }
                 catch
                 {
@@ -74,25 +91,42 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             // we should never get here...
-            throw new InvalidOperationException("Unabled to resolve endpoint.");
+            throw new InvalidOperationException("Unable to resolve endpoint.");
 #endif
         }
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
+            var socks5ProxySettings = _settings.Socks5ProxySettings;
+            var useProxy = socks5ProxySettings != null;
+            var targetEndpoint = socks5ProxySettings != null ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
+
 #if NET472
-            var socket = CreateSocket(endPoint);
-            await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
-            return CreateNetworkStream(socket);
+            var socket = CreateSocket(targetEndpoint);
+            await ConnectAsync(socket, targetEndpoint, cancellationToken).ConfigureAwait(false);
+            var stream = CreateNetworkStream(socket);
+            if (useProxy)
+            {
+                await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken).ConfigureAwait(false);
+            }
+
+            return stream;
 #else
-            var resolved = await ResolveEndPointsAsync(endPoint).ConfigureAwait(false);
+            var resolved = await ResolveEndPointsAsync(targetEndpoint).ConfigureAwait(false);
             for (int i = 0; i < resolved.Length; i++)
             {
                 try
                 {
                     var socket = CreateSocket(resolved[i]);
                     await ConnectAsync(socket, resolved[i], cancellationToken).ConfigureAwait(false);
-                    return CreateNetworkStream(socket);
+                    var stream = CreateNetworkStream(socket);
+
+                    if (useProxy)
+                    {
+                        await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken).ConfigureAwait(false);
+                    }
+
+                    return stream;
                 }
                 catch
                 {
@@ -258,20 +292,18 @@ namespace MongoDB.Driver.Core.Connections
 
         private EndPoint[] ResolveEndPoints(EndPoint initial)
         {
-            var dnsInitial = initial as DnsEndPoint;
-            if (dnsInitial == null)
+            if (initial is not DnsEndPoint dnsInitial)
             {
-                return new[] { initial };
+                return [initial];
             }
 
-            IPAddress address;
-            if (IPAddress.TryParse(dnsInitial.Host, out address))
+            if (IPAddress.TryParse(dnsInitial.Host, out var address))
             {
-                return new[] { new IPEndPoint(address, dnsInitial.Port) };
+                return [new IPEndPoint(address, dnsInitial.Port)];
             }
 
             var preferred = initial.AddressFamily;
-            if (preferred == AddressFamily.Unspecified || preferred == AddressFamily.Unknown)
+            if (preferred is AddressFamily.Unspecified or AddressFamily.Unknown)
             {
                 preferred = _settings.AddressFamily;
             }
@@ -285,20 +317,18 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task<EndPoint[]> ResolveEndPointsAsync(EndPoint initial)
         {
-            var dnsInitial = initial as DnsEndPoint;
-            if (dnsInitial == null)
+            if (initial is not DnsEndPoint dnsInitial)
             {
-                return new[] { initial };
+                return [initial];
             }
 
-            IPAddress address;
-            if (IPAddress.TryParse(dnsInitial.Host, out address))
+            if (IPAddress.TryParse(dnsInitial.Host, out var address))
             {
-                return new[] { new IPEndPoint(address, dnsInitial.Port) };
+                return [new IPEndPoint(address, dnsInitial.Port)];
             }
 
             var preferred = initial.AddressFamily;
-            if (preferred == AddressFamily.Unspecified || preferred == AddressFamily.Unknown)
+            if (preferred is AddressFamily.Unspecified or AddressFamily.Unknown)
             {
                 preferred = _settings.AddressFamily;
             }

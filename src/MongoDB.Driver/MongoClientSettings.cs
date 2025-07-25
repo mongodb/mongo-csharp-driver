@@ -20,9 +20,9 @@ using System.Linq;
 using System.Text;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Encryption;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         private ServerMonitoringMode _serverMonitoringMode;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
+        private Socks5ProxySettings _socks5ProxySettings;
         private int _srvMaxHosts;
         private string _srvServiceName;
         private SslSettings _sslSettings;
@@ -122,6 +123,7 @@ namespace MongoDB.Driver
             _serverMonitoringMode = ServerMonitoringMode.Auto;
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _socks5ProxySettings = null;
             _srvMaxHosts = 0;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _sslSettings = null;
@@ -425,6 +427,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _minConnectionPoolSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the SOCKS5 proxy settings.
+        /// </summary>
+        public Socks5ProxySettings Socks5ProxySettings
+        {
+            get => _socks5ProxySettings;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _socks5ProxySettings = value;
             }
         }
 
@@ -874,6 +889,10 @@ namespace MongoDB.Driver
             clientSettings.ServerMonitoringMode = url.ServerMonitoringMode ?? ServerMonitoringMode.Auto;
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
+            if (!string.IsNullOrEmpty(url.ProxyHost))
+            {
+                clientSettings.Socks5ProxySettings = Socks5ProxySettings.Create(url.ProxyHost, url.ProxyPort, url.ProxyUsername, url.ProxyPassword);
+            }
             clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);
             clientSettings.SrvServiceName = url.SrvServiceName;
             clientSettings.SslSettings = null;
@@ -932,6 +951,7 @@ namespace MongoDB.Driver
             clone._serverMonitoringMode = _serverMonitoringMode;
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
+            clone._socks5ProxySettings = _socks5ProxySettings;
             clone._srvMaxHosts = _srvMaxHosts;
             clone._srvServiceName = _srvServiceName;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
@@ -1001,6 +1021,7 @@ namespace MongoDB.Driver
                 _serverMonitoringMode == rhs._serverMonitoringMode &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
+                object.Equals(_socks5ProxySettings, rhs._socks5ProxySettings) &&
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs._srvServiceName &&
                 _sslSettings == rhs._sslSettings &&
@@ -1088,6 +1109,7 @@ namespace MongoDB.Driver
                 .Hash(_serverMonitoringMode)
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
+                .Hash(_socks5ProxySettings)
                 .Hash(_srvMaxHosts)
                 .Hash(_srvServiceName)
                 .Hash(_sslSettings)
@@ -1145,6 +1167,10 @@ namespace MongoDB.Driver
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
             sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
+            if (_socks5ProxySettings!= null)
+            {
+                sb.AppendFormat("ProxyHost={0};", _socks5ProxySettings);
+            }
             if (_readEncoding != null)
             {
                 sb.Append("ReadEncoding=UTF8Encoding;");
@@ -1221,6 +1247,7 @@ namespace MongoDB.Driver
                 _serverMonitoringMode,
                 _serverSelectionTimeout,
                 _socketTimeout,
+                _socks5ProxySettings,
                 _srvMaxHosts,
                 _srvServiceName,
                 _sslSettings,

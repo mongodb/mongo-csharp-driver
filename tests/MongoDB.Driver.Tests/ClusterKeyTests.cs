@@ -268,6 +268,7 @@ namespace MongoDB.Driver.Tests
                 serverMonitoringMode,
                 serverSelectionTimeout,
                 socketTimeout,
+                null, //TODO Add correct proxy for tests
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
@@ -353,6 +354,7 @@ namespace MongoDB.Driver.Tests
                 serverMonitoringMode,
                 serverSelectionTimeout,
                 socketTimeout,
+                null, //TODO Add correct proxy for tests
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
