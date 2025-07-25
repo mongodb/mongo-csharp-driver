@@ -1052,6 +1052,8 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("mongodb://localhost?timeoutMS=0", -1)]
+        [InlineData("mongodb://localhost?timeout=0", -1)]
         [InlineData("mongodb://localhost?timeout=15ms", 15)]
         [InlineData("mongodb://localhost?timeoutMS=15", 15)]
         [InlineData("mongodb://localhost?timeout=15", 1000 * 15)]

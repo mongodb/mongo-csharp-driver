@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
@@ -1143,6 +1142,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(-1, "mongodb://localhost/?timeout{0}", new[] { "=0", "MS=0" })]
         [InlineData(500, "mongodb://localhost/?timeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
         [InlineData(30000, "mongodb://localhost/?timeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
         [InlineData(1800000, "mongodb://localhost/?timeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]

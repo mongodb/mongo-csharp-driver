@@ -971,7 +971,7 @@ namespace MongoDB.Driver
             }
             if (_timeout.HasValue)
             {
-                query.AppendFormat("timeout={0}&", FormatTimeSpan(_timeout.Value));
+                query.AppendFormat("timeout={0}&", _timeout == System.Threading.Timeout.InfiniteTimeSpan ? "0" : FormatTimeSpan(_timeout.Value));
             }
 #pragma warning disable 618
             if (_waitQueueMultiple != 0.0 && _waitQueueMultiple != MongoDefaults.WaitQueueMultiple)

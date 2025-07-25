@@ -469,7 +469,7 @@ namespace MongoDB.Driver.Core.Configuration
         public bool? SslVerifyCertificate => !_tlsInsecure;
 
         /// <summary>
-        /// Gets the per-operation timeout
+        /// Gets the per-operation timeout.
         /// </summary>
         public TimeSpan? Timeout => _timeout;
 
@@ -1096,7 +1096,7 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "timeout":
                 case "timeoutms":
-                    _timeout = ParseTimeSpan(name, value);
+                    _timeout = value == "0" ? System.Threading.Timeout.InfiniteTimeSpan : ParseTimeSpan(name, value);
                     break;
                 case "tlsdisablecertificaterevocationcheck":
                     var tlsDisableCertificateRevocationCheckValue = ParseBoolean(name, value);
