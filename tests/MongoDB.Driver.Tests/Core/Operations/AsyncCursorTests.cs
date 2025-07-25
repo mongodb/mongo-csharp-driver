@@ -692,7 +692,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "batchSize", batchSize }
             };
             var result = channel.Command<BsonDocument>(
-                new OperationContext(Timeout.InfiniteTimeSpan, cancellationToken),
+                new OperationContext(null, cancellationToken),
                 _session,
                 ReadPreference.Primary,
                 _databaseNamespace,

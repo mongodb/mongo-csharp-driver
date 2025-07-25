@@ -288,7 +288,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var operation = CreateOperation(context);
+                var operation = CreateOperation(operationContext, context);
                 var result = operation.Execute(operationContext, context);
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -317,7 +317,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var operation = CreateOperation(context);
+                var operation = CreateOperation(operationContext, context);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
@@ -326,7 +326,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             var command = new BsonDocument
@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "aggregate", _collectionNamespace == null ? (BsonValue)1 : _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "hint", _hint, _hint != null },
                 { "let", _let, _let != null },
@@ -354,10 +354,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private IDisposable BeginOperation() => EventContext.BeginOperation(null, "aggregate");
 
-        private ReadCommandOperation<AggregateResult> CreateOperation(RetryableReadContext context)
+        private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
             var databaseNamespace = _collectionNamespace == null ? _databaseNamespace : _collectionNamespace.DatabaseNamespace;
-            var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
+            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var serializer = new AggregateResultDeserializer(_resultSerializer);
             return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings)
             {

@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Tests
 {
     public class DropIndexOptionsTest
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         [Fact]
         public void MaxTime_get_should_return_expected_result()
         {
@@ -57,6 +58,8 @@ namespace MongoDB.Driver.Tests
             var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             e.ParamName.Should().Be("value");
         }
+
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }
 

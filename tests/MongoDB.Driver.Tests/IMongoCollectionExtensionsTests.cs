@@ -609,7 +609,9 @@ namespace MongoDB.Driver.Tests
                 Comment = "comment",
                 CursorType = CursorType.Tailable,
                 MaxAwaitTime = TimeSpan.FromSeconds(1),
+#pragma warning disable CS0618 // Type or member is obsolete
                 MaxTime = TimeSpan.FromSeconds(2),
+#pragma warning restore CS0618 // Type or member is obsolete
                 NoCursorTimeout = true,
 #pragma warning disable 618
                 OplogReplay = true
@@ -659,7 +661,9 @@ namespace MongoDB.Driver.Tests
             actualOptions.Comment.Should().Be(options.Comment);
             actualOptions.CursorType.Should().Be(options.CursorType);
             actualOptions.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
+#pragma warning disable CS0618 // Type or member is obsolete
             actualOptions.MaxTime.Should().Be(options.MaxTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             actualOptions.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
 #pragma warning disable 618
             actualOptions.OplogReplay.Should().Be(options.OplogReplay);

@@ -186,6 +186,7 @@ namespace MongoDB.Driver.Tests
                 ServerMonitoringMode = ServerMonitoringMode.Poll,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
+                Timeout = TimeSpan.FromSeconds(13),
                 Username = "username",
                 UseTls = true,
                 W = 2,
@@ -225,6 +226,7 @@ namespace MongoDB.Driver.Tests
                 "serverMonitoringMode=Poll",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
+                "timeout=13s",
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "retryReads=false",
@@ -268,6 +270,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ServerMonitoringMode.Poll, url.ServerMonitoringMode);
                 Assert.Equal(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), url.SocketTimeout);
+                Assert.Equal(TimeSpan.FromSeconds(13), url.Timeout);
                 Assert.Equal(true, url.TlsDisableCertificateRevocationCheck);
                 Assert.Equal("username", url.Username);
 #pragma warning disable 618

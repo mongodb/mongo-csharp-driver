@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -96,7 +96,9 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     return;
 
                 case "maxTimeMS":
+#pragma warning disable CS0618 // Type or member is obsolete
                     _options.MaxTime = TimeSpan.FromMilliseconds(value.ToInt32());
+#pragma warning restore CS0618 // Type or member is obsolete
                     return;
             }
 
