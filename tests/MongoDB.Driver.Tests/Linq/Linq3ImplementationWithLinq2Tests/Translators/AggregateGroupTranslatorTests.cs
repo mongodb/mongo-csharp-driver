@@ -542,9 +542,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                 First = g.First().B,
                 Last = g.Last().K,
                 Min = g.Min(x => x.C.E.F + x.C.E.H),
-                Max = g.Max(x => x.C.E.F + x.C.E.H),
-                Median = g.Median(x => x.C.E.F + x.C.E.H),
-                Percentile = g.Percentile(x => x.C.E.F + x.C.E.H, new[] { 0.95 })
+                Max = g.Max(x => x.C.E.F + x.C.E.H)
             });
 
             AssertStages(
@@ -558,9 +556,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                         __agg2 : { $first : '$B' },
                         __agg3 : { $last : '$K' },
                         __agg4 : { $min : { $add : ['$C.E.F', '$C.E.H'] } },
-                        __agg5 : { $max : { $add : ['$C.E.F', '$C.E.H'] } },
-                        __agg6 : { $median : { input : { $add : ['$C.E.F', '$C.E.H'] }, method : 'approximate' } },
-                        __agg7 : { $percentile : { input : { $add : ['$C.E.F', '$C.E.H'] }, p : [0.95], method : 'approximate' } }
+                        __agg5 : { $max : { $add : ['$C.E.F', '$C.E.H'] } }
                     }
                 }",
                 @"
@@ -571,9 +567,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                         First : '$__agg2',
                         Last : '$__agg3',
                         Min : '$__agg4',
-                        Max : '$__agg5',
-                        Median : '$__agg6',
-                        Percentile : '$__agg7',
+                        Max : '$__agg5'
                         _id : 0
                     }
                 }");
@@ -584,6 +578,38 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
             result.Value.Last.Should().Be(false);
             result.Value.Min.Should().Be(333);
             result.Value.Max.Should().Be(333);
+        }
+
+        [Fact]
+        public void Should_translate_complex_selector_with_quantile_methods()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var result = Group(x => x.A, g => new
+            {
+                Median = g.Median(x => x.C.E.F + x.C.E.H),
+                Percentile = g.Percentile(x => x.C.E.F + x.C.E.H, new[] { 0.95 })
+            });
+
+            AssertStages(
+                result.Stages,
+                @"
+                {
+                    $group : {
+                        _id : '$A',
+                        __agg0 : { $median : { input : { $add : ['$C.E.F', '$C.E.H'] }, method : 'approximate' } },
+                        __agg1 : { $percentile : { input : { $add : ['$C.E.F', '$C.E.H'] }, p : [0.95], method : 'approximate' } }
+                    }
+                }",
+                @"
+                {
+                    $project : {
+                        Median : '$__agg0',
+                        Percentile : '$__agg1',
+                        _id : 0
+                    }
+                }");
+
             result.Value.Median.Should().Be(333);
             result.Value.Percentile.Should().Equal(333);
         }
