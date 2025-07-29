@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_median_with_embedded_projector()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var result = Group(x => x.A, g => new { Result = g.Median(x=> x.C.E.F) });
 
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void Should_translate_median_with_selected_projector()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Median() });
 
@@ -567,7 +567,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                         First : '$__agg2',
                         Last : '$__agg3',
                         Min : '$__agg4',
-                        Max : '$__agg5'
+                        Max : '$__agg5',
                         _id : 0
                     }
                 }");
