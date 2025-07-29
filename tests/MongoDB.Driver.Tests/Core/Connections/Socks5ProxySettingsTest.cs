@@ -132,16 +132,15 @@ public class Socks5ProxySettingsTest
         s2.Authentication.Should().Be(Socks5AuthenticationSettings.None);
     }
 
-    // Socks5AuthenticationSettings tests
     [Fact]
-    public void None_should_return_NoAuthenticationSettings_instance()
+    public void Socks5AuthenticationSettings_None_should_return_NoAuthenticationSettings_instance()
     {
         var none = Socks5AuthenticationSettings.None;
         none.Should().BeOfType<Socks5AuthenticationSettings.NoAuthenticationSettings>();
     }
 
     [Fact]
-    public void UsernamePassword_should_return_UsernamePasswordAuthenticationSettings_instance_with_correct_values()
+    public void Socks5AuthenticationSettings_UsernamePassword_should_return_UsernamePasswordAuthenticationSettings_instance_with_correct_values()
     {
         var up = Socks5AuthenticationSettings.UsernamePassword("user", "pass");
         up.Should().BeOfType<Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings>();
@@ -155,14 +154,14 @@ public class Socks5ProxySettingsTest
     [InlineData("user", null)]
     [InlineData("", "pass")]
     [InlineData("user", "")]
-    public void UsernamePassword_should_throw_when_username_or_password_is_null_or_empty(string username, string password)
+    public void Socks5AuthenticationSettings_UsernamePassword_should_throw_when_username_or_password_is_null_or_empty(string username, string password)
     {
         var ex = Record.Exception(() => Socks5AuthenticationSettings.UsernamePassword(username, password));
         ex.Should().BeAssignableTo<ArgumentException>();
     }
 
     [Fact]
-    public void NoAuthenticationSettings_Equals_should_return_true_for_any_Socks5AuthenticationSettings()
+    public void Socks5AuthenticationSettings_NoAuthenticationSettings_Equals_should_return_true_for_any_Socks5AuthenticationSettings()
     {
         var none = Socks5AuthenticationSettings.None;
         none.Equals(Socks5AuthenticationSettings.None).Should().BeTrue();
@@ -170,7 +169,7 @@ public class Socks5ProxySettingsTest
     }
 
     [Fact]
-    public void UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work()
+    public void Socks5AuthenticationSettings_UsernamePasswordAuthenticationSettings_Equals_and_GetHashCode_should_work()
     {
         var a = Socks5AuthenticationSettings.UsernamePassword("u", "p");
         var b = Socks5AuthenticationSettings.UsernamePassword("u", "p");
