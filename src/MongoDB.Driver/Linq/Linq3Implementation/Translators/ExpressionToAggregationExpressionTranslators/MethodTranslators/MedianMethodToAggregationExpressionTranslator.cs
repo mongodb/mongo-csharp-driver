@@ -18,46 +18,81 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal class MedianMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __medianMethods =
+        {
+            EnumerableMethod.MedianDecimal,
+            EnumerableMethod.MedianDecimalWithSelector,
+            EnumerableMethod.MedianDouble,
+            EnumerableMethod.MedianDoubleWithSelector,
+            EnumerableMethod.MedianInt32,
+            EnumerableMethod.MedianInt32WithSelector,
+            EnumerableMethod.MedianInt64,
+            EnumerableMethod.MedianInt64WithSelector,
+            EnumerableMethod.MedianNullableDecimal,
+            EnumerableMethod.MedianNullableDecimalWithSelector,
+            EnumerableMethod.MedianNullableDouble,
+            EnumerableMethod.MedianNullableDoubleWithSelector,
+            EnumerableMethod.MedianNullableInt32,
+            EnumerableMethod.MedianNullableInt32WithSelector,
+            EnumerableMethod.MedianNullableInt64,
+            EnumerableMethod.MedianNullableInt64WithSelector,
+            EnumerableMethod.MedianNullableSingle,
+            EnumerableMethod.MedianNullableSingleWithSelector,
+            EnumerableMethod.MedianSingle,
+            EnumerableMethod.MedianSingleWithSelector
+        };
+
+        private static readonly MethodInfo[] __medianWithSelectorMethods =
+        {
+            EnumerableMethod.MedianDecimalWithSelector,
+            EnumerableMethod.MedianDoubleWithSelector,
+            EnumerableMethod.MedianInt32WithSelector,
+            EnumerableMethod.MedianInt64WithSelector,
+            EnumerableMethod.MedianNullableDecimalWithSelector,
+            EnumerableMethod.MedianNullableDoubleWithSelector,
+            EnumerableMethod.MedianNullableInt32WithSelector,
+            EnumerableMethod.MedianNullableInt64WithSelector,
+            EnumerableMethod.MedianNullableSingleWithSelector,
+            EnumerableMethod.MedianSingleWithSelector
+        };
+
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (IsMedianMethod(method))
+            if (method.IsOneOf(__medianMethods))
             {
-                if (arguments.Count is 1 or 2)
+                var sourceExpression = arguments[0];
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
+                var inputAst = sourceTranslation.Ast;
+
+                if (method.IsOneOf(__medianWithSelectorMethods))
                 {
-                    var sourceExpression = arguments[0];
-                    var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                    NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+                    var selectorLambda = (LambdaExpression)arguments[1];
+                    var selectorParameter = selectorLambda.Parameters[0];
+                    var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
+                    var selectorContext = context.WithSymbol(selectorParameterSymbol);
+                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
 
-                    var inputAst = sourceTranslation.Ast;
-
-                    // Median(source, selector)
-                    if (arguments.Count == 2)
-                    {
-                        var selectorLambda = (LambdaExpression)arguments[1];
-                        var selectorParameter = selectorLambda.Parameters[0];
-                        var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                        var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
-                        var selectorContext = context.WithSymbol(selectorParameterSymbol);
-                        var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
-
-                        inputAst = AstExpression.Map(
-                            input: sourceTranslation.Ast,
-                            @as: selectorParameterSymbol.Var,
-                            @in: selectorTranslation.Ast);
-                    }
-
-                    var ast = AstExpression.Median(inputAst);
-                    var serializer = BsonSerializer.LookupSerializer(expression.Type);
-                    return new TranslatedExpression(expression, ast, serializer);
+                    inputAst = AstExpression.Map(
+                        input: sourceTranslation.Ast,
+                        @as: selectorParameterSymbol.Var,
+                        @in: selectorTranslation.Ast);
                 }
+
+                var ast = AstExpression.Median(inputAst);
+                var serializer = BsonSerializer.LookupSerializer(expression.Type);
+                return new TranslatedExpression(expression, ast, serializer);
             }
 
             if (WindowMethodToAggregationExpressionTranslator.CanTranslate(expression))
@@ -66,11 +101,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsMedianMethod(MethodInfo methodInfo)
-        {
-            return methodInfo.DeclaringType == typeof(MongoEnumerable) && methodInfo.Name == "Median";
         }
     }
 }

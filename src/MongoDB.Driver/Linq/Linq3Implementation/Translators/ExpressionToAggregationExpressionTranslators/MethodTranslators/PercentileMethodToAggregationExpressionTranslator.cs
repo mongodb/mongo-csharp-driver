@@ -18,49 +18,84 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal class PercentileMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __percentileMethods =
+        {
+            EnumerableMethod.PercentileDecimal,
+            EnumerableMethod.PercentileDecimalWithSelector,
+            EnumerableMethod.PercentileDouble,
+            EnumerableMethod.PercentileDoubleWithSelector,
+            EnumerableMethod.PercentileInt32,
+            EnumerableMethod.PercentileInt32WithSelector,
+            EnumerableMethod.PercentileInt64,
+            EnumerableMethod.PercentileInt64WithSelector,
+            EnumerableMethod.PercentileNullableDecimal,
+            EnumerableMethod.PercentileNullableDecimalWithSelector,
+            EnumerableMethod.PercentileNullableDouble,
+            EnumerableMethod.PercentileNullableDoubleWithSelector,
+            EnumerableMethod.PercentileNullableInt32,
+            EnumerableMethod.PercentileNullableInt32WithSelector,
+            EnumerableMethod.PercentileNullableInt64,
+            EnumerableMethod.PercentileNullableInt64WithSelector,
+            EnumerableMethod.PercentileNullableSingle,
+            EnumerableMethod.PercentileNullableSingleWithSelector,
+            EnumerableMethod.PercentileSingle,
+            EnumerableMethod.PercentileSingleWithSelector
+        };
+
+        private static readonly MethodInfo[] __percentileWithSelectorMethods =
+        {
+            EnumerableMethod.PercentileDecimalWithSelector,
+            EnumerableMethod.PercentileDoubleWithSelector,
+            EnumerableMethod.PercentileInt32WithSelector,
+            EnumerableMethod.PercentileInt64WithSelector,
+            EnumerableMethod.PercentileNullableDecimalWithSelector,
+            EnumerableMethod.PercentileNullableDoubleWithSelector,
+            EnumerableMethod.PercentileNullableInt32WithSelector,
+            EnumerableMethod.PercentileNullableInt64WithSelector,
+            EnumerableMethod.PercentileNullableSingleWithSelector,
+            EnumerableMethod.PercentileSingleWithSelector
+        };
+
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (IsPercentileMethod(method))
+            if (method.IsOneOf(__percentileMethods))
             {
-                if (arguments.Count is 2 or 3)
+                var sourceExpression = arguments[0];
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+
+                var inputAst = sourceTranslation.Ast;
+
+                if (method.IsOneOf(__percentileWithSelectorMethods))
                 {
-                    var sourceExpression = arguments[0];
-                    var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                    NestedAsQueryableHelper.EnsureQueryableMethodHasNestedAsQueryableSource(expression, sourceTranslation);
+                    var selectorLambda = (LambdaExpression)arguments[1];
+                    var selectorParameter = selectorLambda.Parameters[0];
+                    var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
+                    var selectorContext = context.WithSymbol(selectorParameterSymbol);
+                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
 
-                    AstExpression inputAst = sourceTranslation.Ast;
-
-                    // handle selector
-                    if (arguments.Count == 3)
-                    {
-                        var selectorLambda = (LambdaExpression)arguments[1];
-                        var selectorParameter = selectorLambda.Parameters[0];
-                        var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                        var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
-                        var selectorContext = context.WithSymbol(selectorParameterSymbol);
-                        var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
-
-                        inputAst = AstExpression.Map(
-                            input: sourceTranslation.Ast,
-                            @as: selectorParameterSymbol.Var,
-                            @in: selectorTranslation.Ast);
-                    }
-
-                    var percentilesExpression = arguments[arguments.Count - 1];
-                    var percentilesTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, percentilesExpression);
-
-                    var ast = AstExpression.Percentile(inputAst, percentilesTranslation.Ast);
-                    var serializer = BsonSerializer.LookupSerializer(expression.Type);
-                    return new TranslatedExpression(expression, ast, serializer);
+                    inputAst = AstExpression.Map(
+                        input: sourceTranslation.Ast,
+                        @as: selectorParameterSymbol.Var,
+                        @in: selectorTranslation.Ast);
                 }
+
+                var percentilesExpression = arguments[arguments.Count - 1];
+                var percentilesTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, percentilesExpression);
+
+                var ast = AstExpression.Percentile(inputAst, percentilesTranslation.Ast);
+                var serializer = BsonSerializer.LookupSerializer(expression.Type);
+                return new TranslatedExpression(expression, ast, serializer);
             }
 
             if (WindowMethodToAggregationExpressionTranslator.CanTranslate(expression))
@@ -69,11 +104,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsPercentileMethod(MethodInfo methodInfo)
-        {
-            return methodInfo.DeclaringType == typeof(MongoEnumerable) && methodInfo.Name == "Percentile";
         }
     }
 }
