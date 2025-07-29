@@ -317,6 +317,7 @@ namespace MongoDB.Driver.Tests
             var serverMonitoringMode = ServerMonitoringMode.Stream;
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
+            var socks5ProxySettings = Socks5ProxySettings.Create("localhost", 1080, "user", "password");
             var srvMaxHosts = 3;
             var srvServiceName = "customname";
             var sslSettings = new SslSettings
@@ -358,7 +359,7 @@ namespace MongoDB.Driver.Tests
                 serverMonitoringMode,
                 serverSelectionTimeout,
                 socketTimeout,
-                null, //TODO Add correct proxy for tests
+                socks5ProxySettings,
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
