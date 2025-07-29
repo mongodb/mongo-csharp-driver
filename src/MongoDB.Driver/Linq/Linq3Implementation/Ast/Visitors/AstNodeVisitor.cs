@@ -199,6 +199,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node;
         }
 
+        public virtual AstNode VisitComplexAccumulatorExpression(AstComplexAccumulatorExpression node)
+        {
+            Dictionary<string, AstExpression> newArgs = null;
+            foreach (var kvp in node.Args)
+            {
+                var oldArg = kvp.Value;
+                var newArg = VisitAndConvert(oldArg);
+
+                if (newArg != oldArg)
+                {
+                    newArgs ??= new Dictionary<string, AstExpression>(node.Args);
+                    newArgs[kvp.Key] = newArg;
+                }
+            }
+
+            return newArgs != null ? node.Update(newArgs) : node;
+        }
+
         public virtual AstNode VisitComputedArrayExpression(AstComputedArrayExpression node)
         {
             return node.Update(VisitAndConvert(node.Items));
@@ -504,6 +522,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Filter));
         }
 
+        public virtual AstNode VisitMedianExpression(AstMedianExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input));
+        }
+
+        public virtual AstNode VisitMedianWindowExpression(AstMedianWindowExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), node.Window);
+        }
+
         public virtual AstNode VisitMergeStage(AstMergeStage node)
         {
             return node.Update(VisitAndConvert(node.Let));
@@ -557,6 +585,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitOutStage(AstOutStage node)
         {
             return node;
+        }
+
+        public virtual AstNode VisitPercentileExpression(AstPercentileExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Percentiles));
+        }
+
+        public virtual AstNode VisitPercentileWindowExpression(AstPercentileWindowExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Percentiles), node.Window);
         }
 
         public virtual AstNode VisitPickAccumulatorExpression(AstPickAccumulatorExpression node)

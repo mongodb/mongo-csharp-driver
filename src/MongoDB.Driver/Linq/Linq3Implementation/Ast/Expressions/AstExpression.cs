@@ -209,6 +209,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             };
         }
 
+        public static AstComplexAccumulatorExpression ComplexAccumulator(AstComplexAccumulatorOperator @operator, Dictionary<string, AstExpression> args)
+        {
+            return new AstComplexAccumulatorExpression(@operator, args);
+        }
+
         public static AstExpression ComputedArray(IEnumerable<AstExpression> items)
         {
             return new AstComputedArrayExpression(items);
@@ -597,6 +602,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstNaryExpression(AstNaryOperator.Max, [arg1, arg2]);
         }
 
+        public static AstExpression Median(AstExpression input)
+        {
+            return new AstMedianExpression(input);
+        }
+
+        public static AstMedianWindowExpression MedianWindowExpression(AstExpression input, AstWindow window)
+        {
+            return new AstMedianWindowExpression(input, window);
+        }
+
         public static AstExpression Min(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Min, array);
@@ -651,6 +666,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
             var flattenedArgs = FlattenNaryArgs(args, AstNaryOperator.Or);
             return new AstNaryExpression(AstNaryOperator.Or, flattenedArgs);
+        }
+
+        public static AstPercentileExpression Percentile(AstExpression input, AstExpression percentiles)
+        {
+            return new AstPercentileExpression(input, percentiles);
+        }
+
+        public static AstPercentileWindowExpression PercentileWindowExpression(AstExpression input, AstExpression percentiles, AstWindow window)
+        {
+            return new AstPercentileWindowExpression(input, percentiles, window);
         }
 
         public static AstExpression PickExpression(AstPickOperator @operator, AstExpression source, AstSortFields sortBy, AstVarExpression @as, AstExpression selector, AstExpression n)
