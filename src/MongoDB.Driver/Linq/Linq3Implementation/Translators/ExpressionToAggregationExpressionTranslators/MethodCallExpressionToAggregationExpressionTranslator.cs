@@ -95,7 +95,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Union": return UnionMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Zip": return ZipMethodToAggregationExpressionTranslator.Translate(context, expression);
 
-
                 case "Acos":
                 case "Acosh":
                 case "Asin":

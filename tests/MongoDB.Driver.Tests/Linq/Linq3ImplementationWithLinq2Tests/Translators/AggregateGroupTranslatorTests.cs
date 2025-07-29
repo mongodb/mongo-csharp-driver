@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
@@ -162,6 +163,66 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                 "{ $project : { Result : '$__agg0', _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
+        }
+
+        [Fact]
+        public void Should_translate_median_with_embedded_projector()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var result = Group(x => x.A, g => new { Result = g.Median(x=> x.C.E.F) });
+
+            AssertStages(
+                result.Stages,
+                "{ $group : { _id : '$A', __agg0 : { $median : { input : '$C.E.F', method : 'approximate' } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
+
+            result.Value.Result.Should().Be(111);
+        }
+
+        [Fact]
+        public void Should_translate_median_with_selected_projector()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Median() });
+
+            AssertStages(
+                result.Stages,
+                "{ $group : { _id : '$A', __agg0 : { $median : { input : '$C.E.F', method : 'approximate' } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
+
+            result.Value.Result.Should().Be(111);
+        }
+
+        [Fact]
+        public void Should_translate_percentile_with_embedded_projector()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var result = Group(x => x.A, g => new { Result = g.Percentile(x => x.C.E.F, new[] { 0.5 }) });
+
+            AssertStages(
+                result.Stages,
+                "{ $group : { _id : '$A', __agg0 : { $percentile : { input : '$C.E.F', p : [0.5], method : 'approximate' } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
+
+            result.Value.Result.Should().Equal(111.0);
+        }
+
+        [Fact]
+        public void Should_translate_percentile_with_selected_projector()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Percentile(new[] { 0.5 }) });
+
+            AssertStages(
+                result.Stages,
+                "{ $group : { _id : '$A', __agg0 : { $percentile : { input : '$C.E.F', p : [0.5], method : 'approximate' } } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }");
+
+            result.Value.Result.Should().Equal(111.0);
         }
 
         [Fact]
@@ -481,7 +542,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                 First = g.First().B,
                 Last = g.Last().K,
                 Min = g.Min(x => x.C.E.F + x.C.E.H),
-                Max = g.Max(x => x.C.E.F + x.C.E.H)
+                Max = g.Max(x => x.C.E.F + x.C.E.H),
+                Median = g.Median(x => x.C.E.F + x.C.E.H),
+                Percentile = g.Percentile(x => x.C.E.F + x.C.E.H, new[] { 0.95 })
             });
 
             AssertStages(
@@ -495,7 +558,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                         __agg2 : { $first : '$B' },
                         __agg3 : { $last : '$K' },
                         __agg4 : { $min : { $add : ['$C.E.F', '$C.E.H'] } },
-                        __agg5 : { $max : { $add : ['$C.E.F', '$C.E.H'] } }
+                        __agg5 : { $max : { $add : ['$C.E.F', '$C.E.H'] } },
+                        __agg6 : { $median : { input : { $add : ['$C.E.F', '$C.E.H'] }, method : 'approximate' } },
+                        __agg7 : { $percentile : { input : { $add : ['$C.E.F', '$C.E.H'] }, p : [0.95], method : 'approximate' } }
                     }
                 }",
                 @"
@@ -507,6 +572,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
                         Last : '$__agg3',
                         Min : '$__agg4',
                         Max : '$__agg5',
+                        Median : '$__agg6',
+                        Percentile : '$__agg7',
                         _id : 0
                     }
                 }");
@@ -517,6 +584,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
             result.Value.Last.Should().Be(false);
             result.Value.Min.Should().Be(333);
             result.Value.Max.Should().Be(333);
+            result.Value.Median.Should().Be(333);
+            result.Value.Percentile.Should().Equal(333);
         }
 
         [Fact]
