@@ -41,20 +41,57 @@ public sealed class Socks5ProxySettings
     /// </summary>
     public Socks5AuthenticationSettings Authentication { get; }
 
-    internal Socks5ProxySettings(string host, int? port, Socks5AuthenticationSettings authentication)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Socks5ProxySettings"/> class with the specified host.
+    /// </summary>
+    /// <param name="host">The SOCKS5 proxy host.</param>
+    public Socks5ProxySettings(string host)
+        : this(host, DefaultPort, Socks5AuthenticationSettings.None)
     {
-        Host = Ensure.IsNotNullOrEmpty(host, nameof(host));
-        Port = port is null ? DefaultPort : Ensure.IsBetween(port.Value, 1, 65535, nameof(port));
-        Authentication = authentication ?? Socks5AuthenticationSettings.None;
     }
 
-    // Convenience method used internally.
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Socks5ProxySettings"/> class with the specified host and port.
+    /// </summary>
+    /// <param name="host">The proxy host.</param>
+    /// <param name="port">The proxy port.</param>
+    public Socks5ProxySettings(string host, int port)
+        : this(host, port, Socks5AuthenticationSettings.None)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Socks5ProxySettings"/> class with the specified host and authentication settings.
+    /// </summary>
+    /// <param name="host">The proxy host.</param>
+    /// <param name="authentication">The proxy authentication settings.</param>
+    public Socks5ProxySettings(string host, Socks5AuthenticationSettings authentication)
+        : this(host, DefaultPort, authentication)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Socks5ProxySettings"/> class with the specified host, port, and authentication settings.
+    /// </summary>
+    /// <param name="host">The proxy host.</param>
+    /// <param name="port">The proxy port.</param>
+    /// <param name="authentication">The proxy authentication settings.</param>
+    public Socks5ProxySettings(string host, int port, Socks5AuthenticationSettings authentication)
+    {
+        Host = Ensure.IsNotNullOrEmpty(host, nameof(host));
+        Port = Ensure.IsBetween(port, 1, 65535, nameof(port));
+        Authentication = Ensure.IsNotNull(authentication, nameof(authentication));
+    }
+
+    // This is a convenience method to create Socks5ProxySettings from the connection string parameters.
     internal static Socks5ProxySettings Create(string host, int? port, string username, string password)
     {
-        var authentication = !string.IsNullOrEmpty(username) ?
-            Socks5AuthenticationSettings.UsernamePassword(username, password) : Socks5AuthenticationSettings.None;
+        var authentication =
+            !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password)
+                ? Socks5AuthenticationSettings.UsernamePassword(username, password)
+                : Socks5AuthenticationSettings.None;
 
-        return new Socks5ProxySettings(host, port, authentication);
+        return new Socks5ProxySettings(host, port ?? DefaultPort, authentication);
     }
 
     /// <inheritdoc />
