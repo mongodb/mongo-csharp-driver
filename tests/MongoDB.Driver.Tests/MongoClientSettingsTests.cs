@@ -233,8 +233,6 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { settings.ConnectTimeout = connectTimeout; });
         }
 
-        //TODO I understand we want to keep tests in alphabetical order, but I think it would make sense to group them by scope
-        //Tests like this, that should be modified for every new setting added (for instance) should be at the top of this test suite.
         [Fact]
         public void TestDefaults()
         {
