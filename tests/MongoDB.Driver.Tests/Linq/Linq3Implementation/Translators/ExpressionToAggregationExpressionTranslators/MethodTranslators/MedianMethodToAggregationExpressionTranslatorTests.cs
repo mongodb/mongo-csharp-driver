@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
     public class MedianMethodToAggregationExpressionTranslatorTests : LinqIntegrationTest<MedianMethodToAggregationExpressionTranslatorTests.ClassFixture>
     {
         public MedianMethodToAggregationExpressionTranslatorTests(ClassFixture fixture)
-            : base(fixture, server => server.Supports(Feature.PercentileOperator)) // median and percentile were added in the same server version
+            : base(fixture, server => server.Supports(Feature.MedianOperator))
         {
         }
 
