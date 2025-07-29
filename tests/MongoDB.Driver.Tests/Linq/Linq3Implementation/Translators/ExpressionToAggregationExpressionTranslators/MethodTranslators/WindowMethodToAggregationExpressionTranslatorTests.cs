@@ -1491,6 +1491,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1510,6 +1512,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_Double()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1529,6 +1533,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1548,6 +1554,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1567,6 +1575,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1586,6 +1596,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1605,6 +1617,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1624,6 +1638,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1643,6 +1659,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_window()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1688,6 +1706,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1707,6 +1727,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_Double()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1726,6 +1748,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1745,6 +1769,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1764,6 +1790,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1783,6 +1811,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1802,6 +1832,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1821,6 +1853,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1840,6 +1874,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_multiple_percentiles()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1861,6 +1897,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_window()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
 
             var aggregate = collection.Aggregate()
@@ -1887,6 +1925,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_List_input()
         {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
             var collection = Fixture.Collection;
             var percentiles = new List<double> { 0.25, 0.5, 0.75 };
 
