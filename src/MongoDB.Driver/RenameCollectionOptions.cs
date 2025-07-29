@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the operation timeout.
         /// </summary>
-        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
         internal TimeSpan? Timeout
         {
             get => _timeout;

@@ -473,7 +473,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the per-operation timeout.
         /// </summary>
-        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
         internal TimeSpan? Timeout => _timeout;
 
         /// <summary>
@@ -1097,7 +1097,7 @@ namespace MongoDB.Driver.Core.Configuration
                     var sslVerifyCertificateValue = ParseBoolean(name, value);
                     _tlsInsecure = EnsureTlsInsecureIsValid(!sslVerifyCertificateValue);
                     break;
-#if DEBUG // TODO: SCOT: Make it public when CSOT will be ready for GA
+#if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 case "timeout":
                 case "timeoutms":
                     _timeout = value == "0" ? System.Threading.Timeout.InfiniteTimeSpan : ParseTimeSpan(name, value);
