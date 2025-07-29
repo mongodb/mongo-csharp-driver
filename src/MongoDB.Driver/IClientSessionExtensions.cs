@@ -15,7 +15,7 @@
 
 namespace MongoDB.Driver;
 
-internal static class ClientSessionExtensions
+internal static class IClientSessionExtensions
 {
     public static ReadPreference GetEffectiveReadPreference(this IClientSession session, ReadPreference defaultReadPreference)
     {

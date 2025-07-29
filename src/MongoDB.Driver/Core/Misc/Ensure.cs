@@ -460,12 +460,11 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>The value of the parameter.</returns>
         public static TimeSpan IsValidTimeout(TimeSpan value, string paramName)
         {
-            if (value > TimeSpan.Zero || value == Timeout.InfiniteTimeSpan)
+            if (value < TimeSpan.Zero && value != Timeout.InfiniteTimeSpan)
             {
-                return value;
+                throw new ArgumentOutOfRangeException($"Invalid timeout: {value}.", paramName);
             }
-
-            throw new ArgumentOutOfRangeException($"Invalid timeout: {value}.", paramName);
+            return value;
         }
 
         /// <summary>

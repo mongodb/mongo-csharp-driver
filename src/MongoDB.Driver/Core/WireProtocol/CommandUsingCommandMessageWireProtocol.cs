@@ -380,6 +380,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (serverTimeout != Timeout.InfiniteTimeSpan)
                 {
                     serverTimeout -= _roundTripTime;
+                    if (serverTimeout < TimeSpan.Zero)
+                    {
+                        throw new TimeoutException();
+                    }
 
                     var serverTimeoutMs = MaxTimeHelper.ToMaxTimeMS(serverTimeout);
                     AddIfNotAlreadyAdded("maxTimeMS", serverTimeoutMs);
