@@ -19,7 +19,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Connections;
 
-public class Socks5ProxySettingsConnectionTest
+public class Socks5ProxySettingsTest
 {
     [Fact]
     public void Constructor_should_set_properties_correctly_with_host_only()
@@ -99,17 +99,16 @@ public class Socks5ProxySettingsConnectionTest
     public void ToString_should_return_expected_string_for_no_auth()
     {
         var s = new Socks5ProxySettings("host");
-        s.ToString().Should().Contain("Host : host").And.Contain("Port : 1080").And.Contain("Authentication : None");
+        var expected = "{ Host : host, Port : 1080, Authentication : None }";
+        s.ToString().Should().Be(expected);
     }
 
     [Fact]
     public void ToString_should_return_expected_string_for_username_password_auth()
     {
         var s = new Socks5ProxySettings("host", 1234, Socks5AuthenticationSettings.UsernamePassword("u", "p"));
-        s.ToString().Should().Contain("Host : host")
-            .And.Contain("Port : 1234")
-            .And.Contain("Username: u")
-            .And.Contain("Password: p");
+        var expected = "{ Host : host, Port : 1234, Authentication : UsernamePassword (Username: u, Password: p) }";
+        s.ToString().Should().Be(expected);
     }
 
     [Fact]
