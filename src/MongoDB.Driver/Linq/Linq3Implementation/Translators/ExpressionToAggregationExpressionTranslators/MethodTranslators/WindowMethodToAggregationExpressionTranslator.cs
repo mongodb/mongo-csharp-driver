@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         public static bool CanTranslate(MethodCallExpression expression)
         {
-            return expression.Method.IsOneOf(__windowMethods);
+            return IsQuantileMethod(expression.Method) || expression.Method.IsOneOf(__windowMethods);
         }
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var parameters = method.GetParameters();
             var arguments = expression.Arguments.ToArray();
 
-            if (method.IsOneOf(__windowMethods))
+            if ( IsQuantileMethod(method) || method.IsOneOf(__windowMethods))
             {
                 var partitionExpression = arguments[0];
                 var partitionTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, partitionExpression);
@@ -336,6 +336,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     var ast = AstExpression.ExponentialMovingAverageWindowExpression(selectorTranslation.Ast, weighting, window);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
+                    return new TranslatedExpression(expression, ast, serializer);
+                }
+
+                if (IsQuantileMethod(method))
+                {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
+                    AstExpression ast;
+
+                    if (method.Name == "Percentile")
+                    {
+                        // Get the percentiles parameter
+                        var percentilesExpression = GetArgument<Expression>(parameters, "percentiles", arguments);
+                        var percentilesTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, percentilesExpression);
+                        ast = AstExpression.PercentileWindowExpression(selectorTranslation.Ast, percentilesTranslation.Ast, window);
+                    }
+                    else
+                    {
+                        ast = AstExpression.MedianWindowExpression(selectorTranslation.Ast, window);
+                    }
+
+                    var serializer = BsonSerializer.LookupSerializer(method.ReturnType);
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
@@ -438,6 +459,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             argument = null;
             return false;
+        }
+
+        private static bool IsQuantileMethod(MethodInfo method)
+        {
+            return method.DeclaringType == typeof(ISetWindowFieldsPartitionExtensions) && method.Name is "Median" or "Percentile";
         }
 
         private static void ThrowIfSelectorTranslationIsNull(TranslatedExpression selectTranslation)
