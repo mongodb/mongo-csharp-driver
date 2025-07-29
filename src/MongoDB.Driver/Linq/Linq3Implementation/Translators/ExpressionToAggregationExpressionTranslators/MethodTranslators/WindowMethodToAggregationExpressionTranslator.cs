@@ -94,7 +94,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.Last,
             WindowMethod.Locf,
             WindowMethod.Max,
+            WindowMethod.MedianWithDecimal,
+            WindowMethod.MedianWithDouble,
+            WindowMethod.MedianWithInt32,
+            WindowMethod.MedianWithInt64,
+            WindowMethod.MedianWithNullableDecimal,
+            WindowMethod.MedianWithNullableDouble,
+            WindowMethod.MedianWithNullableInt32,
+            WindowMethod.MedianWithNullableInt64,
+            WindowMethod.MedianWithNullableSingle,
+            WindowMethod.MedianWithSingle,
             WindowMethod.Min,
+            WindowMethod.PercentileWithDecimal,
+            WindowMethod.PercentileWithDouble,
+            WindowMethod.PercentileWithInt32,
+            WindowMethod.PercentileWithInt64,
+            WindowMethod.PercentileWithNullableDecimal,
+            WindowMethod.PercentileWithNullableDouble,
+            WindowMethod.PercentileWithNullableInt32,
+            WindowMethod.PercentileWithNullableInt64,
+            WindowMethod.PercentileWithNullableSingle,
+            WindowMethod.PercentileWithSingle,
             WindowMethod.Push,
             WindowMethod.Rank,
             WindowMethod.Shift,
@@ -253,9 +273,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.ShiftWithDefaultValue
         };
 
+        private static readonly MethodInfo[] __quantileMethods =
+        [
+            WindowMethod.MedianWithDecimal,
+            WindowMethod.MedianWithDouble,
+            WindowMethod.MedianWithInt32,
+            WindowMethod.MedianWithInt64,
+            WindowMethod.MedianWithNullableDecimal,
+            WindowMethod.MedianWithNullableDouble,
+            WindowMethod.MedianWithNullableInt32,
+            WindowMethod.MedianWithNullableInt64,
+            WindowMethod.MedianWithNullableSingle,
+            WindowMethod.MedianWithSingle,
+            WindowMethod.PercentileWithDecimal,
+            WindowMethod.PercentileWithDouble,
+            WindowMethod.PercentileWithInt32,
+            WindowMethod.PercentileWithInt64,
+            WindowMethod.PercentileWithNullableDecimal,
+            WindowMethod.PercentileWithNullableDouble,
+            WindowMethod.PercentileWithNullableInt32,
+            WindowMethod.PercentileWithNullableInt64,
+            WindowMethod.PercentileWithNullableSingle,
+            WindowMethod.PercentileWithSingle
+        ];
+
         public static bool CanTranslate(MethodCallExpression expression)
         {
-            return IsQuantileMethod(expression.Method) || expression.Method.IsOneOf(__windowMethods);
+            return expression.Method.IsOneOf(__windowMethods);
         }
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -264,7 +308,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var parameters = method.GetParameters();
             var arguments = expression.Arguments.ToArray();
 
-            if ( IsQuantileMethod(method) || method.IsOneOf(__windowMethods))
+            if (method.IsOneOf(__windowMethods))
             {
                 var partitionExpression = arguments[0];
                 var partitionTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, partitionExpression);
@@ -339,7 +383,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 
-                if (IsQuantileMethod(method))
+                if (method.IsOneOf(__quantileMethods))
                 {
                     ThrowIfSelectorTranslationIsNull(selectorTranslation);
                     AstExpression ast;
@@ -459,11 +503,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             argument = null;
             return false;
-        }
-
-        private static bool IsQuantileMethod(MethodInfo method)
-        {
-            return method.DeclaringType == typeof(ISetWindowFieldsPartitionExtensions) && method.Name is "Median" or "Percentile";
         }
 
         private static void ThrowIfSelectorTranslationIsNull(TranslatedExpression selectTranslation)
