@@ -22,7 +22,6 @@ using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Encryption;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -74,6 +73,7 @@ namespace MongoDB.Driver
         private int _srvMaxHosts;
         private string _srvServiceName;
         private SslSettings _sslSettings;
+        private TimeSpan? _timeout;
         private ExpressionTranslationOptions _translationOptions;
         private bool _useTls;
         private int _waitQueueSize;
@@ -125,6 +125,7 @@ namespace MongoDB.Driver
             _srvMaxHosts = 0;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _sslSettings = null;
+            _timeout = System.Threading.Timeout.InfiniteTimeSpan;
             _translationOptions = null;
             _useTls = false;
 #pragma warning disable 618
@@ -667,6 +668,21 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the per-operation timeout
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get { return _timeout; }
+            set
+            {
+                ThrowIfFrozen();
+                _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
+            }
+        }
+        TimeSpan? IInheritableMongoClientSettings.Timeout => Timeout;
+
+        /// <summary>
         /// Gets or sets the translation options.
         /// </summary>
         public ExpressionTranslationOptions TranslationOptions
@@ -881,6 +897,7 @@ namespace MongoDB.Driver
             {
                 clientSettings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
             }
+            clientSettings.Timeout = url.Timeout;
             clientSettings.UseTls = url.UseTls;
 #pragma warning disable 618
             clientSettings.WaitQueueSize = url.ComputedWaitQueueSize;
@@ -935,6 +952,7 @@ namespace MongoDB.Driver
             clone._srvMaxHosts = _srvMaxHosts;
             clone._srvServiceName = _srvServiceName;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
+            clone._timeout = _timeout;
             clone._translationOptions = _translationOptions;
             clone._useTls = _useTls;
             clone._waitQueueSize = _waitQueueSize;
@@ -1004,6 +1022,7 @@ namespace MongoDB.Driver
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs._srvServiceName &&
                 _sslSettings == rhs._sslSettings &&
+                _timeout == rhs._timeout &&
                 object.Equals(_translationOptions, rhs._translationOptions) &&
                 _useTls == rhs._useTls &&
                 _waitQueueSize == rhs._waitQueueSize &&
@@ -1091,6 +1110,7 @@ namespace MongoDB.Driver
                 .Hash(_srvMaxHosts)
                 .Hash(_srvServiceName)
                 .Hash(_sslSettings)
+                .Hash(_timeout)
                 .Hash(_translationOptions)
                 .Hash(_useTls)
                 .Hash(_waitQueueSize)
@@ -1171,6 +1191,10 @@ namespace MongoDB.Driver
             if (_sslSettings != null)
             {
                 sb.AppendFormat("SslSettings={0};", _sslSettings);
+            }
+            if(_timeout != null)
+            {
+                sb.AppendFormat("Timeout={0};", _timeout);
             }
             sb.AppendFormat("Tls={0};", _useTls);
             sb.AppendFormat("TlsInsecure={0};", _allowInsecureTls);

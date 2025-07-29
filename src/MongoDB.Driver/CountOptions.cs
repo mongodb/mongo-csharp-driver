@@ -31,6 +31,7 @@ namespace MongoDB.Driver
         private long? _limit;
         private TimeSpan? _maxTime;
         private long? _skip;
+        private TimeSpan? _timeout;
 
         // properties
         /// <summary>
@@ -85,6 +86,16 @@ namespace MongoDB.Driver
         {
             get { return _skip; }
             set { _skip = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 }

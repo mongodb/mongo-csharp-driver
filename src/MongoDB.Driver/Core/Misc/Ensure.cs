@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -444,11 +444,12 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>The value of the parameter.</returns>
         public static TimeSpan? IsNullOrValidTimeout(TimeSpan? value, string paramName)
         {
-            if (value != null)
+            if (value == null)
             {
-                IsValidTimeout(value.Value, paramName);
+                return null;
             }
-            return value;
+
+            return IsValidTimeout(value.Value, paramName);
         }
 
         /// <summary>
@@ -459,12 +460,12 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>The value of the parameter.</returns>
         public static TimeSpan IsValidTimeout(TimeSpan value, string paramName)
         {
-            if (value < TimeSpan.Zero && value != Timeout.InfiniteTimeSpan)
+            if (value > TimeSpan.Zero || value == Timeout.InfiniteTimeSpan)
             {
-                var message = string.Format("Invalid timeout: {0}.", value);
-                throw new ArgumentException(message, paramName);
+                return value;
             }
-            return value;
+
+            throw new ArgumentOutOfRangeException($"Invalid timeout: {value}.", paramName);
         }
 
         /// <summary>

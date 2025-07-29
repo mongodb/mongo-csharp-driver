@@ -24,20 +24,20 @@ namespace MongoDB.Driver
     internal sealed class OperationContext : IDisposable
     {
         // TODO: this static field is temporary here and will be removed in a future PRs in scope of CSOT.
-        public static readonly OperationContext NoTimeout = new(System.Threading.Timeout.InfiniteTimeSpan, CancellationToken.None);
+        public static readonly OperationContext NoTimeout = new(null, CancellationToken.None);
 
         private CancellationTokenSource _remainingTimeoutCancellationTokenSource;
         private CancellationTokenSource _combinedCancellationTokenSource;
 
-        public OperationContext(TimeSpan timeout, CancellationToken cancellationToken)
+        public OperationContext(TimeSpan? timeout, CancellationToken cancellationToken)
             : this(Stopwatch.StartNew(), timeout, cancellationToken)
         {
         }
 
-        internal OperationContext(Stopwatch stopwatch, TimeSpan timeout, CancellationToken cancellationToken)
+        internal OperationContext(Stopwatch stopwatch, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Stopwatch = stopwatch;
-            Timeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
+            Timeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
             CancellationToken = cancellationToken;
             RootContext = this;
         }
@@ -50,12 +50,12 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (Timeout == System.Threading.Timeout.InfiniteTimeSpan)
+                if (Timeout == null || Timeout == System.Threading.Timeout.InfiniteTimeSpan)
                 {
                     return System.Threading.Timeout.InfiniteTimeSpan;
                 }
 
-                var result = Timeout - Stopwatch.Elapsed;
+                var result = Timeout.Value - Stopwatch.Elapsed;
                 if (result < TimeSpan.Zero)
                 {
                     result = TimeSpan.Zero;
@@ -87,7 +87,7 @@ namespace MongoDB.Driver
         }
         private Stopwatch Stopwatch { get; }
 
-        public TimeSpan Timeout { get; }
+        public TimeSpan? Timeout { get; }
 
         public void Dispose()
         {

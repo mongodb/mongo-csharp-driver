@@ -13,6 +13,9 @@
 * limitations under the License.
 */
 
+using System;
+using MongoDB.Driver.Core.Misc;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -22,6 +25,7 @@ namespace MongoDB.Driver
     {
         // fields
         private bool? _dropTarget;
+        private TimeSpan? _timeout;
 
         // properties
         /// <summary>
@@ -31,6 +35,16 @@ namespace MongoDB.Driver
         {
             get { return _dropTarget; }
             set { _dropTarget = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 }

@@ -14,7 +14,6 @@
  */
 
 using System.Collections.Generic;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Driver.Core.Bindings;
 using Moq;
@@ -22,18 +21,16 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    public class ReadOperationOptionsTests
+    public class ClientSessionExtensionsTests
     {
         [Theory]
         [MemberData(nameof(GetEffectiveReadPreferenceTestCases))]
         public void GetEffectiveReadPreferenceTests(
             ReadPreference expectedReadPreference,
-            ReadPreference explicitReadPreference,
             ReadPreference defaultReadPreference,
             IClientSessionHandle session)
         {
-            var readOperationOptions = new ReadOperationOptions(Timeout.InfiniteTimeSpan, explicitReadPreference, defaultReadPreference);
-            var result = readOperationOptions.GetEffectiveReadPreference(session);
+            var result = session.GetEffectiveReadPreference(defaultReadPreference);
 
             result.Should().Be(expectedReadPreference);
         }
@@ -44,13 +41,13 @@ namespace MongoDB.Driver.Tests
             var inTransactionSession = CreateSessionMock(new TransactionOptions(readPreference: ReadPreference.Nearest));
             var inTransactionNoPreferenceSession = CreateSessionMock(new TransactionOptions());
 
-            yield return [ReadPreference.Primary, null, null, noTransactionSession];
-            yield return [ReadPreference.Secondary, ReadPreference.Secondary, ReadPreference.SecondaryPreferred, noTransactionSession];
-            yield return [ReadPreference.Secondary, ReadPreference.Secondary, ReadPreference.SecondaryPreferred, inTransactionSession];
-            yield return [ReadPreference.SecondaryPreferred, null, ReadPreference.SecondaryPreferred, noTransactionSession];
-            yield return [ReadPreference.Nearest, null, ReadPreference.SecondaryPreferred, inTransactionSession];
-            yield return [ReadPreference.Primary, null, null, inTransactionNoPreferenceSession];
-            yield return [ReadPreference.SecondaryPreferred, null, ReadPreference.SecondaryPreferred, inTransactionNoPreferenceSession];
+            yield return [ReadPreference.Primary, null, noTransactionSession];
+            yield return [ReadPreference.SecondaryPreferred, ReadPreference.SecondaryPreferred, noTransactionSession];
+
+            yield return [ReadPreference.Nearest, ReadPreference.SecondaryPreferred, inTransactionSession];
+
+            yield return [ReadPreference.Primary, null, inTransactionNoPreferenceSession];
+            yield return [ReadPreference.SecondaryPreferred, ReadPreference.SecondaryPreferred, inTransactionNoPreferenceSession];
         }
 
         private static IClientSessionHandle CreateSessionMock(TransactionOptions transactionOptions)

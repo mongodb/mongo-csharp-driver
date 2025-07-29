@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _sort = value; }
         }
 
-        public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
         {
             var wireVersion = connectionDescription.MaxWireVersion;
             FindProjectionChecker.ThrowIfAggregationExpressionIsUsedWhenNotSupported(_projection, wireVersion);
@@ -254,7 +254,6 @@ namespace MongoDB.Driver.Core.Operations
             var effectiveComment = _comment;
             var effectiveHint = _hint;
             var effectiveMax = _max;
-            var effectiveMaxTime = _maxTime;
             var effectiveMin = _min;
             var effectiveReturnKey = _returnKey;
             var effectiveShowRecordId = _showRecordId;
@@ -273,7 +272,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "batchSize", () => batchSize.Value, batchSize.HasValue && batchSize > 0 },
                 { "singleBatch", () => _limit < 0 || _singleBatch.Value, _limit < 0 || _singleBatch.HasValue },
                 { "comment", effectiveComment, effectiveComment != null },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(effectiveMaxTime.Value), effectiveMaxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "max", effectiveMax, effectiveMax != null },
                 { "min", effectiveMin, effectiveMin != null },
                 { "returnKey", () => effectiveReturnKey.Value, effectiveReturnKey.HasValue },
@@ -307,7 +306,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(context);
+                var operation = CreateOperation(operationContext, context);
                 var commandResult = operation.Execute(operationContext, context);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
@@ -330,7 +329,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(context);
+                var operation = CreateOperation(operationContext, context);
                 var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, context.Channel, commandResult);
             }
@@ -375,9 +374,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private IDisposable BeginOperation() => EventContext.BeginOperation(null, "find");
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(RetryableReadContext context)
+        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
-            var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
+            var command = CreateCommand(operationContext, context.Binding.Session, context.Channel.ConnectionDescription);
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,

@@ -16,6 +16,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -35,6 +36,7 @@ namespace MongoDB.Driver
         private long? _maxSize;
         private bool? _noPadding;
         private BsonDocument _storageEngine;
+        private TimeSpan? _timeout;
         private TimeSeriesOptions _timeSeriesOptions;
         private bool? _usePowerOf2Sizes;
         private IBsonSerializerRegistry _serializerRegistry;
@@ -143,6 +145,16 @@ namespace MongoDB.Driver
         {
             get { return _storageEngine; }
             set { _storageEngine = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
 
         /// <summary>

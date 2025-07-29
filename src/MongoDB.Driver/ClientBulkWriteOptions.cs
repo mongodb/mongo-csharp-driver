@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -22,6 +24,8 @@ namespace MongoDB.Driver
     /// </summary>
     public sealed class ClientBulkWriteOptions
     {
+        private TimeSpan? _timeout;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteOptions"/> class.
         /// </summary>
@@ -74,6 +78,16 @@ namespace MongoDB.Driver
         /// Let document.
         /// </summary>
         public BsonDocument Let { get; set; }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
+        }
 
         /// <summary>
         /// Whether detailed results for each successful operation should be included in the returned results.

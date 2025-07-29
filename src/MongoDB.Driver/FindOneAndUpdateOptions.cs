@@ -39,6 +39,7 @@ namespace MongoDB.Driver
         private ProjectionDefinition<TDocument, TProjection> _projection;
         private ReturnDocument _returnDocument;
         private SortDefinition<TDocument> _sort;
+        private TimeSpan? _timeout;
 
         // constructors
         /// <summary>
@@ -150,6 +151,16 @@ namespace MongoDB.Driver
         {
             get { return _sort; }
             set { _sort = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 

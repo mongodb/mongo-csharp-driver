@@ -40,6 +40,7 @@ namespace MongoDB.Driver
         private IBsonSerializer<TResult> _resultSerializer;
         private BsonDocument _scope;
         private SortDefinition<TDocument> _sort;
+        private TimeSpan? _timeout;
         private bool? _verbose;
 
         // properties
@@ -141,6 +142,16 @@ namespace MongoDB.Driver
         {
             get { return _sort; }
             set { _sort = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
 
         /// <summary>

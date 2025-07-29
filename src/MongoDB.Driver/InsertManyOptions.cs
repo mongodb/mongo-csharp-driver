@@ -11,9 +11,12 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
- * 
+ *
 */
+
+using System;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -26,6 +29,7 @@ namespace MongoDB.Driver
         private bool? _bypassDocumentValidation;
         private BsonValue _comment;
         private bool _isOrdered;
+        private TimeSpan? _timeout;
 
         // constructors
         /// <summary>
@@ -62,6 +66,16 @@ namespace MongoDB.Driver
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 }

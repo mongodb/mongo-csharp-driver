@@ -98,6 +98,9 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _socketTimeout;
         private int? _srvMaxHosts;
         private string _srvServiceName;
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+        private TimeSpan? _timeout;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
         private bool? _tls;
         private bool? _tlsDisableCertificateRevocationCheck;
         private bool? _tlsInsecure;
@@ -399,7 +402,6 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _retryReads; }
         }
 
-
         /// <summary>
         /// Gets a value indicating whether or not to retry writes.
         /// </summary>
@@ -467,6 +469,12 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         [Obsolete("Use TlsInsecure instead.")]
         public bool? SslVerifyCertificate => !_tlsInsecure;
+
+        /// <summary>
+        /// Gets the per-operation timeout.
+        /// </summary>
+        // TODO: SCOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout => _timeout;
 
         /// <summary>
         /// Gets whether to use TLS.
@@ -1089,6 +1097,12 @@ namespace MongoDB.Driver.Core.Configuration
                     var sslVerifyCertificateValue = ParseBoolean(name, value);
                     _tlsInsecure = EnsureTlsInsecureIsValid(!sslVerifyCertificateValue);
                     break;
+#if DEBUG // TODO: SCOT: Make it public when CSOT will be ready for GA
+                case "timeout":
+                case "timeoutms":
+                    _timeout = value == "0" ? System.Threading.Timeout.InfiniteTimeSpan : ParseTimeSpan(name, value);
+                    break;
+#endif
                 case "tlsdisablecertificaterevocationcheck":
                     var tlsDisableCertificateRevocationCheckValue = ParseBoolean(name, value);
                     _tlsDisableCertificateRevocationCheck =
