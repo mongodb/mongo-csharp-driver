@@ -24,9 +24,9 @@ namespace MongoDB.Driver.Core.Connections;
 public abstract class Socks5AuthenticationSettings
 {
     /// <summary>
-    /// Creates authentication settings that do not require any authentication.
+    /// Creates authentication settings that does not require any authentication.
     /// </summary>
-    public static Socks5AuthenticationSettings None => new NoAuthenticationSettings();
+    public static Socks5AuthenticationSettings None { get; } = new NoAuthenticationSettings();
 
     /// <summary>
     /// Creates authentication settings for username and password.
@@ -45,7 +45,7 @@ public abstract class Socks5AuthenticationSettings
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            return obj is Socks5AuthenticationSettings;
+            return obj is NoAuthenticationSettings;
         }
 
         /// <inheritdoc />
