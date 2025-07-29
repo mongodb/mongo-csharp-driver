@@ -23,15 +23,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
     internal sealed class AstComplexAccumulatorExpression : AstAccumulatorExpression
     {
         private readonly AstComplexAccumulatorOperator _operator;
-        private readonly Dictionary<string, AstExpression> _args;
+        private readonly IReadOnlyDictionary<string, AstExpression> _args;
 
-        public AstComplexAccumulatorExpression(AstComplexAccumulatorOperator @operator, Dictionary<string, AstExpression> args)
+        public AstComplexAccumulatorExpression(AstComplexAccumulatorOperator @operator, IReadOnlyDictionary<string, AstExpression> args)
         {
             _operator = @operator;
             _args = Ensure.IsNotNull(args, nameof(args));
         }
 
-        public Dictionary<string, AstExpression> Args => _args;
+        public IReadOnlyDictionary<string, AstExpression> Args => _args;
 
         public override AstNodeType NodeType => AstNodeType.ComplexAccumulatorExpression;
 
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new BsonDocument(_operator.Render(), document);
         }
 
-        public AstComplexAccumulatorExpression Update(Dictionary<string, AstExpression> args)
+        public AstComplexAccumulatorExpression Update(IReadOnlyDictionary<string, AstExpression> args)
         {
             if (ReferenceEquals(args, _args))
             {

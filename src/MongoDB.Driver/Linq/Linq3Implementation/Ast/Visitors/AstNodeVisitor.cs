@@ -209,8 +209,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
                 if (newArg != oldArg)
                 {
-                    newArgs ??= new Dictionary<string, AstExpression>(node.Args);
+                    if (newArgs == null)
+                    {
+                        // First change detected - copy all processed entries
+                        newArgs = new Dictionary<string, AstExpression>();
+                        foreach (var processedKvp in node.Args)
+                        {
+                            if (processedKvp.Key == kvp.Key)
+                            {
+                                break; // Stop at current entry
+                            }
+                            newArgs[processedKvp.Key] = processedKvp.Value;
+                        }
+                    }
                     newArgs[kvp.Key] = newArg;
+                }
+                else if (newArgs != null)
+                {
+                    // We're building a new dictionary, so add unchanged entries too
+                    newArgs[kvp.Key] = oldArg;
                 }
             }
 
