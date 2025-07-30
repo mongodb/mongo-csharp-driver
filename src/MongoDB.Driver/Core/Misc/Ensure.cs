@@ -444,12 +444,11 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>The value of the parameter.</returns>
         public static TimeSpan? IsNullOrValidTimeout(TimeSpan? value, string paramName)
         {
-            if (value == null)
+            if (value != null)
             {
-                return null;
+                IsValidTimeout(value.Value, paramName);
             }
-
-            return IsValidTimeout(value.Value, paramName);
+            return value;
         }
 
         /// <summary>

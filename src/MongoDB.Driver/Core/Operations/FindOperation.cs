@@ -250,33 +250,24 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             var isShardRouter = connectionDescription.HelloResult.ServerType == ServerType.ShardRouter;
-
-            var effectiveComment = _comment;
-            var effectiveHint = _hint;
-            var effectiveMax = _max;
-            var effectiveMin = _min;
-            var effectiveReturnKey = _returnKey;
-            var effectiveShowRecordId = _showRecordId;
-            var effectiveSort = _sort;
-
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             return new BsonDocument
             {
                 { "find", _collectionNamespace.CollectionName },
                 { "filter", _filter, _filter != null },
-                { "sort", effectiveSort, effectiveSort != null },
+                { "sort", _sort, _sort != null },
                 { "projection", _projection, _projection != null },
-                { "hint", effectiveHint, effectiveHint != null },
+                { "hint", _hint, _hint != null },
                 { "skip", () => _skip.Value, _skip.HasValue },
                 { "limit", () => Math.Abs(_limit.Value), _limit.HasValue && _limit != 0 },
                 { "batchSize", () => batchSize.Value, batchSize.HasValue && batchSize > 0 },
                 { "singleBatch", () => _limit < 0 || _singleBatch.Value, _limit < 0 || _singleBatch.HasValue },
-                { "comment", effectiveComment, effectiveComment != null },
+                { "comment", _comment, _comment != null },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
-                { "max", effectiveMax, effectiveMax != null },
-                { "min", effectiveMin, effectiveMin != null },
-                { "returnKey", () => effectiveReturnKey.Value, effectiveReturnKey.HasValue },
-                { "showRecordId", () => effectiveShowRecordId.Value, effectiveShowRecordId.HasValue },
+                { "max", _max, _max != null },
+                { "min", _min, _min != null },
+                { "returnKey", () => _returnKey.Value, _returnKey.HasValue },
+                { "showRecordId", () => _showRecordId.Value, _showRecordId.HasValue },
                 { "tailable", true, _cursorType == CursorType.Tailable || _cursorType == CursorType.TailableAwait },
                 { "oplogReplay", () => _oplogReplay.Value, _oplogReplay.HasValue },
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },

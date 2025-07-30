@@ -380,7 +380,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (serverTimeout != Timeout.InfiniteTimeSpan)
                 {
                     serverTimeout -= _roundTripTime;
-                    if (serverTimeout < TimeSpan.Zero)
+                    if (serverTimeout <= TimeSpan.Zero)
                     {
                         throw new TimeoutException();
                     }
