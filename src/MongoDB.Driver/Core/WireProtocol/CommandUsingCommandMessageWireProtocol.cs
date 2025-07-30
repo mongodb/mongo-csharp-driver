@@ -376,13 +376,18 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             if (operationContext.IsRootContextTimeoutConfigured() && _roundTripTime > TimeSpan.Zero)
             {
-                var serverTimeout = operationContext.RemainingTimeout - _roundTripTime;
-                if (serverTimeout < TimeSpan.Zero)
+                var serverTimeout = operationContext.RemainingTimeout;
+                if (serverTimeout != Timeout.InfiniteTimeSpan)
                 {
-                    throw new TimeoutException();
-                }
+                    serverTimeout -= _roundTripTime;
+                    if (serverTimeout <= TimeSpan.Zero)
+                    {
+                        throw new TimeoutException();
+                    }
 
-                AddIfNotAlreadyAdded("maxTimeMS", (long)serverTimeout.TotalMilliseconds);
+                    var serverTimeoutMs = MaxTimeHelper.ToMaxTimeMS(serverTimeout);
+                    AddIfNotAlreadyAdded("maxTimeMS", serverTimeoutMs);
+                }
             }
 
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);

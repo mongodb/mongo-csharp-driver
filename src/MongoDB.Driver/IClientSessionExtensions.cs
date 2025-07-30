@@ -13,15 +13,22 @@
  * limitations under the License.
  */
 
-using System;
-using System.Threading;
+namespace MongoDB.Driver;
 
-namespace MongoDB.Driver
+internal static class IClientSessionExtensions
 {
-    internal abstract record OperationOptionsBase(TimeSpan Timeout)
+    public static ReadPreference GetEffectiveReadPreference(this IClientSession session, ReadPreference defaultReadPreference)
     {
-        public OperationContext ToOperationContext(CancellationToken cancellationToken)
-            => new (Timeout, cancellationToken);
+        if (session.IsInTransaction)
+        {
+            var transactionReadPreference = session.WrappedCoreSession.CurrentTransaction.TransactionOptions?.ReadPreference;
+            if (transactionReadPreference != null)
+            {
+                return transactionReadPreference;
+            }
+        }
+
+        return defaultReadPreference ?? ReadPreference.Primary;
     }
 }
 

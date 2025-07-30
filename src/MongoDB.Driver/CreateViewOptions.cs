@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -27,6 +29,7 @@ namespace MongoDB.Driver
         private Collation _collation;
         private IBsonSerializer<TDocument> _documentSerializer;
         private IBsonSerializerRegistry _serializerRegistry;
+        private TimeSpan? _timeout;
 
         // properties
         /// <summary>
@@ -63,6 +66,16 @@ namespace MongoDB.Driver
         {
             get { return _serializerRegistry; }
             set { _serializerRegistry = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the operation timeout.
+        /// </summary>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout
+        {
+            get => _timeout;
+            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 }

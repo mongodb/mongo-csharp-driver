@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -476,7 +475,7 @@ namespace MongoDB.Driver.Core.Operations
                 var result = operation switch
                 {
                     CreateCollectionOperation createCollectionOperation => createCollectionOperation.CreateCommand(session),
-                    CreateIndexesOperation createIndexesOperation => createIndexesOperation.CreateCommand(session, OperationTestHelper.CreateConnectionDescription()),
+                    CreateIndexesOperation createIndexesOperation => createIndexesOperation.CreateCommand(OperationContext.NoTimeout, session, OperationTestHelper.CreateConnectionDescription()),
                     _ => throw new Exception($"Unexpected operation {operation}."),
                 };
                 result.Should().Be(expectedResult);

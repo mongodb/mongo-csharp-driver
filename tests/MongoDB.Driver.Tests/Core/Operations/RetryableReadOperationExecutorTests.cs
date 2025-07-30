@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         {
             var retryableReadContext = CreateSubject(isRetryRequested, isInTransaction);
             var exception =CoreExceptionHelper.CreateException(isRetriableException ? nameof(MongoNodeIsRecoveringException) : nameof(IOException));
-            var operationContext = new OperationContext(hasTimeout ? TimeSpan.FromSeconds(42) : Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var operationContext = new OperationContext(hasTimeout ? TimeSpan.FromSeconds(42) : null, CancellationToken.None);
 
             var result = RetryableReadOperationExecutorReflector.ShouldRetryOperation(operationContext, retryableReadContext, exception, attempt);
 

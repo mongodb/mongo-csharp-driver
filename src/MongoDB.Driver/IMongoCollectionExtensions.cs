@@ -1200,6 +1200,7 @@ namespace MongoDB.Driver
 #pragma warning restore 618
                     ReturnKey = options.ReturnKey,
                     ShowRecordId = options.ShowRecordId,
+                    Timeout = options.Timeout,
                     TranslationOptions = options.TranslationOptions
                 };
             }

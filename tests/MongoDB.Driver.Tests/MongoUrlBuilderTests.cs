@@ -94,6 +94,7 @@ namespace MongoDB.Driver.Tests
                 ServerMonitoringMode = ServerMonitoringMode.Poll,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
+                Timeout = TimeSpan.FromSeconds(13),
                 Username = "username",
 #pragma warning disable 618
                 UseSsl = true,
@@ -140,6 +141,7 @@ namespace MongoDB.Driver.Tests
                 "serverMonitoringMode=Poll",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
+                "timeout=13s",
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "retryReads=false",
@@ -185,6 +187,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ServerMonitoringMode.Poll, builder.ServerMonitoringMode);
                 Assert.Equal(TimeSpan.FromSeconds(10), builder.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), builder.SocketTimeout);
+                Assert.Equal(TimeSpan.FromSeconds(13), builder.Timeout);
                 Assert.Equal("username", builder.Username);
 #pragma warning disable 618
                 Assert.Equal(true, builder.UseSsl);
@@ -443,6 +446,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(MongoDefaults.LocalThreshold, builder.LocalThreshold);
                 Assert.Equal(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
                 Assert.Equal(MongoDefaults.SocketTimeout, builder.SocketTimeout);
+                Assert.Equal(null, builder.Timeout);
                 Assert.Equal(MongoInternalDefaults.MongoClientSettings.SrvServiceName, builder.SrvServiceName);
                 Assert.Equal(null, builder.Username);
 #pragma warning disable 618
@@ -1134,6 +1138,28 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.SocketTimeout = TimeSpan.FromSeconds(-1); });
             builder.SocketTimeout = TimeSpan.Zero;
             builder.SocketTimeout = TimeSpan.FromSeconds(1);
+        }
+
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(-1, "mongodb://localhost/?timeout{0}", new[] { "=0", "MS=0" })]
+        [InlineData(500, "mongodb://localhost/?timeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [InlineData(30000, "mongodb://localhost/?timeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [InlineData(1800000, "mongodb://localhost/?timeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [InlineData(3600000, "mongodb://localhost/?timeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [InlineData(3723000, "mongodb://localhost/?timeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        public void TestTimeout(int? ms, string formatString, string[] values)
+        {
+            var timeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
+            var built = new MongoUrlBuilder { Server = _localhost };
+            if (timeout != null) { built.Timeout = timeout.Value; }
+
+            var canonicalConnectionString = string.Format(formatString, values[0]);
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
+            {
+                Assert.Equal(timeout, builder.Timeout);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
+            }
         }
 
         [Fact]

@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -385,6 +385,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Ssl.Should().Be(null);
             subject.SslVerifyCertificate.Should().Be(null);
 #pragma warning restore 618
+            subject.Timeout.Should().Be(null);
             subject.Tls.Should().Be(null);
             subject.TlsInsecure.Should().Be(null);
             subject.Username.Should().BeNull();
@@ -432,6 +433,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "socketTimeout=40ms;" +
                 "ssl=false;" +
                 "sslVerifyCertificate=true;" +
+                "timeout=42ms;" +
                 "waitQueueMultiple=10;" +
                 "waitQueueSize=30;" +
                 "waitQueueTimeout=60ms;" +
@@ -476,6 +478,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Ssl.Should().BeFalse();
             subject.SslVerifyCertificate.Should().Be(true);
 #pragma warning restore 618
+            subject.Timeout.Should().Be(TimeSpan.FromMilliseconds(42));
             subject.Tls.Should().BeFalse();
             subject.TlsInsecure.Should().Be(false);
             subject.Username.Should().Be("user");
@@ -1046,6 +1049,22 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable 618
             subject.SslVerifyCertificate.Should().Be(sslVerifyCertificate);
 #pragma warning restore 618
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?timeoutMS=0", -1)]
+        [InlineData("mongodb://localhost?timeout=0", -1)]
+        [InlineData("mongodb://localhost?timeout=15ms", 15)]
+        [InlineData("mongodb://localhost?timeoutMS=15", 15)]
+        [InlineData("mongodb://localhost?timeout=15", 1000 * 15)]
+        [InlineData("mongodb://localhost?timeout=15s", 1000 * 15)]
+        [InlineData("mongodb://localhost?timeout=15m", 1000 * 60 * 15)]
+        [InlineData("mongodb://localhost?timeout=15h", 1000 * 60 * 60 * 15)]
+        public void When_timeout_is_specified(string connectionString, int milliseconds)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.Timeout.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
         }
 
         [Theory]
