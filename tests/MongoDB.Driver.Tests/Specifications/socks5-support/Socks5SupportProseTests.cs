@@ -74,7 +74,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
             {
                 ClientCertificates = [certificate],
                 CheckCertificateRevocation = false,
-                ServerCertificateValidationCallback = (sender, cert, chain, errors) => true,
+                ServerCertificateValidationCallback = (_, _, _, _) => true,
             };
         }
 
