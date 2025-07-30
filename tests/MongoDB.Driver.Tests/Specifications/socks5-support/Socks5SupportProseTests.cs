@@ -14,6 +14,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -25,35 +27,57 @@ namespace MongoDB.Driver.Tests.Specifications.socks5_support;
 [Trait("Category", "Integration")]
 public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : LoggableTestClass(testOutputHelper)
 {
+    public static IEnumerable<object[]> GetTestCombinations()
+    {
+        var testCases = new (string ConnectionString, bool ExpectedResult)[]
+        {
+            ("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false),
+            ("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true),
+            ("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080", false),
+            ("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true),
+            ("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", false),
+            ("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", true),
+            ("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth", true),
+            ("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd&directConnection=true", true),
+            ("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true),
+            ("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd", true),
+            ("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true)
+        };
+
+        foreach (var (connectionString, expectedResult) in testCases)
+        {
+            foreach (var isAsync in new[] { true, false })
+            {
+                foreach (var useTls in new[] { true, false })
+                {
+                    yield return [connectionString, expectedResult, useTls, isAsync];
+                }
+            }
+        }
+    }
+
     [Theory]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false, false)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false, true)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, false)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, true)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080", false, false)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080", false, true)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, false)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, true)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", false, false)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", false, true)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", true, false)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth&directConnection=true", true, true)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth", true, false)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081&proxyUsername=nonexistentuser&proxyPassword=badauth", true, true)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd&directConnection=true", true, false)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd&directConnection=true", true, true)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, false)]
-    [InlineData("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1081&directConnection=true", true, true)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd", true, false)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1080&proxyUsername=username&proxyPassword=p4ssw0rd", true, true)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, false)]
-    [InlineData("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true, true)]
-    public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool async)
+    [MemberData(nameof(GetTestCombinations))]
+    public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool useTls, bool async)
     {
         //Requires server versions > 5.0 according to spec tests, not sure why
 
         connectionString = connectionString.Replace("<mappedhost>", "localhost:27017").Replace("<replicaset>", "localhost:27017");
         var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
+
+        if (useTls)
+        {
+            mongoClientSettings.UseTls = true;
+            var certificate = new X509Certificate2("/Users/papafe/dataTlsEnabled/certs/mycert.pfx");
+            mongoClientSettings.UseTls = true;
+            mongoClientSettings.SslSettings = new SslSettings
+            {
+                ClientCertificates = [certificate],
+                CheckCertificateRevocation = false,
+                ServerCertificateValidationCallback = (sender, cert, chain, errors) => true,
+            };
+        }
+
         mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(1.5);
         var client = new MongoClient(mongoClientSettings);
 
