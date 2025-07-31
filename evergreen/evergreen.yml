@@ -1703,6 +1703,9 @@ tasks:
     - name: test-efcore
       commands:
         - func: install-dotnet
+          vars:
+            DOTNET_SDK_VERSION: 9.0
+            FRAMEWORK: net8.0
         - func: bootstrap-mongo-orchestration
         - command: expansions.update
           params:
