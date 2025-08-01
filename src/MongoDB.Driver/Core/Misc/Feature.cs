@@ -83,6 +83,8 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __loookupConciseSyntax = new Feature("LoookupConciseSyntax", WireVersion.Server50);
         private static readonly Feature __loookupDocuments= new Feature("LoookupDocuments", WireVersion.Server60);
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
+        private static readonly Feature __medianOperator = new Feature("MedianOperator", WireVersion.Server70);
+        private static readonly Feature __percentileOperator = new Feature("PercentileOperator", WireVersion.Server70);
         private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
         private static readonly Feature __rankFusionStage = new Feature("RankFusionStage", WireVersion.Server81);
         private static readonly Feature __regexMatch = new Feature("RegexMatch", WireVersion.Server42);
@@ -400,6 +402,16 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This feature was removed in server version 4.2. As such, this property will be removed in a later release.")]
         public static Feature MmapV1StorageEngine => __mmapV1StorageEngine;
+
+        /// <summary>
+        /// Gets the $median operator added in 7.0
+        /// </summary>
+        public static Feature MedianOperator => __medianOperator;
+
+        /// <summary>
+        /// Gets the $percentile operator added in 7.0
+        /// </summary>
+        public static Feature PercentileOperator => __percentileOperator;
 
         /// <summary>
         /// Gets the pick accumulators new in 5.2 feature.
