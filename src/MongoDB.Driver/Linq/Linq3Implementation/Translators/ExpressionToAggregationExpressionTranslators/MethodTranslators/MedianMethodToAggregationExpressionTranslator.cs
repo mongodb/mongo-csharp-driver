@@ -15,17 +15,17 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal class MedianMethodToAggregationExpressionTranslator
     {
         private static readonly MethodInfo[] __medianMethods =
-        {
+        [
             EnumerableMethod.MedianDecimal,
             EnumerableMethod.MedianDecimalWithSelector,
             EnumerableMethod.MedianDouble,
@@ -46,10 +46,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.MedianNullableSingleWithSelector,
             EnumerableMethod.MedianSingle,
             EnumerableMethod.MedianSingleWithSelector
-        };
+        ];
 
         private static readonly MethodInfo[] __medianWithSelectorMethods =
-        {
+        [
             EnumerableMethod.MedianDecimalWithSelector,
             EnumerableMethod.MedianDoubleWithSelector,
             EnumerableMethod.MedianInt32WithSelector,
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.MedianNullableInt64WithSelector,
             EnumerableMethod.MedianNullableSingleWithSelector,
             EnumerableMethod.MedianSingleWithSelector
-        };
+        ];
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 var ast = AstExpression.Median(inputAst);
-                var serializer = BsonSerializer.LookupSerializer(expression.Type);
+                var serializer = StandardSerializers.GetSerializer(expression.Type);
                 return new TranslatedExpression(expression, ast, serializer);
             }
 
