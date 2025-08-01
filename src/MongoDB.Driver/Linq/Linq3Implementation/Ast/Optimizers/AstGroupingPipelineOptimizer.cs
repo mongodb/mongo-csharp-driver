@@ -404,11 +404,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             public override AstNode VisitMapExpression(AstMapExpression node)
             {
                 // { $map : { input : { $getField : { input : "$$ROOT", field : "_elements" } }, as : "x", in : f(x) } } => { __agg0 : { $push : f(x => element) } } + "$__agg0"
-                if (IsElementsField(node.Input))
+                if (IsMappedElementsField(node, out var rewrittenArg))
                 {
-                    var rewrittenArg = (AstExpression)AstNodeReplacer.Replace(node.In, (node.As, _element));
                     var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.Push, rewrittenArg);
-                    return CreateOptimizedExpression(accumulatorExpression);
+                    return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                 }
 
                 return base.VisitMapExpression(node);
@@ -419,28 +418,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 // { $median : { input: { $getField : { input : "$$ROOT", field : "_elements" } }, method: "approximate" } } => { __agg0 : { $median : { input: element, method: "approximate" } } } + "$__agg0"
                 if (IsElementsField(node.Input))
                 {
-                    var accumulator = AstExpression.ComplexAccumulator(
-                        AstComplexAccumulatorOperator.Median,
-                        new Dictionary<string, AstExpression>
-                        {
-                            ["input"] = _element,
-                            ["method"] = "approximate"
-                        });
-                    return CreateOptimizedExpression(accumulator);
+                    var accumulator = AstExpression.MedianAccumulator(_element);
+                    return CreateGetAccumulatorFieldExpression(accumulator);
                 }
 
                 // { $median : { input: { $map : { input : { $getField : { input : "$$ROOT", field : "_elements" } }, as : "x", in : f(x) } }, method: "approximate" } }
                 // => { __agg0 : { $median : { input: f(x => element), method: "approximate" } } } + "$__agg0"
-                if (IsMappedElementsField(node.Input, out var mapExpression, out var rewrittenArg))
+                if (IsMappedElementsField(node.Input, out var rewrittenArg))
                 {
-                    var accumulator = AstExpression.ComplexAccumulator(
-                        AstComplexAccumulatorOperator.Median,
-                        new Dictionary<string, AstExpression>
-                        {
-                            ["input"] = rewrittenArg,
-                            ["method"] = "approximate"
-                        });
-                    return CreateOptimizedExpression(accumulator);
+                    var accumulator = AstExpression.MedianAccumulator(rewrittenArg);
+                    return CreateGetAccumulatorFieldExpression(accumulator);
                 }
 
                 return base.VisitMedianExpression(node);
@@ -452,30 +439,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 // => { __agg0 : { $percentile : { input: element, p: [...], method: "approximate" } } } + "$__agg0"
                 if (IsElementsField(node.Input))
                 {
-                    var accumulator = AstExpression.ComplexAccumulator(
-                        AstComplexAccumulatorOperator.Percentile,
-                        new Dictionary<string, AstExpression>
-                        {
-                            ["input"] = _element,
-                            ["p"] = node.Percentiles,
-                            ["method"] = "approximate"
-                        });
-                    return CreateOptimizedExpression(accumulator);
+                    var accumulator = AstExpression.PercentileAccumulator(_element, node.Percentiles);
+                    return CreateGetAccumulatorFieldExpression(accumulator);
                 }
 
                 // { $percentile : { input: { $map : { input : { $getField : { input : "$$ROOT", field : "_elements" } }, as : "x", in : f(x) } }, p: [...], method: "approximate" } }
                 // => { __agg0 : { $percentile : { input: f(x => element), p: [...], method: "approximate" } } } + "$__agg0"
-                if (IsMappedElementsField(node.Input, out var mapExpression, out var rewrittenArg))
+                if (IsMappedElementsField(node.Input, out var rewrittenArg))
                 {
-                    var accumulator = AstExpression.ComplexAccumulator(
-                        AstComplexAccumulatorOperator.Percentile,
-                        new Dictionary<string, AstExpression>
-                        {
-                            ["input"] = rewrittenArg,
-                            ["p"] = node.Percentiles,
-                            ["method"] = "approximate"
-                        });
-                    return CreateOptimizedExpression(accumulator);
+                    var accumulator = AstExpression.PercentileAccumulator(rewrittenArg,  node.Percentiles);
+                    return CreateGetAccumulatorFieldExpression(accumulator);
                 }
 
                 return base.VisitPercentileExpression(node);
@@ -490,7 +463,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                     var @operator = node.Operator.ToAccumulatorOperator();
                     var rewrittenSelector = (AstExpression)AstNodeReplacer.Replace(node.Selector, (node.As, _element));
                     var accumulatorExpression = new AstPickAccumulatorExpression(@operator, node.SortBy, rewrittenSelector, node.N);
-                    return CreateOptimizedExpression(accumulatorExpression);
+                    return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                 }
 
                 return base.VisitPickExpression(node);
@@ -505,7 +478,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                         argGetFieldExpression.FieldName.IsStringConstant("_elements"))
                     {
                         var accumulatorExpression = AstExpression.UnaryAccumulator(AstUnaryAccumulatorOperator.Sum, 1);
-                        return CreateOptimizedExpression(accumulatorExpression);
+                        return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                     }
                 }
 
@@ -513,15 +486,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 if (node.Operator.IsAccumulator(out var accumulatorOperator) && IsElementsField(node.Arg))
                 {
                     var accumulatorExpression = AstExpression.UnaryAccumulator(accumulatorOperator, _element);
-                    return CreateOptimizedExpression(accumulatorExpression);
+                    return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                 }
 
                 // { $accumulator : { $map : { input : { $getField : { input : "$$ROOT", field : "_elements" } }, as : "x", in : f(x) } } } => { __agg0 : { $accumulator : f(x => element) } } + "$__agg0"
                 if (node.Operator.IsAccumulator(out accumulatorOperator) &&
-                    IsMappedElementsField(node.Arg, out var mapExpression, out var rewrittenArg))
+                    IsMappedElementsField(node.Arg, out var rewrittenArg))
                 {
                     var accumulatorExpression = AstExpression.UnaryAccumulator(accumulatorOperator, rewrittenArg);
-                    return CreateOptimizedExpression(accumulatorExpression);
+                    return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                 }
 
                 return base.VisitUnaryExpression(node);
@@ -529,26 +502,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             private bool IsElementsField(AstExpression expression)
             {
-                return expression is AstGetFieldExpression getFieldExpression &&
-                       getFieldExpression.FieldName.IsStringConstant("_elements") &&
-                       getFieldExpression.Input.IsRootVar();
+                return
+                    expression is AstGetFieldExpression getFieldExpression &&
+                    getFieldExpression.FieldName.IsStringConstant("_elements") &&
+                    getFieldExpression.Input.IsRootVar();
             }
 
-            private bool IsMappedElementsField(AstExpression expression, out AstMapExpression mapExpression, out AstExpression rewrittenArg)
+            private bool IsMappedElementsField(AstExpression expression, out AstExpression rewrittenArg)
             {
                 if (expression is AstMapExpression map && IsElementsField(map.Input))
                 {
-                    mapExpression = map;
                     rewrittenArg = (AstExpression)AstNodeReplacer.Replace(map.In, (map.As, _element));
                     return true;
                 }
 
-                mapExpression = null;
                 rewrittenArg = null;
                 return false;
             }
 
-            private AstExpression CreateOptimizedExpression(AstAccumulatorExpression accumulator)
+            private AstExpression CreateGetAccumulatorFieldExpression(AstAccumulatorExpression accumulator)
             {
                 var fieldName = _accumulators.AddAccumulatorExpression(accumulator);
                 return AstExpression.GetField(AstExpression.RootVar, fieldName);
