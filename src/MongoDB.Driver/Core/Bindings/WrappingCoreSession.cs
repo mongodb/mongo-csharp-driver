@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         // public methods
         /// <inheritdoc />
-        public void AbortTransaction(CancellationToken cancellationToken = default)
+        public virtual void AbortTransaction(CancellationToken cancellationToken = default)
             => AbortTransaction(null, cancellationToken);
 
         // TODO: CSOT: Make it public when CSOT will be ready for GA
@@ -193,11 +193,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
-        public Task AbortTransactionAsync(CancellationToken cancellationToken = default)
+        public virtual Task AbortTransactionAsync(CancellationToken cancellationToken = default)
             => AbortTransactionAsync(null, cancellationToken);
 
         // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal Task AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken = default)
+        internal virtual Task AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
             return _wrapped.AbortTransactionAsync(options, cancellationToken);
@@ -231,22 +231,22 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
-        public void CommitTransaction(CancellationToken cancellationToken = default)
+        public virtual void CommitTransaction(CancellationToken cancellationToken = default)
             => CommitTransaction(null, cancellationToken);
 
         // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal void CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken = default)
+        internal virtual void CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken = default)
         {
             ThrowIfDisposed();
             _wrapped.CommitTransaction(options, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+        public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
             => CommitTransactionAsync(null, cancellationToken);
 
         // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal Task CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        internal virtual Task CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             ThrowIfDisposed();
             return _wrapped.CommitTransactionAsync(options, cancellationToken);
