@@ -400,7 +400,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         ast = AstExpression.MedianWindowExpression(selectorTranslation.Ast, window);
                     }
 
-                    var serializer = BsonSerializer.LookupSerializer(method.ReturnType);
+                    var serializer = StandardSerializers.GetSerializer(method.ReturnType);
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 

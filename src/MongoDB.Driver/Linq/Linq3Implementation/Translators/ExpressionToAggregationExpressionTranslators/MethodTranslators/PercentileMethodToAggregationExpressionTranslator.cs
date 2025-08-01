@@ -19,13 +19,14 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal class PercentileMethodToAggregationExpressionTranslator
     {
         private static readonly MethodInfo[] __percentileMethods =
-        {
+        [
             EnumerableMethod.PercentileDecimal,
             EnumerableMethod.PercentileDecimalWithSelector,
             EnumerableMethod.PercentileDouble,
@@ -46,10 +47,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.PercentileNullableSingleWithSelector,
             EnumerableMethod.PercentileSingle,
             EnumerableMethod.PercentileSingleWithSelector
-        };
+        ];
 
         private static readonly MethodInfo[] __percentileWithSelectorMethods =
-        {
+        [
             EnumerableMethod.PercentileDecimalWithSelector,
             EnumerableMethod.PercentileDoubleWithSelector,
             EnumerableMethod.PercentileInt32WithSelector,
@@ -60,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.PercentileNullableInt64WithSelector,
             EnumerableMethod.PercentileNullableSingleWithSelector,
             EnumerableMethod.PercentileSingleWithSelector
-        };
+        ];
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
@@ -94,7 +95,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var percentilesTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, percentilesExpression);
 
                 var ast = AstExpression.Percentile(inputAst, percentilesTranslation.Ast);
-                var serializer = BsonSerializer.LookupSerializer(expression.Type);
+                var serializer = StandardSerializers.GetSerializer(expression.Type);
                 return new TranslatedExpression(expression, ast, serializer);
             }
 
