@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -26,6 +27,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan? _maxCommitTime;
         private readonly ReadConcern _readConcern;
         private readonly ReadPreference _readPreference;
+        private readonly TimeSpan? _timeout;
         private readonly WriteConcern _writeConcern;
 
         // public constructors
@@ -41,7 +43,27 @@ namespace MongoDB.Driver
             Optional<ReadPreference> readPreference = default(Optional<ReadPreference>),
             Optional<WriteConcern> writeConcern = default(Optional<WriteConcern>),
             Optional<TimeSpan?> maxCommitTime = default(Optional<TimeSpan?>))
+            : this(null, readConcern, readPreference, writeConcern, maxCommitTime)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransactionOptions" /> class.
+        /// </summary>
+        /// <param name="timeout">The per operation timeout</param>
+        /// <param name="readConcern">The read concern.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <param name="writeConcern">The write concern.</param>
+        /// <param name="maxCommitTime">The max commit time.</param>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal TransactionOptions(
+            TimeSpan? timeout,
+            Optional<ReadConcern> readConcern = default(Optional<ReadConcern>),
+            Optional<ReadPreference> readPreference = default(Optional<ReadPreference>),
+            Optional<WriteConcern> writeConcern = default(Optional<WriteConcern>),
+            Optional<TimeSpan?> maxCommitTime = default(Optional<TimeSpan?>))
+        {
+            _timeout = Ensure.IsNullOrValidTimeout(timeout, nameof(timeout));
             _readConcern = readConcern.WithDefault(null);
             _readPreference = readPreference.WithDefault(null);
             _writeConcern = writeConcern.WithDefault(null);
@@ -72,6 +94,12 @@ namespace MongoDB.Driver
         /// The read preference.
         /// </value>
         public ReadPreference ReadPreference => _readPreference;
+
+        /// <summary>
+        /// Gets the per operation timeout.
+        /// </summary>
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal TimeSpan? Timeout => _timeout;
 
         /// <summary>
         /// Gets the write concern.
