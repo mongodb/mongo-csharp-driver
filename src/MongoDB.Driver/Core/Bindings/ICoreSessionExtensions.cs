@@ -37,12 +37,19 @@ namespace MongoDB.Driver.Core.Bindings
                 return;
             }
 
-            if (session is not CoreSession coreSession)
+            if (session is CoreSession coreSession)
             {
-                throw new InvalidOperationException("Cannot apply options on non CoreSession.");
+                coreSession.AbortTransaction(options, cancellationToken);
+                return;
             }
 
-            coreSession.AbortTransaction(options, cancellationToken);
+            if (session is WrappingCoreSession wrappingCoreSession)
+            {
+                wrappingCoreSession.AbortTransaction(options, cancellationToken);
+                return;
+            }
+
+            throw new InvalidOperationException("Cannot apply options on non CoreSession.");
         }
 
         /// <summary>
@@ -58,12 +65,17 @@ namespace MongoDB.Driver.Core.Bindings
                 return session.AbortTransactionAsync(cancellationToken);
             }
 
-            if (session is not CoreSession coreSession)
+            if (session is CoreSession coreSession)
             {
-                throw new InvalidOperationException("Cannot apply options on non CoreSession.");
+                return coreSession.AbortTransactionAsync(options, cancellationToken);
             }
 
-            return coreSession.AbortTransactionAsync(options, cancellationToken);
+            if (session is WrappingCoreSession wrappingCoreSession)
+            {
+                return wrappingCoreSession.AbortTransactionAsync(options, cancellationToken);
+            }
+
+            throw new InvalidOperationException("Cannot apply options on non CoreSession.");
         }
 
         /// <summary>
@@ -80,12 +92,19 @@ namespace MongoDB.Driver.Core.Bindings
                 return;
             }
 
-            if (session is not CoreSession coreSession)
+            if (session is CoreSession coreSession)
             {
-                throw new InvalidOperationException("Cannot apply options on non CoreSession.");
+                coreSession.CommitTransaction(options, cancellationToken);
+                return;
             }
 
-            coreSession.CommitTransaction(options, cancellationToken);
+            if (session is WrappingCoreSession wrappingCoreSession)
+            {
+                wrappingCoreSession.CommitTransaction(options, cancellationToken);
+                return;
+            }
+
+            throw new InvalidOperationException("Cannot apply options on non CoreSession.");
         }
 
         /// <summary>
@@ -101,12 +120,17 @@ namespace MongoDB.Driver.Core.Bindings
                 return session.CommitTransactionAsync(cancellationToken);
             }
 
-            if (session is not CoreSession coreSession)
+            if (session is CoreSession coreSession)
             {
-                throw new InvalidOperationException("Cannot apply options on non CoreSession.");
+                return coreSession.CommitTransactionAsync(options, cancellationToken);
             }
 
-            return coreSession.CommitTransactionAsync(options, cancellationToken);
+            if (session is WrappingCoreSession wrappingCoreSession)
+            {
+                return wrappingCoreSession.CommitTransactionAsync(options, cancellationToken);
+            }
+
+            throw new InvalidOperationException("Cannot apply options on non CoreSession.");
         }
     }
 }
