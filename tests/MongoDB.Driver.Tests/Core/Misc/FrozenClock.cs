@@ -14,11 +14,11 @@
 */
 
 using System;
-using MongoDB.Driver.Core.Misc;
+using Moq;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    public class FrozenClock : IClock
+    internal class FrozenClock : IClock
     {
         // public static methods
         public static FrozenClock FreezeUtcNow()
@@ -39,7 +39,19 @@ namespace MongoDB.Driver.Core.Misc
         public DateTime UtcNow
         {
             get { return _utcNow; }
-            set { _utcNow = value; }
+        }
+
+        public void AdvanceCurrentTime(TimeSpan timeSpan)
+        {
+            _utcNow += timeSpan;
+        }
+
+        public IWatch StartWatch()
+        {
+            var startTime = _utcNow;
+            var mock = new Mock<IWatch>();
+            mock.SetupGet(w => w.Elapsed).Returns(() => _utcNow - startTime);
+            return mock.Object;
         }
     }
 }
