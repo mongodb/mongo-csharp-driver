@@ -209,11 +209,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             };
         }
 
-        public static AstComplexAccumulatorExpression ComplexAccumulator(AstComplexAccumulatorOperator @operator, Dictionary<string, AstExpression> args)
-        {
-            return new AstComplexAccumulatorExpression(@operator, args);
-        }
-
         public static AstExpression ComputedArray(IEnumerable<AstExpression> items)
         {
             return new AstComputedArrayExpression(items);
@@ -607,6 +602,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstMedianExpression(input);
         }
 
+        public static AstMedianAccumulatorExpression MedianAccumulator(AstExpression input)
+        {
+            return new AstMedianAccumulatorExpression(input);
+        }
+
         public static AstMedianWindowExpression MedianWindowExpression(AstExpression input, AstWindow window)
         {
             return new AstMedianWindowExpression(input, window);
@@ -671,6 +671,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstPercentileExpression Percentile(AstExpression input, AstExpression percentiles)
         {
             return new AstPercentileExpression(input, percentiles);
+        }
+
+        public static AstPercentileAccumulatorExpression PercentileAccumulator(AstExpression input, AstExpression percentiles)
+        {
+            return new AstPercentileAccumulatorExpression(input, percentiles);
         }
 
         public static AstPercentileWindowExpression PercentileWindowExpression(AstExpression input, AstExpression percentiles, AstWindow window)

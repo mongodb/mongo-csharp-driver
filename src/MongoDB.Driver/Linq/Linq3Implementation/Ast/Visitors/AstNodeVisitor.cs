@@ -199,41 +199,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node;
         }
 
-        public virtual AstNode VisitComplexAccumulatorExpression(AstComplexAccumulatorExpression node)
-        {
-            Dictionary<string, AstExpression> newArgs = null;
-            foreach (var kvp in node.Args)
-            {
-                var oldArg = kvp.Value;
-                var newArg = VisitAndConvert(oldArg);
-
-                if (newArg != oldArg)
-                {
-                    if (newArgs == null)
-                    {
-                        // First change detected - copy all processed entries
-                        newArgs = new Dictionary<string, AstExpression>();
-                        foreach (var processedKvp in node.Args)
-                        {
-                            if (processedKvp.Key == kvp.Key)
-                            {
-                                break; // Stop at current entry
-                            }
-                            newArgs[processedKvp.Key] = processedKvp.Value;
-                        }
-                    }
-                    newArgs[kvp.Key] = newArg;
-                }
-                else if (newArgs != null)
-                {
-                    // We're building a new dictionary, so add unchanged entries too
-                    newArgs[kvp.Key] = oldArg;
-                }
-            }
-
-            return newArgs != null ? node.Update(newArgs) : node;
-        }
-
         public virtual AstNode VisitComputedArrayExpression(AstComputedArrayExpression node)
         {
             return node.Update(VisitAndConvert(node.Items));
@@ -544,6 +509,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Input));
         }
 
+        public virtual AstNode VisitMedianAccumulatorExpression(AstMedianAccumulatorExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input));
+        }
+
         public virtual AstNode VisitMedianWindowExpression(AstMedianWindowExpression node)
         {
             return node.Update(VisitAndConvert(node.Input), node.Window);
@@ -605,6 +575,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         }
 
         public virtual AstNode VisitPercentileExpression(AstPercentileExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Percentiles));
+        }
+
+        public virtual AstNode VisitPercentileAccumulatorExpression(AstPercentileAccumulatorExpression node)
         {
             return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Percentiles));
         }
