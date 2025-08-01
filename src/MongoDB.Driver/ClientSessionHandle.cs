@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -94,16 +94,20 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc />
-        public void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            _coreSession.AbortTransaction(cancellationToken);
-        }
+        public void AbortTransaction(CancellationToken cancellationToken = default)
+            => _coreSession.AbortTransaction(cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal void AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken = default)
+            => _coreSession.AbortTransaction(options, cancellationToken);
 
         /// <inheritdoc />
-        public Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _coreSession.AbortTransactionAsync(cancellationToken);
-        }
+        public Task AbortTransactionAsync(CancellationToken cancellationToken = default)
+            => _coreSession.AbortTransactionAsync(cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal Task AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken = default)
+            => _coreSession.AbortTransactionAsync(options, cancellationToken);
 
         /// <inheritdoc />
         public void AdvanceClusterTime(BsonDocument newClusterTime)
@@ -118,16 +122,20 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            _coreSession.CommitTransaction(cancellationToken);
-        }
+        public void CommitTransaction(CancellationToken cancellationToken = default)
+            => _coreSession.CommitTransaction(cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal void CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken = default)
+            => _coreSession.CommitTransaction(options, cancellationToken);
 
         /// <inheritdoc />
-        public Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _coreSession.CommitTransactionAsync(cancellationToken);
-        }
+        public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+            => _coreSession.CommitTransactionAsync(cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA
+        internal Task CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken = default)
+            => _coreSession.CommitTransactionAsync(options, cancellationToken);
 
         /// <inheritdoc />
         public void Dispose()

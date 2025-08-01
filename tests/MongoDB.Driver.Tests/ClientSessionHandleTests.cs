@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Support;
 using Moq;
 using Xunit;
 
@@ -318,21 +317,7 @@ namespace MongoDB.Driver.Tests
             bool async)
         {
             var mockClock = CreateClockMock(DateTime.UtcNow, isRetryAttemptsWithTimeout, true);
-
             var mockCoreSession = CreateCoreSessionMock();
-            mockCoreSession.Setup(c => c.StartTransaction(It.IsAny<TransactionOptions>()));
-
-            // CommitTransaction
-            if (async)
-            {
-                mockCoreSession
-                    .Setup(c => c.CommitTransactionAsync(It.IsAny<CancellationToken>()))
-                    .Returns(Task.FromResult(0));
-            }
-            else
-            {
-                mockCoreSession.Setup(c => c.CommitTransaction(It.IsAny<CancellationToken>()));
-            }
 
             // Initialize callbacks
             var mockCallbackProcessing = new Mock<ICallbackProcessing>();
@@ -438,9 +423,6 @@ namespace MongoDB.Driver.Tests
         public void WithTransaction_callback_with_a_custom_error_should_not_be_retried()
         {
             var mockCoreSession = CreateCoreSessionMock();
-            mockCoreSession.Setup(c => c.StartTransaction(It.IsAny<TransactionOptions>()));
-            mockCoreSession.Setup(c => c.AbortTransaction(It.IsAny<CancellationToken>())); // abort ignores exceptions
-            mockCoreSession.Setup(c => c.CommitTransaction(It.IsAny<CancellationToken>()));
 
             var subject = CreateSubject(coreSession: mockCoreSession.Object);
 
@@ -453,13 +435,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void WithTransaction_callback_with_a_TransientTransactionError_and_exceeded_retry_timeout_should_not_be_retried()
         {
-            var now = DateTime.UtcNow;
-            var mockClock = new Mock<IClock>();
-            mockClock
-                .SetupSequence(c => c.UtcNow)
-                .Returns(now)
-                .Returns(now.AddSeconds(CalculateTime(true))); // the retry timeout has been exceeded
-
+            var mockClock = CreateClockMock(DateTime.UtcNow, TimeSpan.FromSeconds(CalculateTime(true)));
             var subject = CreateSubject(clock: mockClock.Object);
 
             var exResult = Assert.Throws<MongoException>(() => subject.WithTransaction<bool>((handle, cancellationToken) =>
@@ -473,13 +449,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void WithTransaction_callback_with_a_UnknownTransactionCommitResult_should_not_be_retried([Values(true, false)] bool hasTimedOut)
         {
-            var now = DateTime.UtcNow;
-            var mockClock = new Mock<IClock>();
-            mockClock
-                .SetupSequence(c => c.UtcNow)
-                .Returns(now)
-                .Returns(now.AddSeconds(CalculateTime(hasTimedOut)));
-
+            var mockClock = CreateClockMock(DateTime.UtcNow, TimeSpan.FromSeconds(CalculateTime(hasTimedOut)));
             var subject = CreateSubject(clock: mockClock.Object);
 
             var exResult = Assert.Throws<MongoException>(() => subject.WithTransaction<bool>((handle, cancellationToken) =>
@@ -491,43 +461,41 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         // sync
-        [InlineData(null, new[] { WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, true, false)]
-        [InlineData(null, new[] { WithTransactionErrorState.TransientTransactionError }, false /*Should exception be thrown*/, 1, false, false)]
+        [InlineData(null, new[] { WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, false)]
+        [InlineData(null, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 2, false)]
 
-        [InlineData(null, new[] { WithTransactionErrorState.ErrorWithoutLabel }, true /*Should exception be thrown*/, 1, false, false)]
+        [InlineData(null, new[] { WithTransactionErrorState.ErrorWithoutLabel }, true /*Should exception be thrown*/, 1, false)]
 
-        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.TransientTransactionError }, false /*Should exception be thrown*/, 1, false, false)]
-        [InlineData(new[] { true, true }, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.TransientTransactionError }, true /*Should exception be thrown*/, 1, null, false)]
+        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 3, false)]
+        [InlineData(new[] { true }, new[] { WithTransactionErrorState.TransientTransactionError }, true /*Should exception be thrown*/, 1, false)]
 
-        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 3, true, false)]
-        [InlineData(new[] { false, true }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, true /*Should exception be thrown*/, 2, null, false)]
+        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, false)]
+        [InlineData(new[] { false, true }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult }, true /*Should exception be thrown*/, 1, false)]
 
-        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 3, true, false)]
+        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, false)]
 
         // async
-        [InlineData(null, new[] { WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, true, true)]
-        [InlineData(null, new[] { WithTransactionErrorState.TransientTransactionError }, false /*Should exception be thrown*/, 1, false, true)]
+        [InlineData(null, new[] { WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, true)]
+        [InlineData(null, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 2, true)]
 
-        [InlineData(null, new[] { WithTransactionErrorState.ErrorWithoutLabel }, true /*Should exception be thrown*/, 1, false, true)]
+        [InlineData(null, new[] { WithTransactionErrorState.ErrorWithoutLabel }, true /*Should exception be thrown*/, 1, true)]
 
-        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.TransientTransactionError }, false /*Should exception be thrown*/, 1, false, true)]
-        [InlineData(new[] { true, true }, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.TransientTransactionError }, true /*Should exception be thrown*/, 1, null, true)]
+        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.TransientTransactionError, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 3, true)]
+        [InlineData(new[] { true }, new[] { WithTransactionErrorState.TransientTransactionError }, true /*Should exception be thrown*/, 1, true)]
 
-        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 3, true, true)]
-        [InlineData(new[] { false, true }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, true /*Should exception be thrown*/, 2, null, true)]
+        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, true)]
+        [InlineData(new[] { false, true }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult }, true /*Should exception be thrown*/, 1, true)]
 
-        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 3, true, true)]
+        [InlineData(new[] { false, false }, new[] { WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.UnknownTransactionCommitResult, WithTransactionErrorState.NoError }, false /*Should exception be thrown*/, 1, true)]
         public void WithTransaction_commit_after_callback_processing_should_be_processed_with_expected_result(
             bool[] isRetryAttemptsWithTimeout, // the array length should be the same with a number of failed attempts from `commitTransactionErrorStates`
             WithTransactionErrorState[] commitTransactionErrorStates,
             bool shouldExceptionBeThrown,
-            int expectedCommitTransactionAttempts,
-            bool? expectedFullTransactionBeRetriedState,
+            int transactionCallbackAttempts,
             bool async)
         {
             var now = DateTime.UtcNow;
             var mockClock = CreateClockMock(now, isRetryAttemptsWithTimeout, false);
-
             var mockCoreSession = CreateCoreSessionMock();
 
             // Initialize commit result
@@ -566,34 +534,39 @@ namespace MongoDB.Driver.Tests
 
             var subject = CreateSubject(coreSession: mockCoreSession.Object, clock: mockClock.Object);
 
-            // Commit processing
             if (async)
             {
+                var callbackMock = new Mock<Func<IClientSessionHandle, CancellationToken, Task<bool>>>();
+                var exception = Record.ExceptionAsync(() => subject.WithTransactionAsync(callbackMock.Object)).GetAwaiter().GetResult();
+
                 if (shouldExceptionBeThrown)
                 {
-                    Assert.ThrowsAnyAsync<MongoException>(() => TransactionExecutorReflector.CommitWithRetriesAsync(subject, now, mockClock.Object, CancellationToken.None)).GetAwaiter().GetResult();
+                    exception.Should().BeOfType<MongoException>();
                 }
                 else
                 {
-                    var result = TransactionExecutorReflector.CommitWithRetriesAsync(subject, now, mockClock.Object, CancellationToken.None).Result;
-                    expectedFullTransactionBeRetriedState.Should().Be(result);
+                    exception.Should().BeNull();
                 }
 
-                mockCoreSession.Verify(handle => handle.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Exactly(expectedCommitTransactionAttempts));
+                callbackMock.Verify(c => c(It.IsAny<IClientSessionHandle>(), It.IsAny<CancellationToken>()), Times.Exactly(transactionCallbackAttempts));
+                mockCoreSession.Verify(handle => handle.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Exactly(commitTransactionErrorStates.Length));
             }
             else
             {
+                var callbackMock = new Mock<Func<IClientSessionHandle, CancellationToken, bool>>();
+                var exception = Record.Exception(() => subject.WithTransaction(callbackMock.Object));
+
                 if (shouldExceptionBeThrown)
                 {
-                    Assert.ThrowsAny<MongoException>(() => TransactionExecutorReflector.CommitWithRetries(subject, now, mockClock.Object, CancellationToken.None));
+                    exception.Should().BeOfType<MongoException>();
                 }
                 else
                 {
-                    var result = TransactionExecutorReflector.CommitWithRetries(subject, now, mockClock.Object, CancellationToken.None);
-                    expectedFullTransactionBeRetriedState.Should().Be(result);
+                    exception.Should().BeNull();
                 }
 
-                mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Exactly(expectedCommitTransactionAttempts));
+                callbackMock.Verify(c => c(It.IsAny<IClientSessionHandle>(), It.IsAny<CancellationToken>()), Times.Exactly(transactionCallbackAttempts));
+                mockCoreSession.Verify(handle => handle.CommitTransaction(It.IsAny<CancellationToken>()), Times.Exactly(commitTransactionErrorStates.Length));
             }
         }
 
@@ -601,8 +574,6 @@ namespace MongoDB.Driver.Tests
         public void WithTransaction_should_set_valid_session_to_callback()
         {
             var mockCoreSession = CreateCoreSessionMock();
-            mockCoreSession.Setup(c => c.StartTransaction(It.IsAny<TransactionOptions>()));
-            mockCoreSession.Setup(c => c.CommitTransaction(It.IsAny<CancellationToken>()));
             var subject = CreateSubject(coreSession: mockCoreSession.Object);
 
             var result = subject.WithTransaction<object>((session, cancellationToken) => session);
@@ -618,9 +589,6 @@ namespace MongoDB.Driver.Tests
         public void WithTransaction_with_error_in_callback_should_call_AbortTransaction_according_to_transaction_state(CoreTransactionState transactionState, bool shouldAbortTransactionBeCalled)
         {
             var mockCoreSession = CreateCoreSessionMock();
-            mockCoreSession.Setup(c => c.StartTransaction(It.IsAny<TransactionOptions>()));
-            mockCoreSession.Setup(c => c.AbortTransaction(It.IsAny<CancellationToken>())); // abort ignores exceptions
-            mockCoreSession.Setup(c => c.CommitTransaction(It.IsAny<CancellationToken>()));
             var subject = CreateSubject(coreSession: mockCoreSession.Object);
 
             subject.WrappedCoreSession.CurrentTransaction.SetState(transactionState);
@@ -639,7 +607,6 @@ namespace MongoDB.Driver.Tests
             mockCoreSession
                 .Setup(c => c.StartTransaction(It.IsAny<TransactionOptions>()))
                 .Throws<Exception>();
-            mockCoreSession.Setup(c => c.CommitTransaction(It.IsAny<CancellationToken>()));
             var subject = CreateSubject(coreSession: mockCoreSession.Object);
 
             Assert.Throws<Exception>(() => subject.WithTransaction<object>((handle, cancellationToken) => 1));
@@ -652,8 +619,6 @@ namespace MongoDB.Driver.Tests
         public void WithTransaction_without_errors_should_call_transaction_infrastructure_once()
         {
             var mockCoreSession = CreateCoreSessionMock();
-            mockCoreSession.Setup(c => c.StartTransaction(It.IsAny<TransactionOptions>()));
-            mockCoreSession.Setup(c => c.CommitTransaction(It.IsAny<CancellationToken>()));
             var subject = CreateSubject(coreSession: mockCoreSession.Object);
 
             SetupTransactionState(subject, true);
@@ -734,8 +699,11 @@ namespace MongoDB.Driver.Tests
             }
 
             var mockClock = new Mock<IClock>();
+            var watchMock = new Mock<IWatch>();
+            mockClock.Setup(m => m.StartWatch()).Returns(watchMock.Object);
 
             var nowSetup = mockClock.SetupSequence(c => c.UtcNow);
+            var elapsedSetup = watchMock.SetupSequence(w => w.Elapsed);
             if (shouldNowBeAdded)
             {
                 nowSetup.Returns(now);
@@ -744,7 +712,29 @@ namespace MongoDB.Driver.Tests
             {
                 var passedTime = CalculateTime(isTimeoutAttempt);
                 nowSetup.Returns(now.AddSeconds(passedTime));
+                elapsedSetup.Returns(TimeSpan.FromSeconds(passedTime));
             }
+
+            return mockClock;
+        }
+
+        private Mock<IClock> CreateClockMock(DateTime now, params TimeSpan[] intervals)
+        {
+            var mockClock = new Mock<IClock>();
+
+            var nowSetup = mockClock.SetupSequence(c => c.UtcNow);
+            nowSetup.Returns(now);
+            var currentTime = now;
+            foreach (var interval in intervals)
+            {
+                currentTime += interval;
+                nowSetup.Returns(currentTime);
+            }
+
+            var watchMock = new Mock<IWatch>();
+            watchMock.SetupGet(w => w.Elapsed).Returns(() => mockClock.Object.UtcNow - now);
+            mockClock.Setup(m => m.StartWatch()).Returns(watchMock.Object);
+
             return mockClock;
         }
 
@@ -770,11 +760,5 @@ namespace MongoDB.Driver.Tests
     internal static class TransactionExecutorReflector
     {
         public static TimeSpan __transactionTimeout() => (TimeSpan)Reflector.GetStaticFieldValue(typeof(TransactionExecutor), nameof(__transactionTimeout));
-
-        public static bool CommitWithRetries(IClientSessionHandle session, DateTime startTime, IClock clock, CancellationToken cancellationToken)
-            => (bool)Reflector.InvokeStatic(typeof(TransactionExecutor), nameof(CommitWithRetries), session, startTime, clock, cancellationToken);
-
-        public static Task<bool> CommitWithRetriesAsync(IClientSessionHandle session, DateTime startTime, IClock clock, CancellationToken cancellationToken)
-            => (Task<bool>)Reflector.InvokeStatic(typeof(TransactionExecutor), nameof(CommitWithRetriesAsync), session, startTime, clock, cancellationToken);
     }
 }

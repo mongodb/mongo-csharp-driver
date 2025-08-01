@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Operations;
 
@@ -23,34 +22,30 @@ namespace MongoDB.Driver
     internal interface IOperationExecutor : IDisposable
     {
         TResult ExecuteReadOperation<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
             ReadPreference readPreference,
-            bool allowChannelPinning,
-            TimeSpan? timeout,
-            CancellationToken cancellationToken);
+            bool allowChannelPinning);
 
         Task<TResult> ExecuteReadOperationAsync<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IReadOperation<TResult> operation,
             ReadPreference readPreference,
-            bool allowChannelPinning,
-            TimeSpan? timeout,
-            CancellationToken cancellationToken);
+            bool allowChannelPinning);
 
         TResult ExecuteWriteOperation<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            bool allowChannelPinning,
-            TimeSpan? timeout,
-            CancellationToken cancellationToken);
+            bool allowChannelPinning);
 
         Task<TResult> ExecuteWriteOperationAsync<TResult>(
+            OperationContext operationContext,
             IClientSessionHandle session,
             IWriteOperation<TResult> operation,
-            bool allowChannelPinning,
-            TimeSpan? timeout,
-            CancellationToken cancellationToken);
+            bool allowChannelPinning);
 
         IClientSessionHandle StartImplicitSession();
     }

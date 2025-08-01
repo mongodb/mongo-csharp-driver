@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -27,7 +26,6 @@ namespace MongoDB.Driver
         // constants
         private const string TransientTransactionErrorLabel = "TransientTransactionError";
         private const string UnknownTransactionCommitResultLabel = "UnknownTransactionCommitResult";
-        private const int MaxTimeMSExpiredErrorCode = 50;
         private static readonly TimeSpan __transactionTimeout = TimeSpan.FromSeconds(120);
 
         public static TResult ExecuteWithRetries<TResult>(
@@ -37,13 +35,15 @@ namespace MongoDB.Driver
             IClock clock,
             CancellationToken cancellationToken)
         {
-            var startTime = clock.UtcNow;
+            var transactionTimeout = transactionOptions?.Timeout ?? clientSession.Options.DefaultTransactionOptions?.Timeout;
+            using var operationContext = new OperationContext(clock, transactionTimeout, cancellationToken);
 
             while (true)
             {
                 clientSession.StartTransaction(transactionOptions);
+                clientSession.WrappedCoreSession.CurrentTransaction.OperationContext = operationContext;
 
-                var callbackOutcome = ExecuteCallback(clientSession, callback, startTime, clock, cancellationToken);
+                var callbackOutcome = ExecuteCallback(operationContext, clientSession, callback, cancellationToken);
                 if (callbackOutcome.ShouldRetryTransaction)
                 {
                     continue;
@@ -53,7 +53,7 @@ namespace MongoDB.Driver
                     return callbackOutcome.Result; // assume callback intentionally ended the transaction
                 }
 
-                var transactionHasBeenCommitted = CommitWithRetries(clientSession, startTime, clock, cancellationToken);
+                var transactionHasBeenCommitted = CommitWithRetries(operationContext, clientSession, cancellationToken);
                 if (transactionHasBeenCommitted)
                 {
                     return callbackOutcome.Result;
@@ -68,12 +68,15 @@ namespace MongoDB.Driver
             IClock clock,
             CancellationToken cancellationToken)
         {
-            var startTime = clock.UtcNow;
+            TimeSpan? transactionTimeout = transactionOptions?.Timeout ?? clientSession.Options.DefaultTransactionOptions?.Timeout;
+            using var operationContext = new OperationContext(clock, transactionTimeout, cancellationToken);
+
             while (true)
             {
                 clientSession.StartTransaction(transactionOptions);
+                clientSession.WrappedCoreSession.CurrentTransaction.OperationContext = operationContext;
 
-                var callbackOutcome = await ExecuteCallbackAsync(clientSession, callbackAsync, startTime, clock, cancellationToken).ConfigureAwait(false);
+                var callbackOutcome = await ExecuteCallbackAsync(operationContext, clientSession, callbackAsync, cancellationToken).ConfigureAwait(false);
                 if (callbackOutcome.ShouldRetryTransaction)
                 {
                     continue;
@@ -83,7 +86,7 @@ namespace MongoDB.Driver
                     return callbackOutcome.Result; // assume callback intentionally ended the transaction
                 }
 
-                var transactionHasBeenCommitted = await CommitWithRetriesAsync(clientSession, startTime, clock, cancellationToken).ConfigureAwait(false);
+                var transactionHasBeenCommitted = await CommitWithRetriesAsync(operationContext, clientSession, cancellationToken).ConfigureAwait(false);
                 if (transactionHasBeenCommitted)
                 {
                     return callbackOutcome.Result;
@@ -91,12 +94,13 @@ namespace MongoDB.Driver
             }
         }
 
-        private static bool HasTimedOut(DateTime startTime, DateTime currentTime)
+        private static bool HasTimedOut(OperationContext operationContext)
         {
-            return (currentTime - startTime) >= __transactionTimeout;
+            return operationContext.IsTimedOut() ||
+                   (operationContext.RootContext.Timeout == null && operationContext.RootContext.Elapsed > __transactionTimeout);
         }
 
-        private static CallbackOutcome<TResult> ExecuteCallback<TResult>(IClientSessionHandle clientSession, Func<IClientSessionHandle, CancellationToken, TResult> callback, DateTime startTime, IClock clock, CancellationToken cancellationToken)
+        private static CallbackOutcome<TResult> ExecuteCallback<TResult>(OperationContext operationContext, IClientSessionHandle clientSession, Func<IClientSessionHandle, CancellationToken, TResult> callback, CancellationToken cancellationToken)
         {
             try
             {
@@ -107,10 +111,16 @@ namespace MongoDB.Driver
             {
                 if (IsTransactionInStartingOrInProgressState(clientSession))
                 {
-                    clientSession.AbortTransaction(cancellationToken);
+                    AbortTransactionOptions abortOptions = null;
+                    if (operationContext.IsRootContextTimeoutConfigured())
+                    {
+                        abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
+                    }
+
+                    clientSession.AbortTransaction(abortOptions, cancellationToken);
                 }
 
-                if (HasErrorLabel(ex, TransientTransactionErrorLabel) && !HasTimedOut(startTime, clock.UtcNow))
+                if (HasErrorLabel(ex, TransientTransactionErrorLabel) && !HasTimedOut(operationContext))
                 {
                     return new CallbackOutcome<TResult>.WithShouldRetryTransaction();
                 }
@@ -119,7 +129,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private static async Task<CallbackOutcome<TResult>> ExecuteCallbackAsync<TResult>(IClientSessionHandle clientSession, Func<IClientSessionHandle, CancellationToken, Task<TResult>> callbackAsync, DateTime startTime, IClock clock, CancellationToken cancellationToken)
+        private static async Task<CallbackOutcome<TResult>> ExecuteCallbackAsync<TResult>(OperationContext operationContext, IClientSessionHandle clientSession, Func<IClientSessionHandle, CancellationToken, Task<TResult>> callbackAsync, CancellationToken cancellationToken)
         {
             try
             {
@@ -130,10 +140,16 @@ namespace MongoDB.Driver
             {
                 if (IsTransactionInStartingOrInProgressState(clientSession))
                 {
-                    await clientSession.AbortTransactionAsync(cancellationToken).ConfigureAwait(false);
+                    AbortTransactionOptions abortOptions = null;
+                    if (operationContext.IsRootContextTimeoutConfigured())
+                    {
+                        abortOptions = new AbortTransactionOptions(operationContext.RootContext.Timeout);
+                    }
+
+                    await clientSession.AbortTransactionAsync(abortOptions, cancellationToken).ConfigureAwait(false);
                 }
 
-                if (HasErrorLabel(ex, TransientTransactionErrorLabel) && !HasTimedOut(startTime, clock.UtcNow))
+                if (HasErrorLabel(ex, TransientTransactionErrorLabel) && !HasTimedOut(operationContext))
                 {
                     return new CallbackOutcome<TResult>.WithShouldRetryTransaction();
                 }
@@ -142,24 +158,29 @@ namespace MongoDB.Driver
             }
         }
 
-        private static bool CommitWithRetries(IClientSessionHandle clientSession, DateTime startTime, IClock clock, CancellationToken cancellationToken)
+        private static bool CommitWithRetries(OperationContext operationContext, IClientSessionHandle clientSession, CancellationToken cancellationToken)
         {
             while (true)
             {
                 try
                 {
-                    clientSession.CommitTransaction(cancellationToken);
+                    CommitTransactionOptions commitOptions = null;
+                    if (operationContext.IsRootContextTimeoutConfigured())
+                    {
+                        commitOptions = new CommitTransactionOptions(operationContext.RemainingTimeout);
+                    }
+
+                    clientSession.CommitTransaction(commitOptions, cancellationToken);
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    var now = clock.UtcNow; // call UtcNow once since we need to facilitate predictable mocking
-                    if (ShouldRetryCommit(ex, startTime, now))
+                    if (ShouldRetryCommit(operationContext, ex))
                     {
                         continue;
                     }
 
-                    if (HasErrorLabel(ex, TransientTransactionErrorLabel) && !HasTimedOut(startTime, now))
+                    if (HasErrorLabel(ex, TransientTransactionErrorLabel) && !HasTimedOut(operationContext))
                     {
                         return false; // the transaction will be retried
                     }
@@ -169,24 +190,29 @@ namespace MongoDB.Driver
             }
         }
 
-        private static async Task<bool> CommitWithRetriesAsync(IClientSessionHandle clientSession, DateTime startTime, IClock clock, CancellationToken cancellationToken)
+        private static async Task<bool> CommitWithRetriesAsync(OperationContext operationContext, IClientSessionHandle clientSession, CancellationToken cancellationToken)
         {
             while (true)
             {
                 try
                 {
-                    await clientSession.CommitTransactionAsync(cancellationToken).ConfigureAwait(false);
+                    CommitTransactionOptions commitOptions = null;
+                    if (operationContext.IsRootContextTimeoutConfigured())
+                    {
+                        commitOptions = new CommitTransactionOptions(operationContext.RemainingTimeout);
+                    }
+
+                    await clientSession.CommitTransactionAsync(commitOptions, cancellationToken).ConfigureAwait(false);
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    var now = clock.UtcNow; // call UtcNow once since we need to facilitate predictable mocking
-                    if (ShouldRetryCommit(ex, startTime, now))
+                    if (ShouldRetryCommit(operationContext, ex))
                     {
                         continue;
                     }
 
-                    if (HasErrorLabel(ex, TransientTransactionErrorLabel) && !HasTimedOut(startTime, now))
+                    if (HasErrorLabel(ex, TransientTransactionErrorLabel) && !HasTimedOut(operationContext))
                     {
                         return false; // the transaction will be retried
                     }
@@ -211,7 +237,7 @@ namespace MongoDB.Driver
         private static bool IsMaxTimeMSExpiredException(Exception ex)
         {
             if (ex is MongoExecutionTimeoutException timeoutException &&
-                timeoutException.Code == MaxTimeMSExpiredErrorCode)
+                timeoutException.Code == (int)ServerErrorCode.MaxTimeMSExpired)
             {
                 return true;
             }
@@ -222,7 +248,7 @@ namespace MongoDB.Driver
                 if (writeConcernError != null)
                 {
                     var code = writeConcernError.GetValue("code", -1).ToInt32();
-                    if (code == MaxTimeMSExpiredErrorCode)
+                    if (code == (int)ServerErrorCode.MaxTimeMSExpired)
                     {
                         return true;
                     }
@@ -246,11 +272,11 @@ namespace MongoDB.Driver
             }
         }
 
-        private static bool ShouldRetryCommit(Exception ex, DateTime startTime, DateTime now)
+        private static bool ShouldRetryCommit(OperationContext operationContext, Exception ex)
         {
             return
                 HasErrorLabel(ex, UnknownTransactionCommitResultLabel) &&
-                !HasTimedOut(startTime, now) &&
+                !HasTimedOut(operationContext) &&
                 !IsMaxTimeMSExpiredException(ex);
         }
 
