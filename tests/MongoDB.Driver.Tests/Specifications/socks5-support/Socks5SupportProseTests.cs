@@ -66,8 +66,6 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
     [MemberData(nameof(GetTestCombinations))]
     public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool useTls, bool async)
     {
-        RequireServer.Check().Tls(required: useTls);
-        RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
         RequireEnvironment.Check().EnvironmentVariable("SOCKS5_PROXY_SERVERS_ENABLED");
 
         //Convert the hosts to a format that can be used in the connection string (host:port), and join them into a string.
