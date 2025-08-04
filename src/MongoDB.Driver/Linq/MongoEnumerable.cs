@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="source">The sequence of values.</param>
         /// <returns>The median value.</returns>
-        public static double Median(this IEnumerable<decimal> source)
+        public static decimal Median(this IEnumerable<decimal> source)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -251,7 +251,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="source">The sequence of values.</param>
         /// <returns>The median value.</returns>
-        public static double? Median(this IEnumerable<decimal?> source)
+        public static decimal? Median(this IEnumerable<decimal?> source)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="source">The sequence of values.</param>
         /// <returns>The median value.</returns>
-        public static double Median(this IEnumerable<float> source)
+        public static float Median(this IEnumerable<float> source)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="source">The sequence of values.</param>
         /// <returns>The median value.</returns>
-        public static double? Median(this IEnumerable<float?> source)
+        public static float? Median(this IEnumerable<float?> source)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -343,7 +343,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to calculate the median of.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The median value.</returns>
-        public static double Median<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector)
+        public static decimal Median<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -355,7 +355,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to calculate the median of.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The median value.</returns>
-        public static double? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector)
+        public static decimal? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -391,7 +391,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to calculate the median of.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The median value.</returns>
-        public static double Median<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector)
+        public static float Median<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -403,7 +403,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to calculate the median of.</param>
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <returns>The median value.</returns>
-        public static double? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector)
+        public static float? Median<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -499,7 +499,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to calculate the percentiles of.</param>
         /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
         /// <returns>The percentiles of the sequence of values.</returns>
-        public static double[] Percentile(this IEnumerable<decimal> source, IEnumerable<double> percentiles)
+        public static decimal[] Percentile(this IEnumerable<decimal> source, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -510,7 +510,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to calculate the percentiles of.</param>
         /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
         /// <returns>The percentiles of the sequence of values.</returns>
-        public static double?[] Percentile(this IEnumerable<decimal?> source, IEnumerable<double> percentiles)
+        public static decimal?[] Percentile(this IEnumerable<decimal?> source, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -543,7 +543,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to calculate the percentiles of.</param>
         /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
         /// <returns>The percentiles of the sequence of values.</returns>
-        public static double[] Percentile(this IEnumerable<float> source, IEnumerable<double> percentiles)
+        public static float[] Percentile(this IEnumerable<float> source, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -554,7 +554,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="source">A sequence of values to calculate the percentiles of.</param>
         /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
         /// <returns>The percentiles of the sequence of values.</returns>
-        public static double?[] Percentile(this IEnumerable<float?> source, IEnumerable<double> percentiles)
+        public static float?[] Percentile(this IEnumerable<float?> source, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -611,7 +611,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
         /// <returns>The percentiles of the sequence of values.</returns>
-        public static double[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector, IEnumerable<double> percentiles)
+        public static decimal[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> selector, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -624,7 +624,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
         /// <returns>The percentiles of the sequence of values.</returns>
-        public static double?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector, IEnumerable<double> percentiles)
+        public static decimal?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -663,7 +663,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
         /// <returns>The percentiles of the sequence of values.</returns>
-        public static double[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector, IEnumerable<double> percentiles)
+        public static float[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, float> selector, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -676,7 +676,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">A transform function to apply to each element.</param>
         /// <param name="percentiles">The percentiles to compute (each between 0.0 and 1.0).</param>
         /// <returns>The percentiles of the sequence of values.</returns>
-        public static double?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector, IEnumerable<double> percentiles)
+        public static float?[] Percentile<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> selector, IEnumerable<double> percentiles)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }

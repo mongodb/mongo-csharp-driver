@@ -886,7 +886,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">The selector that selects a value from the input document.</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The median of the selected values.</returns>
-        public static double Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, SetWindowFieldsWindow window = null)
+        public static decimal Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -899,7 +899,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">The selector that selects a value from the input document.</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The median of the selected values.</returns>
-        public static double? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal?> selector, SetWindowFieldsWindow window = null)
+        public static decimal? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal?> selector, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -938,7 +938,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">The selector that selects a value from the input document.</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The median of the selected values.</returns>
-        public static double Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float> selector, SetWindowFieldsWindow window = null)
+        public static float Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float> selector, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -951,7 +951,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">The selector that selects a value from the input document.</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The median of the selected values.</returns>
-        public static double? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float?> selector, SetWindowFieldsWindow window = null)
+        public static float? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float?> selector, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -1031,7 +1031,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The values at the given percentiles.</returns>
-        public static double[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        public static decimal[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -1045,7 +1045,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The values at the given percentiles.</returns>
-        public static double?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        public static decimal?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -1087,7 +1087,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The values at the given percentiles.</returns>
-        public static double[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        public static float[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }
@@ -1101,7 +1101,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The values at the given percentiles.</returns>
-        public static double?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        public static float?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }

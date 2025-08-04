@@ -1491,7 +1491,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_Decimal()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1505,14 +1505,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var results = aggregate.ToList();
             foreach (var result in results)
             {
-                result["Result"].AsDouble.Should().Be(2.0);
+                result["Result"].ToDecimal().Should().Be(2.0M);
             }
         }
 
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_Double()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1533,7 +1533,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_Int32()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1554,7 +1554,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_Int64()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1575,7 +1575,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_nullable_Decimal()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1589,14 +1589,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var results = aggregate.ToList();
             foreach (var result in results)
             {
-                result["Result"].AsDouble.Should().Be(1.0);
+                result["Result"].ToDecimal().Should().Be(1.0M);
             }
         }
 
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_nullable_Double()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1617,7 +1617,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_nullable_Int32()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1638,7 +1638,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [Fact]
         public void Translate_should_return_expected_result_for_Median_with_nullable_Int64()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1657,9 +1657,51 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Single()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableSingleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableSingleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Single()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.SingleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$SingleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Median_with_window()
         {
-            RequireServer.Check().Supports(Feature.PercentileOperator);
+            RequireServer.Check().Supports(Feature.MedianOperator);
 
             var collection = Fixture.Collection;
 
@@ -1720,7 +1762,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var results = aggregate.ToList();
             foreach (var result in results)
             {
-                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+                result["Result"].AsBsonArray[0].ToDecimal().Should().Be(2.0M);
             }
         }
 
@@ -1804,7 +1846,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var results = aggregate.ToList();
             foreach (var result in results)
             {
-                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+                result["Result"].AsBsonArray[0].ToDecimal().Should().Be(1.0M);
             }
         }
 
@@ -1872,6 +1914,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Single()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableSingleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableSingleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Percentile_with_multiple_percentiles()
         {
             RequireServer.Check().Supports(Feature.PercentileOperator);
@@ -1891,6 +1954,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 var array = result["Result"].AsBsonArray;
                 array[0].AsDouble.Should().Be(1.0);
                 array[1].AsDouble.Should().Be(3.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Single()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.SingleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$SingleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
             }
         }
 

@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $median : { input : '$Decimals', method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(1.0, 1.0, 2.0);
+            results.Should().Equal(1.0M, 1.0M, 2.0M);
         }
 
         [Theory]
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $median : { input : { $map : { input : '$Decimals', as : 'y', in : { $multiply : ['$$y', NumberDecimal(2)] } } }, method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(2.0, 2.0, 4.0);
+            results.Should().Equal(2.0M, 2.0M, 4.0M);
         }
 
         [Theory]
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $median : { input : '$Floats', method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(1.0, 1.0, 2.0);
+            results.Should().Equal(1.0F, 1.0F, 2.0F);
         }
 
         [Theory]
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $median : { input : { $map : { input : '$Floats', as : 'y', in : { $multiply : ['$$y', 2.0] } } }, method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(2.0, 2.0, 4.0);
+            results.Should().Equal(2.0F, 2.0F, 4.0F);
         }
 
         [Theory]
@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $median : { input : '$NullableDecimals', method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(null, null, 2.0);
+            results.Should().Equal(null, null, 2.0M);
         }
 
         [Theory]
@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $median : { input : { $map : { input : '$NullableDecimals', as : 'y', in : { $multiply : ['$$y', NumberDecimal(2)] } } }, method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(null, null, 4.0);
+            results.Should().Equal(null, null, 4.0M);
         }
 
         [Theory]
@@ -300,7 +300,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $median : { input : '$NullableFloats', method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(null, null, 2.0);
+            results.Should().Equal(null, null, 2.0F);
         }
 
         [Theory]
@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $median : { input : { $map : { input : '$NullableFloats', as : 'y', in : { $multiply : ['$$y', 2.0] } } }, method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results.Should().Equal(null, null, 4.0);
+            results.Should().Equal(null, null, 4.0F);
         }
 
         [Theory]

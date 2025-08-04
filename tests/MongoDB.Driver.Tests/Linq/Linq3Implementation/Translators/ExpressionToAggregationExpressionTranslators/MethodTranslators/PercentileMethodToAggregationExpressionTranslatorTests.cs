@@ -48,9 +48,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$Decimals', p : [0.5], method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results[0].Should().Equal(1.0);
-            results[1].Should().Equal(1.0);
-            results[2].Should().Equal(2.0);
+            results[0].Should().Equal(1.0M);
+            results[1].Should().Equal(1.0M);
+            results[2].Should().Equal(2.0M);
         }
 
         [Theory]
@@ -68,9 +68,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$Decimals', p : [0.25, 0.75], method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results[0].Should().Equal(1.0, 1.0);
-            results[1].Should().Equal(1.0, 2.0);
-            results[2].Should().Equal(1.0, 3.0);
+            results[0].Should().Equal(1.0M, 1.0M);
+            results[1].Should().Equal(1.0M, 2.0M);
+            results[2].Should().Equal(1.0M, 3.0M);
         }
 
         [Theory]
@@ -88,9 +88,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $percentile : { input : { $map : { input : '$Decimals', as : 'y', in : { $multiply : ['$$y', NumberDecimal(2)] } } }, p : [0.5], method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results[0].Should().Equal(2.0);
-            results[1].Should().Equal(2.0);
-            results[2].Should().Equal(4.0);
+            results[0].Should().Equal(2.0M);
+            results[1].Should().Equal(2.0M);
+            results[2].Should().Equal(4.0M);
         }
 
         [Theory]
@@ -148,9 +148,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$Floats', p : [0.5], method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results[0].Should().Equal(1.0);
-            results[1].Should().Equal(1.0);
-            results[2].Should().Equal(2.0);
+            results[0].Should().Equal(1.0F);
+            results[1].Should().Equal(1.0F);
+            results[2].Should().Equal(2.0F);
         }
 
         [Theory]
@@ -168,9 +168,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $percentile : { input : { $map : { input : '$Floats', as : 'y', in : { $multiply : ['$$y', 2.0] } } }, p : [0.5], method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results[0].Should().Equal(2.0);
-            results[1].Should().Equal(2.0);
-            results[2].Should().Equal(4.0);
+            results[0].Should().Equal(2.0F);
+            results[1].Should().Equal(2.0F);
+            results[2].Should().Equal(4.0F);
         }
 
         [Theory]
@@ -268,9 +268,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$NullableDecimals', p : [0.5], method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
-            results[0].Should().Equal((double?)null);
-            results[1].Should().Equal((double?)null);
-            results[2].Should().Equal(2.0);
+            results[0].Should().Equal((decimal?)null);
+            results[1].Should().Equal((decimal?)null);
+            results[2].Should().Equal(2.0M);
         }
 
         [Theory]
@@ -288,18 +288,182 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $percentile : { input : { $map : { input : '$NullableDecimals', as : 'y', in : { $multiply : ['$$y', NumberDecimal(2)] } } }, p : [0.5], method : 'approximate' } }, _id : 0 } }");
 
             var results = queryable.ToList();
+            results[0].Should().Equal((decimal?)null);
+            results[1].Should().Equal((decimal?)null);
+            results[2].Should().Equal(4.0M);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_nullable_doubles_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Percentile(new[] { 0.5 })) :
+                collection.AsQueryable().Select(x => x.NullableDoubles.Percentile(new[] { 0.5 }));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$NullableDoubles', p : [0.5], method : 'approximate' } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results[0].Should().Equal((double?)null);
+            results[1].Should().Equal((double?)null);
+            results[2].Should().Equal(2.0);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_nullable_doubles_selector_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.NullableDoubles.AsQueryable().Percentile(y => y * 2.0, new[] { 0.5 })) :
+                collection.AsQueryable().Select(x => x.NullableDoubles.Percentile(y => y * 2.0, new[] { 0.5 }));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $percentile : { input : { $map : { input : '$NullableDoubles', as : 'y', in : { $multiply : ['$$y', 2.0] } } }, p : [0.5], method : 'approximate' } }, _id : 0 } }");
+
+            var results = queryable.ToList();
             results[0].Should().Equal((double?)null);
             results[1].Should().Equal((double?)null);
             results[2].Should().Equal(4.0);
         }
 
-        [Fact]
-        public void Percentile_with_list_input_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_nullable_floats_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Percentile(new[] { 0.5 })) :
+                collection.AsQueryable().Select(x => x.NullableFloats.Percentile(new[] { 0.5 }));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$NullableFloats', p : [0.5], method : 'approximate' } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results[0].Should().Equal((float?)null);
+            results[1].Should().Equal((float?)null);
+            results[2].Should().Equal(2.0F);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_nullable_floats_selector_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.NullableFloats.AsQueryable().Percentile(y => y * 2.0F, new[] { 0.5 })) :
+                collection.AsQueryable().Select(x => x.NullableFloats.Percentile(y => y * 2.0F, new[] { 0.5 }));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $percentile : { input : { $map : { input : '$NullableFloats', as : 'y', in : { $multiply : ['$$y', 2.0] } } }, p : [0.5], method : 'approximate' } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results[0].Should().Equal((float?)null);
+            results[1].Should().Equal((float?)null);
+            results[2].Should().Equal(4.0F);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_nullable_ints_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Percentile(new[] { 0.5 })) :
+                collection.AsQueryable().Select(x => x.NullableInts.Percentile(new[] { 0.5 }));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$NullableInts', p : [0.5], method : 'approximate' } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results[0].Should().Equal((double?)null);
+            results[1].Should().Equal((double?)null);
+            results[2].Should().Equal(2.0);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_nullable_ints_selector_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.NullableInts.AsQueryable().Percentile(y => y * 2, new[] { 0.5 })) :
+                collection.AsQueryable().Select(x => x.NullableInts.Percentile(y => y * 2, new[] { 0.5 }));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $percentile : { input : { $map : { input : '$NullableInts', as : 'y', in : { $multiply : ['$$y', 2] } } }, p : [0.5], method : 'approximate' } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results[0].Should().Equal((double?)null);
+            results[1].Should().Equal((double?)null);
+            results[2].Should().Equal(4.0);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_nullable_longs_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Percentile(new[] { 0.5 })) :
+                collection.AsQueryable().Select(x => x.NullableLongs.Percentile(new[] { 0.5 }));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$NullableLongs', p : [0.5], method : 'approximate' } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results[0].Should().Equal((double?)null);
+            results[1].Should().Equal((double?)null);
+            results[2].Should().Equal(2.0);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_nullable_longs_selector_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
+        {
+            var collection = Fixture.Collection;
+
+            var queryable = withNestedAsQueryable ?
+                collection.AsQueryable().Select(x => x.NullableLongs.AsQueryable().Percentile(y => y * 2L, new[] { 0.5 })) :
+                collection.AsQueryable().Select(x => x.NullableLongs.Percentile(y => y * 2L, new[] { 0.5 }));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _v : { $percentile : { input : { $map : { input : '$NullableLongs', as : 'y', in : { $multiply : ['$$y', NumberLong(2)] } } }, p : [0.5], method : 'approximate' } }, _id : 0 } }");
+
+            var results = queryable.ToList();
+            results[0].Should().Equal((double?)null);
+            results[1].Should().Equal((double?)null);
+            results[2].Should().Equal(4.0);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Percentile_with_list_input_should_work(
+            [Values(false, true)] bool withNestedAsQueryable)
         {
             var collection = Fixture.Collection;
             var percentiles = new List<double> { 0.25, 0.5, 0.75 };
 
-            var queryable = collection.AsQueryable().Select(x => x.Doubles.Percentile(percentiles));
+            var queryable = withNestedAsQueryable
+                ? collection.AsQueryable().Select(x => x.Doubles.AsQueryable().Percentile(percentiles))
+                : collection.AsQueryable().Select(x => x.Doubles.Percentile(percentiles));
 
             var stages = Translate(collection, queryable);
             AssertStages(stages, "{ $project : { _v : { $percentile : { input : '$Doubles', p : [0.25, 0.5, 0.75], method : 'approximate' } }, _id : 0 } }");
