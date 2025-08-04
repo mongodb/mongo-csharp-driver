@@ -26,6 +26,42 @@ timeout:
 
 functions:
 
+  setup-socks5-proxy:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          # Read the MongoDB URI connection string and extract an arbitrary member's host:port
+          HOST_PORT=$(echo "$MONGODB_URI" | sed 's|mongodb://||' | cut -d',' -f1)
+
+          # Start the SOCKS5 proxy with authentication on port 1080
+          python $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "localhost:12345 to $HOST_PORT" --port 1080 --auth username:p4ssw0rd &
+
+          # Start the SOCKS5 proxy without authentication on port 1081
+          python $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "localhost:12345 to $HOST_PORT" --port 1081 &
+
+#//TODO Check if we need all those parameters...
+  run-socks5-proxy-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: "mongo-csharp-driver"
+        shell: "bash"
+        script: |
+          export SOCKS5_PROXY_SERVERS_ENABLED=true
+          ${PREPARE_SHELL}
+          OS=${OS} \
+            evergreen/add-ca-certs.sh
+          SSL=${SSL} \
+          MONGODB_URI="${MONGODB_URI}" \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          FRAMEWORK=${FRAMEWORK} \
+          TARGET="TestSocks5Proxy" \
+            evergreen/run-tests.sh
+          OS=${OS} \
+            evergreen/cleanup-test-resources.sh
+
   fetch-source:
     # Executes git clone and applies the submitted patch, if any
     - command: git.get_project
@@ -1158,6 +1194,15 @@ tasks:
         - func: setup-csfle-secrets
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mongocryptd-tests
+          vars:
+            FRAMEWORK: net60
+
+#//TODO need to do the same with the other platforms
+    - name: test-socks5-proxy-net60
+      commands:
+        - func: setup-socks5-proxy
+        - func: bootstrap-mongo-orchestration
+        - func: run-socks5-proxy-tests
           vars:
             FRAMEWORK: net60
 
@@ -2531,7 +2576,18 @@ buildvariants:
   tasks:
     - name: atlas-search-index-helpers-task-group
 
+# Socks5 Proxy tests
+# //TODO I don't think we need to do this tests with more than one version, right?
+# //TODO Do we need to run it also on other OSes? Java does only linux
+
+- matrix_name: "socks5-proxy-tests"
+  matrix_spec: { os: "ubuntu-2004", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-net60
+
 # CSFLE tests
+
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
   matrix_spec: { os: "windows-64", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
