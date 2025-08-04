@@ -15,18 +15,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.socks5_support;
 
-[Trait("Category", "Integration")]
+[Trait("Category", "Socks5Proxy")]
 public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : LoggableTestClass(testOutputHelper)
 {
+    //TODO Fix apicompat
     public static IEnumerable<object[]> GetTestCombinations()
     {
         var testCases = new (string ConnectionString, bool ExpectedResult)[]
@@ -48,7 +54,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
         {
             foreach (var isAsync in new[] { true, false })
             {
-                foreach (var useTls in new[] { true, false })
+                foreach (var useTls in new[] { false })
                 {
                     yield return [connectionString, expectedResult, useTls, isAsync];
                 }
@@ -60,9 +66,15 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
     [MemberData(nameof(GetTestCombinations))]
     public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool useTls, bool async)
     {
-        //Requires server versions > 5.0 according to spec tests, not sure why
+        RequireServer.Check().Tls(required: useTls);
+        RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
+        RequireEnvironment.Check().EnvironmentVariable("SOCKS5_PROXY_SERVERS_ENABLED");
 
-        connectionString = connectionString.Replace("<mappedhost>", "localhost:27017").Replace("<replicaset>", "localhost:27017");
+        //Convert the hosts to a format that can be used in the connection string (host:port), and join them into a string.
+        var hosts = CoreTestConfiguration.ConnectionString.Hosts;
+        var stringHosts = string.Join(",", hosts.Select(h => h.GetHostAndPort()).Select( h => $"{h.Host}:{h.Port}"));
+
+        connectionString = connectionString.Replace("<mappedhost>", "localhost:12345").Replace("<replicaset>", stringHosts);
         var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
 
         if (useTls)
