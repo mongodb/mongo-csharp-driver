@@ -19,7 +19,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -54,7 +53,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
         {
             foreach (var isAsync in new[] { true, false })
             {
-                foreach (var useTls in new[] { false })
+                foreach (var useTls in new[] { false })  //TODO This needs to be changed afterwards
                 {
                     yield return [connectionString, expectedResult, useTls, isAsync];
                 }
@@ -66,13 +65,17 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
     [MemberData(nameof(GetTestCombinations))]
     public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool useTls, bool async)
     {
+        RequireServer.Check().Tls(useTls);
         RequireEnvironment.Check().EnvironmentVariable("SOCKS5_PROXY_SERVERS_ENABLED");
 
         //Convert the hosts to a format that can be used in the connection string (host:port), and join them into a string.
         var hosts = CoreTestConfiguration.ConnectionString.Hosts;
         var stringHosts = string.Join(",", hosts.Select(h => h.GetHostAndPort()).Select( h => $"{h.Host}:{h.Port}"));
+        testOutputHelper.WriteLine($"ConnectionString: {CoreTestConfiguration.ConnectionString}");
+        testOutputHelper.WriteLine($"StringHosts: {stringHosts}");
 
         connectionString = connectionString.Replace("<mappedhost>", "localhost:12345").Replace("<replicaset>", stringHosts);
+        testOutputHelper.WriteLine($"Modified ConnectionString: {connectionString}");
         var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
 
         if (useTls)
