@@ -68,27 +68,28 @@ namespace MongoDB.Driver.Core.Configuration
             _socks5ProxySettings = socks5ProxySettings.WithDefault(null);
         }
 
-        // /// <summary>
-        // ///
-        // /// </summary>
-        // /// <param name="addressFamily"></param>
-        // /// <param name="connectTimeout"></param>
-        // /// <param name="readTimeout"></param>
-        // /// <param name="receiveBufferSize"></param>
-        // /// <param name="sendBufferSize"></param>
-        // /// <param name="socketConfigurator"></param>
-        // /// <param name="writeTimeout"></param>
-        // public TcpStreamSettings(
-        //     Optional<AddressFamily> addressFamily,
-        //     Optional<TimeSpan> connectTimeout,
-        //     Optional<TimeSpan?> readTimeout,
-        //     Optional<int> receiveBufferSize,
-        //     Optional<int> sendBufferSize,
-        //     Optional<Action<Socket>> socketConfigurator,
-        //     Optional<TimeSpan?> writeTimeout)
-        // {
-        //
-        // }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TcpStreamSettings"/> class.
+        /// </summary>
+        /// <param name="addressFamily">The address family.</param>
+        /// <param name="connectTimeout">The connect timeout.</param>
+        /// <param name="readTimeout">The read timeout.</param>
+        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
+        /// <param name="sendBufferSize">Size of the send buffer.</param>
+        /// <param name="socketConfigurator">The socket configurator.</param>
+        /// <param name="writeTimeout">The write timeout.</param>
+        public TcpStreamSettings(
+            Optional<AddressFamily> addressFamily,
+            Optional<TimeSpan> connectTimeout,
+            Optional<TimeSpan?> readTimeout,
+            Optional<int> receiveBufferSize,
+            Optional<int> sendBufferSize,
+            Optional<Action<Socket>> socketConfigurator,
+            Optional<TimeSpan?> writeTimeout)
+            :this(addressFamily, connectTimeout, readTimeout, receiveBufferSize, sendBufferSize, socketConfigurator, writeTimeout, null)
+        {
+
+        }
 
         internal TcpStreamSettings(TcpStreamSettings other)
         {

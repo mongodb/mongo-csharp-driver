@@ -29,16 +29,16 @@ functions:
   setup-socks5-proxy:
     - command: shell.exec
       params:
+        background: true
         script: |
           ${PREPARE_SHELL}
+          MONGODB_URI="${MONGODB_URI}"
           # Read the MongoDB URI connection string and extract an arbitrary member's host:port
           HOST_PORT=$(echo "$MONGODB_URI" | sed 's|mongodb://||' | cut -d',' -f1)
 
-          # Start the SOCKS5 proxy with authentication on port 1080
-          python $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "localhost:12345 to $HOST_PORT" --port 1080 --auth username:p4ssw0rd &
-
-          # Start the SOCKS5 proxy without authentication on port 1081
-          python $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "localhost:12345 to $HOST_PORT" --port 1081 &
+          export MAP_ARG="localhost:12345 to $HOST_PORT"
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1080 --auth username:p4ssw0rd &
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1081
 
 #//TODO Check if we need all those parameters...
   run-socks5-proxy-tests:
@@ -1200,8 +1200,8 @@ tasks:
 #//TODO need to do the same with the other platforms
     - name: test-socks5-proxy-net60
       commands:
-        - func: setup-socks5-proxy
         - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
         - func: run-socks5-proxy-tests
           vars:
             FRAMEWORK: net60
