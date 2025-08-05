@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -29,9 +28,9 @@ using Xunit.Abstractions;
 namespace MongoDB.Driver.Tests.Specifications.socks5_support;
 
 [Trait("Category", "Socks5Proxy")]
-public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : LoggableTestClass(testOutputHelper)
+public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
+    : LoggableTestClass(testOutputHelper)
 {
-    //TODO Fix apicompat
     public static IEnumerable<object[]> GetTestCombinations()
     {
         var testCases = new (string ConnectionString, bool ExpectedResult)[]
@@ -49,21 +48,31 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
             ("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true)
         };
 
+        var index = 0;
         foreach (var (connectionString, expectedResult) in testCases)
         {
-            foreach (var isAsync in new[] { true, false })
+            foreach (var useTls in new[] { true, false })
             {
-                foreach (var useTls in new[] { false })  //TODO This needs to be changed afterwards
+                foreach (var isAsync in new[] { true, false })
                 {
-                    yield return [connectionString, expectedResult, useTls, isAsync];
+                    var id = $"{index++}_{(useTls ? "Tls" : "NoTls")}_{(isAsync ? "Async" : "Sync")}";
+                    yield return [id, connectionString, expectedResult, useTls, isAsync];
                 }
             }
         }
     }
 
+    /* TODO:
+     * - check if apiCompat is ok
+     * - need to run the tests on .net framework as well
+     * - cleanup tests
+     *
+     *
+     */
+
     [Theory]
     [MemberData(nameof(GetTestCombinations))]
-    public async Task TestConnectionStrings(string connectionString, bool expectedResult, bool useTls, bool async)
+    public async Task TestConnectionStrings(string id, string connectionString, bool expectedResult, bool useTls, bool async)
     {
         RequireServer.Check().Tls(useTls);
         RequireEnvironment.Check().EnvironmentVariable("SOCKS5_PROXY_SERVERS_ENABLED");
@@ -71,27 +80,13 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper) : Logga
         //Convert the hosts to a format that can be used in the connection string (host:port), and join them into a string.
         var hosts = CoreTestConfiguration.ConnectionString.Hosts;
         var stringHosts = string.Join(",", hosts.Select(h => h.GetHostAndPort()).Select( h => $"{h.Host}:{h.Port}"));
-        testOutputHelper.WriteLine($"ConnectionString: {CoreTestConfiguration.ConnectionString}");
-        testOutputHelper.WriteLine($"StringHosts: {stringHosts}");
 
         connectionString = connectionString.Replace("<mappedhost>", "localhost:12345").Replace("<replicaset>", stringHosts);
-        testOutputHelper.WriteLine($"Modified ConnectionString: {connectionString}");
+
         var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
-
-        if (useTls)
-        {
-            mongoClientSettings.UseTls = true;
-            var certificate = new X509Certificate2("/Users/papafe/dataTlsEnabled/certs/mycert.pfx");
-            mongoClientSettings.UseTls = true;
-            mongoClientSettings.SslSettings = new SslSettings
-            {
-                ClientCertificates = [certificate],
-                CheckCertificateRevocation = false,
-                ServerCertificateValidationCallback = (_, _, _, _) => true,
-            };
-        }
-
+        mongoClientSettings.UseTls = useTls;
         mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(1.5);
+
         var client = new MongoClient(mongoClientSettings);
 
         var database = client.GetDatabase("admin");
