@@ -23,6 +23,7 @@ using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.Gssapi;
 using MongoDB.Driver.Authentication.Oidc;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 
@@ -116,6 +117,16 @@ namespace MongoDB.Driver.Core.Configuration
             if (connectionString.Ipv6.HasValue && connectionString.Ipv6.Value)
             {
                 builder = builder.ConfigureTcp(s => s.With(addressFamily: AddressFamily.InterNetworkV6));
+            }
+
+            if (connectionString.ProxyHost != null)
+            {
+                builder = builder.ConfigureTcp(s => s.With(
+                    socks5ProxySettings: Socks5ProxySettings.Create(
+                        connectionString.ProxyHost,
+                        connectionString.ProxyPort,
+                        connectionString.ProxyUsername,
+                        connectionString.ProxyPassword)));
             }
 
             if (connectionString.SocketTimeout != null)
