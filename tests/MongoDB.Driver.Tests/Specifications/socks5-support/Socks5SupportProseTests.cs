@@ -66,7 +66,8 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
      * - check if apiCompat is ok
      * - need to run the tests on .net framework as well
      * - cleanup tests
-     *
+     * - Drivers MUST verify for at least one of the connection strings marked (succeeds)
+     * that command monitoring events do not reference the SOCKS5 proxy host where the MongoDB service server/port are referenced.
      *
      */
 

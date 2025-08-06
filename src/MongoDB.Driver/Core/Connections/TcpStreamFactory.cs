@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var socks5ProxySettings = _settings.Socks5ProxySettings;
             var useProxy = socks5ProxySettings != null;
-            var targetEndpoint = socks5ProxySettings != null ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
+            var targetEndpoint = useProxy ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
 
 #if NET472
             var socket = CreateSocket(targetEndpoint);
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var socks5ProxySettings = _settings.Socks5ProxySettings;
             var useProxy = socks5ProxySettings != null;
-            var targetEndpoint = socks5ProxySettings != null ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
+            var targetEndpoint = useProxy ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
 
 #if NET472
             var socket = CreateSocket(targetEndpoint);

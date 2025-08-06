@@ -835,7 +835,6 @@ namespace MongoDB.Driver
         /// <returns>The canonical URL.</returns>
         public override string ToString()
         {
-            //TODO Need to add options here too
             StringBuilder url = new StringBuilder();
             if (_scheme == ConnectionStringScheme.MongoDB)
             {
