@@ -26,42 +26,6 @@ timeout:
 
 functions:
 
-  setup-socks5-proxy:
-    - command: shell.exec
-      params:
-        background: true
-        script: |
-          ${PREPARE_SHELL}
-          MONGODB_URI="${MONGODB_URI}"
-          # Read the MongoDB URI connection string and extract an arbitrary member's host:port
-          HOST_PORT=$(echo "$MONGODB_URI" | sed 's|mongodb://||' | cut -d',' -f1)
-
-          export MAP_ARG="localhost:12345 to $HOST_PORT"
-          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1080 --auth username:p4ssw0rd &
-          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1081
-
-#//TODO Check if we need all those parameters...
-  run-socks5-proxy-tests:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: "mongo-csharp-driver"
-        shell: "bash"
-        script: |
-          export SOCKS5_PROXY_SERVERS_ENABLED=true
-          ${PREPARE_SHELL}
-          OS=${OS} \
-            evergreen/add-ca-certs.sh
-          SSL=${SSL} \
-          MONGODB_URI="${MONGODB_URI}" \
-          TOPOLOGY=${TOPOLOGY} \
-          OS=${OS} \
-          FRAMEWORK=${FRAMEWORK} \
-          TARGET="TestSocks5Proxy" \
-            evergreen/run-tests.sh
-          OS=${OS} \
-            evergreen/cleanup-test-resources.sh
-
   fetch-source:
     # Executes git clone and applies the submitted patch, if any
     - command: git.get_project
@@ -1105,6 +1069,40 @@ functions:
           TARGET="TestX509" \
             evergreen/run-tests.sh
 
+  setup-socks5-proxy:
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_URI="${MONGODB_URI}"
+          # Read the MongoDB URI connection string and extract an arbitrary member's host:port
+          HOST_PORT=$(echo "$MONGODB_URI" | sed 's|mongodb://||' | cut -d',' -f1)
+
+          export MAP_ARG="localhost:12345 to $HOST_PORT"
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1080 --auth username:p4ssw0rd &
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1081
+
+  run-socks5-proxy-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: "mongo-csharp-driver"
+        shell: "bash"
+        script: |
+          export SOCKS5_PROXY_SERVERS_ENABLED=true
+          ${PREPARE_SHELL}
+          OS=${OS} \
+            evergreen/add-ca-certs.sh
+          SSL=${SSL} \
+          MONGODB_URI="${MONGODB_URI}" \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          FRAMEWORK=${FRAMEWORK} \
+          TARGET="TestSocks5Proxy" \
+            evergreen/run-tests.sh
+          OS=${OS} \
+            evergreen/cleanup-test-resources.sh
 pre:
   - func: fetch-source
   - func: prepare-resources
