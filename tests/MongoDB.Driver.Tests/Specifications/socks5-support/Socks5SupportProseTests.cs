@@ -27,6 +27,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.socks5_support;
 
+[Trait("Category", "Integration")]
 [Trait("Category", "Socks5Proxy")]
 public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
     : LoggableTestClass(testOutputHelper)
