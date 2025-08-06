@@ -283,7 +283,7 @@ internal static class Socks5Helper
         // We skip the last bytes of the response as we do not need them.
         // We skip length(dst.address) + length(dst.port) - 1 --- length(dst.port) is always 2
         // -1 because we already ready the first byte of the address type
-        // (used for the variable length domain-type addresses)
+        // (necessary for the variable length domain-type addresses)
         return buffer[3] switch
         {
             AddressTypeIPv4 => 5,
