@@ -1197,15 +1197,6 @@ tasks:
           vars:
             FRAMEWORK: net60
 
-#//TODO need to do the same with the other platforms
-    - name: test-socks5-proxy-net60
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: setup-socks5-proxy
-        - func: run-socks5-proxy-tests
-          vars:
-            FRAMEWORK: net60
-
     - name: test-csfle-with-mocked-kms-tls-net472
       commands:
         - func: setup-csfle-secrets
@@ -1279,6 +1270,30 @@ tasks:
     - name: test-gssapi-net60
       commands:
         - func: run-gssapi-auth-tests
+          vars:
+            FRAMEWORK: net60
+
+    - name: test-socks5-proxy-net472
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: run-socks5-proxy-tests
+          vars:
+            FRAMEWORK: net472
+
+    - name: test-socks5-proxy-netstandard21
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: run-socks5-proxy-tests
+          vars:
+            FRAMEWORK: netstandard21
+
+    - name: test-socks5-proxy-net60
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: run-socks5-proxy-tests
           vars:
             FRAMEWORK: net60
 
@@ -2577,13 +2592,27 @@ buildvariants:
     - name: atlas-search-index-helpers-task-group
 
 # Socks5 Proxy tests
-# //TODO I don't think we need to do this tests with more than one version, right?
-# //TODO Do we need to run it also on other OSes? Java does only linux
 
-- matrix_name: "socks5-proxy-tests"
+- matrix_name: "socks5-proxy-tests-linux"
   matrix_spec: { os: "ubuntu-2004", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
   display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
   tasks:
+    - name: test-socks5-proxy-netstandard21
+    - name: test-socks5-proxy-net60
+
+- matrix_name: "socks5-proxy-tests-windows"
+  matrix_spec: { os: "windows-64", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-net472
+    - name: test-socks5-proxy-netstandard21
+    - name: test-socks5-proxy-net60
+
+- matrix_name: "socks5-proxy-tests-macos"
+  matrix_spec: { os: "macos-14", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
+  display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
+  tasks:
+    - name: test-socks5-proxy-netstandard21
     - name: test-socks5-proxy-net60
 
 # CSFLE tests

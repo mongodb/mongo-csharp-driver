@@ -142,6 +142,7 @@ namespace MongoDB.Driver.Tests
                 serverMonitoringMode: ServerMonitoringMode.Stream,
                 serverSelectionTimeout: TimeSpan.FromSeconds(11),
                 socketTimeout: TimeSpan.FromSeconds(12),
+                socks5ProxySettings: null,
                 srvMaxHosts: 0,
                 srvServiceName: "mongodb",
                 sslSettings: sslSettings,
