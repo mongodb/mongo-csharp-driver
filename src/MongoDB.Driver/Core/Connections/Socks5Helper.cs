@@ -277,7 +277,7 @@ internal static class Socks5Helper
 
         if (buffer[1] != Socks5Success)
         {
-            throw new IOException($"SOCKS5 connect failed");  //TODO Need to add the reason here.
+            throw new IOException($"SOCKS5 connect failed");
         }
 
         // We skip the last bytes of the response as we do not need them.
