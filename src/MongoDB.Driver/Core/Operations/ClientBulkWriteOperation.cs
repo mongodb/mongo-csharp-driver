@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         private readonly bool? _bypassDocumentValidation;
         private readonly bool _errorsOnly;
-        private readonly Dictionary<int, BsonValue> _idsMap = new();
+        private readonly Dictionary<int, object> _idsMap = new();
         private readonly BsonDocument _let;
         private readonly RenderArgs<BsonDocument> _renderArgs;
         private readonly IBatchableSource<BulkWriteModel> _writeModels;
@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Core.Operations
                         _idsMap.TryGetValue(operationIndex, out var insertedId);
                         bulkWriteResult.InsertResults.Add(operationIndex, new()
                         {
-                            InsertedId = insertedId
+                            DocumentId = insertedId
                         });
                     }
                     else if (writeModelType == typeof(BulkWriteUpdateOneModel<>) || writeModelType == typeof(BulkWriteUpdateManyModel<>) || writeModelType == typeof(BulkWriteReplaceOneModel<>))
