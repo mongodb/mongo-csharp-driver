@@ -21,9 +21,6 @@ namespace MongoDB.Driver
     // TODO: CSOT: Make it public when CSOT will be ready for GA
     internal sealed class AbortTransactionOptions
     {
-        public AbortTransactionOptions()
-        {}
-
         public AbortTransactionOptions(TimeSpan? timeout)
         {
             Timeout = Ensure.IsNullOrValidTimeout(timeout, nameof(timeout));

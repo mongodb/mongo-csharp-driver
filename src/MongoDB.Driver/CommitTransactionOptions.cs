@@ -21,9 +21,6 @@ namespace MongoDB.Driver
     // TODO: CSOT: Make it public when CSOT will be ready for GA
     internal sealed class CommitTransactionOptions
     {
-        public CommitTransactionOptions()
-        {}
-
         public CommitTransactionOptions(TimeSpan? timeout)
         {
             Timeout = Ensure.IsNullOrValidTimeout(timeout, nameof(timeout));
@@ -31,6 +28,5 @@ namespace MongoDB.Driver
 
         public TimeSpan? Timeout { get; }
     }
-
 }
 
