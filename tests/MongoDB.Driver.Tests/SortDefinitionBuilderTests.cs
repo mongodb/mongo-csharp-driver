@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -29,6 +30,14 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Ascending("a"), "{a: 1}");
+        }
+
+        [Fact]
+        public void Ascending_no_field()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Ascending(), "{direction: 1}");
         }
 
         [Fact]
@@ -77,11 +86,29 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Combine_with_value_based_sort_and_additional_sort_should_throw()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var exception = Record.Exception(() => subject.Ascending().Descending("b"));
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Fact]
         public void Descending()
         {
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Descending("a"), "{a: -1}");
+        }
+
+        [Fact]
+        public void Descending_no_field()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Descending(), "{direction: -1}");
         }
 
         [Fact]
