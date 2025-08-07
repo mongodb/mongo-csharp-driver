@@ -250,6 +250,11 @@ namespace MongoDB.Driver
         public CombinedSortDefinition(IEnumerable<SortDefinition<TDocument>> sorts)
         {
             _sorts = Ensure.IsNotNull(sorts, nameof(sorts)).ToList();
+
+            if (_sorts.Any(sort => sort is NoFieldDirectionalSortDefinition<TDocument>))
+            {
+                throw new InvalidOperationException("Value-based sort cannot be combined with other sorts. When sorting by the entire element value, no other sorting criteria can be applied.");
+            }
         }
 
         public override BsonDocument Render(RenderArgs<TDocument> args)
