@@ -46,12 +46,12 @@ namespace MongoDB.Driver.Core.Misc
             _utcNow += timeSpan;
         }
 
-        public IWatch StartWatch()
+        public IStopwatch StartStopwatch()
         {
             var startTime = _utcNow;
-            var mock = new Mock<IWatch>();
-            mock.SetupGet(w => w.Elapsed).Returns(() => _utcNow - startTime);
-            return mock.Object;
+            var mockStopwatch = new Mock<IStopwatch>();
+            mockStopwatch.SetupGet(w => w.Elapsed).Returns(() => _utcNow - startTime);
+            return mockStopwatch.Object;
         }
     }
 }

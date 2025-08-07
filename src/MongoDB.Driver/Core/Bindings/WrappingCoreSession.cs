@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// An abstract base class for a core session that wraps another core session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
-    public abstract class WrappingCoreSession : ICoreSession
+    public abstract class WrappingCoreSession : ICoreSession, ICoreSessionInternal
     {
         // private fields
         private bool _disposed;
@@ -183,10 +183,13 @@ namespace MongoDB.Driver.Core.Bindings
         // public methods
         /// <inheritdoc />
         public virtual void AbortTransaction(CancellationToken cancellationToken = default)
-            => AbortTransaction(null, cancellationToken);
+        {
+            ThrowIfDisposed();
+            _wrapped.AbortTransaction(cancellationToken);
+        }
 
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal virtual void AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken = default)
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void ICoreSessionInternal.AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             _wrapped.AbortTransaction(options, cancellationToken);
@@ -194,10 +197,13 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public virtual Task AbortTransactionAsync(CancellationToken cancellationToken = default)
-            => AbortTransactionAsync(null, cancellationToken);
+        {
+            ThrowIfDisposed();
+            return _wrapped.AbortTransactionAsync(cancellationToken);
+        }
 
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal virtual Task AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken = default)
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task ICoreSessionInternal.AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _wrapped.AbortTransactionAsync(options, cancellationToken);
@@ -232,10 +238,14 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public virtual void CommitTransaction(CancellationToken cancellationToken = default)
-            => CommitTransaction(null, cancellationToken);
+        {
+            ThrowIfDisposed();
+            _wrapped.CommitTransaction(cancellationToken);
+        }
 
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal virtual void CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken = default)
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void ICoreSessionInternal.CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             _wrapped.CommitTransaction(options, cancellationToken);
@@ -243,10 +253,13 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
-            => CommitTransactionAsync(null, cancellationToken);
+        {
+            ThrowIfDisposed();
+            return _wrapped.CommitTransactionAsync(cancellationToken);
+        }
 
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal virtual Task CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task ICoreSessionInternal.CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _wrapped.CommitTransactionAsync(options, cancellationToken);

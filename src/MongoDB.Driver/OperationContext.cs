@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         internal OperationContext(IClock clock, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Clock = Ensure.IsNotNull(clock, nameof(clock));
-            Watch = clock.StartWatch();
+            Stopwatch = clock.StartStopwatch();
             Timeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
             CancellationToken = cancellationToken;
             RootContext = this;
@@ -55,7 +55,7 @@ namespace MongoDB.Driver
                     return System.Threading.Timeout.InfiniteTimeSpan;
                 }
 
-                var result = Timeout.Value - Watch.Elapsed;
+                var result = Timeout.Value - Stopwatch.Elapsed;
                 if (result < TimeSpan.Zero)
                 {
                     result = TimeSpan.Zero;
@@ -85,11 +85,11 @@ namespace MongoDB.Driver
                 return _combinedCancellationTokenSource.Token;
             }
         }
-        private IWatch Watch { get; }
+        private IStopwatch Stopwatch { get; }
 
         private IClock Clock { get; }
 
-        public TimeSpan Elapsed => Watch.Elapsed;
+        public TimeSpan Elapsed => Stopwatch.Elapsed;
 
         public TimeSpan? Timeout { get; }
 
@@ -193,4 +193,3 @@ namespace MongoDB.Driver
         }
     }
 }
-

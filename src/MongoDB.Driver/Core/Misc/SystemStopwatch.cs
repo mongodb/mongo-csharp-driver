@@ -14,11 +14,19 @@
  */
 
 using System;
+using System.Diagnostics;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    internal interface IWatch
+    internal sealed class SystemStopwatch : IStopwatch
     {
-        TimeSpan Elapsed { get; }
+        private readonly Stopwatch _wrappedStopwatch;
+
+        public SystemStopwatch()
+        {
+            _wrappedStopwatch = Stopwatch.StartNew();
+        }
+
+        public TimeSpan Elapsed => _wrappedStopwatch.Elapsed;
     }
 }

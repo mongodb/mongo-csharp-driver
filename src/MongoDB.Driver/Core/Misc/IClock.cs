@@ -21,6 +21,6 @@ namespace MongoDB.Driver.Core.Misc
     {
         DateTime UtcNow { get; }
 
-        IWatch StartWatch();
+        IStopwatch StartStopwatch();
     }
 }

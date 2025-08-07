@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     /// A client session handle.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.IClientSessionHandle" />
-    internal sealed class ClientSessionHandle : IClientSessionHandle
+    internal sealed class ClientSessionHandle : IClientSessionHandle, IClientSessionInternal
     {
         // private fields
         private readonly IMongoClient _client;
@@ -97,16 +97,16 @@ namespace MongoDB.Driver
         public void AbortTransaction(CancellationToken cancellationToken = default)
             => _coreSession.AbortTransaction(cancellationToken);
 
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal void AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken = default)
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void IClientSessionInternal.AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken)
             => _coreSession.AbortTransaction(options, cancellationToken);
 
         /// <inheritdoc />
         public Task AbortTransactionAsync(CancellationToken cancellationToken = default)
             => _coreSession.AbortTransactionAsync(cancellationToken);
 
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal Task AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken = default)
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task IClientSessionInternal.AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken)
             => _coreSession.AbortTransactionAsync(options, cancellationToken);
 
         /// <inheritdoc />
@@ -125,16 +125,16 @@ namespace MongoDB.Driver
         public void CommitTransaction(CancellationToken cancellationToken = default)
             => _coreSession.CommitTransaction(cancellationToken);
 
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal void CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken = default)
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void IClientSessionInternal.CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken)
             => _coreSession.CommitTransaction(options, cancellationToken);
 
         /// <inheritdoc />
         public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
             => _coreSession.CommitTransactionAsync(cancellationToken);
 
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal Task CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken = default)
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        Task IClientSessionInternal.CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken)
             => _coreSession.CommitTransactionAsync(options, cancellationToken);
 
         /// <inheritdoc />

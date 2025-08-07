@@ -699,11 +699,11 @@ namespace MongoDB.Driver.Tests
             }
 
             var mockClock = new Mock<IClock>();
-            var watchMock = new Mock<IWatch>();
-            mockClock.Setup(m => m.StartWatch()).Returns(watchMock.Object);
+            var mockStopwatch = new Mock<IStopwatch>();
+            mockClock.Setup(m => m.StartStopwatch()).Returns(mockStopwatch.Object);
 
             var nowSetup = mockClock.SetupSequence(c => c.UtcNow);
-            var elapsedSetup = watchMock.SetupSequence(w => w.Elapsed);
+            var elapsedSetup = mockStopwatch.SetupSequence(w => w.Elapsed);
             if (shouldNowBeAdded)
             {
                 nowSetup.Returns(now);
@@ -731,9 +731,9 @@ namespace MongoDB.Driver.Tests
                 nowSetup.Returns(currentTime);
             }
 
-            var watchMock = new Mock<IWatch>();
-            watchMock.SetupGet(w => w.Elapsed).Returns(() => mockClock.Object.UtcNow - now);
-            mockClock.Setup(m => m.StartWatch()).Returns(watchMock.Object);
+            var mockStopwatch = new Mock<IStopwatch>();
+            mockStopwatch.SetupGet(w => w.Elapsed).Returns(() => mockClock.Object.UtcNow - now);
+            mockClock.Setup(m => m.StartStopwatch()).Returns(mockStopwatch.Object);
 
             return mockClock;
         }

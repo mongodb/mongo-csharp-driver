@@ -33,6 +33,6 @@ namespace MongoDB.Driver.Core.Misc
             get { return DateTime.UtcNow; }
         }
 
-        public IWatch StartWatch() => new SystemWatch();
+        public IStopwatch StartStopwatch() => new SystemStopwatch();
     }
 }
