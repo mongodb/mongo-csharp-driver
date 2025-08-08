@@ -131,6 +131,15 @@ namespace MongoDB.Driver
     public sealed class SortDefinitionBuilder<TDocument>
     {
         /// <summary>
+        /// Creates a value ascending sort.
+        /// </summary>
+        /// <returns>An ascending sort.</returns>
+        public SortDefinition<TDocument> Ascending()
+        {
+            return new NoFieldDirectionalSortDefinition<TDocument>(SortDirection.Ascending);
+        }
+
+        /// <summary>
         /// Creates an ascending sort.
         /// </summary>
         /// <param name="field">The field.</param>
@@ -168,6 +177,15 @@ namespace MongoDB.Driver
         public SortDefinition<TDocument> Combine(IEnumerable<SortDefinition<TDocument>> sorts)
         {
             return new CombinedSortDefinition<TDocument>(sorts);
+        }
+
+        /// <summary>
+        /// Creates a value descending sort.
+        /// </summary>
+        /// <returns>A descending sort.</returns>
+        public SortDefinition<TDocument> Descending()
+        {
+            return new NoFieldDirectionalSortDefinition<TDocument>(SortDirection.Descending);
         }
 
         /// <summary>
@@ -232,6 +250,11 @@ namespace MongoDB.Driver
         public CombinedSortDefinition(IEnumerable<SortDefinition<TDocument>> sorts)
         {
             _sorts = Ensure.IsNotNull(sorts, nameof(sorts)).ToList();
+
+            if (_sorts.Any(sort => sort is NoFieldDirectionalSortDefinition<TDocument>))
+            {
+                throw new InvalidOperationException("Value-based sort cannot be combined with other sorts. When sorting by the entire element value, no other sorting criteria can be applied.");
+            }
         }
 
         public override BsonDocument Render(RenderArgs<TDocument> args)
@@ -286,6 +309,28 @@ namespace MongoDB.Driver
             }
 
             return new BsonDocument(renderedField.FieldName, value);
+        }
+    }
+
+    internal sealed class NoFieldDirectionalSortDefinition<TDocument> : SortDefinition<TDocument>
+    {
+        private readonly SortDirection _direction;
+
+        public NoFieldDirectionalSortDefinition(SortDirection direction)
+        {
+            _direction = direction;
+        }
+
+        public override BsonDocument Render(RenderArgs<TDocument> args)
+        {
+            BsonValue value = _direction switch
+            {
+                SortDirection.Ascending => 1,
+                SortDirection.Descending => -1,
+                _ => throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".")
+            };
+
+            return new BsonDocument("direction",  value);
         }
     }
 }
