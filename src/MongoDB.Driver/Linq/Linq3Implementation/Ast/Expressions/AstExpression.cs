@@ -602,12 +602,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstMedianExpression(input);
         }
 
-        public static AstMedianAccumulatorExpression MedianAccumulator(AstExpression input)
+        public static AstAccumulatorExpression MedianAccumulator(AstExpression input)
         {
             return new AstMedianAccumulatorExpression(input);
         }
 
-        public static AstMedianWindowExpression MedianWindowExpression(AstExpression input, AstWindow window)
+        public static AstWindowExpression MedianWindowExpression(AstExpression input, AstWindow window)
         {
             return new AstMedianWindowExpression(input, window);
         }
@@ -668,17 +668,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstNaryExpression(AstNaryOperator.Or, flattenedArgs);
         }
 
-        public static AstPercentileExpression Percentile(AstExpression input, AstExpression percentiles)
+        public static AstExpression Percentile(AstExpression input, AstExpression percentiles)
         {
             return new AstPercentileExpression(input, percentiles);
         }
 
-        public static AstPercentileAccumulatorExpression PercentileAccumulator(AstExpression input, AstExpression percentiles)
+        public static AstAccumulatorExpression PercentileAccumulator(AstExpression input, AstExpression percentiles)
         {
             return new AstPercentileAccumulatorExpression(input, percentiles);
         }
 
-        public static AstPercentileWindowExpression PercentileWindowExpression(AstExpression input, AstExpression percentiles, AstWindow window)
+        public static AstWindowExpression PercentileWindowExpression(AstExpression input, AstExpression percentiles, AstWindow window)
         {
             return new AstPercentileWindowExpression(input, percentiles, window);
         }

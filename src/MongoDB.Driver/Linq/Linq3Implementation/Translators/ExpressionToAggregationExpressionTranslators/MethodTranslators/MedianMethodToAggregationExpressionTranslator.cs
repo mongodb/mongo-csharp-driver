@@ -26,40 +26,40 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         private static readonly MethodInfo[] __medianMethods =
         [
-            EnumerableMethod.MedianDecimal,
-            EnumerableMethod.MedianDecimalWithSelector,
-            EnumerableMethod.MedianDouble,
-            EnumerableMethod.MedianDoubleWithSelector,
-            EnumerableMethod.MedianInt32,
-            EnumerableMethod.MedianInt32WithSelector,
-            EnumerableMethod.MedianInt64,
-            EnumerableMethod.MedianInt64WithSelector,
-            EnumerableMethod.MedianNullableDecimal,
-            EnumerableMethod.MedianNullableDecimalWithSelector,
-            EnumerableMethod.MedianNullableDouble,
-            EnumerableMethod.MedianNullableDoubleWithSelector,
-            EnumerableMethod.MedianNullableInt32,
-            EnumerableMethod.MedianNullableInt32WithSelector,
-            EnumerableMethod.MedianNullableInt64,
-            EnumerableMethod.MedianNullableInt64WithSelector,
-            EnumerableMethod.MedianNullableSingle,
-            EnumerableMethod.MedianNullableSingleWithSelector,
-            EnumerableMethod.MedianSingle,
-            EnumerableMethod.MedianSingleWithSelector
+            MongoEnumerableMethod.MedianDecimal,
+            MongoEnumerableMethod.MedianDecimalWithSelector,
+            MongoEnumerableMethod.MedianDouble,
+            MongoEnumerableMethod.MedianDoubleWithSelector,
+            MongoEnumerableMethod.MedianInt32,
+            MongoEnumerableMethod.MedianInt32WithSelector,
+            MongoEnumerableMethod.MedianInt64,
+            MongoEnumerableMethod.MedianInt64WithSelector,
+            MongoEnumerableMethod.MedianNullableDecimal,
+            MongoEnumerableMethod.MedianNullableDecimalWithSelector,
+            MongoEnumerableMethod.MedianNullableDouble,
+            MongoEnumerableMethod.MedianNullableDoubleWithSelector,
+            MongoEnumerableMethod.MedianNullableInt32,
+            MongoEnumerableMethod.MedianNullableInt32WithSelector,
+            MongoEnumerableMethod.MedianNullableInt64,
+            MongoEnumerableMethod.MedianNullableInt64WithSelector,
+            MongoEnumerableMethod.MedianNullableSingle,
+            MongoEnumerableMethod.MedianNullableSingleWithSelector,
+            MongoEnumerableMethod.MedianSingle,
+            MongoEnumerableMethod.MedianSingleWithSelector
         ];
 
         private static readonly MethodInfo[] __medianWithSelectorMethods =
         [
-            EnumerableMethod.MedianDecimalWithSelector,
-            EnumerableMethod.MedianDoubleWithSelector,
-            EnumerableMethod.MedianInt32WithSelector,
-            EnumerableMethod.MedianInt64WithSelector,
-            EnumerableMethod.MedianNullableDecimalWithSelector,
-            EnumerableMethod.MedianNullableDoubleWithSelector,
-            EnumerableMethod.MedianNullableInt32WithSelector,
-            EnumerableMethod.MedianNullableInt64WithSelector,
-            EnumerableMethod.MedianNullableSingleWithSelector,
-            EnumerableMethod.MedianSingleWithSelector
+            MongoEnumerableMethod.MedianDecimalWithSelector,
+            MongoEnumerableMethod.MedianDoubleWithSelector,
+            MongoEnumerableMethod.MedianInt32WithSelector,
+            MongoEnumerableMethod.MedianInt64WithSelector,
+            MongoEnumerableMethod.MedianNullableDecimalWithSelector,
+            MongoEnumerableMethod.MedianNullableDoubleWithSelector,
+            MongoEnumerableMethod.MedianNullableInt32WithSelector,
+            MongoEnumerableMethod.MedianNullableInt64WithSelector,
+            MongoEnumerableMethod.MedianNullableSingleWithSelector,
+            MongoEnumerableMethod.MedianSingleWithSelector
         ];
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -77,10 +77,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (method.IsOneOf(__medianWithSelectorMethods))
                 {
+                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+
                     var selectorLambda = (LambdaExpression)arguments[1];
                     var selectorParameter = selectorLambda.Parameters[0];
-                    var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                    var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
+                    var selectorParameterSymbol = context.CreateSymbol(selectorParameter, sourceItemSerializer);
                     var selectorContext = context.WithSymbol(selectorParameterSymbol);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
 

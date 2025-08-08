@@ -15,7 +15,6 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -27,40 +26,40 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         private static readonly MethodInfo[] __percentileMethods =
         [
-            EnumerableMethod.PercentileDecimal,
-            EnumerableMethod.PercentileDecimalWithSelector,
-            EnumerableMethod.PercentileDouble,
-            EnumerableMethod.PercentileDoubleWithSelector,
-            EnumerableMethod.PercentileInt32,
-            EnumerableMethod.PercentileInt32WithSelector,
-            EnumerableMethod.PercentileInt64,
-            EnumerableMethod.PercentileInt64WithSelector,
-            EnumerableMethod.PercentileNullableDecimal,
-            EnumerableMethod.PercentileNullableDecimalWithSelector,
-            EnumerableMethod.PercentileNullableDouble,
-            EnumerableMethod.PercentileNullableDoubleWithSelector,
-            EnumerableMethod.PercentileNullableInt32,
-            EnumerableMethod.PercentileNullableInt32WithSelector,
-            EnumerableMethod.PercentileNullableInt64,
-            EnumerableMethod.PercentileNullableInt64WithSelector,
-            EnumerableMethod.PercentileNullableSingle,
-            EnumerableMethod.PercentileNullableSingleWithSelector,
-            EnumerableMethod.PercentileSingle,
-            EnumerableMethod.PercentileSingleWithSelector
+            MongoEnumerableMethod.PercentileDecimal,
+            MongoEnumerableMethod.PercentileDecimalWithSelector,
+            MongoEnumerableMethod.PercentileDouble,
+            MongoEnumerableMethod.PercentileDoubleWithSelector,
+            MongoEnumerableMethod.PercentileInt32,
+            MongoEnumerableMethod.PercentileInt32WithSelector,
+            MongoEnumerableMethod.PercentileInt64,
+            MongoEnumerableMethod.PercentileInt64WithSelector,
+            MongoEnumerableMethod.PercentileNullableDecimal,
+            MongoEnumerableMethod.PercentileNullableDecimalWithSelector,
+            MongoEnumerableMethod.PercentileNullableDouble,
+            MongoEnumerableMethod.PercentileNullableDoubleWithSelector,
+            MongoEnumerableMethod.PercentileNullableInt32,
+            MongoEnumerableMethod.PercentileNullableInt32WithSelector,
+            MongoEnumerableMethod.PercentileNullableInt64,
+            MongoEnumerableMethod.PercentileNullableInt64WithSelector,
+            MongoEnumerableMethod.PercentileNullableSingle,
+            MongoEnumerableMethod.PercentileNullableSingleWithSelector,
+            MongoEnumerableMethod.PercentileSingle,
+            MongoEnumerableMethod.PercentileSingleWithSelector
         ];
 
         private static readonly MethodInfo[] __percentileWithSelectorMethods =
         [
-            EnumerableMethod.PercentileDecimalWithSelector,
-            EnumerableMethod.PercentileDoubleWithSelector,
-            EnumerableMethod.PercentileInt32WithSelector,
-            EnumerableMethod.PercentileInt64WithSelector,
-            EnumerableMethod.PercentileNullableDecimalWithSelector,
-            EnumerableMethod.PercentileNullableDoubleWithSelector,
-            EnumerableMethod.PercentileNullableInt32WithSelector,
-            EnumerableMethod.PercentileNullableInt64WithSelector,
-            EnumerableMethod.PercentileNullableSingleWithSelector,
-            EnumerableMethod.PercentileSingleWithSelector
+            MongoEnumerableMethod.PercentileDecimalWithSelector,
+            MongoEnumerableMethod.PercentileDoubleWithSelector,
+            MongoEnumerableMethod.PercentileInt32WithSelector,
+            MongoEnumerableMethod.PercentileInt64WithSelector,
+            MongoEnumerableMethod.PercentileNullableDecimalWithSelector,
+            MongoEnumerableMethod.PercentileNullableDoubleWithSelector,
+            MongoEnumerableMethod.PercentileNullableInt32WithSelector,
+            MongoEnumerableMethod.PercentileNullableInt64WithSelector,
+            MongoEnumerableMethod.PercentileNullableSingleWithSelector,
+            MongoEnumerableMethod.PercentileSingleWithSelector
         ];
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -78,10 +77,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 if (method.IsOneOf(__percentileWithSelectorMethods))
                 {
+                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+
                     var selectorLambda = (LambdaExpression)arguments[1];
                     var selectorParameter = selectorLambda.Parameters[0];
-                    var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                    var selectorParameterSymbol = context.CreateSymbol(selectorParameter, selectorParameterSerializer);
+                    var selectorParameterSymbol = context.CreateSymbol(selectorParameter, sourceItemSerializer);
                     var selectorContext = context.WithSymbol(selectorParameterSymbol);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
 

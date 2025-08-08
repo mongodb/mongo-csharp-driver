@@ -59,6 +59,5 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             }
             return new AstMedianExpression(input);
         }
-
     }
 }
