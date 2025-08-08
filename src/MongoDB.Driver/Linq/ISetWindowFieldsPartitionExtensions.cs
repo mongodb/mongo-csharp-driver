@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq
 {
@@ -880,6 +879,136 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static decimal Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static decimal? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal?> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static double Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, double> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static double? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, double?> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static float Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static float? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float?> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static double Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, int> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static double? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, int?> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static double Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, long> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the median of the numeric values. Median ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The median of the selected values.</returns>
+        public static double? Median<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, long?> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
         /// Returns the minimum value.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
@@ -889,6 +1018,146 @@ namespace MongoDB.Driver.Linq
         /// <param name="window">The window boundaries.</param>
         /// <returns>The minimum of the selected values.</returns>
         public static TValue Min<TInput, TValue>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TValue> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static decimal[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static decimal?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static double[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, double> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static double?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, double?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static float[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static float?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, float?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static double[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, int> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static double?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, int?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static double[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, long> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
+        /// Returns the values at the given percentiles. Percentile ignores non-numeric values. Percentile returns results in the same order as the given percentiles.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="percentiles">The percentiles (between 0.0 and 1.0).</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The values at the given percentiles.</returns>
+        public static double?[] Percentile<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, long?> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }

@@ -504,6 +504,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Filter));
         }
 
+        public virtual AstNode VisitMedianExpression(AstMedianExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input));
+        }
+
+        public virtual AstNode VisitMedianAccumulatorExpression(AstMedianAccumulatorExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input));
+        }
+
+        public virtual AstNode VisitMedianWindowExpression(AstMedianWindowExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), node.Window);
+        }
+
         public virtual AstNode VisitMergeStage(AstMergeStage node)
         {
             return node.Update(VisitAndConvert(node.Let));
@@ -557,6 +572,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitOutStage(AstOutStage node)
         {
             return node;
+        }
+
+        public virtual AstNode VisitPercentileExpression(AstPercentileExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Percentiles));
+        }
+
+        public virtual AstNode VisitPercentileAccumulatorExpression(AstPercentileAccumulatorExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Percentiles));
+        }
+
+        public virtual AstNode VisitPercentileWindowExpression(AstPercentileWindowExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Percentiles), node.Window);
         }
 
         public virtual AstNode VisitPickAccumulatorExpression(AstPickAccumulatorExpression node)

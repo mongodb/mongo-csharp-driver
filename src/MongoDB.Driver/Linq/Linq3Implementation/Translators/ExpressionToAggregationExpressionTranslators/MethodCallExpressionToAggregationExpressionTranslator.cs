@@ -64,8 +64,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "IsNullOrWhiteSpace": return IsNullOrWhiteSpaceMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "IsSubsetOf": return IsSubsetOfMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Locf": return LocfMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Median": return MedianMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "OfType": return OfTypeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Parse": return ParseMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Percentile": return PercentileMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Pow": return PowMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Push": return PushMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Range": return RangeMethodToAggregationExpressionTranslator.Translate(context, expression);
