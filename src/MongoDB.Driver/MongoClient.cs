@@ -563,24 +563,42 @@ namespace MongoDB.Driver
                 _settings.RetryReads,
                 _settings.TranslationOptions);
 
+        private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            var operationContext = session.WrappedCoreSession.CurrentTransaction?.OperationContext;
+            if (operationContext != null && timeout != null)
+            {
+                throw new InvalidOperationException("Cannot specify per operation timeout inside transaction.");
+            }
+
+            return operationContext ?? new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+        }
+
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
-            return _operationExecutor.ExecuteReadOperation(session, operation, readPreference, false, timeout ?? _settings.Timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, false);
         }
 
-        private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
+        private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
-            return _operationExecutor.ExecuteReadOperationAsync(session, operation, readPreference, false, timeout ?? _settings.Timeout, cancellationToken);
+            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, false).ConfigureAwait(false);
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteWriteOperation(session, operation, false, timeout ?? _settings.Timeout, cancellationToken);
+        {
+            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, false);
+        }
 
-        private Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
-            => _operationExecutor.ExecuteWriteOperationAsync(session, operation, false, timeout ?? _settings.Timeout, cancellationToken);
-
+        private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
+        {
+            using var operationContext = CreateOperationContext(session, timeout, cancellationToken);
+            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, false).ConfigureAwait(false);
+        }
 
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
@@ -609,7 +627,17 @@ namespace MongoDB.Driver
                 throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
             }
 
-            options = options ?? new ClientSessionOptions();
+            options ??= new ClientSessionOptions();
+            if (_settings.Timeout.HasValue && options.DefaultTransactionOptions?.Timeout == null)
+            {
+                options.DefaultTransactionOptions = new TransactionOptions(
+                    _settings.Timeout,
+                    options.DefaultTransactionOptions?.ReadConcern,
+                    options.DefaultTransactionOptions?.ReadPreference,
+                    options.DefaultTransactionOptions?.WriteConcern,
+                    options.DefaultTransactionOptions?.MaxCommitTime);
+            }
+
             var coreSession = _cluster.StartSession(options.ToCore());
 
             return new ClientSessionHandle(this, options, coreSession);

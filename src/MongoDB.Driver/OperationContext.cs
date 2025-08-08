@@ -14,7 +14,6 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
@@ -30,13 +29,14 @@ namespace MongoDB.Driver
         private CancellationTokenSource _combinedCancellationTokenSource;
 
         public OperationContext(TimeSpan? timeout, CancellationToken cancellationToken)
-            : this(Stopwatch.StartNew(), timeout, cancellationToken)
+            : this(SystemClock.Instance, timeout, cancellationToken)
         {
         }
 
-        internal OperationContext(Stopwatch stopwatch, TimeSpan? timeout, CancellationToken cancellationToken)
+        internal OperationContext(IClock clock, TimeSpan? timeout, CancellationToken cancellationToken)
         {
-            Stopwatch = stopwatch;
+            Clock = Ensure.IsNotNull(clock, nameof(clock));
+            Stopwatch = clock.StartStopwatch();
             Timeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
             CancellationToken = cancellationToken;
             RootContext = this;
@@ -85,7 +85,11 @@ namespace MongoDB.Driver
                 return _combinedCancellationTokenSource.Token;
             }
         }
-        private Stopwatch Stopwatch { get; }
+        private IStopwatch Stopwatch { get; }
+
+        private IClock Clock { get; }
+
+        public TimeSpan Elapsed => Stopwatch.Elapsed;
 
         public TimeSpan? Timeout { get; }
 
@@ -182,11 +186,10 @@ namespace MongoDB.Driver
                 timeout = remainingTimeout;
             }
 
-            return new OperationContext(timeout, CancellationToken)
+            return new OperationContext(Clock, timeout, CancellationToken)
             {
                 RootContext = RootContext
             };
         }
     }
 }
-

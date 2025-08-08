@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Bindings
     /// Represents a session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
-    public sealed class CoreSession : ICoreSession
+    public sealed class CoreSession : ICoreSession, ICoreSessionInternal
     {
         // private fields
 #pragma warning disable CA2213 // Disposable fields should be disposed
@@ -141,12 +141,15 @@ namespace MongoDB.Driver.Core.Bindings
 
         // public methods
         /// <inheritdoc />
-        public void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken))
+        public void AbortTransaction(CancellationToken cancellationToken = default)
+            => ((ICoreSessionInternal)this).AbortTransaction(null, cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void ICoreSessionInternal.AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken)
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -192,12 +195,15 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
-        public async Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task AbortTransactionAsync(CancellationToken cancellationToken = default)
+            => ((ICoreSessionInternal)this).AbortTransactionAsync(null, cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        async Task ICoreSessionInternal.AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken)
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -292,12 +298,15 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
-        public void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken))
+        public void CommitTransaction(CancellationToken cancellationToken = default)
+            => ((ICoreSessionInternal)this).CommitTransaction(null, cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        void ICoreSessionInternal.CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken)
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
-            // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -329,12 +338,15 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
-        public async Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+            => ((ICoreSessionInternal)this).CommitTransactionAsync(null, cancellationToken);
+
+        // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
+        async Task ICoreSessionInternal.CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken)
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
 
-            // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), cancellationToken);
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -562,6 +574,9 @@ namespace MongoDB.Driver.Core.Bindings
                 return await operation.ExecuteAsync(operationContext, binding).ConfigureAwait(false);
             }
         }
+
+        private TimeSpan? GetTimeout(TimeSpan? timeout)
+            => timeout ?? _options.DefaultTransactionOptions?.Timeout;
 
         private TransactionOptions GetEffectiveTransactionOptions(TransactionOptions transactionOptions)
         {

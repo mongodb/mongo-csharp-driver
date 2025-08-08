@@ -13,22 +13,69 @@
  * limitations under the License.
  */
 
-namespace MongoDB.Driver;
+using System.Threading;
+using System.Threading.Tasks;
 
-internal static class IClientSessionExtensions
+namespace MongoDB.Driver
 {
-    public static ReadPreference GetEffectiveReadPreference(this IClientSession session, ReadPreference defaultReadPreference)
+    // TODO: CSOT: Make it public when CSOT will be ready for GA
+    internal static class IClientSessionExtensions
     {
-        if (session.IsInTransaction)
+        // TODO: Merge these extension methods in IClientSession interface on major release
+        public static void AbortTransaction(this IClientSession session, AbortTransactionOptions options, CancellationToken cancellationToken = default)
         {
-            var transactionReadPreference = session.WrappedCoreSession.CurrentTransaction.TransactionOptions?.ReadPreference;
-            if (transactionReadPreference != null)
+            if (options?.Timeout == null || session.Options.DefaultTransactionOptions?.Timeout == options.Timeout)
             {
-                return transactionReadPreference;
+                session.AbortTransaction(cancellationToken);
+                return;
             }
+
+            ((IClientSessionInternal)session).AbortTransaction(options, cancellationToken);
         }
 
-        return defaultReadPreference ?? ReadPreference.Primary;
+        public static Task AbortTransactionAsync(this IClientSession session, AbortTransactionOptions options, CancellationToken cancellationToken = default)
+        {
+            if (options?.Timeout == null || session.Options.DefaultTransactionOptions?.Timeout == options.Timeout)
+            {
+                return session.AbortTransactionAsync(cancellationToken);
+            }
+
+            return ((IClientSessionInternal)session).AbortTransactionAsync(options, cancellationToken);
+        }
+
+        public static void CommitTransaction(this IClientSession session, CommitTransactionOptions options, CancellationToken cancellationToken = default)
+        {
+            if (options?.Timeout == null || session.Options.DefaultTransactionOptions?.Timeout == options.Timeout)
+            {
+                session.CommitTransaction(cancellationToken);
+                return;
+            }
+
+            ((IClientSessionInternal)session).CommitTransaction(options, cancellationToken);
+        }
+
+        public static Task CommitTransactionAsync(this IClientSession session, CommitTransactionOptions options, CancellationToken cancellationToken = default)
+        {
+            if (options?.Timeout == null || session.Options.DefaultTransactionOptions?.Timeout == options.Timeout)
+            {
+                return session.CommitTransactionAsync(cancellationToken);
+            }
+
+            return ((IClientSessionInternal)session).CommitTransactionAsync(options, cancellationToken);
+        }
+
+        internal static ReadPreference GetEffectiveReadPreference(this IClientSession session, ReadPreference defaultReadPreference)
+        {
+            if (session.IsInTransaction)
+            {
+                var transactionReadPreference = session.WrappedCoreSession.CurrentTransaction.TransactionOptions?.ReadPreference;
+                if (transactionReadPreference != null)
+                {
+                    return transactionReadPreference;
+                }
+            }
+
+            return defaultReadPreference ?? ReadPreference.Primary;
+        }
     }
 }
-
