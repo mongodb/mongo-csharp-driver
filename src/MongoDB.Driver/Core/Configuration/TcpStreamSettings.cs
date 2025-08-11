@@ -206,16 +206,15 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> sendBufferSize = default(Optional<int>),
             Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
-        {
-            return new TcpStreamSettings(
-                addressFamily: addressFamily.WithDefault(_addressFamily),
-                connectTimeout: connectTimeout.WithDefault(_connectTimeout),
-                readTimeout: readTimeout.WithDefault(_readTimeout),
-                receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
-                sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
-                socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
-                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
-        }
+        => WithSocks5Settings(
+            addressFamily: addressFamily,
+            connectTimeout: connectTimeout,
+            readTimeout: readTimeout,
+            receiveBufferSize: receiveBufferSize,
+            sendBufferSize: sendBufferSize,
+            socketConfigurator: socketConfigurator,
+            writeTimeout: writeTimeout,
+            socks5ProxySettings: _socks5ProxySettings);
 
         /// <summary>
         /// Returns a new TcpStreamSettings instance with some settings changed.
