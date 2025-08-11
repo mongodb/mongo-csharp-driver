@@ -196,10 +196,40 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="receiveBufferSize">Size of the receive buffer.</param>
         /// <param name="sendBufferSize">Size of the send buffer.</param>
         /// <param name="socketConfigurator">The socket configurator.</param>
-        /// <param name="socks5ProxySettings">The SOCKS5 proxy settings.</param>
         /// <param name="writeTimeout">The write timeout.</param>
         /// <returns>A new TcpStreamSettings instance.</returns>
         public TcpStreamSettings With(
+            Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
+            Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
+            Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
+            Optional<int> receiveBufferSize = default(Optional<int>),
+            Optional<int> sendBufferSize = default(Optional<int>),
+            Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
+            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
+        {
+            return new TcpStreamSettings(
+                addressFamily: addressFamily.WithDefault(_addressFamily),
+                connectTimeout: connectTimeout.WithDefault(_connectTimeout),
+                readTimeout: readTimeout.WithDefault(_readTimeout),
+                receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
+                sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
+                socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
+                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
+        }
+
+        /// <summary>
+        /// Returns a new TcpStreamSettings instance with some settings changed.
+        /// </summary>
+        /// <param name="addressFamily">The address family.</param>
+        /// <param name="connectTimeout">The connect timeout.</param>
+        /// <param name="readTimeout">The read timeout.</param>
+        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
+        /// <param name="sendBufferSize">Size of the send buffer.</param>
+        /// <param name="socketConfigurator">The socket configurator.</param>
+        /// <param name="socks5ProxySettings">The SOCKS5 proxy settings.</param>
+        /// <param name="writeTimeout">The write timeout.</param>
+        /// <returns>A new TcpStreamSettings instance.</returns>
+        public TcpStreamSettings WithSocks5Settings(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
             Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
             Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
