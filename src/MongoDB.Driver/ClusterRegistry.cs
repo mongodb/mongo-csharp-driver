@@ -166,7 +166,7 @@ namespace MongoDB.Driver
                 settings = settings.With(addressFamily: AddressFamily.InterNetworkV6);
             }
 
-            return settings.With(
+            return settings.WithSocks5Settings(
                 connectTimeout: clusterKey.ConnectTimeout,
                 readTimeout: clusterKey.SocketTimeout,
                 receiveBufferSize: clusterKey.ReceiveBufferSize,
