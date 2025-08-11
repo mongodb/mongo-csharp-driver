@@ -76,11 +76,22 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
         RequireServer.Check().Tls(useTls);
         RequireEnvironment.Check().EnvironmentVariable("SOCKS5_PROXY_SERVERS_ENABLED");
 
-        //Convert the hosts to a format that can be used in the connection string (host:port), and join them into a string.
-        var hosts = CoreTestConfiguration.ConnectionString.Hosts;
-        var stringHosts = string.Join(",", hosts.Select(h => h.GetHostAndPort()).Select( h => $"{h.Host}:{h.Port}"));
+        var isMappedHost = connectionString.Contains("<mappedhost>");
 
-        connectionString = connectionString.Replace("<mappedhost>", "localhost:12345").Replace("<replicaset>", stringHosts);
+        List<(string Host, int Port)> actualHosts;
+
+        if (isMappedHost)
+        {
+            connectionString = connectionString.Replace("<mappedhost>", "localhost:12345");
+            actualHosts = [("localhost", 12345)];
+        }
+        else
+        {
+            //Convert the hosts to a format that can be used in the connection string (host:port), and join them into a string.
+            actualHosts = CoreTestConfiguration.ConnectionString.Hosts.Select(h => h.GetHostAndPort()).ToList();
+            var stringHosts = string.Join(",", actualHosts.Select( h => $"{h.Host}:{h.Port}"));
+            connectionString = connectionString.Replace("<replicaset>", stringHosts);
+        }
 
         var eventList = new List<CommandStartedEvent>();
         var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
@@ -103,7 +114,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
                 : database.RunCommand<BsonDocument>(command);
 
             Assert.NotEmpty(result);
-            //AssertEventListDoesNotContainSocks5Proxy(eventList);
+            AssertEventListDoesNotContainSocks5Proxy(actualHosts, eventList);
         }
         else
         {
@@ -115,12 +126,19 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private void AssertEventListDoesNotContainSocks5Proxy(List<CommandStartedEvent> eventList)
+    private static void AssertEventListDoesNotContainSocks5Proxy(List<(string Host, int Port)> hosts, List<CommandStartedEvent> eventList)
     {
-        foreach (var eventItemString in eventList.Select(eventItem => eventItem.ToString()))
+        var proxyHosts = new List<(string Host, int Port)>
         {
-            Assert.DoesNotContain("localhost:1080", eventItemString);
-            Assert.DoesNotContain("localhost:1081", eventItemString);
-        }
+            ("localhost", 1080),
+            ("localhost", 1081)
+        };
+
+        var endPointsSeen = eventList
+            .Select(e => e.ConnectionId.ServerId.EndPoint.GetHostAndPort())
+            .ToList();
+
+        Assert.DoesNotContain(endPointsSeen, proxyHosts.Contains);
+        Assert.Contains(endPointsSeen, hosts.Contains);
     }
 }
