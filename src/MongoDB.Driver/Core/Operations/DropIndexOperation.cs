@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
             return new BsonDocument
             {
                 { "dropIndexes", _collectionNamespace.CollectionName },

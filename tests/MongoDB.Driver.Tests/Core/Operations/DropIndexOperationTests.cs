@@ -195,24 +195,37 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expectedResult_when_WriteConcern_is_set(
-            [Values(null, 1, 2)]
-            int? w)
+            [Values(null, 1, 2)] int? w,
+            [Values(null, 100)] int? wtimeout,
+            [Values(true, false)] bool hasOperationTimeout)
         {
             var indexName = "x_1";
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+            if (wtimeout.HasValue)
+            {
+                writeConcern ??= WriteConcern.Acknowledged;
+                writeConcern = writeConcern.With(wTimeout: TimeSpan.FromMilliseconds(wtimeout.Value));
+            }
+
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings)
             {
                 WriteConcern = writeConcern
             };
+            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
             var session = OperationTestHelper.CreateSession();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session);
+            var result = subject.CreateCommand(operationContext, session);
 
+            var expectedWriteConcern = writeConcern?.ToBsonDocument();
+            if (hasOperationTimeout)
+            {
+                expectedWriteConcern?.Remove("wtimeout");
+            }
             var expectedResult = new BsonDocument
             {
                 { "dropIndexes", _collectionNamespace.CollectionName },
                 { "index", indexName },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
+                { "writeConcern", () => expectedWriteConcern, w.HasValue || (wtimeout.HasValue && !hasOperationTimeout) }
             };
             result.Should().Be(expectedResult);
         }

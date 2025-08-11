@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 command.Add("bypassDocumentValidation", _bypassDocumentValidation.Value);
             }
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
             if (writeConcern != null)
             {
                 command.Add("writeConcern", writeConcern.ToBsonDocument());
