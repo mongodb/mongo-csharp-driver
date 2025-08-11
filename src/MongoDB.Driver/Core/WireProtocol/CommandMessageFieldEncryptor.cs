@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -41,17 +40,23 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // public static methods
-        public CommandRequestMessage EncryptFields(string databaseName, CommandRequestMessage unencryptedRequestMessage, CancellationToken cancellationToken)
+        public CommandRequestMessage EncryptFields(OperationContext operationContext, string databaseName, CommandRequestMessage unencryptedRequestMessage)
         {
+            operationContext.ThrowIfTimedOutOrCanceled();
             var unencryptedCommandBytes = GetUnencryptedCommandBytes(unencryptedRequestMessage);
-            var encryptedCommandBytes = _commandFieldEncryptor.EncryptFields(databaseName, unencryptedCommandBytes, cancellationToken);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var encryptedCommandBytes = _commandFieldEncryptor.EncryptFields(databaseName, unencryptedCommandBytes, operationContext.CombinedCancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
             return CreateEncryptedRequestMessage(unencryptedRequestMessage, encryptedCommandBytes);
         }
 
-        public async Task<CommandRequestMessage> EncryptFieldsAsync(string databaseName, CommandRequestMessage unencryptedRequestMessage, CancellationToken cancellationToken)
+        public async Task<CommandRequestMessage> EncryptFieldsAsync(OperationContext operationContext, string databaseName, CommandRequestMessage unencryptedRequestMessage)
         {
+            operationContext.ThrowIfTimedOutOrCanceled();
             var unencryptedCommandBytes = GetUnencryptedCommandBytes(unencryptedRequestMessage);
-            var encryptedCommandBytes = await _commandFieldEncryptor.EncryptFieldsAsync(databaseName, unencryptedCommandBytes, cancellationToken).ConfigureAwait(false);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var encryptedCommandBytes = await _commandFieldEncryptor.EncryptFieldsAsync(databaseName, unencryptedCommandBytes, operationContext.CombinedCancellationToken).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
             return CreateEncryptedRequestMessage(unencryptedRequestMessage, encryptedCommandBytes);
         }
 
