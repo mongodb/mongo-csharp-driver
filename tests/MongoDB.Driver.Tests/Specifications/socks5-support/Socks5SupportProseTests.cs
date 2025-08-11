@@ -21,6 +21,8 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -62,13 +64,6 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    /* TODO:
-     * - check if apiCompat is ok
-     * - Drivers MUST verify for at least one of the connection strings marked (succeeds)
-     * that command monitoring events do not reference the SOCKS5 proxy host where the MongoDB service server/port are referenced.
-     *
-     */
-
     [Theory]
     [MemberData(nameof(GetTestCombinations))]
     public async Task TestConnectionStrings(string id, string connectionString, bool expectedResult, bool useTls, bool async)
@@ -103,8 +98,8 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
         };
 
         var client = new MongoClient(mongoClientSettings);
-
         var database = client.GetDatabase("admin");
+
         var command = new BsonDocument("hello", 1);
 
         if (expectedResult)
