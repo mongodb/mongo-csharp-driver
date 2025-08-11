@@ -18,10 +18,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -83,9 +82,14 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
 
         connectionString = connectionString.Replace("<mappedhost>", "localhost:12345").Replace("<replicaset>", stringHosts);
 
+        var eventList = new List<CommandStartedEvent>();
         var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
         mongoClientSettings.UseTls = useTls;
         mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(1.5);
+        mongoClientSettings.ClusterConfigurator = cb =>
+        {
+            cb.Subscribe<CommandStartedEvent>(eventList.Add);
+        };
 
         var client = new MongoClient(mongoClientSettings);
 
@@ -99,6 +103,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
                 : database.RunCommand<BsonDocument>(command);
 
             Assert.NotEmpty(result);
+            //AssertEventListDoesNotContainSocks5Proxy(eventList);
         }
         else
         {
@@ -107,6 +112,15 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
                 : Record.Exception(() => database.RunCommand<BsonDocument>(command));
 
             Assert.IsType<TimeoutException>(exception);
+        }
+    }
+
+    private void AssertEventListDoesNotContainSocks5Proxy(List<CommandStartedEvent> eventList)
+    {
+        foreach (var eventItemString in eventList.Select(eventItem => eventItem.ToString()))
+        {
+            Assert.DoesNotContain("localhost:1080", eventItemString);
+            Assert.DoesNotContain("localhost:1081", eventItemString);
         }
     }
 }

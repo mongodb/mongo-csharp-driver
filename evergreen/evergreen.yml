@@ -1079,7 +1079,7 @@ functions:
           # Read the MongoDB URI connection string and extract an arbitrary member's host:port
           HOST_PORT=$(echo "$MONGODB_URI" | sed 's|mongodb://||' | cut -d',' -f1)
 
-          export MAP_ARG="localhost:12345 to $HOST_PORT"
+          MAP_ARG="localhost:12345 to $HOST_PORT"
           python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1080 --auth username:p4ssw0rd &
           python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1081
 
