@@ -2590,7 +2590,6 @@ buildvariants:
     - name: atlas-search-index-helpers-task-group
 
 # Socks5 Proxy tests
-
 - matrix_name: "socks5-proxy-tests-linux"
   matrix_spec: { os: "ubuntu-2004", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
   display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
@@ -2614,7 +2613,6 @@ buildvariants:
     - name: test-socks5-proxy-net60
 
 # CSFLE tests
-
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
   matrix_spec: { os: "windows-64", ssl: "nossl", version: ["4.2", "4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
