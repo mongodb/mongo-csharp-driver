@@ -1685,13 +1685,7 @@ namespace MongoDB.Driver
 
             if (_sort != null)
             {
-                var newArgs = args.WithNewDocumentType((IBsonSerializer<TItem>)itemSerializer);
-
-                var renderedSort = _sort is NoFieldDirectionalSortDefinition<TItem>
-                    ? _sort.Render(newArgs)["direction"]
-                    : _sort.Render(newArgs);
-
-                document["$push"][renderedField.FieldName]["$sort"] = renderedSort;
+                document["$push"][renderedField.FieldName]["$sort"] = _sort.RenderAsBsonValue(args.WithNewDocumentType((IBsonSerializer<TItem>)itemSerializer));
             }
 
             return document;

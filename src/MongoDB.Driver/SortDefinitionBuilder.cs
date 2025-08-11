@@ -133,10 +133,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a value ascending sort.
         /// </summary>
-        /// <returns>An ascending sort.</returns>
+        /// <returns>A value ascending sort.</returns>
         public SortDefinition<TDocument> Ascending()
         {
-            return new NoFieldDirectionalSortDefinition<TDocument>(SortDirection.Ascending);
+            return new ValueDirectionalSortDefinition<TDocument>(SortDirection.Ascending);
         }
 
         /// <summary>
@@ -182,10 +182,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a value descending sort.
         /// </summary>
-        /// <returns>A descending sort.</returns>
+        /// <returns>A value descending sort.</returns>
         public SortDefinition<TDocument> Descending()
         {
-            return new NoFieldDirectionalSortDefinition<TDocument>(SortDirection.Descending);
+            return new ValueDirectionalSortDefinition<TDocument>(SortDirection.Descending);
         }
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace MongoDB.Driver
         {
             _sorts = Ensure.IsNotNull(sorts, nameof(sorts)).ToList();
 
-            if (_sorts.Any(sort => sort is NoFieldDirectionalSortDefinition<TDocument>))
+            if (_sorts.Any(sort => sort is ValueDirectionalSortDefinition<TDocument>))
             {
                 throw new InvalidOperationException("Value-based sort cannot be combined with other sorts. When sorting by the entire element value, no other sorting criteria can be applied.");
             }
@@ -295,42 +295,25 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(args);
 
-            BsonValue value;
-            switch (_direction)
-            {
-                case SortDirection.Ascending:
-                    value = 1;
-                    break;
-                case SortDirection.Descending:
-                    value = -1;
-                    break;
-                default:
-                    throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".");
-            }
-
-            return new BsonDocument(renderedField.FieldName, value);
+            return new BsonDocument(renderedField.FieldName, _direction.ToBsonValue());
         }
     }
 
-    internal sealed class NoFieldDirectionalSortDefinition<TDocument> : SortDefinition<TDocument>
+    internal sealed class ValueDirectionalSortDefinition<TDocument> : SortDefinition<TDocument>
     {
         private readonly SortDirection _direction;
 
-        public NoFieldDirectionalSortDefinition(SortDirection direction)
+        public ValueDirectionalSortDefinition(SortDirection direction)
         {
             _direction = direction;
         }
 
+        internal override BsonValue RenderAsBsonValue(RenderArgs<TDocument> args) => _direction.ToBsonValue();
+
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            BsonValue value = _direction switch
-            {
-                SortDirection.Ascending => 1,
-                SortDirection.Descending => -1,
-                _ => throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".")
-            };
-
-            return new BsonDocument("direction",  value);
+            throw new InvalidOperationException(
+                "Value-based sort cannot be rendered as a document. You might be trying to use a value-based sort where a field-based sort is expected.");
         }
     }
 }

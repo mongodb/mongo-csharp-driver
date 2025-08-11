@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Ascending_no_field()
+        public void Ascending_value()
         {
             var subject = CreateSubject<BsonDocument>();
 
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Descending_no_field()
+        public void Descending_value()
         {
             var subject = CreateSubject<BsonDocument>();
 
