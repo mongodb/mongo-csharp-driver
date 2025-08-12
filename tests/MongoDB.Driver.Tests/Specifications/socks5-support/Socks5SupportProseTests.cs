@@ -35,6 +35,16 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
 {
     public static IEnumerable<object[]> GetTestCombinations()
     {
+        /* From the Socks5 Proxy Support Prose Tests:
+         *
+         * Drivers MUST create a MongoClient for each of these connection strings, and attempt to run a hello command using each client.
+         * The operation must succeed for table entries marked (succeeds) and fail for table entries marked (fails).
+         * The connection strings MUST all be accepted as valid connection strings.
+         *
+         * Drivers MUST run variants of these tests in which the proxy options are substituted for MongoClient options -- This is not done as it would mostly be a repetition of the connection string tests.
+         *
+         * Drivers MUST verify for at least one of the connection strings marked (succeeds) that command monitoring events do not reference the SOCKS5 proxy host where the MongoDB service server/port are referenced.
+         */
         var testCases = new (string ConnectionString, bool ExpectedResult)[]
         {
             ("mongodb://<mappedhost>/?proxyHost=localhost&proxyPort=1080&directConnection=true", false),
@@ -77,6 +87,8 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
 
         if (isMappedHost)
         {
+            //<mappedhost> is always replaced with localhost:12345, and it's used to verify that the test proxy server is actually used.
+            //Internally localhost:12345 is mapped to the actual hosts by the test proxy server.
             connectionString = connectionString.Replace("<mappedhost>", "localhost:12345");
             actualHosts = [("localhost", 12345)];
         }
@@ -90,6 +102,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
 
         var eventList = new List<CommandStartedEvent>();
         var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
+        mongoClientSettings.ClusterSource = DisposingClusterSource.Instance;
         mongoClientSettings.UseTls = useTls;
         mongoClientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(1.5);
         mongoClientSettings.ClusterConfigurator = cb =>
@@ -97,7 +110,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
             cb.Subscribe<CommandStartedEvent>(eventList.Add);
         };
 
-        var client = new MongoClient(mongoClientSettings);
+        using var client = new MongoClient(mongoClientSettings);
         var database = client.GetDatabase("admin");
 
         var command = new BsonDocument("hello", 1);
@@ -109,7 +122,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
                 : database.RunCommand<BsonDocument>(command);
 
             Assert.NotEmpty(result);
-            AssertEventListDoesNotContainSocks5Proxy(actualHosts, eventList);
+            AssertEventListContainsCorrectEndpoints(actualHosts, eventList);
         }
         else
         {
@@ -121,7 +134,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    private static void AssertEventListDoesNotContainSocks5Proxy(List<(string Host, int Port)> hosts, List<CommandStartedEvent> eventList)
+    private static void AssertEventListContainsCorrectEndpoints(List<(string Host, int Port)> hosts, List<CommandStartedEvent> eventList)
     {
         var proxyHosts = new List<(string Host, int Port)>
         {
