@@ -1043,7 +1043,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _minPoolSize = ParseInt32(name, value);
                     break;
                 case "proxyhost":
-                    if (!string.IsNullOrEmpty(_proxyHost))
+                    if (_proxyHost != null)
                     {
                         throw new MongoConfigurationException("Multiple proxyHost options are not allowed.");
                     }
@@ -1068,7 +1068,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _proxyPort = proxyPortValue;
                     break;
                 case "proxyusername":
-                    if (!string.IsNullOrEmpty(_proxyUsername))
+                    if (_proxyUsername != null)
                     {
                         throw new MongoConfigurationException("Multiple proxyUsername options are not allowed.");
                     }
@@ -1080,7 +1080,7 @@ namespace MongoDB.Driver.Core.Configuration
                     }
                     break;
                 case "proxypassword":
-                    if (!string.IsNullOrEmpty(_proxyPassword))
+                    if (_proxyPassword != null)
                     {
                         throw new MongoConfigurationException("Multiple proxyPassword options are not allowed.");
                     }
