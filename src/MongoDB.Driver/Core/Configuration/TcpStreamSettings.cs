@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly int _receiveBufferSize;
         private readonly int _sendBufferSize;
         private readonly Action<Socket> _socketConfigurator;
-        private readonly Socks5ProxySettings _socks5ProxySettings;
         private readonly TimeSpan? _writeTimeout;
 
         // constructors
@@ -65,30 +64,6 @@ namespace MongoDB.Driver.Core.Configuration
             _sendBufferSize = Ensure.IsGreaterThanZero(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
             _socketConfigurator = socketConfigurator.WithDefault(null);
             _writeTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(writeTimeout.WithDefault(null), "writeTimeout");
-            _socks5ProxySettings = socks5ProxySettings.WithDefault(null);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TcpStreamSettings"/> class.
-        /// </summary>
-        /// <param name="addressFamily">The address family.</param>
-        /// <param name="connectTimeout">The connect timeout.</param>
-        /// <param name="readTimeout">The read timeout.</param>
-        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
-        /// <param name="sendBufferSize">Size of the send buffer.</param>
-        /// <param name="socketConfigurator">The socket configurator.</param>
-        /// <param name="writeTimeout">The write timeout.</param>
-        public TcpStreamSettings(
-            Optional<AddressFamily> addressFamily,
-            Optional<TimeSpan> connectTimeout,
-            Optional<TimeSpan?> readTimeout,
-            Optional<int> receiveBufferSize,
-            Optional<int> sendBufferSize,
-            Optional<Action<Socket>> socketConfigurator,
-            Optional<TimeSpan?> writeTimeout)
-            :this(addressFamily, connectTimeout, readTimeout, receiveBufferSize, sendBufferSize, socketConfigurator, writeTimeout, null)
-        {
-
         }
 
         internal TcpStreamSettings(TcpStreamSettings other)
@@ -99,7 +74,6 @@ namespace MongoDB.Driver.Core.Configuration
             _receiveBufferSize = other.ReceiveBufferSize;
             _sendBufferSize = other.SendBufferSize;
             _socketConfigurator = other.SocketConfigurator;
-            _socks5ProxySettings = other._socks5ProxySettings;
             _writeTimeout = other.WriteTimeout;
         }
 
@@ -171,11 +145,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the SOCKS5 proxy settings.
-        /// </summary>
-        public Socks5ProxySettings Socks5ProxySettings => _socks5ProxySettings;
-
-        /// <summary>
         /// Gets the write timeout.
         /// </summary>
         /// <value>
@@ -199,44 +168,13 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="writeTimeout">The write timeout.</param>
         /// <returns>A new TcpStreamSettings instance.</returns>
         public TcpStreamSettings With(
-            Optional<AddressFamily> addressFamily,
-            Optional<TimeSpan> connectTimeout,
-            Optional<TimeSpan?> readTimeout,
-            Optional<int> receiveBufferSize,
-            Optional<int> sendBufferSize,
-            Optional<Action<Socket>> socketConfigurator,
-            Optional<TimeSpan?> writeTimeout)
-        => With(
-            addressFamily: addressFamily,
-            connectTimeout: connectTimeout,
-            readTimeout: readTimeout,
-            receiveBufferSize: receiveBufferSize,
-            sendBufferSize: sendBufferSize,
-            socketConfigurator: socketConfigurator,
-            writeTimeout: writeTimeout,
-            socks5ProxySettings: _socks5ProxySettings);
-
-        /// <summary>
-        /// Returns a new TcpStreamSettings instance with some settings changed.
-        /// </summary>
-        /// <param name="addressFamily">The address family.</param>
-        /// <param name="connectTimeout">The connect timeout.</param>
-        /// <param name="readTimeout">The read timeout.</param>
-        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
-        /// <param name="sendBufferSize">Size of the send buffer.</param>
-        /// <param name="socketConfigurator">The socket configurator.</param>
-        /// <param name="socks5ProxySettings">The SOCKS5 proxy settings.</param>
-        /// <param name="writeTimeout">The write timeout.</param>
-        /// <returns>A new TcpStreamSettings instance.</returns>
-        public TcpStreamSettings With(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
             Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
             Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
             Optional<int> receiveBufferSize = default(Optional<int>),
             Optional<int> sendBufferSize = default(Optional<int>),
             Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
-            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>),
-            Optional<Socks5ProxySettings> socks5ProxySettings = default(Optional<Socks5ProxySettings>))
+            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
             return new TcpStreamSettings(
                 addressFamily: addressFamily.WithDefault(_addressFamily),
@@ -245,7 +183,6 @@ namespace MongoDB.Driver.Core.Configuration
                 receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
                 sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
                 socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
-                socks5ProxySettings: socks5ProxySettings.WithDefault(_socks5ProxySettings),
                 writeTimeout: writeTimeout.WithDefault(_writeTimeout));
         }
     }
