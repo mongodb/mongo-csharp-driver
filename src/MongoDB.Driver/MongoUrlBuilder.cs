@@ -468,11 +468,11 @@ namespace MongoDB.Driver
             get => _proxyPort;
             set
             {
-                if (value is < 0 or > 65535)
+                if (value is null)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), "ProxyPort must be between 0 and 65535.");
+                    throw new ArgumentNullException(nameof(ProxyPort));
                 }
-                _proxyPort = value;
+                _proxyPort = Ensure.IsBetween(value.Value, 1, 65535, nameof(ProxyPort));
             }
         }
 
