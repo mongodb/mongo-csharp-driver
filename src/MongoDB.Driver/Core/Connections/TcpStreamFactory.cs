@@ -53,24 +53,40 @@ namespace MongoDB.Driver.Core.Connections
             var targetEndpoint = useProxy ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
 
 #if NET472
-            var socket = CreateSocket(targetEndpoint);
-            Connect(socket, targetEndpoint, cancellationToken);
-            var stream = CreateNetworkStream(socket);
-            if (useProxy)
-            {
-                Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
-            }
+            Socket socket = null;
+            NetworkStream stream = null;
 
-            return stream;
+            try
+            {
+                socket = CreateSocket(targetEndpoint);
+                Connect(socket, targetEndpoint, cancellationToken);
+                stream = CreateNetworkStream(socket);
+                if (useProxy)
+                {
+                    Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
+                }
+
+                return stream;
+            }
+            catch
+            {
+                socket?.Dispose();
+                stream?.Dispose();
+
+                throw;
+            }
 #else
             var resolved = ResolveEndPoints(targetEndpoint);
-            for (int i = 0; i < resolved.Length; i++)
+            for (var i = 0; i < resolved.Length; i++)
             {
+                Socket socket = null;
+                NetworkStream stream = null;
+
                 try
                 {
-                    var socket = CreateSocket(resolved[i]);
+                    socket = CreateSocket(resolved[i]);
                     Connect(socket, resolved[i], cancellationToken);
-                    var stream = CreateNetworkStream(socket);
+                    stream = CreateNetworkStream(socket);
 
                     if (useProxy)
                     {
@@ -81,6 +97,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch
                 {
+                    socket?.Dispose();
+                    stream?.Dispose();
+
                     // if we have tried all of them and still failed,
                     // then blow up.
                     if (i == resolved.Length - 1)
