@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Text;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
@@ -86,8 +87,13 @@ public sealed class Socks5ProxySettings
     // This is a convenience method to create Socks5ProxySettings from the connection string parameters.
     internal static Socks5ProxySettings Create(string host, int? port, string username, string password)
     {
+        if (string.IsNullOrEmpty(username) != string.IsNullOrEmpty(password))
+        {
+            throw new ArgumentException("Both username and password must be provided or neither should be provided.");
+        }
+
         var authentication =
-            !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password)
+            !string.IsNullOrEmpty(username)
                 ? Socks5AuthenticationSettings.UsernamePassword(username, password)
                 : Socks5AuthenticationSettings.None;
 

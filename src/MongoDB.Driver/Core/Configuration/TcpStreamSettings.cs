@@ -199,14 +199,14 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="writeTimeout">The write timeout.</param>
         /// <returns>A new TcpStreamSettings instance.</returns>
         public TcpStreamSettings With(
-            Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
-            Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
-            Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
-            Optional<int> receiveBufferSize = default(Optional<int>),
-            Optional<int> sendBufferSize = default(Optional<int>),
-            Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
-            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
-        => WithSocks5Settings(
+            Optional<AddressFamily> addressFamily,
+            Optional<TimeSpan> connectTimeout,
+            Optional<TimeSpan?> readTimeout,
+            Optional<int> receiveBufferSize,
+            Optional<int> sendBufferSize,
+            Optional<Action<Socket>> socketConfigurator,
+            Optional<TimeSpan?> writeTimeout)
+        => With(
             addressFamily: addressFamily,
             connectTimeout: connectTimeout,
             readTimeout: readTimeout,
@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="socks5ProxySettings">The SOCKS5 proxy settings.</param>
         /// <param name="writeTimeout">The write timeout.</param>
         /// <returns>A new TcpStreamSettings instance.</returns>
-        public TcpStreamSettings WithSocks5Settings(
+        public TcpStreamSettings With(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
             Optional<TimeSpan> connectTimeout = default(Optional<TimeSpan>),
             Optional<TimeSpan?> readTimeout = default(Optional<TimeSpan?>),
@@ -238,15 +238,17 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>),
             Optional<Socks5ProxySettings> socks5ProxySettings = default(Optional<Socks5ProxySettings>))
         {
-            return new TcpStreamSettings(
-                addressFamily: addressFamily.WithDefault(_addressFamily),
-                connectTimeout: connectTimeout.WithDefault(_connectTimeout),
-                readTimeout: readTimeout.WithDefault(_readTimeout),
-                receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
-                sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
-                socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
-                socks5ProxySettings: socks5ProxySettings.WithDefault(_socks5ProxySettings),
-                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
+            return With(addressFamily, connectTimeout, readTimeout, receiveBufferSize, sendBufferSize, socketConfigurator, writeTimeout);
+
+            // return new TcpStreamSettings(
+            //     addressFamily: addressFamily.WithDefault(_addressFamily),
+            //     connectTimeout: connectTimeout.WithDefault(_connectTimeout),
+            //     readTimeout: readTimeout.WithDefault(_readTimeout),
+            //     receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
+            //     sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
+            //     socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
+            //     socks5ProxySettings: socks5ProxySettings.WithDefault(_socks5ProxySettings),
+            //     writeTimeout: writeTimeout.WithDefault(_writeTimeout));
         }
     }
 }
