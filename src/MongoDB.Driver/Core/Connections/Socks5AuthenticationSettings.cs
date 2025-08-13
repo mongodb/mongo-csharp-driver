@@ -40,25 +40,19 @@ public abstract class Socks5AuthenticationSettings
     /// <summary>
     /// Represents settings for no authentication in SOCKS5.
     /// </summary>
-    public sealed class NoAuthenticationSettings : Socks5AuthenticationSettings
+    internal sealed class NoAuthenticationSettings : Socks5AuthenticationSettings
     {
         /// <inheritdoc />
-        public override bool Equals(object obj)
-        {
-            return obj is NoAuthenticationSettings;
-        }
+        public override bool Equals(object obj) => obj is NoAuthenticationSettings;
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return 1;
-        }
+        public override int GetHashCode() => 0;
     }
 
     /// <summary>
     /// Represents settings for username and password authentication in SOCKS5.
     /// </summary>
-    public sealed class UsernamePasswordAuthenticationSettings : Socks5AuthenticationSettings
+    internal sealed class UsernamePasswordAuthenticationSettings : Socks5AuthenticationSettings
     {
         /// <summary>
         /// Gets the username for authentication.
@@ -88,12 +82,10 @@ public abstract class Socks5AuthenticationSettings
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return new Hasher()
+        public override int GetHashCode() =>
+            new Hasher()
                 .Hash(Username)
                 .Hash(Password)
                 .GetHashCode();
-        }
     }
 }
