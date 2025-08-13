@@ -374,10 +374,10 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxPoolSize.Should().Be(null);
             subject.MinPoolSize.Should().Be(null);
             subject.Password.Should().BeNull();
-            subject.ProxyHost.Should().Be(null);
+            subject.ProxyHost.Should().BeNull();
             subject.ProxyPort.Should().Be(null);
-            subject.ProxyPassword.Should().Be(null);
-            subject.ProxyUsername.Should().Be(null);
+            subject.ProxyPassword.Should().BeNull();
+            subject.ProxyUsername.Should().BeNull();
             subject.ReadConcernLevel.Should().BeNull();
             subject.ReadPreference.Should().BeNull();
             subject.ReadPreferenceTags.Should().BeNull();
