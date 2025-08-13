@@ -487,20 +487,7 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(args);
 
-            BsonValue value;
-            switch (_direction)
-            {
-                case SortDirection.Ascending:
-                    value = 1;
-                    break;
-                case SortDirection.Descending:
-                    value = -1;
-                    break;
-                default:
-                    throw new InvalidOperationException("Unknown value for " + typeof(SortDirection) + ".");
-            }
-
-            return new BsonDocument(renderedField.FieldName, value);
+            return new BsonDocument(renderedField.FieldName, _direction.Render());
         }
     }
 

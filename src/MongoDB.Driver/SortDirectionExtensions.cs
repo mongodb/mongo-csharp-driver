@@ -20,7 +20,7 @@ namespace MongoDB.Driver
 {
     internal static class SortDirectionExtensions
     {
-        internal static BsonValue ToBsonValue(this SortDirection direction)
+        internal static BsonValue Render(this SortDirection direction)
         {
             return direction switch
             {

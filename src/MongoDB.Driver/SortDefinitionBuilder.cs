@@ -295,7 +295,7 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(args);
 
-            return new BsonDocument(renderedField.FieldName, _direction.ToBsonValue());
+            return new BsonDocument(renderedField.FieldName, _direction.Render());
         }
     }
 
@@ -308,7 +308,7 @@ namespace MongoDB.Driver
             _direction = direction;
         }
 
-        internal override BsonValue RenderAsBsonValue(RenderArgs<TDocument> args) => _direction.ToBsonValue();
+        internal override BsonValue RenderAsBsonValue(RenderArgs<TDocument> args) => _direction.Render();
 
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
