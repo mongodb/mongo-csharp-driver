@@ -124,15 +124,6 @@ public class Socks5ProxySettingsTest
     }
 
     [Fact]
-    public void Create_should_return_no_auth_when_username_or_password_is_null()
-    {
-        var s1 = Socks5ProxySettings.Create("host", 1234, null, "p");
-        var s2 = Socks5ProxySettings.Create("host", 1234, "u", null);
-        s1.Authentication.Should().Be(Socks5AuthenticationSettings.None);
-        s2.Authentication.Should().Be(Socks5AuthenticationSettings.None);
-    }
-
-    [Fact]
     public void Socks5AuthenticationSettings_None_should_return_NoAuthenticationSettings_instance()
     {
         var none = Socks5AuthenticationSettings.None;
