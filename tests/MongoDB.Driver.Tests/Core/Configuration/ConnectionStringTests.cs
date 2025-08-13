@@ -1249,6 +1249,20 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyHost=localhost", "proxyHost")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyPort=2222&proxyPort=2222", "proxyPort")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyUsername=2222&proxyUsername=2222", "proxyUsername")]
+        [InlineData("mongodb://localhost?proxyHost=localhost&proxyPassword=2222&proxyPassword=2222", "proxyPassword")]
+        public void When_proxyParameter_is_specified_more_than_once(string connectionString, string parameterName)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain(parameterName);
+            exception.Message.Should().Contain("Multiple");
+        }
+
+        [Theory]
         [InlineData("mongodb://localhost?proxyPort=2020", "proxyPort")]
         [InlineData("mongodb://localhost?proxyUsername=user", "proxyUsername")]
         [InlineData("mongodb://localhost?proxyPassword=pasw", "proxyPassword")]
