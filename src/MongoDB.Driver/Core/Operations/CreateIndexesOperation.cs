@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
         internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var maxWireVersion = connectionDescription.MaxWireVersion;
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
             if (_commitQuorum != null)
             {
                 Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(maxWireVersion);

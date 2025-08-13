@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },

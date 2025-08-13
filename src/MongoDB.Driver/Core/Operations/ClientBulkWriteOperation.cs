@@ -55,9 +55,9 @@ namespace MongoDB.Driver.Core.Operations
             WriteConcern = options?.WriteConcern;
         }
 
-        protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
             return new BsonDocument
             {
                 { "bulkWrite", 1 },
