@@ -1102,7 +1102,7 @@ functions:
           TARGET="TestSocks5Proxy" \
             evergreen/run-tests.sh
           OS=${OS} \
-            evergreen/cleanup-test-resources.sh
+            evergreen/cleanup-proxy.sh
 pre:
   - func: fetch-source
   - func: prepare-resources
