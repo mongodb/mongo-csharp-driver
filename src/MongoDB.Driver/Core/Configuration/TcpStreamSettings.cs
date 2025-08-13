@@ -238,17 +238,15 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>),
             Optional<Socks5ProxySettings> socks5ProxySettings = default(Optional<Socks5ProxySettings>))
         {
-            return With(addressFamily, connectTimeout, readTimeout, receiveBufferSize, sendBufferSize, socketConfigurator, writeTimeout);
-
-            // return new TcpStreamSettings(
-            //     addressFamily: addressFamily.WithDefault(_addressFamily),
-            //     connectTimeout: connectTimeout.WithDefault(_connectTimeout),
-            //     readTimeout: readTimeout.WithDefault(_readTimeout),
-            //     receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
-            //     sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
-            //     socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
-            //     socks5ProxySettings: socks5ProxySettings.WithDefault(_socks5ProxySettings),
-            //     writeTimeout: writeTimeout.WithDefault(_writeTimeout));
+            return new TcpStreamSettings(
+                addressFamily: addressFamily.WithDefault(_addressFamily),
+                connectTimeout: connectTimeout.WithDefault(_connectTimeout),
+                readTimeout: readTimeout.WithDefault(_readTimeout),
+                receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
+                sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
+                socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
+                socks5ProxySettings: socks5ProxySettings.WithDefault(_socks5ProxySettings),
+                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
         }
     }
 }
