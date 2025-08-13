@@ -2028,6 +2028,7 @@ task_groups:
             - "AWS_SESSION_TOKEN"
           env:
             LAMBDA_STACK_NAME: dbx-csharp-lambda
+            MONGODB_VERSION: "7.0"
           args:
             - ${DRIVERS_TOOLS}/.evergreen/atlas/setup-atlas-cluster.sh
       - command: expansions.update
