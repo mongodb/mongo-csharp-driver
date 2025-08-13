@@ -48,23 +48,15 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var socks5ProxySettings = _settings.Socks5ProxySettings;
-            var useProxy = socks5ProxySettings != null;
-            var targetEndpoint = useProxy ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
-
 #if NET472
             Socket socket = null;
             NetworkStream stream = null;
 
             try
             {
-                socket = CreateSocket(targetEndpoint);
-                Connect(socket, targetEndpoint, cancellationToken);
+                socket = CreateSocket(endPoint);
+                Connect(socket, endPoint, cancellationToken);
                 stream = CreateNetworkStream(socket);
-                if (useProxy)
-                {
-                    Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
-                }
 
                 return stream;
             }
@@ -76,7 +68,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw;
             }
 #else
-            var resolved = ResolveEndPoints(targetEndpoint);
+            var resolved = ResolveEndPoints(endPoint);
             for (var i = 0; i < resolved.Length; i++)
             {
                 Socket socket = null;
@@ -87,12 +79,6 @@ namespace MongoDB.Driver.Core.Connections
                     socket = CreateSocket(resolved[i]);
                     Connect(socket, resolved[i], cancellationToken);
                     stream = CreateNetworkStream(socket);
-
-                    if (useProxy)
-                    {
-                        Socks5Helper.PerformSocks5Handshake(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken);
-                    }
-
                     return stream;
                 }
                 catch
@@ -116,39 +102,43 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var socks5ProxySettings = _settings.Socks5ProxySettings;
-            var useProxy = socks5ProxySettings != null;
-            var targetEndpoint = useProxy ? new DnsEndPoint(socks5ProxySettings.Host, socks5ProxySettings.Port) : endPoint;
-
 #if NET472
-            var socket = CreateSocket(targetEndpoint);
-            await ConnectAsync(socket, targetEndpoint, cancellationToken).ConfigureAwait(false);
-            var stream = CreateNetworkStream(socket);
-            if (useProxy)
-            {
-                await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken).ConfigureAwait(false);
-            }
+            Socket socket = null;
+            NetworkStream stream = null;
 
-            return stream;
+            try
+            {
+                socket = CreateSocket(endPoint);
+                await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
+                stream = CreateNetworkStream(socket);
+                return stream;
+            }
+            catch
+            {
+                socket?.Dispose();
+                stream?.Dispose();
+
+                throw;
+            }
 #else
-            var resolved = await ResolveEndPointsAsync(targetEndpoint).ConfigureAwait(false);
+            var resolved = await ResolveEndPointsAsync(endPoint).ConfigureAwait(false);
             for (int i = 0; i < resolved.Length; i++)
             {
+                Socket socket = null;
+                NetworkStream stream = null;
+
                 try
                 {
-                    var socket = CreateSocket(resolved[i]);
+                    socket = CreateSocket(resolved[i]);
                     await ConnectAsync(socket, resolved[i], cancellationToken).ConfigureAwait(false);
-                    var stream = CreateNetworkStream(socket);
-
-                    if (useProxy)
-                    {
-                        await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, socks5ProxySettings.Authentication, cancellationToken).ConfigureAwait(false);
-                    }
-
+                    stream = CreateNetworkStream(socket);
                     return stream;
                 }
                 catch
                 {
+                    socket?.Dispose();
+                    stream?.Dispose();
+
                     // if we have tried all of them and still failed,
                     // then blow up.
                     if (i == resolved.Length - 1)
