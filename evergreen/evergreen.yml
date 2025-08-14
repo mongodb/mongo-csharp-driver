@@ -833,6 +833,30 @@ functions:
           - "OS"
         args:
           - evergreen/cleanup-test-resources.sh
+    - command: shell.exec
+      params:
+        shell: "bash"
+        script: |
+          echo "Killing proxies"
+          PID_FILE="socks5_pids.txt"
+
+          if [[ ! -f "$PID_FILE" ]]; then
+            echo "No PID file found ($PID_FILE)"
+            exit 0
+          fi
+
+          cat "$PID_FILE" | while read -r pid; do
+            if [[ -n "$pid" ]]; then
+              if [[ "$OS" =~ Windows|windows ]]; then
+                powershell -NoProfile -Command "Stop-Process -Id $pid -Force" 2>$null || \
+                  echo "PID $pid already gone"
+              else
+                kill "$pid" 2>/dev/null || echo "PID $pid already gone"
+              fi
+            fi
+          done
+
+          rm -f "$PID_FILE"
 
   fix-absolute-paths:
     - command: shell.exec
@@ -1080,8 +1104,13 @@ functions:
           HOST_PORT=$(echo "$MONGODB_URI" | sed 's|mongodb://||' | cut -d',' -f1)
 
           MAP_ARG="localhost:12345 to $HOST_PORT"
-          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1080 --auth username:p4ssw0rd &
-          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1081
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1080 --auth username:p4ssw0rd & PROXY_PID1=$!
+          python3 $DRIVERS_TOOLS/.evergreen/socks5srv.py --map "$MAP_ARG" --port 1081 & PROXY_PID2=$!
+
+          echo "$PROXY_PID1" > socks5_pids.txt
+          echo "$PROXY_PID2" >> socks5_pids.txt
+
+          echo "Started proxies with PIDs: $PROXY_PID1, $PROXY_PID2"
 
   run-socks5-proxy-tests:
     - command: shell.exec
@@ -1101,8 +1130,7 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
           TARGET="TestSocks5Proxy" \
             evergreen/run-tests.sh
-          OS=${OS} \
-            evergreen/cleanup-proxy.sh
+
 pre:
   - func: fetch-source
   - func: prepare-resources
