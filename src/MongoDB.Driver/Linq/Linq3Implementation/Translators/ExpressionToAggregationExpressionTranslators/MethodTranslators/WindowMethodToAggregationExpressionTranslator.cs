@@ -94,7 +94,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.Last,
             WindowMethod.Locf,
             WindowMethod.Max,
+            WindowMethod.MedianWithDecimal,
+            WindowMethod.MedianWithDouble,
+            WindowMethod.MedianWithInt32,
+            WindowMethod.MedianWithInt64,
+            WindowMethod.MedianWithNullableDecimal,
+            WindowMethod.MedianWithNullableDouble,
+            WindowMethod.MedianWithNullableInt32,
+            WindowMethod.MedianWithNullableInt64,
+            WindowMethod.MedianWithNullableSingle,
+            WindowMethod.MedianWithSingle,
             WindowMethod.Min,
+            WindowMethod.PercentileWithDecimal,
+            WindowMethod.PercentileWithDouble,
+            WindowMethod.PercentileWithInt32,
+            WindowMethod.PercentileWithInt64,
+            WindowMethod.PercentileWithNullableDecimal,
+            WindowMethod.PercentileWithNullableDouble,
+            WindowMethod.PercentileWithNullableInt32,
+            WindowMethod.PercentileWithNullableInt64,
+            WindowMethod.PercentileWithNullableSingle,
+            WindowMethod.PercentileWithSingle,
             WindowMethod.Push,
             WindowMethod.Rank,
             WindowMethod.Shift,
@@ -253,6 +273,30 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             WindowMethod.ShiftWithDefaultValue
         };
 
+        private static readonly MethodInfo[] __quantileMethods =
+        [
+            WindowMethod.MedianWithDecimal,
+            WindowMethod.MedianWithDouble,
+            WindowMethod.MedianWithInt32,
+            WindowMethod.MedianWithInt64,
+            WindowMethod.MedianWithNullableDecimal,
+            WindowMethod.MedianWithNullableDouble,
+            WindowMethod.MedianWithNullableInt32,
+            WindowMethod.MedianWithNullableInt64,
+            WindowMethod.MedianWithNullableSingle,
+            WindowMethod.MedianWithSingle,
+            WindowMethod.PercentileWithDecimal,
+            WindowMethod.PercentileWithDouble,
+            WindowMethod.PercentileWithInt32,
+            WindowMethod.PercentileWithInt64,
+            WindowMethod.PercentileWithNullableDecimal,
+            WindowMethod.PercentileWithNullableDouble,
+            WindowMethod.PercentileWithNullableInt32,
+            WindowMethod.PercentileWithNullableInt64,
+            WindowMethod.PercentileWithNullableSingle,
+            WindowMethod.PercentileWithSingle
+        ];
+
         public static bool CanTranslate(MethodCallExpression expression)
         {
             return expression.Method.IsOneOf(__windowMethods);
@@ -336,6 +380,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                     var ast = AstExpression.ExponentialMovingAverageWindowExpression(selectorTranslation.Ast, weighting, window);
                     var serializer = BsonSerializer.LookupSerializer(method.ReturnType); // TODO: use correct serializer
+                    return new TranslatedExpression(expression, ast, serializer);
+                }
+
+                if (method.IsOneOf(__quantileMethods))
+                {
+                    ThrowIfSelectorTranslationIsNull(selectorTranslation);
+                    AstExpression ast;
+
+                    if (method.Name == "Percentile")
+                    {
+                        // Get the percentiles parameter
+                        var percentilesExpression = GetArgument<Expression>(parameters, "percentiles", arguments);
+                        var percentilesTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, percentilesExpression);
+                        ast = AstExpression.PercentileWindowExpression(selectorTranslation.Ast, percentilesTranslation.Ast, window);
+                    }
+                    else
+                    {
+                        ast = AstExpression.MedianWindowExpression(selectorTranslation.Ast, window);
+                    }
+
+                    var serializer = StandardSerializers.GetSerializer(method.ReturnType);
                     return new TranslatedExpression(expression, ast, serializer);
                 }
 

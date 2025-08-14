@@ -1489,6 +1489,244 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Decimal()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.DecimalField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$DecimalField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].ToDecimal().Should().Be(2.0M);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Double()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.DoubleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$DoubleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Int32()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.Int32Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$Int32Field', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Int64()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.Int64Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$Int64Field', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Decimal()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableDecimalField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableDecimalField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].ToDecimal().Should().Be(1.0M);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Double()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableDoubleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableDoubleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Int32()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableInt32Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableInt32Field', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Int64()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableInt64Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableInt64Field', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_nullable_Single()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.NullableSingleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$NullableSingleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_Single()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Median(x => x.SingleField, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $median : { input : '$SingleField', method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Median_with_window()
+        {
+            RequireServer.Check().Supports(Feature.MedianOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new {
+                        Result = p.Median(x => x.Int32Field, DocumentsWindow.Create(-1, 1))
+                    });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[]
+            {
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $median : { input : '$Int32Field', method : 'approximate' }, window : { documents : [-1, 1] } } } } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].AsDouble.Should().Be(1.0);
+            results[1]["Result"].AsDouble.Should().Be(2.0);
+            results[2]["Result"].AsDouble.Should().Be(2.0);
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Min()
         {
             var collection = Fixture.Collection;
@@ -1504,6 +1742,292 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             foreach (var result in results)
             {
                 result["Result"].AsInt32.Should().Be(1);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Decimal()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.DecimalField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$DecimalField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].ToDecimal().Should().Be(2.0M);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Double()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.DoubleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$DoubleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Int32()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.Int32Field, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$Int32Field', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Int64()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.Int64Field, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$Int64Field', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Decimal()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableDecimalField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableDecimalField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].ToDecimal().Should().Be(1.0M);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Double()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableDoubleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableDoubleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Int32()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableInt32Field, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableInt32Field', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Int64()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableInt64Field, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableInt64Field', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_nullable_Single()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.NullableSingleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$NullableSingleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_multiple_percentiles()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.Int32Field, new[] { 0.25, 0.75 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$Int32Field', p : [0.25, 0.75], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                var array = result["Result"].AsBsonArray;
+                array[0].AsDouble.Should().Be(1.0);
+                array[1].AsDouble.Should().Be(3.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_Single()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.SingleField, new[] { 0.5 }, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$SingleField', p : [0.5], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                result["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            }
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_window()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(
+                    partitionBy: x => 1,
+                    sortBy: Builders<C>.Sort.Ascending(x => x.Id),
+                    output: p => new {
+                        Result = p.Percentile(x => x.Int32Field, new[] { 0.5 }, DocumentsWindow.Create(-1, 1))
+                    });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[]
+            {
+                "{ $setWindowFields : { partitionBy : 1, sortBy : { _id : 1 }, output : { Result : { $percentile : { input : '$Int32Field', p : [0.5], method : 'approximate' }, window : { documents : [-1, 1] } } } } }"
+            };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results[0]["Result"].AsBsonArray[0].AsDouble.Should().Be(1.0);
+            results[1]["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+            results[2]["Result"].AsBsonArray[0].AsDouble.Should().Be(2.0);
+        }
+
+        [Fact]
+        public void Translate_should_return_expected_result_for_Percentile_with_List_input()
+        {
+            RequireServer.Check().Supports(Feature.PercentileOperator);
+
+            var collection = Fixture.Collection;
+            var percentiles = new List<double> { 0.25, 0.5, 0.75 };
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Percentile(x => x.Int32Field, percentiles, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $percentile : { input : '$Int32Field', p : [0.25, 0.5, 0.75], method : 'approximate' } } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            foreach (var result in results)
+            {
+                var array = result["Result"].AsBsonArray;
+                array[0].AsDouble.Should().Be(1.0);
+                array[1].AsDouble.Should().Be(2.0);
+                array[2].AsDouble.Should().Be(3.0);
             }
         }
 
