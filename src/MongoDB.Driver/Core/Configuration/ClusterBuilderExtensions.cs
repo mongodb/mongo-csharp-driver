@@ -121,11 +121,11 @@ namespace MongoDB.Driver.Core.Configuration
 
             if (connectionString.ProxyHost != null)
             {
-                builder = builder.SetSocks5ProxySettings(Socks5ProxySettings.Create(
+                builder = builder.ConfigureSocks5Proxy(s => s.With(Socks5ProxySettings.Create(
                         connectionString.ProxyHost,
                         connectionString.ProxyPort,
                         connectionString.ProxyUsername,
-                        connectionString.ProxyPassword));
+                        connectionString.ProxyPassword)));
             }
 
             if (connectionString.SocketTimeout != null)
