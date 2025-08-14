@@ -62,6 +62,7 @@ namespace MongoDB.Driver
                 .ConfigureConnectionPool(settings => ConfigureConnectionPool(settings, clusterKey))
                 .ConfigureConnection(settings => ConfigureConnection(settings, clusterKey))
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
+                .ConfigureSocks5Proxy(settings => ConfigureSocks5Proxy(settings, clusterKey))
                 .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings);
 #pragma warning restore CS0618 // Type or member is obsolete
 
@@ -172,6 +173,12 @@ namespace MongoDB.Driver
                 receiveBufferSize: clusterKey.ReceiveBufferSize,
                 sendBufferSize: clusterKey.SendBufferSize,
                 writeTimeout: clusterKey.SocketTimeout);
+        }
+
+        private ProxyStreamSettings ConfigureSocks5Proxy(ProxyStreamSettings settings, ClusterKey clusterKey)
+        {
+            return settings.With(
+                clusterKey.Socks5ProxySettings);
         }
 
         internal IClusterInternal GetOrCreateCluster(ClusterKey clusterKey)

@@ -17,16 +17,17 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections;
 
 internal class ProxyStreamFactory: IStreamFactory
 {
-    private readonly Socks5ProxySettings _settings;
+    private readonly ProxyStreamSettings _settings;
     private readonly IStreamFactory _wrapped;
 
-    public ProxyStreamFactory(Socks5ProxySettings settings, IStreamFactory wrapped)
+    public ProxyStreamFactory(ProxyStreamSettings settings, IStreamFactory wrapped)
     {
         _settings = Ensure.IsNotNull(settings, nameof(settings));
         _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
@@ -34,17 +35,17 @@ internal class ProxyStreamFactory: IStreamFactory
 
     public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
     {
-        var proxyEndpoint = new DnsEndPoint(_settings.Host, _settings.Port);
+        var proxyEndpoint = new DnsEndPoint(_settings.Socks5ProxySettings.Host, _settings.Socks5ProxySettings.Port);
         var stream = _wrapped.CreateStream(proxyEndpoint, cancellationToken);
-        Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.Authentication, cancellationToken);
+        Socks5Helper.PerformSocks5Handshake(stream, endPoint, _settings.Socks5ProxySettings.Authentication, cancellationToken);
         return stream;
     }
 
     public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
     {
-        var proxyEndpoint = new DnsEndPoint(_settings.Host, _settings.Port);
+        var proxyEndpoint = new DnsEndPoint(_settings.Socks5ProxySettings.Host, _settings.Socks5ProxySettings.Port);
         var stream = await _wrapped.CreateStreamAsync(proxyEndpoint, cancellationToken).ConfigureAwait(false);
-        await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, _settings.Authentication, cancellationToken).ConfigureAwait(false);
+        await Socks5Helper.PerformSocks5HandshakeAsync(stream, endPoint, _settings.Socks5ProxySettings.Authentication, cancellationToken).ConfigureAwait(false);
         return stream;
     }
 }
