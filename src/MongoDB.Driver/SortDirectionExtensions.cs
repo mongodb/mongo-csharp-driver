@@ -20,14 +20,12 @@ namespace MongoDB.Driver
 {
     internal static class SortDirectionExtensions
     {
-        internal static BsonValue Render(this SortDirection direction)
-        {
-            return direction switch
+        internal static BsonValue Render(this SortDirection direction) =>
+            direction switch
             {
                 SortDirection.Ascending => 1,
                 SortDirection.Descending => -1,
                 _ => throw new InvalidOperationException($"Invalid sort direction: {direction}.")
             };
-        }
     }
 }

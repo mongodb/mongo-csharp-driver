@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.Ascending(), "{direction: 1}");
+            Assert(subject.Ascending(), "1");
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
-            Assert(subject.Descending(), "{direction: -1}");
+            Assert(subject.Descending(), "-1");
         }
 
         [Fact]
@@ -144,10 +144,20 @@ namespace MongoDB.Driver.Tests
             Assert(subject.MetaTextScore("awesome"), "{awesome: {$meta: 'textScore'}}");
         }
 
+        [Fact]
+        public void CallingRenderOnValueBasedSortShouldThrow()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var exception = Record.Exception(() => subject.Ascending().Render(new RenderArgs<BsonDocument>()));
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
         private void Assert<TDocument>(SortDefinition<TDocument> sort, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedSort = sort.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
+            var renderedSort = sort.RenderAsBsonValue(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedSort.Should().Be(expectedJson);
         }
