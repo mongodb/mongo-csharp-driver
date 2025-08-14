@@ -468,11 +468,7 @@ namespace MongoDB.Driver
             get => _proxyPort;
             set
             {
-                if (value is null)
-                {
-                    throw new ArgumentNullException(nameof(ProxyPort));
-                }
-                _proxyPort = Ensure.IsBetween(value.Value, 1, 65535, nameof(ProxyPort));
+                _proxyPort = Ensure.IsNullOrBetween(value, 1, 65535, nameof(ProxyPort));
             }
         }
 

@@ -135,8 +135,8 @@ public sealed class Socks5ProxySettings
 
         sb.Append(Authentication switch
         {
-            Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings up =>
-                $"UsernamePassword (Username: {up.Username}, Password: {up.Password})",
+            Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings =>
+                "UsernamePassword",
             _ => "None"
         });
 

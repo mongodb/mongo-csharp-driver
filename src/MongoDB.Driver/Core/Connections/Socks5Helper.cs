@@ -106,10 +106,10 @@ internal static class Socks5Helper
             stream.Write(buffer, 0, greetingRequestLength);
 
             stream.ReadBytes(buffer, 0, 2, cancellationToken);
-            var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth);
+            var requiresAuthenticationStep = ProcessGreetingResponse(buffer, useAuth);
 
-            // If we have username and password, but the proxy doesn't need them, we skip.
-            if (useAuth && acceptsUsernamePasswordAuth)
+            // If we have username and password, but the proxy doesn't need them, we skip the authentication step.
+            if (requiresAuthenticationStep)
             {
                 var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings);
                 stream.Write(buffer, 0, authenticationRequestLength);
@@ -143,10 +143,10 @@ internal static class Socks5Helper
             await stream.WriteAsync(buffer, 0, greetingRequestLength, cancellationToken).ConfigureAwait(false);
 
             await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken).ConfigureAwait(false);
-            var acceptsUsernamePasswordAuth = ProcessGreetingResponse(buffer, useAuth);
+            var requiresAuthenticationStep = ProcessGreetingResponse(buffer, useAuth);
 
             // If we have username and password, but the proxy doesn't need them, we skip.
-            if (useAuth && acceptsUsernamePasswordAuth)
+            if (requiresAuthenticationStep)
             {
                 var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings);
                 await stream.WriteAsync(buffer, 0, authenticationRequestLength, cancellationToken).ConfigureAwait(false);
@@ -202,7 +202,7 @@ internal static class Socks5Helper
 
         if (acceptedMethod != MethodNoAuth)
         {
-            throw new IOException("SOCKS5 proxy requires unsupported authentication method.");
+            throw new IOException($"SOCKS5 proxy requires unsupported authentication method. Unsupported method: {acceptedMethod}");
         }
 
         return false;
@@ -228,7 +228,7 @@ internal static class Socks5Helper
     {
         if (buffer[0] != SubnegotiationVersion || buffer[1] != Socks5Success)
         {
-            throw new IOException("SOCKS5 authentication failed.");
+            throw new IOException($"SOCKS5 authentication failed. Version: {buffer[0]}, Status: {buffer[1]}.");
         }
     }
 
@@ -277,7 +277,7 @@ internal static class Socks5Helper
 
         if (buffer[1] != Socks5Success)
         {
-            throw new IOException($"SOCKS5 connect failed");
+            throw new IOException($"SOCKS5 connect failed. Error code: {buffer[1]}");
         }
 
         // We skip the last bytes of the response as we do not need them.
@@ -297,7 +297,7 @@ internal static class Socks5Helper
     {
         if (version != ProtocolVersion5)
         {
-            throw new IOException("Invalid SOCKS version in response.");
+            throw new IOException($"Invalid SOCKS version in response. Expected version {ProtocolVersion5}, but received {version}.");
         }
     }
 
