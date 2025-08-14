@@ -308,12 +308,12 @@ namespace MongoDB.Driver
             _direction = direction;
         }
 
-        internal override BsonValue RenderAsBsonValue(RenderArgs<TDocument> args) => _direction.Render();
-
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
             throw new InvalidOperationException(
                 "Value-based sort cannot be rendered as a document. You might be trying to use a value-based sort where a field-based sort is expected.");
         }
+
+        internal override BsonValue RenderAsBsonValue(RenderArgs<TDocument> args) => _direction.Render();
     }
 }
