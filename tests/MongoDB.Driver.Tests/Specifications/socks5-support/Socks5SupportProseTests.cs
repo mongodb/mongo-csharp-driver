@@ -60,18 +60,19 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
             ("mongodb://<replicaset>/?proxyHost=localhost&proxyPort=1081", true)
         };
 
-        var index = 0;
-        foreach (var (connectionString, expectedResult) in testCases)
-        {
-            foreach (var useTls in new[] { true, false })
+        return
+            (from tc in testCases
+                from useTls in new[] { true, false }
+                from isAsync in new[] { true, false }
+                select new { tc.ConnectionString, tc.ExpectedResult, useTls, isAsync })
+            .Select((x, i) => new object[]
             {
-                foreach (var isAsync in new[] { true, false })
-                {
-                    var id = $"{index++}_{(useTls ? "Tls" : "NoTls")}_{(isAsync ? "Async" : "Sync")}";
-                    yield return [id, connectionString, expectedResult, useTls, isAsync];
-                }
-            }
-        }
+                $"{i}_{(x.useTls ? "Tls" : "NoTls")}_{(x.isAsync ? "Async" : "Sync")}",
+                x.ConnectionString,
+                x.ExpectedResult,
+                x.useTls,
+                x.isAsync
+            });
     }
 
     [Theory]
