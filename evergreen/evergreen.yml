@@ -373,7 +373,7 @@ functions:
           source secrets-export.sh
 
           echo $ATLAS_X509_DEV_CERT_BASE64 | base64 --decode > ${DRIVERS_TOOLS}/CLIENT_CERT.pem
-          echo $ATLAS_X509_DEV_CERT_NOUSER_BASE64 | base64 --decode > ${DRIVERS_TOOLS}/CLIENT_NOUSER_CERT.pem
+          echo $ATLAS_X509_DEV_CERT_NOUSER_BASE64 | base64 --decode > ${DRIVERS_TOOLS}/CLIENT_NO_USER_CERT.pem
 
   run-x509-tests:
     - command: shell.exec
@@ -388,7 +388,7 @@ functions:
             evergreen/add-ca-certs.sh
           MONGODB_URI="$ATLAS_X509_DEV" \
           CLIENT_PEM=${DRIVERS_TOOLS}/CLIENT_CERT.pem \
-          CLIENT_NOUSER_PEM=${DRIVERS_TOOLS}/CLIENT_NOUSER_CERT.pem \
+          CLIENT_NO_USER_PEM=${DRIVERS_TOOLS}/CLIENT_NO_USER_CERT.pem \
           TOPOLOGY=${TOPOLOGY} \
           OS=${OS} \
           FRAMEWORK=${FRAMEWORK} \
