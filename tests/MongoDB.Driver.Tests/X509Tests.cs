@@ -44,8 +44,6 @@ public class X509Tests
         var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
 
         var settings = DriverTestConfiguration.GetClientSettings().Clone();
-        //settings.Credential = MongoCredential.CreateMongoX509Credential();
-        settings.SslSettings = settings.SslSettings.Clone();
         settings.SslSettings.ClientCertificates = [clientCertificate];
 
         AssertAuthenticationSucceeds(settings);
@@ -64,7 +62,6 @@ public class X509Tests
 
         var settings = DriverTestConfiguration.GetClientSettings().Clone();
         settings.Credential = MongoCredential.CreateMongoX509Credential("wrong_username");
-        settings.SslSettings = settings.SslSettings.Clone();
         settings.SslSettings.ClientCertificates = [clientCertificate];
 
         AssertAuthenticationFails(settings);
@@ -82,8 +79,6 @@ public class X509Tests
         var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
 
         var settings = DriverTestConfiguration.GetClientSettings().Clone();
-        //settings.Credential = MongoCredential.CreateMongoX509Credential();
-        settings.SslSettings = settings.SslSettings.Clone();
         settings.SslSettings.ClientCertificates = [clientCertificate];
 
         AssertAuthenticationFails(settings);

@@ -29,6 +29,7 @@ TOPOLOGY=${TOPOLOGY:-server}
 COMPRESSOR=${COMPRESSOR:-none}
 OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
 CLIENT_PEM=${CLIENT_PEM:-nil}
+CLIENT_NO_USER_PEM=${CLIENT_NO_USER_PEM:-nil}
 PLATFORM=${PLATFORM:-nil}
 TARGET=${TARGET:-Test}
 FRAMEWORK=${FRAMEWORK:-nil}
@@ -133,8 +134,12 @@ if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
-if [[ "$CLIENT_NOUSER_PEM" != "nil" ]]; then
-  CLIENT_NOUSER_PEM=${CLIENT_NOUSER_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
+if [[ "$CLIENT_NO_USER_PEM" != "nil" ]]; then
+  export CLIENT_PEM_VAR_NAME="CLIENT_NO_USER_PEM"
+  export OUTPUT_VAR_PREFIX="MONGO_X509_CLIENT_NO_USER"
+  export CERTIFICATE_NAME="Drivers No-User Client Certificate"
+  export MONGO_X509_CLIENT_NO_USER_CLIENT_P12="client_no_user.p12"
+  CLIENT_NO_USER_PEM=${CLIENT_NO_USER_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
 if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
