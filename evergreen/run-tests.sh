@@ -133,6 +133,10 @@ if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
+if [[ "$CLIENT_NOUSER_PEM" != "nil" ]]; then
+  CLIENT_NOUSER_PEM=${CLIENT_NOUSER_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
+fi
+
 if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
     # technically the above condiion will be always true since CLIENT_PEM is always set and
     # convert-client-cert-to-pkcs12 always assigns these env variables, but leaving this condition in case

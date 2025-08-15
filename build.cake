@@ -254,6 +254,13 @@ Task("TestCsfleWithGcpKms")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"CsfleGCPKMS\""));
 
+Task("TestX509")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+            RunTests(buildConfig, testProject, filter: "Category=\"X509\""));
+
 Task("Package")
     .IsDependentOn("PackageNugetPackages");
 
