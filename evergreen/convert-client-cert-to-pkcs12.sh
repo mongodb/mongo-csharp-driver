@@ -16,7 +16,7 @@ MONGO_X509_CLIENT_P12=${MONGO_X509_CLIENT_P12:-client.p12}
 MONGO_X509_CLIENT_CERTIFICATE_PASSWORD=${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD:-Picard-Alpha-Alpha-3-0-5}
 
 CLIENT_NO_USER_PEM=${CLIENT_NO_USER_PEM:-nil}
-MONGO_X509_CLIENT_NO_USER_P12=${MONGO_X509_CLIENT_NO_USER_P12:-client.p12}
+MONGO_X509_CLIENT_NO_USER_P12=${MONGO_X509_CLIENT_NO_USER_P12:-client_no_user.p12}
 MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD=${MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD:-Picard-Alpha-Alpha-3-0-5}
 
 function create_p12 {
@@ -37,7 +37,6 @@ function create_p12 {
 
 function get_realpath {
   local FILE=$1
-
   if [[ "$OS" =~ MAC|Mac|mac ]]; then
     # realpath function for Mac OS
     function realpath() {
