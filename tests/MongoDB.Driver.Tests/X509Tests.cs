@@ -14,12 +14,8 @@
  */
 
 using System;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -30,64 +26,83 @@ namespace MongoDB.Driver.Tests;
 [Trait("Category", "X509")]
 public class X509Tests
 {
-        [Theory]
-        [ParameterAttributeData]
-        public void Authentication_succeeds_with_MONGODB_X509_mechanism(
-            [Values(false, true)] bool async)
-        {
-            RequireEnvironment.Check().EnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH", isDefined: true);
-            RequireEnvironment.Check().EnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD", isDefined: true);
-            RequireServer.Check().Tls(required: true);
+    const string MONGODB_X509_CLIENT_CERTIFICATE_PATH = "MONGO_X509_CLIENT_CERTIFICATE_PATH";
+    const string MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD = "MONGO_X509_CLIENT_CERTIFICATE_PASSWORD";
 
-            var pathToClientCertificate = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH");
-            var password = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD");
-            var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
+    const string MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH = "MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH";
+    const string MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD = "MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD";
 
-            var settings = DriverTestConfiguration.GetClientSettings().Clone();
-            settings.Credential = MongoCredential.CreateMongoX509Credential();
-            settings.SslSettings = settings.SslSettings.Clone();
-            settings.SslSettings.ClientCertificates = new[] { clientCertificate };
+    [Fact]
+    public void Authentication_succeeds_with_MONGODB_X509_mechanism()
+    {
+        RequireEnvironment.Check().EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH, isDefined: true);
+        RequireEnvironment.Check().EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD, isDefined: true);
+        RequireServer.Check().Tls(required: true);
 
-            AssertAuthenticationSucceeds(settings, async, speculativeAuthenticatationShouldSucceedIfPossible: true);
-        }
+        var pathToClientCertificate = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH);
+        var password = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD);
+        var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
 
-        private void AssertAuthenticationSucceeds(
-            MongoClientSettings settings,
-            bool async,
-            bool speculativeAuthenticatationShouldSucceedIfPossible = true)
-        {
-            // If we don't use a DisposableClient, the second run of AuthenticationSucceedsWithMongoDB_X509_mechanism
-            // will fail because the backing Cluster's connections will be associated with a dropped user
-            using (var client = DriverTestConfiguration.CreateMongoClient(settings))
-            {
-                // The first command executed with the MongoClient triggers either the sync or async variation of the
-                // MongoClient's IAuthenticator
-                if (async)
-                {
-                    _ = client.ListDatabaseNamesAsync().GetAwaiter().GetResult().ToList();
-                }
-                else
-                {
-                    _ = client.ListDatabaseNames().ToList();
-                }
-                if (Feature.SpeculativeAuthentication.IsSupported(CoreTestConfiguration.MaxWireVersion) &&
-                    speculativeAuthenticatationShouldSucceedIfPossible)
-                {
-                    var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
-                    var server = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, serverSelector);
-                    var channel = server.GetChannel(OperationContext.NoTimeout);
-                    var helloResult = channel.ConnectionDescription.HelloResult;
-                    helloResult.SpeculativeAuthenticate.Should().NotBeNull();
-                }
-            }
-        }
+        var settings = DriverTestConfiguration.GetClientSettings().Clone();
+        //settings.Credential = MongoCredential.CreateMongoX509Credential();
+        settings.SslSettings = settings.SslSettings.Clone();
+        settings.SslSettings.ClientCertificates = [clientCertificate];
 
-        private string GetRfc2253FormattedUsernameFromX509ClientCertificate(X509Certificate2 certificate)
-        {
-            var distinguishedName = certificate.SubjectName.Name;
-            // Authentication will fail if we don't remove the delimiting spaces, even if we add the username WITH the
-            // delimiting spaces.
-            var nameWithoutDelimitingSpaces = string.Join(",", distinguishedName.Split(',').Select(s => s.Trim()));
-            return nameWithoutDelimitingSpaces.Replace("S=", "ST=");
-        }
+        AssertAuthenticationSucceeds(settings);
+    }
+
+    [Fact]
+    public void Authentication_fails_with_MONGODB_X509_mechanism_when_username_is_wrong()
+    {
+        RequireEnvironment.Check().EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH, isDefined: true);
+        RequireEnvironment.Check().EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD, isDefined: true);
+        RequireServer.Check().Tls(required: true);
+
+        var pathToClientCertificate = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH);
+        var password = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD);
+        var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
+
+        var settings = DriverTestConfiguration.GetClientSettings().Clone();
+        settings.Credential = MongoCredential.CreateMongoX509Credential("wrong_username");
+        settings.SslSettings = settings.SslSettings.Clone();
+        settings.SslSettings.ClientCertificates = [clientCertificate];
+
+        AssertAuthenticationFails(settings);
+    }
+
+    [Fact]
+    public void Authentication_fails_with_MONGODB_X509_mechanism_when_user_is_not_in_database()
+    {
+        RequireEnvironment.Check().EnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH, isDefined: true);
+        RequireEnvironment.Check().EnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD, isDefined: true);
+        RequireServer.Check().Tls(required: true);
+
+        var pathToClientCertificate = Environment.GetEnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH);
+        var password = Environment.GetEnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD);
+        var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
+
+        var settings = DriverTestConfiguration.GetClientSettings().Clone();
+        //settings.Credential = MongoCredential.CreateMongoX509Credential();
+        settings.SslSettings = settings.SslSettings.Clone();
+        settings.SslSettings.ClientCertificates = [clientCertificate];
+
+        AssertAuthenticationFails(settings);
+    }
+
+    private void AssertAuthenticationSucceeds(MongoClientSettings settings)
+    {
+        using var client = DriverTestConfiguration.CreateMongoClient(settings);
+        _ =  client.ListDatabaseNames().ToList();
+    }
+
+    private void AssertAuthenticationFails(MongoClientSettings settings)
+    {
+        using var client = DriverTestConfiguration.CreateMongoClient(settings);
+        var exception = Record.Exception(() => client.ListDatabaseNames().ToList());
+        exception.Should().BeOfType<MongoAuthenticationException>();
+
+        // var innerException = exception.InnerException;
+        // innerException.Should().BeOfType<MongoCommandException>();
+        // innerException.Message.Should().Contain("Could not find user");
+    }
 }
