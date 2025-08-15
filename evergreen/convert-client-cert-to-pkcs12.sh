@@ -2,82 +2,62 @@
 
 set -o errexit  # Exit the script with an error if any of the commands fail
 
-# Environment variables used as input:
-#   CLIENT_PEM                      Path to mongo -orchestration's client.pem: must be set.
-#   MONGO_X509_CLIENT_P12           Filename for client certificate in p12 format
-#
-# Environment variables produced as output:
-#   MONGODB_X509_CLIENT_P12_PATH            Absolute path to client certificate in p12 format
-#   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  Password for client certificate
+# Input environment variables
+: "${CLIENT_PEM_VAR_NAME:="CLIENT_PEM"}"      # Name of the input variable for the client.pem file
+: "${OUTPUT_VAR_PREFIX:="MONGO_X509_CLIENT"}"        # Prefix for output environment variables
+: "${CERTIFICATE_NAME:="Drivers Client Certificate"}" # Name for the exported certificate
 
+#todo, need to take the input name for client file and password, and not use the convoluted system we have
+#I think I need to add those to the input environment variables and then use those in the export down here (where the default values for output variables are)
 
-CLIENT_PEM=${CLIENT_PEM:-nil}
-MONGO_X509_CLIENT_P12=${MONGO_X509_CLIENT_P12:-client.p12}
-MONGO_X509_CLIENT_CERTIFICATE_PASSWORD=${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD:-Picard-Alpha-Alpha-3-0-5}
+CLIENT_PEM=${!CLIENT_PEM_VAR_NAME:-nil}
+OUT_CLIENT_P12_VAR="${OUTPUT_VAR_PREFIX}_CLIENT_P12"
+OUT_CLIENT_PASSWORD_VAR="${OUTPUT_VAR_PREFIX}_CERTIFICATE_PASSWORD"
+OUT_CLIENT_PATH_VAR="${OUTPUT_VAR_PREFIX}_CERTIFICATE_PATH"
 
-CLIENT_NO_USER_PEM=${CLIENT_NO_USER_PEM:-nil}
-MONGO_X509_CLIENT_NO_USER_P12=${MONGO_X509_CLIENT_NO_USER_P12:-client_no_user.p12}
-MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD=${MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD:-Picard-Alpha-Alpha-3-0-5}
+# Default values for output variables (can be overridden via the environment)
+export "${OUT_CLIENT_P12_VAR}"="${!OUT_CLIENT_P12_VAR:-client.p12}"
+export "${OUT_CLIENT_PASSWORD_VAR}"="${!OUT_CLIENT_PASSWORD_VAR:-Picard-Alpha-Alpha-3-0-5}"
 
-function create_p12 {
-  local PEM_FILE=$1
-  local P12_FILE=$2
-  local PASSWORD=$3
+if [[ "$CLIENT_PEM" == "nil" ]]; then
+  echo "Error: ${CLIENT_PEM_VAR_NAME} must be set."
+  exit 1
+fi
 
-  if [[ ! -f "$PEM_FILE" ]]; then
-    echo "Warning: PEM file '$PEM_FILE' does not exist. Skipping generation of '$P12_FILE'."
-    return 1
-  fi
+P12_FILENAME=${!OUT_CLIENT_P12_VAR}
+CERT_PASSWORD=${!OUT_CLIENT_PASSWORD_VAR}
 
-  openssl pkcs12 -export -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg sha1 -in "$PEM_FILE" \
-    -out "$P12_FILE" \
-    -name "Drivers Client Certificate" \
-    -password "pass:${PASSWORD}"
-}
+openssl pkcs12 -export -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg sha1 -in "${CLIENT_PEM}" \
+  -out "${P12_FILENAME}" \
+  -name "${CERTIFICATE_NAME}" \
+  -password "pass:${CERT_PASSWORD}"
 
-function get_realpath {
-  local FILE=$1
-  if [[ "$OS" =~ MAC|Mac|mac ]]; then
-    # realpath function for Mac OS
-    function realpath() {
-      OURPWD=$PWD
-      cd "$(dirname "$1")"
+# Determine path using realpath (compatible across macOS, Linux, and Windows)
+if [[ "$OS" =~ MAC|Mac|mac ]]; then
+  # Functionality to mimic `realpath` on macOS
+  function realpath() {
+    OURPWD=$PWD
+    cd "$(dirname "$1")"
+    LINK=$(readlink "$(basename "$1")")
+    while [ "$LINK" ]; do
+      cd "$(dirname "$LINK")"
       LINK=$(readlink "$(basename "$1")")
-      while [ "$LINK" ]; do
-        cd "$(dirname "$LINK")"
-        LINK=$(readlink "$(basename "$1")")
-      done
-      REALPATH="$PWD/$(basename "$1")"
-      cd "$OURPWD"
-      echo "$REALPATH"
-    }
-  fi
-
-  if [[ "$OS" =~ Windows|windows ]]; then
-    echo "$(cygpath -w "$FILE")"
-  else
-    echo "$(realpath "$FILE")"
-  fi
-}
-
-# Create the primary client's p12 certificate if the PEM file exists
-if create_p12 "$CLIENT_PEM" "$MONGO_X509_CLIENT_P12" "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD"; then
-  MONGO_X509_CLIENT_CERTIFICATE_PATH=$(get_realpath "$MONGO_X509_CLIENT_P12")
-  export MONGO_X509_CLIENT_CERTIFICATE_PATH
-  export MONGO_X509_CLIENT_CERTIFICATE_PASSWORD
-  echo "Primary certificate path: $MONGO_X509_CLIENT_CERTIFICATE_PATH"
-  echo "Primary certificate password: $MONGO_X509_CLIENT_CERTIFICATE_PASSWORD"
-else
-  echo "Skipping primary certificate creation."
+    done
+    REALPATH="$PWD/$(basename "$1")"
+    cd "$OURPWD"
+    echo "$REALPATH"
+  }
 fi
 
-# Create the secondary "No User" client's p12 certificate if the PEM file exists
-if create_p12 "$CLIENT_NO_USER_PEM" "$MONGO_X509_CLIENT_NO_USER_P12" "$MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD"; then
-  MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH=$(get_realpath "$MONGO_X509_CLIENT_NO_USER_P12")
-  export MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH
-  export MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD
-  echo "Secondary ('No User') certificate path: $MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH"
-  echo "Secondary ('No User') certificate password: $MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD"
-else
-  echo "Skipping secondary ('No User') certificate creation."
+CERT_PATH=$(realpath "${P12_FILENAME}")
+
+if [[ "$OS" =~ Windows|windows ]]; then
+  CERT_PATH=$(cygpath -w "${CERT_PATH}")
 fi
+
+export "${OUT_CLIENT_PATH_VAR}"="${CERT_PATH}"
+
+echo "Exported variables:"
+echo "${OUT_CLIENT_P12_VAR}=${!OUT_CLIENT_P12_VAR}"
+echo "${OUT_CLIENT_PASSWORD_VAR}=${!OUT_CLIENT_PASSWORD_VAR}"
+echo "${OUT_CLIENT_PATH_VAR}=${!OUT_CLIENT_PATH_VAR}"
