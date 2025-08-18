@@ -6,7 +6,7 @@ set -o errexit  # Exit the script with an error if any of the commands fail
 #   CLIENT_PEM                      Path to mongo client.pem: must be set
 #   P12_FILENAME                    Filename for client certificate in p12 format
 #   P12_PASSWORD                    Password for client certificate in p12 format
-#   FRIENDLY_NAME                   Friendly name for client certificate in p12 format
+#   P12_FRIENDLY_NAME                   Friendly name for client certificate in p12 format
 #   OUT_CLIENT_PATH_VAR             Name of the output variable containing the path of the p12 certificate
 #   OUT_CLIENT_PASSWORD_VAR         Name of the output variable containing the password for the p12 certificate
 #
@@ -17,7 +17,7 @@ set -o errexit  # Exit the script with an error if any of the commands fail
 
 # Input environment variables and default values
 : "${CLIENT_PEM:=nil}"
-: "${FRIENDLY_NAME:="Drivers Client Certificate"}"
+: "${P12_FRIENDLY_NAME:="Drivers Client Certificate"}"
 : "${P12_FILENAME:="client.p12"}"
 : "${P12_PASSWORD:="Picard-Alpha-Alpha-3-0-5"}"
 : "${OUT_CLIENT_PATH_VAR:="MONGO_X509_CLIENT_CERTIFICATE_PATH"}"
@@ -30,7 +30,7 @@ fi
 
 openssl pkcs12 -export -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg sha1 -in "${CLIENT_PEM}" \
   -out "${P12_FILENAME}" \
-  -name "${FRIENDLY_NAME}" \
+  -name "${P12_FRIENDLY_NAME}" \
   -password "pass:${P12_PASSWORD}"
 
 # Determine path using realpath (compatible across macOS, Linux, and Windows)

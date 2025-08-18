@@ -1055,7 +1055,7 @@ functions:
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
-          FRIENDLY_NAME="Drivers No-User Client Certificate" \
+          P12_FRIENDLY_NAME="Drivers No-User Client Certificate" \
           P12_FILENAME="client_no_user.p12" \
           OUT_CLIENT_PASSWORD_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD" \
           OUT_CLIENT_PATH_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH" \
