@@ -239,14 +239,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private static Exception UnwrapCommandException(Exception ex)
         {
-            if (ex is MongoConnectionException connectionException)
-            {
-                ex = connectionException.InnerException;
-            }
-
             if (ex is ClientBulkWriteException bulkWriteException)
             {
                 ex = bulkWriteException.InnerException;
+            }
+
+            if (ex is MongoConnectionException connectionException)
+            {
+                ex = connectionException.InnerException;
             }
 
             return ex;
