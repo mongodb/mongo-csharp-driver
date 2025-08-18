@@ -134,11 +134,13 @@ if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
+#TODO need to remove this from here
 if [[ "$CLIENT_NO_USER_PEM" != "nil" ]]; then
   export CLIENT_PEM_VAR_NAME="CLIENT_NO_USER_PEM"
-  export OUTPUT_VAR_PREFIX="MONGO_X509_CLIENT_NO_USER"
-  export CERTIFICATE_NAME="Drivers No-User Client Certificate"
-  export MONGO_X509_CLIENT_NO_USER_CLIENT_P12="client_no_user.p12"
+  export FRIENDLY_NAME="Drivers No-User Client Certificate"
+  export P12_FILENAME="client_no_user.p12"
+  export OUT_CLIENT_PASSWORD_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD"
+  export OUT_CLIENT_PATH_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH"
   CLIENT_NO_USER_PEM=${CLIENT_NO_USER_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
