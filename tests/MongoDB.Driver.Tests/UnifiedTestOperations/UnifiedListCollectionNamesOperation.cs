@@ -86,8 +86,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedListCollectionNamesOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
             var database = _entityMap.Databases[targetDatabaseId];
-
-            var listCollectionsOptions = new ListCollectionNamesOptions();
+            ListCollectionNamesOptions options = null;
             IClientSessionHandle session = null;
 
             if (arguments != null)
@@ -97,10 +96,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     switch (argument.Name)
                     {
                         case "filter":
-                            listCollectionsOptions.Filter = argument.Value.AsBsonDocument;
+                            options ??= new ListCollectionNamesOptions();
+                            options.Filter = argument.Value.AsBsonDocument;
                             break;
                         case "session":
                             session = _entityMap.Sessions[argument.Value.AsString];
+                            break;
+                        case "timeoutMS":
+                            options ??= new ListCollectionNamesOptions();
+                            options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                             break;
                         default:
                             throw new FormatException($"Invalid {nameof(UnifiedListCollectionNamesOperation)} argument name: '{argument.Name}'.");
@@ -108,7 +112,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedListCollectionNamesOperation(database, listCollectionsOptions, session);
+            return new UnifiedListCollectionNamesOperation(database, options, session);
         }
     }
 }

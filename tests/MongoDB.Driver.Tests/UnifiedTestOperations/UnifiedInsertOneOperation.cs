@@ -118,6 +118,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         var sessionId = argument.Value.AsString;
                         session = _entityMap.Sessions[sessionId];
                         break;
+                    case "timeoutMS":
+                        options ??= new InsertOneOptions();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
+                        break;
                     default:
                         throw new FormatException($"Invalid InsertOneOperation argument name: '{argument.Name}'.");
                 }

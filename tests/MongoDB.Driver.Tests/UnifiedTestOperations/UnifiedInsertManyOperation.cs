@@ -117,11 +117,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         documents = argument.Value.AsBsonArray.Cast<BsonDocument>().ToList();
                         break;
                     case "ordered":
-                        options = options ?? new InsertManyOptions();
+                        options ??= new InsertManyOptions();
                         options.IsOrdered = argument.Value.AsBoolean;
                         break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
+                        break;
+                    case "timeoutMS":
+                        options ??= new InsertManyOptions();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     default:
                         throw new FormatException($"Invalid InsertManyOperation argument name: '{argument.Name}'.");

@@ -105,7 +105,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var session = _entityMap.Sessions[targetSessionId];
 
             BsonArray operations = null;
-            TransactionOptions options = null;
+            TimeSpan? maxCommitTime = null;
+            ReadConcern readConcern = null;
+            ReadPreference readPreference = null;
+            TimeSpan? timeout = null;
+            WriteConcern writeConcern = null;
 
             foreach (var argument in arguments)
             {
@@ -115,24 +119,29 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         operations = argument.Value.AsBsonArray;
                         break;
                     case "maxCommitTimeMS":
-                        options = options ?? new TransactionOptions();
-                        options = options.With(maxCommitTime: TimeSpan.FromMilliseconds(argument.Value.AsInt32));
+                        maxCommitTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
                         break;
                     case "readConcern":
-                        options = options ?? new TransactionOptions();
-                        options = options.With(readConcern: ReadConcern.FromBsonDocument(argument.Value.AsBsonDocument));
+                        readConcern =ReadConcern.FromBsonDocument(argument.Value.AsBsonDocument);
                         break;
                     case "readPreference":
-                        options = options ?? new TransactionOptions();
-                        options = options.With(readPreference: ReadPreference.FromBsonDocument(argument.Value.AsBsonDocument));
+                        readPreference = ReadPreference.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
+                    case "timeoutMS":
+                        timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     case "writeConcern":
-                        options = options ?? new TransactionOptions();
-                        options = options.With(writeConcern: UnifiedEntityMap.ParseWriteConcern(argument.Value.AsBsonDocument));
+                        writeConcern = UnifiedEntityMap.ParseWriteConcern(argument.Value.AsBsonDocument);
                         break;
                     default:
                         throw new FormatException($"Invalid WithTransactionOperation argument name: '{argument.Name}'.");
                 }
+            }
+
+            TransactionOptions options = null;
+            if (maxCommitTime.HasValue || readConcern != null || readPreference != null || timeout.HasValue || writeConcern != null)
+            {
+                options = new TransactionOptions(timeout, readConcern, readPreference, writeConcern, maxCommitTime);
             }
 
             return new UnifiedWithTransactionOperation(session, operations, options);
