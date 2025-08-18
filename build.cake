@@ -261,6 +261,8 @@ Task("TestX509")
         action: (BuildConfig buildConfig, Path testProject) =>
             RunTests(buildConfig, testProject, filter: "Category=\"X509\""));
 
+Task("TestX509Net60").IsDependentOn("TestX509");
+
 Task("Package")
     .IsDependentOn("PackageNugetPackages");
 
