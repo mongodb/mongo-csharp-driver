@@ -35,15 +35,9 @@ public class X509Tests
     [Fact]
     public void Authentication_succeeds_with_MONGODB_X509_mechanism()
     {
-        RequireEnvironment.Check().EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH, isDefined: true);
-        RequireEnvironment.Check().EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD, isDefined: true);
-        RequireServer.Check().Tls(required: true);
+        var clientCertificate = GetClientCertificate(CertificateType.MONGO_X509);
 
-        var pathToClientCertificate = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH);
-        var password = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD);
-        var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
-
-        var settings = DriverTestConfiguration.GetClientSettings().Clone();
+        var settings = DriverTestConfiguration.GetClientSettings();
         settings.SslSettings.ClientCertificates = [clientCertificate];
 
         AssertAuthenticationSucceeds(settings);
@@ -52,15 +46,9 @@ public class X509Tests
     [Fact]
     public void Authentication_fails_with_MONGODB_X509_mechanism_when_username_is_wrong()
     {
-        RequireEnvironment.Check().EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH, isDefined: true);
-        RequireEnvironment.Check().EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD, isDefined: true);
-        RequireServer.Check().Tls(required: true);
+        var clientCertificate = GetClientCertificate(CertificateType.MONGO_X509);
 
-        var pathToClientCertificate = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH);
-        var password = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD);
-        var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
-
-        var settings = DriverTestConfiguration.GetClientSettings().Clone();
+        var settings = DriverTestConfiguration.GetClientSettings();
         settings.Credential = MongoCredential.CreateMongoX509Credential("wrong_username");
         settings.SslSettings.ClientCertificates = [clientCertificate];
 
@@ -70,18 +58,12 @@ public class X509Tests
     [Fact]
     public void Authentication_fails_with_MONGODB_X509_mechanism_when_user_is_not_in_database()
     {
-        RequireEnvironment.Check().EnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH, isDefined: true);
-        RequireEnvironment.Check().EnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD, isDefined: true);
-        RequireServer.Check().Tls(required: true);
+        var noUserClientCertificate = GetClientCertificate(CertificateType.MONGO_X509_CLIENT_NO_USER);
 
-        var pathToClientCertificate = Environment.GetEnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH);
-        var password = Environment.GetEnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD);
-        var clientCertificate = new X509Certificate2(pathToClientCertificate, password);
+        var settings = DriverTestConfiguration.GetClientSettings();
+        settings.SslSettings.ClientCertificates = [noUserClientCertificate];
 
-        var settings = DriverTestConfiguration.GetClientSettings().Clone();
-        settings.SslSettings.ClientCertificates = [clientCertificate];
-
-        AssertAuthenticationFails(settings);
+        AssertAuthenticationFails(settings, "Could not find user");
     }
 
     private void AssertAuthenticationSucceeds(MongoClientSettings settings)
@@ -90,14 +72,54 @@ public class X509Tests
         _ =  client.ListDatabaseNames().ToList();
     }
 
-    private void AssertAuthenticationFails(MongoClientSettings settings)
+    private void AssertAuthenticationFails(MongoClientSettings settings, string innerExceptionMessage = null)
     {
         using var client = DriverTestConfiguration.CreateMongoClient(settings);
         var exception = Record.Exception(() => client.ListDatabaseNames().ToList());
         exception.Should().BeOfType<MongoAuthenticationException>();
 
-        // var innerException = exception.InnerException;
-        // innerException.Should().BeOfType<MongoCommandException>();
-        // innerException.Message.Should().Contain("Could not find user");
+        if (innerExceptionMessage != null)
+        {
+            var innerException = exception.InnerException;
+            innerException.Should().BeOfType<MongoCommandException>();
+            innerException.Message.Should().Contain(innerExceptionMessage);
+        }
+    }
+
+    private enum CertificateType
+    {
+        MONGO_X509,
+        MONGO_X509_CLIENT_NO_USER
+    }
+
+    private X509Certificate2 GetClientCertificate(CertificateType certificateType)
+    {
+        RequireServer.Check().Tls(required: true);
+
+        string path, password;
+
+        switch (certificateType)
+        {
+            case CertificateType.MONGO_X509:
+                RequireEnvironment.Check()
+                    .EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH, isDefined: true)
+                    .EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD, isDefined: true);
+
+                path = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH);
+                password = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD);
+                break;
+            case CertificateType.MONGO_X509_CLIENT_NO_USER:
+                RequireEnvironment.Check()
+                    .EnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH, isDefined: true)
+                    .EnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD, isDefined: true);
+
+                path = Environment.GetEnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH);
+                password = Environment.GetEnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD);
+                break;
+            default:
+                throw new ArgumentException("Wrong certificate type specified.", nameof(certificateType));
+        }
+
+        return new X509Certificate2(path, password);
     }
 }
