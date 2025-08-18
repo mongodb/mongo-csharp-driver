@@ -192,28 +192,7 @@ namespace MongoDB.Driver.Core.Connections
         private NetworkStream CreateNetworkStream(Socket socket)
         {
             ConfigureConnectedSocket(socket);
-
-            var stream = new NetworkStream(socket, true);
-
-            if (_settings.ReadTimeout.HasValue)
-            {
-                var readTimeout = (int)_settings.ReadTimeout.Value.TotalMilliseconds;
-                if (readTimeout != 0)
-                {
-                    stream.ReadTimeout = readTimeout;
-                }
-            }
-
-            if (_settings.WriteTimeout.HasValue)
-            {
-                var writeTimeout = (int)_settings.WriteTimeout.Value.TotalMilliseconds;
-                if (writeTimeout != 0)
-                {
-                    stream.WriteTimeout = writeTimeout;
-                }
-            }
-
-            return stream;
+            return new NetworkStream(socket, true);
         }
 
         private Socket CreateSocket(EndPoint endPoint)

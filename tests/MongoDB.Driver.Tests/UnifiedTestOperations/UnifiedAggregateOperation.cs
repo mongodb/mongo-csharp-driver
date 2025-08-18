@@ -210,6 +210,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
                         break;
+                    case "timeoutMS":
+                        options ??= new AggregateOptions();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
+                        break;
                     default:
                         throw new FormatException($"Invalid AggregateOperation argument name: '{argument.Name}'.");
                 }

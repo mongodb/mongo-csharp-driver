@@ -99,7 +99,9 @@ namespace MongoDB.Driver.Core.Connections
                 streamFactory: _mockStreamFactory.Object,
                 connectionInitializer: _mockConnectionInitializer.Object,
                 eventSubscriber: _capturedEvents,
-                LoggerFactory);
+                loggerFactory: LoggerFactory,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
             _stream = new BlockingMemoryStream();
             _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>()))

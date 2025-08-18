@@ -56,6 +56,8 @@ namespace MongoDB.Driver.Core.Connections
         private CompressorType? _sendCompressorType;
         private readonly SemaphoreSlim _sendLock;
         private readonly ConnectionSettings _settings;
+        private readonly TimeSpan _socketReadTimeout;
+        private readonly TimeSpan _socketWriteTimeout;
         private readonly InterlockedInt32 _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
@@ -69,7 +71,9 @@ namespace MongoDB.Driver.Core.Connections
             IStreamFactory streamFactory,
             IConnectionInitializer connectionInitializer,
             IEventSubscriber eventSubscriber,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            TimeSpan socketReadTimeout,
+            TimeSpan socketWriteTimeout)
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -86,6 +90,8 @@ namespace MongoDB.Driver.Core.Connections
             _compressorSource = new CompressorSource(settings.Compressors);
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.Connection>(eventSubscriber);
             _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber));
+            _socketReadTimeout = socketReadTimeout;
+            _socketWriteTimeout = socketWriteTimeout;
         }
 
         // properties
@@ -275,6 +281,10 @@ namespace MongoDB.Driver.Core.Connections
 
                 helper.OpenedConnection();
             }
+            catch (OperationCanceledException) when (operationContext.IsTimedOut())
+            {
+                throw new TimeoutException();
+            }
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
@@ -301,6 +311,10 @@ namespace MongoDB.Driver.Core.Connections
                 _description = _connectionInitializerContext.Description;
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
                 helper.OpenedConnection();
+            }
+            catch (OperationCanceledException) when (operationContext.IsTimedOut())
+            {
+                throw new TimeoutException();
             }
             catch (Exception ex)
             {
@@ -335,6 +349,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
+                if (!operationContext.IsRootContextTimeoutConfigured())
+                {
+                    operationContext = operationContext.WithTimeout(_socketReadTimeout);
+                }
+
                 var messageSizeBytes = new byte[4];
                 _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
@@ -404,6 +423,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
+                if (!operationContext.IsRootContextTimeoutConfigured())
+                {
+                    operationContext = operationContext.WithTimeout(_socketReadTimeout);
+                }
+
                 var messageSizeBytes = new byte[4];
                 await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4).ConfigureAwait(false);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
@@ -533,6 +557,11 @@ namespace MongoDB.Driver.Core.Connections
                     throw new MongoConnectionClosedException(_connectionId);
                 }
 
+                if (!operationContext.IsRootContextTimeoutConfigured())
+                {
+                    operationContext = operationContext.WithTimeout(_socketWriteTimeout);
+                }
+
                 try
                 {
                     _stream.WriteBytes(operationContext, buffer, 0, buffer.Length);
@@ -559,6 +588,11 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.Value == State.Failed)
                 {
                     throw new MongoConnectionClosedException(_connectionId);
+                }
+
+                if (!operationContext.IsRootContextTimeoutConfigured())
+                {
+                    operationContext = operationContext.WithTimeout(_socketWriteTimeout);
                 }
 
                 try

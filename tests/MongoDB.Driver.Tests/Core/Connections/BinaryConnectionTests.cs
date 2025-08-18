@@ -58,6 +58,13 @@ namespace MongoDB.Driver.Core.Connections
         {
             _capturedEvents = new EventCapturer();
             _mockStreamFactory = new Mock<IStreamFactory>();
+            var stream = new MemoryStream();
+            _mockStreamFactory
+                .Setup(s => s.CreateStream(It.IsAny<EndPoint>(), It.IsAny<CancellationToken>()))
+                .Returns(stream);
+            _mockStreamFactory
+                .Setup(s => s.CreateStreamAsync(It.IsAny<EndPoint>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(stream);
 
             _endPoint = new DnsEndPoint("localhost", 27017);
             _serverId = new ServerId(new ClusterId(), _endPoint);
@@ -88,7 +95,9 @@ namespace MongoDB.Driver.Core.Connections
                 streamFactory: _mockStreamFactory.Object,
                 connectionInitializer: _mockConnectionInitializer.Object,
                 eventSubscriber: _capturedEvents,
-                LoggerFactory);
+                loggerFactory: LoggerFactory,
+                socketReadTimeout: TimeSpan.FromMilliseconds(1000),
+                socketWriteTimeout: TimeSpan.FromMilliseconds(1000));
         }
 
         [Fact]
@@ -175,7 +184,9 @@ namespace MongoDB.Driver.Core.Connections
                 streamFactory: mockStreamFactory.Object,
                 connectionInitializer: connectionInitializer,
                 eventSubscriber: _capturedEvents,
-                LoggerFactory);
+                loggerFactory: LoggerFactory,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
             if (async)
             {
@@ -601,7 +612,7 @@ namespace MongoDB.Driver.Core.Connections
                     .Returns(mockStream.Object);
 
                 var tcs = new TaskCompletionSource<int>();
-                SetupStreamRead(mockStream, tcs, 50);
+                SetupStreamRead(mockStream, tcs);
                 _subject.Open(OperationContext.NoTimeout);
 
                 var exception = await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings));
@@ -641,7 +652,7 @@ namespace MongoDB.Driver.Core.Connections
                 _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, It.IsAny<CancellationToken>()))
                   .Returns(mockStream.Object);
                 var readTcs = new TaskCompletionSource<int>();
-                SetupStreamRead(mockStream, readTcs, readTimeoutMs: Timeout.Infinite);
+                SetupStreamRead(mockStream, readTcs);
                 _subject.Open(OperationContext.NoTimeout);
                 _capturedEvents.Clear();
 
@@ -798,14 +809,8 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void SetupStreamRead(Mock<Stream> streamMock, TaskCompletionSource<int> tcs, int readTimeoutMs = 1000)
+        private void SetupStreamRead(Mock<Stream> streamMock, TaskCompletionSource<int> tcs)
         {
-            if (readTimeoutMs > 0)
-            {
-                streamMock.SetupGet(s => s.CanTimeout).Returns(true);
-                streamMock.SetupGet(s => s.ReadTimeout).Returns(readTimeoutMs);
-            }
-
             streamMock.Setup(s => s.BeginRead(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AsyncCallback>(), It.IsAny<object>()))
                 .Returns((byte[] _, int __, int ___, AsyncCallback callback, object state) =>
                 {

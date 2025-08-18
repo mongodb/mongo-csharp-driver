@@ -159,6 +159,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOptions<BsonDocument>();
                         options.Sort = new BsonDocumentSortDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "timeoutMS":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
+                        break;
                     default:
                         throw new FormatException($"Invalid FindOperation argument name: '{argument.Name}'.");
                 }

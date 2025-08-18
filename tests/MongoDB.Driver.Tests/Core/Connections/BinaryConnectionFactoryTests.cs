@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Net;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
@@ -29,19 +30,22 @@ namespace MongoDB.Driver.Core.Connections
     public class BinaryConnectionFactoryTests
     {
         [Fact]
-        public void Constructor_should_throw_an_ArgumentNullException_when_connectionSettings_is_null()
+        public void Constructor_should_throw_an_ArgumentNullException_when_settings_is_null()
         {
             var streamFactory = new Mock<IStreamFactory>().Object;
             var eventSubscriber = new Mock<IEventSubscriber>().Object;
 
-            Action act = () => new BinaryConnectionFactory(
+            var exception = Record.Exception(() => new BinaryConnectionFactory(
                 settings: null,
                 streamFactory,
                 eventSubscriber,
                 serverApi: null,
-                loggerFactory: null);
+                loggerFactory: null,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan));
 
-            act.ShouldThrow<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("settings");
         }
 
         [Fact]
@@ -49,14 +53,17 @@ namespace MongoDB.Driver.Core.Connections
         {
             var eventSubscriber = new Mock<IEventSubscriber>().Object;
 
-            Action act = () => new BinaryConnectionFactory(
-                new ConnectionSettings(),
+            var exception = Record.Exception(() => new BinaryConnectionFactory(
+                settings: new ConnectionSettings(),
                 streamFactory: null,
                 eventSubscriber,
                 serverApi: null,
-                loggerFactory: null);
+                loggerFactory: null,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan));
 
-            act.ShouldThrow<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("streamFactory");
         }
 
         [Fact]
@@ -69,10 +76,14 @@ namespace MongoDB.Driver.Core.Connections
                 streamFactory,
                 eventSubscriber,
                 serverApi: null,
-                loggerFactory: null);
+                loggerFactory: null,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
-            Action act = () => subject.CreateConnection(null, new DnsEndPoint("localhost", 27017));
-            act.ShouldThrow<ArgumentNullException>();
+            var exception = Record.Exception(() => subject.CreateConnection(null, new DnsEndPoint("localhost", 27017)));
+
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("serverId");
         }
 
         [Fact]
@@ -85,12 +96,15 @@ namespace MongoDB.Driver.Core.Connections
                 streamFactory,
                 eventSubscriber,
                 serverApi: null,
-                loggerFactory: null);
+                loggerFactory: null,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+            var exception = Record.Exception(() => subject.CreateConnection(serverId, null));
 
-            Action act = () => subject.CreateConnection(serverId, null);
-            act.ShouldThrow<ArgumentNullException>();
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("endPoint");
         }
 
         [Fact]
@@ -104,7 +118,9 @@ namespace MongoDB.Driver.Core.Connections
                 streamFactory,
                 eventSubscriber,
                 serverApi,
-                loggerFactory: null);
+                loggerFactory: null,
+                socketReadTimeout: Timeout.InfiniteTimeSpan,
+                socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
 

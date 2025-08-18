@@ -25,15 +25,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly string _indexName;
         private readonly IClientSessionHandle _session;
+        private readonly DropIndexOptions _options;
 
         public UnifiedDropIndexOperation(
             IClientSessionHandle session,
             IMongoCollection<BsonDocument> collection,
-            string indexName)
+            string indexName,
+            DropIndexOptions options)
         {
             _session = session;
             _collection = collection;
             _indexName = indexName;
+            _options = options;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
@@ -42,11 +45,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (_session == null)
                 {
-                    _collection.Indexes.DropOne(_indexName, cancellationToken);
+                    _collection.Indexes.DropOne(_indexName, _options, cancellationToken);
                 }
                 else
                 {
-                    _collection.Indexes.DropOne(_session, _indexName, cancellationToken);
+                    _collection.Indexes.DropOne(_session, _indexName, _options, cancellationToken);
                 }
 
                 return OperationResult.Empty();
@@ -63,11 +66,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (_session == null)
                 {
-                    await _collection.Indexes.DropOneAsync(_indexName, cancellationToken);
+                    await _collection.Indexes.DropOneAsync(_indexName, _options, cancellationToken);
                 }
                 else
                 {
-                    await _collection.Indexes.DropOneAsync(_session, _indexName, cancellationToken);
+                    await _collection.Indexes.DropOneAsync(_session, _indexName, _options, cancellationToken);
                 }
 
                 return OperationResult.Empty();
@@ -93,6 +96,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var collection = _entityMap.Collections[targetCollectionId];
             string indexName = null;
             IClientSessionHandle session = null;
+            DropIndexOptions options = null;
 
             foreach (var argument in arguments)
             {
@@ -101,16 +105,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "name":
                         indexName = argument.Value.AsString;
                         break;
+                    case "maxTimeMS":
+                        options ??= new DropIndexOptions();
+                        options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
                     case "session":
                         var sessionId = argument.Value.AsString;
                         session = _entityMap.Sessions[sessionId];
+                        break;
+                    case "timeoutMS":
+                        options ??= new DropIndexOptions();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     default:
                         throw new FormatException($"Invalid DropIndexOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedDropIndexOperation(session, collection, indexName);
+            return new UnifiedDropIndexOperation(session, collection, indexName, options);
         }
     }
 }

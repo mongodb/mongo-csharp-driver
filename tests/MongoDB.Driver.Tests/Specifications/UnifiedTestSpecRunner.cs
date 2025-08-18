@@ -56,6 +56,32 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("change_streams.tests.unified")]
         public void ChangeStreams(JsonDrivenTestCase testCase) => Run(testCase);
 
+        [UnifiedTestsTheory("client_side_operations_timeout.tests")]
+        public void ClientSideOperationsTimeout(JsonDrivenTestCase testCase)
+        {
+            SkipNotSupportedTestCases("dropIndexes");
+            SkipNotSupportedTestCases("findOne");
+            SkipNotSupportedTestCases("listIndexNames");
+            // TODO: CSOT: further skipped tests should be unblocked by upcoming fixes
+            SkipNotSupportedTestCases("with only 1 RTT"); // blocked by CSHARP-5627
+            SkipNotSupportedTestCases("createChangeStream"); // TODO: CSOT not implemented yet, CSHARP-3539
+            SkipNotSupportedTestCases("runCommand"); // TODO: CSOT: TimeoutMS is not implemented yet for runCommand
+            SkipNotSupportedTestCases("timeoutMS applies to whole operation, not individual attempts"); // blocked by DRIVERS-3247
+            SkipNotSupportedTestCases("WaitQueueTimeoutError does not clear the pool"); // TODO: CSOT: TimeoutMS is not implemented yet for runCommand
+            SkipNotSupportedTestCases("write concern error MaxTimeMSExpired is transformed"); // TODO: CSOT: investigate error transformation, implementing the requirement might be breaking change
+            SkipNotSupportedTestCases("operation succeeds after one socket timeout - listDatabases on client"); // TODO: listDatabases is not retryable in CSharp Driver, NEED TICKET!!!
+
+            Run(testCase);
+
+            void SkipNotSupportedTestCases(string operationName)
+            {
+                if (testCase.Name.Contains(operationName))
+                {
+                    throw new SkipException($"Test skipped because {operationName} is not supported.");
+                }
+            }
+        }
+
         [Category("CSFLE")]
         [UnifiedTestsTheory("client_side_encryption.tests.unified")]
         public void ClientSideEncryption(JsonDrivenTestCase testCase)

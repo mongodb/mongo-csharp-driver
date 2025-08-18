@@ -138,6 +138,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new UpdateOptions<BsonDocument>();
                         options.Sort = argument.Value.AsBsonDocument;
                         break;
+                    case "timeoutMS":
+                        options ??= new UpdateOptions<BsonDocument>();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
+                        break;
                     case "upsert":
                         options ??= new UpdateOptions<BsonDocument>();
                         options.IsUpsert = argument.Value.AsBoolean;

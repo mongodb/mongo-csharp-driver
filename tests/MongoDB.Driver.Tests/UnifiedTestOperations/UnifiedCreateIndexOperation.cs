@@ -24,16 +24,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly CreateIndexModel<BsonDocument> _createIndexModel;
+        private readonly CreateOneIndexOptions _options;
         private readonly IClientSessionHandle _session;
 
         public UnifiedCreateIndexOperation(
             IClientSessionHandle session,
             IMongoCollection<BsonDocument> collection,
-            CreateIndexModel<BsonDocument> createIndexModel)
+            CreateIndexModel<BsonDocument> createIndexModel,
+            CreateOneIndexOptions options)
         {
             _session = session;
             _collection = collection;
             _createIndexModel = createIndexModel;
+            _options = options;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
@@ -44,11 +47,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                 if (_session == null)
                 {
-                    result = _collection.Indexes.CreateOne(_createIndexModel, cancellationToken: cancellationToken);
+                    result = _collection.Indexes.CreateOne(_createIndexModel, _options, cancellationToken: cancellationToken);
                 }
                 else
                 {
-                    result = _collection.Indexes.CreateOne(_session, _createIndexModel, cancellationToken: cancellationToken);
+                    result = _collection.Indexes.CreateOne(_session, _createIndexModel, _options, cancellationToken: cancellationToken);
                 }
 
                 return OperationResult.FromResult(BsonString.Create(result));
@@ -67,11 +70,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                 if (_session == null)
                 {
-                    result = await _collection.Indexes.CreateOneAsync(_createIndexModel, cancellationToken: cancellationToken);
+                    result = await _collection.Indexes.CreateOneAsync(_createIndexModel, _options, cancellationToken: cancellationToken);
                 }
                 else
                 {
-                    result = await _collection.Indexes.CreateOneAsync(_session, _createIndexModel, cancellationToken: cancellationToken);
+                    result = await _collection.Indexes.CreateOneAsync(_session, _createIndexModel, _options, cancellationToken: cancellationToken);
                 }
 
                 return OperationResult.FromResult(BsonString.Create(result));
@@ -98,6 +101,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             BsonDocument keys = null;
             CreateIndexOptions options = null;
+            CreateOneIndexOptions createOneIndexOptions = null;
             IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
@@ -107,13 +111,21 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "keys":
                         keys = argument.Value.AsBsonDocument;
                         break;
+                    case "maxTimeMS":
+                        createOneIndexOptions ??= new CreateOneIndexOptions();
+                        createOneIndexOptions.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
                     case "name":
-                        options = options ?? new CreateIndexOptions();
+                        options ??= new CreateIndexOptions();
                         options.Name = argument.Value.AsString;
                         break;
                     case "session":
                         var sessionId = argument.Value.AsString;
                         session = _entityMap.Sessions[sessionId];
+                        break;
+                    case "timeoutMS":
+                        createOneIndexOptions ??= new CreateOneIndexOptions();
+                        createOneIndexOptions.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     default:
                         throw new FormatException($"Invalid CreateIndexOperation argument name: '{argument.Name}'.");
@@ -122,7 +134,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var createIndexModel = new CreateIndexModel<BsonDocument>(keys, options);
 
-            return new UnifiedCreateIndexOperation(session, collection, createIndexModel);
+            return new UnifiedCreateIndexOperation(session, collection, createIndexModel, createOneIndexOptions);
         }
     }
 }

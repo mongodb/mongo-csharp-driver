@@ -428,10 +428,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             TimeSpan? serverSelectionTimeout = null;
             int? waitQueueSize = null;
             TimeSpan? socketTimeout = null;
+            TimeSpan? timeout = null;
             var useMultipleShardRouters = false;
             TimeSpan? waitQueueTimeout = null;
             var writeConcern = WriteConcern.Acknowledged;
             var serverApi = CoreTestConfiguration.ServerApi;
+            TimeSpan? wTimeout = null;
 
             foreach (var element in entity)
             {
@@ -534,6 +536,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "socketTimeoutMS":
                                     socketTimeout = TimeSpan.FromMilliseconds(option.Value.AsInt32);
                                     break;
+                                case "timeoutMS":
+                                    timeout = ParseTimeout(option.Value);
+                                    break;
                                 case "w":
                                     writeConcern = new WriteConcern(WriteConcern.WValue.Parse(option.Value.ToString()));
                                     break;
@@ -542,6 +547,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     break;
                                 case "waitQueueTimeoutMS":
                                     waitQueueTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
+                                    break;
+                                case "wTimeoutMS":
+                                    wTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
                                     break;
                                 default:
                                     throw new FormatException($"Invalid client uriOption argument name: '{option.Name}'.");
@@ -624,6 +632,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
+            if (wTimeout.HasValue)
+            {
+                writeConcern = writeConcern.With(wTimeout: wTimeout);
+            }
+
             // Regardless of whether events are observed, we still need to track some info about the pool in order to implement
             // the assertNumberConnectionsCheckedOut operation
             if (eventTypesToCapture.Count == 0)
@@ -685,6 +698,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     settings.ServerMonitoringMode = serverMonitoringMode.GetValueOrDefault(settings.ServerMonitoringMode);
                     settings.ServerSelectionTimeout = serverSelectionTimeout.GetValueOrDefault(defaultValue: settings.ServerSelectionTimeout);
                     settings.SocketTimeout = socketTimeout.GetValueOrDefault(defaultValue: settings.SocketTimeout);
+                    settings.Timeout = timeout;
                     if (eventCapturers.Length > 0)
                     {
                         settings.ClusterConfigurator = c =>
@@ -802,6 +816,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "readPreference":
                                     settings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
                                     break;
+                                case "timeoutMS":
+                                    settings.Timeout = ParseTimeout(option.Value);
+                                    break;
                                 case "writeConcern":
                                     settings.WriteConcern = ParseWriteConcern(option.Value.AsBsonDocument);
                                     break;
@@ -850,6 +867,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     break;
                                 case "readPreference":
                                     databaseSettings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
+                                    break;
+                                case "timeoutMS":
+                                    databaseSettings.Timeout = ParseTimeout(option.Value);
                                     break;
                                 case "writeConcern":
                                     databaseSettings.WriteConcern = ParseWriteConcern(option.Value.AsBsonDocument);
@@ -975,6 +995,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "causalConsistency":
                                     options.CausalConsistency = option.Value.ToBoolean();
                                     break;
+                                case "defaultTimeoutMS":
+                                    var timeout = ParseTimeout(option.Value);
+                                    options.DefaultTransactionOptions = new TransactionOptions(
+                                        timeout,
+                                        options.DefaultTransactionOptions?.ReadConcern,
+                                        options.DefaultTransactionOptions?.ReadPreference,
+                                        options.DefaultTransactionOptions?.WriteConcern,
+                                        options.DefaultTransactionOptions?.MaxCommitTime);
+                                    break;
                                 case "defaultTransactionOptions":
                                     ReadConcern readConcern = null;
                                     ReadPreference readPreference = null;
@@ -1001,7 +1030,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                         }
                                     }
 
-                                    options.DefaultTransactionOptions = new TransactionOptions(readConcern, readPreference, writeConcern, maxCommitTime);
+                                    options.DefaultTransactionOptions = new TransactionOptions(options.DefaultTransactionOptions?.Timeout, readConcern, readPreference, writeConcern, maxCommitTime);
                                     break;
                                 default:
                                     throw new FormatException($"Invalid session option argument name: '{option.Name}'.");
@@ -1048,5 +1077,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             return writeConcern;
         }
+
+        public static TimeSpan ParseTimeout(BsonValue value)
+            => value.AsInt32 == 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromMilliseconds(value.AsInt32);
     }
 }
