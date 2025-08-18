@@ -29,7 +29,6 @@ TOPOLOGY=${TOPOLOGY:-server}
 COMPRESSOR=${COMPRESSOR:-none}
 OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
 CLIENT_PEM=${CLIENT_PEM:-nil}
-CLIENT_NO_USER_PEM=${CLIENT_NO_USER_PEM:-nil}
 PLATFORM=${PLATFORM:-nil}
 TARGET=${TARGET:-Test}
 FRAMEWORK=${FRAMEWORK:-nil}
@@ -132,16 +131,6 @@ done
 
 if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
-fi
-
-#TODO need to remove this from here
-if [[ "$CLIENT_NO_USER_PEM" != "nil" ]]; then
-  export CLIENT_PEM_VAR_NAME="CLIENT_NO_USER_PEM"
-  export FRIENDLY_NAME="Drivers No-User Client Certificate"
-  export P12_FILENAME="client_no_user.p12"
-  export OUT_CLIENT_PASSWORD_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD"
-  export OUT_CLIENT_PATH_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH"
-  CLIENT_NO_USER_PEM=${CLIENT_NO_USER_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
 if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then

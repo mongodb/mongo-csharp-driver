@@ -386,9 +386,15 @@ functions:
           ${PREPARE_SHELL}
           OS=${OS} \
             evergreen/add-ca-certs.sh
+          CLIENT_PEM_VAR_NAME="CLIENT_NO_USER_PEM" \
+          FRIENDLY_NAME="Drivers No-User Client Certificate" \
+          P12_FILENAME="client_no_user.p12" \
+          OUT_CLIENT_PASSWORD_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD" \
+          OUT_CLIENT_PATH_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH" \
+          CLIENT_NO_USER_PEM=${DRIVERS_TOOLS}/CLIENT_NO_USER_CERT.pem \
+            source evergreen/convert-client-cert-to-pkcs12.sh
           MONGODB_URI="$ATLAS_X509_DEV" \
           CLIENT_PEM=${DRIVERS_TOOLS}/CLIENT_CERT.pem \
-          CLIENT_NO_USER_PEM=${DRIVERS_TOOLS}/CLIENT_NO_USER_CERT.pem \
           TOPOLOGY=${TOPOLOGY} \
           OS=${OS} \
           FRAMEWORK=${FRAMEWORK} \
