@@ -6,13 +6,13 @@ set -o errexit  # Exit the script with an error if any of the commands fail
 #   CLIENT_PEM                      Path to mongo client.pem: must be set
 #   P12_FILENAME                    Filename for client certificate in p12 format
 #   P12_PASSWORD                    Password for client certificate in p12 format
-#   P12_FRIENDLY_NAME                   Friendly name for client certificate in p12 format
+#   P12_FRIENDLY_NAME               Friendly name for client certificate in p12 format
 #   OUT_CLIENT_PATH_VAR             Name of the output variable containing the path of the p12 certificate
 #   OUT_CLIENT_PASSWORD_VAR         Name of the output variable containing the password for the p12 certificate
 #
 # Environment variables produced as output:
-#   {!OUT_CLIENT_PATH_VAR}          Absolute path to client certificate in p12 format (OUT_CLIENT_PATH_VAR contains the actual variable being exported)
-#   {!OUT_CLIENT_PASSWORD_VAR}      Password for client certificate (OUT_CLIENT_PASSWORD_VAR contains the actual variable being exported)
+#   ${OUT_CLIENT_PATH_VAR}          Absolute path to client certificate in p12 format (OUT_CLIENT_PATH_VAR contains the actual variable being exported)
+#   ${OUT_CLIENT_PASSWORD_VAR}      Password for client certificate (OUT_CLIENT_PASSWORD_VAR contains the actual variable being exported)
 
 
 # Input environment variables and default values
