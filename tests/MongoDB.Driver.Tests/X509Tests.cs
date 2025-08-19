@@ -96,29 +96,29 @@ public class X509Tests
     {
         RequireServer.Check().Tls(required: true);
 
-        string path, password;
+        string pathVariable = null;
+        string passwordVariable = null;
 
         switch (certificateType)
         {
             case CertificateType.MONGO_X509:
-                RequireEnvironment.Check()
-                    .EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH, isDefined: true)
-                    .EnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD, isDefined: true);
-
-                path = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PATH);
-                password = Environment.GetEnvironmentVariable(MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD);
+                pathVariable = MONGODB_X509_CLIENT_CERTIFICATE_PATH;
+                passwordVariable = MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD;
                 break;
             case CertificateType.MONGO_X509_CLIENT_NO_USER:
-                RequireEnvironment.Check()
-                    .EnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH, isDefined: true)
-                    .EnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD, isDefined: true);
-
-                path = Environment.GetEnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH);
-                password = Environment.GetEnvironmentVariable(MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD);
+                pathVariable = MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH;
+                passwordVariable = MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD;
                 break;
             default:
                 throw new ArgumentException("Wrong certificate type specified.", nameof(certificateType));
         }
+
+        RequireEnvironment.Check()
+            .EnvironmentVariable(pathVariable, isDefined: true)
+            .EnvironmentVariable(passwordVariable, isDefined: true);
+
+        var path = Environment.GetEnvironmentVariable(pathVariable);
+        var password = Environment.GetEnvironmentVariable(passwordVariable);
 
         return new X509Certificate2(path, password);
     }
