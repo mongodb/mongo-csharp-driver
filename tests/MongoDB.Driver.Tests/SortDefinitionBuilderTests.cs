@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void CallingRenderOnValueBasedSortShouldThrow()
+        public void Calling_render_on_value_based_sort_should_throw()
         {
             var subject = CreateSubject<BsonDocument>();
 

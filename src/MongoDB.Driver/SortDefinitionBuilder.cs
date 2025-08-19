@@ -131,7 +131,9 @@ namespace MongoDB.Driver
     public sealed class SortDefinitionBuilder<TDocument>
     {
         /// <summary>
-        /// Creates a value ascending sort.
+        /// Creates a value ascending sort that sorts documents by their entire document value. For example, "$sort: 1"
+        /// This is typically used when documents are simple values (like strings, numbers, or dates)
+        /// rather than complex objects with multiple fields.
         /// </summary>
         /// <returns>A value ascending sort.</returns>
         public SortDefinition<TDocument> Ascending()
@@ -140,7 +142,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an ascending sort.
+        /// Creates an ascending sort based on a specific field within the document. For example, "$sort: {field: 1}"
+        /// This is used when documents are complex objects, and you want to sort by a particular field's value.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>An ascending sort.</returns>
@@ -150,7 +153,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates an ascending sort.
+        /// Creates an ascending sort based on a specific field within the document. For example, "$sort: {field: 1}"
+        /// This is used when documents are complex objects, and you want to sort by a particular field's value.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>An ascending sort.</returns>
@@ -180,7 +184,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a value descending sort.
+        /// Creates a value descending sort that sorts documents by their entire document value. For example, "$sort: -1"
+        /// This is typically used when documents are simple values (like strings, numbers, or dates)
+        /// rather than complex objects with multiple fields.
         /// </summary>
         /// <returns>A value descending sort.</returns>
         public SortDefinition<TDocument> Descending()
@@ -189,7 +195,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a descending sort.
+        /// Creates a descending sort based on a specific field within the document. For example, "$sort: {field: -1}"
+        /// This is used when documents are complex objects, and you want to sort by a particular field's value.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>A descending sort.</returns>
@@ -199,7 +206,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a descending sort.
+        /// Creates a descending sort based on a specific field within the document. For example, "$sort: {field: -1}"
+        /// This is used when documents are complex objects, and you want to sort by a particular field's value.
         /// </summary>
         /// <param name="field">The field.</param>
         /// <returns>A descending sort.</returns>
