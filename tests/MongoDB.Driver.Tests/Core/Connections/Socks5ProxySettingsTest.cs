@@ -107,7 +107,7 @@ public class Socks5ProxySettingsTest
     public void ToString_should_return_expected_string_for_username_password_auth()
     {
         var s = new Socks5ProxySettings("host", 1234, Socks5AuthenticationSettings.UsernamePassword("u", "p"));
-        var expected = "{ Host : host, Port : 1234, Authentication : UsernamePassword (Username: u, Password: p) }";
+        var expected = "{ Host : host, Port : 1234, Authentication : UsernamePassword }";
         s.ToString().Should().Be(expected);
     }
 
