@@ -175,7 +175,7 @@ namespace MongoDB.Driver
                 writeTimeout: clusterKey.SocketTimeout);
         }
 
-        private ProxyStreamSettings ConfigureSocks5Proxy(ProxyStreamSettings settings, ClusterKey clusterKey)
+        private Socks5ProxyStreamSettings ConfigureSocks5Proxy(Socks5ProxyStreamSettings settings, ClusterKey clusterKey)
         {
             return settings.With(
                 clusterKey.Socks5ProxySettings);

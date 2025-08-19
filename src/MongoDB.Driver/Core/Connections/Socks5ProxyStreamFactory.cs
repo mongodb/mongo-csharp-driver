@@ -22,12 +22,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections;
 
-internal class ProxyStreamFactory: IStreamFactory
+internal class Socks5ProxyStreamFactory: IStreamFactory
 {
-    private readonly ProxyStreamSettings _settings;
+    private readonly Socks5ProxyStreamSettings _settings;
     private readonly IStreamFactory _wrapped;
 
-    public ProxyStreamFactory(ProxyStreamSettings settings, IStreamFactory wrapped)
+    public Socks5ProxyStreamFactory(Socks5ProxyStreamSettings settings, IStreamFactory wrapped)
     {
         _settings = Ensure.IsNotNull(settings, nameof(settings));
         _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
