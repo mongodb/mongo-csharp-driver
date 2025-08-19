@@ -837,6 +837,10 @@ functions:
       params:
         shell: "bash"
         script: |
+          #This script kills the test SOCKS5 proxy servers.
+          #The server processes have almost certainly already been killed by the evergreen process cleaning though.
+          #This is just to be sure it already happened and delete the file containing the saved PIDs.
+
           echo "Killing proxies"
           PID_FILE="socks5_pids.txt"
 
