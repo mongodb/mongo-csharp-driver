@@ -16,7 +16,6 @@
 using System;
 using System.Net.Sockets;
 using System.Threading;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -45,7 +44,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="receiveBufferSize">Size of the receive buffer.</param>
         /// <param name="sendBufferSize">Size of the send buffer.</param>
         /// <param name="socketConfigurator">The socket configurator.</param>
-        /// <param name="socks5ProxySettings">The SOCKS5 proxy settings.</param>
         /// <param name="writeTimeout">The write timeout.</param>
         public TcpStreamSettings(
             Optional<AddressFamily> addressFamily = default(Optional<AddressFamily>),
