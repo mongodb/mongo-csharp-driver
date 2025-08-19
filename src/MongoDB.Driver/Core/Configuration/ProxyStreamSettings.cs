@@ -27,21 +27,21 @@ public class ProxyStreamSettings
     private Socks5ProxySettings _socks5ProxySettings;
 
     /// <summary>
-    ///
+    /// Initializes a new instance of the <see cref="ProxyStreamSettings"/> class.
     /// </summary>
-    /// <param name="socks5ProxySettings"></param>
+    /// <param name="socks5ProxySettings"> The settings for the SOCKS5 proxy.</param>
     public ProxyStreamSettings(Optional<Socks5ProxySettings> socks5ProxySettings = default)
     {
         _socks5ProxySettings = socks5ProxySettings.WithDefault(null);
     }
 
     /// <summary>
-    ///
+    /// Gets the settings for the SOCKS5 proxy.
     /// </summary>
     public Socks5ProxySettings Socks5ProxySettings => _socks5ProxySettings;
 
     /// <summary>
-    ///
+    /// Creates a new instance of <see cref="ProxyStreamSettings"/> with the specified SOCKS5 proxy settings.
     /// </summary>
     /// <param name="socks5ProxySettings"></param>
     /// <returns></returns>

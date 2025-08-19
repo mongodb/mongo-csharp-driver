@@ -1071,7 +1071,7 @@ namespace MongoDB.Driver.Core.Configuration
                     var proxyPortValue = ParseInt32(name, value);
                     if (proxyPortValue is < 1 or > 65535)
                     {
-                        throw new MongoConfigurationException($"Invalid proxy port: {proxyPortValue}: must be between 1 and 65535, inclusive.");
+                        throw new MongoConfigurationException($"Invalid proxy port {proxyPortValue}: must be between 1 and 65535, inclusive.");
                     }
                     _proxyPort = proxyPortValue;
                     break;

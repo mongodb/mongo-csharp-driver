@@ -159,10 +159,10 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// //TODO
+        /// Configures the SOCKS5 proxy settings for the cluster.
         /// </summary>
-        /// <param name="configurator"></param>
-        /// <returns></returns>
+        /// <param name="configurator"> The SOCKS5 proxy settings configurator delegate.</param>
+        /// <returns> A reconfigured cluster builder.</returns>
         public ClusterBuilder ConfigureSocks5Proxy(Func<ProxyStreamSettings, ProxyStreamSettings> configurator)
         {
             Ensure.IsNotNull(configurator, nameof(configurator));
