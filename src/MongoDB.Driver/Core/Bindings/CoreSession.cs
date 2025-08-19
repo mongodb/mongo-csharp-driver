@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.Bindings
         private BsonTimestamp _snapshotTime;
 
         // constructors
+        //FP This constructor is only used by the tests.
         internal CoreSession(
             IClusterInternal cluster,
             ICoreServerSession serverSession,
@@ -446,14 +448,16 @@ namespace MongoDB.Driver.Core.Bindings
         // private methods
         private IReadOperation<BsonDocument> CreateAbortTransactionOperation()
         {
-            return new AbortTransactionOperation(_currentTransaction.RecoveryToken, GetTransactionWriteConcern());
+            //QUESTION Is it correct we only need a default domain here?
+            return new AbortTransactionOperation(_currentTransaction.RecoveryToken, GetTransactionWriteConcern(), BsonSerializer.DefaultSerializationDomain);
         }
 
         private IReadOperation<BsonDocument> CreateCommitTransactionOperation(bool isCommitRetry)
         {
             var writeConcern = GetCommitTransactionWriteConcern(isCommitRetry);
             var maxCommitTime = _currentTransaction.TransactionOptions.MaxCommitTime;
-            return new CommitTransactionOperation(_currentTransaction.RecoveryToken, writeConcern) { MaxCommitTime = maxCommitTime };
+            //QUESTION Is it correct we only need a default domain here?
+            return new CommitTransactionOperation(_currentTransaction.RecoveryToken, writeConcern, BsonSerializer.DefaultSerializationDomain) { MaxCommitTime = maxCommitTime };
         }
 
         private void EnsureAbortTransactionCanBeCalled(string methodName)

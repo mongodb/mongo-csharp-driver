@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Authentication.AWS.SaslSteps
 
         private void ParseServerResponse(SaslConversation conversation, byte[] bytesReceivedFromServer, out byte[] serverNonce, out string host)
         {
-            var serverFirstMessageDocument = BsonSerializer.Deserialize<BsonDocument>(bytesReceivedFromServer);
+            var serverFirstMessageDocument = BsonSerializer.Deserialize<BsonDocument>(bytesReceivedFromServer);  //FP I think this is fine, as it should be default configuration.
             if (serverFirstMessageDocument.Names.Any(n => !__serverResponseExpectedNames.Contains(n)))
             {
                 var unexpectedNames = serverFirstMessageDocument.Names.Except(__serverResponseExpectedNames);

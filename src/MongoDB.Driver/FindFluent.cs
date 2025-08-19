@@ -284,7 +284,7 @@ namespace MongoDB.Driver
         {
             var args = new RenderArgs<TDocument>(
                 _collection.DocumentSerializer,
-                _collection.Settings.SerializerRegistry,
+                _collection.Settings.SerializationDomain,
                 renderForFind: renderForFind,
                 translationOptions: translationOptions);
 

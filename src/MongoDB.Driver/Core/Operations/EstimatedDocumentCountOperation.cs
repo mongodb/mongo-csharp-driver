@@ -16,6 +16,7 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -31,11 +32,19 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
         private bool _retryRequested;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
-        public EstimatedDocumentCountOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
+        public EstimatedDocumentCountOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings, IBsonSerializationDomain serializationDomain)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
+        }
+
+        //EXIT
+        public EstimatedDocumentCountOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         public CollectionNamespace CollectionNamespace => _collectionNamespace;
@@ -96,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private IExecutableInRetryableReadContext<long> CreateCountOperation()
         {
-            var countOperation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
+            var countOperation = new CountOperation(_collectionNamespace, _messageEncoderSettings, _serializationDomain)
             {
                 Comment = _comment,
                 MaxTime = _maxTime,

@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ServerApi _serverApi;
         private readonly ICoreSession _session;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         public CommandUsingQueryMessageWireProtocol(
@@ -63,7 +64,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             Action<IMessageEncoderPostProcessor> postWriteAction,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            IBsonSerializationDomain serializationDomain)
         {
             if (responseHandling != CommandResponseHandling.Return && responseHandling != CommandResponseHandling.Ignore)
             {
@@ -82,6 +84,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _messageEncoderSettings = messageEncoderSettings;
             _postWriteAction = postWriteAction; // can be null
             _serverApi = serverApi; // can be null
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         // public properties
@@ -326,7 +329,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     var encoder = (ReplyMessageBinaryEncoder<TCommandResult>)encoderFactory.GetReplyMessageEncoder<TCommandResult>(_resultSerializer);
                     using (var reader = encoder.CreateBinaryReader())
                     {
-                        var context = BsonDeserializationContext.CreateRoot(reader);
+                        var context = BsonDeserializationContext.CreateRoot(reader, _serializationDomain);
                         return _resultSerializer.Deserialize(context);
                     }
                 }

@@ -25,6 +25,8 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonExtensionMethods
     {
+        //DOMAIN-API We should remove this and use the version with the domain.
+        //QUESTION: Do we want to do something now about this...? It's used also internally, but it seems in most cases it's used for "default serialization", so it should be ok.
         /// <summary>
         /// Serializes an object to a BSON byte array.
         /// </summary>
@@ -49,6 +51,21 @@ namespace MongoDB.Bson
             return ToBson(obj, typeof(TNominalType), writerSettings, serializer, configurator, args, estimatedBsonSize);
         }
 
+        internal static byte[] ToBson<TNominalType>(
+            this TNominalType obj,
+            IBsonSerializationDomain serializationDomain,
+            IBsonSerializer<TNominalType> serializer = null,
+            BsonBinaryWriterSettings writerSettings = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default(BsonSerializationArgs),
+            int estimatedBsonSize = 0)
+        {
+            args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
+
+            return ToBson(obj, typeof(TNominalType), serializationDomain, writerSettings, serializer, configurator, args, estimatedBsonSize);
+        }
+
+        //DOMAIN-API We should remove this and use the version with the domain.
         /// <summary>
         /// Serializes an object to a BSON byte array.
         /// </summary>
@@ -68,6 +85,17 @@ namespace MongoDB.Bson
             BsonBinaryWriterSettings writerSettings = null,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default,
+            int estimatedBsonSize = 0) => ToBson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings,
+            serializer, configurator, args, estimatedBsonSize);
+
+        internal static byte[] ToBson(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationDomain serializationDomain,
+            BsonBinaryWriterSettings writerSettings = null,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs),
             int estimatedBsonSize = 0)
         {
@@ -84,7 +112,7 @@ namespace MongoDB.Bson
 
             if (serializer == null)
             {
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = serializationDomain.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
@@ -96,7 +124,7 @@ namespace MongoDB.Bson
             {
                 using (var bsonWriter = new BsonBinaryWriter(memoryStream, writerSettings ?? BsonBinaryWriterSettings.Defaults))
                 {
-                    var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter, serializationDomain, configurator);
                     serializer.Serialize(context, args, obj);
                 }
                 return memoryStream.ToArray();
@@ -138,7 +166,16 @@ namespace MongoDB.Bson
             Type nominalType,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
-            BsonSerializationArgs args = default(BsonSerializationArgs))
+            BsonSerializationArgs args = default) => ToBsonDocument(obj, nominalType,
+            BsonSerializer.DefaultSerializationDomain, serializer, configurator, args);
+
+        internal static BsonDocument ToBsonDocument(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationDomain serializationDomain,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default)
         {
             if (nominalType == null)
             {
@@ -165,7 +202,7 @@ namespace MongoDB.Bson
                     return convertibleToBsonDocument.ToBsonDocument(); // use the provided ToBsonDocument method
                 }
 
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = serializationDomain.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
@@ -177,7 +214,7 @@ namespace MongoDB.Bson
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, serializationDomain, configurator);
                 serializer.Serialize(context, args, obj);
             }
             return document;
@@ -226,6 +263,16 @@ namespace MongoDB.Bson
             JsonWriterSettings writerSettings = null,
             IBsonSerializer serializer = null,
             Action<BsonSerializationContext.Builder> configurator = null,
+            BsonSerializationArgs args = default)
+            => ToJson(obj, nominalType, BsonSerializer.DefaultSerializationDomain, writerSettings, serializer, configurator, args);
+
+        internal static string ToJson(
+            this object obj,
+            Type nominalType,
+            IBsonSerializationDomain domain,
+            JsonWriterSettings writerSettings = null,
+            IBsonSerializer serializer = null,
+            Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs))
         {
             if (nominalType == null)
@@ -236,7 +283,7 @@ namespace MongoDB.Bson
 
             if (serializer == null)
             {
-                serializer = BsonSerializer.LookupSerializer(nominalType);
+                serializer = domain.LookupSerializer(nominalType);
             }
             if (serializer.ValueType != nominalType)
             {
@@ -248,7 +295,7 @@ namespace MongoDB.Bson
             {
                 using (var bsonWriter = new JsonWriter(stringWriter, writerSettings ?? JsonWriterSettings.Defaults))
                 {
-                    var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter, domain, configurator);
                     serializer.Serialize(context, args, obj);
                 }
                 return stringWriter.ToString();

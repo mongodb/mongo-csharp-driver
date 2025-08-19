@@ -17,6 +17,7 @@ using System;
 
 namespace MongoDB.Bson.Serialization
 {
+    //DOMAIN-API We should remove this interface and merge it with IRegistryAwareBsonSerializationProvider.
     /// <summary>
     /// An interface implemented by serialization providers.
     /// </summary>
@@ -47,5 +48,14 @@ namespace MongoDB.Bson.Serialization
         /// A serializer.
         /// </returns>
         IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry);
+    }
+
+    //DOMAIN-API We should use this interface the default one, and remove the previous two.
+    internal interface IDomainAwareBsonSerializationProvider : IRegistryAwareBsonSerializationProvider
+    {
+        IBsonSerializationDomain SerializationDomain { get; }
+
+        //FP Can't use just GetSerializer because it's already used by the base interface.
+        IBsonSerializer GetSerializerWithDomain(Type type);
     }
 }

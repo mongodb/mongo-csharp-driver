@@ -20,6 +20,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Bindings;
@@ -303,7 +304,7 @@ namespace MongoDB.Driver
             using (var binding = CreateReadBinding(session))
             {
                 var command = new BsonDocument("hello", 1);
-                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
                 var response = operation.Execute(OperationContext.NoTimeout, binding);
                 return response["maxWireVersion"].AsInt32;
             }
@@ -315,7 +316,7 @@ namespace MongoDB.Driver
             using (var binding = CreateReadBinding(session))
             {
                 var command = new BsonDocument("buildinfo", 1);
-                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
                 var response = operation.Execute(OperationContext.NoTimeout, binding);
                 return SemanticVersion.Parse(response["version"].AsString);
             }
@@ -327,7 +328,7 @@ namespace MongoDB.Driver
             using (var binding = CreateReadBinding(session))
             {
                 var command = new BsonDocument("getParameter", new BsonString("*"));
-                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
                 var serverParameters = operation.Execute(OperationContext.NoTimeout, binding);
 
                 return serverParameters;
@@ -402,7 +403,7 @@ namespace MongoDB.Driver
 
         private static void DropDatabase()
         {
-            var operation = new DropDatabaseOperation(__databaseNamespace.Value, __messageEncoderSettings);
+            var operation = new DropDatabaseOperation(__databaseNamespace.Value, __messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
 
             using (var session = StartSession())
             using (var binding = CreateReadWriteBinding(session))
@@ -416,7 +417,7 @@ namespace MongoDB.Driver
             using (var session = StartSession(cluster))
             using (var binding = CreateReadBinding(cluster, ReadPreference.Primary, session))
             {
-                var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
 
                 return operation.Execute(OperationContext.NoTimeout, binding).ToList();
             }
@@ -495,7 +496,7 @@ namespace MongoDB.Driver
                 using (var session = StartSession(cluster))
                 using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
                 {
-                    var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                    var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings, BsonSerializer.DefaultSerializationDomain);
 
                     var response = operation.Execute(OperationContext.NoTimeout, binding);
                     if (response.TryGetValue("storageEngine", out var storageEngine) && storageEngine.AsBsonDocument.TryGetValue("name", out var name))

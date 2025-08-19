@@ -46,8 +46,30 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly ServerApi _serverApi;
         private readonly TimeSpan _roundTripTime;
         private readonly ICoreSession _session;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
+        public CommandWireProtocol(
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            bool secondaryOk,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            ServerApi serverApi,
+            IBsonSerializationDomain serializationDomain)
+            : this(
+                databaseNamespace,
+                command,
+                secondaryOk,
+                CommandResponseHandling.Return,
+                resultSerializer,
+                messageEncoderSettings,
+                serverApi,
+                serializationDomain)
+        {
+        }
+
+        //EXIT
         public CommandWireProtocol(
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
@@ -59,10 +81,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 databaseNamespace,
                 command,
                 secondaryOk,
-                CommandResponseHandling.Return,
                 resultSerializer,
                 messageEncoderSettings,
-                serverApi)
+                serverApi,
+                BsonSerializer.DefaultSerializationDomain)
         {
         }
 
@@ -73,7 +95,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             CommandResponseHandling commandResponseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            IBsonSerializationDomain serializationDomain)
             : this(
                 NoCoreSession.Instance,
                 secondaryOk ? ReadPreference.PrimaryPreferred : ReadPreference.Primary,
@@ -87,7 +110,29 @@ namespace MongoDB.Driver.Core.WireProtocol
                 resultSerializer,
                 messageEncoderSettings,
                 serverApi,
-                roundTripTime: TimeSpan.Zero)
+                roundTripTime: TimeSpan.Zero,
+                serializationDomain)
+        {
+        }
+
+        //EXIT
+        public CommandWireProtocol(
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            bool secondaryOk,
+            CommandResponseHandling commandResponseHandling,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            ServerApi serverApi)
+            : this(
+                databaseNamespace,
+                command,
+                secondaryOk,
+                commandResponseHandling,
+                resultSerializer,
+                messageEncoderSettings,
+                serverApi,
+                BsonSerializer.DefaultSerializationDomain)
         {
         }
 
@@ -104,7 +149,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             ServerApi serverApi,
-            TimeSpan roundTripTime)
+            TimeSpan roundTripTime,
+            IBsonSerializationDomain serializationDomain)
         {
             if (responseHandling != CommandResponseHandling.Return &&
                 responseHandling != CommandResponseHandling.NoResponseExpected &&
@@ -126,6 +172,40 @@ namespace MongoDB.Driver.Core.WireProtocol
             _postWriteAction = postWriteAction; // can be null
             _serverApi = serverApi; // can be null
             _roundTripTime = roundTripTime;
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
+        }
+
+        //EXIT
+        public CommandWireProtocol(
+            ICoreSession session,
+            ReadPreference readPreference,
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IEnumerable<BatchableCommandMessageSection> commandPayloads,
+            IElementNameValidator commandValidator,
+            BsonDocument additionalOptions,
+            Action<IMessageEncoderPostProcessor> postWriteAction,
+            CommandResponseHandling responseHandling,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            ServerApi serverApi,
+            TimeSpan roundTripTime)
+            : this(
+                session,
+                readPreference,
+                databaseNamespace,
+                command,
+                commandPayloads,
+                commandValidator,
+                additionalOptions,
+                postWriteAction,
+                responseHandling,
+                resultSerializer,
+                messageEncoderSettings,
+                serverApi,
+                roundTripTime,
+                BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         // public properties
@@ -160,7 +240,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _messageEncoderSettings,
                 _postWriteAction,
                 _serverApi,
-                _roundTripTime);
+                _roundTripTime,
+                _serializationDomain);
         }
 
         private IWireProtocol<TCommandResult> CreateCommandUsingQueryMessageWireProtocol()
@@ -179,7 +260,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _resultSerializer,
                 _messageEncoderSettings,
                 _postWriteAction,
-                _serverApi);
+                _serverApi,
+                _serializationDomain);
         }
 
         private IWireProtocol<TCommandResult> CreateSupportedWireProtocol(IConnection connection)

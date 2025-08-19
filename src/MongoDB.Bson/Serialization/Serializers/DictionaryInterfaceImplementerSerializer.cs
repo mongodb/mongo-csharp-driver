@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         IDictionaryRepresentationConfigurable
             where TDictionary : class, IDictionary, new()
     {
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionaryInterfaceImplementerSerializer{TDictionary}"/> class.
         /// </summary>
@@ -38,6 +39,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionaryInterfaceImplementerSerializer{TDictionary}"/> class.
         /// </summary>
