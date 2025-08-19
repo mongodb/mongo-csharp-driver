@@ -50,6 +50,16 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Calling_render_on_value_based_sort_should_throw()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var exception = Record.Exception(() => subject.Ascending().Render(new RenderArgs<BsonDocument>()));
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Fact]
         public void Combine()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -142,16 +152,6 @@ namespace MongoDB.Driver.Tests
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.MetaTextScore("awesome"), "{awesome: {$meta: 'textScore'}}");
-        }
-
-        [Fact]
-        public void Calling_render_on_value_based_sort_should_throw()
-        {
-            var subject = CreateSubject<BsonDocument>();
-
-            var exception = Record.Exception(() => subject.Ascending().Render(new RenderArgs<BsonDocument>()));
-
-            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         private void Assert<TDocument>(SortDefinition<TDocument> sort, string expectedJson)
