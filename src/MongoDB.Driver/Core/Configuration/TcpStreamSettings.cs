@@ -54,8 +54,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> receiveBufferSize = default(Optional<int>),
             Optional<int> sendBufferSize = default(Optional<int>),
             Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
-            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>),
-            Optional<Socks5ProxySettings> socks5ProxySettings = default(Optional<Socks5ProxySettings>))
+            Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
         {
             _addressFamily = addressFamily.WithDefault(AddressFamily.InterNetwork);
             _connectTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(connectTimeout.WithDefault(Timeout.InfiniteTimeSpan), "connectTimeout");
