@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -56,9 +55,18 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         /// <returns>The discriminator convention.</returns>
         public static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer) =>
+            GetDiscriminatorConvention(serializer, BsonSerializer.DefaultSerializationDomain);
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <param name="serializationDomain"></param>
+        /// <returns></returns>
+        internal static IDiscriminatorConvention GetDiscriminatorConvention(this IBsonSerializer serializer, IBsonSerializationDomain serializationDomain) =>
             serializer is IHasDiscriminatorConvention hasDiscriminatorConvention
                 ? hasDiscriminatorConvention.DiscriminatorConvention
-                : BsonSerializer.LookupDiscriminatorConvention(serializer.ValueType);
+                : serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
 
         /// <summary>
         /// Serializes a value.
@@ -96,7 +104,8 @@ namespace MongoDB.Bson.Serialization
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(writer);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonSerializationContext.CreateRoot(writer, BsonSerializer.DefaultSerializationDomain);
                 writer.WriteStartDocument();
                 writer.WriteName("x");
                 serializer.Serialize(context, value);
@@ -117,7 +126,8 @@ namespace MongoDB.Bson.Serialization
             var document = new BsonDocument();
             using (var writer = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(writer);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonSerializationContext.CreateRoot(writer, BsonSerializer.DefaultSerializationDomain);
                 writer.WriteStartDocument();
                 writer.WriteName("x");
                 serializer.Serialize(context, value);

@@ -1366,7 +1366,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("$addToSet");
                 bsonWriter.WriteStartDocument();
@@ -1460,7 +1460,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("$bit");
                 bsonWriter.WriteStartDocument();
@@ -1517,7 +1517,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(_operatorName);
                 bsonWriter.WriteStartDocument();
@@ -1581,7 +1581,7 @@ namespace MongoDB.Driver
                 var document = new BsonDocument();
                 using (var bsonWriter = new BsonDocumentWriter(document))
                 {
-                    var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteName(_values.Count == 1 ? "$pull" : "$pullAll");
                     bsonWriter.WriteStartDocument();
@@ -1648,7 +1648,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("$push");
                 bsonWriter.WriteStartDocument();

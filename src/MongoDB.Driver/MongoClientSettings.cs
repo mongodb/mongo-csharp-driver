@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -65,6 +66,7 @@ namespace MongoDB.Driver
         private bool _retryReads;
         private bool _retryWrites;
         private ConnectionStringScheme _scheme;
+        private IBsonSerializationDomain _serializationDomain;
         private ServerApi _serverApi;
         private List<MongoServerAddress> _servers;
         private ServerMonitoringMode _serverMonitoringMode;
@@ -117,6 +119,7 @@ namespace MongoDB.Driver
             _retryReads = true;
             _retryWrites = true;
             _scheme = ConnectionStringScheme.MongoDB;
+            _serializationDomain = BsonSerializer.DefaultSerializationDomain;
             _serverApi = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serverMonitoringMode = ServerMonitoringMode.Auto;
@@ -471,6 +474,21 @@ namespace MongoDB.Driver
                 _readPreference = value;
             }
         }
+
+        IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain
+        {
+            //QUESTION Is this reasonable?
+            get => _serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _serializationDomain = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
+
+        //FP This is a convenience property, it could be removed.
+        internal IBsonSerializationDomain SerializationDomain
+            => (this as IInheritableMongoClientSettings).SerializationDomain;
 
         /// <summary>
         /// Gets or sets the name of the replica set.
@@ -944,6 +962,7 @@ namespace MongoDB.Driver
             clone._retryReads = _retryReads;
             clone._retryWrites = _retryWrites;
             clone._scheme = _scheme;
+            clone._serializationDomain = _serializationDomain;
             clone._serverApi = _serverApi;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._serverMonitoringMode = _serverMonitoringMode;

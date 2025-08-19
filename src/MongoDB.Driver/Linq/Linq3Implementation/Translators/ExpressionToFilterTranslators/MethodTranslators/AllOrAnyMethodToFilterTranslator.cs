@@ -120,17 +120,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     var sourceSerializer = fieldTranslation.Serializer;
                     var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceSerializer);
 
-                    var discriminatorConvention = itemSerializer.GetDiscriminatorConvention();
+                    var discriminatorConvention = itemSerializer.GetDiscriminatorConvention(context.SerializationDomain);
                     var discriminatorField = AstFilter.Field(discriminatorConvention.ElementName);
 
                     var ofTypeFilter = discriminatorConvention switch
                     {
-                        IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                        IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                        IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
+                        IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
                         _ => throw new ExpressionNotSupportedException(sourceExpression, because: "OfType method is not supported with the configured discriminator convention")
                     };
 
-                    var actualTypeSerializer = BsonSerializer.LookupSerializer(actualType);
+                    var actualTypeSerializer = context.SerializationDomain.LookupSerializer(actualType);
                     var enumerableActualTypeSerializer = IEnumerableSerializer.Create(actualTypeSerializer);
                     var actualTypeSourceField = new TranslatedFilterField(fieldTranslation.Ast, enumerableActualTypeSerializer);
                     var combinedFilter = AstFilter.Combine(sourceFilter, ofTypeFilter);

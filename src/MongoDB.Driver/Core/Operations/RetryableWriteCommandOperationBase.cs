@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -36,14 +37,17 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxBatchCount;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
+        private IBsonSerializationDomain _serializationDomain;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         public RetryableWriteCommandOperationBase(
             DatabaseNamespace databaseNamespace,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         public BsonValue Comment
@@ -79,6 +83,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _retryRequested; }
             set { _retryRequested = value; }
         }
+
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         public WriteConcern WriteConcern
         {
@@ -127,12 +133,15 @@ namespace MongoDB.Driver.Core.Operations
                 args.PostWriteAction,
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                args.MessageEncoderSettings);
+                args.MessageEncoderSettings,
+                _serializationDomain);
         }
 
         public Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = GetCommandArgs(operationContext, context, attempt, transactionNumber);
+            var serializationDomain = args.MessageEncoderSettings.GetOrDefault<IBsonSerializationDomain>(
+                MessageEncoderSettingsName.SerializationDomain, BsonSerializer.DefaultSerializationDomain);
             return context.Channel.CommandAsync<BsonDocument>(
                 operationContext,
                 context.ChannelSource.Session,
@@ -145,7 +154,8 @@ namespace MongoDB.Driver.Core.Operations
                 args.PostWriteAction,
                 args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                args.MessageEncoderSettings);
+                args.MessageEncoderSettings,
+                serializationDomain);
         }
 
         protected abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, int attempt, long? transactionNumber);

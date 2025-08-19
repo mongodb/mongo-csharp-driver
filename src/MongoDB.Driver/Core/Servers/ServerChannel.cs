@@ -63,7 +63,8 @@ namespace MongoDB.Driver.Core.Servers
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             var roundTripTime = TimeSpan.Zero;
             if (_server is ISelectedServer selectedServer)
@@ -84,9 +85,79 @@ namespace MongoDB.Driver.Core.Servers
                 resultSerializer,
                 messageEncoderSettings,
                 _server.ServerApi,
-                roundTripTime);
+                roundTripTime,
+                serializationDomain);
 
             return ExecuteProtocol(operationContext, protocol, session);
+        }
+
+        //EXIT
+        public TResult Command<TResult>(
+            OperationContext operationContext,
+            ICoreSession session,
+            ReadPreference readPreference,
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IEnumerable<BatchableCommandMessageSection> commandPayloads,
+            IElementNameValidator commandValidator,
+            BsonDocument additionalOptions,
+            Action<IMessageEncoderPostProcessor> postWriteAction,
+            CommandResponseHandling responseHandling,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            => Command<TResult>(
+                operationContext,
+                session,
+                readPreference,
+                databaseNamespace,
+                command,
+                commandPayloads,
+                commandValidator,
+                additionalOptions,
+                postWriteAction,
+                responseHandling,
+                resultSerializer,
+                messageEncoderSettings,
+                BsonSerializer.DefaultSerializationDomain);
+
+        public Task<TResult> CommandAsync<TResult>(
+            OperationContext operationContext,
+            ICoreSession session,
+            ReadPreference readPreference,
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IEnumerable<BatchableCommandMessageSection> commandPayloads,
+            IElementNameValidator commandValidator,
+            BsonDocument additionalOptions,
+            Action<IMessageEncoderPostProcessor> postWriteAction,
+            CommandResponseHandling responseHandling,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
+        {
+            var roundTripTime = TimeSpan.Zero;
+            if (_server is ISelectedServer selectedServer)
+            {
+                roundTripTime = selectedServer.DescriptionWhenSelected.AverageRoundTripTime;
+            }
+
+            var protocol = new CommandWireProtocol<TResult>(
+                CreateClusterClockAdvancingCoreSession(session),
+                readPreference,
+                databaseNamespace,
+                command,
+                commandPayloads,
+                commandValidator,
+                additionalOptions,
+                postWriteAction,
+                responseHandling,
+                resultSerializer,
+                messageEncoderSettings,
+                _server.ServerApi,
+                roundTripTime,
+                serializationDomain);
+
+            return ExecuteProtocolAsync(operationContext, protocol, session);
         }
 
         public Task<TResult> CommandAsync<TResult>(
@@ -102,15 +173,9 @@ namespace MongoDB.Driver.Core.Servers
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
-        {
-            var roundTripTime = TimeSpan.Zero;
-            if (_server is ISelectedServer selectedServer)
-            {
-                roundTripTime = selectedServer.DescriptionWhenSelected.AverageRoundTripTime;
-            }
-
-            var protocol = new CommandWireProtocol<TResult>(
-                CreateClusterClockAdvancingCoreSession(session),
+            => CommandAsync(
+                operationContext,
+                session,
                 readPreference,
                 databaseNamespace,
                 command,
@@ -121,11 +186,7 @@ namespace MongoDB.Driver.Core.Servers
                 responseHandling,
                 resultSerializer,
                 messageEncoderSettings,
-                _server.ServerApi,
-                roundTripTime);
-
-            return ExecuteProtocolAsync(operationContext, protocol, session);
-        }
+                BsonSerializer.DefaultSerializationDomain);
 
         public void Dispose()
         {

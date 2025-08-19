@@ -73,7 +73,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 
             using (var documentReader = new BsonDocumentReader(document))
             {
-                var documentContext = BsonDeserializationContext.CreateRoot(documentReader);
+                var documentContext = BsonDeserializationContext.CreateRoot(documentReader, context.SerializationDomain);
                 documentReader.ReadStartDocument();
                 documentReader.ReadName("min");
                 var min = _coordinatesSerializer.Deserialize(documentContext);
@@ -99,7 +99,8 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             var document = new BsonDocument();
             using (var documentWriter = new BsonDocumentWriter(document))
             {
-                var documentContext = BsonSerializationContext.CreateRoot(documentWriter);
+                var documentContext =
+                    BsonSerializationContext.CreateRoot(documentWriter, BsonSerializer.DefaultSerializationDomain); //FP Is this correct?;
                 documentWriter.WriteStartDocument();
                 documentWriter.WriteName("min");
                 _coordinatesSerializer.Serialize(documentContext, value.Min);

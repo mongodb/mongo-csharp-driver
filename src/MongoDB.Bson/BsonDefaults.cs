@@ -24,33 +24,14 @@ namespace MongoDB.Bson
     /// </summary>
     public static class BsonDefaults
     {
-        // private static fields
-        private static bool __dynamicArraySerializerWasSet;
-        private static IBsonSerializer __dynamicArraySerializer;
-        private static bool __dynamicDocumentSerializerWasSet;
-        private static IBsonSerializer __dynamicDocumentSerializer;
-        private static int __maxDocumentSize = int.MaxValue;
-        private static int __maxSerializationDepth = 100;
-
         // public static properties
         /// <summary>
         /// Gets or sets the dynamic array serializer.
         /// </summary>
         public static IBsonSerializer DynamicArraySerializer
         {
-            get
-            {
-                if (!__dynamicArraySerializerWasSet)
-                {
-                    __dynamicArraySerializer = BsonSerializer.LookupSerializer<List<object>>();
-                }
-                return __dynamicArraySerializer;
-            }
-            set
-            {
-                __dynamicArraySerializerWasSet = true;
-                __dynamicArraySerializer = value;
-            }
+            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicArraySerializer;
+            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicArraySerializer = value;
         }
 
         /// <summary>
@@ -58,28 +39,22 @@ namespace MongoDB.Bson
         /// </summary>
         public static IBsonSerializer DynamicDocumentSerializer
         {
-            get
-            {
-                if (!__dynamicDocumentSerializerWasSet)
-                {
-                    __dynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>();
-                }
-                return __dynamicDocumentSerializer;
-            }
-            set
-            {
-                __dynamicDocumentSerializerWasSet = true;
-                __dynamicDocumentSerializer = value;
-            }
+            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicDocumentSerializer;
+            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.DynamicDocumentSerializer = value;
         }
+
+        /* DOMAIN-API We should modify the API to have those two values (and in the writer/reader settings where they are used) be nullable.
+         * The problem is that we need to now when these values have been set externally or not. If they have not, then they should
+         * be retrieved from the closest domain.
+         */
 
         /// <summary>
         /// Gets or sets the default max document size. The default is 4MiB.
         /// </summary>
         public static int MaxDocumentSize
         {
-            get { return __maxDocumentSize; }
-            set { __maxDocumentSize = value; }
+            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxDocumentSize;
+            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxDocumentSize = value;
         }
 
         /// <summary>
@@ -87,8 +62,8 @@ namespace MongoDB.Bson
         /// </summary>
         public static int MaxSerializationDepth
         {
-            get { return __maxSerializationDepth; }
-            set { __maxSerializationDepth = value; }
+            get => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxSerializationDepth;
+            set => BsonSerializer.DefaultSerializationDomain.BsonDefaults.MaxSerializationDepth = value;
         }
     }
 }

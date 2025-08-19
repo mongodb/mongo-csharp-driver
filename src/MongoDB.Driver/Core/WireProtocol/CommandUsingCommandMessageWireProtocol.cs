@@ -51,6 +51,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly ServerApi _serverApi;
         private readonly TimeSpan _roundTripTime;
         private readonly ICoreSession _session;
+        private readonly IBsonSerializationDomain _serializationDomain;
         // streamable fields
         private bool _moreToCome = false; // MoreToCome from the previous response
         private int _previousRequestId; // RequestId from the previous response
@@ -69,7 +70,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             MessageEncoderSettings messageEncoderSettings,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             ServerApi serverApi,
-            TimeSpan roundTripTime)
+            TimeSpan roundTripTime,
+            IBsonSerializationDomain serializationDomain)
         {
             if (responseHandling != CommandResponseHandling.Return &&
                 responseHandling != CommandResponseHandling.NoResponseExpected &&
@@ -91,6 +93,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _postWriteAction = postWriteAction; // can be null
             _serverApi = serverApi; // can be null
             _roundTripTime = roundTripTime;
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
 
             if (messageEncoderSettings != null)
             {
@@ -536,7 +539,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 {
                     using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
                     {
-                        var context = BsonDeserializationContext.CreateRoot(reader);
+                        var context = BsonDeserializationContext.CreateRoot(reader, _serializationDomain);
                         return _resultSerializer.Deserialize(context);
                     }
                 }

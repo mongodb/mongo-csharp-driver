@@ -120,6 +120,7 @@ namespace MongoDB.Driver
             return ToString(inputSerializer, serializerRegistry);
         }
 
+        //DOMAIN-API These versions will need to go away.
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>

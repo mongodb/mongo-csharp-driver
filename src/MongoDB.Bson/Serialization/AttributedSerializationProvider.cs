@@ -20,6 +20,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization
 {
+    //DOMAIN-API We should consider making all our serialization provider classes sealed or internal.
     /// <summary>
     /// Provides serializers based on an attribute.
     /// </summary>

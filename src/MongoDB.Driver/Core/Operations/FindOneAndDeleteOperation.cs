@@ -33,10 +33,21 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _projection;
         private BsonDocument _sort;
 
-        public FindOneAndDeleteOperation(CollectionNamespace collectionNamespace, BsonDocument filter, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
-            : base(collectionNamespace, resultSerializer, messageEncoderSettings)
+        public FindOneAndDeleteOperation(CollectionNamespace collectionNamespace,
+            BsonDocument filter, IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
+            : base(collectionNamespace, resultSerializer, messageEncoderSettings, serializationDomain)
         {
             _filter = Ensure.IsNotNull(filter, nameof(filter));
+        }
+
+        //EXIT
+        public FindOneAndDeleteOperation(CollectionNamespace collectionNamespace,
+            BsonDocument filter, IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, filter, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         public BsonDocument Filter

@@ -599,7 +599,7 @@ namespace MongoDB.Driver.GridFS
             var collectionNamespace = this.GetChunksCollectionNamespace();
             var requests = new[] { new CreateIndexRequest(new BsonDocument { { "files_id", 1 }, { "n", 1 } }) { Unique = true } };
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
+            return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings, _database.Settings.SerializationDomain)
             {
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
@@ -610,7 +610,7 @@ namespace MongoDB.Driver.GridFS
             var collectionNamespace = this.GetFilesCollectionNamespace();
             var requests = new[] { new CreateIndexRequest(new BsonDocument { { "filename", 1 }, { "uploadDate", 1 } }) };
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings)
+            return new CreateIndexesOperation(collectionNamespace, requests, messageEncoderSettings, _database.Settings.SerializationDomain)
             {
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
@@ -631,17 +631,17 @@ namespace MongoDB.Driver.GridFS
 
             if (seekable)
             {
-                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo);
+                return new GridFSSeekableDownloadStream<TFileId>(this, binding, fileInfo, _database.Settings.SerializationDomain);
             }
             else
             {
-                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo);
+                return new GridFSForwardOnlyDownloadStream<TFileId>(this, binding, fileInfo, _database.Settings.SerializationDomain);
             }
         }
 
         internal DropCollectionOperation CreateDropCollectionOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
         {
-            return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
+            return new DropCollectionOperation(collectionNamespace, messageEncoderSettings, _database.Settings.SerializationDomain)
             {
                 WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
             };
@@ -675,14 +675,15 @@ namespace MongoDB.Driver.GridFS
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            var args = new RenderArgs<GridFSFileInfo<TFileId>>(_fileInfoSerializer, _options.SerializerRegistry, translationOptions: translationOptions);
+            var args = new RenderArgs<GridFSFileInfo<TFileId>>(_fileInfoSerializer, _database.Settings.SerializationDomain, translationOptions: translationOptions);
             var renderedFilter = filter.Render(args);
             var renderedSort = options.Sort == null ? null : options.Sort.Render(args);
 
             return new FindOperation<GridFSFileInfo<TFileId>>(
                 filesCollectionNamespace,
                 _fileInfoSerializer,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                _database.Settings.SerializationDomain)
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
@@ -709,7 +710,8 @@ namespace MongoDB.Driver.GridFS
             return new FindOperation<GridFSFileInfo<TFileId>>(
                 collectionNamespace,
                 _fileInfoSerializer,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                _database.Settings.SerializationDomain)
             {
                 Filter = filter,
                 Limit = limit,
@@ -729,7 +731,8 @@ namespace MongoDB.Driver.GridFS
             return new FindOperation<GridFSFileInfo<TFileId>>(
                 filesCollectionNamespace,
                 _fileInfoSerializer,
-                messageEncoderSettings)
+                messageEncoderSettings,
+                _database.Settings.SerializationDomain)
             {
                 Filter = filter,
                 Limit = 1,
@@ -743,7 +746,7 @@ namespace MongoDB.Driver.GridFS
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            return new FindOperation<BsonDocument>(filesCollectionNamespace, BsonDocumentSerializer.Instance, messageEncoderSettings)
+            return new FindOperation<BsonDocument>(filesCollectionNamespace, BsonDocumentSerializer.Instance, messageEncoderSettings, _database.Settings.SerializationDomain)
             {
                 Limit = 1,
                 ReadConcern = GetReadConcern(),
@@ -756,7 +759,7 @@ namespace MongoDB.Driver.GridFS
         private ListIndexesOperation CreateListIndexesOperation(CollectionNamespace collectionNamespace)
         {
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            return new ListIndexesOperation(collectionNamespace, messageEncoderSettings)
+            return new ListIndexesOperation(collectionNamespace, messageEncoderSettings, _database.Settings.SerializationDomain)
             {
                 RetryRequested = _database.Client.Settings.RetryReads
             };
@@ -822,7 +825,7 @@ namespace MongoDB.Driver.GridFS
         private void DownloadToStreamHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo, _database.Settings.SerializationDomain) { RetryReads = retryReads })
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];
@@ -841,7 +844,7 @@ namespace MongoDB.Driver.GridFS
         private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo, _database.Settings.SerializationDomain) { RetryReads = retryReads })
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];

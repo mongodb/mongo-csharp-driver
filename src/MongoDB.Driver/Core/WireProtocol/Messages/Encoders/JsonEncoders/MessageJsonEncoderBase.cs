@@ -17,6 +17,7 @@ using System;
 using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
@@ -36,6 +37,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             _textWriter = textWriter;
             _encoderSettings = encoderSettings;
         }
+
+        protected IBsonSerializationDomain SerializationDomain => _encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null) ?? BsonSerializer.DefaultSerializationDomain;
 
         // methods
         public JsonReader CreateJsonReader()

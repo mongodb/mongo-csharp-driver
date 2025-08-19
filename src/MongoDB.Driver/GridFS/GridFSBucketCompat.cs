@@ -120,8 +120,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filter, nameof(filter));
             var translationOptions = Database.Client.Settings.TranslationOptions;
-            var wrappedFilter = WrapFilter(filter, translationOptions);
-            var wrappedOptions = WrapFindOptions(options, translationOptions);
+            var wrappedFilter = WrapFilter(filter, Database.Settings.SerializationDomain, translationOptions);
+            var wrappedOptions = WrapFindOptions(options,  Database.Settings.SerializationDomain, translationOptions);
             var cursor = base.Find(wrappedFilter, wrappedOptions, cancellationToken);
             return new BatchTransformingAsyncCursor<GridFSFileInfo<ObjectId>, GridFSFileInfo>(cursor, TransformFileInfos);
         }
@@ -131,8 +131,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filter, nameof(filter));
             var translationOptions = Database.Client.Settings.TranslationOptions;
-            var wrappedFilter = WrapFilter(filter, translationOptions);
-            var wrappedOptions = WrapFindOptions(options, translationOptions);
+            var wrappedFilter = WrapFilter(filter, Database.Settings.SerializationDomain, translationOptions);
+            var wrappedOptions = WrapFindOptions(options,  Database.Settings.SerializationDomain, translationOptions);
             var cursor = await base.FindAsync(wrappedFilter, wrappedOptions, cancellationToken).ConfigureAwait(false);
             return new BatchTransformingAsyncCursor<GridFSFileInfo<ObjectId>, GridFSFileInfo>(cursor, TransformFileInfos);
         }
@@ -240,17 +240,17 @@ namespace MongoDB.Driver.GridFS
             return fileInfos.Select(fi => new GridFSFileInfo(fi.BackingDocument));
         }
 
-        private FilterDefinition<GridFSFileInfo<ObjectId>> WrapFilter(FilterDefinition<GridFSFileInfo> filter, ExpressionTranslationOptions translationOptions)
+        private FilterDefinition<GridFSFileInfo<ObjectId>> WrapFilter(FilterDefinition<GridFSFileInfo> filter, IBsonSerializationDomain serializationDomain, ExpressionTranslationOptions translationOptions)
         {
-            var renderedFilter = filter.Render(new(GridFSFileInfoSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions));
+            var renderedFilter = filter.Render(new(GridFSFileInfoSerializer.Instance, serializationDomain, translationOptions: translationOptions));
             return new BsonDocumentFilterDefinition<GridFSFileInfo<ObjectId>>(renderedFilter);
         }
 
-        private GridFSFindOptions<ObjectId> WrapFindOptions(GridFSFindOptions options, ExpressionTranslationOptions translationOptions)
+        private GridFSFindOptions<ObjectId> WrapFindOptions(GridFSFindOptions options, IBsonSerializationDomain serializationDomain, ExpressionTranslationOptions translationOptions)
         {
             if (options != null)
             {
-                var renderedSort = options.Sort == null ? null : options.Sort.Render(new(GridFSFileInfoSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions));
+                var renderedSort = options.Sort == null ? null : options.Sort.Render(new(GridFSFileInfoSerializer.Instance, serializationDomain, translationOptions: translationOptions));
                 var wrappedSort = renderedSort == null ? null : new BsonDocumentSortDefinition<GridFSFileInfo<ObjectId>>(renderedSort);
                 return new GridFSFindOptions<ObjectId>
                 {

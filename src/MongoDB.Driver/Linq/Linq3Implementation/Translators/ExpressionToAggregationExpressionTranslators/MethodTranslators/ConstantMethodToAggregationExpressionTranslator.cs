@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var representationExpression = arguments[1];
                     var representation = representationExpression.GetConstantValue<BsonType>(expression);
-                    var registeredSerializer = BsonSerializer.LookupSerializer(valueExpression.Type);
+                    var registeredSerializer = context.SerializationDomain.LookupSerializer(valueExpression.Type);
                     if (registeredSerializer is IRepresentationConfigurable representationConfigurableSerializer)
                     {
                         serializer = representationConfigurableSerializer.WithRepresentation(representation);

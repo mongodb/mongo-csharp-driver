@@ -45,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly IBsonSerializer _valueSerializer;
 
         // constructors
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary}"/> class.
         /// </summary>
@@ -53,6 +54,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary}"/> class.
         /// </summary>
@@ -273,7 +275,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyDocument = new BsonDocument("k", keyString);
             using (var keyReader = new BsonDocumentReader(keyDocument))
             {
-                var context = BsonDeserializationContext.CreateRoot(keyReader);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonDeserializationContext.CreateRoot(keyReader, BsonSerializer.DefaultSerializationDomain);
                 keyReader.ReadStartDocument();
                 keyReader.ReadName("k");
                 var key = _keySerializer.Deserialize(context);
@@ -329,7 +332,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyDocument = new BsonDocument();
             using (var keyWriter = new BsonDocumentWriter(keyDocument))
             {
-                var context = BsonSerializationContext.CreateRoot(keyWriter);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonSerializationContext.CreateRoot(keyWriter, BsonSerializer.DefaultSerializationDomain);
                 keyWriter.WriteStartDocument();
                 keyWriter.WriteName("k");
                 _keySerializer.Serialize(context, key);
@@ -373,6 +377,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Lazy<IBsonSerializer<TValue>> _lazyValueSerializer;
 
         // constructors
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary, TKey, TValue}"/> class.
         /// </summary>
@@ -381,6 +386,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        //DOMAIN-API This version should be removed in the future.
+        //FP Fortunately it seems that all the constructors that should not be used are actually not used in the codebase.
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionarySerializerBase{TDictionary, TKey, TValue}" /> class.
         /// </summary>
@@ -676,7 +683,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyDocument = new BsonDocument("k", keyString);
             using (var keyReader = new BsonDocumentReader(keyDocument))
             {
-                var context = BsonDeserializationContext.CreateRoot(keyReader);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonDeserializationContext.CreateRoot(keyReader, BsonSerializer.DefaultSerializationDomain);
                 keyReader.ReadStartDocument();
                 keyReader.ReadName("k");
                 var key = _lazyKeySerializer.Value.Deserialize(context);
@@ -732,7 +740,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyDocument = new BsonDocument();
             using (var keyWriter = new BsonDocumentWriter(keyDocument))
             {
-                var context = BsonSerializationContext.CreateRoot(keyWriter);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonSerializationContext.CreateRoot(keyWriter, BsonSerializer.DefaultSerializationDomain);
                 keyWriter.WriteStartDocument();
                 keyWriter.WriteName("k");
                 _lazyKeySerializer.Value.Serialize(context, key);

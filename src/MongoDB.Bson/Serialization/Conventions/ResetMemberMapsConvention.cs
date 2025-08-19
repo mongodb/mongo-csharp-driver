@@ -18,14 +18,17 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that resets class members (resetting any changes that earlier conventions may have applied).
     /// </summary>
-    public class ResetMemberMapsConvention : ConventionBase, IMemberMapConvention
+    public class ResetMemberMapsConvention : ConventionBase, IMemberMapConventionInternal
     {
         // public methods
         /// <summary>
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap)
+        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             memberMap.Reset();
         }

@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                 var sourceSerializer = pipeline.OutputSerializer;
                 var stageExpression = arguments[1];
-                var renderedStage = TranslateStage(expression, stageExpression, sourceSerializer, BsonSerializer.SerializerRegistry, context.TranslationOptions);
+                var renderedStage = TranslateStage(expression, stageExpression, sourceSerializer, context.SerializationDomain, context.TranslationOptions);
                 var stage = AstStage.Universal(renderedStage.Document);
 
                 var resultSerializerExpression = arguments[2];
@@ -57,11 +57,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             Expression expression,
             Expression stageExpression,
             IBsonSerializer inputSerializer,
-            IBsonSerializerRegistry serializerRegistry,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
-            var stageDefinition = stageExpression.GetConstantValue<IPipelineStageDefinition>(stageExpression);
-            return stageDefinition.Render(inputSerializer, serializerRegistry, translationOptions);
+            var stageDefinition = stageExpression.GetConstantValue<IPipelineStageStageDefinitionInternal>(stageExpression);
+            return stageDefinition.Render(inputSerializer, serializationDomain, translationOptions);
         }
     }
 }

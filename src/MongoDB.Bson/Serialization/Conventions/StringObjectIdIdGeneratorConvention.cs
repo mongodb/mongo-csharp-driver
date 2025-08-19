@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Conventions
@@ -22,14 +21,17 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that sets the id generator for a string member with a BSON representation of ObjectId.
     /// </summary>
-    public class StringObjectIdIdGeneratorConvention : ConventionBase, IPostProcessingConvention
+    public class StringObjectIdIdGeneratorConvention : ConventionBase, IPostProcessingConventionInternal
     {
         // public methods
         /// <summary>
         /// Applies a post processing modification to the class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public void PostProcess(BsonClassMap classMap)
+        public void PostProcess(BsonClassMap classMap) => (this as IPostProcessingConventionInternal).PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        void IPostProcessingConventionInternal.PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
         {
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null)

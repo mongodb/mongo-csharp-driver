@@ -30,6 +30,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly Lazy<IBsonSerializer<TItem>> _lazyItemSerializer;
 
         // constructors
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="ThreeDimensionalArraySerializer{TItem}"/> class.
         /// </summary>

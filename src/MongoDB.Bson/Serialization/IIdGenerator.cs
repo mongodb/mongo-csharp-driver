@@ -27,6 +27,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="document">The document.</param>
         /// <returns>An Id.</returns>
         object GenerateId(object container, object document);
+
         /// <summary>
         /// Tests whether an Id is empty.
         /// </summary>

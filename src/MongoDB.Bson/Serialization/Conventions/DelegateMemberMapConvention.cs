@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A member map convention that wraps a delegate.
     /// </summary>
-    public class DelegateMemberMapConvention : ConventionBase, IMemberMapConvention
+    public class DelegateMemberMapConvention : ConventionBase, IMemberMapConventionInternal
     {
         // private fields
         private readonly Action<BsonMemberMap> _action;
@@ -46,7 +46,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap)
+        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             _action(memberMap);
         }

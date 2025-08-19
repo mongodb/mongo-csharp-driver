@@ -47,8 +47,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var resultSelectorParameters = resultSelectorLambda.Parameters;
                 var resultSelectorParameter1 = resultSelectorParameters[0];
                 var resultSelectorParameter2 = resultSelectorParameters[1];
-                var resultSelectorSymbol1 = context.CreateSymbol(resultSelectorParameter1, BsonSerializer.LookupSerializer(resultSelectorParameter1.Type));
-                var resultSelectorSymbol2 = context.CreateSymbol(resultSelectorParameter2, BsonSerializer.LookupSerializer(resultSelectorParameter2.Type));
+                var resultSelectorSymbol1 = context.CreateSymbol(resultSelectorParameter1, context.SerializationDomain.LookupSerializer(resultSelectorParameter1.Type));
+                var resultSelectorSymbol2 = context.CreateSymbol(resultSelectorParameter2, context.SerializationDomain.LookupSerializer(resultSelectorParameter2.Type));
                 var resultSelectorContext = context.WithSymbols(resultSelectorSymbol1, resultSelectorSymbol2);
                 var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
                 var @as = AstExpression.Var("pair");

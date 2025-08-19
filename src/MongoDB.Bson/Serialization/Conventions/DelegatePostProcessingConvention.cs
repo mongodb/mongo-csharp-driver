@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A post processing convention that wraps a delegate.
     /// </summary>
-    public class DelegatePostProcessingConvention : ConventionBase, IPostProcessingConvention
+    public class DelegatePostProcessingConvention : ConventionBase, IPostProcessingConventionInternal
     {
         // private fields
         private readonly Action<BsonClassMap> _action;
@@ -46,7 +46,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a post processing modification to the class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public void PostProcess(BsonClassMap classMap)
+        public void PostProcess(BsonClassMap classMap) => (this as IPostProcessingConventionInternal).PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        void IPostProcessingConventionInternal.PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
         {
             _action(classMap);
         }

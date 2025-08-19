@@ -443,7 +443,8 @@ namespace MongoDB.Driver.Core.Operations
                         null,
                         CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
-                        It.IsAny<MessageEncoderSettings>()))
+                        It.IsAny<MessageEncoderSettings>(),
+                        It.IsAny<IBsonSerializationDomain>()))
                     .Callback(() => sameSessionWasUsed = true)
                     .Returns(Task.FromResult(secondBatch));
 
@@ -465,8 +466,9 @@ namespace MongoDB.Driver.Core.Operations
                         null,
                         CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
-                        It.IsAny<MessageEncoderSettings>()))
-                    .Callback(() => sameSessionWasUsed = true)
+                        It.IsAny<MessageEncoderSettings>(),
+                        It.IsAny<IBsonSerializationDomain>()))
+                        .Callback(() => sameSessionWasUsed = true)
                     .Returns(secondBatch);
 
                 subject.MoveNext(CancellationToken.None);
@@ -607,7 +609,8 @@ namespace MongoDB.Driver.Core.Operations
                         It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                         It.IsAny<CommandResponseHandling>(),
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
-                        It.IsAny<MessageEncoderSettings>()),
+                        It.IsAny<MessageEncoderSettings>(),
+                        It.IsAny<IBsonSerializationDomain>()),
                     times);
             }
             else
@@ -625,7 +628,8 @@ namespace MongoDB.Driver.Core.Operations
                         It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                         It.IsAny<CommandResponseHandling>(),
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
-                        It.IsAny<MessageEncoderSettings>()),
+                        It.IsAny<MessageEncoderSettings>(),
+                        It.IsAny<IBsonSerializationDomain>()),
                     times);
             }
         }

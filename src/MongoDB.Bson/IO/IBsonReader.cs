@@ -17,6 +17,7 @@ using System;
 
 namespace MongoDB.Bson.IO
 {
+    //FP This interface should have the settingg property as well, same way it's done for thr writer
     /// <summary>
     /// Represents a BSON reader.
     /// </summary>

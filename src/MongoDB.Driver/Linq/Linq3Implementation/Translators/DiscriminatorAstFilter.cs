@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
@@ -24,9 +25,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 internal static class DiscriminatorAstFilter
 {
-    public static AstFilter TypeEquals(AstFilterField discriminatorField, IHierarchicalDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType)
+    public static AstFilter TypeEquals(AstFilterField discriminatorField, IHierarchicalDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
     {
-        var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+        var discriminator = discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, serializationDomain);
         if (discriminator == null)
         {
             return AstFilter.NotExists(discriminatorField);
@@ -44,24 +45,24 @@ internal static class DiscriminatorAstFilter
         }
     }
 
-    public static AstFilter TypeEquals(AstFilterField discriminatorField, IDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType)
+    public static AstFilter TypeEquals(AstFilterField discriminatorField, IDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
     {
-        var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+        var discriminator = discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, serializationDomain);
         return discriminator == null ?
             AstFilter.NotExists(discriminatorField) :
             AstFilter.Eq(discriminatorField, discriminator);
     }
 
-    public static AstFieldOperationFilter TypeIs(AstFilterField discriminatorField, IHierarchicalDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType)
+    public static AstFieldOperationFilter TypeIs(AstFilterField discriminatorField, IHierarchicalDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
     {
-        var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+        var discriminator = discriminatorConvention.GetDiscriminatorInternal(nominalType, actualType, serializationDomain);
         var lastItem = discriminator is BsonArray array ? array.Last() : discriminator;
         return AstFilter.Eq(discriminatorField, lastItem); // will match subclasses also
     }
 
-    public static AstFieldOperationFilter TypeIs(AstFilterField discriminatorField, IScalarDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType)
+    public static AstFieldOperationFilter TypeIs(AstFilterField discriminatorField, IScalarDiscriminatorConvention discriminatorConvention, Type nominalType, Type actualType, IBsonSerializationDomain serializationDomain)
     {
-        var discriminators = discriminatorConvention.GetDiscriminatorsForTypeAndSubTypes(actualType);
+        var discriminators = discriminatorConvention.GetDiscriminatorsForTypeAndSubTypesInternal(actualType, serializationDomain);
         return discriminators.Length == 1 ?
             AstFilter.Eq(discriminatorField, discriminators.Single()) :
             AstFilter.In(discriminatorField, discriminators);

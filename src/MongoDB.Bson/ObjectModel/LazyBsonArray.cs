@@ -173,7 +173,8 @@ namespace MongoDB.Bson
             using (var stream = new ByteBufferStream(_slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
-                var context = BsonDeserializationContext.CreateRoot(bsonReader);
+                //QUESTION Is it correct we only need a default domain here?
+                var context = BsonDeserializationContext.CreateRoot(bsonReader, BsonSerializer.DefaultSerializationDomain);
 
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;

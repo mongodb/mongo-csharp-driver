@@ -95,30 +95,33 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="bsonReader">The reader.</param>
         /// <param name="nominalType">The nominal type.</param>
         /// <returns>The actual type.</returns>
-        public Type GetActualType(IBsonReader bsonReader, Type nominalType)
+        public Type GetActualType(IBsonReader bsonReader, Type nominalType) =>  //TODO This one should not be used
+            GetActualType(bsonReader, nominalType, BsonSerializer.DefaultSerializationDomain);
+
+        internal Type GetActualType(IBsonReader bsonReader, Type nominalType, IBsonSerializationDomain domain)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Document)
             {
                 // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
-                BsonSerializer.EnsureKnownTypesAreRegistered(nominalType);
+                domain.EnsureKnownTypesAreRegistered(nominalType);
 
                 // we can skip looking for a discriminator if nominalType has no discriminated sub types
-                if (BsonSerializer.IsTypeDiscriminated(nominalType))
+                if (domain.IsTypeDiscriminated(nominalType))
                 {
                     var bookmark = bsonReader.GetBookmark();
                     bsonReader.ReadStartDocument();
                     var actualType = nominalType;
                     if (bsonReader.FindElement(_elementName))
                     {
-                        var context = BsonDeserializationContext.CreateRoot(bsonReader);
+                        var context = BsonDeserializationContext.CreateRoot(bsonReader, domain);
                         var discriminator = BsonValueSerializer.Instance.Deserialize(context);
                         if (discriminator.IsBsonArray)
                         {
                             discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                         }
-                        actualType = BsonSerializer.LookupActualType(nominalType, discriminator);
+                        actualType = domain.LookupActualType(nominalType, discriminator);
                     }
                     bsonReader.ReturnToBookmark(bookmark);
                     return actualType;

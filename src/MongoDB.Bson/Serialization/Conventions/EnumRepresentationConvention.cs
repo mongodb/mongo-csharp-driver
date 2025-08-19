@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// A convention that allows you to set the Enum serialization representation
     /// </summary>
-    public class EnumRepresentationConvention : ConventionBase, IMemberMapConvention
+    public class EnumRepresentationConvention : ConventionBase, IMemberMapConventionInternal
     {
         // private fields
         private readonly BsonType _representation;
@@ -66,7 +66,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Applies a modification to the member map.
         /// </summary>
         /// <param name="memberMap">The member map.</param>
-        public void Apply(BsonMemberMap memberMap)
+        public void Apply(BsonMemberMap memberMap) => (this as IMemberMapConventionInternal).Apply(memberMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc />
+        void IMemberMapConventionInternal.Apply(BsonMemberMap memberMap, IBsonSerializationDomain domain)
         {
             var memberType = memberMap.MemberType;
 

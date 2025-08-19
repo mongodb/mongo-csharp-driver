@@ -1853,7 +1853,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2013,7 +2013,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2055,7 +2055,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2205,14 +2205,14 @@ namespace MongoDB.Driver
             }
             else
             {
-                var discriminatorConvention = args.DocumentSerializer.GetDiscriminatorConvention();
+                var discriminatorConvention = args.DocumentSerializer.GetDiscriminatorConvention(args.SerializationDomain);
                 if (discriminatorConvention == null)
                 {
                     var message = string.Format("OfType requires a discriminator convention for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TDocument)));
                     throw new NotSupportedException(message);
                 }
 
-                var discriminator = discriminatorConvention.GetDiscriminator(typeof(TDocument), typeof(TDerived));
+                var discriminator = discriminatorConvention.GetDiscriminatorInternal(typeof(TDocument), typeof(TDerived), args.SerializationDomain);
                 if (discriminator == null)
                 {
                     throw new NotSupportedException($"OfType requires that documents of type {BsonUtils.GetFriendlyTypeName(typeof(TDerived))} have a discriminator value.");
@@ -2221,8 +2221,8 @@ namespace MongoDB.Driver
                 var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
                 ofTypeFilter= discriminatorConvention switch
                 {
-                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
+                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
                     _ => throw new NotSupportedException("OfType is not supported with the configured discriminator convention.")
                 };
             }
@@ -2268,7 +2268,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                var discriminatorConvention = renderedField.FieldSerializer.GetDiscriminatorConvention();
+                var discriminatorConvention = renderedField.FieldSerializer.GetDiscriminatorConvention(args.SerializationDomain);
                 if (discriminatorConvention == null)
                 {
                     var message = string.Format("OfType requires a discriminator convention for type: {0}.", BsonUtils.GetFriendlyTypeName(typeof(TField)));
@@ -2280,8 +2280,8 @@ namespace MongoDB.Driver
 
                 ofTypeFilter = discriminatorConvention switch
                 {
-                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
+                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, args.SerializationDomain),
                     _ => throw new NotSupportedException("OfType is not supported with the configured discriminator convention.")
                 };
             }
@@ -2351,7 +2351,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2445,7 +2445,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
 
@@ -2495,7 +2495,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2551,7 +2551,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 bsonWriter.WriteStartDocument();
@@ -2600,7 +2600,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
                 itemSerializer.Serialize(context, _value);
@@ -2660,7 +2660,7 @@ namespace MongoDB.Driver
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, args.SerializationDomain);
                 var stringSerializer = BsonStringSerializer.Instance;
                 var regularExpressionSerializer = BsonRegularExpressionSerializer.Instance;
 

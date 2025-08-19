@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets the standard instance.
         /// </summary>
-        public static ObjectSerializer Instance => __instance;
+        public static ObjectSerializer Instance => __instance;  //FP This is problematic, but can't do much about it now.
 
         /// <summary>
         /// An allowed types function that returns false for all types.
@@ -63,6 +63,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly GuidSerializer _guidSerializer;
 
         // constructors
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectSerializer"/> class.
         /// </summary>
@@ -91,6 +92,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        //DOMAIN-API This should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectSerializer"/> class.
         /// </summary>
@@ -364,7 +366,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonReader = context.Reader;
 
-            var actualType = _discriminatorConvention.GetActualType(bsonReader, typeof(object));
+            var actualType = _discriminatorConvention.GetActualTypeInternal(bsonReader, args.NominalType, context.SerializationDomain);
+
             if (!_allowedDeserializationTypes(actualType))
             {
                 throw new BsonSerializationException($"Type {actualType.FullName} is not configured as a type that is allowed to be deserialized for this instance of ObjectSerializer.");
@@ -389,7 +392,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var serializer = BsonSerializer.LookupSerializer(actualType);
+                var serializer = context.SerializationDomain.LookupSerializer(actualType);
                 var polymorphicSerializer = serializer as IBsonPolymorphicSerializer;
                 if (polymorphicSerializer != null && polymorphicSerializer.IsDiscriminatorCompatibleWithObjectSerializer)
                 {
@@ -438,7 +441,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new BsonSerializationException($"Type {actualType.FullName} is not configured as a type that is allowed to be serialized for this instance of ObjectSerializer.");
             }
 
-            var serializer = BsonSerializer.LookupSerializer(actualType);
+            var serializer = context.SerializationDomain.LookupSerializer(actualType);
 
             var polymorphicSerializer = serializer as IBsonPolymorphicSerializer;
             if (polymorphicSerializer != null && polymorphicSerializer.IsDiscriminatorCompatibleWithObjectSerializer)
@@ -455,7 +458,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 else
                 {
                     var bsonWriter = context.Writer;
-                    var discriminator = _discriminatorConvention.GetDiscriminator(typeof(object), actualType);
+                    var discriminator = _discriminatorConvention.GetDiscriminatorInternal(typeof(object), actualType, context.SerializationDomain);
 
                     bsonWriter.WriteStartDocument();
                     if (discriminator != null)

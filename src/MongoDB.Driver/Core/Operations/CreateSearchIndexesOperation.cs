@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -34,7 +35,9 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<CreateSearchIndexRequest> _requests;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
+        //FP We should remove all the docs in those internal classes, at least for constructors.
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateIndexesOperation"/> class.
@@ -42,14 +45,17 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="requests">The requests.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="serializationDomain"></param>
         public CreateSearchIndexesOperation(
             CollectionNamespace collectionNamespace,
             IEnumerable<CreateSearchIndexRequest> requests,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _requests = Ensure.IsNotNull(requests, nameof(requests)).ToArray();
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         // public methods
@@ -88,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument())) }
             };
 
-            return new(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
         }
     }
 }

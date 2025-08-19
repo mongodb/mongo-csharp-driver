@@ -122,7 +122,7 @@ namespace MongoDB.Bson.IO
                 Encoding = _encoding,
                 FixOldBinarySubTypeOnOutput = _fixOldBinarySubTypeOnOutput,
                 MaxDocumentSize = _maxDocumentSize,
-                MaxSerializationDepth = MaxSerializationDepth
+                MaxSerializationDepth = MaxSerializationDepth,
             };
             return clone;
         }

@@ -37,12 +37,17 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private WriteConcern _writeConcern;
         private bool _retryRequested;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
-        public FindAndModifyOperationBase(CollectionNamespace collectionNamespace, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        public FindAndModifyOperationBase(CollectionNamespace collectionNamespace,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         public Collation Collation
@@ -157,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<RawBsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
-            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain)
             {
                 CommandValidator = GetCommandValidator()
             };
@@ -174,7 +179,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
             {
-                var context = BsonDeserializationContext.CreateRoot(reader);
+                var context = BsonDeserializationContext.CreateRoot(reader, _serializationDomain);
                 return _resultSerializer.Deserialize(context);
             }
         }

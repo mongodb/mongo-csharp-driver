@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         public const string ShellVersion = nameof(ShellVersion);
 
         // other encoders (if any) might use additional settings
+        public const string SerializationDomain = nameof(SerializationDomain); //FP I think I should try to remove it from here..
     }
 
     internal sealed class MessageEncoderSettings : IEnumerable<KeyValuePair<string, object>>

@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 if (IsConvertToDerivedType(fieldType, targetType))
                 {
-                    return TranslateConvertToDerivedType(fieldTranslation, targetType);
+                    return TranslateConvertToDerivedType(fieldTranslation, targetType, context.SerializationDomain);
                 }
             }
 
@@ -165,9 +165,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return new TranslatedFilterField(fieldTranslation.Ast, targetSerializer);
         }
 
-        private static TranslatedFilterField TranslateConvertToDerivedType(TranslatedFilterField fieldTranslation, Type targetType)
+        private static TranslatedFilterField TranslateConvertToDerivedType(TranslatedFilterField fieldTranslation, Type targetType, IBsonSerializationDomain serializationDomain)
         {
-            var targetSerializer = BsonSerializer.LookupSerializer(targetType);
+            var targetSerializer = serializationDomain.LookupSerializer(targetType);
             return new TranslatedFilterField(fieldTranslation.Ast, targetSerializer);
         }
 

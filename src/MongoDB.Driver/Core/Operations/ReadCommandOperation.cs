@@ -31,8 +31,20 @@ namespace MongoDB.Driver.Core.Operations
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
+            : base(databaseNamespace, command, resultSerializer, messageEncoderSettings, serializationDomain)
+        {
+        }
+
+        //EXIT
+        public ReadCommandOperation(
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
-            : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
+            : this(databaseNamespace, command, resultSerializer, messageEncoderSettings,
+                BsonSerializer.DefaultSerializationDomain)
         {
         }
 

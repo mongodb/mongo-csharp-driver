@@ -27,8 +27,21 @@ namespace MongoDB.Driver.Core.Operations
     {
         private ReadPreference _readPreference = ReadPreference.Primary;
 
-        public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
-            : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
+        public WriteCommandOperation(DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
+            : base(databaseNamespace, command, resultSerializer, messageEncoderSettings, serializationDomain)
+        {
+        }
+
+        //EXIT
+        public WriteCommandOperation(DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(databaseNamespace, command, resultSerializer, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
         {
         }
 

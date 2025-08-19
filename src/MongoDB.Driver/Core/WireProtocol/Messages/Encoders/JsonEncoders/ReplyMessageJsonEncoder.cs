@@ -29,19 +29,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
     {
         // fields
         private readonly IBsonSerializer<TDocument> _serializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         public ReplyMessageJsonEncoder(TextReader textReader, TextWriter textWriter, MessageEncoderSettings encoderSettings, IBsonSerializer<TDocument> serializer)
             : base(textReader, textWriter, encoderSettings)
         {
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
+            _serializationDomain = encoderSettings?.GetOrDefault<IBsonSerializationDomain>(MessageEncoderSettingsName.SerializationDomain, null) ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         // methods
         public ReplyMessage<TDocument> ReadMessage()
         {
             var jsonReader = CreateJsonReader();
-            var messageContext = BsonDeserializationContext.CreateRoot(jsonReader);
+            var messageContext = BsonDeserializationContext.CreateRoot(jsonReader, _serializationDomain);
             var messageDocument = BsonDocumentSerializer.Instance.Deserialize(messageContext);
 
             var opcode = messageDocument["opcode"].AsString;
@@ -67,7 +69,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 {
                     using (var documentReader = new BsonDocumentReader(serializedDocument))
                     {
-                        var documentContext = BsonDeserializationContext.CreateRoot(documentReader);
+                        var documentContext = BsonDeserializationContext.CreateRoot(documentReader, _serializationDomain);
                         var document = _serializer.Deserialize(documentContext);
                         documents.Add(document);
                     }
@@ -121,7 +123,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             };
 
             var jsonWriter = CreateJsonWriter();
-            var messageContext = BsonSerializationContext.CreateRoot(jsonWriter);
+            var messageContext = BsonSerializationContext.CreateRoot(jsonWriter, _serializationDomain);
             BsonDocumentSerializer.Instance.Serialize(messageContext, messageDocument);
         }
 

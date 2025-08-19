@@ -43,8 +43,40 @@ namespace MongoDB.Driver.Core.Bindings
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain);
+
+        //EXIT
+        TResult Command<TResult>(
+            OperationContext operationContext,
+            ICoreSession session,
+            ReadPreference readPreference,
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IEnumerable<BatchableCommandMessageSection> commandPayloads,
+            IElementNameValidator commandValidator,
+            BsonDocument additionalOptions,
+            Action<IMessageEncoderPostProcessor> postWriteAction,
+            CommandResponseHandling responseHandling,
+            IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings);
 
+        Task<TResult> CommandAsync<TResult>(
+            OperationContext operationContext,
+            ICoreSession session,
+            ReadPreference readPreference,
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IEnumerable<BatchableCommandMessageSection> commandPayloads,
+            IElementNameValidator commandValidator,
+            BsonDocument additionalOptions,
+            Action<IMessageEncoderPostProcessor> postWriteAction,
+            CommandResponseHandling responseHandling,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain);
+
+        //EXIT
         Task<TResult> CommandAsync<TResult>(
             OperationContext operationContext,
             ICoreSession session,

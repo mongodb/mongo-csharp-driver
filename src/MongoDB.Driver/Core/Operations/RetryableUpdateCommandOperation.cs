@@ -38,11 +38,21 @@ namespace MongoDB.Driver.Core.Operations
         public RetryableUpdateCommandOperation(
             CollectionNamespace collectionNamespace,
             BatchableSource<UpdateRequest> updates,
-            MessageEncoderSettings messageEncoderSettings)
-            : base(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
+            : base(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, messageEncoderSettings, serializationDomain)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _updates = Ensure.IsNotNull(updates, nameof(updates));
+        }
+
+        //EXIT
+        public RetryableUpdateCommandOperation(
+            CollectionNamespace collectionNamespace,
+            BatchableSource<UpdateRequest> updates,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, updates, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         public bool? BypassDocumentValidation

@@ -16,6 +16,7 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -34,11 +35,13 @@ namespace MongoDB.Driver.Core.Operations
             CollectionNamespace collectionNamespace,
             BsonDocument encryptedFields,
             MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain,
             Action<CreateCollectionOperation> createCollectionOperationConfigurator)
         {
             var mainOperation = new CreateCollectionOperation(
                 collectionNamespace,
                 messageEncoderSettings,
+                serializationDomain,
                 encryptedFields != null ? Feature.Csfle2QEv2 : null)
             {
                 EncryptedFields = encryptedFields
@@ -52,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
                     (CreateInnerCollectionOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Esc)), IsMainOperation: false),
                     (CreateInnerCollectionOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecos)), IsMainOperation: false),
                     (mainOperation, IsMainOperation: true),
-                    (new CreateIndexesOperation(collectionNamespace, new[] { new CreateIndexRequest(EncryptedCollectionHelper.AdditionalCreateIndexDocument) }, messageEncoderSettings), IsMainOperation: false));
+                    (new CreateIndexesOperation(collectionNamespace, new[] { new CreateIndexRequest(EncryptedCollectionHelper.AdditionalCreateIndexDocument) }, messageEncoderSettings, serializationDomain), IsMainOperation: false));
             }
             else
             {
@@ -60,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             CreateCollectionOperation CreateInnerCollectionOperation(string collectionName)
-                => new(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings, Feature.Csfle2QEv2)
+                => new(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings, serializationDomain, Feature.Csfle2QEv2)
                    {
                       ClusteredIndex = new BsonDocument { { "key", new BsonDocument("_id", 1) }, { "unique", true } }
                    };
@@ -79,6 +82,7 @@ namespace MongoDB.Driver.Core.Operations
         private long? _maxDocuments;
         private long? _maxSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private BsonDocument _storageEngine;
         private TimeSeriesOptions _timeSeriesOptions;
         private DocumentValidationAction? _validationAction;
@@ -90,19 +94,30 @@ namespace MongoDB.Driver.Core.Operations
 
         public CreateCollectionOperation(
             CollectionNamespace collectionNamespace,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
+            : this(collectionNamespace, messageEncoderSettings, serializationDomain, supportedFeature: null)
+        {
+        }
+
+        //EXIT
+        public CreateCollectionOperation(
+            CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
-            : this(collectionNamespace, messageEncoderSettings, supportedFeature: null)
+            : this(collectionNamespace, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
         {
         }
 
         private CreateCollectionOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain,
             Feature supportedFeature)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
             _supportedFeature = supportedFeature;
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         public bool? Capped
@@ -275,7 +290,7 @@ namespace MongoDB.Driver.Core.Operations
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session)
         {
             var command = CreateCommand(operationContext, session);
-            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain);
         }
 
         private void EnsureServerIsValid(int maxWireVersion)

@@ -13,29 +13,26 @@
 * limitations under the License.
 */
 
-using System;
-using System.Reflection;
-
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
     /// A convention that looks up an id generator for the id member.
     /// </summary>
-    public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConvention
+    public class LookupIdGeneratorConvention : ConventionBase, IPostProcessingConventionInternal
     {
-        // public methods
-        /// <summary>
-        /// Applies a post processing modification to the class map.
-        /// </summary>
-        /// <param name="classMap">The class map.</param>
-        public void PostProcess(BsonClassMap classMap)
+        /// <inheritdoc/>
+        public void PostProcess(BsonClassMap classMap) => (this as IPostProcessingConventionInternal).PostProcess(classMap, BsonSerializer.DefaultSerializationDomain);
+
+        /// <inheritdoc/>
+        void IPostProcessingConventionInternal.PostProcess(BsonClassMap classMap, IBsonSerializationDomain domain)
         {
             var idMemberMap = classMap.IdMemberMap;
             if (idMemberMap != null)
             {
                 if (idMemberMap.IdGenerator == null)
                 {
-                    var idGenerator = BsonSerializer.LookupIdGenerator(idMemberMap.MemberType);
+                    //or we pass the domain to the BsonClassMap. The first probably makes more sense, but it's messier.
+                    var idGenerator = domain.LookupIdGenerator(idMemberMap.MemberType);
                     if (idGenerator != null)
                     {
                         idMemberMap.SetIdGenerator(idGenerator);

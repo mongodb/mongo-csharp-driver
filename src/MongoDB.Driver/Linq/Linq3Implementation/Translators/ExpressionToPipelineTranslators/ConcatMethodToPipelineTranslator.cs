@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     secondCollectionNamespace != null)
                 {
                     var secondCollectionName = secondCollectionNamespace.CollectionName;
-                    var secondContext = TranslationContext.Create(context.TranslationOptions);
+                    var secondContext = TranslationContext.Create(context.TranslationOptions, context.SerializationDomain);
                     var secondPipeline = ExpressionToPipelineTranslator.Translate(secondContext, secondQueryable.Expression);
                     if (secondPipeline.Ast.Stages.Count == 0)
                     {

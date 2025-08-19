@@ -20,7 +20,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
-using MongoDB.Driver.Tests;
 using MongoDB.Driver.Tests.Linq.Linq3Implementation;
 using Moq;
 using Xunit;
@@ -48,10 +47,10 @@ namespace MongoDB.Driver.Tests.Linq
         public void TranslateExpressionToAggregateExpression_should_return_expected_result()
         {
             Expression<Func<C, int>> expression = c => c.X;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var sourceSerializer = serializerRegistry.GetSerializer<C>();
+            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
+            var sourceSerializer = serializationDomain.SerializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToAggregateExpression(expression, sourceSerializer, serializerRegistry, translationOptions: null);
+            var result = LinqProviderAdapter.TranslateExpressionToAggregateExpression(expression, sourceSerializer, serializationDomain, translationOptions: null);
 
             result.Should().Be("'$X'");
         }
@@ -60,10 +59,10 @@ namespace MongoDB.Driver.Tests.Linq
         public void TranslateExpressionToField_with_untyped_lambda_should_return_expected_result()
         {
             LambdaExpression expression = (Expression<Func<C, int>>)(c => c.X);
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var documentSerializer = serializerRegistry.GetSerializer<C>();
+            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
+            var documentSerializer = serializationDomain.SerializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, translationOptions: null);
+            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializationDomain, translationOptions: null);
 
             result.FieldName.Should().Be("X");
             result.FieldSerializer.Should().BeOfType(typeof(Int32Serializer));
@@ -73,10 +72,10 @@ namespace MongoDB.Driver.Tests.Linq
         public void TranslateExpressionToField_with_typed_lambda_should_return_expected_result()
         {
             Expression<Func<C, int>> expression = c => c.X;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var documentSerializer = serializerRegistry.GetSerializer<C>();
+            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
+            var documentSerializer = serializationDomain.SerializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, translationOptions: null, allowScalarValueForArrayField: false);
+            var result = LinqProviderAdapter.TranslateExpressionToField(expression, documentSerializer, serializationDomain, translationOptions: null, allowScalarValueForArrayField: false);
 
             result.FieldName.Should().Be("X");
             result.FieldSerializer.Should().BeOfType(typeof(Int32Serializer));
@@ -86,10 +85,10 @@ namespace MongoDB.Driver.Tests.Linq
         public void TranslateExpressionToFilter_should_return_expected_result()
         {
             Expression<Func<C, bool>> expression = c => c.X == 0;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var documentSerializer = serializerRegistry.GetSerializer<C>();
+            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
+            var documentSerializer = serializationDomain.SerializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToFilter(expression, documentSerializer, serializerRegistry, translationOptions: null);
+            var result = LinqProviderAdapter.TranslateExpressionToFilter(expression, documentSerializer, serializationDomain, translationOptions: null);
 
             result.Should().Be("{ X : 0 }");
         }
@@ -98,10 +97,10 @@ namespace MongoDB.Driver.Tests.Linq
         public void TranslateExpressionToFindProjection_should_return_expected_result()
         {
             Expression<Func<C, int>> expression = c => c.X;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var documentSerializer = serializerRegistry.GetSerializer<C>();
+            var serializationDomain = BsonSerializer.DefaultSerializationDomain;
+            var documentSerializer = serializationDomain.SerializerRegistry.GetSerializer<C>();
 
-            var result = LinqProviderAdapter.TranslateExpressionToFindProjection(expression, documentSerializer, serializerRegistry, translationOptions: null);
+            var result = LinqProviderAdapter.TranslateExpressionToFindProjection(expression, documentSerializer, serializationDomain, translationOptions: null);
 
             result.Document.Should().Be("{ X : 1, _id : 0 }");
             result.ProjectionSerializer.ValueType.Should().Be(typeof(int));
@@ -114,10 +113,10 @@ namespace MongoDB.Driver.Tests.Linq
 
             void WithAnonymousOutputType<TOutput>(Expression<Func<C, TOutput>> expression)
             {
-                var serializerRegistry = BsonSerializer.SerializerRegistry;
-                var inputSerializer = serializerRegistry.GetSerializer<C>();
+                var serializationDomain = BsonSerializer.DefaultSerializationDomain;
+                var inputSerializer = serializationDomain.SerializerRegistry.GetSerializer<C>();
 
-                var result = LinqProviderAdapter.TranslateExpressionToProjection(expression, inputSerializer, serializerRegistry, translationOptions: null);
+                var result = LinqProviderAdapter.TranslateExpressionToProjection(expression, inputSerializer, serializationDomain, translationOptions: null);
 
                 result.Document.Should().Be("{ _id : '$_id', x : '$X' }");
                 result.ProjectionSerializer.ValueType.Should().Be(typeof(TOutput));

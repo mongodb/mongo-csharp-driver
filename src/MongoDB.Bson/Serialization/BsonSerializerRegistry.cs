@@ -33,14 +33,22 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="BsonSerializerRegistry"/> class.
         /// </summary>
-        public BsonSerializerRegistry()
+        public BsonSerializerRegistry():
+            this(BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
+        /// <summary>
+        /// //TODO
+        /// </summary>
+        /// <param name="serializationDomain"></param>
+        internal BsonSerializerRegistry(IBsonSerializationDomain serializationDomain)
         {
             _cache = new ConcurrentDictionary<Type, IBsonSerializer>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
             _createSerializer = CreateSerializer;
         }
 
-        // public methods
         /// <summary>
         /// Gets the serializer for the specified <paramref name="type" />.
         /// If none is already registered, the serialization providers will be used to create a serializer and it will be automatically registered.
@@ -156,17 +164,14 @@ namespace MongoDB.Bson.Serialization
         {
             foreach (var serializationProvider in _serializationProviders)
             {
-                IBsonSerializer serializer;
-
-                var registryAwareSerializationProvider = serializationProvider as IRegistryAwareBsonSerializationProvider;
-                if (registryAwareSerializationProvider != null)
+                var serializer = serializationProvider switch
                 {
-                    serializer = registryAwareSerializationProvider.GetSerializer(type, this);
-                }
-                else
-                {
-                    serializer = serializationProvider.GetSerializer(type);
-                }
+                    IDomainAwareBsonSerializationProvider domainAwareBsonSerializationProvider =>
+                        domainAwareBsonSerializationProvider.GetSerializerWithDomain(type),
+                    IRegistryAwareBsonSerializationProvider registryAwareSerializationProvider =>
+                        registryAwareSerializationProvider.GetSerializer(type, this),
+                    _ => serializationProvider.GetSerializer(type)
+                };
 
                 if (serializer != null)
                 {

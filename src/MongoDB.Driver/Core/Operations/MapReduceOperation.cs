@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -45,7 +46,12 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="reduceFunction">The reduce function.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public MapReduceOperation(CollectionNamespace collectionNamespace, BsonJavaScript mapFunction, BsonJavaScript reduceFunction, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        /// <param name="serializationDomain">The serialization domain.</param>
+        public MapReduceOperation(CollectionNamespace collectionNamespace,
+            BsonJavaScript mapFunction, BsonJavaScript reduceFunction,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            IBsonSerializationDomain serializationDomain)
             : base(
                 collectionNamespace,
                 mapFunction,
@@ -53,6 +59,22 @@ namespace MongoDB.Driver.Core.Operations
                 messageEncoderSettings)
         {
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
+        }
+
+        //EXIT
+        public MapReduceOperation(CollectionNamespace collectionNamespace,
+            BsonJavaScript mapFunction, BsonJavaScript reduceFunction,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(
+                collectionNamespace,
+                mapFunction,
+                reduceFunction,
+                resultSerializer,
+                messageEncoderSettings,
+                BsonSerializer.DefaultSerializationDomain)
+        {
         }
 
         // properties
@@ -135,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             var command = CreateCommand(operationContext, session, connectionDescription);
             var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
             var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
-            return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings)
+            return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings, _serializationDomain)
             {
                 RetryRequested = false
             };

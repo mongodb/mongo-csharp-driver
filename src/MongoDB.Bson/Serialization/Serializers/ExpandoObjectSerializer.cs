@@ -31,12 +31,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly IBsonSerializer<List<object>> _listSerializer;
 
+        //DOMAIN-API This version should be removed in the future.
         /// <summary>
         /// Initializes a new instance of the <see cref="ExpandoObjectSerializer"/> class.
         /// </summary>
         public ExpandoObjectSerializer()
+            :this(BsonSerializer.DefaultSerializationDomain.SerializerRegistry)
         {
-            _listSerializer = BsonSerializer.LookupSerializer<List<object>>();
+        }
+
+        internal ExpandoObjectSerializer(IBsonSerializerRegistry serializerRegistry)
+        {
+            _listSerializer = serializerRegistry.GetSerializer<List<object>>();
         }
 
         /// <summary>

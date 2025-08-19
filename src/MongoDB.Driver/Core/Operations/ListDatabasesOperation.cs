@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -33,11 +34,20 @@ namespace MongoDB.Driver.Core.Operations
         private MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
         private bool _retryRequested;
+        private IBsonSerializationDomain _serializationDomain;
 
-        public ListDatabasesOperation(MessageEncoderSettings messageEncoderSettings)
+        public ListDatabasesOperation(MessageEncoderSettings messageEncoderSettings, IBsonSerializationDomain serializationDomain)
         {
             _messageEncoderSettings = messageEncoderSettings;
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
+
+        //EXIT
+        public ListDatabasesOperation(MessageEncoderSettings messageEncoderSettings)
+            : this(messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
 
         public bool? AuthorizedDatabases
         {
@@ -121,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
         private ReadCommandOperation<BsonDocument> CreateOperation()
         {
             var command = CreateCommand();
-            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, _serializationDomain)
             {
                 RetryRequested = _retryRequested
             };
