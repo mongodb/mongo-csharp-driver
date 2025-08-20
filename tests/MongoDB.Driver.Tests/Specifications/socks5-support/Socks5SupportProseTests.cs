@@ -75,6 +75,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
             });
     }
 
+    //Prose test: https://github.com/mongodb/specifications/blob/a6dbd208462d97f97c813560cac5cf25925bb0cf/source/socks5-support/tests/README.md
     [Theory]
     [MemberData(nameof(GetTestCombinations))]
     public async Task TestConnectionStrings(string id, string connectionString, bool expectedResult, bool useTls, bool async)

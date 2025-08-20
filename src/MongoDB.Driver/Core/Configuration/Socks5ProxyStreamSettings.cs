@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Core.Configuration;
 /// <summary>
 /// Represents settings for a SOCKS5 proxy stream.
 /// </summary>
-public class Socks5ProxyStreamSettings
+public sealed class Socks5ProxyStreamSettings
 {
     private Socks5ProxySettings _socks5ProxySettings;
 
@@ -44,7 +44,5 @@ public class Socks5ProxyStreamSettings
     /// <param name="socks5ProxySettings"></param>
     /// <returns></returns>
     public Socks5ProxyStreamSettings With(Socks5ProxySettings socks5ProxySettings)
-    {
-        return new Socks5ProxyStreamSettings(socks5ProxySettings);
-    }
+        => new(socks5ProxySettings);
 }

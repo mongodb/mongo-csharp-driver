@@ -448,7 +448,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        ///
+        /// Gets or sets the proxy host.
         /// </summary>
         public string ProxyHost
         {
@@ -460,7 +460,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        ///
+        /// Gets or sets the proxy port.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public int? ProxyPort
@@ -473,7 +473,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        ///
+        /// Gets or sets the proxy username.
         /// </summary>
         public string ProxyUsername
         {
@@ -485,7 +485,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        ///
+        /// Gets or sets the proxy password.
         /// </summary>
         public string ProxyPassword
         {
