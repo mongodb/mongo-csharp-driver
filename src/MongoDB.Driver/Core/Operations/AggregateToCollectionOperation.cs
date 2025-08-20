@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
