@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "timeoutMS behaves correctly for the withTransaction API",
   "schemaVersion": "1.9",
   "runOnRequirements": [

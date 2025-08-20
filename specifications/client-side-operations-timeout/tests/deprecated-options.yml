@@ -1,4 +1,4 @@
-﻿description: "operations ignore deprecated timeout options if timeoutMS is set"
+description: "operations ignore deprecated timeout options if timeoutMS is set"
 
 schemaVersion: "1.9"
 
@@ -191,7 +191,7 @@ tests:
                 commitTransaction: 1
                 # Assert that the final maxTimeMS field is derived from timeoutMS, not maxCommitTimeMS.
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   # Tests for abortTransaction. These are not included in the operations loop because the tests need to execute
   # additional "startTransaction" and "insertOne" operations to establish a server-side transaction.
 
@@ -475,7 +475,7 @@ tests:
 
   # Tests for operations that can be generated.
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - listDatabases on client"
     operations:
       - name: createEntities
@@ -517,8 +517,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - listDatabases on client"
     operations:
@@ -553,8 +553,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -566,7 +566,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - listDatabaseNames on client"
     operations:
       - name: createEntities
@@ -607,8 +607,8 @@ tests:
         object: *client
         arguments:
           timeoutMS: 100000
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - listDatabaseNames on client"
     operations:
@@ -642,8 +642,8 @@ tests:
         object: *client
         arguments:
           timeoutMS: 100000
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -655,7 +655,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - createChangeStream on client"
     operations:
       - name: createEntities
@@ -697,8 +697,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: []
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - createChangeStream on client"
     operations:
@@ -733,8 +733,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -746,7 +746,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - aggregate on database"
     operations:
       - name: createEntities
@@ -788,8 +788,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - aggregate on database"
     operations:
@@ -824,8 +824,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -870,8 +870,8 @@ tests:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -881,7 +881,7 @@ tests:
               command:
                 aggregate: 1
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - listCollections on database"
     operations:
       - name: createEntities
@@ -923,8 +923,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - listCollections on database"
     operations:
@@ -959,8 +959,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -972,7 +972,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - listCollectionNames on database"
     operations:
       - name: createEntities
@@ -1014,8 +1014,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - listCollectionNames on database"
     operations:
@@ -1050,8 +1050,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1063,7 +1063,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - runCommand on database"
     operations:
       - name: createEntities
@@ -1106,8 +1106,8 @@ tests:
           timeoutMS: 100000
           command: { ping: 1 }
           commandName: ping
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - runCommand on database"
     operations:
@@ -1143,8 +1143,8 @@ tests:
           timeoutMS: 100000
           command: { ping: 1 }
           commandName: ping
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1156,7 +1156,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - createChangeStream on database"
     operations:
       - name: createEntities
@@ -1198,8 +1198,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: []
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - createChangeStream on database"
     operations:
@@ -1234,8 +1234,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1247,7 +1247,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - aggregate on collection"
     operations:
       - name: createEntities
@@ -1289,8 +1289,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: []
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - aggregate on collection"
     operations:
@@ -1325,8 +1325,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1371,8 +1371,8 @@ tests:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1382,7 +1382,7 @@ tests:
               command:
                 aggregate: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - count on collection"
     operations:
       - name: createEntities
@@ -1424,8 +1424,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - count on collection"
     operations:
@@ -1460,8 +1460,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1506,8 +1506,8 @@ tests:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1517,7 +1517,7 @@ tests:
               command:
                 count: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - countDocuments on collection"
     operations:
       - name: createEntities
@@ -1559,8 +1559,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - countDocuments on collection"
     operations:
@@ -1595,8 +1595,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1608,7 +1608,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - estimatedDocumentCount on collection"
     operations:
       - name: createEntities
@@ -1649,8 +1649,8 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 100000
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - estimatedDocumentCount on collection"
     operations:
@@ -1684,8 +1684,8 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 100000
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1729,8 +1729,8 @@ tests:
         arguments:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1740,7 +1740,7 @@ tests:
               command:
                 count: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - distinct on collection"
     operations:
       - name: createEntities
@@ -1783,8 +1783,8 @@ tests:
           timeoutMS: 100000
           fieldName: x
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - distinct on collection"
     operations:
@@ -1820,8 +1820,8 @@ tests:
           timeoutMS: 100000
           fieldName: x
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1867,8 +1867,8 @@ tests:
           maxTimeMS: 5000
           fieldName: x
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1878,7 +1878,7 @@ tests:
               command:
                 distinct: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - find on collection"
     operations:
       - name: createEntities
@@ -1920,8 +1920,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - find on collection"
     operations:
@@ -1956,8 +1956,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2002,8 +2002,8 @@ tests:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2013,7 +2013,7 @@ tests:
               command:
                 find: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - findOne on collection"
     operations:
       - name: createEntities
@@ -2055,8 +2055,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - findOne on collection"
     operations:
@@ -2091,8 +2091,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2137,8 +2137,8 @@ tests:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2148,7 +2148,7 @@ tests:
               command:
                 find: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - listIndexes on collection"
     operations:
       - name: createEntities
@@ -2189,8 +2189,8 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 100000
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - listIndexes on collection"
     operations:
@@ -2224,8 +2224,8 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 100000
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2237,7 +2237,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - listIndexNames on collection"
     operations:
       - name: createEntities
@@ -2278,8 +2278,8 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 100000
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - listIndexNames on collection"
     operations:
@@ -2313,8 +2313,8 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 100000
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2326,7 +2326,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - createChangeStream on collection"
     operations:
       - name: createEntities
@@ -2368,8 +2368,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: []
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - createChangeStream on collection"
     operations:
@@ -2404,8 +2404,8 @@ tests:
         arguments:
           timeoutMS: 100000
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2417,7 +2417,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - insertOne on collection"
     operations:
       - name: createEntities
@@ -2459,8 +2459,8 @@ tests:
         arguments:
           timeoutMS: 100000
           document: { x: 1 }
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - insertOne on collection"
     operations:
@@ -2495,8 +2495,8 @@ tests:
         arguments:
           timeoutMS: 100000
           document: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2508,7 +2508,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - insertMany on collection"
     operations:
       - name: createEntities
@@ -2551,8 +2551,8 @@ tests:
           timeoutMS: 100000
           documents:
             - { x: 1 }
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - insertMany on collection"
     operations:
@@ -2588,8 +2588,8 @@ tests:
           timeoutMS: 100000
           documents:
             - { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2601,7 +2601,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - deleteOne on collection"
     operations:
       - name: createEntities
@@ -2643,8 +2643,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - deleteOne on collection"
     operations:
@@ -2679,8 +2679,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2692,7 +2692,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - deleteMany on collection"
     operations:
       - name: createEntities
@@ -2734,8 +2734,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - deleteMany on collection"
     operations:
@@ -2770,8 +2770,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2783,7 +2783,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - replaceOne on collection"
     operations:
       - name: createEntities
@@ -2826,8 +2826,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - replaceOne on collection"
     operations:
@@ -2863,8 +2863,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2876,7 +2876,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - updateOne on collection"
     operations:
       - name: createEntities
@@ -2919,8 +2919,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - updateOne on collection"
     operations:
@@ -2956,8 +2956,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2969,7 +2969,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - updateMany on collection"
     operations:
       - name: createEntities
@@ -3012,8 +3012,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - updateMany on collection"
     operations:
@@ -3049,8 +3049,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3062,7 +3062,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - findOneAndDelete on collection"
     operations:
       - name: createEntities
@@ -3104,8 +3104,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - findOneAndDelete on collection"
     operations:
@@ -3140,8 +3140,8 @@ tests:
         arguments:
           timeoutMS: 100000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3186,8 +3186,8 @@ tests:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3197,7 +3197,7 @@ tests:
               command:
                 findAndModify: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - findOneAndReplace on collection"
     operations:
       - name: createEntities
@@ -3240,8 +3240,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - findOneAndReplace on collection"
     operations:
@@ -3277,8 +3277,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3324,8 +3324,8 @@ tests:
           maxTimeMS: 5000
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3335,7 +3335,7 @@ tests:
               command:
                 findAndModify: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - findOneAndUpdate on collection"
     operations:
       - name: createEntities
@@ -3378,8 +3378,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - findOneAndUpdate on collection"
     operations:
@@ -3415,8 +3415,8 @@ tests:
           timeoutMS: 100000
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3462,8 +3462,8 @@ tests:
           maxTimeMS: 5000
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3473,7 +3473,7 @@ tests:
               command:
                 findAndModify: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - bulkWrite on collection"
     operations:
       - name: createEntities
@@ -3517,8 +3517,8 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - bulkWrite on collection"
     operations:
@@ -3555,8 +3555,8 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3568,7 +3568,7 @@ tests:
                 writeConcern: { $$exists: false }
                 maxTimeMS: { $$type: ["int", "long"] }
 
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - createIndex on collection"
     operations:
       - name: createEntities
@@ -3611,8 +3611,8 @@ tests:
           timeoutMS: 100000
           keys: { x: 1 }
           name: "x_1"
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - createIndex on collection"
     operations:
@@ -3648,8 +3648,8 @@ tests:
           timeoutMS: 100000
           keys: { x: 1 }
           name: "x_1"
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3695,8 +3695,8 @@ tests:
           maxTimeMS: 5000
           keys: { x: 1 }
           name: "x_1"
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3706,7 +3706,7 @@ tests:
               command:
                 createIndexes: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - dropIndex on collection"
     operations:
       - name: createEntities
@@ -3743,16 +3743,19 @@ tests:
               failCommands: ["dropIndexes"]
               blockConnection: true
               blockTimeMS: 5
+      # Create the index first so dropIndex doesn't return IndexNotFound on
+      # servers prior to 8.3.
+      - name: createIndex 
+        object: *collection
+        arguments:
+          keys: { x: 1 }
+          timeoutMS: 100000
+          name: "x_1"
       - name: dropIndex
         object: *collection
         arguments:
           timeoutMS: 100000
           name: "x_1"
-
-        expectError:
-          isClientError: false
-          isTimeoutError: false
-
   - description: "wTimeoutMS is ignored if timeoutMS is set - dropIndex on collection"
     operations:
       - name: createEntities
@@ -3781,18 +3784,26 @@ tests:
             - session:
                 id: &session session
                 client: *client
+      # Create the index first so dropIndex doesn't return IndexNotFound on
+      # servers prior to 8.3.
+      - name: createIndex
+        object: *collection
+        arguments:
+          keys: { x: 1 }
+          timeoutMS: 100000
+          name: "x_1"
       - name: dropIndex
         object: *collection
         arguments:
           timeoutMS: 100000
           name: "x_1"
-
-        expectError:
-          isClientError: false
-          isTimeoutError: false
     expectEvents:
       - client: *client
         events:
+          - commandStartedEvent:
+              commandName: createIndexes
+              databaseName: *databaseName
+
           - commandStartedEvent:
               commandName: dropIndexes
               databaseName: *databaseName
@@ -3828,26 +3839,33 @@ tests:
             - session:
                 id: &session session
                 client: *client
+      # Create the index first so dropIndex doesn't return IndexNotFound on
+      # servers prior to 8.3.
+      - name: createIndex 
+        object: *collection
+        arguments:
+          keys: { x: 1 }
+          name: "x_1"
       - name: dropIndex
         object: *collection
         arguments:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
           name: "x_1"
-
-        expectError:
-          isClientError: false
-          isTimeoutError: false
     expectEvents:
       - client: *client
         events:
+          - commandStartedEvent:
+              commandName: createIndexes
+              databaseName: *databaseName
+
           - commandStartedEvent:
               commandName: dropIndexes
               databaseName: *databaseName
               command:
                 dropIndexes: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
-
+  
   - description: "socketTimeoutMS is ignored if timeoutMS is set - dropIndexes on collection"
     operations:
       - name: createEntities
@@ -3884,12 +3902,20 @@ tests:
               failCommands: ["dropIndexes"]
               blockConnection: true
               blockTimeMS: 5
+      # Create the index first so dropIndex doesn't return IndexNotFound on
+      # servers prior to 8.3.
+      - name: createIndex 
+        object: *collection
+        arguments:
+          keys: { x: 1 }
+          name: "x_1"
+          timeoutMS: 100000
       - name: dropIndexes
         object: *collection
         arguments:
           timeoutMS: 100000
-
-
+          
+        
 
   - description: "wTimeoutMS is ignored if timeoutMS is set - dropIndexes on collection"
     operations:
@@ -3923,8 +3949,8 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 100000
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3968,8 +3994,8 @@ tests:
         arguments:
           timeoutMS: &timeoutMS 1000
           maxTimeMS: 5000
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -3979,3 +4005,4 @@ tests:
               command:
                 dropIndexes: *collectionName
                 maxTimeMS: { $$lte: *timeoutMS }
+  

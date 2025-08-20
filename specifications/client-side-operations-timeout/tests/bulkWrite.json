@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "timeoutMS behaves correctly for bulkWrite operations",
   "schemaVersion": "1.9",
   "runOnRequirements": [
