@@ -55,9 +55,11 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // private fields
         private readonly Type _interfaceType;
-        private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly IBsonSerializer<TInterface> _interfaceSerializer;
-        private readonly IBsonSerializer<object> _objectSerializer;
+        private readonly Lazy<IDiscriminatorConvention> _discriminatorConvention;
+        private readonly Lazy<IBsonSerializer<object>> _objectSerializer;
+
+        private IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -109,26 +111,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _interfaceType = typeof(TInterface);
-            _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention(); //QUESTION What do we do here? We don't have the domain close by, should we lazy initialize it during serialization/deserialization?
+            _discriminatorConvention = discriminatorConvention != null
+                ? new Lazy<IDiscriminatorConvention>(() => discriminatorConvention)
+                : new Lazy<IDiscriminatorConvention>(() => GetDiscriminatorConvention(_serializationDomain));
+            _objectSerializer = objectSerializer != null
+                ? new Lazy<IBsonSerializer<object>>(() => objectSerializer)
+                : new Lazy<IBsonSerializer<object>>(() => GetObjectSerializer(_serializationDomain));
             _interfaceSerializer = interfaceSerializer;
-
-            if (objectSerializer == null)
-            {
-                objectSerializer = BsonSerializer.LookupSerializer<object>();  //QUESTION What do we do here? We don't have the domain close by, should we lazy initialize it during serialization/deserialization?
-                if (objectSerializer is ObjectSerializer standardObjectSerializer)
-                {
-                    Func<Type, bool> allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);
-                    objectSerializer = standardObjectSerializer
-                        .WithDiscriminatorConvention(_discriminatorConvention)
-                        .WithAllowedTypes(allowedTypes, allowedTypes);
-                }
-                else
-                {
-                    throw new BsonSerializationException("Can't set discriminator convention on custom object serializer.");
-                }
-            }
-
-            _objectSerializer = objectSerializer;
         }
 
         // public properties
@@ -149,6 +138,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <exception cref="System.FormatException"></exception>
         public override TInterface Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
+            _serializationDomain = context.SerializationDomain;
             var bsonReader = context.Reader;
 
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
@@ -158,7 +148,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var actualType = _discriminatorConvention.GetActualTypeInternal(bsonReader, typeof(TInterface), context.SerializationDomain);
+                var actualType = _discriminatorConvention.Value.GetActualTypeInternal(bsonReader, typeof(TInterface), context.SerializationDomain);
                 if (actualType == _interfaceType)
                 {
                     var message = string.Format("Unable to determine actual type of object to deserialize for interface type {0}.", _interfaceType.FullName);
@@ -193,6 +183,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The document.</param>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TInterface value)
         {
+            _serializationDomain = context.SerializationDomain;
             var bsonWriter = context.Writer;
 
             if (value == null)
@@ -202,7 +193,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 args.NominalType = typeof(object);
-                _objectSerializer.Serialize(context, args, value);
+                _objectSerializer.Value.Serialize(context, args, value);
             }
         }
 
@@ -216,6 +207,29 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             serializationInfo = null;
             return false;
+        }
+
+        private IDiscriminatorConvention GetDiscriminatorConvention(IBsonSerializationDomain serializationDomain)
+        {
+            return _interfaceSerializer.GetDiscriminatorConvention(serializationDomain);
+        }
+
+        private IBsonSerializer<object> GetObjectSerializer(IBsonSerializationDomain serializationDomain)
+        {
+            var objectSerializer = serializationDomain.LookupSerializer<object>();
+            if (objectSerializer is ObjectSerializer standardObjectSerializer)
+            {
+                var allowedTypes = (Type type) => typeof(TInterface).IsAssignableFrom(type);
+                objectSerializer = standardObjectSerializer
+                    .WithDiscriminatorConvention(_discriminatorConvention.Value)
+                    .WithAllowedTypes(allowedTypes, allowedTypes);
+            }
+            else
+            {
+                throw new BsonSerializationException("Can't set discriminator convention on custom object serializer.");
+            }
+
+            return objectSerializer;
         }
     }
 }

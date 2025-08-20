@@ -424,9 +424,9 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The frozen class map.</returns>
         public BsonClassMap Freeze() => Freeze(BsonSerializer.DefaultSerializationDomain);
 
-        internal BsonClassMap Freeze(IBsonSerializationDomain domain)
+        internal BsonClassMap Freeze(IBsonSerializationDomain serializationDomain)
         {
-            var freezeContext = new FreezeContext { SerializationDomain = domain };
+            var freezeContext = new FreezeContext { SerializationDomain = serializationDomain };
             return Freeze(freezeContext);
         }
 
