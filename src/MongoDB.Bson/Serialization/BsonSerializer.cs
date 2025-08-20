@@ -64,11 +64,7 @@ namespace MongoDB.Bson.Serialization
         internal static ReaderWriterLockSlim ConfigLock => _serializationDomain.ConfigLock;
 
         // public static methods
-
-        /// <summary>
-        /// //TODO
-        /// </summary>
-        /// <returns></returns>
+        //FP TODO: This is used only for testing, it can be removed later.
         internal static IBsonSerializationDomain CreateSerializationDomain() => new BsonSerializationDomain();
 
         /// <summary>

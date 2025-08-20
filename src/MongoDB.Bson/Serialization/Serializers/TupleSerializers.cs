@@ -109,12 +109,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
 
+        //DOMAIN-API This should be removed in the future.
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleSerializer{T1}"/> class.
         /// </summary>
         public TupleSerializer()
-            : this(BsonSerializer.SerializerRegistry) //TODO We can keep this as is
+            : this(BsonSerializer.SerializerRegistry)
         {
         }
 

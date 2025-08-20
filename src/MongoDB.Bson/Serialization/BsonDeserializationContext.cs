@@ -46,9 +46,6 @@ namespace MongoDB.Bson.Serialization
 
             _serializationDomain = serializationDomain; //FP Using this version to find error in an easier way for now
             //_serializationDomain = serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
-
-            _dynamicArraySerializer ??= _serializationDomain.BsonDefaults.DynamicArraySerializer;
-            _dynamicDocumentSerializer ??= _serializationDomain.BsonDefaults.DynamicDocumentSerializer;
         }
 
         // public properties
@@ -177,10 +174,11 @@ namespace MongoDB.Bson.Serialization
                     _dynamicArraySerializer = other.DynamicArraySerializer;
                     _dynamicDocumentSerializer = other.DynamicDocumentSerializer;
                 }
-
-                /* QUESTION I removed the part where we set the dynamic serializers from the BsonDefaults, and delay it until we have a serialization domain (when we build the DeserializationContext).
-                 * This is technically changing the public behaviour, but it's in a builder, I do not thing it will affect anyone. Same done for the serialization context.
-                 */
+                else
+                {
+                    _dynamicArraySerializer = serializationDomain.BsonDefaults.DynamicArraySerializer;
+                    _dynamicDocumentSerializer = serializationDomain.BsonDefaults.DynamicDocumentSerializer;
+                }
             }
 
             // properties
