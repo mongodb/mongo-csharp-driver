@@ -1,4 +1,4 @@
-﻿description: "MaxTimeMSExpired server errors are transformed into a custom timeout error"
+description: "MaxTimeMSExpired server errors are transformed into a custom timeout error"
 
 schemaVersion: "1.9"
 
