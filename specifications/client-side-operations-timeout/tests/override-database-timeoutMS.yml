@@ -1,4 +1,4 @@
-﻿# Tests in this file are generated from override-database-timeoutMS.yml.template.
+# Tests in this file are generated from override-database-timeoutMS.yml.template.
 
 description: "timeoutMS can be overridden for a MongoDatabase"
 
@@ -69,8 +69,8 @@ tests:
         object: *database
         arguments:
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -111,8 +111,8 @@ tests:
         object: *database
         arguments:
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -153,8 +153,8 @@ tests:
         object: *database
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -195,8 +195,8 @@ tests:
         object: *database
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -237,8 +237,8 @@ tests:
         object: *database
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -279,8 +279,8 @@ tests:
         object: *database
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -322,8 +322,8 @@ tests:
         arguments:
           command: { ping: 1 }
           commandName: ping
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -365,8 +365,8 @@ tests:
         arguments:
           command: { ping: 1 }
           commandName: ping
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -407,8 +407,8 @@ tests:
         object: *database
         arguments:
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -449,8 +449,8 @@ tests:
         object: *database
         arguments:
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -491,8 +491,8 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -533,8 +533,8 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -575,8 +575,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -617,8 +617,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -659,8 +659,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -701,8 +701,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -741,8 +741,8 @@ tests:
               blockTimeMS: 15
       - name: estimatedDocumentCount
         object: *collection
-
-
+        
+        
     expectEvents:
       - client: *client
         events:
@@ -781,8 +781,8 @@ tests:
               blockTimeMS: 15
       - name: estimatedDocumentCount
         object: *collection
-
-
+        
+        
     expectEvents:
       - client: *client
         events:
@@ -824,8 +824,8 @@ tests:
         arguments:
           fieldName: x
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -867,8 +867,8 @@ tests:
         arguments:
           fieldName: x
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -909,8 +909,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -951,8 +951,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -993,8 +993,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1035,8 +1035,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1075,8 +1075,8 @@ tests:
               blockTimeMS: 15
       - name: listIndexes
         object: *collection
-
-
+        
+        
     expectEvents:
       - client: *client
         events:
@@ -1115,8 +1115,8 @@ tests:
               blockTimeMS: 15
       - name: listIndexes
         object: *collection
-
-
+        
+        
     expectEvents:
       - client: *client
         events:
@@ -1155,8 +1155,8 @@ tests:
               blockTimeMS: 15
       - name: listIndexNames
         object: *collection
-
-
+        
+        
     expectEvents:
       - client: *client
         events:
@@ -1195,8 +1195,8 @@ tests:
               blockTimeMS: 15
       - name: listIndexNames
         object: *collection
-
-
+        
+        
     expectEvents:
       - client: *client
         events:
@@ -1237,8 +1237,8 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1279,8 +1279,8 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1321,8 +1321,8 @@ tests:
         object: *collection
         arguments:
           document: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1363,8 +1363,8 @@ tests:
         object: *collection
         arguments:
           document: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1406,8 +1406,8 @@ tests:
         arguments:
           documents:
             - { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1449,8 +1449,8 @@ tests:
         arguments:
           documents:
             - { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1491,8 +1491,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1533,8 +1533,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1575,8 +1575,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1617,8 +1617,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1660,8 +1660,8 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1703,8 +1703,8 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1746,8 +1746,8 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1789,8 +1789,8 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1832,8 +1832,8 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1875,8 +1875,8 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1917,8 +1917,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -1959,8 +1959,8 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2002,8 +2002,8 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2045,8 +2045,8 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2088,8 +2088,8 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2131,8 +2131,8 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2175,8 +2175,8 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2219,8 +2219,8 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2262,8 +2262,8 @@ tests:
         arguments:
           keys: { x: 1 }
           name: "x_1"
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2305,8 +2305,8 @@ tests:
         arguments:
           keys: { x: 1 }
           name: "x_1"
-
-
+          
+        
     expectEvents:
       - client: *client
         events:
@@ -2343,17 +2343,24 @@ tests:
               failCommands: ["dropIndexes"]
               blockConnection: true
               blockTimeMS: 15
+      # Create the index first so dropIndex doesn't return IndexNotFound on
+      # servers prior to 8.3.
+      - name: createIndex 
+        object: *collection
+        arguments:
+          keys: { x: 1 }
+          name: "x_1"
       - name: dropIndex
         object: *collection
         arguments:
           name: "x_1"
-
-        expectError:
-          isClientError: false
-          isTimeoutError: false
     expectEvents:
       - client: *client
         events:
+          - commandStartedEvent:
+              commandName: createIndexes
+              databaseName: *databaseName
+
           - commandStartedEvent:
               commandName: dropIndexes
               databaseName: *databaseName
@@ -2387,17 +2394,24 @@ tests:
               failCommands: ["dropIndexes"]
               blockConnection: true
               blockTimeMS: 15
+      # Create the index first so dropIndex doesn't return IndexNotFound on
+      # servers prior to 8.3.
+      - name: createIndex 
+        object: *collection
+        arguments:
+          keys: { x: 1 }
+          name: "x_1"
       - name: dropIndex
         object: *collection
         arguments:
           name: "x_1"
-
-        expectError:
-          isClientError: false
-          isTimeoutError: false
     expectEvents:
       - client: *client
         events:
+          - commandStartedEvent:
+              commandName: createIndexes
+              databaseName: *databaseName
+
           - commandStartedEvent:
               commandName: dropIndexes
               databaseName: *databaseName
@@ -2433,8 +2447,8 @@ tests:
               blockTimeMS: 15
       - name: dropIndexes
         object: *collection
-
-
+        
+        
     expectEvents:
       - client: *client
         events:
@@ -2473,8 +2487,8 @@ tests:
               blockTimeMS: 15
       - name: dropIndexes
         object: *collection
-
-
+        
+        
     expectEvents:
       - client: *client
         events:
@@ -2484,3 +2498,4 @@ tests:
               command:
                 dropIndexes: *collectionName
                 maxTimeMS: { $$exists: false }
+  

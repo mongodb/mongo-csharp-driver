@@ -1,4 +1,4 @@
-﻿# Tests in this file are generated from retryability-timeoutMS.yml.template.
+# Tests in this file are generated from retryability-timeoutMS.yml.template.
 
 description: "timeoutMS behaves correctly for retryable operations"
 
@@ -80,7 +80,7 @@ tests:
         object: *collection
         arguments:
           document: { x: 1 }
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - insertOne on collection"
@@ -104,7 +104,7 @@ tests:
         arguments:
           timeoutMS: 1000
           document: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -147,7 +147,7 @@ tests:
         arguments:
           timeoutMS: 0
           document: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -191,7 +191,7 @@ tests:
         arguments:
           documents:
             - { x: 1 }
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - insertMany on collection"
@@ -216,7 +216,7 @@ tests:
           timeoutMS: 1000
           documents:
             - { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -260,7 +260,7 @@ tests:
           timeoutMS: 0
           documents:
             - { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -303,7 +303,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - deleteOne on collection"
@@ -327,7 +327,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -370,7 +370,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -414,7 +414,7 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - replaceOne on collection"
@@ -439,7 +439,7 @@ tests:
           timeoutMS: 1000
           filter: {}
           replacement: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -483,7 +483,7 @@ tests:
           timeoutMS: 0
           filter: {}
           replacement: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -527,7 +527,7 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - updateOne on collection"
@@ -552,7 +552,7 @@ tests:
           timeoutMS: 1000
           filter: {}
           update: { $set: { x: 1 } }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -596,7 +596,7 @@ tests:
           timeoutMS: 0
           filter: {}
           update: { $set: { x: 1 } }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -639,7 +639,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - findOneAndDelete on collection"
@@ -663,7 +663,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -706,7 +706,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -750,7 +750,7 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - findOneAndReplace on collection"
@@ -775,7 +775,7 @@ tests:
           timeoutMS: 1000
           filter: {}
           replacement: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -819,7 +819,7 @@ tests:
           timeoutMS: 0
           filter: {}
           replacement: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -863,7 +863,7 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - findOneAndUpdate on collection"
@@ -888,7 +888,7 @@ tests:
           timeoutMS: 1000
           filter: {}
           update: { $set: { x: 1 } }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -932,7 +932,7 @@ tests:
           timeoutMS: 0
           filter: {}
           update: { $set: { x: 1 } }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -977,7 +977,7 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - bulkWrite on collection"
@@ -1003,7 +1003,7 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1048,7 +1048,7 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1091,7 +1091,7 @@ tests:
         object: *client
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - listDatabases on client"
@@ -1115,7 +1115,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1158,7 +1158,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1199,7 +1199,7 @@ tests:
               errorLabels: ["RetryableWriteError"]
       - name: listDatabaseNames
         object: *client
-
+        
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - listDatabaseNames on client"
@@ -1222,7 +1222,7 @@ tests:
         object: *client
         arguments:
           timeoutMS: 1000
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1264,7 +1264,7 @@ tests:
         object: *client
         arguments:
           timeoutMS: 0
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1307,7 +1307,7 @@ tests:
         object: *client
         arguments:
           pipeline: []
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - createChangeStream on client"
@@ -1331,7 +1331,7 @@ tests:
         arguments:
           timeoutMS: 1000
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1374,7 +1374,7 @@ tests:
         arguments:
           timeoutMS: 0
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1417,7 +1417,7 @@ tests:
         object: *database
         arguments:
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - aggregate on database"
@@ -1441,7 +1441,7 @@ tests:
         arguments:
           timeoutMS: 1000
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1484,7 +1484,7 @@ tests:
         arguments:
           timeoutMS: 0
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1527,7 +1527,7 @@ tests:
         object: *database
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - listCollections on database"
@@ -1551,7 +1551,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1594,7 +1594,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1637,7 +1637,7 @@ tests:
         object: *database
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - listCollectionNames on database"
@@ -1661,7 +1661,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1704,7 +1704,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1747,7 +1747,7 @@ tests:
         object: *database
         arguments:
           pipeline: []
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - createChangeStream on database"
@@ -1771,7 +1771,7 @@ tests:
         arguments:
           timeoutMS: 1000
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1814,7 +1814,7 @@ tests:
         arguments:
           timeoutMS: 0
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1857,7 +1857,7 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - aggregate on collection"
@@ -1881,7 +1881,7 @@ tests:
         arguments:
           timeoutMS: 1000
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1924,7 +1924,7 @@ tests:
         arguments:
           timeoutMS: 0
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1967,7 +1967,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - count on collection"
@@ -1991,7 +1991,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2034,7 +2034,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2077,7 +2077,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - countDocuments on collection"
@@ -2101,7 +2101,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2144,7 +2144,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2185,7 +2185,7 @@ tests:
               errorLabels: ["RetryableWriteError"]
       - name: estimatedDocumentCount
         object: *collection
-
+        
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - estimatedDocumentCount on collection"
@@ -2208,7 +2208,7 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 1000
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2250,7 +2250,7 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 0
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2294,7 +2294,7 @@ tests:
         arguments:
           fieldName: x
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - distinct on collection"
@@ -2319,7 +2319,7 @@ tests:
           timeoutMS: 1000
           fieldName: x
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2363,7 +2363,7 @@ tests:
           timeoutMS: 0
           fieldName: x
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2406,7 +2406,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - find on collection"
@@ -2430,7 +2430,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2473,7 +2473,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2516,7 +2516,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - findOne on collection"
@@ -2540,7 +2540,7 @@ tests:
         arguments:
           timeoutMS: 1000
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2583,7 +2583,7 @@ tests:
         arguments:
           timeoutMS: 0
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2624,7 +2624,7 @@ tests:
               errorLabels: ["RetryableWriteError"]
       - name: listIndexes
         object: *collection
-
+        
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - listIndexes on collection"
@@ -2647,7 +2647,7 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 1000
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2689,7 +2689,7 @@ tests:
         object: *collection
         arguments:
           timeoutMS: 0
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2732,7 +2732,7 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
+          
         expectError:
           isTimeoutError: true
   - description: "operation is retried multiple times for non-zero timeoutMS - createChangeStream on collection"
@@ -2756,7 +2756,7 @@ tests:
         arguments:
           timeoutMS: 1000
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2799,7 +2799,7 @@ tests:
         arguments:
           timeoutMS: 0
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -2821,3 +2821,4 @@ tests:
               command:
                 aggregate: *collectionName
                 maxTimeMS: { $$exists: false }
+  

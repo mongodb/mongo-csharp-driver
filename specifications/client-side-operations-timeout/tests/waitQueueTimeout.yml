@@ -1,4 +1,4 @@
-﻿description: "WaitQueueTimeoutError does not clear the pool"
+description: "WaitQueueTimeoutError does not clear the pool"
 
 schemaVersion: "1.9"
 

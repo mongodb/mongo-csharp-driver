@@ -1,4 +1,4 @@
-﻿# Tests in this file are generated from retryability-legacy-timeouts.yml.template.
+# Tests in this file are generated from retryability-legacy-timeouts.yml.template.
 
 description: "legacy timeouts behave correctly for retryable operations"
 
@@ -61,7 +61,7 @@ tests:
         object: *collection
         arguments:
           document: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -92,7 +92,7 @@ tests:
         object: *collection
         arguments:
           document: { x: 1 }
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -127,7 +127,7 @@ tests:
         arguments:
           documents:
             - { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -159,7 +159,7 @@ tests:
         arguments:
           documents:
             - { x: 1 }
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -193,7 +193,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -224,7 +224,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -259,7 +259,7 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -291,7 +291,7 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -326,7 +326,7 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -358,7 +358,7 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -392,7 +392,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -423,7 +423,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -458,7 +458,7 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -490,7 +490,7 @@ tests:
         arguments:
           filter: {}
           replacement: { x: 1 }
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -525,7 +525,7 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -557,7 +557,7 @@ tests:
         arguments:
           filter: {}
           update: { $set: { x: 1 } }
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -593,7 +593,7 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
+          
     expectEvents:
       - client: *client
         events:
@@ -626,7 +626,7 @@ tests:
           requests:
             - insertOne:
                 document: { _id: 1 }
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -660,7 +660,7 @@ tests:
         object: *client
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -691,7 +691,7 @@ tests:
         object: *client
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -723,7 +723,7 @@ tests:
               blockTimeMS: 125
       - name: listDatabaseNames
         object: *client
-
+        
     expectEvents:
       - client: *client
         events:
@@ -752,7 +752,7 @@ tests:
               blockTimeMS: 125
       - name: listDatabaseNames
         object: *client
-
+        
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -786,7 +786,7 @@ tests:
         object: *client
         arguments:
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -817,7 +817,7 @@ tests:
         object: *client
         arguments:
           pipeline: []
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -851,7 +851,7 @@ tests:
         object: *database
         arguments:
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
+          
     expectEvents:
       - client: *client
         events:
@@ -882,7 +882,7 @@ tests:
         object: *database
         arguments:
           pipeline: [ { $listLocalSessions: {} }, { $limit: 1 } ]
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -916,7 +916,7 @@ tests:
         object: *database
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -947,7 +947,7 @@ tests:
         object: *database
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -981,7 +981,7 @@ tests:
         object: *database
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1012,7 +1012,7 @@ tests:
         object: *database
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1046,7 +1046,7 @@ tests:
         object: *database
         arguments:
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1077,7 +1077,7 @@ tests:
         object: *database
         arguments:
           pipeline: []
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1111,7 +1111,7 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1142,7 +1142,7 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1176,7 +1176,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1207,7 +1207,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1241,7 +1241,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1272,7 +1272,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1304,7 +1304,7 @@ tests:
               blockTimeMS: 125
       - name: estimatedDocumentCount
         object: *collection
-
+        
     expectEvents:
       - client: *client
         events:
@@ -1333,7 +1333,7 @@ tests:
               blockTimeMS: 125
       - name: estimatedDocumentCount
         object: *collection
-
+        
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1368,7 +1368,7 @@ tests:
         arguments:
           fieldName: x
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1400,7 +1400,7 @@ tests:
         arguments:
           fieldName: x
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1434,7 +1434,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1465,7 +1465,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1499,7 +1499,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1530,7 +1530,7 @@ tests:
         object: *collection
         arguments:
           filter: {}
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1562,7 +1562,7 @@ tests:
               blockTimeMS: 125
       - name: listIndexes
         object: *collection
-
+        
     expectEvents:
       - client: *client
         events:
@@ -1591,7 +1591,7 @@ tests:
               blockTimeMS: 125
       - name: listIndexes
         object: *collection
-
+        
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1625,7 +1625,7 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
+          
     expectEvents:
       - client: *client
         events:
@@ -1656,7 +1656,7 @@ tests:
         object: *collection
         arguments:
           pipeline: []
-
+          
         expectError:
             # Network errors are considered client errors by the unified test format spec.
             isClientError: true
@@ -1673,3 +1673,4 @@ tests:
               databaseName: *databaseName
               command:
                 aggregate: *collectionName
+  

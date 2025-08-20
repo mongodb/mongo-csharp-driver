@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "timeoutMS behaves correctly for retryable operations",
   "schemaVersion": "1.9",
   "runOnRequirements": [
