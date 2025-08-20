@@ -64,6 +64,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         private readonly IMongoDatabase _database;
         private ExecutableQuery<TDocument> _executedQuery;
         private readonly IBsonSerializer _pipelineInputSerializer;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         public MongoQueryProvider(
@@ -74,6 +75,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             _collection = Ensure.IsNotNull(collection, nameof(collection));
             _pipelineInputSerializer = collection.DocumentSerializer;
+            _serializationDomain = collection.Settings?.SerializationDomain ?? BsonSerializer.DefaultSerializationDomain;
         }
 
         public MongoQueryProvider(
@@ -84,15 +86,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             _database = Ensure.IsNotNull(database, nameof(database));
             _pipelineInputSerializer = NoPipelineInputSerializer.Instance;
+            _serializationDomain = _database.Settings.SerializationDomain;
         }
 
         internal MongoQueryProvider(
             IBsonSerializer pipelineInputSerializer,
             IClientSessionHandle session,
-            AggregateOptions options)
+            AggregateOptions options,
+            IBsonSerializationDomain serializationDomain)
             : base(session, options)
         {
             _pipelineInputSerializer = Ensure.IsNotNull(pipelineInputSerializer, nameof(pipelineInputSerializer));
+            _serializationDomain = Ensure.IsNotNull(serializationDomain, nameof(serializationDomain));
         }
 
         // public properties
@@ -101,6 +106,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public IMongoDatabase Database => _database;
         public override BsonDocument[] LoggedStages => _executedQuery?.LoggedStages;
         public override IBsonSerializer PipelineInputSerializer => _pipelineInputSerializer;
+        public IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
         // public methods
         public override IQueryable CreateQuery(Expression expression)

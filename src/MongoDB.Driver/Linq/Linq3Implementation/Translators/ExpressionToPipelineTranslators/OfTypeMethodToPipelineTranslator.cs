@@ -51,24 +51,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     return pipeline;
                 }
 
-                var discriminatorConvention = pipeline.OutputSerializer.GetDiscriminatorConvention();
+                var discriminatorConvention = pipeline.OutputSerializer.GetDiscriminatorConvention(context.SerializationDomain);
                 var discriminatorElementName = discriminatorConvention.ElementName;
                 var wrappedValueOutputSerializer = pipeline.OutputSerializer as IWrappedValueSerializer;
                 if (wrappedValueOutputSerializer != null)
                 {
-                    discriminatorConvention = wrappedValueOutputSerializer.ValueSerializer.GetDiscriminatorConvention();
+                    discriminatorConvention = wrappedValueOutputSerializer.ValueSerializer.GetDiscriminatorConvention(context.SerializationDomain);
                     discriminatorElementName = wrappedValueOutputSerializer.FieldName + "." + discriminatorElementName;
                 }
                 var discriminatorField = AstFilter.Field(discriminatorElementName);
 
                 var filter = discriminatorConvention switch
                 {
-                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
-                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
+                    IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
+                    IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType, context.SerializationDomain),
                     _ => throw new ExpressionNotSupportedException(expression, because: "OfType is not supported with the configured discriminator convention")
                 };
 
-                var resultSerializer = BsonSerializer.LookupSerializer(actualType);
+                var resultSerializer = context.SerializationDomain.LookupSerializer(actualType);
                 if (wrappedValueOutputSerializer != null)
                 {
                     resultSerializer = WrappedValueSerializer.Create(wrappedValueOutputSerializer.FieldName, resultSerializer);

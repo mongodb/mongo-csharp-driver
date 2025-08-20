@@ -107,7 +107,8 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
+                        subject.MessageEncoderSettings,
+                        It.IsAny<IBsonSerializationDomain>()),
                     Times.Once);
             }
             else
@@ -125,7 +126,8 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
+                        subject.MessageEncoderSettings,
+                        It.IsAny<IBsonSerializationDomain>()),
                 Times.Once);
             }
         }
@@ -161,7 +163,8 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
+                        subject.MessageEncoderSettings,
+                        It.IsAny<IBsonSerializationDomain>()),
                     Times.Once);
             }
             else
@@ -179,7 +182,8 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
+                        subject.MessageEncoderSettings,
+                        It.IsAny<IBsonSerializationDomain>()),
                     Times.Once);
             }
         }
@@ -214,7 +218,8 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
+                        subject.MessageEncoderSettings,
+                        It.IsAny<IBsonSerializationDomain>()),
                     Times.Once);
             }
             else
@@ -232,7 +237,8 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
+                        subject.MessageEncoderSettings,
+                        It.IsAny<IBsonSerializationDomain>()),
                     Times.Once);
             }
         }
@@ -268,7 +274,8 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
+                        subject.MessageEncoderSettings,
+                        It.IsAny<IBsonSerializationDomain>()),
                     Times.Once);
             }
             else
@@ -286,7 +293,8 @@ namespace MongoDB.Driver.Core.Operations
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
+                        subject.MessageEncoderSettings,
+                        It.IsAny<IBsonSerializationDomain>()),
                     Times.Once);
             }
         }
