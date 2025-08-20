@@ -288,7 +288,7 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -349,7 +349,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
-                if (!operationContext.IsRootContextTimeoutConfigured())
+                if (operationContext.Timeout == null)
                 {
                     operationContext = operationContext.WithTimeout(_socketReadTimeout);
                 }
@@ -369,7 +369,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -423,7 +423,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
-                if (!operationContext.IsRootContextTimeoutConfigured())
+                if (operationContext.Timeout == null)
                 {
                     operationContext = operationContext.WithTimeout(_socketReadTimeout);
                 }
@@ -443,7 +443,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -557,7 +557,7 @@ namespace MongoDB.Driver.Core.Connections
                     throw new MongoConnectionClosedException(_connectionId);
                 }
 
-                if (!operationContext.IsRootContextTimeoutConfigured())
+                if (operationContext.Timeout == null)
                 {
                     operationContext = operationContext.WithTimeout(_socketWriteTimeout);
                 }
@@ -569,7 +569,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
+                    var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
                     ConnectionFailed(wrappedException ?? ex);
                     if (wrappedException == null) { throw; } else { throw wrappedException; }
                 }
@@ -590,7 +590,7 @@ namespace MongoDB.Driver.Core.Connections
                     throw new MongoConnectionClosedException(_connectionId);
                 }
 
-                if (!operationContext.IsRootContextTimeoutConfigured())
+                if (operationContext.Timeout == null)
                 {
                     operationContext = operationContext.WithTimeout(_socketWriteTimeout);
                 }
@@ -602,7 +602,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
+                    var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
                     ConnectionFailed(wrappedException ?? ex);
                     if (wrappedException == null) { throw; } else { throw wrappedException; }
                 }
@@ -771,10 +771,14 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private Exception WrapExceptionIfRequired(Exception ex, string action)
+        private Exception WrapExceptionIfRequired(OperationContext operationContext, Exception ex, string action)
         {
-            if (
-                ex is ThreadAbortException ||
+            if (ex is TimeoutException && operationContext.IsRootContextTimeoutConfigured())
+            {
+                return null;
+            }
+
+            if (ex is ThreadAbortException ||
                 ex is StackOverflowException ||
                 ex is MongoAuthenticationException ||
                 ex is OutOfMemoryException ||
@@ -783,11 +787,9 @@ namespace MongoDB.Driver.Core.Connections
             {
                 return null;
             }
-            else
-            {
-                var message = string.Format("An exception occurred while {0}.", action);
-                return new MongoConnectionException(_connectionId, message, ex);
-            }
+
+            var message = string.Format("An exception occurred while {0}.", action);
+            return new MongoConnectionException(_connectionId, message, ex);
         }
 
         private void ThrowOperationCanceledExceptionIfRequired(Exception exception)
