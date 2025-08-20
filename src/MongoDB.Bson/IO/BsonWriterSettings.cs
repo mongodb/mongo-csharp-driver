@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.IO
 {
