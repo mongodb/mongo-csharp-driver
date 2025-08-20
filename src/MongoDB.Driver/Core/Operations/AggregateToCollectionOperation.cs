@@ -70,6 +70,12 @@ namespace MongoDB.Driver.Core.Operations
             _collectionNamespace = collectionNamespace;
         }
 
+        //EXIT
+        public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, pipeline, messageEncoderSettings, BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
         public bool? AllowDiskUse
         {
             get { return _allowDiskUse; }
