@@ -168,7 +168,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             return
                 base.Equals(obj) &&
                 obj is DiscriminatedInterfaceSerializer<TInterface> other &&
-                object.Equals(_discriminatorConvention, other._discriminatorConvention) &&
+                object.Equals(_discriminatorConvention.Value, other._discriminatorConvention.Value) &&
                 object.Equals(_interfaceSerializer, other._interfaceSerializer);
         }
 
