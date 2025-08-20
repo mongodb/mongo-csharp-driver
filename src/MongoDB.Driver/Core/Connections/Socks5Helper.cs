@@ -145,7 +145,7 @@ internal static class Socks5Helper
             await stream.ReadBytesAsync(buffer, 0, 2, cancellationToken).ConfigureAwait(false);
             var requiresAuthenticationStep = ProcessGreetingResponse(buffer, useAuth);
 
-            // If we have username and password, but the proxy doesn't need them, we skip.
+            // If we have username and password, but the proxy doesn't need them, we skip the authentication step.
             if (requiresAuthenticationStep)
             {
                 var authenticationRequestLength = CreateAuthenticationRequest(buffer, authenticationSettings);
@@ -289,7 +289,7 @@ internal static class Socks5Helper
             AddressTypeIPv4 => 5,
             AddressTypeIPv6 => 17,
             AddressTypeDomain => buffer[4] + 2,
-            _ => throw new IOException("Unknown address type in SOCKS5 reply.")
+            _ => throw new IOException($"Unknown address type in SOCKS5 reply: {buffer[3]}.")
         };
     }
 
