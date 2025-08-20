@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "timeoutMS can be overridden at the level of a ClientSession",
   "schemaVersion": "1.9",
   "runOnRequirements": [

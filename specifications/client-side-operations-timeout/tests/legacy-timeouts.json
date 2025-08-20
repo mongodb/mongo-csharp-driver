@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "legacy timeouts continue to work if timeoutMS is not set",
   "schemaVersion": "1.0",
   "runOnRequirements": [

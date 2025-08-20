@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "legacy timeouts behave correctly for retryable operations",
   "schemaVersion": "1.9",
   "runOnRequirements": [
