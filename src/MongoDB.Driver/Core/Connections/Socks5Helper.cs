@@ -254,7 +254,7 @@ internal static class Socks5Helper
                     addressLength = 16;
                     break;
                 default:
-                    throw new IOException("Invalid target host address family.");
+                    throw new IOException($"Invalid target host address family: {ip.AddressFamily}.");
             }
         }
         else
