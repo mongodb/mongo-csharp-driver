@@ -1029,6 +1029,46 @@ functions:
           bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/run-driver-test.sh
           bash $DRIVERS_TOOLS/.evergreen/auth_oidc/k8s/teardown-pod.sh
 
+  setup-x509-tests:
+    - command: shell.exec
+      params:
+        shell: "bash"
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        script: |
+          ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas_connect
+          source secrets-export.sh
+
+          echo $ATLAS_X509_DEV_CERT_BASE64 | base64 --decode > ${DRIVERS_TOOLS}/CLIENT_CERT.pem
+          echo $ATLAS_X509_DEV_CERT_NOUSER_BASE64 | base64 --decode > ${DRIVERS_TOOLS}/CLIENT_NO_USER_CERT.pem
+
+  run-x509-tests:
+    - command: shell.exec
+      type: test
+      params:
+        shell: "bash"
+        working_dir: mongo-csharp-driver
+        script: |
+          source ../secrets-export.sh
+          ${PREPARE_SHELL}
+          OS=${OS} \
+            evergreen/add-ca-certs.sh
+          P12_FRIENDLY_NAME="Drivers No-User Client Certificate" \
+          P12_FILENAME="client_no_user.p12" \
+          OUT_CLIENT_PASSWORD_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD" \
+          OUT_CLIENT_PATH_VAR="MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH" \
+          CLIENT_PEM=${DRIVERS_TOOLS}/CLIENT_NO_USER_CERT.pem \
+            source evergreen/convert-client-cert-to-pkcs12.sh
+          MONGODB_URI="$ATLAS_X509_DEV" \
+          CLIENT_PEM=${DRIVERS_TOOLS}/CLIENT_CERT.pem \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          FRAMEWORK=${FRAMEWORK} \
+          TARGET="TestX509" \
+            evergreen/run-tests.sh
+
 pre:
   - func: fetch-source
   - func: prepare-resources
@@ -1719,6 +1759,14 @@ tasks:
             SCRIPT: |
               ${PREPARE_SHELL}
               CRYPT_SHARED_LIB_PATH="${CRYPT_SHARED_LIB_PATH}" DRIVER_VERSION="${PACKAGE_VERSION}" MONGODB_VERSION="${VERSION}" bash ./evergreen/run-tests.sh
+
+    - name: x509-auth-tests
+      commands:
+        - func: assume-ec2-role
+        - func: setup-x509-tests
+        - func: run-x509-tests
+          vars:
+            FRAMEWORK: net60
 
 axes:
   - id: version
@@ -2416,6 +2464,12 @@ buildvariants:
   tasks:
     - name: test-gssapi-netstandard21
     - name: test-gssapi-net60
+
+- matrix_name: "x509-tests"
+  matrix_spec: { os: ["ubuntu-2004", "macos-14", "windows-64"], ssl: ["ssl"], version: ["latest"], topology: ["standalone"] }
+  display_name: "X509 tests ${version} ${os}"
+  tasks:
+    - name: x509-auth-tests
 
 # Load balancer tests
 - matrix_name: load-balancer-tests
