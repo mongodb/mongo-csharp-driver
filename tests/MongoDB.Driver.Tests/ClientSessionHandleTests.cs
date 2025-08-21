@@ -316,7 +316,7 @@ namespace MongoDB.Driver.Tests
             int expectedCommitTransactionAttempts,
             bool async)
         {
-            var mockClock = CreateClockMock(DateTime.UtcNow, isRetryAttemptsWithTimeout, true);
+            var mockClock = CreateClockMock(DateTime.UtcNow, isRetryAttemptsWithTimeout);
             var mockCoreSession = CreateCoreSessionMock();
 
             // Initialize callbacks
@@ -495,7 +495,7 @@ namespace MongoDB.Driver.Tests
             bool async)
         {
             var now = DateTime.UtcNow;
-            var mockClock = CreateClockMock(now, isRetryAttemptsWithTimeout, false);
+            var mockClock = CreateClockMock(now, isRetryAttemptsWithTimeout);
             var mockCoreSession = CreateCoreSessionMock();
 
             // Initialize commit result
@@ -691,7 +691,7 @@ namespace MongoDB.Driver.Tests
             throw new ArgumentException("Not supported ErrorState", state.ToString());
         }
 
-        private Mock<IClock> CreateClockMock(DateTime now, bool[] isRetryAttemptsWithTimeout, bool shouldNowBeAdded)
+        private Mock<IClock> CreateClockMock(DateTime now, bool[] isRetryAttemptsWithTimeout)
         {
             if (isRetryAttemptsWithTimeout == null)
             {
@@ -699,20 +699,13 @@ namespace MongoDB.Driver.Tests
             }
 
             var mockClock = new Mock<IClock>();
-            var mockStopwatch = new Mock<IStopwatch>();
-            mockClock.Setup(m => m.StartStopwatch()).Returns(mockStopwatch.Object);
-
+            SetupGetTimestamp(mockClock);
             var nowSetup = mockClock.SetupSequence(c => c.UtcNow);
-            var elapsedSetup = mockStopwatch.SetupSequence(w => w.Elapsed);
-            if (shouldNowBeAdded)
-            {
-                nowSetup.Returns(now);
-            }
+            nowSetup.Returns(now);
             foreach (var isTimeoutAttempt in isRetryAttemptsWithTimeout)
             {
                 var passedTime = CalculateTime(isTimeoutAttempt);
                 nowSetup.Returns(now.AddSeconds(passedTime));
-                elapsedSetup.Returns(TimeSpan.FromSeconds(passedTime));
             }
 
             return mockClock;
@@ -721,7 +714,7 @@ namespace MongoDB.Driver.Tests
         private Mock<IClock> CreateClockMock(DateTime now, params TimeSpan[] intervals)
         {
             var mockClock = new Mock<IClock>();
-
+            SetupGetTimestamp(mockClock);
             var nowSetup = mockClock.SetupSequence(c => c.UtcNow);
             nowSetup.Returns(now);
             var currentTime = now;
@@ -731,11 +724,13 @@ namespace MongoDB.Driver.Tests
                 nowSetup.Returns(currentTime);
             }
 
-            var mockStopwatch = new Mock<IStopwatch>();
-            mockStopwatch.SetupGet(w => w.Elapsed).Returns(() => mockClock.Object.UtcNow - now);
-            mockClock.Setup(m => m.StartStopwatch()).Returns(mockStopwatch.Object);
-
             return mockClock;
+        }
+
+        private void SetupGetTimestamp(Mock<IClock> mockClock)
+        {
+            mockClock.SetupGet(m => m.Frequency).Returns(10_000_000);
+            mockClock.Setup(w => w.GetTimestamp()).Returns(() => mockClock.Object.UtcNow.Ticks);
         }
 
         private int CalculateTime(bool timeout)

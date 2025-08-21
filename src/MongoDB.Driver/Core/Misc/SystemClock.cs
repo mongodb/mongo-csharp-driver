@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 
 namespace MongoDB.Driver.Core.Misc
 {
@@ -28,11 +29,13 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // public properties
+        public long Frequency => Stopwatch.Frequency;
+
         public DateTime UtcNow
         {
             get { return DateTime.UtcNow; }
         }
 
-        public IStopwatch StartStopwatch() => new SystemStopwatch();
+        public long GetTimestamp() => Stopwatch.GetTimestamp();
     }
 }
