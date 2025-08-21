@@ -1613,14 +1613,24 @@ internal partial class KnownSerializerFinderVisitor
 
                 if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelector, QueryableMethod.GroupByWithKeySelector))
                 {
-                    DeduceResultSerializer(keySelectorLambda.Body, keySelectorParameter);
+                    if (IsNotKnown(node) && IsKnown(keySelectorLambda.Body, out var keySerializer) && IsItemSerializerKnown(sourceExpression, out var elementSerializer))
+                    {
+                        var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
+                        var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, groupingSerializer);
+                        AddKnownSerializer(node, nodeSerializer);
+                    }
                 }
                 else if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelectorAndElementSelector, QueryableMethod.GroupByWithKeySelectorAndElementSelector))
                 {
                     var elementSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(method, arguments[2]);
                     var elementSelectorParameter = elementSelectorLambda.Parameters.Single();
                     DeduceItemAndCollectionSerializers(elementSelectorParameter, sourceExpression);
-                    DeduceResultSerializer(keySelectorLambda.Body, elementSelectorLambda.Body);
+                    if (IsNotKnown(node) && IsKnown(keySelectorLambda.Body, out var keySerializer) && IsKnown(elementSelectorLambda.Body, out var elementSerializer))
+                    {
+                        var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
+                        var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, groupingSerializer);
+                        AddKnownSerializer(node, nodeSerializer);
+                    }
                 }
                 else if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelectorAndResultSelector, QueryableMethod.GroupByWithKeySelectorAndResultSelector))
                 {
@@ -1630,7 +1640,7 @@ internal partial class KnownSerializerFinderVisitor
                     DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
                     DeduceSerializers(resultSelectorKeyParameter, keySelectorLambda.Body);
                     DeduceCollectionAndCollectionSerializers(resultSelectorElementsParameter, sourceExpression);
-                    DeduceResultSerializer(keySelectorLambda.Body, resultSelectorLambda.Body);
+                    DeduceResultSerializer(resultSelectorLambda.Body);
                 }
                 else if (method.IsOneOf(EnumerableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector, QueryableMethod.GroupByWithKeySelectorElementSelectorAndResultSelector))
                 {
@@ -1643,15 +1653,15 @@ internal partial class KnownSerializerFinderVisitor
                     DeduceItemAndCollectionSerializers(elementSelectorParameter, sourceExpression);
                     DeduceSerializers(resultSelectorKeyParameter, keySelectorLambda.Body);
                     DeduceCollectionAndItemSerializers(resultSelectorElementsParameter, elementSelectorLambda.Body);
-                    DeduceResultSerializer(keySelectorLambda.Body, resultSelectorLambda.Body);
+                    DeduceResultSerializer(resultSelectorLambda.Body);
                 }
 
-                void DeduceResultSerializer(Expression keyExpression, Expression elementExpression)
+                void DeduceResultSerializer(Expression resultExpression)
                 {
-                    if (IsNotKnown(node) && IsKnown(keyExpression, out var keySerializer) && IsKnown(elementExpression, out var elementSerializer))
+                    if (IsNotKnown(node) && IsKnown(resultExpression, out var resultSerializer))
                     {
-                        var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
-                        AddKnownSerializer(node, IEnumerableOrIQueryableSerializer.Create(node.Type, groupingSerializer));
+                        var nodeSerializer = IEnumerableOrIQueryableSerializer.Create(node.Type, resultSerializer);
+                        AddKnownSerializer(node, nodeSerializer);
                     }
                 }
             }
