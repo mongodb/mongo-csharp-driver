@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization
     {
         IBsonSerializationDomain SerializationDomain { get; }
 
-        //FP Can't use just GetSerializer because it's already used by the base interface.
+        //FP Can't use just GetSerializer name because it's already used by the base interface.
         IBsonSerializer GetSerializerWithDomain(Type type);
     }
 }

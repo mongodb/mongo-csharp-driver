@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Core.Bindings
         private BsonTimestamp _snapshotTime;
 
         // constructors
-        //FP This constructor is only used by the tests.
         internal CoreSession(
             IClusterInternal cluster,
             ICoreServerSession serverSession,
