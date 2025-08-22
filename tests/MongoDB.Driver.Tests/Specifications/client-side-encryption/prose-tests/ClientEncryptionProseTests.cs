@@ -2184,7 +2184,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Range(1, 8)] int testCase,
             // test case rangeType values correspond to keys used in test configuration files
             [Values("DecimalNoPrecision", "DecimalPrecision", "DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeType,
-            [Values(false, false)] bool async)
+            [Values(true, false)] bool async)
         {
             // CSHARP-4606: Skip all fle2v2 tests on Mac until https://jira.mongodb.org/browse/SERVER-69563 propagates to EG Macs.
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);

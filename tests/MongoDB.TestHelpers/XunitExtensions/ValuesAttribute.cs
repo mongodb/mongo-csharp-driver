@@ -25,11 +25,16 @@ namespace MongoDB.TestHelpers.XunitExtensions
 
         public ValuesAttribute(params object[] values)
         {
-            _values = values;
+            _values =  values;
         }
 
         public object[] GenerateValues()
         {
+            if (_values.Distinct().Count() != _values.Length)
+            {
+                throw new ArgumentException();
+            }
+
             return _values;
         }
     }
