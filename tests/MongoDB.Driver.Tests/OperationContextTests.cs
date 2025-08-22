@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests
         [InlineData(100, 0)]
         [InlineData(100, 100)]
         [InlineData(100, 1000)]
-        public void Elapsed_should_calculate(int timeoutMs, int elapsedMs)
+        public void Elapsed_should_calculate_spend_time(int timeoutMs, int elapsedMs)
         {
             var expected = TimeSpan.FromMilliseconds(elapsedMs);
             using var subject = CreateSubject(TimeSpan.FromMilliseconds(timeoutMs), expected, CancellationToken.None);

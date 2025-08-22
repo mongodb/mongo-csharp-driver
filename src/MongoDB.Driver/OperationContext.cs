@@ -111,17 +111,15 @@ namespace MongoDB.Driver
             _combinedCancellationTokenSource?.Dispose();
         }
 
-        public OperationContext Fork()
-            => new OperationContext(Clock, InitialTimestamp, Timeout, CancellationToken)
+        public OperationContext Fork() =>
+            new (Clock, InitialTimestamp, Timeout, CancellationToken)
             {
                 RootContext = RootContext
             };
 
-        public bool IsTimedOut()
-            => RemainingTimeout == TimeSpan.Zero;
+        public bool IsTimedOut() => RemainingTimeout == TimeSpan.Zero;
 
-        public bool IsCancelledOrTimedOut()
-            => IsTimedOut() || CancellationToken.IsCancellationRequested;
+        public bool IsCancelledOrTimedOut() => IsTimedOut() || CancellationToken.IsCancellationRequested;
 
         public void ThrowIfTimedOutOrCanceled()
         {
