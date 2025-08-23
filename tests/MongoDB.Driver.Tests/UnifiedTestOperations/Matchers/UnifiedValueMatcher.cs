@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 break;
                             case "$$matchesEntity":
                                 var resultId = operatorValue.AsString;
-                                expectedValue = _entityMap.Resutls[resultId];
+                                expectedValue = _entityMap.Results[resultId];
                                 break;
                             case "$$matchesHexBytes":
                                 expectedValue = operatorValue;
