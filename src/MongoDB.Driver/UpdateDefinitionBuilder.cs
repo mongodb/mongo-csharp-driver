@@ -1685,7 +1685,7 @@ namespace MongoDB.Driver
 
             if (_sort != null)
             {
-                document["$push"][renderedField.FieldName]["$sort"] = _sort.Render(args.WithNewDocumentType((IBsonSerializer<TItem>)itemSerializer));
+                document["$push"][renderedField.FieldName]["$sort"] = _sort.RenderAsBsonValue(args.WithNewDocumentType((IBsonSerializer<TItem>)itemSerializer));
             }
 
             return document;

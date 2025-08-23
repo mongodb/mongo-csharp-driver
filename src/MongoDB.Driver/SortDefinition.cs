@@ -47,6 +47,9 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="BsonDocument"/>.</returns>
         public abstract BsonDocument Render(RenderArgs<TDocument> args);
 
+        // TODO: remove this and refactor Render to return a BsonValue in 4.0
+        internal virtual BsonValue RenderAsBsonValue(RenderArgs<TDocument> args) => Render(args);
+
         /// <summary>
         /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="SortDefinition{TDocument}"/>.
         /// </summary>

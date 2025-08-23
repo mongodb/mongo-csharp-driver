@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -32,12 +33,30 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Ascending_value()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Ascending(), "1");
+        }
+
+        [Fact]
         public void Ascending_Typed()
         {
             var subject = CreateSubject<Person>();
 
             Assert(subject.Ascending(x => x.FirstName), "{fn: 1}");
             Assert(subject.Ascending("FirstName"), "{fn: 1}");
+        }
+
+        [Fact]
+        public void Calling_render_on_value_based_sort_should_throw()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var exception = Record.Exception(() => subject.Ascending().Render(new RenderArgs<BsonDocument>()));
+
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -77,11 +96,29 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Combine_with_value_based_sort_and_additional_sort_should_throw()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var exception = Record.Exception(() => subject.Ascending().Descending("b"));
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Fact]
         public void Descending()
         {
             var subject = CreateSubject<BsonDocument>();
 
             Assert(subject.Descending("a"), "{a: -1}");
+        }
+
+        [Fact]
+        public void Descending_value()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Descending(), "-1");
         }
 
         [Fact]
@@ -120,7 +157,7 @@ namespace MongoDB.Driver.Tests
         private void Assert<TDocument>(SortDefinition<TDocument> sort, string expectedJson)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedSort = sort.Render(new(documentSerializer, BsonSerializer.SerializerRegistry));
+            var renderedSort = sort.RenderAsBsonValue(new(documentSerializer, BsonSerializer.SerializerRegistry));
 
             renderedSort.Should().Be(expectedJson);
         }
