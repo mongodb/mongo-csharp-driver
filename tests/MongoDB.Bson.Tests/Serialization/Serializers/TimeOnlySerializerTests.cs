@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             [Values(BsonType.String, BsonType.Int64, BsonType.Int32, BsonType.Double)]
             BsonType representation,
             [Values(TimeOnlyUnits.Ticks, TimeOnlyUnits.Hours, TimeOnlyUnits.Minutes, TimeOnlyUnits.Seconds,
-                TimeOnlyUnits.Milliseconds, TimeOnlyUnits.Microseconds, TimeOnlyUnits.Ticks, TimeOnlyUnits.Nanoseconds)]
+                TimeOnlyUnits.Milliseconds, TimeOnlyUnits.Microseconds, TimeOnlyUnits.Nanoseconds)]
             TimeOnlyUnits units)
         {
             var subject = new TimeOnlySerializer(representation, units);

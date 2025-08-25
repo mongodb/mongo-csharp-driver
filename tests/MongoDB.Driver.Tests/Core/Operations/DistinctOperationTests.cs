@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void ReadConcern_get_and_set_should_work(
-            [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Local)]
+            [Values(null, ReadConcernLevel.Local)]
             ReadConcernLevel? level)
         {
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings);

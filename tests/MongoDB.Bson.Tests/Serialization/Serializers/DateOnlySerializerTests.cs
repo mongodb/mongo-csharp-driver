@@ -342,8 +342,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Theory]
         [ParameterAttributeData]
         public void WithRepresentation_should_return_expected_result(
-            [Values(BsonType.Document, BsonType.DateTime, BsonType.Document, BsonType.String)] BsonType oldRepresentation,
-            [Values(BsonType.Document, BsonType.DateTime, BsonType.Document, BsonType.String)] BsonType newRepresentation)
+            [Values(BsonType.Document, BsonType.DateTime, BsonType.String)] BsonType oldRepresentation,
+            [Values(BsonType.Document, BsonType.DateTime, BsonType.String)] BsonType newRepresentation)
         {
             var subject = new DateOnlySerializer(oldRepresentation);
 
