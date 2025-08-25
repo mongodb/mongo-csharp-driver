@@ -117,6 +117,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOneAndUpdateOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
+#pragma warning disable CS0618 // Type or member is obsolete
+                    case "maxTimeMS":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
+#pragma warning restore CS0618 // Type or member is obsolete
                     case "returnDocument":
                         options ??= new FindOneAndUpdateOptions<BsonDocument>();
                         options.ReturnDocument = (ReturnDocument)Enum.Parse(typeof(ReturnDocument), argument.Value.AsString);
@@ -127,6 +133,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "sort":
                         options ??= new FindOneAndUpdateOptions<BsonDocument>();
                         options.Sort = new BsonDocumentSortDefinition<BsonDocument>(argument.Value.AsBsonDocument);
+                        break;
+                    case "timeoutMS":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     case "update":
                         switch (argument.Value)

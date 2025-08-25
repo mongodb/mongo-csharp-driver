@@ -56,6 +56,8 @@ namespace MongoDB.Driver.Core.Connections
         private CompressorType? _sendCompressorType;
         private readonly SemaphoreSlim _sendLock;
         private readonly ConnectionSettings _settings;
+        private readonly TimeSpan _socketReadTimeout;
+        private readonly TimeSpan _socketWriteTimeout;
         private readonly InterlockedInt32 _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
@@ -69,7 +71,9 @@ namespace MongoDB.Driver.Core.Connections
             IStreamFactory streamFactory,
             IConnectionInitializer connectionInitializer,
             IEventSubscriber eventSubscriber,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            TimeSpan socketReadTimeout,
+            TimeSpan socketWriteTimeout)
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -86,6 +90,8 @@ namespace MongoDB.Driver.Core.Connections
             _compressorSource = new CompressorSource(settings.Compressors);
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.Connection>(eventSubscriber);
             _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber));
+            _socketReadTimeout = socketReadTimeout;
+            _socketWriteTimeout = socketWriteTimeout;
         }
 
         // properties
@@ -275,10 +281,14 @@ namespace MongoDB.Driver.Core.Connections
 
                 helper.OpenedConnection();
             }
+            catch (OperationCanceledException) when (operationContext.IsTimedOut())
+            {
+                throw new TimeoutException();
+            }
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -302,10 +312,14 @@ namespace MongoDB.Driver.Core.Connections
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
                 helper.OpenedConnection();
             }
+            catch (OperationCanceledException) when (operationContext.IsTimedOut())
+            {
+                throw new TimeoutException();
+            }
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -335,6 +349,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
+                if (operationContext.Timeout == null)
+                {
+                    operationContext = operationContext.WithTimeout(_socketReadTimeout);
+                }
+
                 var messageSizeBytes = new byte[4];
                 _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
@@ -350,7 +369,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -404,6 +423,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
+                if (operationContext.Timeout == null)
+                {
+                    operationContext = operationContext.WithTimeout(_socketReadTimeout);
+                }
+
                 var messageSizeBytes = new byte[4];
                 await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4).ConfigureAwait(false);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
@@ -419,7 +443,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -533,6 +557,11 @@ namespace MongoDB.Driver.Core.Connections
                     throw new MongoConnectionClosedException(_connectionId);
                 }
 
+                if (operationContext.Timeout == null)
+                {
+                    operationContext = operationContext.WithTimeout(_socketWriteTimeout);
+                }
+
                 try
                 {
                     _stream.WriteBytes(operationContext, buffer, 0, buffer.Length);
@@ -540,7 +569,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
+                    var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
                     ConnectionFailed(wrappedException ?? ex);
                     if (wrappedException == null) { throw; } else { throw wrappedException; }
                 }
@@ -561,6 +590,11 @@ namespace MongoDB.Driver.Core.Connections
                     throw new MongoConnectionClosedException(_connectionId);
                 }
 
+                if (operationContext.Timeout == null)
+                {
+                    operationContext = operationContext.WithTimeout(_socketWriteTimeout);
+                }
+
                 try
                 {
                     await _stream.WriteBytesAsync(operationContext, buffer, 0, buffer.Length).ConfigureAwait(false);
@@ -568,7 +602,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
+                    var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
                     ConnectionFailed(wrappedException ?? ex);
                     if (wrappedException == null) { throw; } else { throw wrappedException; }
                 }
@@ -737,10 +771,14 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private Exception WrapExceptionIfRequired(Exception ex, string action)
+        private Exception WrapExceptionIfRequired(OperationContext operationContext, Exception ex, string action)
         {
-            if (
-                ex is ThreadAbortException ||
+            if (ex is TimeoutException && operationContext.IsRootContextTimeoutConfigured())
+            {
+                return null;
+            }
+
+            if (ex is ThreadAbortException ||
                 ex is StackOverflowException ||
                 ex is MongoAuthenticationException ||
                 ex is OutOfMemoryException ||
@@ -749,11 +787,9 @@ namespace MongoDB.Driver.Core.Connections
             {
                 return null;
             }
-            else
-            {
-                var message = string.Format("An exception occurred while {0}.", action);
-                return new MongoConnectionException(_connectionId, message, ex);
-            }
+
+            var message = string.Format("An exception occurred while {0}.", action);
+            return new MongoConnectionException(_connectionId, message, ex);
         }
 
         private void ThrowOperationCanceledExceptionIfRequired(Exception exception)

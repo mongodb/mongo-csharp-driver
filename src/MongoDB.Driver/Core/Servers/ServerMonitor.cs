@@ -209,18 +209,18 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
-        private IConnection InitializeConnection(CancellationToken cancellationToken) // called setUpConnection in spec
+        private IConnection InitializeConnection(OperationContext operationContext) // called setUpConnection in spec
         {
-            using var operationContext = new OperationContext(_serverMonitorSettings.ConnectTimeout, cancellationToken);
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
             _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, false));
 
             var stopwatch = Stopwatch.StartNew();
             try
             {
+                using var openOperationContext = operationContext.WithTimeout(_serverMonitorSettings.ConnectTimeout);
                 // if we are cancelling, it's because the server has
                 // been shut down and we really don't need to wait.
-                connection.Open(operationContext);
+                connection.Open(openOperationContext);
 
                 _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, false, connection.Description.HelloResult.Wrapped));
             }
@@ -280,9 +280,9 @@ namespace MongoDB.Driver.Core.Servers
         private bool IsUsingStreamingProtocol(HelloResult helloResult) => _isStreamingEnabled && helloResult?.TopologyVersion != null;
 
         private HelloResult GetHelloResult(
+            OperationContext operationContext,
             IConnection connection,
-            CommandWireProtocol<BsonDocument> helloProtocol,
-            CancellationToken cancellationToken)
+            CommandWireProtocol<BsonDocument> helloProtocol)
         {
             var timeout = _serverMonitorSettings.HeartbeatTimeout;
             if (IsUsingStreamingProtocol(connection.Description.HelloResult))
@@ -290,15 +290,14 @@ namespace MongoDB.Driver.Core.Servers
                 timeout = _serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval;
             }
 
-            using var operationContext = new OperationContext(timeout, cancellationToken);
             operationContext.ThrowIfTimedOutOrCanceled();
-
             _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, IsUsingStreamingProtocol(connection.Description.HelloResult)));
 
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                var helloResult = HelloHelper.GetResult(operationContext, connection, helloProtocol);
+                using var getHelloOperationContext = operationContext.WithTimeout(timeout);
+                var helloResult = HelloHelper.GetResult(getHelloOperationContext, connection, helloProtocol);
                 stopwatch.Stop();
 
                 // RTT check if using polling monitoring
@@ -322,6 +321,7 @@ namespace MongoDB.Driver.Core.Servers
 
         private void Heartbeat(CancellationToken cancellationToken)
         {
+            using var operationContext = new OperationContext(null, cancellationToken);
             CommandWireProtocol<BsonDocument> helloProtocol = null;
             bool processAnother = true;
             while (processAnother && !cancellationToken.IsCancellationRequested)
@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Core.Servers
 
                     if (connection == null)
                     {
-                        var initializedConnection = InitializeConnection(cancellationToken);
+                        var initializedConnection = InitializeConnection(operationContext);
                         lock (_lock)
                         {
                             if (_state.Value == State.Disposed)
@@ -363,7 +363,7 @@ namespace MongoDB.Driver.Core.Servers
                             helloProtocol = InitializeHelloProtocol(connection, previousDescription?.HelloOk ?? false);
                         }
 
-                        heartbeatHelloResult = GetHelloResult(connection, helloProtocol, cancellationToken);
+                        heartbeatHelloResult = GetHelloResult(operationContext, connection, helloProtocol);
                     }
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

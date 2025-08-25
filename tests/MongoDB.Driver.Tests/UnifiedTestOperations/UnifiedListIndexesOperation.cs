@@ -86,8 +86,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedListIndexesOperation Build(string targetCollectionId, BsonDocument arguments)
         {
             var collection = _entityMap.Collections[targetCollectionId];
-
-            var listIndexesOptions = new ListIndexesOptions();
+            ListIndexesOptions options = null;
             IClientSessionHandle session = null;
 
             if (arguments != null)
@@ -97,10 +96,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     switch (argument.Name)
                     {
                         case "batchSize":
-                            listIndexesOptions.BatchSize = argument.Value.ToInt32();
+                            options ??= new ListIndexesOptions();
+                            options.BatchSize = argument.Value.ToInt32();
                             break;
                         case "session":
                             session = _entityMap.Sessions[argument.Value.AsString];
+                            break;
+                        case "timeoutMS":
+                            options ??= new ListIndexesOptions();
+                            options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                             break;
                         default:
                             throw new FormatException($"Invalid {nameof(UnifiedListIndexesOperation)} argument name: '{argument.Name}'.");
@@ -108,7 +112,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedListIndexesOperation(collection, listIndexesOptions, session);
+            return new UnifiedListIndexesOperation(collection, options, session);
         }
     }
 }

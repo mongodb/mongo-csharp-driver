@@ -141,16 +141,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // public methods
         public IConnectionHandle AcquireConnection(OperationContext operationContext)
         {
-            using var waitQueueOperationContext = operationContext.WithTimeout(Settings.WaitQueueTimeout);
             using var helper = new AcquireConnectionHelper(this);
-            return helper.AcquireConnection(waitQueueOperationContext);
+            return helper.AcquireConnection(operationContext);
         }
 
         public async Task<IConnectionHandle> AcquireConnectionAsync(OperationContext operationContext)
         {
-            using var waitQueueOperationContext = operationContext.WithTimeout(Settings.WaitQueueTimeout);
             using var helper = new AcquireConnectionHelper(this);
-            return await helper.AcquireConnectionAsync(waitQueueOperationContext).ConfigureAwait(false);
+            return await helper.AcquireConnectionAsync(operationContext).ConfigureAwait(false);
         }
 
         public void Clear(bool closeInUseConnections = false)

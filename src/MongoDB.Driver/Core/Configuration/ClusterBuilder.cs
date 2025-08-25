@@ -213,7 +213,9 @@ namespace MongoDB.Driver.Core.Configuration
                 streamFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
-                _loggingSettings.ToInternalLoggerFactory());
+                _loggingSettings.ToInternalLoggerFactory(),
+                _tcpStreamSettings.ReadTimeout,
+                _tcpStreamSettings.WriteTimeout);
 
             var connectionPoolSettings = _connectionPoolSettings.WithInternal(isPausable: !_connectionSettings.LoadBalanced);
 
@@ -273,7 +275,9 @@ namespace MongoDB.Driver.Core.Configuration
                 serverMonitorStreamFactory,
                 new EventAggregator(),
                 _clusterSettings.ServerApi,
-                loggerFactory: null);
+                loggerFactory: null,
+                _tcpStreamSettings.ReadTimeout,
+                _tcpStreamSettings.WriteTimeout);
 
             return new ServerMonitorFactory(
                 serverMonitorSettings,

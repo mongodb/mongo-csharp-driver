@@ -159,11 +159,11 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateAbortTransactionOperation();
+                    var firstAttempt = CreateAbortTransactionOperation(operationContext);
                     ExecuteEndTransactionOnPrimary(operationContext, firstAttempt);
                     return;
                 }
-                catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
+                catch (Exception exception) when (ShouldRetryEndTransactionException(operationContext, exception))
                 {
                     // unpin if retryable error
                     _currentTransaction.UnpinAll();
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var secondAttempt = CreateAbortTransactionOperation();
+                    var secondAttempt = CreateAbortTransactionOperation(operationContext);
                     ExecuteEndTransactionOnPrimary(operationContext, secondAttempt);
                 }
                 catch
@@ -213,11 +213,11 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateAbortTransactionOperation();
+                    var firstAttempt = CreateAbortTransactionOperation(operationContext);
                     await ExecuteEndTransactionOnPrimaryAsync(operationContext, firstAttempt).ConfigureAwait(false);
                     return;
                 }
-                catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
+                catch (Exception exception) when (ShouldRetryEndTransactionException(operationContext, exception))
                 {
                     // unpin if retryable error
                     _currentTransaction.UnpinAll();
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var secondAttempt = CreateAbortTransactionOperation();
+                    var secondAttempt = CreateAbortTransactionOperation(operationContext);
                     await ExecuteEndTransactionOnPrimaryAsync(operationContext, secondAttempt).ConfigureAwait(false);
                 }
                 catch
@@ -317,17 +317,17 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateCommitTransactionOperation(IsFirstCommitAttemptRetry());
+                    var firstAttempt = CreateCommitTransactionOperation(operationContext,IsFirstCommitAttemptRetry());
                     ExecuteEndTransactionOnPrimary(operationContext, firstAttempt);
                     return;
                 }
-                catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
+                catch (Exception exception) when (ShouldRetryEndTransactionException(operationContext, exception))
                 {
                     // unpin server if needed, then ignore exception and retry
                     TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(_currentTransaction, exception);
                 }
 
-                var secondAttempt = CreateCommitTransactionOperation(isCommitRetry: true);
+                var secondAttempt = CreateCommitTransactionOperation(operationContext,isCommitRetry: true);
                 ExecuteEndTransactionOnPrimary(operationContext, secondAttempt);
             }
             finally
@@ -357,17 +357,17 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateCommitTransactionOperation(IsFirstCommitAttemptRetry());
+                    var firstAttempt = CreateCommitTransactionOperation(operationContext, IsFirstCommitAttemptRetry());
                     await ExecuteEndTransactionOnPrimaryAsync(operationContext, firstAttempt).ConfigureAwait(false);
                     return;
                 }
-                catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
+                catch (Exception exception) when (ShouldRetryEndTransactionException(operationContext, exception))
                 {
                     // unpin server if needed, then ignore exception and retry
                     TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(_currentTransaction, exception);
                 }
 
-                var secondAttempt = CreateCommitTransactionOperation(isCommitRetry: true);
+                var secondAttempt = CreateCommitTransactionOperation(operationContext, isCommitRetry: true);
                 await ExecuteEndTransactionOnPrimaryAsync(operationContext, secondAttempt).ConfigureAwait(false);
             }
             finally
@@ -444,14 +444,14 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // private methods
-        private IReadOperation<BsonDocument> CreateAbortTransactionOperation()
+        private IReadOperation<BsonDocument> CreateAbortTransactionOperation(OperationContext operationContext)
         {
-            return new AbortTransactionOperation(_currentTransaction.RecoveryToken, GetTransactionWriteConcern());
+            return new AbortTransactionOperation(_currentTransaction.RecoveryToken, GetTransactionWriteConcern(operationContext));
         }
 
-        private IReadOperation<BsonDocument> CreateCommitTransactionOperation(bool isCommitRetry)
+        private IReadOperation<BsonDocument> CreateCommitTransactionOperation(OperationContext operationContext, bool isCommitRetry)
         {
-            var writeConcern = GetCommitTransactionWriteConcern(isCommitRetry);
+            var writeConcern = GetCommitTransactionWriteConcern(operationContext, isCommitRetry);
             var maxCommitTime = _currentTransaction.TransactionOptions.MaxCommitTime;
             return new CommitTransactionOperation(_currentTransaction.RecoveryToken, writeConcern) { MaxCommitTime = maxCommitTime };
         }
@@ -587,21 +587,27 @@ namespace MongoDB.Driver.Core.Bindings
             return new TransactionOptions(readConcern, readPreference, writeConcern, maxCommitTime);
         }
 
-        private WriteConcern GetTransactionWriteConcern()
+        private WriteConcern GetTransactionWriteConcern(OperationContext operationContext)
         {
-            return
-                _currentTransaction.TransactionOptions?.WriteConcern ??
-                _options.DefaultTransactionOptions?.WriteConcern ??
-                WriteConcern.WMajority;
+            var writeConcern = _currentTransaction.TransactionOptions?.WriteConcern ??
+                               _options.DefaultTransactionOptions?.WriteConcern ??
+                               WriteConcern.WMajority;
+
+            if (operationContext.IsRootContextTimeoutConfigured())
+            {
+                writeConcern = writeConcern.With(wTimeout: null);
+            }
+
+            return writeConcern;
         }
 
-        private WriteConcern GetCommitTransactionWriteConcern(bool isCommitRetry)
+        private WriteConcern GetCommitTransactionWriteConcern(OperationContext operationContext, bool isCommitRetry)
         {
-            var writeConcern = GetTransactionWriteConcern();
+            var writeConcern = GetTransactionWriteConcern(operationContext);
             if (isCommitRetry)
             {
                 writeConcern = writeConcern.With(mode: "majority");
-                if (writeConcern.WTimeout == null)
+                if (writeConcern.WTimeout == null && !operationContext.IsRootContextTimeoutConfigured())
                 {
                     writeConcern = writeConcern.With(wTimeout: TimeSpan.FromMilliseconds(10000));
                 }
@@ -616,9 +622,14 @@ namespace MongoDB.Driver.Core.Bindings
             return _currentTransaction.State == CoreTransactionState.Committed;
         }
 
-        private bool ShouldRetryEndTransactionException(Exception exception)
+        private bool ShouldRetryEndTransactionException(OperationContext operationContext, Exception exception)
         {
-            return RetryabilityHelper.IsRetryableWriteException(exception);
+            if (!RetryabilityHelper.IsRetryableWriteException(exception))
+            {
+                return false;
+            }
+
+            return operationContext.IsRootContextTimeoutConfigured() ? !operationContext.IsTimedOut() : true;
         }
     }
 }
