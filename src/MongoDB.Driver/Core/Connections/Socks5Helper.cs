@@ -194,7 +194,9 @@ internal static class Socks5Helper
         {
             if (!useAuth)
             {
-                throw new IOException("SOCKS5 proxy requires authentication, but no credentials were provided.");
+                // If the server is well-behaved this should never happen, we're just being defensive.
+                throw new IOException("Unexpected server response. SOCKS5 proxy replied with username and password authentication," +
+                                      " but no such request was made.");
             }
 
             return true;
