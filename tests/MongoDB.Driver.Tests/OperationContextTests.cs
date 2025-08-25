@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Constructor_throws_on_negative_timeout()
+        public void Constructor_should_throw_on_negative_timeout()
         {
             var exception = Record.Exception(() => new OperationContext(TimeSpan.FromSeconds(-5), CancellationToken.None));
 
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests
         [InlineData(100, 0)]
         [InlineData(100, 100)]
         [InlineData(100, 1000)]
-        public void Elapsed_should_calculate_spend_time(int timeoutMs, int elapsedMs)
+        public void Elapsed_should_return_expected_result(int timeoutMs, int elapsedMs)
         {
             var expected = TimeSpan.FromMilliseconds(elapsedMs);
             using var subject = CreateSubject(TimeSpan.FromMilliseconds(timeoutMs), expected, CancellationToken.None);
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void RemainingTimeout_should_calculate()
+        public void RemainingTimeout_should_return_expected_result()
         {
             var timeout = TimeSpan.FromMilliseconds(500);
             var elapsed = TimeSpan.FromMilliseconds(10);
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void ThrowIfTimedOutOrCanceled_throws_on_timeout()
+        public void ThrowIfTimedOutOrCanceled_should_throw_on_timeout()
         {
             using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
 
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void ThrowIfTimedOutOrCanceled_throws_on_cancellation()
+        public void ThrowIfTimedOutOrCanceled_should_throw_on_cancellation()
         {
             using var cancellationSource = new CancellationTokenSource();
             using var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero, cancellationSource.Token);
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void ThrowIfTimedOutOrCanceled_throws_CancelledException_when_timedout_and_cancelled()
+        public void ThrowIfTimedOutOrCanceled_should_throw_CancelledException_when_timedout_and_cancelled()
         {
             using var cancellationSource = new CancellationTokenSource();
             using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20), cancellationSource.Token);
@@ -323,7 +323,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void WithTimeout_throws_on_negative_timeout()
+        public void WithTimeout_should_throw_on_negative_timeout()
         {
             using var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
 
