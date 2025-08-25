@@ -14,7 +14,6 @@
 */
 
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -34,17 +33,23 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // public methods
-        public CommandResponseMessage DecryptFields(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
+        public CommandResponseMessage DecryptFields(OperationContext operationContext, CommandResponseMessage encryptedResponseMessage)
         {
+            operationContext.ThrowIfTimedOutOrCanceled();
             var encryptedDocumentBytes = GetEncryptedDocumentBytes(encryptedResponseMessage);
-            var unencryptedDocumentBytes = _documentFieldDecryptor.DecryptFields(encryptedDocumentBytes, cancellationToken);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var unencryptedDocumentBytes = _documentFieldDecryptor.DecryptFields(encryptedDocumentBytes, operationContext.CombinedCancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
             return CreateUnencryptedResponseMessage(encryptedResponseMessage, unencryptedDocumentBytes);
         }
 
-        public async Task<CommandResponseMessage> DecryptFieldsAsync(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
+        public async Task<CommandResponseMessage> DecryptFieldsAsync(OperationContext operationContext, CommandResponseMessage encryptedResponseMessage)
         {
+            operationContext.ThrowIfTimedOutOrCanceled();
             var encryptedDocumentBytes = GetEncryptedDocumentBytes(encryptedResponseMessage);
-            var unencryptedDocumentBytes = await _documentFieldDecryptor.DecryptFieldsAsync(encryptedDocumentBytes, cancellationToken).ConfigureAwait(false);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var unencryptedDocumentBytes = await _documentFieldDecryptor.DecryptFieldsAsync(encryptedDocumentBytes, operationContext.CombinedCancellationToken).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
             return CreateUnencryptedResponseMessage(encryptedResponseMessage, unencryptedDocumentBytes);
         }
 

@@ -117,8 +117,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 else
                 {
                     message = CreateCommandMessage(operationContext, connection.Description);
-                    // TODO: CSOT: Propagate operationContext into Encryption
-                    message = AutoEncryptFieldsIfNecessary(message, connection, operationContext.CancellationToken);
+                    message = AutoEncryptFieldsIfNecessary(operationContext, message, connection);
                     responseTo = message.WrappedMessage.RequestId;
                 }
 
@@ -155,8 +154,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 else
                 {
                     message = CreateCommandMessage(operationContext, connection.Description);
-                    // TODO: CSOT: Propagate operationContext into Encryption
-                    message = await AutoEncryptFieldsIfNecessaryAsync(message, connection, operationContext.CancellationToken).ConfigureAwait(false);
+                    message = await AutoEncryptFieldsIfNecessaryAsync(operationContext, message, connection).ConfigureAwait(false);
                     responseTo = message.WrappedMessage.RequestId;
                 }
 
@@ -196,7 +194,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private CommandResponseMessage AutoDecryptFieldsIfNecessary(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
+        private CommandResponseMessage AutoDecryptFieldsIfNecessary(OperationContext operationContext, CommandResponseMessage encryptedResponseMessage)
         {
             if (_documentFieldDecryptor == null)
             {
@@ -205,11 +203,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             else
             {
                 var messageFieldDecryptor = new CommandMessageFieldDecryptor(_documentFieldDecryptor);
-                return messageFieldDecryptor.DecryptFields(encryptedResponseMessage, cancellationToken);
+                return messageFieldDecryptor.DecryptFields(operationContext, encryptedResponseMessage);
             }
         }
 
-        private async Task<CommandResponseMessage> AutoDecryptFieldsIfNecessaryAsync(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
+        private async Task<CommandResponseMessage> AutoDecryptFieldsIfNecessaryAsync(OperationContext operationContext, CommandResponseMessage encryptedResponseMessage)
         {
             if (_documentFieldDecryptor == null)
             {
@@ -218,11 +216,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             else
             {
                 var messageFieldDecryptor = new CommandMessageFieldDecryptor(_documentFieldDecryptor);
-                return await messageFieldDecryptor.DecryptFieldsAsync(encryptedResponseMessage, cancellationToken).ConfigureAwait(false);
+                return await messageFieldDecryptor.DecryptFieldsAsync(operationContext, encryptedResponseMessage).ConfigureAwait(false);
             }
         }
 
-        private CommandRequestMessage AutoEncryptFieldsIfNecessary(CommandRequestMessage unencryptedRequestMessage, IConnection connection, CancellationToken cancellationToken)
+        private CommandRequestMessage AutoEncryptFieldsIfNecessary(OperationContext operationContext, CommandRequestMessage unencryptedRequestMessage, IConnection connection)
         {
             if (_documentFieldEncryptor == null)
             {
@@ -236,11 +234,11 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
 
                 var helper = new CommandMessageFieldEncryptor(_documentFieldEncryptor, _messageEncoderSettings);
-                return helper.EncryptFields(_databaseNamespace.DatabaseName, unencryptedRequestMessage, cancellationToken);
+                return helper.EncryptFields(operationContext, _databaseNamespace.DatabaseName, unencryptedRequestMessage);
             }
         }
 
-        private async Task<CommandRequestMessage> AutoEncryptFieldsIfNecessaryAsync(CommandRequestMessage unencryptedRequestMessage, IConnection connection, CancellationToken cancellationToken)
+        private async Task<CommandRequestMessage> AutoEncryptFieldsIfNecessaryAsync(OperationContext operationContext, CommandRequestMessage unencryptedRequestMessage, IConnection connection)
         {
             if (_documentFieldEncryptor == null)
             {
@@ -254,7 +252,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
 
                 var helper = new CommandMessageFieldEncryptor(_documentFieldEncryptor, _messageEncoderSettings);
-                return await helper.EncryptFieldsAsync(_databaseNamespace.DatabaseName, unencryptedRequestMessage, cancellationToken).ConfigureAwait(false);
+                return await helper.EncryptFieldsAsync(operationContext, _databaseNamespace.DatabaseName, unencryptedRequestMessage).ConfigureAwait(false);
             }
         }
 
@@ -572,8 +570,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
                 var response = (CommandResponseMessage)connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
-                // TODO: CSOT: Propagate operationContext into Encryption
-                response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
+                response = AutoDecryptFieldsIfNecessary(operationContext, response);
                 var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
                 SaveResponseInfo(response);
                 return result;
@@ -608,8 +605,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
                 var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
-                // TODO: CSOT: Propagate operationContext into Encryption
-                response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
+                response = await AutoDecryptFieldsIfNecessaryAsync(operationContext, response).ConfigureAwait(false);
                 var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
                 SaveResponseInfo(response);
                 return result;
