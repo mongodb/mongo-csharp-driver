@@ -53,8 +53,6 @@ namespace MongoDB.Driver
         private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
         private static TraceSource __traceSource;
 
-        public static TimeSpan DefaultTestTimeout { get; } = TimeSpan.FromMinutes(3);
-
         // static properties
         internal static IClusterInternal Cluster
         {
