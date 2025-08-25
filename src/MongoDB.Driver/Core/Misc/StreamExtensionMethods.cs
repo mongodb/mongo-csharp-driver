@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static void ReadBytes(this Stream stream, OperationContext operationContext, byte[] buffer, int offset, int count)
+        public static void ReadBytes(this Stream stream, OperationContext operationContext, byte[] buffer, int offset, int count, TimeSpan socketTimeout)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
@@ -118,7 +118,8 @@ namespace MongoDB.Driver.Core.Misc
 
             while (count > 0)
             {
-                var bytesRead = stream.Read(buffer, offset, count, operationContext.RemainingTimeout, operationContext.CancellationToken);
+                var timeout = operationContext.Timeout == null ? socketTimeout : operationContext.RemainingTimeout;
+                var bytesRead = stream.Read(buffer, offset, count, timeout, operationContext.CancellationToken);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -128,7 +129,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static void ReadBytes(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count)
+        public static void ReadBytes(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count, TimeSpan socketTimeout)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
@@ -139,7 +140,8 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToRead = Math.Min(count, backingBytes.Count);
-                var bytesRead = stream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead, operationContext.RemainingTimeout, operationContext.CancellationToken);
+                var timeout = operationContext.Timeout == null ? socketTimeout : operationContext.RemainingTimeout;
+                var bytesRead = stream.Read(backingBytes.Array, backingBytes.Offset, bytesToRead, timeout, operationContext.CancellationToken);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -149,7 +151,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task ReadBytesAsync(this Stream stream, OperationContext operationContext, byte[] buffer, int offset, int count)
+        public static async Task ReadBytesAsync(this Stream stream, OperationContext operationContext, byte[] buffer, int offset, int count, TimeSpan socketTimeout)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
@@ -158,7 +160,8 @@ namespace MongoDB.Driver.Core.Misc
 
             while (count > 0)
             {
-                var bytesRead = await stream.ReadAsync(buffer, offset, count, operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
+                var timeout = operationContext.Timeout == null ? socketTimeout : operationContext.RemainingTimeout;
+                var bytesRead = await stream.ReadAsync(buffer, offset, count, timeout, operationContext.CancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -168,7 +171,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static async Task ReadBytesAsync(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count)
+        public static async Task ReadBytesAsync(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count, TimeSpan socketTimeout)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
@@ -179,7 +182,8 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToRead = Math.Min(count, backingBytes.Count);
-                var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
+                var timeout = operationContext.Timeout == null ? socketTimeout : operationContext.RemainingTimeout;
+                var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, timeout, operationContext.CancellationToken).ConfigureAwait(false);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
@@ -264,7 +268,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        public static void WriteBytes(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count)
+        public static void WriteBytes(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count, TimeSpan socketTimeout)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
@@ -275,13 +279,14 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToWrite = Math.Min(count, backingBytes.Count);
-                stream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite, operationContext.RemainingTimeout, operationContext.CancellationToken);
+                var timeout = operationContext.Timeout == null ? socketTimeout : operationContext.RemainingTimeout;
+                stream.Write(backingBytes.Array, backingBytes.Offset, bytesToWrite, timeout, operationContext.CancellationToken);
                 offset += bytesToWrite;
                 count -= bytesToWrite;
             }
         }
 
-        public static async Task WriteBytesAsync(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count)
+        public static async Task WriteBytesAsync(this Stream stream, OperationContext operationContext, IByteBuffer buffer, int offset, int count, TimeSpan socketTimeout)
         {
             Ensure.IsNotNull(stream, nameof(stream));
             Ensure.IsNotNull(buffer, nameof(buffer));
@@ -292,7 +297,8 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
                 var bytesToWrite = Math.Min(count, backingBytes.Count);
-                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, operationContext.RemainingTimeout, operationContext.CancellationToken).ConfigureAwait(false);
+                var timeout = operationContext.Timeout == null ? socketTimeout : operationContext.RemainingTimeout;
+                await stream.WriteAsync(backingBytes.Array, backingBytes.Offset, bytesToWrite, timeout, operationContext.CancellationToken).ConfigureAwait(false);
                 offset += bytesToWrite;
                 count -= bytesToWrite;
             }

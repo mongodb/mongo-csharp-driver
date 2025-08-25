@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         using (var connectionCreator = new ConnectionCreator(_pool))
                         {
                             waitQueueTimeout = _pool.CalculateRemainingTimeout(waitQueueTimeout, stopwatch);
-                            pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(operationContext, waitQueueTimeout - stopwatch.Elapsed).ConfigureAwait(false);
+                            pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(operationContext, waitQueueTimeout).ConfigureAwait(false);
                         }
 
                         return EndCheckingOut(pooledConnection, stopwatch);

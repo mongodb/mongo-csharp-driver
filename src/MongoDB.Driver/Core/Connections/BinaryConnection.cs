@@ -349,20 +349,15 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
-                if (operationContext.Timeout == null)
-                {
-                    operationContext = operationContext.WithTimeout(_socketReadTimeout);
-                }
-
                 var messageSizeBytes = new byte[4];
-                _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4);
+                _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                _stream.ReadBytes(operationContext, buffer, 4, messageSize - 4);
+                _stream.ReadBytes(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -423,20 +418,15 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
-                if (operationContext.Timeout == null)
-                {
-                    operationContext = operationContext.WithTimeout(_socketReadTimeout);
-                }
-
                 var messageSizeBytes = new byte[4];
-                await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout).ConfigureAwait(false);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                await _stream.ReadBytesAsync(operationContext, buffer, 4, messageSize - 4).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
@@ -557,14 +547,9 @@ namespace MongoDB.Driver.Core.Connections
                     throw new MongoConnectionClosedException(_connectionId);
                 }
 
-                if (operationContext.Timeout == null)
-                {
-                    operationContext = operationContext.WithTimeout(_socketWriteTimeout);
-                }
-
                 try
                 {
-                    _stream.WriteBytes(operationContext, buffer, 0, buffer.Length);
+                    _stream.WriteBytes(operationContext, buffer, 0, buffer.Length, _socketWriteTimeout);
                     _lastUsedAtUtc = DateTime.UtcNow;
                 }
                 catch (Exception ex)
@@ -590,14 +575,9 @@ namespace MongoDB.Driver.Core.Connections
                     throw new MongoConnectionClosedException(_connectionId);
                 }
 
-                if (operationContext.Timeout == null)
-                {
-                    operationContext = operationContext.WithTimeout(_socketWriteTimeout);
-                }
-
                 try
                 {
-                    await _stream.WriteBytesAsync(operationContext, buffer, 0, buffer.Length).ConfigureAwait(false);
+                    await _stream.WriteBytesAsync(operationContext, buffer, 0, buffer.Length, _socketWriteTimeout).ConfigureAwait(false);
                     _lastUsedAtUtc = DateTime.UtcNow;
                 }
                 catch (Exception ex)
