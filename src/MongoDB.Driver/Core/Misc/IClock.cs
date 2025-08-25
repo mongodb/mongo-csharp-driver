@@ -19,8 +19,10 @@ namespace MongoDB.Driver.Core.Misc
 {
     internal interface IClock
     {
+        long Frequency { get; }
+
         DateTime UtcNow { get; }
 
-        IStopwatch StartStopwatch();
+        long GetTimestamp();
     }
 }

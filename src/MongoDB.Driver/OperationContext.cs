@@ -29,14 +29,19 @@ namespace MongoDB.Driver
         private CancellationTokenSource _combinedCancellationTokenSource;
 
         public OperationContext(TimeSpan? timeout, CancellationToken cancellationToken)
-            : this(SystemClock.Instance, timeout, cancellationToken)
+            : this(SystemClock.Instance, SystemClock.Instance.GetTimestamp(), timeout, cancellationToken)
         {
         }
 
         internal OperationContext(IClock clock, TimeSpan? timeout, CancellationToken cancellationToken)
+            : this(clock, clock.GetTimestamp(), timeout, cancellationToken)
+        {
+        }
+
+        internal OperationContext(IClock clock, long initialTimestamp, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             Clock = Ensure.IsNotNull(clock, nameof(clock));
-            Stopwatch = clock.StartStopwatch();
+            InitialTimestamp = initialTimestamp;
             Timeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(timeout, nameof(timeout));
             CancellationToken = cancellationToken;
             RootContext = this;
@@ -55,7 +60,7 @@ namespace MongoDB.Driver
                     return System.Threading.Timeout.InfiniteTimeSpan;
                 }
 
-                var result = Timeout.Value - Stopwatch.Elapsed;
+                var result = Timeout.Value - Elapsed;
                 if (result < TimeSpan.Zero)
                 {
                     result = TimeSpan.Zero;
@@ -85,11 +90,18 @@ namespace MongoDB.Driver
                 return _combinedCancellationTokenSource.Token;
             }
         }
-        private IStopwatch Stopwatch { get; }
+        private long InitialTimestamp { get; }
 
         private IClock Clock { get; }
 
-        public TimeSpan Elapsed => Stopwatch.Elapsed;
+        public TimeSpan Elapsed
+        {
+            get
+            {
+                var totalSeconds = (Clock.GetTimestamp() - InitialTimestamp) / (double)Clock.Frequency;
+                return TimeSpan.FromSeconds(totalSeconds);
+            }
+        }
 
         public TimeSpan? Timeout { get; }
 
@@ -99,11 +111,15 @@ namespace MongoDB.Driver
             _combinedCancellationTokenSource?.Dispose();
         }
 
-        public bool IsTimedOut()
-            => RemainingTimeout == TimeSpan.Zero;
+        public OperationContext Fork() =>
+            new (Clock, InitialTimestamp, Timeout, CancellationToken)
+            {
+                RootContext = RootContext
+            };
 
-        public bool IsCancelledOrTimedOut()
-            => IsTimedOut() || CancellationToken.IsCancellationRequested;
+        public bool IsTimedOut() => RemainingTimeout == TimeSpan.Zero;
+
+        public bool IsCancelledOrTimedOut() => IsTimedOut() || CancellationToken.IsCancellationRequested;
 
         public void ThrowIfTimedOutOrCanceled()
         {

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var operationContext = new OperationContext(clock, timeout, cancellationToken);
+            using var operationContext = new OperationContext(clock, timeout, cancellationToken);
 
             operationContext.Timeout.Should().Be(timeout);
             operationContext.RemainingTimeout.Should().Be(timeout);
@@ -43,19 +43,52 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Constructor_throws_on_negative_timeout()
+        public void Constructor_should_throw_on_negative_timeout()
         {
             var exception = Record.Exception(() => new OperationContext(TimeSpan.FromSeconds(-5), CancellationToken.None));
 
             exception.Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
+        [Theory]
+        [InlineData(Timeout.Infinite, 0)]
+        [InlineData(Timeout.Infinite, 100)]
+        [InlineData(100, 0)]
+        [InlineData(100, 100)]
+        [InlineData(100, 1000)]
+        public void Elapsed_should_return_expected_result(int timeoutMs, int elapsedMs)
+        {
+            var expected = TimeSpan.FromMilliseconds(elapsedMs);
+            using var subject = CreateSubject(TimeSpan.FromMilliseconds(timeoutMs), expected, CancellationToken.None);
+
+            subject.Elapsed.Should().Be(expected);
+        }
+
+        [Theory]
+        [InlineData(Timeout.Infinite, 0)]
+        [InlineData(Timeout.Infinite, 25)]
+        [InlineData(100, 0)]
+        [InlineData(100, 25)]
+        public void Fork_should_copy_context(int timeoutMs, int elapsedMs)
+        {
+            using var cancellationTokenSource = new CancellationTokenSource();
+            using var originalContext = CreateSubject(TimeSpan.FromMilliseconds(timeoutMs), TimeSpan.FromMilliseconds(elapsedMs), cancellationTokenSource.Token);
+
+            using var forkedContext = originalContext.Fork();
+
+            forkedContext.Should().NotBe(originalContext);
+            forkedContext.CancellationToken.Should().Be(originalContext.CancellationToken);
+            forkedContext.Timeout.Should().Be(originalContext.Timeout);
+            forkedContext.Elapsed.Should().Be(originalContext.Elapsed);
+            forkedContext.RootContext.Should().Be(originalContext.RootContext);
+        }
+
         [Fact]
-        public void RemainingTimeout_should_calculate()
+        public void RemainingTimeout_should_return_expected_result()
         {
             var timeout = TimeSpan.FromMilliseconds(500);
             var elapsed = TimeSpan.FromMilliseconds(10);
-            var subject = CreateSubject(timeout, elapsed, CancellationToken.None);
+            using var subject = CreateSubject(timeout, elapsed, CancellationToken.None);
 
             subject.RemainingTimeout.Should().Be(timeout - elapsed);
         }
@@ -63,7 +96,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void RemainingTimeout_should_return_infinite_for_infinite_timeout()
         {
-            var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.FromMilliseconds(10));
+            using var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.FromMilliseconds(10));
 
             subject.RemainingTimeout.Should().Be(Timeout.InfiniteTimeSpan);
         }
@@ -71,7 +104,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void RemainingTimeout_should_return_zero_for_timeout_context()
         {
-            var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(5), elapsed: TimeSpan.FromMilliseconds(10));
+            using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(5), elapsed: TimeSpan.FromMilliseconds(10));
 
             subject.RemainingTimeout.Should().Be(TimeSpan.Zero);
         }
@@ -80,7 +113,7 @@ namespace MongoDB.Driver.Tests
         [MemberData(nameof(IsTimedOut_test_cases))]
         public void IsTimedOut_should_return_expected_result(bool expected, TimeSpan timeout, TimeSpan elapsed)
         {
-            var subject = CreateSubject(timeout, elapsed);
+            using var subject = CreateSubject(timeout, elapsed);
 
             var result = subject.IsTimedOut();
 
@@ -97,7 +130,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ThrowIfTimedOutOrCanceled_should_not_throw_if_no_timeout_and_no_cancellation()
         {
-            var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(20), elapsed: TimeSpan.FromMilliseconds(10));
+            using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(20), elapsed: TimeSpan.FromMilliseconds(10));
 
             var exception = Record.Exception(() => subject.ThrowIfTimedOutOrCanceled());
 
@@ -105,9 +138,9 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void ThrowIfTimedOutOrCanceled_throws_on_timeout()
+        public void ThrowIfTimedOutOrCanceled_should_throw_on_timeout()
         {
-            var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
+            using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
 
             var exception = Record.Exception(() => subject.ThrowIfTimedOutOrCanceled());
 
@@ -115,10 +148,10 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void ThrowIfTimedOutOrCanceled_throws_on_cancellation()
+        public void ThrowIfTimedOutOrCanceled_should_throw_on_cancellation()
         {
             using var cancellationSource = new CancellationTokenSource();
-            var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero, cancellationSource.Token);
+            using var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero, cancellationSource.Token);
             cancellationSource.Cancel();
 
             var exception = Record.Exception(() => subject.ThrowIfTimedOutOrCanceled());
@@ -127,10 +160,10 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void ThrowIfTimedOutOrCanceled_throws_CancelledException_when_timedout_and_cancelled()
+        public void ThrowIfTimedOutOrCanceled_should_throw_CancelledException_when_timedout_and_cancelled()
         {
             using var cancellationSource = new CancellationTokenSource();
-            var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20), cancellationSource.Token);
+            using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20), cancellationSource.Token);
             cancellationSource.Cancel();
 
             var exception = Record.Exception(() => subject.ThrowIfTimedOutOrCanceled());
@@ -143,7 +176,7 @@ namespace MongoDB.Driver.Tests
         public async Task Wait_should_throw_if_context_is_timedout([Values(true, false)] bool async)
         {
             var taskCompletionSource = new TaskCompletionSource<bool>();
-            var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
+            using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
 
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.WaitTaskAsync(taskCompletionSource.Task)) :
@@ -159,7 +192,7 @@ namespace MongoDB.Driver.Tests
             var taskCompletionSource = new TaskCompletionSource<bool>();
             var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Cancel();
-            var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero, cancellationTokenSource.Token);
+            using var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero, cancellationTokenSource.Token);
 
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.WaitTaskAsync(taskCompletionSource.Task)) :
@@ -174,7 +207,7 @@ namespace MongoDB.Driver.Tests
         {
             var ex = new InvalidOperationException();
             var task = Task.FromException(ex);
-            var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.FromMilliseconds(20));
+            using var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.FromMilliseconds(20));
 
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.WaitTaskAsync(task)) :
@@ -189,7 +222,7 @@ namespace MongoDB.Driver.Tests
         {
             var ex = new InvalidOperationException("Ups!");
             var taskCompletionSource = new TaskCompletionSource<bool>();
-            var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
+            using var subject = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
 
             var task = Task.Run(async () =>
             {
@@ -214,7 +247,7 @@ namespace MongoDB.Driver.Tests
         public async Task Wait_should_throw_on_timeout([Values(true, false)] bool async)
         {
             var taskCompletionSource = new TaskCompletionSource<bool>();
-            var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
+            using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
 
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.WaitTaskAsync(taskCompletionSource.Task)) :
@@ -228,7 +261,7 @@ namespace MongoDB.Driver.Tests
         public async Task Wait_should_not_throw_on_resolved_task_with_timedout_context([Values(true, false)] bool async)
         {
             var task = Task.FromResult(42);
-            var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
+            using var subject = CreateSubject(timeout: TimeSpan.FromMilliseconds(10), elapsed: TimeSpan.FromMilliseconds(20));
 
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.WaitTaskAsync(task)) :
@@ -242,7 +275,7 @@ namespace MongoDB.Driver.Tests
         [MemberData(nameof(WithTimeout_test_cases))]
         public void WithTimeout_should_calculate_proper_timeout(TimeSpan expected, TimeSpan originalTimeout, TimeSpan newTimeout)
         {
-            var subject = CreateSubject(timeout: originalTimeout, elapsed: TimeSpan.Zero);
+            using var subject = CreateSubject(timeout: originalTimeout, elapsed: TimeSpan.Zero);
 
             var resultContext = subject.WithTimeout(newTimeout);
 
@@ -261,8 +294,8 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void WithTimeout_should_set_RootContext()
         {
-            var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
-            var resultContext = rootContext.WithTimeout(TimeSpan.FromSeconds(10));
+            using var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
+            using var resultContext = rootContext.WithTimeout(TimeSpan.FromSeconds(10));
 
             resultContext.RootContext.Should().Be(rootContext);
         }
@@ -270,10 +303,10 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void WithTimeout_should_preserve_RootContext()
         {
-            var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
+            using var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
 
-            var intermediateContext = rootContext.WithTimeout(TimeSpan.FromSeconds(200));
-            var resultContext = intermediateContext.WithTimeout(TimeSpan.FromSeconds(10));
+            using var intermediateContext = rootContext.WithTimeout(TimeSpan.FromSeconds(200));
+            using var resultContext = intermediateContext.WithTimeout(TimeSpan.FromSeconds(10));
 
             resultContext.RootContext.Should().Be(rootContext);
         }
@@ -281,18 +314,18 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void WithTimeout_should_create_timed_out_context_on_timed_out_context()
         {
-            var rootContext = CreateSubject(timeout: TimeSpan.FromMilliseconds(5), elapsed: TimeSpan.FromMilliseconds(10));
+            using var rootContext = CreateSubject(timeout: TimeSpan.FromMilliseconds(5), elapsed: TimeSpan.FromMilliseconds(10));
             rootContext.IsTimedOut().Should().BeTrue();
 
-            var resultContext = rootContext.WithTimeout(TimeSpan.FromSeconds(7));
+            using var resultContext = rootContext.WithTimeout(TimeSpan.FromSeconds(7));
 
             resultContext.IsTimedOut().Should().BeTrue();
         }
 
         [Fact]
-        public void WithTimeout_throws_on_negative_timeout()
+        public void WithTimeout_should_throw_on_negative_timeout()
         {
-            var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
+            using var rootContext = CreateSubject(timeout: Timeout.InfiniteTimeSpan, elapsed: TimeSpan.Zero);
 
             var exception = Record.Exception(() => rootContext.WithTimeout(TimeSpan.FromSeconds(-5)));
 
