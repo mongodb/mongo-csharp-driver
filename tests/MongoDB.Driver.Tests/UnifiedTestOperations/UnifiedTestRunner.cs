@@ -84,7 +84,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var outcome = testCase.Test.GetValue("outcome", null)?.AsBsonArray;
             var async = testCase.Test["async"].AsBoolean; // cannot be null
 
-            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, outcome, async);
+            // WORKAROUND: The localSchema.json spec test contains empty UUID fields that are
+            // intended to be used as document IDs. However, our driver interprets empty UUIDs
+            // as missing IDs and automatically generates new ones, causing the test to fail.
+            // We disable missing ID validation here to maintain compatibility with the spec test
+            // while preserving the expected test behavior.
+            var shouldDisableAssignId = testCase.Name.Contains("localSchema.json");
+
+            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, outcome, async, shouldDisableAssignId);
         }
 
         public void Run(
@@ -98,7 +105,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             BsonArray expectedEvents,
             BsonArray expectedLogs,
             BsonArray outcome,
-            bool async)
+            bool async,
+            bool shouldDisableAssignId = false)
         {
             if (_runHasBeenCalled)
             {
@@ -108,7 +116,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 22, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 23, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -132,7 +140,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 KillOpenTransactions(DriverTestConfiguration.Client);
             }
 
-            BsonDocument lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
+            var lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData, shouldDisableAssignId);
             _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async, lastKnownClusterTime);
             _entityMap.AddRange(entities);
 
@@ -177,7 +185,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // private methods
-        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData)
+        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData, bool shouldDisableAssignId)
         {
             if (initialData == null)
             {
@@ -196,10 +204,28 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 _logger.LogDebug("Dropping {0}", collectionName);
                 using var session = client.StartSession();
                 database.DropCollection(session, collectionName);
-                database.CreateCollection(session, collectionName);
+
+                // https://github.com/mongodb/specifications/blob/master/source/unified-test-format/unified-test-format.md#why-are-enxcol_-collections-dropped
+                _logger.LogDebug("Dropping QE state collections for {0}", collectionName);
+                database.DropCollection(session, $"enxcol_.{collectionName}.esc");
+                database.DropCollection(session, $"enxcol_.{collectionName}.ecoc");
+
+                if (dataItem.AsBsonDocument.Contains("createOptions"))
+                {
+                    var encryptedFields = dataItem["createOptions"]["encryptedFields"].AsBsonDocument;
+                    database.CreateCollection(session, collectionName, new CreateCollectionOptions { EncryptedFields = encryptedFields });
+                }
+                else
+                {
+                    database.CreateCollection(session, collectionName);
+                }
+
                 if (documents.Any())
                 {
-                    var collection = database.GetCollection<BsonDocument>(collectionName);
+                    var collection = shouldDisableAssignId
+                        ? database.GetCollection<BsonDocument>(collectionName, new MongoCollectionSettings { AssignIdOnInsert = false })
+                        : database.GetCollection<BsonDocument>(collectionName);
+
                     collection.InsertMany(session, documents);
                 }
 
@@ -334,7 +360,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (actualResult.Result != null)
                 {
-                    entityMap.Resutls.Add(saveResultAsEntity.AsString, actualResult.Result);
+                    entityMap.Results.Add(saveResultAsEntity.AsString, actualResult.Result);
                 }
                 else if (actualResult.ChangeStream != null)
                 {
