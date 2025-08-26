@@ -283,6 +283,8 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (OperationCanceledException) when (operationContext.IsTimedOut())
             {
+                // OperationCanceledException could be thrown because of CombinedCancellationToken (see line 273),
+                // if we face it and operation context is timed out we should throw TimeoutException instead.
                 throw new TimeoutException();
             }
             catch (Exception ex)
@@ -314,6 +316,8 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (OperationCanceledException) when (operationContext.IsTimedOut())
             {
+                // OperationCanceledException could be thrown because of CombinedCancellationToken (see line 307),
+                // if we face it and operation context is timed out we should throw TimeoutException instead.
                 throw new TimeoutException();
             }
             catch (Exception ex)

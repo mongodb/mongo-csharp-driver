@@ -304,9 +304,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private TimeSpan GetWaitQueueTimeout(OperationContext operationContext)
             {
                 var waitQueueTimeout = _pool.Settings.WaitQueueTimeout;
-                if (operationContext.RemainingTimeout != Timeout.InfiniteTimeSpan)
+                if (operationContext.RemainingTimeout != Timeout.InfiniteTimeSpan && operationContext.RemainingTimeout < waitQueueTimeout)
                 {
-                    waitQueueTimeout = operationContext.RemainingTimeout < _pool.Settings.WaitQueueTimeout ? operationContext.RemainingTimeout : _pool.Settings.WaitQueueTimeout;
+                    waitQueueTimeout = operationContext.RemainingTimeout;
                 }
 
                 return waitQueueTimeout;
