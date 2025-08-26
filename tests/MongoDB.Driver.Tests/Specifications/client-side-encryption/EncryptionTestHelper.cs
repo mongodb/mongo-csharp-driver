@@ -339,17 +339,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                             {
                                 // AWS KMS provider uses temporary credentials when a sessionToken is present.
                                 // The sessionToken field is exclusive to temporary credentials in AWS authentication.
-                                var shouldUseTempCredentials = kmsProvider.Name == "aws" &&
-                                                               kmsProviderDocument.Contains("sessionToken");
+                                var effectiveProviderNameForEnv = kmsProvider.Name;
+                                if (effectiveProviderNameForEnv == "aws" && kmsProviderDocument.Contains("sessionToken"))
+                                {
+                                    effectiveProviderNameForEnv = "awsTemporary";
+                                }
 
                                 foreach (var providedKmsInfo in kmsProviderDocument)
                                 {
                                     kmsOptions.Add(
                                         providedKmsInfo.Name,
                                         IsPlaceholder(providedKmsInfo.Value)
-                                            ? GetFromEnvVariables(
-                                                shouldUseTempCredentials ? "awsTemporary" : kmsProvider.Name,
-                                                providedKmsInfo.Name)
+                                            ? GetFromEnvVariables(effectiveProviderNameForEnv, providedKmsInfo.Name)
                                             : providedKmsInfo.Value.AsString);
                                 }
                             }
