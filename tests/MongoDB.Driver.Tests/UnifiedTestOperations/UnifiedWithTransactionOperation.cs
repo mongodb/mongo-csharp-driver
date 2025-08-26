@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         maxCommitTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
                         break;
                     case "readConcern":
-                        readConcern =ReadConcern.FromBsonDocument(argument.Value.AsBsonDocument);
+                        readConcern = ReadConcern.FromBsonDocument(argument.Value.AsBsonDocument);
                         break;
                     case "readPreference":
                         readPreference = ReadPreference.FromBsonDocument(argument.Value.AsBsonDocument);

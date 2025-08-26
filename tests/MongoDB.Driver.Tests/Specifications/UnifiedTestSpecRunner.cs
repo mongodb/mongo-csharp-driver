@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Specifications
             SkipNotSupportedTestCases("timeoutMS applies to whole operation, not individual attempts"); // blocked by DRIVERS-3247
             SkipNotSupportedTestCases("WaitQueueTimeoutError does not clear the pool"); // TODO: CSOT: TimeoutMS is not implemented yet for runCommand
             SkipNotSupportedTestCases("write concern error MaxTimeMSExpired is transformed"); // TODO: CSOT: investigate error transformation, implementing the requirement might be breaking change
-            SkipNotSupportedTestCases("operation succeeds after one socket timeout - listDatabases on client"); // TODO: listDatabases is not retryable in CSharp Driver, NEED TICKET!!!
+            SkipNotSupportedTestCases("operation succeeds after one socket timeout - listDatabases on client"); // TODO: listDatabases is not retryable in CSharp Driver, CSHARP-5714
 
             Run(testCase);
 

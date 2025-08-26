@@ -317,7 +317,7 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateCommitTransactionOperation(operationContext,IsFirstCommitAttemptRetry());
+                    var firstAttempt = CreateCommitTransactionOperation(operationContext, IsFirstCommitAttemptRetry());
                     ExecuteEndTransactionOnPrimary(operationContext, firstAttempt);
                     return;
                 }
@@ -327,7 +327,7 @@ namespace MongoDB.Driver.Core.Bindings
                     TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(_currentTransaction, exception);
                 }
 
-                var secondAttempt = CreateCommitTransactionOperation(operationContext,isCommitRetry: true);
+                var secondAttempt = CreateCommitTransactionOperation(operationContext, isCommitRetry: true);
                 ExecuteEndTransactionOnPrimary(operationContext, secondAttempt);
             }
             finally
