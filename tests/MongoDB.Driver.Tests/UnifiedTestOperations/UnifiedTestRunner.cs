@@ -84,14 +84,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var outcome = testCase.Test.GetValue("outcome", null)?.AsBsonArray;
             var async = testCase.Test["async"].AsBoolean; // cannot be null
 
-            // WORKAROUND: The localSchema.json spec test contains empty UUID fields that are
-            // intended to be used as document IDs. However, our driver interprets empty UUIDs
-            // as missing IDs and automatically generates new ones, causing the test to fail.
-            // We disable missing ID validation here to maintain compatibility with the spec test
-            // while preserving the expected test behavior.
-            var shouldDisableAssignId = testCase.Name.Contains("localSchema.json");
-
-            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, outcome, async, shouldDisableAssignId);
+            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, outcome, async);
         }
 
         public void Run(
@@ -105,8 +98,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             BsonArray expectedEvents,
             BsonArray expectedLogs,
             BsonArray outcome,
-            bool async,
-            bool shouldDisableAssignId = false)
+            bool async)
         {
             if (_runHasBeenCalled)
             {
@@ -140,7 +132,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 KillOpenTransactions(DriverTestConfiguration.Client);
             }
 
-            var lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData, shouldDisableAssignId);
+            var lastKnownClusterTime = AddInitialData(DriverTestConfiguration.Client, initialData);
             _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async, lastKnownClusterTime);
             _entityMap.AddRange(entities);
 
@@ -185,7 +177,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // private methods
-        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData, bool shouldDisableAssignId)
+        private BsonDocument AddInitialData(IMongoClient client, BsonArray initialData)
         {
             if (initialData == null)
             {
@@ -222,10 +214,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                 if (documents.Any())
                 {
-                    var collection = shouldDisableAssignId
-                        ? database.GetCollection<BsonDocument>(collectionName, new MongoCollectionSettings { AssignIdOnInsert = false })
-                        : database.GetCollection<BsonDocument>(collectionName);
-
+                    var collection = database.GetCollection<BsonDocument>(collectionName);
                     collection.InsertMany(session, documents);
                 }
 
