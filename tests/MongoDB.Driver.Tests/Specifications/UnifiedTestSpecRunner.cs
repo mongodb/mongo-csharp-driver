@@ -62,6 +62,18 @@ namespace MongoDB.Driver.Tests.Specifications
         {
             var testCaseNameLower = testCase.Name.ToLower();
 
+            if (testCaseNameLower.Contains("fle2v2-encryptedfields-vs-encryptedfieldsmap.json") ||
+                testCaseNameLower.Contains("localschema.json"))
+            {
+                CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469(true);
+            }
+
+            // This spec test includes an AWS sessionToken in its config, indicating it should use temporary AWS credentials
+            if (testCaseNameLower.Contains("localschema.json"))
+            {
+                RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+            }
+
             if (testCaseNameLower.Contains("kmip") ||
                 testCase.Shared.ToString().ToLower().Contains("kmip"))
             {
