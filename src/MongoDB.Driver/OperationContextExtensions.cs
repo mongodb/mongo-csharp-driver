@@ -14,15 +14,23 @@
  */
 
 using System;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
     internal static class OperationContextExtensions
     {
-        public static bool IsRootContextTimeoutConfigured(this OperationContext operationContext) =>
-            operationContext.RootContext.Timeout.HasValue;
+        public static bool IsRootContextTimeoutConfigured(this OperationContext operationContext)
+        {
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
 
-        public static TimeSpan RemainingTimeoutOrDefault(this OperationContext operationContext, TimeSpan defaultValue) =>
-            operationContext.Timeout == null ? defaultValue : operationContext.RemainingTimeout;
+            return operationContext.RootContext.Timeout.HasValue;
+        }
+
+        public static TimeSpan RemainingTimeoutOrDefault(this OperationContext operationContext, TimeSpan defaultValue)
+        {
+            Ensure.IsNotNull(operationContext, nameof(operationContext));
+            return operationContext.Timeout == null ? defaultValue : operationContext.RemainingTimeout;
+        }
     }
 }

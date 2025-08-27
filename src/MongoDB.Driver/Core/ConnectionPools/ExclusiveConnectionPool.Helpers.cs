@@ -885,7 +885,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     if (_connectingWaitStatus == SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut)
                     {
-                        _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
+                        throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
                     return CreateOpenedInternal(new(Timeout.InfiniteTimeSpan, cancellationToken));
