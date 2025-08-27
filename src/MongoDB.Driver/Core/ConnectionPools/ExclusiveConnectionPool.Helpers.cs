@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 try
                 {
                     StartCheckingOut(stopwatch);
-                    var waitQueueTimeout = GetWaitQueueTimeout(operationContext);
+                    var waitQueueTimeout = operationContext.RemainingTimeoutOrDefault(_pool.Settings.WaitQueueTimeout);
                     _poolQueueWaitResult = _pool._maxConnectionsQueue.WaitSignaled(waitQueueTimeout, operationContext.CancellationToken);
 
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 try
                 {
                     StartCheckingOut(stopwatch);
-                    var waitQueueTimeout = GetWaitQueueTimeout(operationContext);
+                    var waitQueueTimeout = operationContext.RemainingTimeoutOrDefault(_pool.Settings.WaitQueueTimeout);
                     _poolQueueWaitResult = await _pool._maxConnectionsQueue.WaitSignaledAsync(waitQueueTimeout, operationContext.CancellationToken).ConfigureAwait(false);
 
                     if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
@@ -299,17 +299,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 while (Interlocked.CompareExchange(ref _pool._waitQueueFreeSlots, freeSlots - 1, freeSlots) != freeSlots);
 
                 _enteredWaitQueue = true;
-            }
-
-            private TimeSpan GetWaitQueueTimeout(OperationContext operationContext)
-            {
-                var waitQueueTimeout = _pool.Settings.WaitQueueTimeout;
-                if (operationContext.RemainingTimeout != Timeout.InfiniteTimeSpan && operationContext.RemainingTimeout < waitQueueTimeout)
-                {
-                    waitQueueTimeout = operationContext.RemainingTimeout;
-                }
-
-                return waitQueueTimeout;
             }
 
             private void ThrowIfTimedOut(OperationContext operationContext, Stopwatch stopwatch)
