@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+using IOrderedEnumerableSerializer=MongoDB.Driver.Linq.Linq3Implementation.Serializers.IOrderedEnumerableSerializer;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 
@@ -93,6 +94,7 @@ internal partial class KnownSerializerFinderVisitor
         {
             _ when type.IsArray => ArraySerializer.Create(itemSerializer),
             _ when type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) => IEnumerableSerializer.Create(itemSerializer),
+            _ when type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>) => IOrderedEnumerableSerializer.Create(itemSerializer),
             _ when type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IQueryable<>) => IQueryableSerializer.Create(itemSerializer),
             _ => (BsonSerializer.LookupSerializer(type) as IChildSerializerConfigurable)?.WithChildSerializer(itemSerializer)
         };

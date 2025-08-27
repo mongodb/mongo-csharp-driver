@@ -27,10 +27,12 @@ internal partial class KnownSerializerFinderVisitor : ExpressionVisitor
 {
     private readonly KnownSerializerMap _knownSerializers;
     private int _pass = 0;
+    private readonly ExpressionTranslationOptions _translationOptions;
 
-    public KnownSerializerFinderVisitor(KnownSerializerMap knownSerializers)
+    public KnownSerializerFinderVisitor(ExpressionTranslationOptions translationOptions, KnownSerializerMap knownSerializers)
     {
         _knownSerializers = knownSerializers;
+        _translationOptions = translationOptions;
     }
 
     public int Pass => _pass;

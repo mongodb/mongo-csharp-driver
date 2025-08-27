@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
-            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression);
+            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression, translationOptions);
             return Create(translationOptions, knownSerializers, data);
         }
 
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
-            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression, initialNode, initialSerializer);
+            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, initialNode, initialSerializer);
             return Create(translationOptions, knownSerializers, data);
         }
 
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
             ExpressionTranslationOptions translationOptions,
             TranslationContextData data = null)
         {
-            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression, initialKnownSerializers);
+            var knownSerializers = KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, initialKnownSerializers);
             return Create(translationOptions, knownSerializers, data);
         }
 
