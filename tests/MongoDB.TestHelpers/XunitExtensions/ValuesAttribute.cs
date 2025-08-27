@@ -30,6 +30,11 @@ namespace MongoDB.TestHelpers.XunitExtensions
 
         public object[] GenerateValues()
         {
+            if (_values.Distinct().Count() != _values.Length)
+            {
+                throw new InvalidOperationException();
+            }
+
             return _values;
         }
     }
