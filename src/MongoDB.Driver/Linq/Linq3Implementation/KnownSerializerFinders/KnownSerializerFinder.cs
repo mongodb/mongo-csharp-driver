@@ -21,24 +21,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.KnownSerializerFinders;
 internal static class KnownSerializerFinder
 {
     public static KnownSerializerMap FindKnownSerializers(
-        Expression expression)
+        Expression expression,
+        ExpressionTranslationOptions translationOptions)
     {
         var knownSerializers = new KnownSerializerMap();
-        return FindKnownSerializers(expression, knownSerializers);
+        return FindKnownSerializers(expression, translationOptions, knownSerializers);
     }
 
     public static KnownSerializerMap FindKnownSerializers(
         Expression expression,
+        ExpressionTranslationOptions translationOptions,
         Expression initialNode,
         IBsonSerializer knownSerializer)
     {
         var knownSerializers = new KnownSerializerMap();
         knownSerializers.AddSerializer(initialNode, knownSerializer);
-        return FindKnownSerializers(expression, knownSerializers);
+        return FindKnownSerializers(expression, translationOptions, knownSerializers);
     }
 
     public static KnownSerializerMap FindKnownSerializers(
         Expression expression,
+        ExpressionTranslationOptions translationOptions,
         (Expression Node, IBsonSerializer KnownSerializer)[] initialNodes)
     {
         var knownSerializers = new KnownSerializerMap();
@@ -47,14 +50,15 @@ internal static class KnownSerializerFinder
             knownSerializers.AddSerializer(initialNode, knownSerializer);
 
         }
-        return FindKnownSerializers(expression, knownSerializers);
+        return FindKnownSerializers(expression, translationOptions, knownSerializers);
     }
 
     public static KnownSerializerMap FindKnownSerializers(
         Expression expression,
+        ExpressionTranslationOptions translationOptions,
         KnownSerializerMap knownSerializers)
     {
-        var visitor = new KnownSerializerFinderVisitor(knownSerializers);
+        var visitor = new KnownSerializerFinderVisitor(translationOptions, knownSerializers);
 
         int oldSerializerCount;
         int newSerializerCount;

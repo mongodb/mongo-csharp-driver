@@ -224,12 +224,11 @@ namespace MongoDB.Driver.Linq
 
             var knownSerializers = new KnownSerializerMap();
             knownSerializers.AddSerializer(parameter, documentSerializer);
-            if (body is MemberInitExpression memberInitExpression &&
-                memberInitExpression.Type == typeof(TDocument))
+            if (body.Type == typeof(TDocument))
             {
-                knownSerializers.AddSerializer(memberInitExpression, documentSerializer);
+                knownSerializers.AddSerializer(body, documentSerializer);
             }
-            KnownSerializerFinder.FindKnownSerializers(expression, knownSerializers);
+            KnownSerializerFinder.FindKnownSerializers(expression, translationOptions, knownSerializers);
 
             var context = TranslationContext.Create(translationOptions, knownSerializers); // do not partially evaluate expression
             var symbol = context.CreateRootSymbol(parameter, documentSerializer);

@@ -22,8 +22,9 @@ internal static class TupleOrValueTupleConstructor
 {
     public static bool IsTupleOrValueTupleConstructor(ConstructorInfo constructor)
     {
-        var declaringType = constructor.DeclaringType;
         return
+            constructor != null &&
+            constructor.DeclaringType is var declaringType &&
             declaringType.Namespace == "System" &&
             (declaringType.Name.StartsWith("Tuple") || declaringType.Name.StartsWith("ValueTuple"));
     }
