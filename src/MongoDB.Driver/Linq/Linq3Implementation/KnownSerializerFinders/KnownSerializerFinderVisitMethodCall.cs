@@ -654,7 +654,25 @@ internal partial class KnownSerializerFinderVisitor
         var arguments = node.Arguments;
 
         DeduceMethodCallSerializers();
-        base.VisitMethodCall(node);
+        try
+        {
+            base.VisitMethodCall(node);
+        }
+        catch
+        {
+            if (node.Method.Is(QueryableMethod.Select) && (_translationOptions.EnableClientSideProjections ?? false))
+            {
+                var sourceExpression = arguments[0];
+                if (IsItemSerializerKnown(sourceExpression, out var sourceItemSerializer))
+                {
+                    AddKnownSerializer(node, IgnoreSubtreeSerializer.Create(node.Type));
+                }
+            }
+            else
+            {
+                throw;
+            }
+        }
         DeduceMethodCallSerializers();
 
         return node;
@@ -820,6 +838,9 @@ internal partial class KnownSerializerFinderVisitor
                 case "ToUpperInvariant":
                     DeduceToLowerOrToUpperSerializers();
                     break;
+
+                default:
+                    throw new ExpressionNotSupportedException(node, because: $"method {method.Name} is not supported");
             }
         }
 
@@ -1965,7 +1986,7 @@ internal partial class KnownSerializerFinderVisitor
                 var keySelectorParameter = keySelectorLambda.Parameters.Single();
 
                 DeduceItemAndCollectionSerializers(keySelectorParameter, sourceExpression);
-                DeduceSerializers(node, sourceExpression);
+                DeduceCollectionAndCollectionSerializers(node, sourceExpression);
             }
         }
 

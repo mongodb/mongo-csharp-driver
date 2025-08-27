@@ -35,6 +35,11 @@ internal static class IBsonSerializerExtensions
             return true;
         }
 
+        if (targetSerializer.ValueType.IsAssignableFrom(sourceSerializer.ValueType))
+        {
+            return true;
+        }
+
         return false;
     }
 
