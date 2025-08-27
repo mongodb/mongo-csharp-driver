@@ -16,7 +16,7 @@
   <Target Name="DownloadNativeBinaries_MacOS"
           BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/osx/native/libmongocrypt.dylib')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/macos/r1.13/1cf03f1fdd8fa439d43b8548b546c00ce71d1bc1/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/macos/r1.15/059d538126eb2a1cd90103147bc9b1be0d46de92/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>lib/libmongocrypt.dylib</LibMongoCryptSourcePath>
       <LibMongoCryptPackagePath>runtimes/osx/native</LibMongoCryptPackagePath>
     </PropertyGroup>
@@ -28,7 +28,7 @@
 
   <Target Name="DownloadNativeBinaries_UbuntuX64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/x64/libmongocrypt.so')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-64/r1.13/1cf03f1fdd8fa439d43b8548b546c00ce71d1bc1/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-64/r1.15/059d538126eb2a1cd90103147bc9b1be0d46de92/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>nocrypto/lib/libmongocrypt.so</LibMongoCryptSourcePath>
       <LibMongoCryptPackagePath>runtimes/linux/native/x64</LibMongoCryptPackagePath>
     </PropertyGroup>
@@ -40,7 +40,7 @@
 
   <Target Name="DownloadNativeBinaries_UbuntuARM64" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/arm64/libmongocrypt.so')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-arm64/r1.13/1cf03f1fdd8fa439d43b8548b546c00ce71d1bc1/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/ubuntu1804-arm64/r1.15/059d538126eb2a1cd90103147bc9b1be0d46de92/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>nocrypto/lib/libmongocrypt.so</LibMongoCryptSourcePath>
       <LibMongoCryptPackagePath>runtimes/linux/native/arm64</LibMongoCryptPackagePath>
     </PropertyGroup>
@@ -52,7 +52,7 @@
 
   <Target Name="DownloadNativeBinaries_Alpine" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/linux/native/alpine/libmongocrypt.so')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/alpine-arm64-earthly/r1.13/1cf03f1fdd8fa439d43b8548b546c00ce71d1bc1/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/alpine-arm64-earthly/r1.15/059d538126eb2a1cd90103147bc9b1be0d46de92/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>nocrypto/lib/libmongocrypt.so</LibMongoCryptSourcePath>
       <LibMongoCryptPackagePath>runtimes/linux/native/alpine</LibMongoCryptPackagePath>
     </PropertyGroup>
@@ -64,7 +64,7 @@
 
   <Target Name="DownloadNativeBinaries_Windows" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)/runtimes/win/native/mongocrypt.dll')">
     <PropertyGroup>
-      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/windows-test/r1.13/1cf03f1fdd8fa439d43b8548b546c00ce71d1bc1/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
+      <LibMongoCryptSourceUrl>https://mciuploads.s3.amazonaws.com/libmongocrypt-release/windows-test/r1.15/059d538126eb2a1cd90103147bc9b1be0d46de92/libmongocrypt.tar.gz</LibMongoCryptSourceUrl>
       <LibMongoCryptSourcePath>bin/mongocrypt.dll</LibMongoCryptSourcePath>
       <LibMongoCryptPackagePath>runtimes/win/native</LibMongoCryptPackagePath>
     </PropertyGroup>

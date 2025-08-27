@@ -63,7 +63,8 @@ namespace MongoDB.Driver.Tests.Specifications
             var testCaseNameLower = testCase.Name.ToLower();
 
             if (testCaseNameLower.Contains("fle2v2-encryptedfields-vs-encryptedfieldsmap.json") ||
-                testCaseNameLower.Contains("localschema.json"))
+                testCaseNameLower.Contains("localschema.json") ||
+                testCaseNameLower.Contains("qe-text"))
             {
                 CoreTestConfiguration.SkipMongocryptdTests_SERVER_106469(true);
             }
