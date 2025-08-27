@@ -193,24 +193,31 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                 var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
 
-                _logger.LogDebug("Dropping {0}", collectionName);
-                using var session = client.StartSession();
-                database.DropCollection(session, collectionName);
-
-                // https://github.com/mongodb/specifications/blob/master/source/unified-test-format/unified-test-format.md#why-are-enxcol_-collections-dropped
-                _logger.LogDebug("Dropping QE state collections for {0}", collectionName);
-                database.DropCollection(session, $"enxcol_.{collectionName}.esc");
-                database.DropCollection(session, $"enxcol_.{collectionName}.ecoc");
-
+                var createCollectionOptions = new CreateCollectionOptions();
                 if (dataItem.AsBsonDocument.Contains("createOptions"))
                 {
-                    var encryptedFields = dataItem["createOptions"]["encryptedFields"].AsBsonDocument;
-                    database.CreateCollection(session, collectionName, new CreateCollectionOptions { EncryptedFields = encryptedFields });
+                    var options = dataItem.AsBsonDocument["createOptions"].AsBsonDocument;
+                    foreach (var option in options)
+                    {
+                        switch (option.Name)
+                        {
+                            case "encryptedFields":
+                                createCollectionOptions.EncryptedFields = option.Value.AsBsonDocument;
+                                break;
+                            default:
+                                throw new FormatException($"Invalid createOptions argument name: '{option.Name}'.");
+                        }
+                    }
                 }
-                else
-                {
-                    database.CreateCollection(session, collectionName);
-                }
+
+                _logger.LogDebug("Dropping {0}", collectionName);
+                using var session = client.StartSession();
+
+                // For some QE spec tests we need to drop QE state collections (enxcol_.*.esc, enxcol_.*.ecoc).
+                // DropCollection with EncryptedFields automatically handles cleanup of those QE state collections
+                database.DropCollection(session, collectionName, new DropCollectionOptions { EncryptedFields = createCollectionOptions.EncryptedFields });
+
+                database.CreateCollection(session, collectionName, createCollectionOptions);
 
                 if (documents.Any())
                 {
