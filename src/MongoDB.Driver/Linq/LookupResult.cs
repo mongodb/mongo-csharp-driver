@@ -53,7 +53,13 @@ namespace MongoDB.Driver.Linq
         }
     }
 
-    internal class LookupResultSerializer<TLocal, TResult> : StructSerializerBase<LookupResult<TLocal, TResult>>, IBsonDocumentSerializer
+    internal interface ILookupResultSerializer
+    {
+        IBsonSerializer LocalSerializer { get; }
+        IBsonSerializer ResultsSerializer { get; }
+    }
+
+    internal class LookupResultSerializer<TLocal, TResult> : StructSerializerBase<LookupResult<TLocal, TResult>>, ILookupResultSerializer , IBsonDocumentSerializer
     {
         private readonly IBsonSerializer<TLocal> _localSerializer;
         private readonly IBsonSerializer<TResult[]> _resultsSerializer;
@@ -68,6 +74,9 @@ namespace MongoDB.Driver.Linq
              var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(resultSerializer.ValueType);
              _resultsSerializer = (IBsonSerializer<TResult[]>)Activator.CreateInstance(arraySerializerType, resultSerializer);
         }
+
+        IBsonSerializer ILookupResultSerializer.LocalSerializer => _localSerializer;
+        IBsonSerializer ILookupResultSerializer.ResultsSerializer => _resultsSerializer;
 
         public override LookupResult<TLocal, TResult> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
