@@ -18,6 +18,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Encryption;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
@@ -302,8 +303,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     }
                 case "authMechanism":
                     var actualValue = CoreTestConfiguration.GetServerParameters().GetValue("authenticationMechanisms").AsBsonArray;
-                    var requiredValue = requirement.Value.AsString;
-                    return actualValue.Contains(requiredValue);
+                    return actualValue.Contains(requirement.Value.AsString);
                 case "serverless":
                     var serverlessValue = requirement.Value.AsString;
                     switch (serverlessValue)
@@ -328,10 +328,31 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
                     var runOnClusterTypes = requirement.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
                     return runOnClusterTypes.Contains(actualClusterType);
-                case "csfle": return Feature.ClientSideEncryption.IsSupported(CoreTestConfiguration.MaxWireVersion);
+                case "csfle":
+                    return IsCsfleRequirementSatisfied(requirement);
                 default:
                     throw new FormatException($"Unrecognized requirement field: '{requirement.Name}'.");
             }
+        }
+
+        private bool IsCsfleRequirementSatisfied(BsonElement requirement)
+        {
+            var isCsfleSupported = Feature.ClientSideEncryption.IsSupported(CoreTestConfiguration.MaxWireVersion);
+            if (!isCsfleSupported)
+            {
+                return false;
+            }
+
+            var requiredValue = requirement.Value;
+            if (!requiredValue.IsBsonDocument)
+            {
+                return true;
+            }
+
+            // Check if minimum libmongocrypt version requirement is met
+            var minLibmongocryptVersion = SemanticVersion.Parse(requiredValue["minLibmongocryptVersion"].AsString);
+            var actualLibmongocryptVersion = SemanticVersion.Parse(Library.Version);
+            return SemanticVersionCompareToAsReleased(actualLibmongocryptVersion, minLibmongocryptVersion) >= 0;
         }
 
         private ClusterType MapTopologyToClusterType(string topology)
