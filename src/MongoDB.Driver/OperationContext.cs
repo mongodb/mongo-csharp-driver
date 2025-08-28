@@ -117,7 +117,13 @@ namespace MongoDB.Driver
                 RootContext = RootContext
             };
 
-        public bool IsTimedOut() => RemainingTimeout == TimeSpan.Zero;
+        public bool IsTimedOut()
+        {
+            // Dotnet APIs like task.WaitAsync truncating the timeout to milliseconds.
+            // We should truncate the remaining timeout to the milliseconds, in order to maintain the consistent state:
+            // if operationContext.WaitTaskAsync() failed with TimeoutException, we want IsTimedOut() returns true.
+            return (int)RemainingTimeout.TotalMilliseconds == 0;
+        }
 
         public bool IsCancelledOrTimedOut() => IsTimedOut() || CancellationToken.IsCancellationRequested;
 

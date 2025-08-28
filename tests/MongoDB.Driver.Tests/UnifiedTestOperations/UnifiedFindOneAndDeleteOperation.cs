@@ -108,12 +108,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOneAndDeleteOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
+#pragma warning disable CS0618 // Type or member is obsolete
+                    case "maxTimeMS":
+                        options ??= new FindOneAndDeleteOptions<BsonDocument>();
+                        options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
+#pragma warning restore CS0618 // Type or member is obsolete
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     case "sort":
                         options ??= new FindOneAndDeleteOptions<BsonDocument>();
                         options.Sort = argument.Value.AsBsonDocument;
+                        break;
+                    case "timeoutMS":
+                        options ??= new FindOneAndDeleteOptions<BsonDocument>();
+                        options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     default:
                         throw new FormatException($"Invalid FindOneAndDeleteOperation argument name: '{argument.Name}'.");

@@ -20,20 +20,22 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedCommitTransactionOperation : IUnifiedEntityTestOperation
+    internal class UnifiedCommitTransactionOperation : IUnifiedEntityTestOperation
     {
         private readonly IClientSessionHandle _session;
+        private readonly CommitTransactionOptions _options;
 
-        public UnifiedCommitTransactionOperation(IClientSessionHandle session)
+        public UnifiedCommitTransactionOperation(IClientSessionHandle session, CommitTransactionOptions options)
         {
             _session = session;
+            _options = options;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                _session.CommitTransaction(cancellationToken);
+                _session.CommitTransaction(_options, cancellationToken);
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -46,7 +48,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                await _session.CommitTransactionAsync(cancellationToken).ConfigureAwait(false);
+                await _session.CommitTransactionAsync(_options, cancellationToken).ConfigureAwait(false);
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -65,16 +67,33 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap = entityMap;
         }
 
-        public UnifiedCommitTransactionOperation Build(string targetSessionId, BsonDocument arguments)
+        internal UnifiedCommitTransactionOperation Build(string targetSessionId, BsonDocument arguments)
         {
             var session = _entityMap.Sessions[targetSessionId];
+            TimeSpan? timeout = null;
 
             if (arguments != null)
             {
-                throw new FormatException("CommitTransactionOperation is not expected to contain arguments.");
+                foreach (var argument in arguments)
+                {
+                    switch (argument.Name)
+                    {
+                        case "timeoutMS":
+                            timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
+                            break;
+                        default:
+                            throw new FormatException($"Invalid CommitTransactionOperation argument name: '{argument.Name}'.");
+                    }
+                }
             }
 
-            return new UnifiedCommitTransactionOperation(session);
+            CommitTransactionOptions options = null;
+            if (timeout.HasValue)
+            {
+                options = new CommitTransactionOptions(timeout);
+            }
+
+            return new UnifiedCommitTransactionOperation(session, options);
         }
     }
 }

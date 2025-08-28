@@ -56,6 +56,8 @@ namespace MongoDB.Driver.Core.Connections
         private CompressorType? _sendCompressorType;
         private readonly SemaphoreSlim _sendLock;
         private readonly ConnectionSettings _settings;
+        private readonly TimeSpan _socketReadTimeout;
+        private readonly TimeSpan _socketWriteTimeout;
         private readonly InterlockedInt32 _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
@@ -69,7 +71,9 @@ namespace MongoDB.Driver.Core.Connections
             IStreamFactory streamFactory,
             IConnectionInitializer connectionInitializer,
             IEventSubscriber eventSubscriber,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            TimeSpan socketReadTimeout,
+            TimeSpan socketWriteTimeout)
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -86,6 +90,8 @@ namespace MongoDB.Driver.Core.Connections
             _compressorSource = new CompressorSource(settings.Compressors);
             _eventLogger = loggerFactory.CreateEventLogger<LogCategories.Connection>(eventSubscriber);
             _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventLogger<LogCategories.Command>(eventSubscriber));
+            _socketReadTimeout = socketReadTimeout;
+            _socketWriteTimeout = socketWriteTimeout;
         }
 
         // properties
@@ -275,10 +281,16 @@ namespace MongoDB.Driver.Core.Connections
 
                 helper.OpenedConnection();
             }
+            catch (OperationCanceledException) when (operationContext.IsTimedOut())
+            {
+                // OperationCanceledException could be thrown because of CombinedCancellationToken (see line 273),
+                // if we face it and operation context is timed out we should throw TimeoutException instead.
+                throw new TimeoutException();
+            }
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -302,10 +314,16 @@ namespace MongoDB.Driver.Core.Connections
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
                 helper.OpenedConnection();
             }
+            catch (OperationCanceledException) when (operationContext.IsTimedOut())
+            {
+                // OperationCanceledException could be thrown because of CombinedCancellationToken (see line 307),
+                // if we face it and operation context is timed out we should throw TimeoutException instead.
+                throw new TimeoutException();
+            }
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -336,21 +354,21 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var messageSizeBytes = new byte[4];
-                _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4);
+                _stream.ReadBytes(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                _stream.ReadBytes(operationContext, buffer, 4, messageSize - 4);
+                _stream.ReadBytes(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -405,21 +423,21 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var messageSizeBytes = new byte[4];
-                await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(operationContext, messageSizeBytes, 0, 4, _socketReadTimeout).ConfigureAwait(false);
                 var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes);
                 EnsureMessageSizeIsValid(messageSize);
                 var inputBufferChunkSource = new InputBufferChunkSource(BsonChunkPool.Default);
                 var buffer = ByteBufferFactory.Create(inputBufferChunkSource, messageSize);
                 buffer.Length = messageSize;
                 buffer.SetBytes(0, messageSizeBytes, 0, 4);
-                await _stream.ReadBytesAsync(operationContext, buffer, 4, messageSize - 4).ConfigureAwait(false);
+                await _stream.ReadBytesAsync(operationContext, buffer, 4, messageSize - 4, _socketReadTimeout).ConfigureAwait(false);
                 _lastUsedAtUtc = DateTime.UtcNow;
                 buffer.MakeReadOnly();
                 return buffer;
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
                 if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
@@ -535,12 +553,12 @@ namespace MongoDB.Driver.Core.Connections
 
                 try
                 {
-                    _stream.WriteBytes(operationContext, buffer, 0, buffer.Length);
+                    _stream.WriteBytes(operationContext, buffer, 0, buffer.Length, _socketWriteTimeout);
                     _lastUsedAtUtc = DateTime.UtcNow;
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
+                    var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
                     ConnectionFailed(wrappedException ?? ex);
                     if (wrappedException == null) { throw; } else { throw wrappedException; }
                 }
@@ -563,12 +581,12 @@ namespace MongoDB.Driver.Core.Connections
 
                 try
                 {
-                    await _stream.WriteBytesAsync(operationContext, buffer, 0, buffer.Length).ConfigureAwait(false);
+                    await _stream.WriteBytesAsync(operationContext, buffer, 0, buffer.Length, _socketWriteTimeout).ConfigureAwait(false);
                     _lastUsedAtUtc = DateTime.UtcNow;
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
+                    var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
                     ConnectionFailed(wrappedException ?? ex);
                     if (wrappedException == null) { throw; } else { throw wrappedException; }
                 }
@@ -737,10 +755,14 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private Exception WrapExceptionIfRequired(Exception ex, string action)
+        private Exception WrapExceptionIfRequired(OperationContext operationContext, Exception ex, string action)
         {
-            if (
-                ex is ThreadAbortException ||
+            if (ex is TimeoutException && operationContext.IsRootContextTimeoutConfigured())
+            {
+                return null;
+            }
+
+            if (ex is ThreadAbortException ||
                 ex is StackOverflowException ||
                 ex is MongoAuthenticationException ||
                 ex is OutOfMemoryException ||
@@ -749,11 +771,9 @@ namespace MongoDB.Driver.Core.Connections
             {
                 return null;
             }
-            else
-            {
-                var message = string.Format("An exception occurred while {0}.", action);
-                return new MongoConnectionException(_connectionId, message, ex);
-            }
+
+            var message = string.Format("An exception occurred while {0}.", action);
+            return new MongoConnectionException(_connectionId, message, ex);
         }
 
         private void ThrowOperationCanceledExceptionIfRequired(Exception exception)

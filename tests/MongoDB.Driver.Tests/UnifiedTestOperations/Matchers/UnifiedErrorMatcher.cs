@@ -48,6 +48,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     case "isClientError":
                         AssertIsClientError(actualException, element.Value.AsBoolean);
                         break;
+                    case "isTimeoutError":
+                        AssertIsTimeoutError(actualException, element.Value.AsBoolean);
+                        break;
                     case "errorContains":
                         AssertErrorContains(actualException, element.Value.AsString);
                         break;
@@ -194,6 +197,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             actualException.Should().NotBeNull();
         }
 
+        private void AssertIsTimeoutError(Exception actualException, bool expectedTimeoutError)
+        {
+            actualException = UnwrapCommandException(actualException);
+
+            var because = expectedTimeoutError ?
+                $"error expect to be timeout, but actual exception is {actualException}" :
+                $"error expect not to be timeout, but actual exception is {actualException}";
+            var isTimeout = actualException is TimeoutException or MongoExecutionTimeoutException;
+
+            isTimeout.Should().Be(expectedTimeoutError, because);
+        }
+
         private void AssertWriteConcernErrors(Exception actualException, BsonArray expectedWriteConcernErrors)
         {
             var clientBulkWriteException = actualException.Should().BeAssignableTo<ClientBulkWriteException>().Subject;
@@ -224,14 +239,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private static Exception UnwrapCommandException(Exception ex)
         {
-            if (ex is MongoConnectionException connectionException)
-            {
-                ex = connectionException.InnerException;
-            }
-
             if (ex is ClientBulkWriteException bulkWriteException)
             {
                 ex = bulkWriteException.InnerException;
+            }
+
+            if (ex is MongoConnectionException connectionException)
+            {
+                ex = connectionException.InnerException;
             }
 
             return ex;

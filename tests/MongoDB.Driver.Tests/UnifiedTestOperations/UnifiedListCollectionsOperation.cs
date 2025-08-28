@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -86,8 +86,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedListCollectionsOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
             var database = _entityMap.Databases[targetDatabaseId];
-
-            var listCollectionsOptions = new ListCollectionsOptions();
+            ListCollectionsOptions options = null;
             IClientSessionHandle session = null;
 
             if (arguments != null)
@@ -97,13 +96,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     switch (argument.Name)
                     {
                         case "filter":
-                            listCollectionsOptions.Filter = argument.Value.AsBsonDocument;
+                            options ??= new ListCollectionsOptions();
+                            options.Filter = argument.Value.AsBsonDocument;
                             break;
                         case "batchSize":
-                            listCollectionsOptions.BatchSize = argument.Value.ToInt32();
+                            options ??= new ListCollectionsOptions();
+                            options.BatchSize = argument.Value.ToInt32();
                             break;
                         case "session":
                             session = _entityMap.Sessions[argument.Value.AsString];
+                            break;
+                        case "timeoutMS":
+                            options ??= new ListCollectionsOptions();
+                            options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                             break;
                         default:
                             throw new FormatException($"Invalid {nameof(UnifiedListCollectionsOperation)} argument name: '{argument.Name}'.");
@@ -111,7 +116,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedListCollectionsOperation(database, listCollectionsOptions, session);
+            return new UnifiedListCollectionsOperation(database, options, session);
         }
     }
 }
