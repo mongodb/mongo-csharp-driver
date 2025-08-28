@@ -19,61 +19,59 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
 
-namespace MongoDB.Driver.Tests
+namespace MongoDB.Driver.Tests;
+
+public class OperationContextExtensionsTests
 {
-    public class OperationContextExtensionsTests
+    [Fact]
+    public void IsRootContextTimeoutConfigured_should_throw_on_null()
     {
-        [Fact]
-        public void IsRootContextTimeoutConfigured_should_throw_on_null()
-        {
-            OperationContext context = null;
-            var exception = Record.Exception(() => context.IsRootContextTimeoutConfigured());
+        OperationContext context = null;
+        var exception = Record.Exception(() => context.IsRootContextTimeoutConfigured());
 
-            exception.Should().BeOfType<ArgumentNullException>().Subject
-                .ParamName.Should().Be("operationContext");
-        }
+        exception.Should().BeOfType<ArgumentNullException>().Subject
+            .ParamName.Should().Be("operationContext");
+    }
 
-        [Theory]
-        [InlineData(false, null)]
-        [InlineData(true, 0)]
-        [InlineData(true, Timeout.Infinite)]
-        [InlineData(true, 5)]
-        public void IsRootContextTimeoutConfigured_should_return_expected_result(bool expectedResult, int? timeoutMs)
-        {
-            TimeSpan? timeout = timeoutMs.HasValue ? TimeSpan.FromMilliseconds(timeoutMs.Value) : null;
-            var subject = new OperationContext(timeout, CancellationToken.None);
+    [Theory]
+    [InlineData(false, null)]
+    [InlineData(true, 0)]
+    [InlineData(true, Timeout.Infinite)]
+    [InlineData(true, 5)]
+    public void IsRootContextTimeoutConfigured_should_return_expected_result(bool expectedResult, int? timeoutMs)
+    {
+        TimeSpan? timeout = timeoutMs.HasValue ? TimeSpan.FromMilliseconds(timeoutMs.Value) : null;
+        var subject = new OperationContext(timeout, CancellationToken.None);
 
-            var result = subject.IsRootContextTimeoutConfigured();
+        var result = subject.IsRootContextTimeoutConfigured();
 
-            result.Should().Be(expectedResult);
-        }
+        result.Should().Be(expectedResult);
+    }
 
-        [Fact]
-        public void RemainingTimeoutOrDefault_should_throw_on_null()
-        {
-            OperationContext context = null;
-            var exception = Record.Exception(() => context.RemainingTimeoutOrDefault(TimeSpan.Zero));
+    [Fact]
+    public void RemainingTimeoutOrDefault_should_throw_on_null()
+    {
+        OperationContext context = null;
+        var exception = Record.Exception(() => context.RemainingTimeoutOrDefault(TimeSpan.Zero));
 
-            exception.Should().BeOfType<ArgumentNullException>().Subject
-                .ParamName.Should().Be("operationContext");
-        }
+        exception.Should().BeOfType<ArgumentNullException>().Subject
+            .ParamName.Should().Be("operationContext");
+    }
 
-        [Theory]
-        [InlineData(10, null, 10)]
-        [InlineData(0, 0, 10)]
-        [InlineData(Timeout.Infinite, Timeout.Infinite, 10)]
-        [InlineData(5, 5, 10)]
-        public void RemainingTimeoutOrDefault_should_return_expected_result(int expectedResultMs, int? timeoutMs, int defaultValueMs)
-        {
-            var clock = new FrozenClock(DateTime.UtcNow);
-            TimeSpan? timeout = timeoutMs.HasValue ? TimeSpan.FromMilliseconds(timeoutMs.Value) : null;
-            var defaultValue = TimeSpan.FromMilliseconds(defaultValueMs);
-            var subject = new OperationContext(clock, timeout, CancellationToken.None);
+    [Theory]
+    [InlineData(10, null, 10)]
+    [InlineData(0, 0, 10)]
+    [InlineData(Timeout.Infinite, Timeout.Infinite, 10)]
+    [InlineData(5, 5, 10)]
+    public void RemainingTimeoutOrDefault_should_return_expected_result(int expectedResultMs, int? timeoutMs, int defaultValueMs)
+    {
+        var clock = new FrozenClock(DateTime.UtcNow);
+        TimeSpan? timeout = timeoutMs.HasValue ? TimeSpan.FromMilliseconds(timeoutMs.Value) : null;
+        var defaultValue = TimeSpan.FromMilliseconds(defaultValueMs);
+        var subject = new OperationContext(clock, timeout, CancellationToken.None);
 
-            var result = subject.RemainingTimeoutOrDefault(defaultValue);
+        var result = subject.RemainingTimeoutOrDefault(defaultValue);
 
-            result.Should().Be(TimeSpan.FromMilliseconds(expectedResultMs));
-        }
+        result.Should().Be(TimeSpan.FromMilliseconds(expectedResultMs));
     }
 }
-
