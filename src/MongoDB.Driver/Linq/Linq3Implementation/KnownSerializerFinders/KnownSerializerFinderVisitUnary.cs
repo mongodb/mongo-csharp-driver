@@ -192,11 +192,11 @@ internal partial class KnownSerializerFinderVisitor
                     throw new ExpressionNotSupportedException(expression, because: "target type is not an enum");
                 }
 
-                if (sourceSerializer is IHasRepresentationSerializer sourceHasRepresentationSerializer &&
-                    !SerializationHelper.IsNumericRepresentation(sourceHasRepresentationSerializer.Representation))
-                {
-                    throw new ExpressionNotSupportedException(expression, because: "source enum is not represented as a number");
-                }
+                // if (sourceSerializer is IHasRepresentationSerializer sourceHasRepresentationSerializer &&
+                //     !SerializationHelper.IsNumericRepresentation(sourceHasRepresentationSerializer.Representation))
+                // {
+                //     throw new ExpressionNotSupportedException(expression, because: "source enum is not represented as a number");
+                // }
 
                 return EnumSerializer.Create(targetType);
             }
@@ -214,17 +214,17 @@ internal partial class KnownSerializerFinderVisitor
                     throw new ExpressionNotSupportedException(expression, because: $"sourceSerializer type {sourceSerializer.GetType()} does not implement nameof(INullableSerializer)");
                 }
 
-                var valueSerializer = nullableSourceSerializer.ValueSerializer;
+                var sourceValueSerializer = nullableSourceSerializer.ValueSerializer;
+                var sourceValueType = sourceValueSerializer.ValueType;
+
                 if (targetType.IsNullable(out var targetValueType))
                 {
-                    var sourceValueSerializer = nullableSourceSerializer.ValueSerializer;
-                    var sourceValueType = sourceValueSerializer.ValueType;
                     var targetValueSerializer = GetTargetSerializer(expression, sourceValueType, targetValueType, sourceValueSerializer);
                     return NullableSerializer.Create(targetValueSerializer);
                 }
                 else
                 {
-                    return valueSerializer;
+                    return GetTargetSerializer(expression, sourceValueType, targetType, sourceValueSerializer);
                 }
             }
 
